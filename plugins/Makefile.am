@@ -1,1 +1,1 @@
-SUBDIRS = wavesurfer audacity
+SUBDIRS = wavesurfer audacity puredata

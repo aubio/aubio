@@ -1,0 +1,11 @@
+#! /bin/sh
+
+if test \( $# -gt 1 \) -a \( $1 = "--mode=link" \); then
+  shift;
+  echo " libtoolkludge running \"$*\""
+  $*
+  exit 0
+else
+  echo "Libtoolkludge is a kludge for libtool --mode=install only.  Die!" >&2
+  exit 1
+fi

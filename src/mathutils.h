@@ -177,7 +177,7 @@ void vec_alpha_normalise(fvec_t * mag, uint_t alpha);
 void vec_add(fvec_t * mag, smpl_t threshold);
 
 void vec_adapt_thres(fvec_t * vec, fvec_t * tmp, 
-    uint_t post, uint_t pre);
+    uint_t win_post, uint_t win_pre);
 /**  adaptative thresholding 
  *
  * y=fn_thresh(fn,x,post,pre)
@@ -198,7 +198,7 @@ void vec_adapt_thres(fvec_t * vec, fvec_t * tmp,
  * see SPARMS for explanation of post and pre
  */
 smpl_t vec_moving_thres(fvec_t * vec, fvec_t * tmp, 
-    uint_t post, uint_t pre, uint_t pos);
+    uint_t win_post, uint_t win_pre, uint_t win_pos);
 
 /** returns the median of the vector 
  *

@@ -159,6 +159,7 @@ AC_OUTPUT([
 		plugins/audacity/Makefile
 		plugins/audacity/plug-ins/Makefile
 		plugins/wavesurfer/Makefile
+		plugins/puredata/Makefile
 		swig/Makefile
 	])
 

@@ -21053,7 +21053,7 @@ echo "${ECHO_T}$am_cv_python_pyexecdir" >&6
 
 
 
-                                                                                                                        ac_config_files="$ac_config_files Makefile src/Makefile examples/Makefile sounds/Makefile doc/Makefile python/Makefile python/aubio/Makefile plugins/Makefile plugins/audacity/Makefile plugins/audacity/plug-ins/Makefile plugins/wavesurfer/Makefile swig/Makefile"
+                                                                                                                                  ac_config_files="$ac_config_files Makefile src/Makefile examples/Makefile sounds/Makefile doc/Makefile python/Makefile python/aubio/Makefile plugins/Makefile plugins/audacity/Makefile plugins/audacity/plug-ins/Makefile plugins/wavesurfer/Makefile plugins/puredata/Makefile swig/Makefile"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -21622,6 +21622,7 @@ do
   "plugins/audacity/Makefile" ) CONFIG_FILES="$CONFIG_FILES plugins/audacity/Makefile" ;;
   "plugins/audacity/plug-ins/Makefile" ) CONFIG_FILES="$CONFIG_FILES plugins/audacity/plug-ins/Makefile" ;;
   "plugins/wavesurfer/Makefile" ) CONFIG_FILES="$CONFIG_FILES plugins/wavesurfer/Makefile" ;;
+  "plugins/puredata/Makefile" ) CONFIG_FILES="$CONFIG_FILES plugins/puredata/Makefile" ;;
   "swig/Makefile" ) CONFIG_FILES="$CONFIG_FILES swig/Makefile" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
   "src/config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS src/config.h" ;;

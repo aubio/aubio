@@ -32,13 +32,13 @@
 extern "C" {
 #endif
 
-void aubio_pitchyin_diff(fvec_t * input, fvec_t * yin);
+void aubio_pitchyin_diff(fvec_t * input, fvec_t * yinbuf);
 
-void aubio_pitchyin_getcum(fvec_t * yin);
+void aubio_pitchyin_getcum(fvec_t * yinbuf);
 
-uint_t aubio_pitchyin_getpitch(fvec_t *yin);
+uint_t aubio_pitchyin_getpitch(fvec_t *yinbuf);
 
-uint_t aubio_pitchyin_getpitchfast(fvec_t * input, fvec_t *yin);
+uint_t aubio_pitchyin_getpitchfast(fvec_t * input, fvec_t *yinbuf);
 
 #ifdef __cplusplus
 }

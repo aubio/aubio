@@ -1,0 +1,24 @@
+#N canvas 27 302 238 292 10;
+#X obj 50 33 adc~;
+#X obj 59 137 vu 15 120 empty empty -1 -8 0 8 -66577 -1 1 0;
+#X obj 58 109 scale 0 2000 -100 12;
+#N canvas 270 196 450 300 aubioonset 1;
+#X text 71 130 set blocksize to 1024 with 50% overlap;
+#X obj 56 90 outlet;
+#X obj 57 41 inlet~;
+#X obj 55 64 aubioonset~ 0.1;
+#X text 29 141 ugly. not required \, but should give better results
+;
+#X obj 200 95 block~ 1024 2 1;
+#X text 129 22 aubioonset~ takes an input signal and outputs the value
+of the value of the onset detection function;
+#X connect 2 0 3 0;
+#X connect 3 0 1 0;
+#X restore 58 78 pd aubioonset;
+#X obj 108 141 nbx 5 14 -1e+37 1e+37 0 0 empty empty empty 0 -6 0 10
+-262144 -1 -1 1310.81 256;
+#X connect 0 0 3 0;
+#X connect 0 1 3 0;
+#X connect 2 0 1 0;
+#X connect 3 0 2 0;
+#X connect 3 0 4 0;
