@@ -59,11 +59,11 @@ fvec_t *onset;
 fvec_t *onset2;
 int isonset = 0;
 aubio_pickpeak_t * parms;
+unsigned int pos = 0; /*frames%dspblocksize*/
 
 int aubio_process(float **input, float **output, int nframes) {
   unsigned int i;       /*channels*/
   unsigned int j;       /*frames*/
-  unsigned int pos = 0; /*frames%dspblocksize*/
   for (j=0;j<nframes;j++) {
     if(usejack) {
       for (i=0;i<channels;i++) {
@@ -119,6 +119,7 @@ int main(int argc, char **argv) {
     file = new_file_ro (input_filename);
     if (verbose) file_info(file);
     channels = aubio_file_channels(file);
+    samplerate = aubio_file_samplerate(file);
     if (output_filename != NULL)
       fileout = new_file_wo(file, output_filename);
   }

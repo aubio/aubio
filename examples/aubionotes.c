@@ -72,6 +72,8 @@ aubio_midi_player_t * mplay;
 aubio_midi_driver_t * mdriver; 
 aubio_midi_event_t  * event;
 
+unsigned int pos = 0; /*frames%dspblocksize*/
+
 void send_noteon(aubio_midi_driver_t * d, int pitch, int velo);
 void send_noteon(aubio_midi_driver_t * d, int pitch, int velo)
 {
@@ -102,7 +104,6 @@ int aubio_process(float **input, float **output, int nframes);
 int aubio_process(float **input, float **output, int nframes) {
   unsigned int i;       /*channels*/
   unsigned int j;       /*frames*/
-  unsigned int pos = 0; /*frames%dspblocksize*/
   for (j=0;j<nframes;j++) {
     if(usejack) {
       for (i=0;i<channels;i++) {
