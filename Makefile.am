@@ -23,3 +23,6 @@ uninstall-pkgconfig:
 
 install-data-hook: install-pkgconfig
 uninstall-hook: uninstall-pkgconfig
+
+distclean:
+	rm -rf autom4te.cache

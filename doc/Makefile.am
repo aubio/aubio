@@ -44,3 +44,5 @@ man:
 
 clean:
 	rm -rf devel user examples *.1
+
+distclean: clean

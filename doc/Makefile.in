@@ -336,11 +336,17 @@ doc-examples:
 	doxygen examples.cfg
 	cp aubio.css examples
 
+man:
+	docbook-to-man aubionotes.sgml > aubionotes.1
+	docbook-to-man aubioonset.sgml > aubioonset.1
+
 # Update docs for distribution
 #dist-hook: 
 
 clean:
-	rm -rf devel user examples
+	rm -rf devel user examples *.1
+
+distclean: clean
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
