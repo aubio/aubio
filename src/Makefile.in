@@ -156,9 +156,7 @@ EXTRA_DIST = aubio_priv.h
 pkginclude_HEADERS = aubio.h \
 	config.h \
 	types.h \
-	jackio.h \
 	phasevoc.h \
-	sndfileio.h \
 	mathutils.h \
 	fft.h \
 	sample.h \
@@ -178,12 +176,8 @@ pkginclude_HEADERS = aubio.h \
 lib_LTLIBRARIES = libaubio.la 
 libaubio_la_SOURCES = aubio.h \
 	types.h \
-	jackio.c \
-	jackio.h \
 	phasevoc.c \
 	phasevoc.h \
-	sndfileio.c \
-	sndfileio.h \
 	mathutils.c \
 	mathutils.h \
 	fft.c \
@@ -214,8 +208,8 @@ libaubio_la_SOURCES = aubio.h \
 	filter.h
 
 
-AM_CFLAGS = @SNDLIB_CFLAGS@ @JACK_CFLAGS@ @FFTWLIB_CFLAGS@ @SAMPLERATE_CFLAGS@ @LADCCA_CFLAGS@
-libaubio_la_LIBADD = @SNDLIB_LIBS@ @JACK_LIBS@ @FFTWLIB_LIBS@ @SAMPLERATE_LIBS@ @LADCCA_LIBS@ @LTLIBOBJS@
+AM_CFLAGS = @FFTWLIB_CFLAGS@ @SAMPLERATE_CFLAGS@
+libaubio_la_LIBADD = @FFTWLIB_LIBS@ @SAMPLERATE_LIBS@ @LTLIBOBJS@
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -225,9 +219,9 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 
 libaubio_la_LDFLAGS =
 libaubio_la_DEPENDENCIES = @LTLIBOBJS@
-am_libaubio_la_OBJECTS = jackio.lo phasevoc.lo sndfileio.lo mathutils.lo \
-	fft.lo sample.lo hist.lo scale.lo resample.lo onsetdetection.lo \
-	tss.lo peakpick.lo biquad.lo pitchdetection.lo pitchmcomb.lo \
+am_libaubio_la_OBJECTS = phasevoc.lo mathutils.lo fft.lo sample.lo \
+	hist.lo scale.lo resample.lo onsetdetection.lo tss.lo \
+	peakpick.lo biquad.lo pitchdetection.lo pitchmcomb.lo \
 	pitchyin.lo filter.lo
 libaubio_la_OBJECTS = $(am_libaubio_la_OBJECTS)
 
@@ -236,14 +230,13 @@ depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/biquad.Plo ./$(DEPDIR)/fft.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/filter.Plo ./$(DEPDIR)/hist.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/jackio.Plo ./$(DEPDIR)/mathutils.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/mathutils.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/onsetdetection.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/peakpick.Plo ./$(DEPDIR)/phasevoc.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/pitchdetection.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/pitchmcomb.Plo ./$(DEPDIR)/pitchyin.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/resample.Plo ./$(DEPDIR)/sample.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/scale.Plo ./$(DEPDIR)/sndfileio.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/tss.Plo
+@AMDEP_TRUE@	./$(DEPDIR)/scale.Plo ./$(DEPDIR)/tss.Plo
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
@@ -326,7 +319,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fft.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filter.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hist.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/jackio.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mathutils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/onsetdetection.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/peakpick.Plo@am__quote@
@@ -337,7 +329,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/resample.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sample.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scale.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sndfileio.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tss.Plo@am__quote@
 
 .c.o:

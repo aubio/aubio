@@ -2,10 +2,11 @@
 
 %{
         #include "aubio.h"
+        #include "aubioext.h"
 %}
 
 #include "aubio.h"
-#include "config.h"
+#include "aubioext.h"
 
 /* type aliases */
 typedef unsigned int uint_t;

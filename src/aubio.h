@@ -67,11 +67,6 @@ extern "C" {
 #include "tss.h"
 #include "resample.h"
 
-#ifdef JACK_SUPPORT
-#include "jackio.h"
-#endif 
-
-#include "sndfileio.h"
 #include "peakpick.h"
 #include "biquad.h"
 #include "filter.h"

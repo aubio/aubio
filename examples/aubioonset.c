@@ -22,6 +22,7 @@
 #include <getopt.h>
 #include <unistd.h>
 #include "aubio.h"
+#include "aubioext.h"
 #include "utils.h"
 
 int aubio_process(float **input, float **output, int nframes);

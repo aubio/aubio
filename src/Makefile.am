@@ -3,9 +3,7 @@ EXTRA_DIST = aubio_priv.h
 pkginclude_HEADERS = aubio.h \
 	config.h \
 	types.h \
-	jackio.h \
 	phasevoc.h \
-	sndfileio.h \
 	mathutils.h \
 	fft.h \
 	sample.h \
@@ -24,12 +22,8 @@ pkginclude_HEADERS = aubio.h \
 lib_LTLIBRARIES = libaubio.la 
 libaubio_la_SOURCES = aubio.h \
 	types.h \
-	jackio.c \
-	jackio.h \
 	phasevoc.c \
 	phasevoc.h \
-	sndfileio.c \
-	sndfileio.h \
 	mathutils.c \
 	mathutils.h \
 	fft.c \
@@ -59,5 +53,5 @@ libaubio_la_SOURCES = aubio.h \
 	filter.c \
 	filter.h
 
-AM_CFLAGS = @SNDLIB_CFLAGS@ @JACK_CFLAGS@ @FFTWLIB_CFLAGS@ @SAMPLERATE_CFLAGS@ @LADCCA_CFLAGS@
-libaubio_la_LIBADD = @SNDLIB_LIBS@ @JACK_LIBS@ @FFTWLIB_LIBS@ @SAMPLERATE_LIBS@ @LADCCA_LIBS@ @LTLIBOBJS@
+AM_CFLAGS = @FFTWLIB_CFLAGS@ @SAMPLERATE_CFLAGS@
+libaubio_la_LIBADD = @FFTWLIB_LIBS@ @SAMPLERATE_LIBS@ @LTLIBOBJS@

@@ -6,9 +6,8 @@ SWIG = swig
 # removed -Wall -Wmissing-prototypes -Wmissing-declarations 
 SW_CFLAGS = -DJACK_SUPPORT -shared -Werror -Wno-char-subscripts -Wno-unknown-pragmas
 #SW_CFLAGS = -Wno-missing-prototypes -Wno-missing-declarations
-SWINCLUDE = -I/usr/include/python2.3 -I../src -I/usr/include
-SWLDFLAGS = -L../src/.libs -laubio
-
+SWINCLUDE = -I/usr/include/python2.3 -I../src -I../ext -I/usr/include
+SWLDFLAGS = -L../ext/.libs -laubioext -L../src/.libs -laubio
 
 all:
 	$(SWIG) $(SW_FLAGS) -outdir $(PYTHON_DIR) -python aubio.i
