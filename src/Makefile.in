@@ -172,16 +172,7 @@ pkginclude_HEADERS = aubio.h \
 	pitchdetection.h \
 	pitchmcomb.h \
 	pitchyin.h \
-	filter.h \
-	midi.h \
-	list.h \
-	timer.h \
-	midi_file.h \
-	midi_driver.h \
-	midi_event.h \
-	midi_track.h \
-	midi_player.h \
-	midi_parser.h
+	filter.h
 
 
 lib_LTLIBRARIES = libaubio.la 
@@ -220,31 +211,11 @@ libaubio_la_SOURCES = aubio.h \
 	pitchyin.c \
 	pitchyin.h \
 	filter.c \
-	filter.h \
-	midi.c \
-	midi.h \
-	list.c \
-	list.h \
-	timer.c \
-	timer.h \
-	midi_alsa_seq.c \
-	midi_alsa_raw.c \
-	midi_file.c \
-	midi_file.h \
-	midi_event.c \
-	midi_event.h \
-	midi_track.c \
-	midi_track.h \
-	midi_player.c \
-	midi_player.h \
-	midi_parser.c \
-	midi_parser.h \
-	midi_driver.h \
-	midi_driver.c
+	filter.h
 
 
-AM_CFLAGS = @SNDLIB_CFLAGS@ @JACK_CFLAGS@ @FFTWLIB_CFLAGS@ @SAMPLERATE_CFLAGS@ @ALSA_CFLAGS@ @LADCCA_CFLAGS@
-libaubio_la_LIBADD = @SNDLIB_LIBS@ @JACK_LIBS@ @FFTWLIB_LIBS@ @SAMPLERATE_LIBS@ @ALSA_LIBS@ @LADCCA_LIBS@ @LTLIBOBJS@
+AM_CFLAGS = @SNDLIB_CFLAGS@ @JACK_CFLAGS@ @FFTWLIB_CFLAGS@ @SAMPLERATE_CFLAGS@ @LADCCA_CFLAGS@
+libaubio_la_LIBADD = @SNDLIB_LIBS@ @JACK_LIBS@ @FFTWLIB_LIBS@ @SAMPLERATE_LIBS@ @LADCCA_LIBS@ @LTLIBOBJS@
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -257,9 +228,7 @@ libaubio_la_DEPENDENCIES = @LTLIBOBJS@
 am_libaubio_la_OBJECTS = jackio.lo phasevoc.lo sndfileio.lo mathutils.lo \
 	fft.lo sample.lo hist.lo scale.lo resample.lo onsetdetection.lo \
 	tss.lo peakpick.lo biquad.lo pitchdetection.lo pitchmcomb.lo \
-	pitchyin.lo filter.lo midi.lo list.lo timer.lo midi_alsa_seq.lo \
-	midi_alsa_raw.lo midi_file.lo midi_event.lo midi_track.lo \
-	midi_player.lo midi_parser.lo midi_driver.lo
+	pitchyin.lo filter.lo
 libaubio_la_OBJECTS = $(am_libaubio_la_OBJECTS)
 
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I.
@@ -267,23 +236,14 @@ depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/biquad.Plo ./$(DEPDIR)/fft.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/filter.Plo ./$(DEPDIR)/hist.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/jackio.Plo ./$(DEPDIR)/list.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/mathutils.Plo ./$(DEPDIR)/midi.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/midi_alsa_raw.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/midi_alsa_seq.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/midi_driver.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/midi_event.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/midi_file.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/midi_parser.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/midi_player.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/midi_track.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/jackio.Plo ./$(DEPDIR)/mathutils.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/onsetdetection.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/peakpick.Plo ./$(DEPDIR)/phasevoc.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/pitchdetection.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/pitchmcomb.Plo ./$(DEPDIR)/pitchyin.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/resample.Plo ./$(DEPDIR)/sample.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/scale.Plo ./$(DEPDIR)/sndfileio.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/timer.Plo ./$(DEPDIR)/tss.Plo
+@AMDEP_TRUE@	./$(DEPDIR)/tss.Plo
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
@@ -367,17 +327,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filter.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hist.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/jackio.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/list.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mathutils.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/midi.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/midi_alsa_raw.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/midi_alsa_seq.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/midi_driver.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/midi_event.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/midi_file.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/midi_parser.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/midi_player.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/midi_track.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/onsetdetection.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/peakpick.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/phasevoc.Plo@am__quote@
@@ -388,7 +338,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sample.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scale.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sndfileio.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/timer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tss.Plo@am__quote@
 
 .c.o:

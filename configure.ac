@@ -150,6 +150,7 @@ AM_PATH_PYTHON(,,)
 AC_OUTPUT([
 		Makefile
 		src/Makefile
+		ext/Makefile
 		examples/Makefile
 		sounds/Makefile
 		doc/Makefile

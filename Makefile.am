@@ -1,4 +1,4 @@
-SUBDIRS = src examples doc sounds swig python plugins
+SUBDIRS = src ext examples doc sounds swig python plugins
 EXTRA_DIST = bootstrap VERSION
 DISTCLEANFILES = autom4te.cache
 

@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include <math.h> // how do i do a floorf with a mask again ?
 #include "aubio.h"
+#include "aubioext.h"
 #include "utils.h"
 
 /* settings */
