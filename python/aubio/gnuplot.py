@@ -18,65 +18,56 @@ __LICENSE__ = """\
 	 You should have received a copy of the GNU General Public License
 	 along with this program; if not, write to the Free Software
 	 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-"""            
+"""
 
 __notesheight = 0.25
-
 
 from numarray import *
 import Gnuplot, Gnuplot.funcutils
 
 def plotnote(la,title=None) :
-        if la[0,:].size() == 3:
-                d = plotnote_withends(la, plot_title=title)
-        else: 
-            # scale data if in freq (for REF.txt files)
-            if max(la[:,1] > 128 ):
-                print "scaling frequency data to midi range"
-                la[:,1] /= 6.875
-                la[:,1] = log(la[:,1])/0.6931
-                la[:,1] *= 12
-                la[:,1] -= 3
-            d = plotnote_withoutends(la, plot_title=title)
-        return d
+	if la[0,:].size() == 3:
+	        d = plotnote_withends(la, plot_title=title)
+	else: 
+	    # scale data if in freq (for REF.txt files)
+	    if max(la[:,1] > 128 ):
+	        print "scaling frequency data to midi range"
+	        la[:,1] /= 6.875
+	        la[:,1] = log(la[:,1])/0.6931
+	        la[:,1] *= 12
+	        la[:,1] -= 3
+	    d = plotnote_withoutends(la, plot_title=title)
+	return d
 
 def plotnote_multi(lalist,title=None,fileout=None) :
-        d=list()
-        for i in range(len(lalist)):
-            d.append(plotnote(lalist[i], title=title))
-        return d
+	d=list()
+	for i in range(len(lalist)):
+	    d.append(plotnote(lalist[i], title=title))
+	return d
        
 
 def plotnote_withends(la,plot_title=None) :
-        d=[]
-
-        x_widths = array(la[:,1]-la[:,0])/2.
-
-        d.append(Gnuplot.Data(
-                la[:,0]+x_widths,               # x centers
-                la[:,2],                        # y centers
-                x_widths,                       # x errors
-                __notesheight*ones(len(la)      # y errors
-                ),
-                title=plot_title,with=('boxxyerrorbars fs 3')))
-
-        return d
+	d=[]
+	x_widths = array(la[:,1]-la[:,0])/2.
+	d.append(Gnuplot.Data(
+	        la[:,0]+x_widths,               # x centers
+	        la[:,2],                        # y centers
+	        x_widths,                       # x errors
+	        __notesheight*ones(len(la)),    # y errors
+	        title=plot_title,with=('boxxyerrorbars fs 3')))
+	return d
 
 
 def plotnote_withoutends(la,plot_title=None) :
         """ bug: fails drawing last note """
         d=[]
-
         x_widths = array(la[1:,0]-la[:-1,0])/2;
-
         d.append(Gnuplot.Data(
                 la[:-1,0]+x_widths,             # x centers
                 la[:-1,1],                      # y centers
                 x_widths,                       # x errors
-                __notesheight*ones(len(la)-1    # y errors
-                ), 
+                __notesheight*ones(len(la)-1),  # y errors
                 title=plot_title,with=('boxxyerrorbars fs 3')))
-
         return d
 
 def plotnote_do(d,fileout=None):
@@ -100,4 +91,52 @@ def plotnote_do(d,fileout=None):
     if fileout != None:
         g.hardcopy(fileout, enhanced=1, color=0)
 
+def audio_to_array(filename):
+	import aubio.aubioclass
+	hopsize  = 2048
+	filei    = aubio.aubioclass.sndfile(filename)
+	framestep = 1/(filei.samplerate()+0.)
+	channels = filei.channels()
+	myvec    = aubio.aubioclass.fvec(hopsize,channels)
+	data = []
+	readsize = hopsize
+	while (readsize==hopsize):
+		readsize = filei.read(hopsize,myvec)
+		#for i in range(channels):
+		i = 0
+		curpos = 0
+		while (curpos < readsize):
+			data.append(myvec.get(curpos,i))
+			curpos+=1
+        # FIXME again for the last frame
+	curpos = 0
+	while (curpos < readsize):
+		data.append(myvec.get(curpos,i))
+		curpos+=1
+	time = arange(len(data))*framestep
+	return time,data
+
+def plot_audio(filenames, fileout=None, start=0, end=None, noaxis=None, task=audio_to_array):
+	g = Gnuplot.Gnuplot(debug=1, persist=1)
+	d = []
+	todraw = len(filenames)
+	xorig = 0.
+	xsize = 1./todraw
+	g.gnuplot('set multiplot;')
+	while (len(filenames)):
+                b,a = task(filenames.pop(0))
+		d.append(Gnuplot.Data(b,a))
+		if not noaxis and todraw==1:
+			g.xlabel('Time (s)')
+			g.ylabel('Amplitude')
+		g.gnuplot('set size %f,1.;' % (xsize) )
+		g.gnuplot('set origin %f,0.;' % (xorig) )
+		g.gnuplot('set style data lines; \
+			set yrange [-1.:1.]; \
+			set xrange [0:%f]' % b[-1]) 
+		g.plot(d.pop(0))
+		xorig += 1./todraw
+	g.gnuplot('unset multiplot;')
+	if fileout != None:
+		g.hardcopy(fileout, enhanced=1, color=0)
 
