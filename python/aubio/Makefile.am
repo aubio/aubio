@@ -7,9 +7,14 @@ CLEANFILES = *.pyc *.so *.o aubio_wrap.c aubiowrapper.py
 
 all: _aubiowrapper.so
 
-SWIG = swig
 # removed -Wall -Wmissing-prototypes -Wmissing-declarations 
-SWCFLAGS = -DJACK_SUPPORT -Werror -Wno-char-subscripts -Wno-unknown-pragmas -I/usr/include/python2.3 -I../../src -I../../ext -I/usr/include
+SWCFLAGS = -DJACK_SUPPORT -Werror -Wno-char-subscripts -Wno-unknown-pragmas \
+	-I../../src -I../../ext \
+	-I/usr/include/python${PYTHON_VERSION} \
+	-I${prefix}/include/python${PYTHON_VERSION} \
+	-I/usr/include \
+	-I${prefix}/include
+
 SWLDFLAGS = -shared -L../../ext/.libs -laubioext -L../../src/.libs -laubio
 
 aubio_wrap.c:

@@ -1,5 +1,19 @@
+2005-29-03  Paul Brossier <piem@altern.org>
+	* python/aubio/gnuplot.py: clean up and add plotsound
+	* python/aubiocompare-onset: updated
+	* examples/aubioonset.c: fix text output when nframes<4 
+	* ext/midi/midi_file.c: by default, int is unsigned on powerpc
+	* python/aubiocut, python/aubio/aubioclass.py: updated
+	* ext/midi/midi_alsa_seq.c: activated threading
+	* configure.ac,Makefile.am: added rules to check presence
+	 of swig, python, puredata and docbook-to-man.
+
+2005-17-03  Paul Brossier <piem@altern.org>
+	* examples/utils.{c,h}:  corrected usedoubled and -O interactions
+	* examples/aubioonset.c: added frames>=4 check (thanks Hamish Allan)
+
 2004-12-11  Paul Brossier <piem@altern,org>
-	* swig/Makefile.am: instructions moved to python/aubio and cleaned
+	* swig/Makefile.am: instructions moved to python/aubio and cleaned 
 	* python/aubiocut: corrected slicing on multichannel files
 	* VERSION: bumped to 0.1.8
 

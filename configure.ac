@@ -14,7 +14,6 @@ AC_PREFIX_DEFAULT(/usr)
 dnl enable optimization
 CFLAGS="$CFLAGS -O2"
 
-	
 dnl Check for debug
 AC_ARG_ENABLE(debug,
   [  --enable-debug[[=value]]   compile with debug [[default=no]]],
@@ -33,8 +32,8 @@ AC_ARG_ENABLE(warnme,
   with_warnme="yes")
 if test "$with_warnme" = "yes"
 then
-	ALL_CWARNINGS="-Wall -Werror -Wmissing-prototypes -Wmissing-declarations -Wno-char-subscripts -Wno-unknown-pragmas"
-	CFLAGS="$CFLAGS $ALL_CWARNINGS"
+  ALL_CWARNINGS="-Wall -Werror -Wmissing-prototypes -Wmissing-declarations -Wno-char-subscripts -Wno-unknown-pragmas"
+  CFLAGS="$CFLAGS $ALL_CWARNINGS"
 fi
 
 
@@ -47,7 +46,6 @@ if test "$ac_cv_prog_cc" = "no" ; then
    AC_MSG_ERROR([*** No C compiler found !])
 fi
 AC_PROG_INSTALL
-dnl AC_PROG_SWIG
 
 dnl Check for libtool
 AC_LIBTOOL_DLOPEN
@@ -72,7 +70,7 @@ darwin*)
   ;;
 esac
 
-dnl Check for libraries
+dnl Check for required libraries
 AC_CHECK_LIB(pthread, pthread_create)
 
 dnl Check for header files
@@ -145,7 +143,19 @@ then
 	fi
 fi
   
-AM_PATH_PYTHON(,,)
+dnl Check for optional programs
+
+dnl should check for swig version and python headers
+AC_PATH_PROG(SWIG,swig,no)
+AM_CONDITIONAL(SWIGFOUND, test "${SWIG}" != "no")
+AM_PATH_PYTHON
+AM_CONDITIONAL(PYTHONFOUND, test "${PYTHON}" != "no")
+
+AC_PATH_PROG(DOCBOOK_TO_MAN,docbook-to-man,no)
+AM_CONDITIONAL(DOCBOOKFOUND, test "${DOCBOOK_TO_MAN}" != "no")
+
+AC_CHECK_HEADER(m_pd.h,PUREDATA=y,AC_MSG_WARN([Ouch! puredata header not found]))
+AM_CONDITIONAL(PUREDATAFOUND, test "${PUREDATA}" = "y")
 
 AC_OUTPUT([
 		Makefile
@@ -153,15 +163,15 @@ AC_OUTPUT([
 		ext/Makefile
 		examples/Makefile
 		sounds/Makefile
-		doc/Makefile
+                swig/Makefile
 		python/Makefile
 		python/aubio/Makefile
 		plugins/Makefile
 		plugins/audacity/Makefile
 		plugins/audacity/plug-ins/Makefile
 		plugins/wavesurfer/Makefile
-		plugins/puredata/Makefile
-		swig/Makefile
+                plugins/puredata/Makefile
+                doc/Makefile
 	])
 
 echo

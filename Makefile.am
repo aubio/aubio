@@ -1,4 +1,15 @@
-SUBDIRS = src ext examples doc sounds swig python plugins
+if DOCBOOKFOUND
+DOC = doc
+endif
+
+if SWIGFOUND
+if PYTHONFOUND
+SWIGDIR = swig
+PYTHONDIR = python
+endif
+endif
+
+SUBDIRS = src ext examples doc sounds plugins $(PYTHONDIR) $(SWIGDIR) $(DOC)
 EXTRA_DIST = bootstrap VERSION
 DISTCLEANFILES = autom4te.cache
 
