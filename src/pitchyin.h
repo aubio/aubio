@@ -38,6 +38,8 @@ void aubio_pitchyin_getcum(fvec_t * yin);
 
 uint_t aubio_pitchyin_getpitch(fvec_t *yin);
 
+uint_t aubio_pitchyin_getpitchfast(fvec_t * input, fvec_t *yin);
+
 #ifdef __cplusplus
 }
 #endif

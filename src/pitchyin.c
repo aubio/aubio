@@ -88,9 +88,9 @@ uint_t aubio_pitchyin_getpitch(fvec_t * yin) {
 
 
 /* all the above in one */
-void aubio_pitchyin_getpitchfast(fvec_t * input, fvec_t * yin){
-	uint_t c,j,tau;
-	smpl_t tmp, tmp2;
+uint_t aubio_pitchyin_getpitchfast(fvec_t * input, fvec_t * yin){
+	uint_t c,j,tau = 0;
+	smpl_t tmp = 0, tmp2;
 	for (c=0;c<input->channels;c++)
 	{
 		for (tau=0;tau<yin->length;tau++)
