@@ -23,6 +23,7 @@
 
 extern int verbose;
 extern int usejack;
+extern int usedoubled;
 extern const char * output_filename;
 extern const char * input_filename;
 /* defined in utils.c */

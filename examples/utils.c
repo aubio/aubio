@@ -92,6 +92,7 @@ int parse_args (int argc, char **argv) {
           debug("could not get onset type.\n");
           abort();
         }
+        usedoubled = 0;
         break;
       case 't':   /* threshold value for onset */
         threshold = (smpl_t)atof(optarg);
