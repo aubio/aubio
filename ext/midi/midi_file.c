@@ -146,7 +146,7 @@ int aubio_midi_file_skip(aubio_midi_file_t* mf, int skip)
 /** aubio_midi_file_read_mthd */
 int aubio_midi_file_read_mthd(aubio_midi_file_t* mf)
 {
-  char mthd[15];
+  signed char mthd[15];
   if (aubio_midi_file_read(mf, mthd, 14) != AUBIO_OK) {
     return AUBIO_FAIL;
   }
