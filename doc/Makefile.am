@@ -35,8 +35,12 @@ doc-examples:
 	doxygen examples.cfg
 	cp aubio.css examples
 	
+man:
+	docbook-to-man aubionotes.sgml > aubionotes.1
+	docbook-to-man aubioonset.sgml > aubioonset.1
+
 # Update docs for distribution
 #dist-hook: 
 
 clean:
-	rm -rf devel user examples
+	rm -rf devel user examples *.1

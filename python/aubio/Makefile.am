@@ -7,3 +7,4 @@ pkgpython_PYTHON = __init__.py onsetcompare.py\
 clean:
 	rm -f *.pyc
 
+distclean: clean
