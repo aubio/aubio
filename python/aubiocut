@@ -7,9 +7,10 @@
 from aubio.aubioclass import *
 import sys
 
+bufsize   = 1024
+hopsize   = bufsize/2
+
 def getonsets(filein,threshold):
-        bufsize   = 1024
-        hopsize   = bufsize/2
         frameread = 0
         filei     = sndfile(filein)
         srate     = filei.samplerate()
@@ -20,20 +21,27 @@ def getonsets(filein,threshold):
         #newname   = "%s%.8f%s" % ("/tmp/",0.0000000,filein[-4:])
         #fileo     = sndfile(newname,model=filei)
         mylist    = list()
+	ovalist   = [0., 0., 0., 0., 0., 0.]
         while(readsize==hopsize):
                 readsize = filei.read(hopsize,myvec)
                 isonset,val = opick.do(myvec)
+		ovalist.append(val)
+		ovalist.pop(0)
                 if (isonset == 1):
-                    now = (frameread-4)*hopsize/(srate+0.)
-                    #del fileo
-                    #fileo = sndfile("%s%f%s" % ("/tmp/",now,filein[-4:]),model=filei)
-                    mylist.append(now)
+			print frameread
+			i=len(ovalist)-1
+			# find local minima 
+			while ovalist[i-1] < ovalist[i] and i > 0:
+				i -= 1
+                    	now = (frameread-i+1)*hopsize/(srate+0.)
+                    	#del fileo
+                    	#fileo = sndfile("%s%f%s" % ("/tmp/",now,filein[-4:]),model=filei)
+                    	mylist.append(now)
                 #writesize = fileo.write(readsize,myoldvec)
                 frameread += 1
         return mylist
 
 def cutfile(filein,onsets):
-        hopsize   = 512
         frameread = 0
         readsize  = hopsize 
         filei     = sndfile(filein)
