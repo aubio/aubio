@@ -1,25 +1,52 @@
-#!/usr/bin/python
+#! /usr/bin/python
 
-def do(filein,threshold):
-        import aubio.aubioclass as aubio
-        hopsize   = 512
-        bufsize   = 1024
-        frameread = 0
-        filei     = aubio.sndfile(filein)
-        srate     = filei.samplerate()
-        channels  = filei.channels() 
-        myvec     = aubio.fvec(hopsize,channels)
-        readsize  = filei.read(hopsize,myvec)
-        opick     = aubio.onsetpick(bufsize,hopsize,channels,myvec,threshold)
-        mylist    = list()
-        while(readsize==hopsize):
-                readsize = filei.read(hopsize,myvec)
-                isonset,val = opick.do(myvec) 
-                if (isonset == 1):
-                    now = (frameread-3)*hopsize/(srate+0.)
-                    print "%.8f\t%.2f"% (now,val)
-                frameread += 1
+import sys
+import numarray
+from aubio.aubioclass import *
 
-if __name__ == "__main__":
-        import sys
-        do(sys.argv[1],sys.argv[2])
+usage = "usage: %s [options] soundfile" % sys.argv[0]
+
+def parse_args():
+        from optparse import OptionParser
+        parser = OptionParser(usage=usage)
+        parser.add_option("-v","--verbose",
+                          action="store_true", dest="verbose", default=False,
+                          help="make lots of noise")
+        parser.add_option("-q","--quiet",
+                          action="store_false", dest="verbose", default=True, 
+                          help="be quiet [default]")
+        parser.add_option("-t","--threshold",
+                          action="store", dest="threshold", default=0.3, 
+                          help="onset detection threshold [default=0.3]")
+        parser.add_option("-s","--silence",
+                          action="store", dest="silence", default=-70, 
+                          help="silence [default=-70]")
+        def check_mode(option, opt, value, parser):
+                nvalue = parser.rargs[0]
+                if   nvalue == 'complexdomain' : setattr(parser.values, option.dest, complexdomain)
+                elif nvalue == 'hfc'           : setattr(parser.values, option.dest, hfc)
+                elif nvalue == 'phase'         : setattr(parser.values, option.dest, phase)
+                elif nvalue == 'specdiff'      : setattr(parser.values, option.dest, specdiff)
+                elif nvalue == 'energy'        : setattr(parser.values, option.dest, energy)
+                elif nvalue == 'dual'          : setattr(parser.values, option.dest, 'dual')
+        parser.add_option("-m","--mode",
+                          action="callback", callback=check_mode, dest="mode", default='dual', 
+                          help="onsetdetection mode [default=dual]")
+        parser.add_option("-o","--outplot",
+                          action="store", dest="outplot", default=None, 
+                          help="be quiet [default=None]")
+        (options, args) = parser.parse_args()
+        if not len(args): 
+                 print "no file name given\n", usage
+                 sys.exit(1)
+        return options, args
+
+options, args = parse_args()
+
+filename  = args[0] 
+threshold = float(options.threshold)
+silence   = float(options.silence)
+
+#onsets = getonsets(filename,threshold,silence,mode=options.mode)
+onsets = getonsetscausal(filename,threshold,silence,mode=options.mode)
+for i in onsets: print i*512./44100.

@@ -70,21 +70,120 @@ class peakpick:
         del_aubio_peakpicker(self.pp)
 
 class onsetpick:
-    def __init__(self,bufsize,hopsize,channels,myvec,threshold):
+    def __init__(self,bufsize,hopsize,channels,myvec,threshold,mode='dual'):
         self.myfft    = cvec(bufsize,channels)
         self.pv       = pvoc(bufsize,hopsize,channels)
-        self.myod     = onsetdetection(hfc,bufsize,channels)
-        self.myod2    = onsetdetection(complexdomain,bufsize,channels)
-        self.myonset  = fvec(1,channels)
-        self.myonset2 = fvec(1,channels)
+        if mode in [complexdomain,hfc,phase,energy,specdiff]  :
+                self.myod     = onsetdetection(mode,bufsize,channels)
+                self.myonset  = fvec(1,channels)
+        else: 
+                self.myod     = onsetdetection(hfc,bufsize,channels)
+                self.myod2    = onsetdetection(complexdomain,bufsize,channels)
+                self.myonset  = fvec(1,channels)
+                self.myonset2 = fvec(1,channels)
+        self.mode     = mode
         self.pp       = peakpick(float(threshold))
 
     def do(self,myvec): 
         self.pv.do(myvec,self.myfft)
         self.myod.do(self.myfft,self.myonset)
-        self.myod2.do(self.myfft,self.myonset2)
-        self.myonset.set(self.myonset.get(0,0)*self.myonset2.get(0,0),0,0)
+        if self.mode == 'dual':
+                self.myod2.do(self.myfft,self.myonset2)
+                self.myonset.set(self.myonset.get(0,0)*self.myonset2.get(0,0),0,0)
         return self.pp.do(self.myonset),self.myonset.get(0,0)
+
+def getonsetsfunc(filein,threshold,silence,bufsize=1024,hopsize=512,mode='dual'):
+        #bufsize   = 1024
+        #hopsize   = bufsize/2
+        frameread = 0
+        filei     = sndfile(filein)
+        channels  = filei.channels()
+        myvec     = fvec(hopsize,channels)
+        readsize  = filei.read(hopsize,myvec)
+        opick     = onsetpick(bufsize,hopsize,channels,myvec,threshold,mode=mode)
+        mylist    = list()
+        #ovalist   = [0., 0., 0., 0., 0., 0.]
+        ovalist   = [0., 0., 0., 0., 0.]
+        ofunclist = []
+        while(readsize):
+                readsize = filei.read(hopsize,myvec)
+                isonset,val = opick.do(myvec)
+                if (aubio_silence_detection(myvec(),silence)):
+                        isonset=0
+                ovalist.append(val)
+                ovalist.pop(0)
+                ofunclist.append(val)
+                if (isonset == 1):
+                        i=len(ovalist)-1
+                        # find local minima before peak 
+                        while ovalist[i-1] < ovalist[i] and i > 0:
+                                i -= 1
+                        now = (frameread+1-i)
+                        if now > 0 :
+                                mylist.append(now)
+                        else:
+                                now = 0
+                                mylist.append(now)
+                frameread += 1
+        return mylist, ofunclist
+
+
+def getonsetscausal(filein,threshold,silence,bufsize=1024,hopsize=512,mode='dual'):
+        frameread = 0
+        filei     = sndfile(filein)
+        channels  = filei.channels()
+        myvec     = fvec(hopsize,channels)
+        readsize  = filei.read(hopsize,myvec)
+        opick     = onsetpick(bufsize,hopsize,channels,myvec,threshold,mode=mode)
+        mylist    = list()
+        while(readsize):
+                readsize = filei.read(hopsize,myvec)
+                isonset,val = opick.do(myvec)
+                if (aubio_silence_detection(myvec(),silence)):
+                        isonset=0
+                if (isonset == 1):
+                        now = frameread
+                        if now > 0 :
+                                mylist.append(now)
+                        else:
+                                now = 0
+                                mylist.append(now)
+                frameread += 1
+        return mylist
+
+
+def getonsets(filein,threshold=0.2,silence=-70.,bufsize=1024,hopsize=512,mode='dual'):
+        frameread = 0
+        filei     = sndfile(filein)
+        channels  = filei.channels()
+        samplerate= filei.samplerate()
+        myvec     = fvec(hopsize,channels)
+        readsize  = filei.read(hopsize,myvec)
+        opick     = onsetpick(bufsize,hopsize,channels,myvec,threshold,mode=mode)
+        mylist    = list()
+        #ovalist   = [0., 0., 0., 0., 0., 0.]
+        ovalist   = [0., 0., 0., 0., 0.]
+        while(readsize):
+                readsize = filei.read(hopsize,myvec)
+                isonset,val = opick.do(myvec)
+                if (aubio_silence_detection(myvec(),silence)):
+                        isonset=0
+                ovalist.append(val)
+                ovalist.pop(0)
+                if (isonset == 1):
+                        i=len(ovalist)-1
+                        # find local minima before peak 
+                        while ovalist[i-1] < ovalist[i] and i > 0:
+                                i -= 1
+                        now = (frameread+1-i)
+                        if now > 0 :
+                                mylist.append(now)
+                        else:
+                                now = 0
+                                mylist.append(now)
+                frameread += 1
+        return mylist
+
 
 class pitchpick:
     def __init__(self,bufsize,hopsize,channels,myvec,srate):

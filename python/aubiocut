@@ -10,38 +10,13 @@ import sys
 bufsize   = 1024
 hopsize   = bufsize/2
 
-def getonsets(filein,threshold):
-        frameread = 0
-        filei     = sndfile(filein)
-        srate     = filei.samplerate()
-        channels  = filei.channels()
-        myvec     = fvec(hopsize,channels)
-        readsize  = filei.read(hopsize,myvec)
-        opick     = onsetpick(bufsize,hopsize,channels,myvec,threshold)
-        #newname   = "%s%.8f%s" % ("/tmp/",0.0000000,filein[-4:])
-        #fileo     = sndfile(newname,model=filei)
-        mylist    = list()
-	ovalist   = [0., 0., 0., 0., 0., 0.]
-        while(readsize==hopsize):
-                readsize = filei.read(hopsize,myvec)
-                isonset,val = opick.do(myvec)
-		ovalist.append(val)
-		ovalist.pop(0)
-                if (isonset == 1):
-			i=len(ovalist)-1
-			# find local minima 
-			while ovalist[i-1] < ovalist[i] and i > 0:
-				i -= 1
-                    	now = (frameread+1-i)*hopsize/(srate+0.)
-                    	mylist.append(now)
-                frameread += 1
-        return mylist
 
 def cutfile(filein,onsets):
         frameread = 0
+        zerothres = 0.002
         readsize  = hopsize 
         filei     = sndfile(filein)
-        srate     = filei.samplerate()
+        framestep = hopsize/(filei.samplerate()+0.)
         channels  = filei.channels()
         newname   = "%s%f%s" % ("/tmp/",0.0000000,filein[-4:])
         fileo     = sndfile(newname,model=filei)
@@ -49,13 +24,12 @@ def cutfile(filein,onsets):
         mycopy    = fvec(hopsize,channels)
         while(readsize==hopsize):
                 readsize = filei.read(hopsize,myvec)
-                now = (frameread)*hopsize/(srate+0.)
 		# write to current file
-                if len(onsets) and now >= onsets[0]:
+                if len(onsets) and frameread >= onsets[0]:
                     onsets.pop(0)
 		    # write up to 1st zero crossing
 		    zerocross = 0
-		    while ( abs( myvec.get(zerocross,0) ) > 0.002 ):
+		    while ( abs( myvec.get(zerocross,0) ) > zerothres ):
 		    	zerocross += 1
                     writesize = fileo.write(zerocross,myvec)
 		    fromcross = 0
@@ -66,8 +40,8 @@ def cutfile(filein,onsets):
 			zerocross += 1
                     del fileo
                     fileo = sndfile("%s%s%f%s%s" % 
-		    	(filein.split(".")[0].split("/")[-1],".",now,".",filein.split(".")[-1]),model=filei)
-		    # write after 1st zero crossing to new file
+		    	(filein.split(".")[0].split("/")[-1],".",
+			frameread*framestep,".",filein.split(".")[-1]),model=filei)
 		    writesize = fileo.write(fromcross,mycopy)
 		else:
 		    writesize = fileo.write(readsize,myvec)
