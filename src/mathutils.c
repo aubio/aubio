@@ -400,3 +400,18 @@ smpl_t aubio_level_detection(fvec_t * ibuf, smpl_t threshold) {
   else
       return loudness;
 }
+
+void aubio_autocorr(fvec_t * input, fvec_t * output){
+        uint_t i = 0, j = 0, length = input->length;
+        smpl_t * data = input->data[0];
+        smpl_t * acf = output->data[0];
+        smpl_t tmp =0.;
+        for(i=0;i<length;i++){
+                for(j=i;j<length;j++){
+                        tmp += data[j-i]*data[j]; 
+                }
+                acf[i] = tmp/(length-i);
+                tmp = 0.0;
+        }
+}
+

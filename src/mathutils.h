@@ -235,6 +235,10 @@ smpl_t freqtomidi(smpl_t freq);
 
 uint_t aubio_silence_detection(fvec_t * ibuf, smpl_t threshold);
 smpl_t aubio_level_detection(fvec_t * ibuf, smpl_t threshold);
+/** 
+ * calculate normalised autocorrelation function
+ */
+void aubio_autocorr(fvec_t * input, fvec_t * output);
 
 #ifdef __cplusplus
 }

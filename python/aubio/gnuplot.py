@@ -108,15 +108,10 @@ def audio_to_array(filename):
 		while (curpos < readsize):
 			data.append(myvec.get(curpos,i))
 			curpos+=1
-        # FIXME again for the last frame
-	curpos = 0
-	while (curpos < readsize):
-		data.append(myvec.get(curpos,i))
-		curpos+=1
 	time = arange(len(data))*framestep
 	return time,data
 
-def plot_audio(filenames, fileout=None, start=0, end=None, noaxis=None, task=audio_to_array):
+def plot_audio(filenames, fileout=None, start=0, end=None, noaxis=None):
 	g = Gnuplot.Gnuplot(debug=1, persist=1)
 	d = []
 	todraw = len(filenames)
@@ -124,8 +119,7 @@ def plot_audio(filenames, fileout=None, start=0, end=None, noaxis=None, task=aud
 	xsize = 1./todraw
 	g.gnuplot('set multiplot;')
 	while (len(filenames)):
-                b,a = task(filenames.pop(0))
-		d.append(Gnuplot.Data(b,a))
+                d.append(plot_audio_make(filenames.pop(0)))
 		if not noaxis and todraw==1:
 			g.xlabel('Time (s)')
 			g.ylabel('Amplitude')
@@ -140,3 +134,12 @@ def plot_audio(filenames, fileout=None, start=0, end=None, noaxis=None, task=aud
 	if fileout != None:
 		g.hardcopy(fileout, enhanced=1, color=0)
 
+def make_audio_plot(time,data,maxpoints=10000):
+	""" create gnuplot plot from an audio file """
+        import numarray
+        length = len(time)
+	downsample = length/maxpoints
+        if downsample == 0: downsample = 1
+        x = numarray.array(time).resize(length)[0:-1:downsample]
+        y = numarray.array(data).resize(length)[0:-1:downsample]
+	return Gnuplot.Data(x,y,with='lines')

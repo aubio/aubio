@@ -21,7 +21,7 @@
 #include <stdarg.h>
 #include <getopt.h>
 #include <unistd.h>
-#include <math.h> // how do i do a floorf with a mask again ?
+#include <math.h>
 #include "aubio.h"
 #include "aubioext.h"
 #include "utils.h"
@@ -34,10 +34,11 @@ int verbose = 0;
 int usejack = 0;
 int usedoubled = 1;
 int usemidi = 1;
+int median = 0;
 
 /* energy,specdiff,hfc,complexdomain,phase */
 aubio_onsetdetection_type type_onset  = hfc;
-aubio_onsetdetection_type type_onset2 = hfc;
+aubio_onsetdetection_type type_onset2 = complexdomain;
 smpl_t threshold                      = 0.3;
 smpl_t threshold2                     = -90.;
 uint_t buffer_size                    = 1024;
@@ -60,11 +61,13 @@ int isonset = 0;
 aubio_pickpeak_t * parms;
 
 /* pitch objects */
-int curnote                = 0;
 smpl_t pitch               = 0.;
 aubio_pitchdetection_t * pitchdet;
-int bufpos = 0;
-smpl_t curlevel = 0;
+
+fvec_t * note_buffer = NULL;
+fvec_t * note_buffer2 = NULL;
+uint_t medianfiltlen = 6;
+smpl_t curlevel = 0.;
 smpl_t maxonset = 0.;
 
 /* midi objects */
@@ -100,6 +103,34 @@ void send_noteon(aubio_midi_driver_t * d, int pitch, int velo)
     }
 }
 
+
+/** append new note candidate to the note_buffer and return filtered value. we
+ * need to copy the input array as vec_median destroy its input data.*/
+
+void note_append(fvec_t * note_buffer, smpl_t curnote); 
+void note_append(fvec_t * note_buffer, smpl_t curnote) {
+  uint_t i = 0;
+  for (i = 0; i < note_buffer->length - 1; i++) { 
+      note_buffer->data[0][i] = note_buffer->data[0][i+1];
+  }
+  note_buffer->data[0][note_buffer->length - 1] = curnote;
+  return;
+}
+
+uint_t get_note(fvec_t *note_buffer, fvec_t *note_buffer2);
+uint_t get_note(fvec_t *note_buffer, fvec_t *note_buffer2){
+  uint_t i = 0;
+  for (i = 0; i < note_buffer->length; i++) { 
+      note_buffer2->data[0][i] = note_buffer->data[0][i];
+  }
+  return vec_median(note_buffer2);
+}
+
+
+smpl_t curnote = 0.;
+smpl_t newnote = 0.;
+uint_t isready = 0;
+
 int aubio_process(float **input, float **output, int nframes);
 int aubio_process(float **input, float **output, int nframes) {
   unsigned int i;       /*channels*/
@@ -125,6 +156,10 @@ int aubio_process(float **input, float **output, int nframes) {
       isonset = aubio_peakpick_pimrt(onset,parms);
       
       pitch = aubio_pitchdetection(pitchdet,ibuf);
+      if(median){
+      newnote = (FLOOR)(bintomidi(pitch,samplerate,buffer_size*4)+.5);
+      note_append(note_buffer, newnote);
+      }
 
       /* curlevel is negatif or 1 if silence */
       curlevel = aubio_level_detection(ibuf, threshold2);
@@ -132,9 +167,13 @@ int aubio_process(float **input, float **output, int nframes) {
         /* test for silence */
         if (curlevel == 1.) {
           isonset=0;
+          if (median) isready = 0;
           /* send note off */
           send_noteon(mdriver,curnote,0);
         } else {
+          if (median) {
+                  isready = 1;
+          } else {
           /* kill old note */
           send_noteon(mdriver,curnote,0);
           //curnote = (int)FLOOR(bintomidi(pitch,samplerate,buffer_size*4) + .5);
@@ -146,11 +185,37 @@ int aubio_process(float **input, float **output, int nframes) {
           if (curnote>45){
             send_noteon(mdriver,curnote,127+(int)FLOOR(curlevel));
           }
+          }
+          
           for (pos = 0; pos < overlap_size; pos++){
             obuf->data[0][pos] = woodblock->data[0][pos];
           }
         }
       } else {
+              if (median) {
+//        if (curlevel != 1) {
+//          if (bufpos == note_buffer->length)
+//            curnote = aubio_getnote(note_buffer);
+//        }
+//
+        if (isready > 0)
+            isready++;
+        if (isready == note_buffer->length)
+        {
+            //outmsg("%d, %f\n", isready, curnote);
+            send_noteon(mdriver,curnote,0);
+        /* kill old note */
+            newnote = get_note(note_buffer, note_buffer2);
+            curnote = newnote;
+        /* get and send new one */
+        /*if (curnote<45){
+          send_noteon(mdriver,curnote,0);
+        } else {*/
+            if (curnote>45){
+                send_noteon(mdriver,curnote,127+(int)FLOOR(curlevel));
+            }
+        }
+        } // if median
         for (pos = 0; pos < overlap_size; pos++)
           obuf->data[0][pos] = 0.;
       }
@@ -187,9 +252,13 @@ int main(int argc, char **argv) {
   woodblock   = new_fvec(buffer_size,1);
   fftgrain    = new_cvec(buffer_size, channels);
 
-  pitchdet = new_aubio_pitchdetection(buffer_size*4, overlap_size, channels, samplerate, mcomb, freq);
-  //pitchdet = new_aubio_pitchdetection(buffer_size*2, overlap_size, channels, samplerate, yin, freq);
+  aubio_pitchdetection_type mode = yin; // mcomb
+  pitchdet = new_aubio_pitchdetection(buffer_size*4, overlap_size, channels, samplerate, mode, freq);
   
+if (median) {
+  note_buffer = new_fvec(medianfiltlen, 1);
+  note_buffer2= new_fvec(medianfiltlen, 1);
+}
   /* read the output sound once */
   file_read(onsetfile, overlap_size, woodblock);
   /* phase vocoder */
@@ -261,6 +330,10 @@ int main(int argc, char **argv) {
   del_cvec(fftgrain);
   del_aubio_pitchdetection(pitchdet);
   del_fvec(onset);
+  if (median) {
+  del_fvec(note_buffer);
+  del_fvec(note_buffer2);
+  }
 
   debug("End of program.\n");
   fflush(stderr);
