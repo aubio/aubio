@@ -7,7 +7,7 @@
 from aubio.aubioclass import *
 import sys
 
-bufsize   = 1024
+bufsize   = 512
 hopsize   = bufsize/2
 
 def getonsets(filein,threshold):
@@ -28,12 +28,11 @@ def getonsets(filein,threshold):
 		ovalist.append(val)
 		ovalist.pop(0)
                 if (isonset == 1):
-			print frameread
 			i=len(ovalist)-1
 			# find local minima 
 			while ovalist[i-1] < ovalist[i] and i > 0:
 				i -= 1
-                    	now = (frameread-i+1)*hopsize/(srate+0.)
+                    	now = (frameread+1-i)*hopsize/(srate+0.)
                     	#del fileo
                     	#fileo = sndfile("%s%f%s" % ("/tmp/",now,filein[-4:]),model=filei)
                     	mylist.append(now)
@@ -50,14 +49,30 @@ def cutfile(filein,onsets):
         newname   = "%s%f%s" % ("/tmp/",0.0000000,filein[-4:])
         fileo     = sndfile(newname,model=filei)
         myvec     = fvec(hopsize,channels)
+        mycopy    = fvec(hopsize,channels)
         while(readsize==hopsize):
                 readsize = filei.read(hopsize,myvec)
                 now = (frameread)*hopsize/(srate+0.)
-                writesize = fileo.write(readsize,myvec)
-                if len(onsets) and now == onsets[0]:
+		# write to current file
+                if len(onsets) and now >= onsets[0]:
                     onsets.pop(0)
+		    # write up to 1st zero crossing
+		    zerocross = 0
+		    while ( abs( myvec.get(zerocross,0) ) > 0.002 ):
+		    	zerocross += 1
+                    writesize = fileo.write(zerocross,myvec)
+		    fromcross = 0
+		    while (zerocross < readsize):
+		    	mycopy.set(myvec.get(zerocross,0),fromcross,0)
+			fromcross += 1
+			zerocross += 1
                     del fileo
-                    fileo = sndfile("%s%f%s%s" % ("/tmp/",now,".",filein.split(".")[-1]),model=filei)
+                    fileo = sndfile("%s%s%f%s%s" % 
+		    	(filein.split(".")[0].split("/")[-1],".",now,".",filein.split(".")[-1]),model=filei)
+		    # write after 1st zero crossing to new file
+		    writesize = fileo.write(fromcross,mycopy)
+		else:
+		    writesize = fileo.write(readsize,myvec)
                 frameread += 1
         del fileo
 

@@ -1,6 +1,7 @@
 2004-11-39  Paul Brossier <piem@altern.org>
 	* configure.ac: added -lmx on macosx
 	* python/aubiocut: seeks for local minima before peak
+	                   added zero crossing search
 	* src/pitchyinc.c: adds draft for all-in-one faster function
 	* examples/*.c: added ladcca client (needs work)
 	* examples/aubioonset.c: cleaned up verbose stdout 
