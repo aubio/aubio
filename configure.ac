@@ -82,11 +82,6 @@ AC_CHECK_HEADERS(fftw3.h  ,,AC_MSG_ERROR([Ouch! missing fftw3.h headeri]))
 dnl check for pkg-config
 AC_PATH_PROG(PKG_CONFIG,pkg-config,no)
 
-dnl Check for required libraries
-PKG_CHECK_MODULES(FFTWLIB,    fftw3  >= 3.0.0,	      FFTW3_SUPPORT=1)
-if test "${FFTW3_SUPPORT}" = "1"; then
-  AC_DEFINE(FFTW3_SUPPORT,1,[Define to enable fftw3 support])
-fi
 PKG_CHECK_MODULES(SNDLIB,     sndfile >= 1.0.4,	      SNDLIB_SUPPORT=1)
 PKG_CHECK_MODULES(SAMPLERATE, samplerate  >= 0.0.15,  SAMPLERATE_SUPPORT=1)
 
@@ -102,6 +97,11 @@ AC_ARG_ENABLE(fftw3f,
   with_fftw3f="no")
 if test "$with_fftw3f" = "yes"; then
 	PKG_CHECK_MODULES(FFTWLIB,    fftw3f  >= 3.0.0,     FFTW3F_SUPPORT=1)
+else
+        PKG_CHECK_MODULES(FFTWLIB,    fftw3  >= 3.0.0,	      FFTW3_SUPPORT=1)
+fi
+if test "${FFTW3_SUPPORT}" = "1"; then
+  AC_DEFINE(FFTW3_SUPPORT,1,[Define to enable fftw3 support])
 fi
 if test "${FFTW3F_SUPPORT}" = "1"; then
   AC_DEFINE(FFTW3F_SUPPORT,1,[Define to enable fftw3f support])
