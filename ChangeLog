@@ -2,6 +2,9 @@
 	* configure.ac: added -lmx on macosx
 	* python/aubiocut: seeks for local minima before peak
 	* src/pitchyinc.c: adds draft for all-in-one faster function
+	* examples/*.c: added ladcca client (needs work)
+	* examples/aubioonset.c: cleaned up verbose stdout 
+	* doc/aubio.css: updated
 
 2004-10-28  Paul Brossier <piem@altern.org>
 	* src/Makefile.am: added config.h installation

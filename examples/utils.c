@@ -117,17 +117,17 @@ int parse_args (int argc, char **argv) {
 	while (next_option != -1);
 
 	if (input_filename != NULL) {
-		errmsg ("Input file : %s\n", input_filename );
+		debug ("Input file : %s\n", input_filename );
 	} else if (input_filename != NULL && output_filename != NULL) {
-		errmsg ("Input file : %s\n", input_filename );
-		errmsg ("Output file : %s\n", output_filename );
+		debug ("Input file : %s\n", input_filename );
+		debug ("Output file : %s\n", output_filename );
 	} else {
 		if (JACK_SUPPORT)
 		{
-			errmsg ("Jack input output\n");
+			debug ("Jack input output\n");
 			usejack = 1;
 		} else {
-			errmsg ("Error: Could not switch to jack mode\n   aubio was compiled without jack support\n");
+			debug ("Error: Could not switch to jack mode\n   aubio was compiled without jack support\n");
 			exit(1);
 		}
 	}	

@@ -1,10 +1,27 @@
 TODO
+====
+
+Doc
+---
+
+- update doc
+- complete manpages
+
+Library 
+-------
+
+- code cleanup and optimisation
+- drop the multichannelling functions ?
+- get rid of the midi/jack code ? 
+- move mathutils and sample to use gsl or some faster library ?
+- really enable ladcca support
+
+Interface
+---------
 
 - test zero crossing in python/aubiocut
-- complete manpages
-- drop the multichannel bits ?
-- drop the midi/jack bits ? 
-- move mathutils and sample to use gsl or some faster library ?
-- code cleanup and optimisation
-- really enable ladcca support
-- mix with libsoundtouch and make a melodyne gui
+- aubioonset: save to hydrogen patch file
+- aubionotes: save to midi/sf2 file
+- fix and enhance wavesurfer plugin
+- get the patches in audacity upstream
+- make a melodyne like gui with libsoundtouch

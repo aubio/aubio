@@ -94,8 +94,8 @@ int aubio_process(float **input, float **output, int nframes) {
         for (pos = 0; pos < overlap_size; pos++)
           obuf->data[0][pos] = 0.;
       }
-      /* end of block loop */
       //aubio_pvoc_rdo(pv,fftgrain, obuf);
+      /* end of block loop */
       pos = -1; /* so it will be zero next j loop */
     }
     pos++;
@@ -116,7 +116,7 @@ int main(int argc, char **argv) {
   {
     debug("Opening files ...\n");
     file = new_file_ro (input_filename);
-    file_info(file);
+    if (verbose) file_info(file);
     channels = aubio_file_channels(file);
     if (output_filename != NULL)
       fileout = new_file_wo(file, output_filename);
@@ -143,7 +143,6 @@ int main(int argc, char **argv) {
     onset2 = new_fvec(1 , channels);
   }
 
-  // command line argument parsing
   if(usejack) {
 #ifdef JACK_SUPPORT
     aubio_jack_t * jack_setup;
@@ -172,7 +171,7 @@ int main(int argc, char **argv) {
       /* output times in seconds, taking back some 
        * delay to ensure the label is _before_ the
        * actual onset */
-      if (isonset && verbose) {
+      if (isonset && output_filename == NULL) {
         outmsg("%f\n",(frames-4)*overlap_size/(float)samplerate);
       }
       if (output_filename != NULL) {
