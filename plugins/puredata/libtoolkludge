@@ -1,6 +1,12 @@
 #! /bin/sh
 
+# added --mode=link
 if test \( $# -gt 1 \) -a \( $1 = "--mode=link" \); then
+  shift;
+  echo " libtoolkludge running \"$*\""
+  $*
+  exit 0
+elif test \( $# -gt 1 \) -a \( $1 = "--mode=install" \); then
   shift;
   echo " libtoolkludge running \"$*\""
   $*

@@ -151,16 +151,9 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-EXTRA_DIST = aubio.i
 
-PYTHON_DIR = ../python/aubio
-SWIG = swig
-#SW_FLAGS = -c++
-# removed -Wall -Wmissing-prototypes -Wmissing-declarations 
-SW_CFLAGS = -DJACK_SUPPORT -shared -Werror -Wno-char-subscripts -Wno-unknown-pragmas
-#SW_CFLAGS = -Wno-missing-prototypes -Wno-missing-declarations
-SWINCLUDE = -I/usr/include/python2.3 -I../src -I../ext -I/usr/include
-SWLDFLAGS = -L../ext/.libs -laubioext -L../src/.libs -laubio
+# see ../python/Makefile.am
+EXTRA_DIST = aubio.i
 subdir = swig
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -229,6 +222,7 @@ check: check-am
 all-am: Makefile
 
 installdirs:
+install: install-am
 install-exec: install-exec-am
 install-data: install-data-am
 uninstall: uninstall-am
@@ -306,21 +300,6 @@ uninstall-am: uninstall-info-am
 	mostlyclean-libtool pdf pdf-am ps ps-am uninstall uninstall-am \
 	uninstall-info-am
 
-
-all:
-	$(SWIG) $(SW_FLAGS) -outdir $(PYTHON_DIR) -python aubio.i
-	$(CC) $(SW_CFLAGS) -c aubio_wrap.c $(SWINCLUDE)
-	$(CC) $(SW_CFLAGS) aubio_wrap.o -o $(PYTHON_DIR)/_aubiowrapper.so $(SWLDFLAGS)
-
-install:
-	$(mkinstalldirs) $(DESTDIR)$(pkgpythondir)
-	$(INSTALL) $(PYTHON_DIR)/_aubiowrapper.so $(DESTDIR)$(pkgpythondir)
-	$(INSTALL) -m644 $(PYTHON_DIR)/aubiowrapper.py $(DESTDIR)$(pkgpythondir)
-
-clean:
-	rm -f aubio_wrap.{c,o} $(PYTHON_DIR)/{_aubiowrapper.so,aubiowrapper.py,aubiowrapper.pyc}
-
-distclean: clean
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

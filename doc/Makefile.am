@@ -5,6 +5,7 @@ EXTRA_DIST = devel.cfg examples.cfg user.cfg aubio.css \
 	aubionotes.sgml aubioonset.sgml
 
 man_MANS = aubionotes.1 aubioonset.1
+CLEANFILES = $(man_MANS)
 #docbook_docs = aubio-devdoc.xml
 #DOCBOOK_STYLESHEET ?= http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl
 

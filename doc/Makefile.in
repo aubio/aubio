@@ -160,6 +160,7 @@ EXTRA_DIST = devel.cfg examples.cfg user.cfg aubio.css \
 
 
 man_MANS = aubionotes.1 aubioonset.1
+CLEANFILES = $(man_MANS)
 subdir = doc
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -296,6 +297,7 @@ install-strip:
 mostlyclean-generic:
 
 clean-generic:
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 distclean-generic:
 	-rm -f $(CONFIG_CLEAN_FILES)

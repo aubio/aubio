@@ -151,13 +151,18 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-EXTRA_DIST = __init__.py onsetcompare.py aubioclass.py gnuplot.py\
-	median.py txtfile.py
-
-
 pkgpython_PYTHON = __init__.py onsetcompare.py\
 	gnuplot.py median.py txtfile.py aubioclass.py
 
+
+nodist_pkgpython_PYTHON = aubiowrapper.py _aubiowrapper.so
+
+CLEANFILES = *.pyc *.so *.o aubio_wrap.c aubiowrapper.py 
+
+SWIG = swig
+# removed -Wall -Wmissing-prototypes -Wmissing-declarations 
+SWCFLAGS = -DJACK_SUPPORT -Werror -Wno-char-subscripts -Wno-unknown-pragmas -I/usr/include/python2.3 -I../../src -I../../ext -I/usr/include
+SWLDFLAGS = -shared -L../../ext/.libs -laubioext -L../../src/.libs -laubio
 subdir = python/aubio
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -184,6 +189,29 @@ clean-libtool:
 distclean-libtool:
 	-rm -f libtool
 uninstall-info-am:
+nodist_pkgpythonPYTHON_INSTALL = $(INSTALL_DATA)
+install-nodist_pkgpythonPYTHON: $(nodist_pkgpython_PYTHON)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(pkgpythondir)
+	@list='$(nodist_pkgpython_PYTHON)'; dlist=''; for p in $$list; do\
+	  if test -f "$$p"; then b=; else b="$(srcdir)/"; fi; \
+	  if test -f $$b$$p; then \
+	    d=`echo "$$p" | sed -e 's,^.*/,,'`; \
+	    dlist="$$dlist $$d"; \
+	    echo " $(nodist_pkgpythonPYTHON_INSTALL) $$b$$p $(DESTDIR)$(pkgpythondir)/$$d"; \
+	    $(nodist_pkgpythonPYTHON_INSTALL) $$b$$p $(DESTDIR)$(pkgpythondir)/$$d; \
+	  else :; fi; \
+	done; \
+	PYTHON=$(PYTHON) $(py_compile) --basedir $(DESTDIR)$(pkgpythondir) $$dlist
+
+uninstall-nodist_pkgpythonPYTHON:
+	@$(NORMAL_UNINSTALL)
+	list='$(nodist_pkgpython_PYTHON)'; for p in $$list; do \
+	  d=`echo "$$p" | sed -e 's,^.*/,,'`; \
+	  rm -f $(DESTDIR)$(pkgpythondir)/$$d; \
+	  rm -f $(DESTDIR)$(pkgpythondir)/$${d}c; \
+	  rm -f $(DESTDIR)$(pkgpythondir)/$${d}o; \
+	done
 pkgpythonPYTHON_INSTALL = $(INSTALL_DATA)
 install-pkgpythonPYTHON: $(pkgpython_PYTHON)
 	@$(NORMAL_INSTALL)
@@ -250,7 +278,7 @@ check: check-am
 all-am: Makefile
 
 installdirs:
-	$(mkinstalldirs) $(DESTDIR)$(pkgpythondir)
+	$(mkinstalldirs) $(DESTDIR)$(pkgpythondir) $(DESTDIR)$(pkgpythondir)
 install: install-am
 install-exec: install-exec-am
 install-data: install-data-am
@@ -268,6 +296,7 @@ install-strip:
 mostlyclean-generic:
 
 clean-generic:
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 distclean-generic:
 	-rm -f $(CONFIG_CLEAN_FILES)
@@ -291,7 +320,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-pkgpythonPYTHON
+install-data-am: install-nodist_pkgpythonPYTHON install-pkgpythonPYTHON
 
 install-exec-am:
 
@@ -317,24 +346,30 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-info-am uninstall-pkgpythonPYTHON
+uninstall-am: uninstall-info-am uninstall-nodist_pkgpythonPYTHON \
+	uninstall-pkgpythonPYTHON
 
 .PHONY: all all-am check check-am clean clean-generic clean-libtool \
 	distclean distclean-generic distclean-libtool distdir dvi \
 	dvi-am info info-am install install-am install-data \
 	install-data-am install-exec install-exec-am install-info \
-	install-info-am install-man install-pkgpythonPYTHON \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	uninstall uninstall-am uninstall-info-am \
+	install-info-am install-man install-nodist_pkgpythonPYTHON \
+	install-pkgpythonPYTHON install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am uninstall uninstall-am \
+	uninstall-info-am uninstall-nodist_pkgpythonPYTHON \
 	uninstall-pkgpythonPYTHON
 
 
-clean:
-	rm -f *.pyc
+all: _aubiowrapper.so
 
-distclean: clean
+aubio_wrap.c:
+	$(SWIG) -outdir . -o aubio_wrap.c -python ../../swig/aubio.i
+
+_aubiowrapper.so: aubio_wrap.c
+	$(CC)   $(SWCFLAGS) -c aubio_wrap.c
+	$(CC)   $(SWLDFLAGS) aubio_wrap.o -o _aubiowrapper.so
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

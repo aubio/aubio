@@ -1,5 +1,3 @@
-EXTRA_DIST = aubio_priv.h
-
 pkginclude_HEADERS = aubioext.h \
 	jackio.h \
 	sndfileio.h \

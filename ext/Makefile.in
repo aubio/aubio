@@ -151,8 +151,6 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-EXTRA_DIST = aubio_priv.h
-
 pkginclude_HEADERS = aubioext.h \
 	jackio.h \
 	sndfileio.h \

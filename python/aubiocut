@@ -60,7 +60,8 @@ def cutfile(filein,onsets):
                     writesize = fileo.write(zerocross,myvec)
 		    fromcross = 0
 		    while (zerocross < readsize):
-		    	mycopy.set(myvec.get(zerocross,0),fromcross,0)
+		    	for i in range(channels):
+			    	mycopy.set(myvec.get(zerocross,i),fromcross,i)
 			fromcross += 1
 			zerocross += 1
                     del fileo

@@ -8,7 +8,7 @@ pddir = $(PDDIR)
 #SUBDIRS = ladspa vst win
 
 ## Make and install the shared library.
-pdinstalldir = $(pddir)/extra/aubio
+pdinstalldir = $(pddir)/extra
 
 # Automake won't accept something ending in ".pd_linux" as a library
 pdinstall_PROGRAMS = aubioonset~.pd_linux
@@ -37,5 +37,4 @@ pdinstall_DATA = \
 ## My kludge
 noinst_SCRIPTS = libtoolkludge
 
-## version.h is there for the Windows platform (no autoconf)
-EXTRA_DIST = $(pdinstall_DATA) $(noinst_SCRIPTS) version.h
+EXTRA_DIST = $(pdinstall_DATA) $(noinst_SCRIPTS)

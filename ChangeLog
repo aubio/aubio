@@ -1,5 +1,11 @@
+2004-12-11  Paul Brossier <piem@altern,org>
+	* swig/Makefile.am: instructions moved to python/aubio and cleaned
+	* python/aubiocut: corrected slicing on multichannel files
+	* VERSION: bumped to 0.1.8
+
 2004-12-06  Paul Brossier <piem@altern.org>
 	* examples/{midi*,testforclam}.c: removed
+	* src/{sndfile,midi*,jackio}.[ch]: moved to ext
 
 2004-12-03  Paul Brossier <piem@altern.org>
 	* src/{mathutils,pitchyin}.h: got rid of some shadowed declarations
@@ -16,6 +22,7 @@
 
 2004-10-28  Paul Brossier <piem@altern.org>
 	* src/Makefile.am: added config.h installation
+	* VERSION: 0.1.7.1
 
 2004-10-26  Paul Brossier <piem@altern.org>:
 	* src/pitchdetection.*: moved to src/pitchmcomb.*, now includes a

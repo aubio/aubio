@@ -161,7 +161,7 @@ PDDIR = $(prefix)/lib/pd
 pddir = $(PDDIR)
 
 #SUBDIRS = ladspa vst win
-pdinstalldir = $(pddir)/extra/aubio
+pdinstalldir = $(pddir)/extra
 
 # Automake won't accept something ending in ".pd_linux" as a library
 pdinstall_PROGRAMS = aubioonset~.pd_linux
@@ -187,7 +187,7 @@ pdinstall_DATA = \
 
 noinst_SCRIPTS = libtoolkludge
 
-EXTRA_DIST = $(pdinstall_DATA) $(noinst_SCRIPTS) version.h
+EXTRA_DIST = $(pdinstall_DATA) $(noinst_SCRIPTS)
 subdir = plugins/puredata
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
