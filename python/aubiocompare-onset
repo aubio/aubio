@@ -60,7 +60,8 @@ from aubio.txtfile import read_datafile
 # default values
 fileo=None;filec=None;vmode=None;dmode=None;delay=0.
 # default tolerance is 50 ms
-tol = 0.050
+#tol = 0.050
+tol = 0.048
 
 while len(sys.argv) >=2:
     option = sys.argv[1]; del sys.argv[1]
@@ -70,6 +71,7 @@ while len(sys.argv) >=2:
     if option == '-v': vmode = 'verbose'
     if option == '-d': dmode = 'debug'
     if option == '-D': delay = float(sys.argv[1]); del sys.argv[1] 
+    if option == '-tol': tol = float(sys.argv[1]); del sys.argv[1] 
 
 # arguments required
 if (not fileo) or (not filec):
@@ -80,8 +82,9 @@ if (not fileo) or (not filec):
 ltru, lres = read_datafile(fileo,depth=0),read_datafile(filec,depth=0)
 
 # delay onsets as required with -D
-for i in range(len(lres)):
-    lres[i] = lres[i] + delay
+if delay:
+    for i in range(len(lres)):
+        lres[i] = lres[i] + delay
 # compute errors types
 ok, bad, missed, total, hits = onset_roc(ltru,lres,tol)
 

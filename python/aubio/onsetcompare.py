@@ -53,6 +53,12 @@ def onset_roc(la, lb, eps):
             bad += 1
     ok    = n - missed
     hits  = m - bad
+    # at this point, we must have ok = hits. if not we had
+    #   - a case were one onset counted for two labels (ok>hits)
+    #   - a case were one labels matched two onsets (hits>ok)
+    # bad hack for now (fails if both above cases have happened):
+    if ok > hits: bad += ok-hits; ok = hits
+    if hits > ok: missed += hits-ok; hits = ok
     total = n
     return ok,bad,missed,total,hits
     
