@@ -155,7 +155,9 @@ target_alias = @target_alias@
 #  install the man pages and include in distribution
 #man_MANS = fluidsynth.1 
 #EXTRA_DIST = $(man_MANS) devel.cfg fluidsynth.1 
-EXTRA_DIST = devel.cfg examples.cfg user.cfg aubio.css
+EXTRA_DIST = devel.cfg examples.cfg user.cfg aubio.css \
+	aubionotes.sgml aubioonset.sgml
+
 subdir = doc
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs

@@ -1,7 +1,8 @@
 #  install the man pages and include in distribution
 #man_MANS = fluidsynth.1 
 #EXTRA_DIST = $(man_MANS) devel.cfg fluidsynth.1 
-EXTRA_DIST = devel.cfg examples.cfg user.cfg aubio.css
+EXTRA_DIST = devel.cfg examples.cfg user.cfg aubio.css \
+	aubionotes.sgml aubioonset.sgml
 
 #docbook_docs = aubio-devdoc.xml
 #DOCBOOK_STYLESHEET ?= http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl

@@ -112,6 +112,19 @@ sensible</emphasis>.  Try <literal>0.3</literal> in case of over-detections.</pa
   </listitem>
   </varlistentry>
   <varlistentry>
+  <term><option>-O</option>
+  <option>--onset value</option></term>
+  <listitem>
+
+  <para>The onset detection function to run. Can be one of
+  <emphasis>complexdomain</emphasis>, <emphasis>hfc</emphasis>,
+  <emphasis>phase</emphasis>, <emphasis>specdiff</emphasis>,
+  <emphasis>energy</emphasis>. By default (<emphasis>fixme</emphasis>), both
+  complex domain and HFC are used in parallel.</para>
+
+  </listitem>
+  </varlistentry>
+  <varlistentry>
   <term><option>-j</option>
   <option>--jack</option></term>
   <listitem>

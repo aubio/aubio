@@ -69,22 +69,24 @@ manpage.1: manpage.sgml
 
     <para>This manual page documents briefly the <command>&dhpackage;</command> command.</para>
 
-<para>The library <emphasis remap='B'>aubio</emphasis> provides a small set of functions to extract events and
-objects from audio, from live streams or still files. Onsets are used to label
-the beginning of notes, pitches to label their height.</para>
+<para>The library <emphasis>aubio</emphasis> provides a small set of functions
+to extract events and objects from audio, from live streams or still files.
+Onsets are used to label the beginning of notes, pitches to label their
+height.</para>
 
-<para><command>aubionotes</command> is still in an experimental state. Its aim is to segment notes
-with onsets, and label them with their detected pitch. When started without an
-input file argument (<option>-i</option>), aubionotes creates a jack input and a midi
-output. When an input file is given, it outputs the results on the console.</para>
+<para><command>aubionotes</command> is still in an experimental state. Its aim
+is to segment notes with onsets, and label them with their detected pitch. When
+started without an input file argument (<option>-i</option>), aubionotes
+creates a jack input and a midi output. When an input file is given, it outputs
+the results on the console.</para>
 
   </refsect1>
   <refsect1>
     <title>OPTIONS</title>
 
-<para>This program follows the usual GNU command line syntax, with long
-options starting with two dashes (`-').
-A summary of options is included below.</para>
+<para>This program follows the usual GNU command line syntax, with long options
+starting with two dashes (`-').  A summary of options is included below.</para>
+
 <variablelist>
   <varlistentry>
   <term><option>-i</option>
@@ -98,8 +100,8 @@ supported.</para>
   <term><option>-o</option>
   <option>--output fileout</option></term>
   <listitem>
-<para>Save results in this file. The file will be created on the model of the input
-file. Results are marked by a very short wood-block sample.</para>
+<para>Save results in this file. The file will be created on the model of the
+input file. Results are marked by a very short wood-block sample.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
@@ -109,6 +111,19 @@ file. Results are marked by a very short wood-block sample.</para>
 <para>Set the threshold value for the onset peak picking. Typical values are within
 <literal>0.001</literal> and <literal>0.900</literal>. Default is <literal>0.1</literal>. The <emphasis>lower</emphasis> the <emphasis>more
 sensible</emphasis>.  Try <literal>0.3</literal> in case of over-detections.</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-O</option>
+  <option>--onset value</option></term>
+  <listitem>
+
+  <para>The onset detection function to run. Can be one of
+  <emphasis>complexdomain</emphasis>, <emphasis>hfc</emphasis>,
+  <emphasis>phase</emphasis>, <emphasis>specdiff</emphasis>,
+  <emphasis>energy</emphasis>. By default (<emphasis>fixme</emphasis>), both
+  complex domain and HFC are used in parallel.</para>
+
   </listitem>
   </varlistentry>
   <varlistentry>
