@@ -1,0 +1,9 @@
+This directory contains a plugin file and a configuration file for wavesurfer.
+It's actually just a label widget with some added functions. Install them in
+
+	~/.wavesurfer/1.6/{plugins,configurations} 
+    or	/usr/lib/wsurf1.6/{plugins,configurations}
+
+and they should appear next time you launch wavesurfer.
+
+The config box to set different options is still to be written.

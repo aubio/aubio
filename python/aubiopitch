@@ -1,0 +1,24 @@
+#!/usr/bin/python
+
+def do(filein):
+    from aubio import aubioclass
+    hopsize   = 512
+    bufsize   = 4096
+    frameread = 0
+    filei     = aubioclass.sndfile(filein)
+    srate     = filei.samplerate()
+    channels  = filei.channels()
+    myvec     = aubioclass.fvec(hopsize,channels)
+    readsize  = filei.read(hopsize,myvec)
+    ppick     = aubioclass.pitchpick(bufsize,hopsize,channels,myvec,srate)
+    while(readsize==hopsize):
+        readsize = filei.read(hopsize,myvec)
+        val = ppick.do(myvec)
+        freq = aubioclass.bintofreq(val,srate,bufsize)
+        now = (frameread)*hopsize/(srate+0.)
+        print "%.3f     %.2f" % (now,freq)
+        frameread += 1
+
+if __name__ == "__main__":
+    import sys
+    do(sys.argv[1])

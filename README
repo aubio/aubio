@@ -1,0 +1,102 @@
+AUBIO LIBRARY 
+
+Aubio is a library for real time audio labelling. It can segment a sound at
+each of its attacks, perform pitch detection and produce midi streams from live
+audio. 
+
+Aubio is still in an alpha state. More to come soon, suggestions and feedback
+welcome.
+
+A few examples of applications are provided in examples/ and python/: 
+ - aubioonset output the onset detected, 
+ - aubionotes emits midi-like notes,
+ - aubiocuts is a python script that takes an input sound and creates one new
+   sample at each new onsettimes
+
+The first two can work either offline or online, outputing the results on the
+console or playing a woodblock sound at each detected onset.
+
+The name Aubio comes from 'audio' with a typo. It is likely to have many
+transcription errors in the results too!
+
+DEPENDANCIES 
+
+This package depends on the following libraries and utils: 
+  - automake1.7
+  - libsndfile1
+  - fftw3
+  - libsamplerate
+  - libjack (optional)
+  - libasound2 (optional)
+  - python, python-numarray (optional)
+  - swig (optional, for the python interface)
+
+BUILDING AUBIO
+
+The usual invocation `$ ./configure && make' should do the job. Read on the 
+generic INSTALL file for more information.
+
+DEBIAN
+
+You could try the debian package (see http://piem.homeip.net/~piem/debian/)
+
+On Debian you need the following packages to compile aubio: automake
+libsndfile1-dev libjack-dev fftw3-dev libsamplerate0-dev python python-dev
+python-numarray swig
+
+OTHER PLATFORMS
+
+Support has never been tested for Windows or MacOsX. It _could_ work with
+$ ./configure --enable-alsa=no --enable-jack=no
+Again, untested. Feedback and patches welcome.
+
+STATUS
+
+The shared library libaubio provides the following tools:
+  - various maths tools
+  - phase vocoder 
+  - up/downsampling
+  - filtering (n pole/zero pairs)
+  - onset detection functions
+  - onset peak picking
+  - multicomb-filtering pitchdetection
+  - transient/steady-state separation
+  - alsa midi and jack input outputs
+
+A swig wrapper is provided in swig/. For now, I have only been playing with the
+python interface. But there is much overlap with projects such as pyjack and
+numeric. To be continued...
+
+`Make it run, make it right, make it fast.' [1] Aubio is in the "Make it right"
+process: almost no optimisation has been done to the code, and its speed could
+be much improved. The pitch detection is especially slow.
+
+[1] see http://c2.com/cgi/wiki?MakeItWorkMakeItRightMakeItFast
+
+EXTEND
+
+The C API is designed in the following old school way:
+
+    void del_aubio_thing(aubio_thing_t * t);
+    aubio_thing_t * new_aubio_thing(void * args);
+    audio_thing_methods(aubio_thing_t * t, void * args);
+
+Memory allocation or freeing should never take place in these _methods, and
+should all be bound to the new_ and del_ methods. Also most gcc warning flags
+are turned on, so functions must be prototyped and variables used.
+
+CONTACT
+
+This project is a demo program for my research project. It can be found online
+at http://piem.homeip.net/~piem/aubio/. I have been writting about the results
+obtained with aubio in the following papers (that are about to be published!):
+  
+  P. M. Brossier and J. P. Bello and M. D. Plumbley, Real-time temporal
+  segmentation of note objects in music signals, Proceedings of the
+  International Computer Music Conference, 2004, Miami, Florida, ICMA
+
+  P. M. Brossier and J. P. Bello and M. D. Plumbley, Fast labelling of note
+  objects in music signals, Proceedings of the International Symposium on Music
+  Information Retrieval, 2004, Barcelona, Spain
+
+Feel free to drop me a comment at piem@altern.org.

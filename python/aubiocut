@@ -1,0 +1,59 @@
+#!/usr/bin/python
+
+""" this file was written by Paul Brossier 
+  it is released under the GNU/GPL license.
+"""
+
+from aubio.aubioclass import *
+import sys
+
+def getonsets(filein,threshold):
+        bufsize   = 1024
+        hopsize   = bufsize/2
+        frameread = 0
+        filei     = sndfile(filein)
+        srate     = filei.samplerate()
+        channels  = filei.channels()
+        myvec     = fvec(hopsize,channels)
+        readsize  = filei.read(hopsize,myvec)
+        opick     = onsetpick(bufsize,hopsize,channels,myvec,threshold)
+        #newname   = "%s%.8f%s" % ("/tmp/",0.0000000,filein[-4:])
+        #fileo     = sndfile(newname,model=filei)
+        mylist    = list()
+        while(readsize==hopsize):
+                readsize = filei.read(hopsize,myvec)
+                isonset,val = opick.do(myvec)
+                if (isonset == 1):
+                    now = (frameread-4)*hopsize/(srate+0.)
+                    #del fileo
+                    #fileo = sndfile("%s%f%s" % ("/tmp/",now,filein[-4:]),model=filei)
+                    mylist.append(now)
+                #writesize = fileo.write(readsize,myoldvec)
+                frameread += 1
+        return mylist
+
+def cutfile(filein,onsets):
+        hopsize   = 512
+        frameread = 0
+        readsize  = hopsize 
+        filei     = sndfile(filein)
+        srate     = filei.samplerate()
+        channels  = filei.channels()
+        newname   = "%s%f%s" % ("/tmp/",0.0000000,filein[-4:])
+        fileo     = sndfile(newname,model=filei)
+        myvec     = fvec(hopsize,channels)
+        while(readsize==hopsize):
+                readsize = filei.read(hopsize,myvec)
+                now = (frameread)*hopsize/(srate+0.)
+                writesize = fileo.write(readsize,myvec)
+                if len(onsets) and now == onsets[0]:
+                    onsets.pop(0)
+                    del fileo
+                    fileo = sndfile("%s%f%s%s" % ("/tmp/",now,".",filein.split(".")[-1]),model=filei)
+                frameread += 1
+        del fileo
+
+filename  = sys.argv[1]
+threshold = sys.argv[2]
+onsets    = getonsets(filename,threshold)
+cutfile(filename,onsets)

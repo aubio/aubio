@@ -1,0 +1,96 @@
+--- audacity-1.2.1.orig/lib-src/libnyquist/nyx/nyx.c
++++ audacity-1.2.1/lib-src/libnyquist/nyx/nyx.c
+@@ -620,8 +620,14 @@
+ {
+    if (moreargs()) {
+       unsigned char *cmd;
++      int retval;
+       cmd = (unsigned char *)getstring(xlgastring());
+-      fprintf(stderr, "Will not execute system command: %s\n", cmd);
++      //fprintf(stderr, "Will not execute system command: %s\n", cmd);
++      system(cmd);
++      if (retval != 0) 
++      	fprintf(stderr, 
++		"the command \n %s \n exited with the error %d\n", 
++		cmd, retval);
+    }
+    return s_true;
+ }
+--- audacity-1.2.1.orig/lib-src/libnyquist/xlisp/xlftab.c
++++ audacity-1.2.1/lib-src/libnyquist/xlisp/xlftab.c
+@@ -83,6 +83,7 @@
+     xgetlambda(void),xmacroexpand(void),x1macroexpand(void),
+     xinfo(void),					//Added by Ning Hu	Apr.2001
+     xsetdir(void),					//Added by Ning Hu	May.2001
++    xatof(void), xftoa(void),				//Added by PiemBrossier Jul.2004
+     xtrace(void),xuntrace(void),xprofile(void),xstrsearch(void), xsetupconsole(void);
+ #endif
+ 
+@@ -452,8 +453,9 @@
+ {	"WRITE-INT",			S, xwrint		}, /* 292 */
+ {	"WRITE-FLOAT",			S, xwrfloat		}, /* 293 */
+ {	"INFO",				S, xinfo		}, /* 294 */ /* Ning Hu, Apr 2001 */
+-{	NULL,				S, xnotimp		}, /* 295 */
+-{	NULL,				S, xnotimp		}, /* 296 */
++
++{	"ATOF",				S, xatof		}, /* 295 */ /* Paul Brossier <piem@altern.org> */
++{	"FTOA",				S, xftoa		}, /* 296 */ /* Jul. 2004 */ 
+ {	NULL,				S, xnotimp		}, /* 297 */
+ {	NULL,				S, xnotimp		}, /* 298 */
+ {	NULL,				S, xnotimp		}, /* 299 */
+--- audacity-1.2.1.orig/lib-src/libnyquist/xlisp/xlstr.c
++++ audacity-1.2.1/lib-src/libnyquist/xlisp/xlstr.c
+@@ -16,6 +16,11 @@
+ #define TLEFT	1
+ #define TRIGHT	2
+ 
++/* on the NeXT, atof is a macro in stdlib.h */
++#ifndef atof
++extern double atof();
++#endif
++
+ /* external variables */
+ extern LVAL k_start,k_end,k_1start,k_1end,k_2start,k_2end;
+ extern LVAL s_true;
+@@ -555,3 +560,41 @@
+     return (icmp ? s_true : NIL);
+ }
+ 
++/* functions added by Paul Brossier <piem@altern.org> */
++LVAL xatof() /* converts a string to a float */
++{
++	if (moreargs()) {
++		unsigned char *astring = NULL;
++		float afloat;
++		astring = (unsigned char *)getstring(xlgastring());
++		xllastarg();
++		afloat = atof(astring);
++		return cvflonum(afloat);
++	} else 
++		return NIL;
++}
++
++LVAL xftoa() /* converts a float to a string */
++{
++	LVAL arg;
++	FIXTYPE ival=0;
++	FLOTYPE fval=0;
++	if (moreargs()) {
++		/* get the first argument */
++		arg = xlgetarg();
++		xllastarg();
++
++		/* set the type of the first argument */
++		if (fixp(arg)) {
++			ival = getfixnum(arg);
++			snprintf(buf,STRMAX,"%d",ival);
++		}
++		else if (floatp(arg)) {
++			fval = getflonum(arg);
++			snprintf(buf,STRMAX,"%f",fval);
++		}
++
++		return cvstring(buf);
++	} else 
++		return NIL;
++}

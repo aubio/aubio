@@ -1,0 +1,119 @@
+2004-10-28  Paul Brossier <piem@altern.org>
+	* src/Makefile.am: added config.h installation
+
+2004-10-26  Paul Brossier <piem@altern.org>:
+	* src/pitchdetection.*: moved to src/pitchmcomb.*, now includes a
+	draft driver for transparent use of mcomb or yin 
+	* src/pitchmcomb.*: added from old src/pitchdetection.*
+	* VERSION: 0.1.7
+
+2004-10-20  Paul Brossier <piem@altern.org>:
+	* configure.ac: made fftw3f, alsa and jack optional
+	* src/fft.{c,h}: now uses FFTW3F_SUPPORT
+	* src/timer.c: #if 0 on win32 version
+
+2004-10-18  Paul Brossier <piem@altern.org>:
+	* src/{fft,cvec,pvoc}.c: fixed fft size (N/2+1)
+	* src/{onsetdetection,tss}.c: fixed sizes as well
+	* src/pvoc.c: fixed resynthesis scaling factor (still missing
+	windowing), windowing added in pvoc_rdo 
+	* src/fft.h: removed FFTW typedef
+	* configure.ac: removed AC_ISC_POSIX to compile on mingw32
+	* src/fft.c: removed useless fftw3.h include
+	* src/pitchmcomb.c: removed call to vec_adapt_thres (writes out of
+	bounds)
+
+2004-10-17  Paul Brossier <piem@altern.org>
+	* src/sample.c: removed static _malloc, set all 0. (fixes nan bugs)
+	* examples/*.c: removed useless pvoc inits
+	* src/pitchyin.c: based on de Cheveigne paper
+
+2004-09-17  Paul Brossier <piem@altern.org>
+	* configure.ac,src/Makefile.am: cleaned up autotools process
+	* examples/aubio*.c: removed some useless code.
+	* src/sample.c: removed crazy call to memset
+
+2004-09-02  Paul Brossier <piem@altern.org>
+	* src/sndfileio.c: removed abusive call to AUBIO_ARRAY,
+	defined MAX_SIZE instead.
+	* src/onsetdetection.c: rewritten free_function.
+	* src/phasevoc.c: in aubio_pvoc_rdo, one way writing only
+	* swig/, python/aubio: added swig wrapper, played a bit with 
+	python interface.
+	* src/aubio.h: now includes midi_driver.h
+
+2004-06-25  Paul Brossier <piem@altern.org>
+	* src/peakpick.h: 
+	   renamed pickparams_t to aubio_pickpeak_t 
+	   disabled samer_pp (broken)
+	   added del_aubio_peakpick
+	   added aubio_peakpick_pimrt_wt (thanks mramirez) 
+	* python/aubio/onsetcompare.py: now works on huge list 
+	   thanks goes to Nicolas Wack
+	* examples/aubionotes.c: now outputs NOTEONs 
+	* configure.ac: quick hack to disable jack and alsa
+	* examples/*usingjack*: more hacking to disable jack
+	* README: some updates
+
+2004-06-23  Paul Brossier <piem@altern.org>
+	* src/*.h: added C++ ifdefs in header files
+	* src/fft.h: removed complex.h include in header
+	* src/hist.c: fixed out of array indexes 
+		thanks Miguel Ramirez!
+	* src/Makefile.am: added install headers
+	* doc/Makefile.am: removed dist-hook to update-docs
+	* sounds/Makefile.am: added install hooks
+	* aubio.pc.in: added aubio.pc generation for pkg-config
+	* python: added some evaluation functions 
+	* src/aubio_priv.h: moved AUBIO_DBG to stderr
+	* examples/utils.h: now outputs on stdout
+	* examples/midi*.c: fixed compilation with gcc-2.95
+	* VERSION: 0.1.4
+
+2004-04-27  Paul Brossier <piem@altern.org>
+	* pitchdetection.c: fixed, still not great
+	* Makefile.am: fixed missing headers (thank you Charbel) 
+	* aubioonset,aubionotes: renamed for install (were *demo files)
+	* First working release: 0.1.3
+
+2004-01-31  Paul Brossier <piem@altern.org>
+	* pitchdetection.c: working, still a bit too picky
+	* filter.c: sizeable biquad, fixed via pitchtest.c
+	* types.h: added file, all generic system wide types.
+	* tss.c: added some speed improvements
+
+2004-01-20  Paul Brossier <piem@altern.org>
+	* peakpick.c: working real time onset detection
+	* biquad.c: needs fixing
+
+2004-01-10  Paul Brossier <piem@altern.org>
+	* long time i didn't touch this file
+	* added various objects
+	* working onsetdetectors
+	* various examples
+	* splitted in a dynamic library
+	* functions renamed (new_. del_. aubio_._do)
+	* VERSION: 0.1.0_alpha
+
+2003-11-04  Paul Brossier <piem@altern.org>
+	* aubio.h: degrouping in modules
+	* VERSION: 0.0.6_alpha
+
+2003-11-03  Paul Brossier <piem@altern.org>
+	* phasevoc.c: fixed memory acces
+	* jackio.c: moving to ringbuffer type implementation
+	* VERSION: 0.0.4_alpha
+
+2003-11-03  Paul Brossier <piem@altern.org>
+	* jackio.c: added jack support
+	* aubioenc.c: fixed memory freeing bugs
+	* VERSION: 0.0.3_alpha
+
+2003-10-29  Paul Brossier <piem@altern.org>
+	* aubio.h: Grouping all headers
+	* makefile.am: Running first make dist
+	* VERSION: 0.0.2alpha
+ 
+2003-10-18  Paul Brossier <piem@altern.org>
+	* aubioenc.c: Working phase vocoder
+	* VERSION: 0.0.1alpha

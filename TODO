@@ -1,0 +1,8 @@
+TODO
+
+- drop the multichannel bits ?
+- drop the midi/jack bits ? 
+- looks like it really needs ring buffers
+- move mathutils and sample to use gsl or some faster library
+- code cleanup and optimisation
+- mix with libsoundtouch and make a melodyne gui
