@@ -18,8 +18,7 @@ noinst_PROGRAMS = \
 	midialsa \
 	testforclam
 	
-man_MANS = aubionotes.1 aubioonset.1
-EXTRA_DIST = utils.h $(man_MANS)
+EXTRA_DIST = utils.h
 
 
 # optionally add sources file for these programs

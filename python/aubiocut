@@ -7,7 +7,7 @@
 from aubio.aubioclass import *
 import sys
 
-bufsize   = 512
+bufsize   = 1024
 hopsize   = bufsize/2
 
 def getonsets(filein,threshold):
@@ -33,10 +33,7 @@ def getonsets(filein,threshold):
 			while ovalist[i-1] < ovalist[i] and i > 0:
 				i -= 1
                     	now = (frameread+1-i)*hopsize/(srate+0.)
-                    	#del fileo
-                    	#fileo = sndfile("%s%f%s" % ("/tmp/",now,filein[-4:]),model=filei)
                     	mylist.append(now)
-                #writesize = fileo.write(readsize,myoldvec)
                 frameread += 1
         return mylist
 

@@ -57,7 +57,9 @@ manpage.1: manpage.sgml
   <refnamediv>
     <refname>&dhpackage;</refname>
 
-    <refpurpose>an sound file onset detector</refpurpose>
+    <refpurpose>a command line tool for real time wav to midi
+    conversion</refpurpose>
+
   </refnamediv>
   <refsynopsisdiv>
     <cmdsynopsis>

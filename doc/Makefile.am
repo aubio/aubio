@@ -4,6 +4,7 @@
 EXTRA_DIST = devel.cfg examples.cfg user.cfg aubio.css \
 	aubionotes.sgml aubioonset.sgml
 
+man_MANS = aubionotes.1 aubioonset.1
 #docbook_docs = aubio-devdoc.xml
 #DOCBOOK_STYLESHEET ?= http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl
 
@@ -36,9 +37,10 @@ doc-examples:
 	doxygen examples.cfg
 	cp aubio.css examples
 	
-man:
-	docbook-to-man aubionotes.sgml > aubionotes.1
-	docbook-to-man aubioonset.sgml > aubioonset.1
+%.sgml: 
+
+%.1:	%.sgml
+	docbook-to-man $< > $*.1
 
 # Update docs for distribution
 #dist-hook: 
