@@ -27,15 +27,12 @@ maintainer-clean-local: doc-clean
 
 doc-devel: 
 	doxygen devel.cfg
-	cp aubio.css devel
 
 doc-user: 
 	doxygen user.cfg
-	cp aubio.css user
 
 doc-examples: 
 	doxygen examples.cfg
-	cp aubio.css examples
 	
 %.sgml: 
 
