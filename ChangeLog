@@ -1,3 +1,6 @@
+2004-11-39  Paul Brossier <piem@altern.org>
+	* configure.ac: added -lmx on macosx
+
 2004-10-28  Paul Brossier <piem@altern.org>
 	* src/Makefile.am: added config.h installation
 

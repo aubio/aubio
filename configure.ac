@@ -13,6 +13,7 @@ AC_PREFIX_DEFAULT(/usr)
 
 dnl enable optimization
 CFLAGS="$CFLAGS -O2"
+
 	
 dnl Check for debug
 AC_ARG_ENABLE(debug,
@@ -60,6 +61,11 @@ case "${host_os}" in
 mingw*)
   mingw32_support="yes"
   AC_CHECK_HEADER(windows.h)
+  ;;
+darwin*)
+  dnl on macosx, cosf went to -lmx
+  LDFLAGS="$LDFLAGS -lmx"
+  AC_ISC_POSIX
   ;;
 *)
   AC_ISC_POSIX

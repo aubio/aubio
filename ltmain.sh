@@ -44,7 +44,7 @@ EXIT_FAILURE=1
 PROGRAM=ltmain.sh
 PACKAGE=libtool
 VERSION=1.5.6
-TIMESTAMP=" (1.1220.2.95 2004/04/11 05:50:42) Debian$Rev: 215 $"
+TIMESTAMP=" (1.1220.2.95 2004/04/11 05:50:42) Debian$Rev: 220 $"
 
 
 # Check that we have a working $echo.
@@ -1865,10 +1865,6 @@ EOF
 	-l*)
 	  if test "$linkmode" != lib && test "$linkmode" != prog; then
 	    $echo "$modename: warning: \`-l' is ignored for archives/objects" 1>&2
-	    continue
-	  fi
-	  if test "$pass" = conv; then
-	    deplibs="$deplib $deplibs"
 	    continue
 	  fi
 	  name=`$echo "X$deplib" | $Xsed -e 's/^-l//'`
