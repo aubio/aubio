@@ -41,12 +41,6 @@
 #include <sys/poll.h>
 /* #include <errno.h> //perror is in stdio.h */
 
-
-#ifdef LADCCA_SUPPORT
-#include <ladcca/ladcca.h>
-extern cca_client_t * aubio_cca_client;
-#endif /* LADCCA_SUPPORT */
-
 #define AUBIO_ALSA_DEFAULT_SEQ_DEVICE   "default"
 
 #define AUBIO_ALSA_BUFFER_LENGTH 512

@@ -12,6 +12,7 @@
 #include <math.h> /* for isfinite */
 #include "utils.h"
 
+/* not supported yet */
 #ifdef LADCCA_SUPPORT
 #include <ladcca/ladcca.h>
 cca_client_t * aubio_cca_client;

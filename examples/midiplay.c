@@ -25,6 +25,12 @@
 #include "aubio.h"
 #include <unistd.h>
 
+/* not supported yet */
+#ifdef LADCCA_SUPPORT
+#include <ladcca/ladcca.h>
+cca_client_t * aubio_cca_client;
+#endif /* LADCCA_SUPPORT */
+
 int main(int argc, char ** argv) {
 #if ALSA_SUPPORT
   aubio_midi_player_t * mplay = new_aubio_midi_player();

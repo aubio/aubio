@@ -30,7 +30,6 @@
 #include "midi_parser.h"
 #include "midi_driver.h"
 
-
 #if ALSA_SUPPORT
 
 #define ALSA_PCM_NEW_HW_PARAMS_API
@@ -42,12 +41,6 @@
 /* #include <errno.h> //perror is in stdio.h */
 
 #include "config.h"
-
-#ifdef LADCCA_SUPPORT
-#include <ladcca/ladcca.h>
-extern cca_client_t * aubio_cca_client;
-#endif /* LADCCA_SUPPORT */
-
 
 #define AUBIO_ALSA_DEFAULT_MIDI_DEVICE  "default"
 

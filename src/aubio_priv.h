@@ -65,6 +65,13 @@
 #include <string.h>
 #endif
 
+#ifdef ALSA_SUPPORT
+#ifdef LADCCA_SUPPORT
+#include <ladcca/ladcca.h>
+extern cca_client_t * aubio_cca_client;
+#endif /* LADCCA_SUPPORT */
+#endif /* ALSA_SUPPORT */
+
 
 #include "types.h"
 

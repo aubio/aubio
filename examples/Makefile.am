@@ -2,8 +2,8 @@
 #SUBDIRS=onsets
 
 # global flags
-AM_CFLAGS = -I../src
-AM_LDFLAGS = -L../src -laubio
+AM_CFLAGS = -I../src @LADCCA_CFLAGS@
+AM_LDFLAGS = -L../src @LADCCA_LIBS@ -laubio
 #AM_SOURCES = utils.c
 
 # add your programs to this list
