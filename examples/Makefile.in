@@ -166,20 +166,12 @@ bin_PROGRAMS = \
 	aubionotes
 
 
-noinst_PROGRAMS = \
-	midiparse \
-	midiplay \
-	midialsa \
-	testforclam
-
-
 EXTRA_DIST = utils.h
 
 # optionally add sources file for these programs
 aubioonset_SOURCES = aubioonset.c utils.c
 aubionotes_SOURCES = aubionotes.c utils.c
 aubionotesmedian_SOURCES = aubionotesmedian.c utils.c
-testforclam_SOURCES = testforclam.c utils.c
 subdir = examples
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -187,9 +179,7 @@ CONFIG_HEADER = $(top_builddir)/src/config.h
 CONFIG_CLEAN_FILES =
 bin_PROGRAMS = aubioonset$(EXEEXT) aubionotesmedian$(EXEEXT) \
 	aubionotes$(EXEEXT)
-noinst_PROGRAMS = midiparse$(EXEEXT) midiplay$(EXEEXT) midialsa$(EXEEXT) \
-	testforclam$(EXEEXT)
-PROGRAMS = $(bin_PROGRAMS) $(noinst_PROGRAMS)
+PROGRAMS = $(bin_PROGRAMS)
 
 am_aubionotes_OBJECTS = aubionotes.$(OBJEXT) utils.$(OBJEXT)
 aubionotes_OBJECTS = $(am_aubionotes_OBJECTS)
@@ -206,35 +196,13 @@ aubioonset_OBJECTS = $(am_aubioonset_OBJECTS)
 aubioonset_LDADD = $(LDADD)
 aubioonset_DEPENDENCIES =
 aubioonset_LDFLAGS =
-midialsa_SOURCES = midialsa.c
-midialsa_OBJECTS = midialsa.$(OBJEXT)
-midialsa_LDADD = $(LDADD)
-midialsa_DEPENDENCIES =
-midialsa_LDFLAGS =
-midiparse_SOURCES = midiparse.c
-midiparse_OBJECTS = midiparse.$(OBJEXT)
-midiparse_LDADD = $(LDADD)
-midiparse_DEPENDENCIES =
-midiparse_LDFLAGS =
-midiplay_SOURCES = midiplay.c
-midiplay_OBJECTS = midiplay.$(OBJEXT)
-midiplay_LDADD = $(LDADD)
-midiplay_DEPENDENCIES =
-midiplay_LDFLAGS =
-am_testforclam_OBJECTS = testforclam.$(OBJEXT) utils.$(OBJEXT)
-testforclam_OBJECTS = $(am_testforclam_OBJECTS)
-testforclam_LDADD = $(LDADD)
-testforclam_DEPENDENCIES =
-testforclam_LDFLAGS =
 
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)/src
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/aubionotes.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/aubionotesmedian.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/aubioonset.Po ./$(DEPDIR)/midialsa.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/midiparse.Po ./$(DEPDIR)/midiplay.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/testforclam.Po ./$(DEPDIR)/utils.Po
+@AMDEP_TRUE@	./$(DEPDIR)/aubioonset.Po ./$(DEPDIR)/utils.Po
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
@@ -243,10 +211,9 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 DIST_SOURCES = $(aubionotes_SOURCES) $(aubionotesmedian_SOURCES) \
-	$(aubioonset_SOURCES) midialsa.c midiparse.c midiplay.c \
-	$(testforclam_SOURCES)
+	$(aubioonset_SOURCES)
 DIST_COMMON = $(srcdir)/Makefile.in Makefile.am
-SOURCES = $(aubionotes_SOURCES) $(aubionotesmedian_SOURCES) $(aubioonset_SOURCES) midialsa.c midiparse.c midiplay.c $(testforclam_SOURCES)
+SOURCES = $(aubionotes_SOURCES) $(aubionotesmedian_SOURCES) $(aubioonset_SOURCES)
 
 all: all-am
 
@@ -286,13 +253,6 @@ clean-binPROGRAMS:
 	  echo " rm -f $$p $$f"; \
 	  rm -f $$p $$f ; \
 	done
-
-clean-noinstPROGRAMS:
-	@list='$(noinst_PROGRAMS)'; for p in $$list; do \
-	  f=`echo $$p|sed 's/$(EXEEXT)$$//'`; \
-	  echo " rm -f $$p $$f"; \
-	  rm -f $$p $$f ; \
-	done
 aubionotes$(EXEEXT): $(aubionotes_OBJECTS) $(aubionotes_DEPENDENCIES) 
 	@rm -f aubionotes$(EXEEXT)
 	$(LINK) $(aubionotes_LDFLAGS) $(aubionotes_OBJECTS) $(aubionotes_LDADD) $(LIBS)
@@ -302,18 +262,6 @@ aubionotesmedian$(EXEEXT): $(aubionotesmedian_OBJECTS) $(aubionotesmedian_DEPEND
 aubioonset$(EXEEXT): $(aubioonset_OBJECTS) $(aubioonset_DEPENDENCIES) 
 	@rm -f aubioonset$(EXEEXT)
 	$(LINK) $(aubioonset_LDFLAGS) $(aubioonset_OBJECTS) $(aubioonset_LDADD) $(LIBS)
-midialsa$(EXEEXT): $(midialsa_OBJECTS) $(midialsa_DEPENDENCIES) 
-	@rm -f midialsa$(EXEEXT)
-	$(LINK) $(midialsa_LDFLAGS) $(midialsa_OBJECTS) $(midialsa_LDADD) $(LIBS)
-midiparse$(EXEEXT): $(midiparse_OBJECTS) $(midiparse_DEPENDENCIES) 
-	@rm -f midiparse$(EXEEXT)
-	$(LINK) $(midiparse_LDFLAGS) $(midiparse_OBJECTS) $(midiparse_LDADD) $(LIBS)
-midiplay$(EXEEXT): $(midiplay_OBJECTS) $(midiplay_DEPENDENCIES) 
-	@rm -f midiplay$(EXEEXT)
-	$(LINK) $(midiplay_LDFLAGS) $(midiplay_OBJECTS) $(midiplay_LDADD) $(LIBS)
-testforclam$(EXEEXT): $(testforclam_OBJECTS) $(testforclam_DEPENDENCIES) 
-	@rm -f testforclam$(EXEEXT)
-	$(LINK) $(testforclam_LDFLAGS) $(testforclam_OBJECTS) $(testforclam_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT) core *.core
@@ -324,10 +272,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/aubionotes.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/aubionotesmedian.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/aubioonset.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/midialsa.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/midiparse.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/midiplay.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testforclam.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utils.Po@am__quote@
 
 .c.o:
@@ -490,8 +434,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-binPROGRAMS clean-generic clean-libtool \
-	clean-noinstPROGRAMS mostlyclean-am
+clean-am: clean-binPROGRAMS clean-generic clean-libtool mostlyclean-am
 
 distclean: distclean-am
 	-rm -rf ./$(DEPDIR)
@@ -538,16 +481,16 @@ ps-am:
 uninstall-am: uninstall-binPROGRAMS uninstall-info-am
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-binPROGRAMS \
-	clean-generic clean-libtool clean-noinstPROGRAMS ctags \
-	distclean distclean-compile distclean-generic distclean-libtool \
-	distclean-tags distdir dvi dvi-am info info-am install \
-	install-am install-binPROGRAMS install-data install-data-am \
-	install-exec install-exec-am install-info install-info-am \
-	install-man install-strip installcheck installcheck-am \
-	installdirs maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags uninstall \
-	uninstall-am uninstall-binPROGRAMS uninstall-info-am
+	clean-generic clean-libtool ctags distclean distclean-compile \
+	distclean-generic distclean-libtool distclean-tags distdir dvi \
+	dvi-am info info-am install install-am install-binPROGRAMS \
+	install-data install-data-am install-exec install-exec-am \
+	install-info install-info-am install-man install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags uninstall uninstall-am uninstall-binPROGRAMS \
+	uninstall-info-am
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

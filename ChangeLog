@@ -1,3 +1,6 @@
+2004-12-06  Paul Brossier <piem@altern.org>
+	* examples/{midi*,testforclam}.c: removed
+
 2004-12-03  Paul Brossier <piem@altern.org>
 	* src/{mathutils,pitchyin}.h: got rid of some shadowed declarations
 	* plugins/puredata: first puredata plugin attempt added

@@ -12,17 +12,9 @@ bin_PROGRAMS = \
 	aubionotesmedian \
 	aubionotes
 	
-noinst_PROGRAMS = \
-	midiparse \
-	midiplay \
-	midialsa \
-	testforclam
-	
 EXTRA_DIST = utils.h
-
 
 # optionally add sources file for these programs
 aubioonset_SOURCES = aubioonset.c utils.c
 aubionotes_SOURCES = aubionotes.c utils.c
 aubionotesmedian_SOURCES = aubionotesmedian.c utils.c
-testforclam_SOURCES = testforclam.c utils.c
