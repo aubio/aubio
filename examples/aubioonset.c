@@ -173,7 +173,11 @@ int main(int argc, char **argv) {
        * delay to ensure the label is _before_ the
        * actual onset */
       if (isonset && output_filename == NULL) {
-        outmsg("%f\n",(frames-4)*overlap_size/(float)samplerate);
+        if(frames >= 4) {
+          outmsg("%f\n",(frames-4)*overlap_size/(float)samplerate);
+        } else if (frames < 4) {
+          outmsg("%f\n",0.);
+        }
       }
       if (output_filename != NULL) {
         file_write(fileout,overlap_size,obuf);
