@@ -1,5 +1,6 @@
 SUBDIRS = src examples doc sounds swig python plugins
 EXTRA_DIST = bootstrap VERSION
+DISTCLEANFILES = autom4te.cache
 
 docs:
 	cd doc && make update-docs && cd ..
@@ -24,5 +25,3 @@ uninstall-pkgconfig:
 install-data-hook: install-pkgconfig
 uninstall-hook: uninstall-pkgconfig
 
-distclean:
-	rm -rf autom4te.cache
