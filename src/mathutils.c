@@ -410,7 +410,7 @@ void aubio_autocorr(fvec_t * input, fvec_t * output){
                 for(j=i;j<length;j++){
                         tmp += data[j-i]*data[j]; 
                 }
-                acf[i] = tmp/(length-i);
+                acf[i] = tmp /(smpl_t)(length-i);
                 tmp = 0.0;
         }
 }
