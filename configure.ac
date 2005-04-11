@@ -92,13 +92,16 @@ fi
 
 dnl Check for optional libraries
 AC_ARG_ENABLE(fftw3f,
-  [  --enable-fftw3f[[=value]]   compile with fftw3f [[default=no]]],
-  with_fftw3f="yes",
-  with_fftw3f="no")
+  AC_HELP_STRING([--enable-fftw3f],[compile with fftw3f [[default=auto]]]),
+  [with_fftw3f=$enableval],
+  with_fftw3f="yes")
 if test "$with_fftw3f" = "yes"; then
-	PKG_CHECK_MODULES(FFTWLIB,    fftw3f  >= 3.0.0,     FFTW3F_SUPPORT=1)
+	PKG_CHECK_MODULES(FFTWLIB,    fftw3f  >= 3.0.0,     FFTW3F_SUPPORT=1, FFTW3F_SUPPORT=0)
 else
-        PKG_CHECK_MODULES(FFTWLIB,    fftw3  >= 3.0.0,	      FFTW3_SUPPORT=1)
+        PKG_CHECK_MODULES(FFTWLIB,    fftw3  >= 3.0.0,	    FFTW3_SUPPORT=1)
+fi
+if test "${FFTW3F_SUPPORT}" = "0"; then
+        PKG_CHECK_MODULES(FFTWLIB,    fftw3  >= 3.0.0,	    FFTW3_SUPPORT=1)
 fi
 if test "${FFTW3_SUPPORT}" = "1"; then
   AC_DEFINE(FFTW3_SUPPORT,1,[Define to enable fftw3 support])
@@ -108,32 +111,32 @@ if test "${FFTW3F_SUPPORT}" = "1"; then
 fi
 
 AC_ARG_ENABLE(jack,
-  [  --enable-jack[[=value]]   compile with jack [[default=no]]],
-  with_jack="yes",
-  with_jack="no")
+  AC_HELP_STRING([--enable-jack],[compile with jack [[default=auto]]]),
+  [with_jack=$enableval],
+  with_jack="yes")
 if test "$with_jack" = "yes"
 then
-	PKG_CHECK_MODULES(JACK,       jack  >= 0.15.0,	      JACK_SUPPORT=1)
+	PKG_CHECK_MODULES(JACK,       jack  >= 0.15.0,	      JACK_SUPPORT=1, JACK_SUPPORT=0)
 	if test "${JACK_SUPPORT}" = "1"; then
 	  AC_DEFINE(JACK_SUPPORT,1,[Define to enable jack support])
 	fi
 fi
 
 AC_ARG_ENABLE(alsa,
-  [  --enable-alsa[[=value]]   compile with alsa [[default=no]]],
-  with_alsa="yes",
-  with_alsa="no")
+  AC_HELP_STRING([--enable-alsa],[compile with alsa [[default=auto]]]),
+  [with_alsa=$enableval],
+  with_alsa="yes")
 if test "$with_alsa" = "yes"
 then
-	PKG_CHECK_MODULES(ALSA,       alsa >= 0.0.9,          ALSA_SUPPORT=1)
+	PKG_CHECK_MODULES(ALSA,       alsa >= 0.0.9,          ALSA_SUPPORT=1, ALSA_SUPPORT=0)
 	if test "${ALSA_SUPPORT}" = "1"; then
 	  AC_DEFINE(ALSA_SUPPORT,1,[Define to enable alsa support])
 	fi
 fi
 
 AC_ARG_ENABLE(ladcca,
-  [  --enable-ladcca[[=value]]   compile with ladcca [[default=no]]],
-  with_ladcca="yes",
+  AC_HELP_STRING([--enable-ladcca],[compile with ladcca [[default=no]]]),
+  [with_ladcca=$enableval],
   with_ladcca="no")
 if test "$with_ladcca" = "yes"
 then
@@ -178,12 +181,12 @@ echo
 echo "**************************************************************"
 echo "Summary:"
 if test "${FFTW3F_SUPPORT}" = "1"; then
-  echo "Fftw3:                   yes (fftw3f)"
+  echo "Fftw3:                   yes (using fftw3f)"
 else
 if test "${FFTW3_SUPPORT}" = "1"; then
-  echo "Fftw3:                   yes"
+  echo "Fftw3:                   yes (not using fftw3f)"
 else
-  echo "Fftw3f:                  no"
+  echo "Fftw3:                   no (that should not happen)"
 fi
 fi
 if test "${SNDLIB_SUPPORT}" = "1"; then
