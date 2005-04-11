@@ -103,16 +103,12 @@ smpl_t aubio_pitchdetection(aubio_pitchdetection_t *p, fvec_t * ibuf) {
 					p->buf->data[i][j] = ibuf->data[i][j];
 				}
 			}
-			/* get the autocorr and pitch */
-			aubio_pitchyin_diff(p->buf,p->yin);
-		        aubio_pitchyin_getcum(p->yin);
-		        pitch = aubio_pitchyin_getpitch(p->yin);
+		        pitch = aubio_pitchyin_getpitchfast(p->buf,p->yin, 0.5);
 		        if (pitch>0) {
 		                pitch = p->srate/(pitch+0.);
 		        } else {
 		                pitch = 0.;
 			}
-			//fprintf(stderr,"%f\n",pitch);
 			break;
 		case mcomb:
 			aubio_filter_do(p->filter,ibuf);
