@@ -63,6 +63,8 @@ mingw*)
 darwin*)
   dnl on macosx, cosf went to -lmx
   LDFLAGS="$LDFLAGS -lmx"
+  dnl as long double doesn't sit well with -Wall -Werror
+  CFLAGS="$CLFAGS -Wno-long-double"
   AC_ISC_POSIX
   ;;
 *)

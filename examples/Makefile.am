@@ -15,3 +15,6 @@ EXTRA_DIST = utils.h
 # optionally add sources file for these programs
 aubioonset_SOURCES = aubioonset.c utils.c
 aubionotes_SOURCES = aubionotes.c utils.c
+
+aubioonset_LDADD = @JACK_LIBS@
+aubionotes_LDADD = @JACK_LIBS@
