@@ -17,6 +17,8 @@ pkginclude_HEADERS = aubio.h \
 	pitchdetection.h \
 	pitchmcomb.h \
 	pitchyin.h \
+	pitchschmitt.h \
+	pitchfcomb.h \
 	filter.h
 
 lib_LTLIBRARIES = libaubio.la 
@@ -50,6 +52,10 @@ libaubio_la_SOURCES = aubio.h \
 	pitchmcomb.h \
 	pitchyin.c \
 	pitchyin.h \
+	pitchschmitt.c \
+	pitchschmitt.h \
+	pitchfcomb.c \
+	pitchfcomb.h \
 	filter.c \
 	filter.h
 

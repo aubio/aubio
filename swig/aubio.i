@@ -162,11 +162,22 @@ void aubio_pvoc_rdo(aubio_pvoc_t *pv, cvec_t * fftgrain, fvec_t *out);
 aubio_pitchmcomb_t * new_aubio_pitchmcomb(uint_t size, uint_t channels);
 smpl_t aubio_pitchmcomb_detect(aubio_pitchmcomb_t * p, cvec_t * fftgrain);
 uint_t aubio_pitch_cands(aubio_pitchmcomb_t * p, cvec_t * fftgrain, smpl_t * cands);
+void del_aubio_pitchmcomb (aubio_pitchmcomb_t *p);
 
 /* pitch yin */
 void aubio_pitchyin_diff(fvec_t *input, fvec_t *yin);
 void aubio_pitchyin_getcum(fvec_t *yin);
 uint_t aubio_pitchyin_getpitch(fvec_t *yin);
+
+/* pitch schmitt */
+aubio_pitchschmitt_t * new_aubio_pitchschmitt (uint_t size, uint_t samplerate);
+smpl_t aubio_pitchschmitt_detect (aubio_pitchschmitt_t *p, fvec_t * input);
+void del_aubio_pitchschmitt (aubio_pitchschmitt_t *p);
+
+/* pitch fcomb */
+aubio_pitchfcomb_t * new_aubio_pitchfcomb (uint_t size, uint_t samplerate);
+smpl_t aubio_pitchfcomb_detect (aubio_pitchfcomb_t *p, fvec_t * input);
+void del_aubio_pitchfcomb (aubio_pitchfcomb_t *p);
 
 /* peakpicker */
 aubio_pickpeak_t * new_aubio_peakpicker(smpl_t threshold);

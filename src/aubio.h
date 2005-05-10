@@ -66,13 +66,14 @@ extern "C" {
 #include "onsetdetection.h"
 #include "tss.h"
 #include "resample.h"
-
 #include "peakpick.h"
 #include "biquad.h"
 #include "filter.h"
 #include "pitchdetection.h"
 #include "pitchmcomb.h"
 #include "pitchyin.h"
+#include "pitchschmitt.h"
+#include "pitchfcomb.h"
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -341,3 +341,16 @@ aubio_pitchmcomb_t * new_aubio_pitchmcomb(uint_t size, uint_t channels) {
   return p;
 }
 
+
+void del_aubio_pitchmcomb (aubio_pitchmcomb_t *p) {
+  uint_t i;
+  del_fvec(p->newmag);
+  del_fvec(p->newmag);
+  del_fvec(p->newmag);
+  AUBIO_FREE(p->peaks);
+  for (i=0;i<p->ncand;i++) {
+    AUBIO_FREE(p->candidates[i]);
+  }
+  AUBIO_FREE(p->candidates);
+  AUBIO_FREE(p);
+}
