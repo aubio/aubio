@@ -1,9 +1,3 @@
 #!/bin/sh
 
-set -x
-rm -f aclocal.m4
-aclocal
-libtoolize --force --copy
-autoheader
-automake --add-missing --copy
-autoconf
+autoreconf -f -i
