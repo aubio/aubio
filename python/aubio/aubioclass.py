@@ -54,6 +54,7 @@ class pvoc:
         aubio_pvoc_rdo(self.pv,tc(),tf())
 
 class onsetdetection:
+    """ class for aubio_onsetdetection """
     def __init__(self,type,buf,chan):
         self.od = new_aubio_onsetdetection(type,buf,chan)
     def do(self,tc,tf):
@@ -62,6 +63,7 @@ class onsetdetection:
         aubio_onsetdetection_free(self.od)
 
 class peakpick:
+    """ class for aubio_peakpicker """
     def __init__(self,threshold=0.1):
         self.pp = new_aubio_peakpicker(threshold)
     def do(self,fv):
@@ -70,6 +72,7 @@ class peakpick:
         del_aubio_peakpicker(self.pp)
 
 class onsetpick:
+    """ superclass for aubio_pvoc + aubio_onsetdetection + aubio_peakpicker """
     def __init__(self,bufsize,hopsize,channels,myvec,threshold,mode='dual'):
         self.myfft    = cvec(bufsize,channels)
         self.pv       = pvoc(bufsize,hopsize,channels)
@@ -151,7 +154,6 @@ def getonsetscausal(filein,threshold,silence,bufsize=1024,hopsize=512,mode='dual
                 frameread += 1
         return mylist
 
-
 def getonsets(filein,threshold=0.2,silence=-70.,bufsize=1024,hopsize=512,mode='dual'):
         frameread = 0
         filei     = sndfile(filein)
@@ -183,7 +185,6 @@ def getonsets(filein,threshold=0.2,silence=-70.,bufsize=1024,hopsize=512,mode='d
                                 mylist.append(now)
                 frameread += 1
         return mylist
-
 
 class pitchpick:
     def __init__(self,bufsize,hopsize,channels,myvec,srate):

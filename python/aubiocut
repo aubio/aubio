@@ -5,50 +5,49 @@
 """
 
 from aubio.aubioclass import *
-import sys
 
 bufsize   = 1024
 hopsize   = bufsize/2
 
+def cutfile(filein,slicetimes,zerothres=0.002):
+    frameread = 0
+    readsize  = hopsize 
+    filei     = sndfile(filein)
+    framestep = hopsize/(filei.samplerate()+0.)
+    channels  = filei.channels()
+    newname   = "%s%f%s" % ("/tmp/",0.0000000,filein[-4:])
+    fileo     = sndfile(newname,model=filei)
+    myvec     = fvec(hopsize,channels)
+    mycopy    = fvec(hopsize,channels)
+    while(readsize==hopsize):
+        readsize = filei.read(hopsize,myvec)
+        # write to current file
+        if len(slicetimes) and frameread >= slicetimes[0]:
+            slicetimes.pop(0)
+            # write up to 1st zero crossing
+            zerocross = 0
+            while ( abs( myvec.get(zerocross,0) ) > zerothres ):
+            	zerocross += 1
+            writesize = fileo.write(zerocross,myvec)
+            fromcross = 0
+            while (zerocross < readsize):
+            	for i in range(channels):
+        	    	mycopy.set(myvec.get(zerocross,i),fromcross,i)
+        	fromcross += 1
+        	zerocross += 1
+            del fileo
+            fileo = sndfile("%s%s%f%s%s" % 
+            	(filein.split(".")[0].split("/")[-1],".",
+        	frameread*framestep,".",filein.split(".")[-1]),model=filei)
+            writesize = fileo.write(fromcross,mycopy)
+        else:
+            writesize = fileo.write(readsize,myvec)
+        frameread += 1
+    del fileo
 
-def cutfile(filein,onsets):
-        frameread = 0
-        zerothres = 0.002
-        readsize  = hopsize 
-        filei     = sndfile(filein)
-        framestep = hopsize/(filei.samplerate()+0.)
-        channels  = filei.channels()
-        newname   = "%s%f%s" % ("/tmp/",0.0000000,filein[-4:])
-        fileo     = sndfile(newname,model=filei)
-        myvec     = fvec(hopsize,channels)
-        mycopy    = fvec(hopsize,channels)
-        while(readsize==hopsize):
-                readsize = filei.read(hopsize,myvec)
-		# write to current file
-                if len(onsets) and frameread >= onsets[0]:
-                    onsets.pop(0)
-		    # write up to 1st zero crossing
-		    zerocross = 0
-		    while ( abs( myvec.get(zerocross,0) ) > zerothres ):
-		    	zerocross += 1
-                    writesize = fileo.write(zerocross,myvec)
-		    fromcross = 0
-		    while (zerocross < readsize):
-		    	for i in range(channels):
-			    	mycopy.set(myvec.get(zerocross,i),fromcross,i)
-			fromcross += 1
-			zerocross += 1
-                    del fileo
-                    fileo = sndfile("%s%s%f%s%s" % 
-		    	(filein.split(".")[0].split("/")[-1],".",
-			frameread*framestep,".",filein.split(".")[-1]),model=filei)
-		    writesize = fileo.write(fromcross,mycopy)
-		else:
-		    writesize = fileo.write(readsize,myvec)
-                frameread += 1
-        del fileo
-
+import sys
 filename  = sys.argv[1]
-threshold = sys.argv[2]
+threshold = 0.2
+if (len(sys.argv) > 2): threshold = sys.argv[2]
 onsets    = getonsets(filename,threshold)
 cutfile(filename,onsets)
