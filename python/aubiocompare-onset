@@ -4,7 +4,7 @@
 
 print aubio.__LICENSE__ for the terms of use
 
-or see LICENSE.txt in the numarray installation directory.
+or see LICENSE.txt in the aubio installation directory.
 """
 __LICENSE__ = """\
 	 Copyright (C) 2004 Paul Brossier <piem@altern.org>
@@ -86,14 +86,15 @@ if delay:
     for i in range(len(lres)):
         lres[i] = lres[i] + delay
 # compute errors types
-ok, bad, missed, total, hits = onset_roc(ltru,lres,tol)
+orig, missed, merged, expc, bad, doubled = \
+        onset_roc(ltru,lres,tol)
 
 # print results
+#print "orig, missed, merged, expc, bad, doubled:"
 if vmode=='verbose':
-    print '( ok bad missed ) tot / hits \t',
-    print '(', ok, bad, missed, ')', total, '/', hits,
-    print '\t',
-    print 100*float(ok)/(ok+missed), '%GD\t', 
-    print 100*float(bad)/(hits+bad), '%FP\t' 
+    print "GD %2.8f\t"        % (100*float(orig-missed-merged)/(orig)),
+    print "FP %2.8f\t"        % (100*float(bad+doubled)/(orig))       , 
+    print "GD-merged %2.8f\t" % (100*float(orig-missed)/(orig))       , 
+    print "FP-pruned %2.8f\t" % (100*float(bad)/(orig))                
 else:
-    print ok, bad, missed, total, hits
+    print  orig, missed, merged, expc, bad, doubled
