@@ -52,11 +52,11 @@ aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize,
 	p->type = type;
 	p->bufsize = bufsize;
 	switch(p->type) {
-		case yin:
+		case aubio_yin:
 			p->buf      = new_fvec(bufsize,channels);
 			p->yin      = new_fvec(bufsize/2,channels);
 			break;
-		case mcomb:
+		case aubio_mcomb:
 			p->pv       = new_aubio_pvoc(bufsize, hopsize, channels);
 			p->fftgrain = new_cvec(bufsize, channels);
 			p->filter   = new_aubio_adsgn_filter((smpl_t)samplerate);
@@ -70,11 +70,11 @@ aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize,
 
 void del_aubio_pitchdetection(aubio_pitchdetection_t * p) {
 	switch(p->type) {
-		case yin:
+		case aubio_yin:
 			del_fvec(p->yin);
 			del_fvec(p->buf);
 			break;
-		case mcomb:
+		case aubio_mcomb:
 			del_aubio_pvoc(p->pv);
 			del_cvec(p->fftgrain);
 			//del_aubio_adsgn_filter(p->filter);
@@ -91,7 +91,7 @@ smpl_t aubio_pitchdetection(aubio_pitchdetection_t *p, fvec_t * ibuf) {
 	smpl_t pitch = 0.;
 	uint_t i,j = 0;
 	switch(p->type) {
-		case yin:
+		case aubio_yin:
 			/* do sliding window blocking */
 			for (i=0;i<p->buf->channels;i++){
 				for (j=0;j<p->buf->length-ibuf->length;j++){
@@ -110,7 +110,7 @@ smpl_t aubio_pitchdetection(aubio_pitchdetection_t *p, fvec_t * ibuf) {
 		                pitch = 0.;
 			}
 			break;
-		case mcomb:
+		case aubio_mcomb:
 			aubio_filter_do(p->filter,ibuf);
 			aubio_filter_do(p->filter,ibuf);
 			aubio_pvoc_do(p->pv,ibuf,p->fftgrain);

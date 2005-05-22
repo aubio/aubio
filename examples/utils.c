@@ -58,7 +58,7 @@ aubio_pickpeak_t * parms;
 /* pitch objects */
 smpl_t pitch               = 0.;
 aubio_pitchdetection_t * pitchdet;
-aubio_pitchdetection_type mode = yin; // mcomb
+aubio_pitchdetection_type mode = aubio_yin; // aubio_mcomb
 uint_t median         = 6;
 
 fvec_t * note_buffer  = NULL;
@@ -217,7 +217,8 @@ void examples_common_init(int argc,char ** argv) {
   fftgrain  = new_cvec(buffer_size, channels);
 
   if (usepitch) {
-    pitchdet = new_aubio_pitchdetection(buffer_size*4, overlap_size, channels, samplerate, mode, freq);
+    pitchdet = new_aubio_pitchdetection(buffer_size*4, 
+                    overlap_size, channels, samplerate, mode, aubio_freq);
   
   if (median) {
           note_buffer = new_fvec(median, 1);
