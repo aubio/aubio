@@ -27,42 +27,52 @@ see http://en.wikipedia.org/wiki/Receiver_operating_characteristic
 
 from numarray import *
 
-def onset_roc(la, lb, eps):
-    """ thanks to nicolas wack for the rewrite"""
-    """ compute differences between two lists """
-    """ feature: scalable to huge lists """
-    n, m = len(la), len(lb)
-    if m == 0 :
-        return 0,0,0,n,0
-    missed, bad = 0, 0
-    # find missed ones first
-    for x in la:
+def onset_roc(ltru, lexp, eps):
+    """ compute differences between two lists 
+          orig = hits + missed + merged 
+          expc = hits + bad + doubled
+        returns orig, missed, merged, expc, bad, doubled 
+    """
+    orig, expc = len(ltru), len(lexp)
+    # if lexp is empty
+    if expc == 0 : return orig,orig,0,0,0,0
+    missed, bad, doubled, merged = 0, 0, 0, 0
+    # find missed and doubled ones first
+    for x in ltru:
         correspond = 0
-        for y in lb:
-            if abs(x-y) <= eps:
-                correspond += 1
-        if correspond == 0:
-            missed += 1
-    # then look for bad ones
-    for y in lb:
+        for y in lexp:
+            if abs(x-y) <= eps:    correspond += 1
+        if correspond == 0:        missed += 1
+        elif correspond > 1:       doubled += correspond - 1 
+    # then look for bad and merged ones
+    for y in lexp:
         correspond = 0
-        for x in la:
-            if abs(x-y) <= eps:
-               correspond += 1
-        if correspond == 0:
-            bad += 1
-    ok    = n - missed
-    hits  = m - bad
-    # at this point, we must have ok = hits. if not we had
-    #   - a case were one onset counted for two labels (ok>hits)
-    #   - a case were one labels matched two onsets (hits>ok)
-    # bad hack for now (fails if both above cases have happened):
-    if ok > hits: bad += ok-hits; ok = hits
-    if hits > ok: missed += hits-ok; hits = ok
-    total = n
-    return ok,bad,missed,total,hits
-    
-    
+        for x in ltru:
+            if abs(x-y) <= eps:    correspond += 1
+        if correspond == 0:        bad += 1
+        elif correspond > 1:       merged += correspond - 1
+    # check consistancy of the results
+    assert ( orig - missed - merged == expc - bad - doubled)
+    return orig, missed, merged, expc, bad, doubled 
+
+def onset_diffs(ltru, lexp, eps):
+    """ compute differences between two lists 
+          orig = hits + missed + merged 
+          expc = hits + bad + doubled
+        returns orig, missed, merged, expc, bad, doubled 
+    """
+    orig, expc = len(ltru), len(lexp)
+    # if lexp is empty
+    l = []
+    if expc == 0 : return l 
+    # find missed and doubled ones first
+    for x in ltru:
+        correspond = 0
+        for y in lexp:
+            if abs(x-y) <= eps:    l.append(y-x) 
+    # return list of diffs
+    return l 
+
 def notes_roc (la, lb, eps):
     """ creates a matrix of size len(la)*len(lb) then look for hit and miss
     in it within eps tolerance windows """
@@ -97,29 +107,3 @@ def load_onsets(filename) :
         l.append(float(line[0]))
     
     return l
-
-"""
-def onset_roc (la, lb, eps):
-    \"\"\" build a matrix of all possible differences between two lists \"\"\"
-    \"\"\" bug: not scalable to huge lists \"\"\"
-        n, m        = len(la), len(lb)
-    if m ==0 :
-        return 0,0,0,n,0
-        missed, bad = 0, 0
-        x           = resize(la[:],(m,n))
-        y           = transpose(resize(lb[:],(n,m)))
-        teps        = (abs(x-y) <= eps)
-        resmis      = add.reduce(teps,axis = 0)
-        for i in range(n) :
-        if resmis[i] == 0:
-            missed += 1
-    resbad = add.reduce(teps,axis=1)
-    for i in range(m) : 
-        if resbad[i] == 0:
-            bad += 1
-    ok    = n - missed
-    hits  = m - bad
-    total = n
-    return ok,bad,missed,total,hits
-"""
-

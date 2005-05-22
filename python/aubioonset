@@ -35,6 +35,9 @@ def parse_args():
         parser.add_option("-o","--outplot",
                           action="store", dest="outplot", default=None, 
                           help="be quiet [default=None]")
+        parser.add_option("-M","--mintol",
+                          action="store", dest="mintol", default=-70, 
+                          help="mintol [default=0.48]")
         (options, args) = parser.parse_args()
         if not len(args): 
                  print "no file name given\n", usage
@@ -49,4 +52,13 @@ silence   = float(options.silence)
 
 #onsets = getonsets(filename,threshold,silence,mode=options.mode)
 onsets = getonsetscausal(filename,threshold,silence,mode=options.mode)
-for i in onsets: print i*512./44100.
+
+# print all
+#for i in onsets: print i*512./44100.
+# prune doubled 
+last = -10.
+mintol   = float(options.mintol)
+for i in onsets: 
+        new = i*512./44100.
+        if (new - last > mintol): print "%f" % new 
+        last = new 
