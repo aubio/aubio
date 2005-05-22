@@ -157,7 +157,8 @@ uint_t aubio_peakpick_pimrt_wt(fvec_t * onset,  pickparams_t * p, smpl_t* peakva
 	
 	uint_t isonset = (p->pickerfn)(onset_peek,1);
 
-	if ( isonset && peakval != NULL )
+	//if ( isonset && peakval != NULL )
+	if ( peakval != NULL )
 		*peakval = onset_peek->data[i][1];
 
 	return isonset;

@@ -8,6 +8,7 @@ AM_LDFLAGS = -L../src -L../ext @LADCCA_LIBS@ -laubioext -laubio
 # add your programs to this list
 bin_PROGRAMS = \
 	aubioonset \
+	aubiotrack \
 	aubionotes
 	
 EXTRA_DIST = utils.h
@@ -15,6 +16,8 @@ EXTRA_DIST = utils.h
 # optionally add sources file for these programs
 aubioonset_SOURCES = aubioonset.c utils.c
 aubionotes_SOURCES = aubionotes.c utils.c
+aubiotrack_SOURCES = aubiotrack.c utils.c
 
 aubioonset_LDADD = @JACK_LIBS@
 aubionotes_LDADD = @JACK_LIBS@
+aubiotrack_LDADD = @JACK_LIBS@

@@ -19,6 +19,7 @@ pkginclude_HEADERS = aubio.h \
 	pitchyin.h \
 	pitchschmitt.h \
 	pitchfcomb.h \
+	beattracking.h \
 	filter.h
 
 lib_LTLIBRARIES = libaubio.la 
@@ -56,6 +57,8 @@ libaubio_la_SOURCES = aubio.h \
 	pitchschmitt.h \
 	pitchfcomb.c \
 	pitchfcomb.h \
+	beattracking.c \
+	beattracking.h \
 	filter.c \
 	filter.h
 
