@@ -80,8 +80,8 @@ int aubio_process(float **input, float **output, int nframes) {
       /* end of second level loop */
       istactus = 0;
       i=0;
-      for (i = 1; i <= btoutput[0]; i++ ) { 
-              if (pos2 == btoutput[i] && btoutput[i] != 0.) {
+      for (i = 1; i < btoutput[0]; i++ ) { 
+              if (pos2 == btoutput[i]) {
                       //printf("pos2: %d\n", pos2);
                       /* test for silence */
                       if (aubio_silence_detection(ibuf, threshold2)==1) {
@@ -112,8 +112,8 @@ void process_print (void);
 void process_print (void) {
         if (output_filename == NULL) {
                 if (istactus)
-                        outmsg("%d\t%f",pos2,(frames)*overlap_size/(float)samplerate); 
-                if (isonset)
+                        outmsg("%f\n",(frames)*overlap_size/(float)samplerate); 
+                if (isonset && verbose)
                         outmsg(" \t \t%f\n",(frames)*overlap_size/(float)samplerate);
         }
 }
