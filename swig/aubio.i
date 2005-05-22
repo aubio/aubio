@@ -168,6 +168,7 @@ void del_aubio_pitchmcomb (aubio_pitchmcomb_t *p);
 void aubio_pitchyin_diff(fvec_t *input, fvec_t *yin);
 void aubio_pitchyin_getcum(fvec_t *yin);
 uint_t aubio_pitchyin_getpitch(fvec_t *yin);
+uint_t aubio_pitchyin_getpitchfast(fvec_t * input, fvec_t *yin, smpl_t tol);
 
 /* pitch schmitt */
 aubio_pitchschmitt_t * new_aubio_pitchschmitt (uint_t size, uint_t samplerate);

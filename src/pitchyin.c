@@ -82,7 +82,7 @@ uint_t aubio_pitchyin_getpitch(fvec_t * yin) {
 		}
 		tau++;
 	} while (tau<yin->length);
-	AUBIO_DBG("No pitch found");
+	//AUBIO_DBG("No pitch found");
 	return 0;
 }
 
