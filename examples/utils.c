@@ -200,9 +200,18 @@ int parse_args (int argc, char **argv) {
 void examples_common_init(int argc,char ** argv) {
 
 
-  aubio_file_t * onsetfile = new_file_ro(onset_filename);
+  aubio_file_t * onsetfile;
   /* parse command line arguments */
   parse_args(argc, argv);
+
+  woodblock = new_fvec(buffer_size,1);
+  if (output_filename || usejack) {
+          (onsetfile = new_file_ro(onset_filename)) ||
+                  (onsetfile = new_file_ro("sounds/woodblock.aiff")) ||
+                  (onsetfile = new_file_ro("../sounds/woodblock.aiff"));
+          /* read the output sound once */
+          file_read(onsetfile, overlap_size, woodblock);
+  }
 
   if(!usejack)
   {
@@ -217,7 +226,6 @@ void examples_common_init(int argc,char ** argv) {
 
   ibuf      = new_fvec(overlap_size, channels);
   obuf      = new_fvec(overlap_size, channels);
-  woodblock = new_fvec(buffer_size,1);
   fftgrain  = new_cvec(buffer_size, channels);
 
   if (usepitch) {
@@ -229,8 +237,6 @@ void examples_common_init(int argc,char ** argv) {
           note_buffer2= new_fvec(median, 1);
   }
   }
-  /* read the output sound once */
-  file_read(onsetfile, overlap_size, woodblock);
   /* phase vocoder */
   pv = new_aubio_pvoc(buffer_size, overlap_size, channels);
   /* onsets */

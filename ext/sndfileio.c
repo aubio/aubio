@@ -44,14 +44,14 @@ aubio_file_t * new_file_ro(const char* outputname) {
         AUBIO_MEMSET(&sfinfo, 0, sizeof (sfinfo));
 
         if (! (f->handle = sf_open (outputname, SFM_READ, &sfinfo))) {
-                AUBIO_ERR("Not able to open input file %s.\n", outputname);
+                AUBIO_ERR("Unable to open input file %s.\n", outputname);
                 AUBIO_ERR("%s\n",sf_strerror (NULL)); /* libsndfile err msg */
-                AUBIO_QUIT(AUBIO_FAIL);
+                return NULL;
         }	
 
         if (sfinfo.channels > MAX_CHANNELS) { 
                 AUBIO_ERR("Not able to process more than %d channels\n", MAX_CHANNELS);
-                AUBIO_QUIT(AUBIO_FAIL);
+                return NULL;
         }
 
         f->size       = MAX_SIZE*sfinfo.channels;
