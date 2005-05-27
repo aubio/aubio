@@ -89,18 +89,21 @@ void del_aubio_pitchdetection(aubio_pitchdetection_t * p) {
 /** \bug ugly, should replace with function pointers or so */
 smpl_t aubio_pitchdetection(aubio_pitchdetection_t *p, fvec_t * ibuf) {
 	smpl_t pitch = 0.;
-	uint_t i,j = 0;
+	uint_t i,j = 0, overlap_size = 0;
 	switch(p->type) {
 		case aubio_yin:
+                        overlap_size = p->buf->length-ibuf->length;
 			/* do sliding window blocking */
 			for (i=0;i<p->buf->channels;i++){
-				for (j=0;j<p->buf->length-ibuf->length;j++){
-					p->buf->data[i][j] = p->buf->data[i][j+ibuf->length];
+				for (j=0;j<overlap_size;j++){
+					p->buf->data[i][j] = 
+                                                p->buf->data[i][j+ibuf->length];
 				}
 			}
 			for (i=0;i<ibuf->channels;i++){
 				for (j=0;j<ibuf->length;j++){
-					p->buf->data[i][j] = ibuf->data[i][j];
+					p->buf->data[i][j+overlap_size] = 
+                                                ibuf->data[i][j];
 				}
 			}
 		        pitch = aubio_pitchyin_getpitchfast(p->buf,p->yin, 0.5);
