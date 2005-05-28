@@ -55,6 +55,14 @@ void aubio_fft_getnorm(smpl_t * norm, fft_data_t * spectrum, uint_t size);
 /** get phase from spectrum */
 void aubio_fft_getphas(smpl_t * phase, fft_data_t * spectrum, uint_t size);
 
+
+typedef struct _aubio_mfft_t aubio_mfft_t;
+aubio_mfft_t * new_aubio_mfft(uint_t winsize, uint_t channels);
+void aubio_mfft_do (aubio_mfft_t * fft,fvec_t * in,cvec_t * fftgrain);
+void aubio_mfft_rdo(aubio_mfft_t * fft,cvec_t * fftgrain, fvec_t * out);
+void del_aubio_mfft(aubio_mfft_t * fft);
+
+
 #ifdef __cplusplus
 }
 #endif

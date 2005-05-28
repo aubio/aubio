@@ -77,6 +77,7 @@ aubio_fft_t * new_aubio_fft(uint_t size) {
 
 void del_aubio_fft(aubio_fft_t * s) {
 	aubio_fft_free(s);
+        AUBIO_FREE(s);
 }
 
 void aubio_fft_do(const aubio_fft_t * s, 
@@ -110,3 +111,56 @@ void aubio_fft_getphas(smpl_t * phas, fft_data_t * spectrum, uint_t size) {
 	for (i=0;i<size;i++) phas[i] = ARGC(spectrum[i]);
 }
 
+
+/* new interface aubio_mfft */
+struct _aubio_mfft_t {
+        aubio_fft_t * fft;      /* fftw interface */
+        fft_data_t ** spec;     /* complex spectral data */
+        uint_t winsize;
+        uint_t channels;
+};
+
+aubio_mfft_t * new_aubio_mfft(uint_t winsize, uint_t channels){
+        uint_t i;
+	aubio_mfft_t * fft = AUBIO_NEW(aubio_mfft_t);
+	fft->winsize       = winsize;
+	fft->channels      = channels;
+	fft->fft           = new_aubio_fft(winsize);
+	fft->spec          = AUBIO_ARRAY(fft_data_t*,channels);
+        for (i=0; i < channels; i++)
+                fft->spec[i] = AUBIO_ARRAY(fft_data_t,winsize);
+        return fft;
+}
+
+/* execute stft */
+void aubio_mfft_do (aubio_mfft_t * fft,fvec_t * in,cvec_t * fftgrain){
+        uint_t i=0;
+        /* execute stft */
+        for (i=0; i < fft->channels; i++) {
+                aubio_fft_do (fft->fft,in->data[i],fft->spec[i],fft->winsize);
+                /* put norm and phase into fftgrain */
+                aubio_fft_getnorm(fftgrain->norm[i], fft->spec[i], fft->winsize/2+1);
+                aubio_fft_getphas(fftgrain->phas[i], fft->spec[i], fft->winsize/2+1);
+        }
+}
+
+/* execute inverse fourier transform */
+void aubio_mfft_rdo(aubio_mfft_t * fft,cvec_t * fftgrain, fvec_t * out){
+        uint_t i=0,j;
+        for (i=0; i < fft->channels; i++) {
+                for (j=0; j<fft->winsize/2+1; j++) {
+                        fft->spec[i][j]  = CEXPC(I*unwrap2pi(fftgrain->phas[i][j]));
+                        fft->spec[i][j] *= fftgrain->norm[i][j];
+                }
+                aubio_fft_rdo(fft->fft,fft->spec[i],out->data[i],fft->winsize);
+        }
+}
+
+void del_aubio_mfft(aubio_mfft_t * fft) {
+        uint_t i;
+        for (i=0; i < fft->channels; i++)
+                AUBIO_FREE(fft->spec[i]);
+        AUBIO_FREE(fft->spec);
+	aubio_fft_free(fft->fft);
+        AUBIO_FREE(fft);        
+}
