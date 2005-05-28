@@ -130,10 +130,15 @@ AC_ARG_ENABLE(alsa,
   with_alsa="yes")
 if test "$with_alsa" = "yes"
 then
+        if test "$with_jack" = "yes"
+        then
 	PKG_CHECK_MODULES(ALSA,       alsa >= 0.0.9,          ALSA_SUPPORT=1, ALSA_SUPPORT=0)
 	if test "${ALSA_SUPPORT}" = "1"; then
 	  AC_DEFINE(ALSA_SUPPORT,1,[Define to enable alsa support])
 	fi
+        else
+        AC_MSG_WARN([Disabling alsa as jack was not found])
+        fi
 fi
 
 AC_ARG_ENABLE(ladcca,
