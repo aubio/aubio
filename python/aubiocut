@@ -93,8 +93,8 @@ options, args = parse_args()
 
 filename   = options.filename
 samplerate = float(sndfile(filename).samplerate())
-hopsize    = options.hopsize
-bufsize    = options.bufsize
+hopsize    = float(options.hopsize)
+bufsize    = float(options.bufsize)
 threshold  = float(options.threshold)
 silence    = float(options.silence)
 mintol     = float(options.mintol)*samplerate/hopsize
