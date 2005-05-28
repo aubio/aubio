@@ -1,53 +1,131 @@
-#!/usr/bin/python
+#! /usr/bin/python
 
 """ this file was written by Paul Brossier 
   it is released under the GNU/GPL license.
 """
 
+import sys
+import numarray
 from aubio.aubioclass import *
 
-bufsize   = 1024
-hopsize   = bufsize/2
+usage = "usage: %s [options] -i soundfile" % sys.argv[0]
 
-def cutfile(filein,slicetimes,zerothres=0.002):
-    frameread = 0
-    readsize  = hopsize 
-    filei     = sndfile(filein)
-    framestep = hopsize/(filei.samplerate()+0.)
-    channels  = filei.channels()
-    newname   = "%s%f%s" % ("/tmp/",0.0000000,filein[-4:])
-    fileo     = sndfile(newname,model=filei)
-    myvec     = fvec(hopsize,channels)
-    mycopy    = fvec(hopsize,channels)
-    while(readsize==hopsize):
-        readsize = filei.read(hopsize,myvec)
-        # write to current file
-        if len(slicetimes) and frameread >= slicetimes[0]:
-            slicetimes.pop(0)
-            # write up to 1st zero crossing
-            zerocross = 0
-            while ( abs( myvec.get(zerocross,0) ) > zerothres ):
-            	zerocross += 1
-            writesize = fileo.write(zerocross,myvec)
-            fromcross = 0
-            while (zerocross < readsize):
-            	for i in range(channels):
-        	    	mycopy.set(myvec.get(zerocross,i),fromcross,i)
-        	fromcross += 1
-        	zerocross += 1
-            del fileo
-            fileo = sndfile("%s%s%f%s%s" % 
-            	(filein.split(".")[0].split("/")[-1],".",
-        	frameread*framestep,".",filein.split(".")[-1]),model=filei)
-            writesize = fileo.write(fromcross,mycopy)
-        else:
-            writesize = fileo.write(readsize,myvec)
-        frameread += 1
-    del fileo
+def check_mode(option, opt, value, parser):
+        nvalue = parser.rargs[0]
+        if   nvalue == 'complexdomain' :
+                 setattr(parser.values, option.dest, complexdomain)
+        elif nvalue == 'hfc'           :
+                 setattr(parser.values, option.dest, hfc)
+        elif nvalue == 'phase'         :
+                 setattr(parser.values, option.dest, phase)
+        elif nvalue == 'specdiff'      :
+                 setattr(parser.values, option.dest, specdiff)
+        elif nvalue == 'energy'        :
+                 setattr(parser.values, option.dest, energy)
+        elif nvalue == 'dual'          :
+                 setattr(parser.values, option.dest, 'dual')
 
-import sys
-filename  = sys.argv[1]
-threshold = 0.2
-if (len(sys.argv) > 2): threshold = sys.argv[2]
-onsets    = getonsets(filename,threshold)
-cutfile(filename,onsets)
+def parse_args():
+        from optparse import OptionParser
+        parser = OptionParser(usage=usage)
+        parser.add_option("-i","--input",
+                          action="store", dest="filename", 
+                          help="input sound file")
+        parser.add_option("-m","--mode", action="callback", 
+                          callback=check_mode, dest="mode", default='dual', 
+                          help="onsetdetection mode [default=dual] \
+                          complexdomain|hfc|phase|specdiff|energy|dual")
+        parser.add_option("-B","--bufsize",
+                          action="store", dest="bufsize", default=1024, 
+                          help="buffer size [default=1024]")
+        parser.add_option("-H","--hopsize",
+                          action="store", dest="hopsize", default=512, 
+                          help="overlap size [default=512]")
+        parser.add_option("-t","--threshold",
+                          action="store", dest="threshold", default=0.3, 
+                          help="onset peak picking threshold [default=0.3]")
+        parser.add_option("-s","--silence",
+                          action="store", dest="silence", default=-70, 
+                          help="silence threshold [default=-70]")
+        parser.add_option("-M","--mintol",
+                          action="store", dest="mintol", default=0.048, 
+                          help="minimum inter onset interval [default=0.048]")
+        parser.add_option("-D","--delay",
+                          action="store", dest="delay", default=0.022, 
+                          help="number of seconds to take back [default=0.022]")
+        parser.add_option("-L","--localmin",
+                          action="store_true", dest="localmin", default=False, 
+                          help="use local minima after peak detection")
+        parser.add_option("-c","--cut",
+                          action="store_true", dest="cut", default=False,
+                          help="cut input sound file at detected labels \
+                          best used with option -L")
+        # to be implemented
+        # plotting functions
+        parser.add_option("-d","--derivative",
+                          action="store_true", dest="derivative", default=False, 
+                          help="NOT IMPLEMENTED derivate onset detection function")
+        parser.add_option("-p","--plot",
+                          action="store_true", dest="doplot", default=False, 
+                          help="NOT IMPLEMENTED draw plot")
+        parser.add_option("-O","--outplot",
+                          action="store", dest="output-plot", default=None, 
+                          help="NOT IMPLEMENTED save plot to output.{ps,png}")
+        parser.add_option("-z","--zerocross",
+                          action="store_true", dest="zerocross", default=False, 
+                          help="NOT IMPLEMENTED zero crossing matching")
+        parser.add_option("-b","--beat",
+                          action="store_true", dest="beat", default=False,
+                          help="NOT IMPLEMENTED output beat locations")
+        parser.add_option("-v","--verbose",
+                          action="store_true", dest="verbose", default=False,
+                          help="make lots of noise [default]")
+        parser.add_option("-q","--quiet",
+                          action="store_false", dest="verbose", default=False, 
+                          help="be quiet")
+        (options, args) = parser.parse_args()
+        if not options.filename: 
+                 print "no file name given\n", usage
+                 sys.exit(1)
+        return options, args
+
+options, args = parse_args()
+
+filename   = options.filename
+samplerate = float(sndfile(filename).samplerate())
+hopsize    = options.hopsize
+bufsize    = options.bufsize
+threshold  = float(options.threshold)
+silence    = float(options.silence)
+mintol     = float(options.mintol)*samplerate/hopsize
+delay      = float(options.delay)
+
+if options.beat:
+        #onsets = getbeats(filename,threshold,silence,mode=options.mode)
+        exit("not implemented yet")
+else:
+        onsets = getonsets(filename,threshold,silence,
+                mode=options.mode,localmin=options.localmin,
+                bufsize=bufsize,hopsize=hopsize)
+
+# take back system delay
+if delay != 0:
+        for i in range(len(onsets)):
+                onsets[i] -= delay*samplerate/hopsize
+
+# prune doubled 
+if mintol > 0:
+        last = -2*mintol
+        newonsets = []
+        for new in onsets:
+                if (new - last > mintol): 
+                        newonsets.append(new)
+                last = new
+        onsets = newonsets
+
+# print times in second
+if options.verbose:
+        for i in onsets: print "%f" % (i*hopsize/samplerate)
+
+if options.cut:
+        cutfile(filename,onsets,bufsize=bufsize,hopsize=hopsize)

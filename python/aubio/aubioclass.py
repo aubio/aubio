@@ -95,9 +95,7 @@ class onsetpick:
                 self.myonset.set(self.myonset.get(0,0)*self.myonset2.get(0,0),0,0)
         return self.pp.do(self.myonset),self.myonset.get(0,0)
 
-def getonsetsfunc(filein,threshold,silence,bufsize=1024,hopsize=512,mode='dual'):
-        #bufsize   = 1024
-        #hopsize   = bufsize/2
+def getonsets(filein,threshold=0.2,silence=-70.,bufsize=1024,hopsize=512,mode='dual',localmin=False,storefunc=False):
         frameread = 0
         filei     = sndfile(filein)
         channels  = filei.channels()
@@ -105,86 +103,74 @@ def getonsetsfunc(filein,threshold,silence,bufsize=1024,hopsize=512,mode='dual')
         readsize  = filei.read(hopsize,myvec)
         opick     = onsetpick(bufsize,hopsize,channels,myvec,threshold,mode=mode)
         mylist    = list()
-        #ovalist   = [0., 0., 0., 0., 0., 0.]
-        ovalist   = [0., 0., 0., 0., 0.]
-        ofunclist = []
+        if localmin:
+                ovalist   = [0., 0., 0., 0., 0.]
+        if storefunc:
+                ofunclist = []
         while(readsize):
                 readsize = filei.read(hopsize,myvec)
                 isonset,val = opick.do(myvec)
                 if (aubio_silence_detection(myvec(),silence)):
                         isonset=0
-                ovalist.append(val)
-                ovalist.pop(0)
-                ofunclist.append(val)
+                if localmin:
+                        ovalist.append(val)
+                        ovalist.pop(0)
+                if storefunc:
+                        ofunclist.append(val)
                 if (isonset == 1):
-                        i=len(ovalist)-1
-                        # find local minima before peak 
-                        while ovalist[i-1] < ovalist[i] and i > 0:
-                                i -= 1
-                        now = (frameread+1-i)
+                        if localmin:
+                                i=len(ovalist)-1
+                                # find local minima before peak 
+                                while ovalist[i-1] < ovalist[i] and i > 0:
+                                        i -= 1
+                                now = (frameread+1-i)
+                        else:
+                                now = frameread
                         if now > 0 :
                                 mylist.append(now)
                         else:
                                 now = 0
                                 mylist.append(now)
                 frameread += 1
-        return mylist, ofunclist
+        if storefunc: return mylist, ofunclist
+        else: return mylist
 
+def cutfile(filein,slicetimes,zerothres=0.002,bufsize=1024,hopsize=512):
+    frameread = 0
+    readsize  = hopsize 
+    filei     = sndfile(filein)
+    framestep = hopsize/(filei.samplerate()+0.)
+    channels  = filei.channels()
+    newname   = "%s%f%s" % ("/tmp/",0.0000000,filein[-4:])
+    fileo     = sndfile(newname,model=filei)
+    myvec     = fvec(hopsize,channels)
+    mycopy    = fvec(hopsize,channels)
+    while(readsize==hopsize):
+        readsize = filei.read(hopsize,myvec)
+        # write to current file
+        if len(slicetimes) and frameread >= slicetimes[0]:
+            slicetimes.pop(0)
+            # write up to 1st zero crossing
+            zerocross = 0
+            while ( abs( myvec.get(zerocross,0) ) > zerothres ):
+            	zerocross += 1
+            writesize = fileo.write(zerocross,myvec)
+            fromcross = 0
+            while (zerocross < readsize):
+            	for i in range(channels):
+        	    	mycopy.set(myvec.get(zerocross,i),fromcross,i)
+        	fromcross += 1
+        	zerocross += 1
+            del fileo
+            fileo = sndfile("%s%s%f%s%s" % 
+            	(filein.split(".")[0].split("/")[-1],".",
+        	frameread*framestep,".",filein.split(".")[-1]),model=filei)
+            writesize = fileo.write(fromcross,mycopy)
+        else:
+            writesize = fileo.write(readsize,myvec)
+        frameread += 1
+    del fileo
 
-def getonsetscausal(filein,threshold,silence,bufsize=1024,hopsize=512,mode='dual'):
-        frameread = 0
-        filei     = sndfile(filein)
-        channels  = filei.channels()
-        myvec     = fvec(hopsize,channels)
-        readsize  = filei.read(hopsize,myvec)
-        opick     = onsetpick(bufsize,hopsize,channels,myvec,threshold,mode=mode)
-        mylist    = list()
-        while(readsize):
-                readsize = filei.read(hopsize,myvec)
-                isonset,val = opick.do(myvec)
-                if (aubio_silence_detection(myvec(),silence)):
-                        isonset=0
-                if (isonset == 1):
-                        now = frameread
-                        if now > 0 :
-                                mylist.append(now)
-                        else:
-                                now = 0
-                                mylist.append(now)
-                frameread += 1
-        return mylist
-
-def getonsets(filein,threshold=0.2,silence=-70.,bufsize=1024,hopsize=512,mode='dual'):
-        frameread = 0
-        filei     = sndfile(filein)
-        channels  = filei.channels()
-        samplerate= filei.samplerate()
-        myvec     = fvec(hopsize,channels)
-        readsize  = filei.read(hopsize,myvec)
-        opick     = onsetpick(bufsize,hopsize,channels,myvec,threshold,mode=mode)
-        mylist    = list()
-        #ovalist   = [0., 0., 0., 0., 0., 0.]
-        ovalist   = [0., 0., 0., 0., 0.]
-        while(readsize):
-                readsize = filei.read(hopsize,myvec)
-                isonset,val = opick.do(myvec)
-                if (aubio_silence_detection(myvec(),silence)):
-                        isonset=0
-                ovalist.append(val)
-                ovalist.pop(0)
-                if (isonset == 1):
-                        i=len(ovalist)-1
-                        # find local minima before peak 
-                        while ovalist[i-1] < ovalist[i] and i > 0:
-                                i -= 1
-                        now = (frameread+1-i)
-                        if now > 0 :
-                                mylist.append(now)
-                        else:
-                                now = 0
-                                mylist.append(now)
-                frameread += 1
-        return mylist
 
 class pitchpick:
     def __init__(self,bufsize,hopsize,channels,myvec,srate):
