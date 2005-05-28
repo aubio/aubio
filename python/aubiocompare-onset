@@ -54,7 +54,7 @@ does not scale to very long lists
 """
 
 import sys
-from aubio.onsetcompare import onset_roc
+from aubio.onsetcompare import onset_roc, onset_diffs
 from aubio.txtfile import read_datafile
 
 # default values
@@ -62,6 +62,8 @@ fileo=None;filec=None;vmode=None;dmode=None;delay=0.
 # default tolerance is 50 ms
 #tol = 0.050
 tol = 0.048
+# default mode is onset
+mode = 'onset'
 
 while len(sys.argv) >=2:
     option = sys.argv[1]; del sys.argv[1]
@@ -72,6 +74,7 @@ while len(sys.argv) >=2:
     if option == '-d': dmode = 'debug'
     if option == '-D': delay = float(sys.argv[1]); del sys.argv[1] 
     if option == '-tol': tol = float(sys.argv[1]); del sys.argv[1] 
+    if option == '-l': mode = 'localisation'
 
 # arguments required
 if (not fileo) or (not filec):
@@ -86,15 +89,18 @@ if delay:
     for i in range(len(lres)):
         lres[i] = lres[i] + delay
 # compute errors types
-orig, missed, merged, expc, bad, doubled = \
-        onset_roc(ltru,lres,tol)
-
-# print results
-#print "orig, missed, merged, expc, bad, doubled:"
-if vmode=='verbose':
-    print "GD %2.8f\t"        % (100*float(orig-missed-merged)/(orig)),
-    print "FP %2.8f\t"        % (100*float(bad+doubled)/(orig))       , 
-    print "GD-merged %2.8f\t" % (100*float(orig-missed)/(orig))       , 
-    print "FP-pruned %2.8f\t" % (100*float(bad)/(orig))                
+if mode == 'localisation':
+	l = onset_diffs(ltru,lres,tol)
+	for i in l: print i
 else:
-    print  orig, missed, merged, expc, bad, doubled
+	orig, missed, merged, expc, bad, doubled = onset_roc(ltru,lres,tol)
+	
+	# print results
+	#print "orig, missed, merged, expc, bad, doubled:"
+	if vmode=='verbose':
+	    print "GD %2.8f\t"        % (100*float(orig-missed-merged)/(orig)),
+	    print "FP %2.8f\t"        % (100*float(bad+doubled)/(orig))       , 
+	    print "GD-merged %2.8f\t" % (100*float(orig-missed)/(orig))       , 
+	    print "FP-pruned %2.8f\t" % (100*float(bad)/(orig))                
+	else:
+	    print  orig, missed, merged, expc, bad, doubled
