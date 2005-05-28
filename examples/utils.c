@@ -269,7 +269,7 @@ void examples_common_del(void){
 
 void examples_common_process(aubio_process_func_t process_func, aubio_print_func_t print ){
   if(usejack) {
-#ifdef JACK_SUPPORT
+#if JACK_SUPPORT
     aubio_jack_t * jack_setup;
     debug("Jack init ...\n");
     jack_setup = new_aubio_jack(channels, channels,
