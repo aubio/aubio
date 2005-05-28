@@ -93,11 +93,12 @@ options, args = parse_args()
 
 filename   = options.filename
 samplerate = float(sndfile(filename).samplerate())
-hopsize    = float(options.hopsize)
-bufsize    = float(options.bufsize)
+hopsize    = int(options.hopsize)
+bufsize    = int(options.bufsize)
+step       = float(samplerate)/float(hopsize)
 threshold  = float(options.threshold)
 silence    = float(options.silence)
-mintol     = float(options.mintol)*samplerate/hopsize
+mintol     = float(options.mintol)*step
 delay      = float(options.delay)
 
 if options.beat:
@@ -111,7 +112,7 @@ else:
 # take back system delay
 if delay != 0:
         for i in range(len(onsets)):
-                onsets[i] -= delay*samplerate/hopsize
+                onsets[i] -= delay*step
 
 # prune doubled 
 if mintol > 0:
@@ -125,7 +126,7 @@ if mintol > 0:
 
 # print times in second
 if options.verbose:
-        for i in onsets: print "%f" % (i*hopsize/samplerate)
+        for i in onsets: print "%f" % (i/step)
 
 if options.cut:
         cutfile(filename,onsets,bufsize=bufsize,hopsize=hopsize)
