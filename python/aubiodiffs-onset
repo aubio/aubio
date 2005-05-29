@@ -87,5 +87,6 @@ if delay:
         lres[i] = lres[i] + delay
 # compute errors types
 l = onset_diffs(ltru,lres,tol)
-for i in l: print i
+# print with 1ms precision
+for i in l: print "%.3f" % float(i)
 
