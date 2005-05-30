@@ -1,5 +1,6 @@
 Here you will find some examples of python scripts and some evaluation
 routines. The python interface for libaubio is generated using Swig.
 
-To have it working before installation, set LD_LIBRARY_PATH as:
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib:../src/.libs
+To have it working before installation, you will need to set LD_LIBRARY_PATH
+# export LD_LIBRARY_PATH=../src/.libs:../ext/.libs
+for instance, to run the python script from within aubio/python/. 

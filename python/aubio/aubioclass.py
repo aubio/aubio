@@ -73,7 +73,7 @@ class peakpick:
 
 class onsetpick:
     """ superclass for aubio_pvoc + aubio_onsetdetection + aubio_peakpicker """
-    def __init__(self,bufsize,hopsize,channels,myvec,threshold,mode='dual'):
+    def __init__(self,bufsize,hopsize,channels,myvec,threshold,mode='dual',derivate=False):
         self.myfft    = cvec(bufsize,channels)
         self.pv       = pvoc(bufsize,hopsize,channels)
         if mode in [complexdomain,hfc,phase,energy,specdiff]  :
@@ -86,6 +86,8 @@ class onsetpick:
                 self.myonset2 = fvec(1,channels)
         self.mode     = mode
         self.pp       = peakpick(float(threshold))
+        self.derivate = derivate
+        self.oldval   = 0.
 
     def do(self,myvec): 
         self.pv.do(myvec,self.myfft)
@@ -93,15 +95,23 @@ class onsetpick:
         if self.mode == 'dual':
                 self.myod2.do(self.myfft,self.myonset2)
                 self.myonset.set(self.myonset.get(0,0)*self.myonset2.get(0,0),0,0)
+        if self.derivate:
+                val         = self.myonset.get(0,0)
+                dval        = val - self.oldval
+                self.oldval = val
+                if dval > 0: self.myonset.set(dval,0,0)
+                else:  self.myonset.set(0.,0,0)
         return self.pp.do(self.myonset),self.myonset.get(0,0)
 
-def getonsets(filein,threshold=0.2,silence=-70.,bufsize=1024,hopsize=512,mode='dual',localmin=False,storefunc=False):
+def getonsets(filein,threshold=0.2,silence=-70.,bufsize=1024,hopsize=512,
+                mode='dual',localmin=False,storefunc=False,derivate=False):
         frameread = 0
         filei     = sndfile(filein)
         channels  = filei.channels()
         myvec     = fvec(hopsize,channels)
         readsize  = filei.read(hopsize,myvec)
-        opick     = onsetpick(bufsize,hopsize,channels,myvec,threshold,mode=mode)
+        opick     = onsetpick(bufsize,hopsize,channels,myvec,threshold,
+                         mode=mode,derivate=derivate)
         mylist    = list()
         if localmin:
                 ovalist   = [0., 0., 0., 0., 0.]
@@ -113,7 +123,8 @@ def getonsets(filein,threshold=0.2,silence=-70.,bufsize=1024,hopsize=512,mode='d
                 if (aubio_silence_detection(myvec(),silence)):
                         isonset=0
                 if localmin:
-                        ovalist.append(val)
+                        if val > 0: ovalist.append(val)
+                        else: ovalist.append(0)
                         ovalist.pop(0)
                 if storefunc:
                         ofunclist.append(val)
@@ -135,7 +146,7 @@ def getonsets(filein,threshold=0.2,silence=-70.,bufsize=1024,hopsize=512,mode='d
         if storefunc: return mylist, ofunclist
         else: return mylist
 
-def cutfile(filein,slicetimes,zerothres=0.002,bufsize=1024,hopsize=512):
+def cutfile(filein,slicetimes,zerothres=0.008,bufsize=1024,hopsize=512):
     frameread = 0
     readsize  = hopsize 
     filei     = sndfile(filein)
@@ -153,18 +164,18 @@ def cutfile(filein,slicetimes,zerothres=0.002,bufsize=1024,hopsize=512):
             # write up to 1st zero crossing
             zerocross = 0
             while ( abs( myvec.get(zerocross,0) ) > zerothres ):
-            	zerocross += 1
+                zerocross += 1
             writesize = fileo.write(zerocross,myvec)
             fromcross = 0
             while (zerocross < readsize):
-            	for i in range(channels):
-        	    	mycopy.set(myvec.get(zerocross,i),fromcross,i)
-        	fromcross += 1
-        	zerocross += 1
+                for i in range(channels):
+                    mycopy.set(myvec.get(zerocross,i),fromcross,i)
+                    fromcross += 1
+                    zerocross += 1
             del fileo
             fileo = sndfile("%s%s%f%s%s" % 
-            	(filein.split(".")[0].split("/")[-1],".",
-        	frameread*framestep,".",filein.split(".")[-1]),model=filei)
+                (filein.split(".")[0].split("/")[-1],".",
+                frameread*framestep,".",filein.split(".")[-1]),model=filei)
             writesize = fileo.write(fromcross,mycopy)
         else:
             writesize = fileo.write(readsize,myvec)

@@ -33,7 +33,7 @@ def parse_args():
                           help="input sound file")
         parser.add_option("-m","--mode", action="callback", 
                           callback=check_mode, dest="mode", default='dual', 
-                          help="onsetdetection mode [default=dual] \
+                          help="onset detection mode [default=dual] \
                           complexdomain|hfc|phase|specdiff|energy|dual")
         parser.add_option("-B","--bufsize",
                           action="store", dest="bufsize", default=1024, 
@@ -51,8 +51,9 @@ def parse_args():
                           action="store", dest="mintol", default=0.048, 
                           help="minimum inter onset interval [default=0.048]")
         parser.add_option("-D","--delay",
-                          action="store", dest="delay", default=0.022, 
-                          help="number of seconds to take back [default=0.022]")
+                          action="store", dest="delay",  
+                          help="number of seconds to take back [default=system]\
+                          default system delay is 2*hopsize/samplerate")
         parser.add_option("-L","--localmin",
                           action="store_true", dest="localmin", default=False, 
                           help="use local minima after peak detection")
@@ -60,23 +61,23 @@ def parse_args():
                           action="store_true", dest="cut", default=False,
                           help="cut input sound file at detected labels \
                           best used with option -L")
+        parser.add_option("-d","--derivate",
+                          action="store_true", dest="derivate", default=False, 
+                          help="derivate onset detection function")
         # to be implemented
-        # plotting functions
-        parser.add_option("-d","--derivative",
-                          action="store_true", dest="derivative", default=False, 
-                          help="NOT IMPLEMENTED derivate onset detection function")
-        parser.add_option("-p","--plot",
-                          action="store_true", dest="doplot", default=False, 
-                          help="NOT IMPLEMENTED draw plot")
-        parser.add_option("-O","--outplot",
-                          action="store", dest="output-plot", default=None, 
-                          help="NOT IMPLEMENTED save plot to output.{ps,png}")
         parser.add_option("-z","--zerocross",
                           action="store_true", dest="zerocross", default=False, 
                           help="NOT IMPLEMENTED zero crossing matching")
         parser.add_option("-b","--beat",
                           action="store_true", dest="beat", default=False,
                           help="NOT IMPLEMENTED output beat locations")
+        # plotting functions
+        parser.add_option("-p","--plot",
+                          action="store_true", dest="plot", default=False, 
+                          help="draw plot")
+        parser.add_option("-O","--outplot",
+                          action="store", dest="outplot", default=None, 
+                          help="save plot to output.{ps,png}")
         parser.add_option("-v","--verbose",
                           action="store_true", dest="verbose", default=False,
                           help="make lots of noise [default]")
@@ -99,14 +100,22 @@ step       = float(samplerate)/float(hopsize)
 threshold  = float(options.threshold)
 silence    = float(options.silence)
 mintol     = float(options.mintol)*step
-delay      = float(options.delay)
+# default take back system delay
+if options.delay: delay = float(options.delay)
+else:             delay = 2./step
 
 if options.beat:
         #onsets = getbeats(filename,threshold,silence,mode=options.mode)
         exit("not implemented yet")
+elif options.plot:
+        onsets, ofunc = getonsets(filename,threshold,silence,
+                mode=options.mode,localmin=options.localmin,
+                derivate=options.derivate,
+                bufsize=bufsize,hopsize=hopsize,storefunc=True)
 else:
         onsets = getonsets(filename,threshold,silence,
                 mode=options.mode,localmin=options.localmin,
+                derivate=options.derivate,
                 bufsize=bufsize,hopsize=hopsize)
 
 # take back system delay
@@ -127,6 +136,11 @@ if mintol > 0:
 # print times in second
 if options.verbose:
         for i in onsets: print "%f" % (i/step)
+
+if options.plot:
+        from aubio.gnuplot import plot_onsets
+        plot_onsets(filename, onsets, ofunc, 
+                samplerate=samplerate, hopsize=hopsize, outplot=options.outplot)
 
 if options.cut:
         cutfile(filename,onsets,bufsize=bufsize,hopsize=hopsize)

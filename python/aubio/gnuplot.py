@@ -136,10 +136,90 @@ def plot_audio(filenames, fileout=None, start=0, end=None, noaxis=None):
 
 def make_audio_plot(time,data,maxpoints=10000):
 	""" create gnuplot plot from an audio file """
-        import numarray
         length = len(time)
 	downsample = length/maxpoints
         if downsample == 0: downsample = 1
-        x = numarray.array(time).resize(length)[0:-1:downsample]
-        y = numarray.array(data).resize(length)[0:-1:downsample]
+        x = array(time).resize(length)[0:-1:downsample]
+        y = array(data).resize(length)[0:-1:downsample]
 	return Gnuplot.Data(x,y,with='lines')
+
+
+def plot_onsets(filename, onsets, ofunc, samplerate=44100., hopsize=512, outplot=None):
+        import aubio.txtfile
+        import os.path
+        import numarray
+        from aubio.onsetcompare import onset_roc
+
+        # onset detection function 
+        downtime = (hopsize/samplerate)*numarray.arange(len(ofunc))
+        d = Gnuplot.Data(downtime,ofunc,with='lines') 
+
+        # detected onsets
+        x1 = (hopsize/samplerate)*numarray.array(onsets)
+        y1 = max(ofunc)*numarray.ones(len(onsets))
+        e = Gnuplot.Data(x1,-y1,with='impulses') 
+        e2= Gnuplot.Data(x1,y1,with='impulses') 
+
+        # check if datafile exists truth
+        datafile = filename.replace('.wav','.txt')
+        if not os.path.isfile(datafile):
+                title = "truth file not found"
+                t = Gnuplot.Data(0,0,with='impulses') 
+        else:
+                t_onsets = aubio.txtfile.read_datafile(datafile)
+                y2 = max(ofunc)*numarray.ones(len(t_onsets))
+                x2 = numarray.array(t_onsets).resize(len(t_onsets))
+                t = Gnuplot.Data(x2,y2,with='impulses') 
+                
+                tol = 0.050 
+
+                orig, missed, merged, expc, bad, doubled = \
+                        onset_roc(x2,x1,tol)
+                title = "GD %2.3f%% FP %2.3f%%" % \
+                        ((100*float(orig-missed-merged)/(orig)),
+                         (100*float(bad+doubled)/(orig)))
+                #print  orig, missed, merged, expc, bad, doubled
+                #print "GD %2.8f\t"        % (100*float(orig-missed-merged)/(orig)),
+                #print "FP %2.8f\t"        % (100*float(bad+doubled)/(orig))       , 
+                #print "GD-merged %2.8f\t" % (100*float(orig-missed)/(orig))       , 
+                #print "FP-pruned %2.8f\t" % (100*float(bad)/(orig))                
+
+        # audio data
+        time,data = audio_to_array(filename)
+        f = make_audio_plot(time,data)
+
+        # prepare the plot
+        g = Gnuplot.Gnuplot(debug=1, persist=1)
+        if outplot:
+                extension = outplot.split('.')[-1]
+                if extension == 'ps': extension = 'postscript'
+                g('set terminal %s' % extension)
+                g('set output \'%s\'' % outplot)
+
+        g('set title \'%s %s\'' % (filename,title))
+
+        g('set multiplot')
+
+        # hack to align left axis
+        g('set lmargin 15')
+
+        # plot waveform and onsets
+        g('set size 1,0.3')
+        g('set origin 0,0.7')
+        g('set xrange [0:%f]' % max(time)) 
+        g('set yrange [-1:1]') 
+        g.ylabel('amplitude')
+        g.plot(f,e,t)
+        
+        g('unset title')
+
+        # plot onset detection function
+        g('set size 1,0.7')
+        g('set origin 0,0')
+        g('set xrange [0:%f]' % (hopsize/samplerate*len(ofunc)))
+        g('set yrange [0:%f]' % (max(ofunc)*1.01))
+        g.xlabel('time')
+        g.ylabel('onset detection value')
+        g.plot(d,e2)
+
+        g('unset multiplot')
