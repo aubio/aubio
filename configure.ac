@@ -161,6 +161,20 @@ AM_CONDITIONAL(SWIGFOUND, test "${SWIG}" != "no")
 AM_PATH_PYTHON
 AM_CONDITIONAL(PYTHONFOUND, test "${PYTHON}" != "no")
 
+#if PYTHONFOUND
+case "${host_os}" in
+darwin*)
+  SWCFLAGS="-Wno-long-double"
+  SWLDFLAGS="-bundle -framework python -L${prefix}/lib/python${PYTHON_VERSION}/config -lpython${PYTHON_VERSION}"
+  ;;
+*)
+  SWLDFLAGS="-shared"
+  ;;
+esac
+
+AC_SUBST(SWCFLAGS)
+AC_SUBST(SWLDFLAGS)
+
 AC_PATH_PROG(DOCBOOK_TO_MAN,docbook-to-man,no)
 AM_CONDITIONAL(DOCBOOKFOUND, test "${DOCBOOK_TO_MAN}" != "no")
 
