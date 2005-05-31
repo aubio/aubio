@@ -91,7 +91,7 @@ if delay:
 # compute errors types
 if mode == 'localisation':
 	l = onset_diffs(ltru,lres,tol)
-	for i in l: print i
+	for i in l: print "%.3f" % i
 else:
 	orig, missed, merged, expc, bad, doubled = onset_roc(ltru,lres,tol)
 	
