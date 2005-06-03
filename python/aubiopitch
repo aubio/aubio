@@ -1,24 +1,127 @@
 #!/usr/bin/python
 
-def do(filein):
-    from aubio import aubioclass
-    hopsize   = 512
-    bufsize   = 4096
-    frameread = 0
-    filei     = aubioclass.sndfile(filein)
-    srate     = filei.samplerate()
-    channels  = filei.channels()
-    myvec     = aubioclass.fvec(hopsize,channels)
-    readsize  = filei.read(hopsize,myvec)
-    ppick     = aubioclass.pitchpick(bufsize,hopsize,channels,myvec,srate)
-    while(readsize==hopsize):
-        readsize = filei.read(hopsize,myvec)
-        val = ppick.do(myvec)
-        freq = aubioclass.bintofreq(val,srate,bufsize)
-        now = (frameread)*hopsize/(srate+0.)
-        print "%.3f     %.2f" % (now,freq)
-        frameread += 1
+""" this file was written by Paul Brossier 
+  it is released under the GNU/GPL license.
+"""
 
-if __name__ == "__main__":
-    import sys
-    do(sys.argv[1])
+
+import sys
+import numarray
+from aubio.aubioclass import *
+
+usage = "usage: %s [options] -i soundfile" % sys.argv[0]
+
+def check_mode(option, opt, value, parser):
+        nvalue = parser.rargs[0]
+        if   nvalue == 'mcomb' :
+                 setattr(parser.values, option.dest, aubio_mcomb)
+        elif nvalue == 'yin'           :
+                 setattr(parser.values, option.dest, aubio_yin)
+        elif nvalue == 'fcomb'         :
+                 setattr(parser.values, option.dest, aubio_fcomb)
+        elif nvalue == 'schmitt'      :
+                 setattr(parser.values, option.dest, aubio_schmitt)
+
+
+def parse_args():
+        from optparse import OptionParser
+        parser = OptionParser(usage=usage)
+        parser.add_option("-i","--input",
+                          action="store", dest="filename", 
+                          help="input sound file")
+        parser.add_option("-m","--mode", action="callback", 
+                          callback=check_mode, dest="mode", default=aubio_schmitt, 
+                          help="pitch detection mode [default=dual] \
+                          mcomb|yin|fcomb|schmitt")
+        parser.add_option("-B","--bufsize",
+                          action="store", dest="bufsize", default=1024, 
+                          help="buffer size [default=1024]")
+        parser.add_option("-H","--hopsize",
+                          action="store", dest="hopsize", default=512, 
+                          help="overlap size [default=512]")
+        parser.add_option("-t","--threshold",
+                          action="store", dest="threshold", default=0.1, 
+                          help="pitch threshold (for yin) [default=0.1]")
+        parser.add_option("-s","--silence",
+                          action="store", dest="silence", default=-70, 
+                          help="silence threshold [default=-70]")
+        parser.add_option("-D","--delay",
+                          action="store", dest="delay",  
+                          help="number of seconds to take back [default=system]\
+                          default system delay is 2*hopsize/samplerate")
+        parser.add_option("-L","--localmin",
+                          action="store_true", dest="localmin", default=False, 
+                          help="use local minima after peak detection")
+        parser.add_option("-c","--cut",
+                          action="store_true", dest="cut", default=False,
+                          help="cut input sound file at detected labels \
+                          best used with option -L")
+        # to be implemented
+        parser.add_option("-n","--note",
+                          action="store_true", dest="note", default=False,
+                          help="NOT IMPLEMENTED output notes")
+        # plotting functions
+        parser.add_option("-p","--plot",
+                          action="store_true", dest="plot", default=False, 
+                          help="NOT IMPLEMENTED draw plot")
+        parser.add_option("-O","--outplot",
+                          action="store", dest="outplot", default=None, 
+                          help="NOT IMPLEMENTED save plot to output.{ps,png}")
+        parser.add_option("-v","--verbose",
+                          action="store_true", dest="verbose", default=False,
+                          help="make lots of noise [default]")
+        parser.add_option("-q","--quiet",
+                          action="store_false", dest="verbose", default=False, 
+                          help="be quiet")
+        (options, args) = parser.parse_args()
+        if not options.filename: 
+                 print "no file name given\n", usage
+                 sys.exit(1)
+        return options, args
+
+options, args = parse_args()
+
+filename   = options.filename
+samplerate = float(sndfile(filename).samplerate())
+hopsize    = int(options.hopsize)
+bufsize    = int(options.bufsize)
+step       = float(samplerate)/float(hopsize)
+threshold  = float(options.threshold)
+silence    = float(options.silence)
+#mintol     = float(options.mintol)*step
+# default take back system delay
+if options.delay: delay = float(options.delay)
+else:             delay = 2./step
+
+if options.note:
+        exit("not implemented yet")
+else:
+        pitch = getpitch(filename, #threshold,silence,
+                mode=options.mode,
+                bufsize=bufsize,hopsize=hopsize)
+
+## take back system delay
+#if delay != 0:
+#        for i in range(len(onsets)):
+#                onsets[i] -= delay*step
+#
+## prune doubled 
+#if mintol > 0:
+#        last = -2*mintol
+#        newonsets = []
+#        for new in onsets:
+#                if (new - last > mintol): 
+#                        newonsets.append(new)
+#                last = new
+#        onsets = newonsets
+
+# print times in second
+if options.verbose:
+        for i in range(len(pitch)): 
+                print "%f\t%f" % (i/step,pitch[i])
+
+if options.plot:
+        from aubio.gnuplot import plot_pitch
+        plot_pitch(filename, pitch, 
+                samplerate=samplerate, hopsize=hopsize, outplot=options.outplot)
+

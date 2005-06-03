@@ -223,3 +223,75 @@ def plot_onsets(filename, onsets, ofunc, samplerate=44100., hopsize=512, outplot
         g.plot(d,e2)
 
         g('unset multiplot')
+
+
+def plot_pitch(filename, pitch, samplerate=44100., hopsize=512, outplot=None):
+        import aubio.txtfile
+        import os.path
+        import numarray
+
+        # onset detection function 
+        downtime = (hopsize/samplerate)*numarray.arange(len(pitch))
+        d = Gnuplot.Data(downtime,pitch,with='lines') 
+
+        # check if datafile exists truth
+        datafile = filename.replace('.wav','.txt')
+        if not os.path.isfile(datafile):
+                title = "truth file not found"
+                t = Gnuplot.Data(0,0,with='impulses') 
+        else:
+                title = "truth file plotting not implemented yet"
+                t = Gnuplot.Data(0,0,with='impulses') 
+                #times,pitch = aubio.txtfile.read_datafile(datafile)
+                #t = Gnuplot.Data(times,pitch,with='lines') 
+                
+                #orig, missed, merged, expc, bad, doubled = \
+                #        onset_roc(x2,x1,tol)
+                #title = "GD %2.3f%% FP %2.3f%%" % \
+                #        ((100*float(orig-missed-merged)/(orig)),
+                #         (100*float(bad+doubled)/(orig)))
+                #print  orig, missed, merged, expc, bad, doubled
+                #print "GD %2.8f\t"        % (100*float(orig-missed-merged)/(orig)),
+                #print "FP %2.8f\t"        % (100*float(bad+doubled)/(orig))       , 
+                #print "GD-merged %2.8f\t" % (100*float(orig-missed)/(orig))       , 
+                #print "FP-pruned %2.8f\t" % (100*float(bad)/(orig))                
+
+        # audio data
+        time,data = audio_to_array(filename)
+        f = make_audio_plot(time,data)
+
+        # prepare the plot
+        g = Gnuplot.Gnuplot(debug=1, persist=1)
+        if outplot:
+                extension = outplot.split('.')[-1]
+                if extension == 'ps': extension = 'postscript'
+                g('set terminal %s' % extension)
+                g('set output \'%s\'' % outplot)
+
+        g('set title \'%s %s\'' % (filename,title))
+
+        g('set multiplot')
+
+        # hack to align left axis
+        g('set lmargin 15')
+
+        # plot waveform and onsets
+        g('set size 1,0.3')
+        g('set origin 0,0.7')
+        g('set xrange [0:%f]' % max(time)) 
+        g('set yrange [-1:1]') 
+        g.ylabel('amplitude')
+        g.plot(f)
+        
+        g('unset title')
+
+        # plot onset detection function
+        g('set size 1,0.7')
+        g('set origin 0,0')
+        g('set xrange [0:%f]' % (hopsize/samplerate*len(pitch)))
+        g('set yrange [0:%f]' % (max(pitch)*1.01))
+        g.xlabel('time')
+        g.ylabel('frequency (Hz)')
+        g.plot(d,t)
+
+        g('unset multiplot')
