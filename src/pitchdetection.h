@@ -25,7 +25,9 @@ extern "C" {
 
 typedef enum {
 	aubio_yin,
-	aubio_mcomb
+	aubio_mcomb,
+        aubio_schmitt,
+        aubio_fcomb
 } aubio_pitchdetection_type;
 
 typedef enum {
@@ -38,6 +40,10 @@ typedef enum {
 typedef struct _aubio_pitchdetection_t aubio_pitchdetection_t;
 	
 smpl_t aubio_pitchdetection(aubio_pitchdetection_t * p, fvec_t * ibuf);
+smpl_t aubio_pitchdetection_mcomb(aubio_pitchdetection_t *p, fvec_t * ibuf);
+smpl_t aubio_pitchdetection_yin(aubio_pitchdetection_t *p, fvec_t *ibuf);
+smpl_t aubio_pitchdetection_schmitt(aubio_pitchdetection_t *p, fvec_t *ibuf);
+smpl_t aubio_pitchdetection_fcomb(aubio_pitchdetection_t *p, fvec_t *ibuf);
 
 void del_aubio_pitchdetection(aubio_pitchdetection_t * p);
 

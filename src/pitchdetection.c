@@ -20,10 +20,15 @@
 #include "sample.h"
 #include "phasevoc.h"
 #include "mathutils.h"
-#include "filter.h"
-#include "pitchyin.h"
+//#include "filter.h"
 #include "pitchmcomb.h"
+#include "pitchyin.h"
+#include "pitchfcomb.h"
+#include "pitchschmitt.h"
 #include "pitchdetection.h"
+
+typedef smpl_t (*aubio_pitchdetection_func_t)(aubio_pitchdetection_t *p, 
+                fvec_t * ibuf);
 
 struct _aubio_pitchdetection_t {
 	aubio_pitchdetection_type type;
@@ -34,10 +39,13 @@ struct _aubio_pitchdetection_t {
 	aubio_pvoc_t * pv;
 	cvec_t * fftgrain; 
 	aubio_pitchmcomb_t * mcomb;
-	aubio_filter_t * filter;
+	aubio_pitchfcomb_t * fcomb;
+	aubio_pitchschmitt_t * schmitt;
+	//aubio_filter_t * filter;
 	/* for yin */
 	fvec_t * buf;
 	fvec_t * yin;
+        aubio_pitchdetection_func_t callback;
 };
 
 aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize, 
@@ -55,15 +63,24 @@ aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize,
 		case aubio_yin:
 			p->buf      = new_fvec(bufsize,channels);
 			p->yin      = new_fvec(bufsize/2,channels);
+                        p->callback = aubio_pitchdetection_yin;
 			break;
 		case aubio_mcomb:
 			p->pv       = new_aubio_pvoc(bufsize, hopsize, channels);
 			p->fftgrain = new_cvec(bufsize, channels);
-			p->filter   = new_aubio_adsgn_filter((smpl_t)samplerate);
 			p->mcomb    = new_aubio_pitchmcomb(bufsize,channels);
+                        p->callback = aubio_pitchdetection_mcomb;
 			break;
-		default:
-			break;
+                case aubio_fcomb:
+                        p->fcomb    = new_aubio_pitchfcomb(bufsize,samplerate);
+                        p->callback = aubio_pitchdetection_fcomb;
+                        break;
+                case aubio_schmitt:
+                        p->schmitt  = new_aubio_pitchschmitt(bufsize,samplerate);
+                        p->callback = aubio_pitchdetection_mcomb;
+                        break;
+                default:
+                        break;
 	}
 	return p;
 }
@@ -77,55 +94,68 @@ void del_aubio_pitchdetection(aubio_pitchdetection_t * p) {
 		case aubio_mcomb:
 			del_aubio_pvoc(p->pv);
 			del_cvec(p->fftgrain);
-			//del_aubio_adsgn_filter(p->filter);
-			//del_aubio_pitchmcomb(p->mcomb);
+			del_aubio_pitchmcomb(p->mcomb);
 			break;
+                case aubio_schmitt:
+                        del_aubio_pitchschmitt(p->schmitt);
+                        break;
+                case aubio_fcomb:
+                        del_aubio_pitchfcomb(p->fcomb);
+                        break;
 		default:
 			break;
 	}
 	AUBIO_FREE(p);
 }
 
-/** \bug ugly, should replace with function pointers or so */
 smpl_t aubio_pitchdetection(aubio_pitchdetection_t *p, fvec_t * ibuf) {
+        return p->callback(p,ibuf);
+}
+
+smpl_t aubio_pitchdetection_mcomb(aubio_pitchdetection_t *p, fvec_t *ibuf) {
+	smpl_t pitch = 0.;
+        aubio_pvoc_do(p->pv,ibuf,p->fftgrain);
+        pitch = aubio_pitchmcomb_detect(p->mcomb,p->fftgrain);
+        /** \bug should move the >0 check within bintofreq */
+        if (pitch>0.) {
+                pitch = bintofreq(pitch,p->srate,p->bufsize);
+        } else {
+                pitch = 0.;
+        }
+        return pitch;
+}
+
+smpl_t aubio_pitchdetection_yin(aubio_pitchdetection_t *p, fvec_t *ibuf) {
 	smpl_t pitch = 0.;
 	uint_t i,j = 0, overlap_size = 0;
-	switch(p->type) {
-		case aubio_yin:
-                        overlap_size = p->buf->length-ibuf->length;
-			/* do sliding window blocking */
-			for (i=0;i<p->buf->channels;i++){
-				for (j=0;j<overlap_size;j++){
-					p->buf->data[i][j] = 
-                                                p->buf->data[i][j+ibuf->length];
-				}
-			}
-			for (i=0;i<ibuf->channels;i++){
-				for (j=0;j<ibuf->length;j++){
-					p->buf->data[i][j+overlap_size] = 
-                                                ibuf->data[i][j];
-				}
-			}
-		        pitch = aubio_pitchyin_getpitchfast(p->buf,p->yin, 0.5);
-		        if (pitch>0) {
-		                pitch = p->srate/(pitch+0.);
-		        } else {
-		                pitch = 0.;
-			}
-			break;
-		case aubio_mcomb:
-			aubio_filter_do(p->filter,ibuf);
-			aubio_filter_do(p->filter,ibuf);
-			aubio_pvoc_do(p->pv,ibuf,p->fftgrain);
-			pitch = aubio_pitchmcomb_detect(p->mcomb,p->fftgrain);
-			if (pitch>0.) {
-				pitch = bintofreq(pitch,p->srate,p->bufsize);
-			} else {
-				pitch = 0.;
-			}
-			break;
-		default:
-			break;
-	}
-	return pitch;
+        overlap_size = p->buf->length-ibuf->length;
+        /* do sliding window blocking */
+        for (i=0;i<p->buf->channels;i++){
+                for (j=0;j<overlap_size;j++){
+                        p->buf->data[i][j] = 
+                                p->buf->data[i][j+ibuf->length];
+                }
+        }
+        for (i=0;i<ibuf->channels;i++){
+                for (j=0;j<ibuf->length;j++){
+                        p->buf->data[i][j+overlap_size] = 
+                                ibuf->data[i][j];
+                }
+        }
+        pitch = aubio_pitchyin_getpitchfast(p->buf,p->yin, 0.5);
+        if (pitch>0) {
+                pitch = p->srate/(pitch+0.);
+        } else {
+                pitch = 0.;
+        }
+        return pitch;
+}
+
+
+smpl_t aubio_pitchdetection_fcomb(aubio_pitchdetection_t *p, fvec_t *ibuf){
+        return aubio_pitchfcomb_detect(p->fcomb,ibuf);
+}
+
+smpl_t aubio_pitchdetection_schmitt(aubio_pitchdetection_t *p, fvec_t *ibuf){
+        return aubio_pitchschmitt_detect(p->schmitt,ibuf);
 }
