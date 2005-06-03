@@ -64,7 +64,11 @@ def parse_args():
         parser.add_option("-d","--derivate",
                           action="store_true", dest="derivate", default=False, 
                           help="derivate onset detection function")
+        parser.add_option("-S","--silencecut",
+                          action="store_true", dest="silencecut", default=False,
+                          help="outputs silence locations")
         # to be implemented
+        
         parser.add_option("-z","--zerocross",
                           action="store_true", dest="zerocross", default=False, 
                           help="NOT IMPLEMENTED zero crossing matching")
@@ -107,6 +111,8 @@ else:             delay = 2./step
 if options.beat:
         #onsets = getbeats(filename,threshold,silence,mode=options.mode)
         exit("not implemented yet")
+elif options.silencecut:
+        onsets = getsilences(filename,hopsize=hopsize,silence=silence)
 elif options.plot:
         onsets, ofunc = getonsets(filename,threshold,silence,
                 mode=options.mode,localmin=options.localmin,
