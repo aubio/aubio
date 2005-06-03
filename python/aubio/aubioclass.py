@@ -183,18 +183,55 @@ def cutfile(filein,slicetimes,zerothres=0.008,bufsize=1024,hopsize=512):
     del fileo
 
 
-class pitchpick:
-    def __init__(self,bufsize,hopsize,channels,myvec,srate):
-        self.myfft    = cvec(bufsize,channels)
-        self.pv       = pvoc(bufsize,hopsize,channels)
-        self.pitchp   = new_aubio_pitchmcomb(bufsize,channels)
-        self.filt     = filter(srate,"adsgn")
+def getsilences(filein,hopsize=512,silence=-70):
+    frameread = 0
+    filei     = sndfile(filein)
+    srate     = filei.samplerate()
+    channels  = filei.channels()
+    myvec     = fvec(hopsize,channels)
+    readsize  = filei.read(hopsize,myvec)
+    mylist    = []
+    wassilence = 0
+    while(readsize==hopsize):
+        readsize = filei.read(hopsize,myvec)
+        if (aubio_silence_detection(myvec(),silence)==1):
+            if wassilence == 0:
+                mylist.append(frameread)
+                wassilence == 1
+        else: wassilence = 0
+        frameread += 1
+    return mylist
 
-    def do(self,myvec): 
-        #self.filt.do(myvec)
-        #self.filt.do(myvec)
-        self.pv.do(myvec,self.myfft)
-        return aubio_pitchmcomb_detect(self.pitchp,self.myfft())
+def getpitch(filein,mode=aubio_mcomb,bufsize=1024,hopsize=512,omode=aubio_freq,
+        samplerate=44100.):
+    frameread = 0
+    filei     = sndfile(filein)
+    srate     = filei.samplerate()
+    channels  = filei.channels()
+    myvec     = fvec(hopsize,channels)
+    readsize  = filei.read(hopsize,myvec)
+    pitchdet  = pitchdetection(mode=mode,bufsize=bufsize,hopsize=hopsize,
+                         channels=channels,samplerate=srate,omode=omode)
+    mylist    = []
+    while(readsize==hopsize):
+        readsize = filei.read(hopsize,myvec)
+        freq = pitchdet(myvec)
+        #print "%.3f     %.2f" % (now,freq)
+        mylist.append(freq)
+        frameread += 1
+    return mylist
+
+class pitchdetection:
+    def __init__(self,mode=aubio_mcomb,bufsize=2048,hopsize=1024,
+        channels=1,samplerate=44100.,omode=aubio_freq):
+        self.pitchp = new_aubio_pitchdetection(bufsize,hopsize,channels,
+                samplerate,mode,omode)
+        #self.filt     = filter(srate,"adsgn")
+    def __del__(self):
+        del_aubio_pitchdetection(self.pitchp)
+    def __call__(self,myvec): 
+        #self.filt(myvec)
+        return aubio_pitchdetection(self.pitchp,myvec())
 
 class filter:
     def __init__(self,srate,type=None):
@@ -203,5 +240,5 @@ class filter:
     def __del__(self):
         #del_aubio_filter(self.filter)
         pass
-    def do(self,myvec):
+    def __call__(self,myvec):
         aubio_filter_do(self.filter,myvec())
