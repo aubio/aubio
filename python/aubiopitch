@@ -6,7 +6,6 @@
 
 
 import sys
-import numarray
 from aubio.aubioclass import *
 
 usage = "usage: %s [options] -i soundfile" % sys.argv[0]
@@ -30,8 +29,8 @@ def parse_args():
                           action="store", dest="filename", 
                           help="input sound file")
         parser.add_option("-m","--mode", action="callback", 
-                          callback=check_mode, dest="mode", default=aubio_schmitt, 
-                          help="pitch detection mode [default=dual] \
+                          callback=check_mode, dest="mode", default=aubio_mcomb,
+                          help="pitch detection mode [default=mcomb] \
                           mcomb|yin|fcomb|schmitt")
         parser.add_option("-B","--bufsize",
                           action="store", dest="bufsize", default=1024, 
