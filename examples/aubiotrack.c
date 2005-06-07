@@ -26,9 +26,7 @@ fvec_t * dfframe          = NULL;
 fvec_t * out              = NULL;
 aubio_beattracking_t * bt = NULL;
 uint_t winlen             = 512;
-uint_t step               = 128;
-uint_t laglen             = 128;
-uint_t rayparam           = 43;
+uint_t step               = 0;
 uint_t istactus           = 0;
 
 int aubio_process(float **input, float **output, int nframes);
@@ -83,6 +81,8 @@ int aubio_process(float **input, float **output, int nframes) {
       for (i = 1; i < btoutput[0]; i++ ) { 
               if (pos2 == btoutput[i]) {
                       //printf("pos2: %d\n", pos2);
+                      //printf("tempo:\t%3.5f bpm \n", 
+                      //60.*44100./overlap_size/abs(btoutput[2]-btoutput[1]));
                       /* test for silence */
                       if (aubio_silence_detection(ibuf, threshold2)==1) {
                               isonset  = 0;
@@ -122,16 +122,18 @@ int main(int argc, char **argv) {
   
   /* override default settings */
   examples_common_init(argc,argv);
+  winlen = SQR(512)/overlap_size;
 
   dfframe = new_fvec(winlen,channels);
+  step = winlen/4;
   out = new_fvec(step,channels);
+
   /* test input : impulses starting from 15, at intervals of 50 samples */
   //for(i=0;i<16;i++){ 
   //        dfframe->data[0][50*i+14] = 1.;
   //}
 
-  bt = new_aubio_beattracking(winlen,step, laglen,
-                  rayparam, channels);
+  bt = new_aubio_beattracking(winlen,channels);
 
   examples_common_process(aubio_process,process_print);
 

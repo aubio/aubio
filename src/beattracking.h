@@ -36,9 +36,6 @@ typedef struct _aubio_beattracking_t aubio_beattracking_t;
  * \param parameter for rayleigh weight vector - sets preferred tempo to 120bpm [43]
  * \param channel number (not functionnal) [1] */
 aubio_beattracking_t * new_aubio_beattracking(uint_t winlen,
-                uint_t step,
-                uint_t laglen,
-                uint_t rayparam,
                 uint_t channels);
 /**
  * track the beat 

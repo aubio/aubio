@@ -97,7 +97,7 @@ void usage (FILE * stream, int exit_code)
 }
 
 int parse_args (int argc, char **argv) {
-        const char *options = "hvjo:i:O:t:s:a";
+        const char *options = "hvjo:i:O:t:s:H:a";
         int next_option;
         struct option long_options[] =
         {
@@ -110,6 +110,7 @@ int parse_args (int argc, char **argv) {
                 {"threshold", 0, NULL, 't'},
                 {"silence"  , 0, NULL, 's'},
                 {"averaging", 0, NULL, 'a'},
+                {"hopsize",   0, NULL, 'H'},
                 {NULL       , 0, NULL, 0}
         };
         prog_name = argv[0];	
@@ -168,6 +169,9 @@ int parse_args (int argc, char **argv) {
                         case 'a':
                                 averaging = 1;
                                 break; 
+                        case 'H':
+                                overlap_size = atoi(optarg);
+                                break;
                         case '?': 	/* unknown options */
                                 usage(stderr, 1);
                                 break;
