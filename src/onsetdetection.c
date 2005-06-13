@@ -67,7 +67,6 @@ void aubio_onsetdetection_hfc(aubio_onsetdetection_t *o,	cvec_t * fftgrain, fvec
 
 
 /* Complex Domain Method onset detection function */
-/* moved to /2 032402 */
 void aubio_onsetdetection_complex (aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset) {
 	uint_t i, j;
 	uint_t nbins = fftgrain->length;
@@ -127,7 +126,6 @@ void aubio_onsetdetection_phase(aubio_onsetdetection_t *o,
 }
 
 /* Spectral difference method onset detection function */
-/* moved to /2 032402 */
 void aubio_onsetdetection_specdiff(aubio_onsetdetection_t *o,
 		cvec_t * fftgrain, fvec_t * onset){
 	uint_t i, j;
@@ -153,6 +151,37 @@ void aubio_onsetdetection_specdiff(aubio_onsetdetection_t *o,
 		/* its mean is the result */
 		onset->data[i][0] = aubio_hist_mean(o->histog);	
 
+	}
+}
+
+/* Kullback Liebler onset detection function
+ * note we use ln(1+Xn/(Xn-1+0.0001)) to avoid 
+ * negative (1.+) and infinite values (+1.e-10) */
+void aubio_onsetdetection_kl(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset){
+        uint_t i,j;
+        for (i=0;i<fftgrain->channels;i++) {
+                onset->data[i][0] = 0.;
+                for (j=0;j<fftgrain->length;j++) {
+                        onset->data[i][0] += fftgrain->norm[i][j]
+                                *LOG(1.+fftgrain->norm[i][j]/(o->oldmag->data[i][j]+1.e-10));
+                        o->oldmag->data[i][j] = fftgrain->norm[i][j];
+                }
+                if (isnan(onset->data[i][0])) onset->data[i][0] = 0.;
+        }
+}
+
+/* Modified Kullback Liebler onset detection function
+ * note we use ln(1+Xn/(Xn-1+0.0001)) to avoid 
+ * negative (1.+) and infinite values (+1.e-10) */
+void aubio_onsetdetection_mkl(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset){
+	uint_t i,j;
+	for (i=0;i<fftgrain->channels;i++) {
+		onset->data[i][0] = 0.;
+		for (j=0;j<fftgrain->length;j++) {
+			onset->data[i][0] += LOG(1.+fftgrain->norm[i][j]/(o->oldmag->data[i][j]+1.e-10));
+			o->oldmag->data[i][j] = fftgrain->norm[i][j];
+		}
+                if (isnan(onset->data[i][0])) onset->data[i][0] = 0.;
 	}
 }
 
@@ -204,6 +233,12 @@ aubio_onsetdetection_alloc (aubio_onsetdetection_type type,
 			o->histog = new_aubio_hist(0.0f, PI, 10, channels);
 			o->threshold = 0.1;
 			break;
+                case kl:
+			o->oldmag = new_fvec(rsize,channels);
+                        break;
+                case mkl:
+			o->oldmag = new_fvec(rsize,channels);
+                        break;
 		default:
 			break;
 	}
@@ -227,6 +262,12 @@ aubio_onsetdetection_alloc (aubio_onsetdetection_type type,
 			break;
 		case specdiff:
 			o->funcpointer = aubio_onsetdetection_specdiff;
+			break;
+                case kl:
+			o->funcpointer = aubio_onsetdetection_kl;
+			break;
+                case mkl:
+			o->funcpointer = aubio_onsetdetection_mkl;
 			break;
 		default:
 			break;

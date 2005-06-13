@@ -76,14 +76,14 @@ class onsetpick:
     def __init__(self,bufsize,hopsize,channels,myvec,threshold,mode='dual',derivate=False):
         self.myfft    = cvec(bufsize,channels)
         self.pv       = pvoc(bufsize,hopsize,channels)
-        if mode in [complexdomain,hfc,phase,energy,specdiff]  :
-                self.myod     = onsetdetection(mode,bufsize,channels)
-                self.myonset  = fvec(1,channels)
-        else: 
+        if mode in ['dual'] :
                 self.myod     = onsetdetection(hfc,bufsize,channels)
                 self.myod2    = onsetdetection(complexdomain,bufsize,channels)
                 self.myonset  = fvec(1,channels)
                 self.myonset2 = fvec(1,channels)
+        else: 
+                self.myod     = onsetdetection(mode,bufsize,channels)
+                self.myonset  = fvec(1,channels)
         self.mode     = mode
         self.pp       = peakpick(float(threshold))
         self.derivate = derivate

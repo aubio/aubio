@@ -53,7 +53,9 @@ typedef enum {
 	specdiff,       /**< spectral diff */         
 	hfc,		/**< high frequency content */
 	complexdomain,  /**< complex domain */        
-	phase		/**< phase fast */            
+	phase,		/**< phase fast */            
+        kl,             /**< Kullback Liebler (Hainsworth et al.,  Onset detection in musical audio signals) */
+        mkl             /**< modified Kullback Liebler (Hainsworth et al.,  Onset detection in musical audio signals) */
 } aubio_onsetdetection_type;
 
 /** onsetdetection structure */
@@ -98,6 +100,10 @@ void aubio_onsetdetection_phase(aubio_onsetdetection_t *o, cvec_t * fftgrain, fv
  * 	- interpfact 2
  */
 void aubio_onsetdetection_specdiff(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
+/** Kullback-Liebler onset detection function */
+void aubio_onsetdetection_kl(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
+/** Modified Kullback-Liebler onset detection function */
+void aubio_onsetdetection_mkl(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
 /** Generic function pointing to the choosen one */
 void aubio_onsetdetection(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
 /** Allocate memory for an onset detection */

@@ -150,6 +150,8 @@ def plot_onsets(filename, onsets, ofunc, samplerate=44100., hopsize=512, outplot
         import numarray
         from aubio.onsetcompare import onset_roc
 
+        if len(onsets) == 0: onsets = [0.];
+
         # onset detection function 
         downtime = (hopsize/samplerate)*numarray.arange(len(ofunc))
         d = Gnuplot.Data(downtime,ofunc,with='lines') 
