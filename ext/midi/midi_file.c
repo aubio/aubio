@@ -150,7 +150,7 @@ int aubio_midi_file_read_mthd(aubio_midi_file_t* mf)
   if (aubio_midi_file_read(mf, mthd, 14) != AUBIO_OK) {
     return AUBIO_FAIL;
   }
-  if ((AUBIO_STRNCMP(mthd, "MThd", 4) != 0) || (mthd[7] != 6) || (mthd[9] > 2)) {
+  if ((AUBIO_STRNCMP((const char*)mthd, "MThd", 4) != 0) || (mthd[7] != 6) || (mthd[9] > 2)) {
     AUBIO_ERR( "Doesn't look like a MIDI file: invalid MThd header");
     return AUBIO_FAIL;
   }
