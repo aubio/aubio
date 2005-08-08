@@ -29,6 +29,7 @@
 
 typedef smpl_t (*aubio_pitchdetection_func_t)(aubio_pitchdetection_t *p, 
                 fvec_t * ibuf);
+void aubio_pitchdetection_slideblock(aubio_pitchdetection_t *p, fvec_t *ibuf);
 
 struct _aubio_pitchdetection_t {
 	aubio_pitchdetection_type type;
@@ -72,12 +73,14 @@ aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize,
                         p->callback = aubio_pitchdetection_mcomb;
 			break;
                 case aubio_fcomb:
+			p->buf      = new_fvec(bufsize,channels);
                         p->fcomb    = new_aubio_pitchfcomb(bufsize,samplerate);
                         p->callback = aubio_pitchdetection_fcomb;
                         break;
                 case aubio_schmitt:
+			p->buf      = new_fvec(bufsize,channels);
                         p->schmitt  = new_aubio_pitchschmitt(bufsize,samplerate);
-                        p->callback = aubio_pitchdetection_mcomb;
+                        p->callback = aubio_pitchdetection_schmitt;
                         break;
                 default:
                         break;
@@ -97,15 +100,34 @@ void del_aubio_pitchdetection(aubio_pitchdetection_t * p) {
 			del_aubio_pitchmcomb(p->mcomb);
 			break;
                 case aubio_schmitt:
+			del_fvec(p->buf);
                         del_aubio_pitchschmitt(p->schmitt);
                         break;
                 case aubio_fcomb:
+			del_fvec(p->buf);
                         del_aubio_pitchfcomb(p->fcomb);
                         break;
 		default:
 			break;
 	}
 	AUBIO_FREE(p);
+}
+
+void aubio_pitchdetection_slideblock(aubio_pitchdetection_t *p, fvec_t *ibuf){
+        uint_t i,j = 0, overlap_size = 0;
+        overlap_size = p->buf->length-ibuf->length;
+        for (i=0;i<p->buf->channels;i++){
+                for (j=0;j<overlap_size;j++){
+                        p->buf->data[i][j] = 
+                                p->buf->data[i][j+ibuf->length];
+                }
+        }
+        for (i=0;i<ibuf->channels;i++){
+                for (j=0;j<ibuf->length;j++){
+                        p->buf->data[i][j+overlap_size] = 
+                                ibuf->data[i][j];
+                }
+        }
 }
 
 smpl_t aubio_pitchdetection(aubio_pitchdetection_t *p, fvec_t * ibuf) {
@@ -127,21 +149,7 @@ smpl_t aubio_pitchdetection_mcomb(aubio_pitchdetection_t *p, fvec_t *ibuf) {
 
 smpl_t aubio_pitchdetection_yin(aubio_pitchdetection_t *p, fvec_t *ibuf) {
 	smpl_t pitch = 0.;
-	uint_t i,j = 0, overlap_size = 0;
-        overlap_size = p->buf->length-ibuf->length;
-        /* do sliding window blocking */
-        for (i=0;i<p->buf->channels;i++){
-                for (j=0;j<overlap_size;j++){
-                        p->buf->data[i][j] = 
-                                p->buf->data[i][j+ibuf->length];
-                }
-        }
-        for (i=0;i<ibuf->channels;i++){
-                for (j=0;j<ibuf->length;j++){
-                        p->buf->data[i][j+overlap_size] = 
-                                ibuf->data[i][j];
-                }
-        }
+        aubio_pitchdetection_slideblock(p,ibuf);
         pitch = aubio_pitchyin_getpitchfast(p->buf,p->yin, 0.5);
         if (pitch>0) {
                 pitch = p->srate/(pitch+0.);
@@ -153,9 +161,11 @@ smpl_t aubio_pitchdetection_yin(aubio_pitchdetection_t *p, fvec_t *ibuf) {
 
 
 smpl_t aubio_pitchdetection_fcomb(aubio_pitchdetection_t *p, fvec_t *ibuf){
-        return aubio_pitchfcomb_detect(p->fcomb,ibuf);
+        aubio_pitchdetection_slideblock(p,ibuf);
+        return aubio_pitchfcomb_detect(p->fcomb,p->buf);
 }
 
 smpl_t aubio_pitchdetection_schmitt(aubio_pitchdetection_t *p, fvec_t *ibuf){
-        return aubio_pitchschmitt_detect(p->schmitt,ibuf);
+        aubio_pitchdetection_slideblock(p,ibuf);
+        return aubio_pitchschmitt_detect(p->schmitt,p->buf);
 }
