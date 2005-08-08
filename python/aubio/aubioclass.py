@@ -23,6 +23,8 @@ class cvec:
         return self.vec
     def __del__(self):
         del_cvec(self())
+    def get(self,pos,chan):
+        return fvec_read_sample(self(),chan,pos)
 
 class sndfile:
     def __init__(self,filename,model=None):
@@ -203,7 +205,7 @@ def getsilences(filein,hopsize=512,silence=-70):
     return mylist
 
 def getpitch(filein,mode=aubio_mcomb,bufsize=1024,hopsize=512,omode=aubio_freq,
-        samplerate=44100.):
+        samplerate=44100.,silence=-70):
     frameread = 0
     filei     = sndfile(filein)
     srate     = filei.samplerate()
@@ -217,7 +219,10 @@ def getpitch(filein,mode=aubio_mcomb,bufsize=1024,hopsize=512,omode=aubio_freq,
         readsize = filei.read(hopsize,myvec)
         freq = pitchdet(myvec)
         #print "%.3f     %.2f" % (now,freq)
-        mylist.append(freq)
+        if (aubio_silence_detection(myvec(),silence)!=1):
+                mylist.append(freq)
+        else: 
+                mylist.append(0)
         frameread += 1
     return mylist
 
