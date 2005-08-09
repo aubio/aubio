@@ -61,23 +61,23 @@ aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize,
 	p->type = type;
 	p->bufsize = bufsize;
 	switch(p->type) {
-		case aubio_yin:
+		case aubio_pitch_yin:
 			p->buf      = new_fvec(bufsize,channels);
 			p->yin      = new_fvec(bufsize/2,channels);
                         p->callback = aubio_pitchdetection_yin;
 			break;
-		case aubio_mcomb:
+		case aubio_pitch_mcomb:
 			p->pv       = new_aubio_pvoc(bufsize, hopsize, channels);
 			p->fftgrain = new_cvec(bufsize, channels);
 			p->mcomb    = new_aubio_pitchmcomb(bufsize,channels);
                         p->callback = aubio_pitchdetection_mcomb;
 			break;
-                case aubio_fcomb:
+                case aubio_pitch_fcomb:
 			p->buf      = new_fvec(bufsize,channels);
                         p->fcomb    = new_aubio_pitchfcomb(bufsize,samplerate);
                         p->callback = aubio_pitchdetection_fcomb;
                         break;
-                case aubio_schmitt:
+                case aubio_pitch_schmitt:
 			p->buf      = new_fvec(bufsize,channels);
                         p->schmitt  = new_aubio_pitchschmitt(bufsize,samplerate);
                         p->callback = aubio_pitchdetection_schmitt;
@@ -90,20 +90,20 @@ aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize,
 
 void del_aubio_pitchdetection(aubio_pitchdetection_t * p) {
 	switch(p->type) {
-		case aubio_yin:
+		case aubio_pitch_yin:
 			del_fvec(p->yin);
 			del_fvec(p->buf);
 			break;
-		case aubio_mcomb:
+		case aubio_pitch_mcomb:
 			del_aubio_pvoc(p->pv);
 			del_cvec(p->fftgrain);
 			del_aubio_pitchmcomb(p->mcomb);
 			break;
-                case aubio_schmitt:
+                case aubio_pitch_schmitt:
 			del_fvec(p->buf);
                         del_aubio_pitchschmitt(p->schmitt);
                         break;
-                case aubio_fcomb:
+                case aubio_pitch_fcomb:
 			del_fvec(p->buf);
                         del_aubio_pitchfcomb(p->fcomb);
                         break;

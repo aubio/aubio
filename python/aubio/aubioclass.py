@@ -29,21 +29,21 @@ class cvec:
 class sndfile:
     def __init__(self,filename,model=None):
         if (model!=None):
-            self.file = new_file_wo(model.file,filename)
+            self.file = new_aubio_sndfile_wo(model.file,filename)
         else:
-            self.file = new_file_ro(filename)
+            self.file = new_aubio_sndfile_ro(filename)
     def __del__(self):
-        del_file(self.file)
+        del_aubio_sndfile(self.file)
     def info(self):
-        file_info(self.file)
+        aubio_sndfile_info(self.file)
     def samplerate(self):
-        return aubio_file_samplerate(self.file)
+        return aubio_sndfile_samplerate(self.file)
     def channels(self):
-        return aubio_file_channels(self.file)
+        return aubio_sndfile_channels(self.file)
     def read(self,nfram,vecread):
-        return file_read(self.file,nfram,vecread())
+        return aubio_sndfile_read(self.file,nfram,vecread())
     def write(self,nfram,vecwrite):
-        return file_write(self.file,nfram,vecwrite())
+        return aubio_sndfile_write(self.file,nfram,vecwrite())
 
 class pvoc:
     def __init__(self,buf,hop,chan):
@@ -204,7 +204,7 @@ def getsilences(filein,hopsize=512,silence=-70):
         frameread += 1
     return mylist
 
-def getpitch(filein,mode=aubio_mcomb,bufsize=1024,hopsize=512,omode=aubio_freq,
+def getpitch(filein,mode=aubio_pitch_mcomb,bufsize=1024,hopsize=512,omode=aubio_pitchm_freq,
         samplerate=44100.,silence=-70):
     frameread = 0
     filei     = sndfile(filein)
@@ -227,8 +227,8 @@ def getpitch(filein,mode=aubio_mcomb,bufsize=1024,hopsize=512,omode=aubio_freq,
     return mylist
 
 class pitchdetection:
-    def __init__(self,mode=aubio_mcomb,bufsize=2048,hopsize=1024,
-        channels=1,samplerate=44100.,omode=aubio_freq):
+    def __init__(self,mode=aubio_pitch_mcomb,bufsize=2048,hopsize=1024,
+        channels=1,samplerate=44100.,omode=aubio_pitchm_freq):
         self.pitchp = new_aubio_pitchdetection(bufsize,hopsize,channels,
                 samplerate,mode,omode)
         #self.filt     = filter(srate,"adsgn")

@@ -30,40 +30,40 @@ extern "C" {
 /**
  * sndfile object
  */
-typedef struct _aubio_file_t aubio_file_t;
+typedef struct _aubio_sndfile_t aubio_sndfile_t;
 /** 
  * Open a sound file for reading
  */
-aubio_file_t * new_file_ro (const char * inputfile);
+aubio_sndfile_t * new_aubio_sndfile_ro (const char * inputfile);
 /**
  * Copy file model from previously opened sound file.
  */
-aubio_file_t * new_file_wo(aubio_file_t * existingfile, const char * outputname);
+aubio_sndfile_t * new_aubio_sndfile_wo(aubio_sndfile_t * existingfile, const char * outputname);
 /** 
  * Open a sound file for writing
  */
-int file_open_wo (aubio_file_t * file, const char * outputname);
+int aubio_sndfile_open_wo (aubio_sndfile_t * file, const char * outputname);
 /** 
  * Read frames data from file 
  */
-int file_read(aubio_file_t * file, int frames, fvec_t * read);
+int aubio_sndfile_read(aubio_sndfile_t * file, int frames, fvec_t * read);
 /** 
  * Write data of length frames to file
  */
-int file_write(aubio_file_t * file, int frames, fvec_t * write);
+int aubio_sndfile_write(aubio_sndfile_t * file, int frames, fvec_t * write);
 /**
  * Close file and delete file object
  */
-int del_file(aubio_file_t * file);
+int del_aubio_sndfile(aubio_sndfile_t * file);
 /**
  * Return some files facts
  */
-void file_info(aubio_file_t * file);
+void aubio_sndfile_info(aubio_sndfile_t * file);
 /**
  * Return number of channel in file
  */
-uint_t aubio_file_channels(aubio_file_t * file);
-uint_t aubio_file_samplerate(aubio_file_t * file);
+uint_t aubio_sndfile_channels(aubio_sndfile_t * file);
+uint_t aubio_sndfile_samplerate(aubio_sndfile_t * file);
 
 #ifdef __cplusplus
 }

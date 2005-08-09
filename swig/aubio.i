@@ -51,14 +51,14 @@ extern void del_cvec(cvec_t *s);
 
 
 /* sndfile */
-extern aubio_file_t * new_file_ro (const char * inputfile);
-extern aubio_file_t * new_file_wo(aubio_file_t * existingfile, const char * outputname);
-extern void file_info(aubio_file_t * file);
-extern int file_write(aubio_file_t * file, int frames, fvec_t * write);
-extern int file_read(aubio_file_t * file, int frames, fvec_t * read);
-extern int del_file(aubio_file_t * file);
-extern uint_t aubio_file_channels(aubio_file_t * file);
-extern uint_t aubio_file_samplerate(aubio_file_t * file);
+extern aubio_sndfile_t * new_aubio_sndfile_ro (const char * inputfile);
+extern aubio_sndfile_t * new_aubio_sndfile_wo(aubio_sndfile_t * existingfile, const char * outputname);
+extern void aubio_sndfile_info(aubio_sndfile_t * file);
+extern int aubio_sndfile_write(aubio_sndfile_t * file, int frames, fvec_t * write);
+extern int aubio_sndfile_read(aubio_sndfile_t * file, int frames, fvec_t * read);
+extern int del_aubio_sndfile(aubio_sndfile_t * file);
+extern uint_t aubio_sndfile_channels(aubio_sndfile_t * file);
+extern uint_t aubio_sndfile_samplerate(aubio_sndfile_t * file);
 
 /* fft */
 extern void aubio_fft_getnorm(smpl_t * norm, fft_data_t * spectrum, uint_t size);
@@ -158,17 +158,17 @@ void aubio_pvoc_rdo(aubio_pvoc_t *pv, cvec_t * fftgrain, fvec_t *out);
 
 /* pitch detection */
 typedef enum {
-	aubio_yin,
-	aubio_mcomb,
-        aubio_schmitt,
-        aubio_fcomb
+        aubio_pitch_yin,
+        aubio_pitch_mcomb,
+        aubio_pitch_schmitt,
+        aubio_pitch_fcomb
 } aubio_pitchdetection_type;
 
 typedef enum {
-	aubio_freq,
-	aubio_midi,
-	aubio_cent,
-	aubio_bin
+        aubio_pitchm_freq,
+        aubio_pitchm_midi,
+        aubio_pitchm_cent,
+        aubio_pitchm_bin
 } aubio_pitchdetection_mode;
 
 smpl_t aubio_pitchdetection(aubio_pitchdetection_t * p, fvec_t * ibuf);

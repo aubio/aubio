@@ -29,7 +29,7 @@
 #define MAX_CHANNELS 6
 #define MAX_SIZE 4096
 
-struct _aubio_file_t {
+struct _aubio_sndfile_t {
         SNDFILE *handle;
         int samplerate;
         int channels;
@@ -38,8 +38,8 @@ struct _aubio_file_t {
         int size;       /** store the size to check if realloc needed */
 };
 
-aubio_file_t * new_file_ro(const char* outputname) {
-        aubio_file_t * f = AUBIO_NEW(aubio_file_t);
+aubio_sndfile_t * new_aubio_sndfile_ro(const char* outputname) {
+        aubio_sndfile_t * f = AUBIO_NEW(aubio_sndfile_t);
         SF_INFO sfinfo;
         AUBIO_MEMSET(&sfinfo, 0, sizeof (sfinfo));
 
@@ -64,7 +64,7 @@ aubio_file_t * new_file_ro(const char* outputname) {
         return f;
 }
 
-int file_open_wo(aubio_file_t * f, const char* inputname) {
+int aubio_sndfile_open_wo(aubio_sndfile_t * f, const char* inputname) {
         SF_INFO sfinfo;
         memset (&sfinfo, 0, sizeof (sfinfo));
 
@@ -89,18 +89,18 @@ int file_open_wo(aubio_file_t * f, const char* inputname) {
 }
 
 /* setup file struct from existing one */
-aubio_file_t * new_file_wo(aubio_file_t * fmodel, const char *outputname) {
-        aubio_file_t * f = AUBIO_NEW(aubio_file_t);
+aubio_sndfile_t * new_aubio_sndfile_wo(aubio_sndfile_t * fmodel, const char *outputname) {
+        aubio_sndfile_t * f = AUBIO_NEW(aubio_sndfile_t);
         f->samplerate    = fmodel->samplerate;
         f->channels      = fmodel->channels;
         f->format        = fmodel->format;
-        file_open_wo(f, outputname);
+        aubio_sndfile_open_wo(f, outputname);
         return f;
 }
 
 
 /* return 0 if properly closed, 1 otherwise */
-int del_file(aubio_file_t * f) {
+int del_aubio_sndfile(aubio_sndfile_t * f) {
         if (sf_close(f->handle)) {
                 AUBIO_ERR("Error closing file.");
                 puts (sf_strerror (NULL));
@@ -121,7 +121,7 @@ int del_file(aubio_file_t * f) {
 
 /* read frames from file in data 
  *  return the number of frames actually read */
-int file_read(aubio_file_t * f, int frames, fvec_t * read) {
+int aubio_sndfile_read(aubio_sndfile_t * f, int frames, fvec_t * read) {
         sf_count_t read_frames;
         int i,j, channels = f->channels;
         int nsamples = frames*channels;
@@ -130,7 +130,7 @@ int file_read(aubio_file_t * f, int frames, fvec_t * read) {
 
         /* allocate data for de/interleaving reallocated when needed. */
         if (nsamples >= f->size) {
-                AUBIO_ERR("Maximum file_read buffer size exceeded.");
+                AUBIO_ERR("Maximum aubio_sndfile_read buffer size exceeded.");
                 return -1;
                 /*
                 AUBIO_FREE(f->tmpdata);
@@ -157,7 +157,7 @@ int file_read(aubio_file_t * f, int frames, fvec_t * read) {
 /* write 'frames' samples to file from data 
  *   return the number of frames actually written 
  */
-int file_write(aubio_file_t * f, int frames, fvec_t * write) {
+int aubio_sndfile_write(aubio_sndfile_t * f, int frames, fvec_t * write) {
         sf_count_t written_frames = 0;
         int i, j,	channels = f->channels;
         int nsamples = channels*frames;
@@ -165,7 +165,7 @@ int file_write(aubio_file_t * f, int frames, fvec_t * write) {
 
         /* allocate data for de/interleaving reallocated when needed. */
         if (nsamples >= f->size) {
-                AUBIO_ERR("Maximum file_write buffer size exceeded.");
+                AUBIO_ERR("Maximum aubio_sndfile_write buffer size exceeded.");
                 return -1;
                 /*
                 AUBIO_FREE(f->tmpdata);
@@ -191,15 +191,15 @@ int file_write(aubio_file_t * f, int frames, fvec_t * write) {
  *
  */
 
-uint_t aubio_file_channels(aubio_file_t * f) {
+uint_t aubio_sndfile_channels(aubio_sndfile_t * f) {
         return f->channels;
 }
 
-uint_t aubio_file_samplerate(aubio_file_t * f) {
+uint_t aubio_sndfile_samplerate(aubio_sndfile_t * f) {
         return f->samplerate;
 }
 
-void file_info(aubio_file_t * f) {
+void aubio_sndfile_info(aubio_sndfile_t * f) {
         AUBIO_DBG("srate    : %d\n", f->samplerate);
         AUBIO_DBG("channels : %d\n", f->channels);
         AUBIO_DBG("format   : %d\n", f->format);

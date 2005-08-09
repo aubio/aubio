@@ -75,8 +75,8 @@ extern uint_t channels;
 extern uint_t samplerate;
 
 
-extern aubio_file_t * file;
-extern aubio_file_t * fileout;
+extern aubio_sndfile_t * file;
+extern aubio_sndfile_t * fileout;
 
 extern aubio_pvoc_t * pv;
 extern fvec_t * ibuf;

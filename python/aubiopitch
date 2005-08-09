@@ -13,13 +13,13 @@ usage = "usage: %s [options] -i soundfile" % sys.argv[0]
 def check_mode(option, opt, value, parser):
         nvalue = parser.rargs[0]
         if   nvalue == 'mcomb' :
-                 setattr(parser.values, option.dest, aubio_mcomb)
+                 setattr(parser.values, option.dest, aubio_pitch_mcomb)
         elif nvalue == 'yin'           :
-                 setattr(parser.values, option.dest, aubio_yin)
+                 setattr(parser.values, option.dest, aubio_pitch_yin)
         elif nvalue == 'fcomb'         :
-                 setattr(parser.values, option.dest, aubio_fcomb)
+                 setattr(parser.values, option.dest, aubio_pitch_fcomb)
         elif nvalue == 'schmitt'      :
-                 setattr(parser.values, option.dest, aubio_schmitt)
+                 setattr(parser.values, option.dest, aubio_pitch_schmitt)
 
 
 def parse_args():
@@ -29,7 +29,7 @@ def parse_args():
                           action="store", dest="filename", 
                           help="input sound file")
         parser.add_option("-m","--mode", action="callback", 
-                          callback=check_mode, dest="mode", default=aubio_mcomb,
+                          callback=check_mode, dest="mode", default=aubio_pitch_mcomb,
                           help="pitch detection mode [default=mcomb] \
                           mcomb|yin|fcomb|schmitt")
         parser.add_option("-B","--bufsize",

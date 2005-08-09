@@ -39,8 +39,8 @@ uint_t channels                       = 1;
 uint_t samplerate                     = 44100;
 
 
-aubio_file_t * file = NULL;
-aubio_file_t * fileout = NULL;
+aubio_sndfile_t * file = NULL;
+aubio_sndfile_t * fileout = NULL;
 
 aubio_pvoc_t * pv;
 fvec_t * ibuf;
@@ -58,7 +58,7 @@ aubio_pickpeak_t * parms;
 /* pitch objects */
 smpl_t pitch               = 0.;
 aubio_pitchdetection_t * pitchdet;
-aubio_pitchdetection_type mode = aubio_yin; // aubio_mcomb
+aubio_pitchdetection_type mode = aubio_pitch_yin; // aubio_pitch_mcomb
 uint_t median         = 6;
 
 fvec_t * note_buffer  = NULL;
@@ -204,28 +204,28 @@ int parse_args (int argc, char **argv) {
 void examples_common_init(int argc,char ** argv) {
 
 
-  aubio_file_t * onsetfile;
+  aubio_sndfile_t * onsetfile;
   /* parse command line arguments */
   parse_args(argc, argv);
 
   woodblock = new_fvec(buffer_size,1);
   if (output_filename || usejack) {
-          (onsetfile = new_file_ro(onset_filename)) ||
-                  (onsetfile = new_file_ro("sounds/woodblock.aiff")) ||
-                  (onsetfile = new_file_ro("../sounds/woodblock.aiff"));
+          (onsetfile = new_aubio_sndfile_ro(onset_filename)) ||
+                  (onsetfile = new_aubio_sndfile_ro("sounds/woodblock.aiff")) ||
+                  (onsetfile = new_aubio_sndfile_ro("../sounds/woodblock.aiff"));
           /* read the output sound once */
-          file_read(onsetfile, overlap_size, woodblock);
+          aubio_sndfile_read(onsetfile, overlap_size, woodblock);
   }
 
   if(!usejack)
   {
     debug("Opening files ...\n");
-    file = new_file_ro (input_filename);
-    if (verbose) file_info(file);
-    channels = aubio_file_channels(file);
-    samplerate = aubio_file_samplerate(file);
+    file = new_aubio_sndfile_ro (input_filename);
+    if (verbose) aubio_sndfile_info(file);
+    channels = aubio_sndfile_channels(file);
+    samplerate = aubio_sndfile_samplerate(file);
     if (output_filename != NULL)
-      fileout = new_file_wo(file, output_filename);
+      fileout = new_aubio_sndfile_wo(file, output_filename);
   }
 
   ibuf      = new_fvec(overlap_size, channels);
@@ -234,7 +234,7 @@ void examples_common_init(int argc,char ** argv) {
 
   if (usepitch) {
     pitchdet = new_aubio_pitchdetection(buffer_size*4, 
-                    overlap_size, channels, samplerate, mode, aubio_freq);
+                    overlap_size, channels, samplerate, mode, aubio_pitchm_freq);
   
   if (median) {
           note_buffer = new_fvec(median, 1);
@@ -305,22 +305,22 @@ void examples_common_process(aubio_process_func_t process_func, aubio_print_func
 
     frames = 0;
 
-    while (overlap_size == file_read(file, overlap_size, ibuf))
+    while (overlap_size == aubio_sndfile_read(file, overlap_size, ibuf))
     {
       isonset=0;
       process_func(ibuf->data, obuf->data, overlap_size);
       print(); 
       if (output_filename != NULL) {
-        file_write(fileout,overlap_size,obuf);
+        aubio_sndfile_write(fileout,overlap_size,obuf);
       }
       frames++;
     }
 
     debug("Processed %d frames of %d samples.\n", frames, buffer_size);
-    del_file(file);
+    del_aubio_sndfile(file);
 
     if (output_filename != NULL)
-      del_file(fileout);
+      del_aubio_sndfile(fileout);
 
   }
 }

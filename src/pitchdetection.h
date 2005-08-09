@@ -24,17 +24,17 @@ extern "C" {
 #endif
 
 typedef enum {
-	aubio_yin,
-	aubio_mcomb,
-        aubio_schmitt,
-        aubio_fcomb
+        aubio_pitch_yin,
+        aubio_pitch_mcomb,
+        aubio_pitch_schmitt,
+        aubio_pitch_fcomb
 } aubio_pitchdetection_type;
 
 typedef enum {
-	aubio_freq,
-	aubio_midi,
-	aubio_cent,
-	aubio_bin
+        aubio_pitchm_freq,
+        aubio_pitchm_midi,
+        aubio_pitchm_cent,
+        aubio_pitchm_bin
 } aubio_pitchdetection_mode;
 
 typedef struct _aubio_pitchdetection_t aubio_pitchdetection_t;
