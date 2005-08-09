@@ -29,12 +29,12 @@ int usedoubled = 1;
 
 
 /* energy,specdiff,hfc,complexdomain,phase */
-aubio_onsetdetection_type type_onset  = hfc;
+aubio_onsetdetection_type type_onset  = kl;
 aubio_onsetdetection_type type_onset2 = complexdomain;
 smpl_t threshold                      = 0.3;
 smpl_t threshold2                     = -90.;
-uint_t buffer_size                    = 1024;
-uint_t overlap_size                   = 512;
+uint_t buffer_size                    = 512; //1024;
+uint_t overlap_size                   = 256; //512;
 uint_t channels                       = 1;
 uint_t samplerate                     = 44100;
 
