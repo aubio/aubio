@@ -207,12 +207,12 @@ aubio_onsetdetection_alloc (aubio_onsetdetection_type type,
 	uint_t rsize = size/2+1;
 	switch(type) {
 		/* for both energy and hfc, only fftgrain->norm is required */
-		case energy: 
+		case aubio_onset_energy: 
 			break;
-		case hfc:
+		case aubio_onset_hfc:
 			break;
 		/* the other approaches will need some more memory spaces */
-		case complexdomain:
+		case aubio_onset_complex:
 			o->oldmag = new_fvec(rsize,channels);
 			/** bug: must be complex array */
 			o->meas = AUBIO_ARRAY(fft_data_t,size);
@@ -220,23 +220,23 @@ aubio_onsetdetection_alloc (aubio_onsetdetection_type type,
 			o->theta1 = new_fvec(rsize,channels);
 			o->theta2 = new_fvec(rsize,channels);
 			break;
-		case phase:
+		case aubio_onset_phase:
 			o->dev1	 = new_fvec(rsize,channels);
 			o->theta1 = new_fvec(rsize,channels);
 			o->theta2 = new_fvec(rsize,channels);
 			o->histog = new_aubio_hist(0.0f, PI, 10, channels);
 			o->threshold = 0.1;
 			break;
-		case specdiff:
+		case aubio_onset_specdiff:
 			o->oldmag = new_fvec(rsize,channels);
 			o->dev1	  = new_fvec(rsize,channels);
 			o->histog = new_aubio_hist(0.0f, PI, 10, channels);
 			o->threshold = 0.1;
 			break;
-                case kl:
+                case aubio_onset_kl:
 			o->oldmag = new_fvec(rsize,channels);
                         break;
-                case mkl:
+                case aubio_onset_mkl:
 			o->oldmag = new_fvec(rsize,channels);
                         break;
 		default:
@@ -248,25 +248,25 @@ aubio_onsetdetection_alloc (aubio_onsetdetection_type type,
 	 * above and always allocate all the structure */
 
 	switch(type) {
-		case energy:
+		case aubio_onset_energy:
 			o->funcpointer = aubio_onsetdetection_energy;
 			break;
-		case hfc:
+		case aubio_onset_hfc:
 			o->funcpointer = aubio_onsetdetection_hfc;
 			break;
-		case complexdomain:
+		case aubio_onset_complex:
 			o->funcpointer = aubio_onsetdetection_complex;
 			break;
-		case phase:
+		case aubio_onset_phase:
 			o->funcpointer = aubio_onsetdetection_phase;
 			break;
-		case specdiff:
+		case aubio_onset_specdiff:
 			o->funcpointer = aubio_onsetdetection_specdiff;
 			break;
-                case kl:
+                case aubio_onset_kl:
 			o->funcpointer = aubio_onsetdetection_kl;
 			break;
-                case mkl:
+                case aubio_onset_mkl:
 			o->funcpointer = aubio_onsetdetection_mkl;
 			break;
 		default:
@@ -280,25 +280,25 @@ void aubio_onsetdetection_free (aubio_onsetdetection_t *o){
 
 	switch(o->type) {
 		/* for both energy and hfc, only fftgrain->norm is required */
-		case energy: 
+		case aubio_onset_energy: 
 			break;
-		case hfc:
+		case aubio_onset_hfc:
 			break;
 		/* the other approaches will need some more memory spaces */
-		case complexdomain:
+		case aubio_onset_complex:
 	                AUBIO_FREE(o->meas);
                         del_fvec(o->oldmag);
 	                del_fvec(o->dev1);
 	                del_fvec(o->theta1);
                 	del_fvec(o->theta2);
 			break;
-		case phase:
+		case aubio_onset_phase:
 	                del_fvec(o->dev1);
 	                del_fvec(o->theta1);
                 	del_fvec(o->theta2);
                         del_aubio_hist(o->histog);
 			break;
-		case specdiff:
+		case aubio_onset_specdiff:
                         del_fvec(o->oldmag);
 	                del_fvec(o->dev1);
                         del_aubio_hist(o->histog);

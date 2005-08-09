@@ -9,28 +9,6 @@ from aubio.aubioclass import *
 
 usage = "usage: %s [options] -i soundfile" % sys.argv[0]
 
-def check_mode(option, opt, value, parser):
-        nvalue = parser.rargs[0]
-        if   nvalue == 'complexdomain' :
-                 setattr(parser.values, option.dest, complexdomain)
-        elif nvalue == 'hfc'           :
-                 setattr(parser.values, option.dest, hfc)
-        elif nvalue == 'phase'         :
-                 setattr(parser.values, option.dest, phase)
-        elif nvalue == 'specdiff'      :
-                 setattr(parser.values, option.dest, specdiff)
-        elif nvalue == 'energy'        :
-                 setattr(parser.values, option.dest, energy)
-        elif nvalue == 'kl'            :
-                 setattr(parser.values, option.dest, kl)
-        elif nvalue == 'mkl'           :
-                 setattr(parser.values, option.dest, mkl)
-        elif nvalue == 'dual'          :
-                 setattr(parser.values, option.dest, 'dual')
-        else:
-                 print "unknown detection function selected\n", usage
-                 sys.exit(1)
-
 def parse_args():
         from optparse import OptionParser
         parser = OptionParser(usage=usage)
@@ -38,7 +16,7 @@ def parse_args():
                           action="store", dest="filename", 
                           help="input sound file")
         parser.add_option("-m","--mode", action="callback", 
-                          callback=check_mode, dest="mode", default='dual', 
+                          callback=check_onset_mode, dest="mode", default='dual', 
                           help="onset detection mode [default=dual] \
                           complexdomain|hfc|phase|specdiff|energy|kl|mkl|dual")
         parser.add_option("-B","--bufsize",

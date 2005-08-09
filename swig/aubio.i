@@ -138,17 +138,27 @@ extern uint_t aubio_resampler_process(aubio_resampler_t *s, fvec_t * input,  fve
 extern void del_aubio_resampler(aubio_resampler_t *s);
 
 /* onset detection */
-typedef enum { energy, specdiff, hfc, complexdomain, phase, kl, mkl } aubio_onsetdetection_type;
+typedef enum { 
+        aubio_onset_energy, 
+        aubio_onset_specdiff, 
+        aubio_onset_hfc, 
+        aubio_onset_complex, 
+        aubio_onset_phase, 
+        aubio_onset_kl, 
+        aubio_onset_mkl 
+} aubio_onsetdetection_type;
 aubio_onsetdetection_t * new_aubio_onsetdetection(aubio_onsetdetection_type type, uint_t size, uint_t channels);
 void aubio_onsetdetection(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
 void aubio_onsetdetection_free(aubio_onsetdetection_t *o);
 
 /* should these still be exposed ? */
 void aubio_onsetdetection_energy  (aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
-void aubio_onsetdetection_hfc 	 (aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
+void aubio_onsetdetection_hfc     (aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
 void aubio_onsetdetection_complex (aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
 void aubio_onsetdetection_phase   (aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
 void aubio_onsetdetection_specdiff(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
+void aubio_onsetdetection_kl      (aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
+void aubio_onsetdetection_mkl     (aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
 
 /* pvoc */
 aubio_pvoc_t * new_aubio_pvoc (uint_t win_s, uint_t hop_s, uint_t channels);

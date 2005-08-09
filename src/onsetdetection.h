@@ -49,13 +49,13 @@ extern "C" {
 
 /** onsetdetection types */
 typedef enum {
-	energy,		/**< energy based */          
-	specdiff,       /**< spectral diff */         
-	hfc,		/**< high frequency content */
-	complexdomain,  /**< complex domain */        
-	phase,		/**< phase fast */            
-        kl,             /**< Kullback Liebler (Hainsworth et al.,  Onset detection in musical audio signals) */
-        mkl             /**< modified Kullback Liebler (Hainsworth et al.,  Onset detection in musical audio signals) */
+        aubio_onset_energy,         /**< energy based */          
+        aubio_onset_specdiff,       /**< spectral diff */         
+        aubio_onset_hfc,            /**< high frequency content */
+        aubio_onset_complex,        /**< complex domain */        
+        aubio_onset_phase,          /**< phase fast */            
+        aubio_onset_kl,             /**< Kullback Liebler (Hainsworth et al.,  Onset detection in musical audio signals) */
+        aubio_onset_mkl             /**< modified Kullback Liebler (Hainsworth et al.,  Onset detection in musical audio signals) */
 } aubio_onsetdetection_type;
 
 /** onsetdetection structure */

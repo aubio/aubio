@@ -70,7 +70,7 @@ static void *aubioonset_tilde_new (t_floatarg f)
 	x->bufsize   = 1024;
 	x->hopsize   = x->bufsize / 2;
 
-	x->o = new_aubio_onsetdetection(complexdomain, x->bufsize, 1);
+	x->o = new_aubio_onsetdetection(aubio_onset_complex, x->bufsize, 1);
 	x->vec = (fvec_t *)new_fvec(x->hopsize,1);
 	x->pv = new_aubio_pvoc(x->bufsize, x->hopsize, 1);
 	x->fftgrain  = new_cvec(x->bufsize,1);

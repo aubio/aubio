@@ -79,8 +79,8 @@ class onsetpick:
         self.myfft    = cvec(bufsize,channels)
         self.pv       = pvoc(bufsize,hopsize,channels)
         if mode in ['dual'] :
-                self.myod     = onsetdetection(hfc,bufsize,channels)
-                self.myod2    = onsetdetection(complexdomain,bufsize,channels)
+                self.myod     = onsetdetection(aubio_onset_hfc,bufsize,channels)
+                self.myod2    = onsetdetection(aubio_onset_complex,bufsize,channels)
                 self.myonset  = fvec(1,channels)
                 self.myonset2 = fvec(1,channels)
         else: 
@@ -104,6 +104,43 @@ class onsetpick:
                 if dval > 0: self.myonset.set(dval,0,0)
                 else:  self.myonset.set(0.,0,0)
         return self.pp.do(self.myonset),self.myonset.get(0,0)
+
+def check_onset_mode(option, opt, value, parser):
+        nvalue = parser.rargs[0]
+        if   nvalue == 'complexdomain' or nvalue == 'complex' :
+                 setattr(parser.values, option.dest, aubio_onset_complex)
+        elif nvalue == 'hfc'           :
+                 setattr(parser.values, option.dest, aubio_onset_hfc)
+        elif nvalue == 'phase'         :
+                 setattr(parser.values, option.dest, aubio_onset_phase)
+        elif nvalue == 'specdiff'      :
+                 setattr(parser.values, option.dest, aubio_onset_specdiff)
+        elif nvalue == 'energy'        :
+                 setattr(parser.values, option.dest, aubio_onset_energy)
+        elif nvalue == 'kl'            :
+                 setattr(parser.values, option.dest, aubio_onset_kl)
+        elif nvalue == 'mkl'           :
+                 setattr(parser.values, option.dest, aubio_onset_mkl)
+        elif nvalue == 'dual'          :
+                 setattr(parser.values, option.dest, 'dual')
+        else:
+                 print "unknown detection function selected\n", usage
+                 sys.exit(1)
+
+def check_pitch_mode(option, opt, value, parser):
+        nvalue = parser.rargs[0]
+        if   nvalue == 'mcomb' :
+                 setattr(parser.values, option.dest, aubio_pitch_mcomb)
+        elif nvalue == 'yin'           :
+                 setattr(parser.values, option.dest, aubio_pitch_yin)
+        elif nvalue == 'fcomb'         :
+                 setattr(parser.values, option.dest, aubio_pitch_fcomb)
+        elif nvalue == 'schmitt'      :
+                 setattr(parser.values, option.dest, aubio_pitch_schmitt)
+        else:
+                 print "unknown detection function selected\n", usage
+                 sys.exit(1)
+
 
 def getonsets(filein,threshold=0.2,silence=-70.,bufsize=1024,hopsize=512,
                 mode='dual',localmin=False,storefunc=False,derivate=False):

@@ -29,8 +29,8 @@ int usedoubled = 1;
 
 
 /* energy,specdiff,hfc,complexdomain,phase */
-aubio_onsetdetection_type type_onset  = kl;
-aubio_onsetdetection_type type_onset2 = complexdomain;
+aubio_onsetdetection_type type_onset  = aubio_onset_kl;
+aubio_onsetdetection_type type_onset2 = aubio_onset_complex;
 smpl_t threshold                      = 0.3;
 smpl_t threshold2                     = -90.;
 uint_t buffer_size                    = 512; //1024;
@@ -139,15 +139,21 @@ int parse_args (int argc, char **argv) {
                                 break;
                         case 'O':   /*onset type*/
                                 if (strcmp(optarg,"energy") == 0) 
-                                        type_onset = energy;
+                                        type_onset = aubio_onset_energy;
                                 else if (strcmp(optarg,"specdiff") == 0) 
-                                        type_onset = specdiff;
+                                        type_onset = aubio_onset_specdiff;
                                 else if (strcmp(optarg,"hfc") == 0) 
-                                        type_onset = hfc;
+                                        type_onset = aubio_onset_hfc;
                                 else if (strcmp(optarg,"complexdomain") == 0) 
-                                        type_onset = complexdomain;
+                                        type_onset = aubio_onset_complex;
+                                else if (strcmp(optarg,"complex") == 0) 
+                                        type_onset = aubio_onset_complex;
                                 else if (strcmp(optarg,"phase") == 0) 
-                                        type_onset = phase;
+                                        type_onset = aubio_onset_phase;
+                                else if (strcmp(optarg,"mkl") == 0) 
+                                        type_onset = aubio_onset_mkl;
+                                else if (strcmp(optarg,"kl") == 0) 
+                                        type_onset = aubio_onset_kl;
                                 else {
                                         debug("could not get onset type.\n");
                                         abort();
