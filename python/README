@@ -3,6 +3,6 @@
 
 # To have it working before installation, you will need to set LD_LIBRARY_PATH.
 # for instance, to run the python script from within aubio/python/, you can use
-# sh ./README
+# 'source ./README'
 
 export LD_LIBRARY_PATH=../src/.libs:../ext/.libs
