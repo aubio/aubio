@@ -23,47 +23,47 @@
 #include "sample.h"
 #include "mathutils.h"
 
-void window(smpl_t *w, uint_t size, window_type_t wintype) {
+void window(smpl_t *w, uint_t size, aubio_window_type_t wintype) {
   uint_t i;
   switch(wintype) {
-    case rectangle:
+    case aubio_win_rectangle:
       for (i=0;i<size;i++)
         w[i] = 0.5; 
       break;
-    case hamming:
+    case aubio_win_hamming:
       for (i=0;i<size;i++)
         w[i] = 0.54 - 0.46 * COS(TWO_PI * i / (size));
       break;
-    case hanning:
+    case aubio_win_hanning:
       for (i=0;i<size;i++)
         w[i] = 0.5 - (0.5 * COS(TWO_PI * i / (size)));
       break;
-    case hanningz:
+    case aubio_win_hanningz:
       for (i=0;i<size;i++)
         w[i] = 0.5 * (1.0 - COS(TWO_PI * i / (size)));
       break;
-    case blackman:
+    case aubio_win_blackman:
       for (i=0;i<size;i++)
         w[i] = 0.42
           - 0.50 * COS(    TWO_PI*i/(size-1.0))
           +	0.08 * COS(2.0*TWO_PI*i/(size-1.0));
       break;
-    case blackman_harris:
+    case aubio_win_blackman_harris:
       for (i=0;i<size;i++)
         w[i] = 0.35875 
           - 0.48829 * COS(    TWO_PI*i/(size-1.0))
           + 0.14128 * COS(2.0*TWO_PI*i/(size-1.0))
           - 0.01168 * COS(3.0*TWO_PI*i/(size-1.0));
       break;
-    case gaussian:
+    case aubio_win_gaussian:
       for (i=0;i<size;i++)
         w[i] = EXP(- 1.0 / SQR(size) * SQR(2.0*i-size));
       break;
-    case welch:
+    case aubio_win_welch:
       for (i=0;i<size;i++)
         w[i] = 1.0 - SQR((2*i-size)/(size+1.0));
       break;
-    case parzen:
+    case aubio_win_parzen:
       for (i=0;i<size;i++)
         w[i] = 1.0 - fabsf((2*i-size)/(size+1.0));
       break;

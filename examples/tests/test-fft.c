@@ -19,7 +19,7 @@ int main(){
         for (i=0; i < channels; i++)
                 spec[i] = AUBIO_ARRAY(fft_data_t,win_s);
         /* initialize the window (see mathutils.c) */
-        window(w,win_s,hanningz);
+        window(w,win_s,aubio_win_hanningz);
   
         /* fill input with some data */
   

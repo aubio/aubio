@@ -94,19 +94,19 @@ extern "C" {
 #endif
 
 typedef enum {
-	rectangle,          
-	hamming,
-	hanning,
-	hanningz,
-	blackman,
-	blackman_harris,
-	gaussian,
-	welch,
-	parzen
-} window_type_t;
+	aubio_win_rectangle,          
+	aubio_win_hamming,
+	aubio_win_hanning,
+	aubio_win_hanningz,
+	aubio_win_blackman,
+	aubio_win_blackman_harris,
+	aubio_win_gaussian,
+	aubio_win_welch,
+	aubio_win_parzen
+} aubio_window_type_t;
 
 /** create window */
-void window(smpl_t *w, uint_t size, window_type_t wintype);
+void window(smpl_t *w, uint_t size, aubio_window_type_t wintype);
 
 /** principal argument
  *

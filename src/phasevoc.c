@@ -113,7 +113,7 @@ aubio_pvoc_t * new_aubio_pvoc (uint_t win_s, uint_t hop_s, uint_t channels) {
 	pv->dataold  = new_fvec  (win_s-hop_s, channels);
 	pv->synthold = new_fvec (win_s-hop_s, channels);
 	pv->w        = AUBIO_ARRAY(smpl_t,win_s);
-	window(pv->w,win_s,hanningz);
+	window(pv->w,win_s,aubio_win_hanningz);
 
 	pv->channels = channels;
 	pv->hop_s    = hop_s;
