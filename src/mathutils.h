@@ -103,16 +103,16 @@ typedef enum {
 	aubio_win_gaussian,
 	aubio_win_welch,
 	aubio_win_parzen
-} aubio_window_type_t;
+} aubio_window_type;
 
 /** create window */
-void window(smpl_t *w, uint_t size, aubio_window_type_t wintype);
+void aubio_window(smpl_t *w, uint_t size, aubio_window_type wintype);
 
 /** principal argument
  *
  * mod(phase+PI,-TWO_PI)+PI 
  */
-smpl_t unwrap2pi (smpl_t phase);
+smpl_t aubio_unwrap2pi (smpl_t phase);
 
 /** calculates the mean of a vector
  *
@@ -224,14 +224,14 @@ smpl_t vec_quadint(fvec_t * x,uint_t pos);
  *    \param s0,s1,s2 are 3 known points on the curve,
  *    \param pf is the floating point index [0;2]
  */
-smpl_t quadfrac(smpl_t s0, smpl_t s1, smpl_t s2, smpl_t pf);
+smpl_t aubio_quadfrac(smpl_t s0, smpl_t s1, smpl_t s2, smpl_t pf);
 
 /** returns 1 if X1 is a peak and positive */
 uint_t vec_peakpick(fvec_t * input, uint_t pos);
 
-smpl_t bintomidi(smpl_t bin, smpl_t samplerate, smpl_t fftsize);
-smpl_t bintofreq(smpl_t bin, smpl_t samplerate, smpl_t fftsize);
-smpl_t freqtomidi(smpl_t freq);
+smpl_t aubio_bintomidi(smpl_t bin, smpl_t samplerate, smpl_t fftsize);
+smpl_t aubio_bintofreq(smpl_t bin, smpl_t samplerate, smpl_t fftsize);
+smpl_t aubio_freqtomidi(smpl_t freq);
 
 uint_t aubio_silence_detection(fvec_t * ibuf, smpl_t threshold);
 smpl_t aubio_level_detection(fvec_t * ibuf, smpl_t threshold);

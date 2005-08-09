@@ -23,7 +23,7 @@
 #include "sample.h"
 #include "mathutils.h"
 
-void window(smpl_t *w, uint_t size, aubio_window_type_t wintype) {
+void aubio_window(smpl_t *w, uint_t size, aubio_window_type wintype) {
   uint_t i;
   switch(wintype) {
     case aubio_win_rectangle:
@@ -73,7 +73,7 @@ void window(smpl_t *w, uint_t size, aubio_window_type_t wintype) {
 }
 
 
-smpl_t unwrap2pi(smpl_t phase) {
+smpl_t aubio_unwrap2pi(smpl_t phase) {
   /* mod(phase+pi,-2pi)+pi */
   return phase + TWO_PI * (1. + floorf(-(phase+PI)/TWO_PI));
 }
@@ -318,7 +318,7 @@ smpl_t vec_quadint(fvec_t * x,uint_t pos) {
     s2 = x->data[0][pos+span];
     /* increase frac */
     for (frac = 0.; frac < 2.; frac = frac + step) {
-      res = quadfrac(s0, s1, s2, frac);
+      res = aubio_quadfrac(s0, s1, s2, frac);
       if (res > resold) 
         resold = res;
       else {				
@@ -330,7 +330,7 @@ smpl_t vec_quadint(fvec_t * x,uint_t pos) {
   return exactpos;
 }
 
-smpl_t quadfrac(smpl_t s0, smpl_t s1, smpl_t s2, smpl_t pf) {
+smpl_t aubio_quadfrac(smpl_t s0, smpl_t s1, smpl_t s2, smpl_t pf) {
   smpl_t tmp = s0 + (pf/2.) * (pf * ( s0 - 2.*s1 + s2 ) - 3.*s0 + 4.*s1 - s2);
   return tmp;
 }
@@ -344,7 +344,7 @@ uint_t vec_peakpick(fvec_t * onset, uint_t pos) {
 	return tmp;
 }
 
-smpl_t freqtomidi(smpl_t freq) {
+smpl_t aubio_freqtomidi(smpl_t freq) {
   smpl_t midi = freq/6.875;
   /* log(freq/A-2)/log(2) */
   midi = LOG(midi)/0.69314718055995;
@@ -353,15 +353,15 @@ smpl_t freqtomidi(smpl_t freq) {
   return midi;
 }
 
-smpl_t bintofreq(smpl_t bin, smpl_t samplerate, smpl_t fftsize) {
+smpl_t aubio_bintofreq(smpl_t bin, smpl_t samplerate, smpl_t fftsize) {
   smpl_t freq = samplerate/fftsize;
   return freq*bin;
 }
 
 
-smpl_t bintomidi(smpl_t bin, smpl_t samplerate, smpl_t fftsize) {
-  smpl_t midi = bintofreq(bin,samplerate,fftsize);
-  return freqtomidi(midi);
+smpl_t aubio_bintomidi(smpl_t bin, smpl_t samplerate, smpl_t fftsize) {
+  smpl_t midi = aubio_bintofreq(bin,samplerate,fftsize);
+  return aubio_freqtomidi(midi);
 }
 
 

@@ -19,7 +19,7 @@ int main(){
         for (i=0; i < channels; i++)
                 spec[i] = AUBIO_ARRAY(fft_data_t,win_s);
         /* initialize the window (see mathutils.c) */
-        window(w,win_s,aubio_win_hanningz);
+        aubio_window(w,win_s,aubio_win_hanningz);
   
         /* fill input with some data */
   
@@ -34,7 +34,7 @@ int main(){
         /* execute inverse fourier transform */
         for (i=0; i < channels; i++) {
                 for (j=0; j<win_s/2+1; j++) {
-                        spec[i][j]  = CEXPC(I*unwrap2pi(fftgrain->phas[i][j]));
+                        spec[i][j]  = CEXPC(I*aubio_unwrap2pi(fftgrain->phas[i][j]));
                         spec[i][j] *= fftgrain->norm[i][j];
                 }
                 aubio_fft_rdo(fft,spec[i],out->data[i],win_s);

@@ -73,7 +73,7 @@ void aubio_onsetdetection_complex (aubio_onsetdetection_t *o, cvec_t * fftgrain,
 	for (i=0;i<fftgrain->channels; i++)	{
 		onset->data[i][0] = 0.;
 		for (j=0;j<nbins; j++)	{
-			o->dev1->data[i][j] 	 = unwrap2pi(
+			o->dev1->data[i][j] 	 = aubio_unwrap2pi(
 					fftgrain->phas[i][j]
 					-2.0*o->theta1->data[i][j]+
 					o->theta2->data[i][j]);
@@ -103,7 +103,7 @@ void aubio_onsetdetection_phase(aubio_onsetdetection_t *o,
 		o->dev1->data[i][0]=0.;
 		for ( j=0;j<nbins; j++ )	{
 			o->dev1->data[i][j] = 
-				unwrap2pi(
+				aubio_unwrap2pi(
 						fftgrain->phas[i][j]
 						-2.0*o->theta1->data[i][j]
 						+o->theta2->data[i][j]);

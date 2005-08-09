@@ -90,7 +90,7 @@ smpl_t aubio_pitchfcomb_detect (aubio_pitchfcomb_t * p, fvec_t * input)
     tmp -= (smpl_t)k*phaseDifference;
 
     /* map delta phase into +/- Pi interval */
-    tmp = unwrap2pi(tmp);
+    tmp = aubio_unwrap2pi(tmp);
 
     /* get deviation from bin frequency from the +/- Pi interval */
     tmp = p->fftSize/input->length*tmp/(TWO_PI);

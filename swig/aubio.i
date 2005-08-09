@@ -97,10 +97,10 @@ typedef enum {
         aubio_win_gaussian,
         aubio_win_welch,
         aubio_win_parzen
-} aubio_window_type_t;
+} aubio_window_type;
 
-void window(smpl_t *w, uint_t size, aubio_window_type_t wintype);
-smpl_t unwrap2pi (smpl_t phase);
+void aubio_window(smpl_t *w, uint_t size, aubio_window_type wintype);
+smpl_t aubio_unwrap2pi (smpl_t phase);
 smpl_t vec_mean(fvec_t *s);
 smpl_t vec_max(fvec_t *s);
 smpl_t vec_min(fvec_t *s);
@@ -118,11 +118,11 @@ void vec_adapt_thres(fvec_t * vec, fvec_t * tmp, uint_t post, uint_t pre);
 smpl_t vec_moving_thres(fvec_t * vec, fvec_t * tmp, uint_t post, uint_t pre, uint_t pos);
 smpl_t vec_median(fvec_t * input);
 smpl_t vec_quadint(fvec_t * x,uint_t pos);
-smpl_t quadfrac(smpl_t s0, smpl_t s1, smpl_t s2, smpl_t pf);
+smpl_t aubio_quadfrac(smpl_t s0, smpl_t s1, smpl_t s2, smpl_t pf);
 uint_t vec_peakpick(fvec_t * input, uint_t pos);
-smpl_t bintomidi(smpl_t bin, smpl_t samplerate, smpl_t fftsize);
-smpl_t bintofreq(smpl_t bin, smpl_t samplerate, smpl_t fftsize);
-smpl_t freqtomidi(smpl_t freq);
+smpl_t aubio_bintomidi(smpl_t bin, smpl_t samplerate, smpl_t fftsize);
+smpl_t aubio_bintofreq(smpl_t bin, smpl_t samplerate, smpl_t fftsize);
+smpl_t aubio_freqtomidi(smpl_t freq);
 uint_t aubio_silence_detection(fvec_t * ibuf, smpl_t threshold);
 smpl_t aubio_level_detection(fvec_t * ibuf, smpl_t threshold);
 

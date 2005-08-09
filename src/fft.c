@@ -149,7 +149,7 @@ void aubio_mfft_rdo(aubio_mfft_t * fft,cvec_t * fftgrain, fvec_t * out){
         uint_t i=0,j;
         for (i=0; i < fft->channels; i++) {
                 for (j=0; j<fft->winsize/2+1; j++) {
-                        fft->spec[i][j]  = CEXPC(I*unwrap2pi(fftgrain->phas[i][j]));
+                        fft->spec[i][j]  = CEXPC(I*aubio_unwrap2pi(fftgrain->phas[i][j]));
                         fft->spec[i][j] *= fftgrain->norm[i][j];
                 }
                 aubio_fft_rdo(fft->fft,fft->spec[i],out->data[i],fft->winsize);

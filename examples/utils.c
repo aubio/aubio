@@ -329,7 +329,7 @@ void examples_common_process(aubio_process_func_t process_func, aubio_print_func
 
 void send_noteon(int pitch, int velo)
 {
-    smpl_t mpitch = (FLOOR)(freqtomidi(pitch)+.5);
+    smpl_t mpitch = (FLOOR)(aubio_freqtomidi(pitch)+.5);
     /* we should check if we use midi here, not jack */
 #if ALSA_SUPPORT
     if (usejack) {

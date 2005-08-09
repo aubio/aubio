@@ -138,9 +138,9 @@ smpl_t aubio_pitchdetection_mcomb(aubio_pitchdetection_t *p, fvec_t *ibuf) {
 	smpl_t pitch = 0.;
         aubio_pvoc_do(p->pv,ibuf,p->fftgrain);
         pitch = aubio_pitchmcomb_detect(p->mcomb,p->fftgrain);
-        /** \bug should move the >0 check within bintofreq */
+        /** \bug should move the >0 check within aubio_bintofreq */
         if (pitch>0.) {
-                pitch = bintofreq(pitch,p->srate,p->bufsize);
+                pitch = aubio_bintofreq(pitch,p->srate,p->bufsize);
         } else {
                 pitch = 0.;
         }

@@ -55,7 +55,7 @@ void aubio_tss_do(aubio_tss_t *o, cvec_t * input,
   /* second phase derivative */
   for (i=0;i<channels; i++){
     for (j=0;j<nbins; j++){
-      dev[i][j] = unwrap2pi(input->phas[i][j]
+      dev[i][j] = aubio_unwrap2pi(input->phas[i][j]
           -2.0*theta1[i][j]+theta2[i][j]);
       theta2[i][j] = theta1[i][j];
       theta1[i][j] = input->phas[i][j];
