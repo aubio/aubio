@@ -15,13 +15,13 @@ doc-clean:
 maintainer-clean-local: doc-clean
 
 doc-devel: 
-	doxygen devel.cfg
+	doxygen $(srcdir)/devel.cfg
 
 doc-user: 
-	doxygen user.cfg
+	doxygen $(srcdir)/user.cfg
 
 doc-examples: 
-	doxygen examples.cfg
+	doxygen $(srcdir)/examples.cfg
 
 %.sgml: 
 
@@ -29,6 +29,6 @@ doc-examples:
 	docbook-to-man $< > $*.1
 
 clean:
-	rm -rf devel user examples #*.1
+	rm -rf devel user examples
 
 distclean-hook: clean
