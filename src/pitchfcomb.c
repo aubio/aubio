@@ -119,6 +119,8 @@ smpl_t aubio_pitchfcomb_detect (aubio_pitchfcomb_t * p, fvec_t * input)
       }
     }
   }
+  /* quick hack to clean output a bit */
+  if (peaks[k].freq > 10000) return 0.;
   return peaks[k].freq;
 }
 
