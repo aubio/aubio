@@ -1,5 +1,5 @@
-EXTRA_DIST = README aubiocompare-onset aubioplot-notes aubiocut\
-	aubiofilter-notes aubionotes aubiopitch
+EXTRA_DIST = README aubiocompare-onset aubioplot-notes \
+	aubiofilter-notes aubionotes aubiocompare-onset
 
 SUBDIRS = aubio
-bin_SCRIPTS = aubiocut aubiocompare-onset 
+bin_SCRIPTS = aubiocut aubiopitch
