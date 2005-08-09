@@ -113,7 +113,7 @@ uint_t aubio_peakpick_pimrt(fvec_t * onset,  aubio_pickpeak_t * p) {
 }
 
 /** function added by Miguel Ramirez to return the onset detection amplitude in peakval */
-uint_t aubio_peakpick_pimrt_wt(fvec_t * onset,  pickparams_t * p, smpl_t* peakval) 
+uint_t aubio_peakpick_pimrt_wt(fvec_t * onset,  aubio_pickpeak_t * p, smpl_t* peakval) 
 {
 	fvec_t * onset_keep = (fvec_t *)p->onset_keep;
 	fvec_t * onset_proc = (fvec_t *)p->onset_proc;

@@ -33,14 +33,11 @@ extern "C" {
 typedef smpl_t (*aubio_thresholdfn_t)(fvec_t *input);
 typedef uint_t (*aubio_pickerfn_t)(fvec_t *input, uint_t pos);
 typedef struct _aubio_pickpeak_t aubio_pickpeak_t;
-/* alias for backward compatibility */
-typedef aubio_pickpeak_t pickparams_t;
 
 aubio_pickpeak_t * new_aubio_peakpicker(smpl_t threshold);
 uint_t aubio_peakpick_pimrt(fvec_t * DF, aubio_pickpeak_t * p);
 /** function added by Miguel Ramirez to return the onset detection amplitude in peakval */
-uint_t aubio_peakpick_pimrt_wt( fvec_t* DF, pickparams_t* p, smpl_t* peakval );
-//smpl_t aubio_peakpick_samerpp(fvec_t * DF, aubio_pickpeak_t * p);
+uint_t aubio_peakpick_pimrt_wt( fvec_t* DF, aubio_pickpeak_t* p, smpl_t* peakval );
 void del_aubio_peakpicker(aubio_pickpeak_t * p);
 
 #ifdef __cplusplus
