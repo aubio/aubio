@@ -98,6 +98,13 @@ else:
 	# print results
 	#print "orig, missed, merged, expc, bad, doubled:"
 	if vmode=='verbose':
+	    print "orig", orig
+            print "expc", expc
+            print "missed",missed
+            print "merged", merged
+            print "bad", bad
+            print "doubled", doubled
+            print "correct", orig-missed-merged
 	    print "GD %2.8f\t"        % (100*float(orig-missed-merged)/(orig)),
 	    print "FP %2.8f\t"        % (100*float(bad+doubled)/(orig))       , 
 	    print "GD-merged %2.8f\t" % (100*float(orig-missed)/(orig))       , 
