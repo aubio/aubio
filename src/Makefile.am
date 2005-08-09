@@ -1,7 +1,5 @@
-EXTRA_DIST = aubio_priv.h
-
+noinst_HEADERS = aubio_priv.h
 pkginclude_HEADERS = aubio.h \
-	config.h \
 	types.h \
 	phasevoc.h \
 	mathutils.h \
@@ -21,6 +19,7 @@ pkginclude_HEADERS = aubio.h \
 	pitchfcomb.h \
 	beattracking.h \
 	filter.h
+nodist_pkginclude_HEADERS = config.h
 
 lib_LTLIBRARIES = libaubio.la 
 libaubio_la_SOURCES = aubio.h \
