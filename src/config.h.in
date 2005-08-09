@@ -12,6 +12,9 @@
 /* Define to enable fftw3 support */
 #undef FFTW3_SUPPORT
 
+/* Defined when c99 style varargs macros are supported */
+#undef HAVE_C99_VARARGS_MACROS
+
 /* Define to 1 if you have the <complex.h> header file. */
 #undef HAVE_COMPLEX_H
 

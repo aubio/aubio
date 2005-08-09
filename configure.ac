@@ -1,4 +1,4 @@
-dnl Process this file with autoconf to porduce a configure script
+dnl Process this file with autoconf to produce a configure script
 
 AC_INIT(src/aubio.h)
 
@@ -8,6 +8,7 @@ VERSION=${AUBIO_VERSION}
 PACKAGE=aubio
 
 AM_INIT_AUTOMAKE(${PACKAGE}, ${VERSION})
+AM_MAINTAINER_MODE
 
 AC_PREFIX_DEFAULT(/usr)
 
@@ -81,6 +82,24 @@ AC_CHECK_HEADERS([string.h stdlib.h stdio.h math.h errno.h stdarg.h unistd.h sig
 AC_CHECK_HEADERS(complex.h,,AC_MSG_ERROR([Ouch! missing complex.h header]))
 AC_CHECK_HEADERS(fftw3.h  ,,AC_MSG_ERROR([Ouch! missing fftw3.h headeri]))
 
+AC_CACHE_CHECK(for C99 __VA_ARGS__ macro,
+    ac_cv_varargs_macros,
+AC_TRY_COMPILE([
+  #include <stdio.h>
+  #define AUBIO_ERR(...)                       fprintf(stderr, __VA_ARGS__)
+],
+[
+  AUBIO_ERR("%s\n", "ERR");
+],
+        ac_cv_varargs_macros=yes,
+        ac_cv_varargs_macros=no)
+)
+if test "$ac_cv_varargs_macros" = "yes"; then
+    AC_DEFINE(HAVE_C99_VARARGS_MACROS, 1,
+            [Defined when c99 style varargs macros are supported])
+fi
+
+
 dnl check for pkg-config
 AC_PATH_PROG(PKG_CONFIG,pkg-config,no)
 
@@ -153,6 +172,12 @@ then
 	fi
 fi
   
+AC_ARG_ENABLE(testprogs,
+  AC_HELP_STRING([--enable-testprogs],[compile test programs [[default=no]]]),
+  [with_testprogs=$enableval],
+  with_testprogs="no")
+AM_CONDITIONAL(COMPILE_TESTS,test "${with_testprogs}" != "no")
+
 dnl Check for optional programs
 
 dnl should check for swig version and python headers
@@ -178,7 +203,7 @@ AC_SUBST(SWLDFLAGS)
 AC_PATH_PROG(DOCBOOK_TO_MAN,docbook-to-man,no)
 AM_CONDITIONAL(DOCBOOKFOUND, test "${DOCBOOK_TO_MAN}" != "no")
 
-AC_CHECK_HEADER(m_pd.h,PUREDATA=y,AC_MSG_WARN([Ouch! puredata header not found]))
+AC_CHECK_HEADER(m_pd.h,PUREDATA=y,AC_MSG_WARN([Puredata header not found.]))
 AM_CONDITIONAL(PUREDATAFOUND, test "${PUREDATA}" = "y")
 
 AC_OUTPUT([
@@ -186,8 +211,9 @@ AC_OUTPUT([
 		src/Makefile
 		ext/Makefile
 		examples/Makefile
+		examples/tests/Makefile
 		sounds/Makefile
-                swig/Makefile
+		swig/Makefile
 		python/Makefile
 		python/aubio/Makefile
 		plugins/Makefile

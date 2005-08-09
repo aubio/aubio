@@ -116,10 +116,17 @@ typedef enum {
   AUBIO_FAIL = -1
 } aubio_status;
 
-#define AUBIO_ERR(...)							fprintf(stderr,__VA_ARGS__)
-#define AUBIO_MSG(...)							fprintf(stdout,__VA_ARGS__)
-#define AUBIO_DBG(...)							fprintf(stderr,__VA_ARGS__)
-#define AUBIO_QUIT(_s)							exit(_s)
-#define AUBIO_SPRINTF               sprintf
+#ifdef HAVE_C99_VARARGS_MACROS
+#define AUBIO_ERR(...)               fprintf(stderr,__VA_ARGS__)
+#define AUBIO_MSG(...)               fprintf(stdout,__VA_ARGS__)
+#define AUBIO_DBG(...)               fprintf(stderr,__VA_ARGS__)
+#else
+#define AUBIO_ERR(format, args...)   fprintf(stderr, format , ##args)
+#define AUBIO_MSG(format, args...)   fprintf(stdout, format , ##args)
+#define AUBIO_DBG(format, args...)   fprintf(stderr, format , ##args)
+#endif
+
+#define AUBIO_QUIT(_s)               exit(_s)
+#define AUBIO_SPRINTF                sprintf
 
 #endif/*_AUBIO_PRIV_H*/
