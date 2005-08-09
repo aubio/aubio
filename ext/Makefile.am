@@ -1,6 +1,10 @@
-pkginclude_HEADERS = aubioext.h \
+pkginclude_HEADERS = \
+	aubioext.h \
 	jackio.h \
-	sndfileio.h \
+	sndfileio.h
+
+pkgincludemididir = $(pkgincludedir)/midi
+pkgincludemidi_HEADERS = \
 	midi/midi.h \
 	midi/list.h \
 	midi/timer.h \
@@ -38,7 +42,6 @@ libaubioext_la_SOURCES = aubioext.h \
 	midi/midi_driver.h \
 	midi/midi_driver.c
 
-AM_CFLAGS = @SNDLIB_CFLAGS@ @JACK_CFLAGS@ @FFTWLIB_CFLAGS@ @SAMPLERATE_CFLAGS@ @ALSA_CFLAGS@ @LADCCA_CFLAGS@
+AM_CFLAGS = -I$(srcdir)/../src @SNDLIB_CFLAGS@ @JACK_CFLAGS@ @FFTWLIB_CFLAGS@ @SAMPLERATE_CFLAGS@ @ALSA_CFLAGS@ @LADCCA_CFLAGS@
 libaubioext_la_LIBADD = @SNDLIB_LIBS@ @JACK_LIBS@ @FFTWLIB_LIBS@ @SAMPLERATE_LIBS@ @ALSA_LIBS@ @LADCCA_LIBS@ @LTLIBOBJS@
-
-INCLUDES = -I$(srcdir)/../src
+libaubioext_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@

@@ -63,3 +63,4 @@ libaubio_la_SOURCES = aubio.h \
 
 AM_CFLAGS = @FFTWLIB_CFLAGS@ @SAMPLERATE_CFLAGS@
 libaubio_la_LIBADD = @FFTWLIB_LIBS@ @SAMPLERATE_LIBS@ @LTLIBOBJS@
+libaubio_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
