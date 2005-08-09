@@ -18,7 +18,7 @@ aubioonset__pd_linux_SOURCES = \
 
 pdincludedir = $(pddir)/src
 
-LIBTOOL=$(SHELL) ./libtoolkludge
+LIBTOOL=$(SHELL) $(srcdir)/libtoolkludge
 
 INCLUDES = -I$(top_srcdir) -I$(pdincludedir)
 

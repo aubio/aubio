@@ -10,7 +10,7 @@ all: _aubiowrapper.so
 # removed -Wall -Wmissing-prototypes -Wmissing-declarations 
 CFLAGS = -DJACK_SUPPORT -Werror -Wno-char-subscripts \
 	-Wno-unknown-pragmas $(SWCFLAGS) \
-	-I$(srcdir)/../../src -I$(srcdir)/../../ext \
+	-I../../src -I$(srcdir)/../../src -I$(srcdir)/../../ext \
 	-I/usr/include/python${PYTHON_VERSION} \
 	-I${prefix}/include/python${PYTHON_VERSION} \
 	-I/usr/include \
@@ -19,7 +19,7 @@ CFLAGS = -DJACK_SUPPORT -Werror -Wno-char-subscripts \
 LDFLAGS = $(SWLDFLAGS) -L../../ext/.libs -laubioext -L../../src/.libs -laubio
 
 aubio_wrap.c:
-	$(SWIG) -outdir . -o aubio_wrap.c -python ../../swig/aubio.i
+	$(SWIG) -outdir . -o aubio_wrap.c -python $(srcdir)/../../swig/aubio.i
 
 _aubiowrapper.so: aubio_wrap.c
 	$(CC) $(CFLAGS) -c aubio_wrap.c
