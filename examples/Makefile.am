@@ -1,7 +1,9 @@
-#SUBDIRS=onsets
+if COMPILE_TESTS 
+SUBDIRS = tests
+endif
 
 # global flags
-AM_CFLAGS = -I../src -I../ext @LADCCA_CFLAGS@
+AM_CFLAGS = -I$(srcdir)/../src -I$(srcdir)/../ext @LADCCA_CFLAGS@
 AM_LDFLAGS = -L../src -L../ext @LADCCA_LIBS@ -laubioext -laubio
 #AM_SOURCES = utils.c
 
@@ -10,7 +12,7 @@ bin_PROGRAMS = \
 	aubioonset \
 	aubiotrack \
 	aubionotes
-	
+
 EXTRA_DIST = utils.h
 
 # optionally add sources file for these programs
