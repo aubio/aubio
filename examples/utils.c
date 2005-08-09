@@ -210,7 +210,7 @@ int parse_args (int argc, char **argv) {
 void examples_common_init(int argc,char ** argv) {
 
 
-  aubio_sndfile_t * onsetfile;
+  aubio_sndfile_t * onsetfile = NULL;
   /* parse command line arguments */
   parse_args(argc, argv);
 
@@ -219,6 +219,8 @@ void examples_common_init(int argc,char ** argv) {
           (onsetfile = new_aubio_sndfile_ro(onset_filename)) ||
                   (onsetfile = new_aubio_sndfile_ro("sounds/woodblock.aiff")) ||
                   (onsetfile = new_aubio_sndfile_ro("../sounds/woodblock.aiff"));
+  }
+  if (onsetfile) {
           /* read the output sound once */
           aubio_sndfile_read(onsetfile, overlap_size, woodblock);
   }
