@@ -121,7 +121,7 @@ uint_t aubio_peakpick_pimrt_wt(fvec_t * onset,  pickparams_t * p, smpl_t* peakva
 	fvec_t * scratch    = (fvec_t *)p->scratch;
 	smpl_t mean = 0., median = 0.;
 	uint_t length = p->win_post + p->win_pre + 1;
-	uint_t i = 0, j;
+	uint_t i = 0, j, isonset = 0;
 
 	/* store onset in onset_keep */
 	/* shift all elements but last, then write last */
@@ -155,7 +155,7 @@ uint_t aubio_peakpick_pimrt_wt(fvec_t * onset,  pickparams_t * p, smpl_t* peakva
 	onset_peek->data[i][2] = 
 		onset_proc->data[i][p->win_post] - median - mean * p->threshold;
 	
-	uint_t isonset = (p->pickerfn)(onset_peek,1);
+	isonset = (p->pickerfn)(onset_peek,1);
 
 	//if ( isonset && peakval != NULL )
 	if ( peakval != NULL )
