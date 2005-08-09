@@ -22,7 +22,7 @@ doc-user:
 
 doc-examples: 
 	doxygen examples.cfg
-	
+
 %.sgml: 
 
 %.1:	%.sgml

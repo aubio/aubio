@@ -22,7 +22,7 @@ LIBTOOL=$(SHELL) ./libtoolkludge
 
 INCLUDES = -I$(top_srcdir) -I$(pdincludedir)
 
-AM_CFLAGS = -I../../src \
+AM_CFLAGS = -I$(srcdir)/../../src \
     -DPD -O2 -funroll-loops -fomit-frame-pointer \
     -Wall -W -Wshadow -Wstrict-prototypes -Werror \
     -Wno-unused -Wno-parentheses -Wno-switch
@@ -38,3 +38,4 @@ pdinstall_DATA = \
 noinst_SCRIPTS = libtoolkludge
 
 EXTRA_DIST = $(pdinstall_DATA) $(noinst_SCRIPTS)
+
