@@ -120,6 +120,8 @@ void process_print (void) {
 
 int main(int argc, char **argv) {
   
+  buffer_size = 1024;
+  overlap_size = 512;
   /* override default settings */
   examples_common_init(argc,argv);
   winlen = SQR(512)/overlap_size;
