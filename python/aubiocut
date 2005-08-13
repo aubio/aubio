@@ -51,14 +51,9 @@ def parse_args():
         parser.add_option("-S","--silencecut",
                           action="store_true", dest="silencecut", default=False,
                           help="outputs silence locations")
-        # to be implemented
-        
         parser.add_option("-z","--zerocross",
-                          action="store_true", dest="zerocross", default=False, 
-                          help="NOT IMPLEMENTED zero crossing matching")
-        parser.add_option("-b","--beat",
-                          action="store_true", dest="beat", default=False,
-                          help="NOT IMPLEMENTED output beat locations")
+                          action="store", dest="zerothres", default=0.008, 
+                          help="zero-crossing threshold for slicing [default=0.008]")
         # plotting functions
         parser.add_option("-p","--plot",
                           action="store_true", dest="plot", default=False, 
@@ -72,6 +67,10 @@ def parse_args():
         parser.add_option("-q","--quiet",
                           action="store_false", dest="verbose", default=False, 
                           help="be quiet")
+        # to be implemented
+        parser.add_option("-b","--beat",
+                          action="store_true", dest="beat", default=False,
+                          help="NOT IMPLEMENTED output beat locations")
         (options, args) = parser.parse_args()
         if not options.filename: 
                  print "no file name given\n", usage
@@ -133,4 +132,4 @@ if options.plot:
                 samplerate=samplerate, hopsize=hopsize, outplot=options.outplot)
 
 if options.cut:
-        cutfile(filename,onsets,bufsize=bufsize,hopsize=hopsize)
+        cutfile(filename,onsets,zerothres=zerothres,bufsize=bufsize,hopsize=hopsize)
