@@ -29,7 +29,7 @@ This package depends on the following libraries and utils:
   - libjack (optional)
   - libasound2 (optional)
   - python, python-numarray (optional)
-  - swig (optional, for the python interface)
+  - swig (>= 1.3, optional, for the python interface)
 
 BUILDING AUBIO
 
