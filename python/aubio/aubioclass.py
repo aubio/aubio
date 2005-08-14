@@ -191,7 +191,8 @@ def cutfile(filein,slicetimes,zerothres=0.008,bufsize=1024,hopsize=512):
     filei     = sndfile(filein)
     framestep = hopsize/(filei.samplerate()+0.)
     channels  = filei.channels()
-    newname   = "%s%f%s" % ("/tmp/",0.0000000,filein[-4:])
+    newname   = "%s%s%f%s%s" % (filein.split(".")[0].split("/")[-1],".",
+                frameread*framestep,".",filein.split(".")[-1])
     fileo     = sndfile(newname,model=filei)
     myvec     = fvec(hopsize,channels)
     mycopy    = fvec(hopsize,channels)

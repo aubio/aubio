@@ -20,7 +20,7 @@ def parse_args():
                           help="onset detection mode [default=dual] \
                           complexdomain|hfc|phase|specdiff|energy|kl|mkl|dual")
         parser.add_option("-B","--bufsize",
-                          action="store", dest="bufsize", default=1024, 
+                          action="store", dest="bufsize", default=512, 
                           help="buffer size [default=1024]")
         parser.add_option("-H","--hopsize",
                           action="store", dest="hopsize", default=256, 
@@ -37,7 +37,7 @@ def parse_args():
         parser.add_option("-D","--delay",
                           action="store", dest="delay",  
                           help="number of seconds to take back [default=system]\
-                          default system delay is 2*hopsize/samplerate")
+                          default system delay is 3*hopsize/samplerate")
         parser.add_option("-L","--localmin",
                           action="store_true", dest="localmin", default=False, 
                           help="use local minima after peak detection")
@@ -53,7 +53,7 @@ def parse_args():
                           help="outputs silence locations")
         parser.add_option("-z","--zerocross",
                           action="store", dest="zerothres", default=0.008, 
-                          help="zero-crossing threshold for slicing [default=0.008]")
+                          help="zero-crossing threshold for slicing [default=0.00008]")
         # plotting functions
         parser.add_option("-p","--plot",
                           action="store_true", dest="plot", default=False, 
@@ -85,11 +85,12 @@ hopsize    = int(options.hopsize)
 bufsize    = int(options.bufsize)
 step       = float(samplerate)/float(hopsize)
 threshold  = float(options.threshold)
+zerothres  = float(options.zerothres)
 silence    = float(options.silence)
 mintol     = float(options.mintol)*step
 # default take back system delay
 if options.delay: delay = float(options.delay)
-else:             delay = 2./step
+else:             delay = 3./step
 
 if options.beat:
         #onsets = getbeats(filename,threshold,silence,mode=options.mode)
