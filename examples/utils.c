@@ -104,13 +104,13 @@ int parse_args (int argc, char **argv) {
                 {"help"     , 0, NULL, 'h'},
                 {"verbose"  , 0, NULL, 'v'},
                 {"jack"     , 0, NULL, 'j'},
-                {"output"   , 0, NULL, 'o'},
-                {"input"    , 0, NULL, 'i'},
-                {"onset"    , 0, NULL, 'O'},
-                {"threshold", 0, NULL, 't'},
-                {"silence"  , 0, NULL, 's'},
+                {"output"   , 1, NULL, 'o'},
+                {"input"    , 1, NULL, 'i'},
+                {"onset"    , 1, NULL, 'O'},
+                {"threshold", 1, NULL, 't'},
+                {"silence"  , 1, NULL, 's'},
                 {"averaging", 0, NULL, 'a'},
-                {"hopsize",   0, NULL, 'H'},
+                {"hopsize",   1, NULL, 'H'},
                 {NULL       , 0, NULL, 0}
         };
         prog_name = argv[0];	
