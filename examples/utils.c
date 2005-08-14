@@ -58,7 +58,8 @@ aubio_pickpeak_t * parms;
 /* pitch objects */
 smpl_t pitch               = 0.;
 aubio_pitchdetection_t * pitchdet;
-aubio_pitchdetection_type mode = aubio_pitch_yin; // aubio_pitch_mcomb
+aubio_pitchdetection_type type_pitch = aubio_pitch_schmitt; // aubio_pitch_mcomb
+aubio_pitchdetection_mode mode_pitch = aubio_pitchm_freq;
 uint_t median         = 6;
 
 fvec_t * note_buffer  = NULL;
@@ -87,17 +88,22 @@ void usage (FILE * stream, int exit_code)
 {
         fprintf(stream, "usage: %s [ options ] \n", prog_name);
         fprintf(stream, 
-                        "	-j	--jack		Use Jack.\n"
-                        "	-o	--output	Output type.\n"
-                        "	-i	--input		Input type.\n"
-                        "	-h	--help		Display this message.\n"
-                        "	-v	--verbose	Print verbose message.\n"
+                        "       -h      --help          Display this message.\n"
+                        "       -j      --jack          Use Jack.\n"
+                        "       -o      --output        Output type.\n"
+                        "       -i      --input         Input type.\n"
+                        "       -O      --onset         Select onset detection algorithm.\n"
+                        "       -t      --threshold     Set onset detection threshold.\n"
+                        "       -s      --silence       Select silence threshold.\n"
+                        "       -p      --pitch         Select pitch detection algorithm.\n"
+                        "       -H      --hopsize       Set hopsize.\n"
+                        "       -a      --averaging     Use averaging.\n"
                );
         exit(exit_code);
 }
 
 int parse_args (int argc, char **argv) {
-        const char *options = "hvjo:i:O:t:s:H:a";
+        const char *options = "hvjo:i:O:t:s:p:H:a";
         int next_option;
         struct option long_options[] =
         {
@@ -109,11 +115,12 @@ int parse_args (int argc, char **argv) {
                 {"onset"    , 1, NULL, 'O'},
                 {"threshold", 1, NULL, 't'},
                 {"silence"  , 1, NULL, 's'},
+                {"pitch"    , 1, NULL, 'p'},
                 {"averaging", 0, NULL, 'a'},
                 {"hopsize",   1, NULL, 'H'},
                 {NULL       , 0, NULL, 0}
         };
-        prog_name = argv[0];	
+        prog_name = argv[0];
         if( argc < 1 ) {
                 usage (stderr, 1);
                 return -1;
@@ -128,13 +135,13 @@ int parse_args (int argc, char **argv) {
                         case 'i':
                                 input_filename = optarg;
                                 break;
-                        case 'h': 	/* help */
+                        case 'h': /* help */
                                 usage (stdout, 0);
                                 return -1;
-                        case 'v':		/* verbose */
+                        case 'v': /* verbose */
                                 verbose = 1;
                                 break;
-                        case 'j':		/* verbose */
+                        case 'j':
                                 usejack = 1;
                                 break;
                         case 'O':   /*onset type*/
@@ -172,18 +179,32 @@ int parse_args (int argc, char **argv) {
                                    }
                                    */
                                 break;
+                        case 'p':
+                                if (strcmp(optarg,"mcomb") == 0) 
+                                        type_pitch = aubio_pitch_mcomb;
+                                else if (strcmp(optarg,"yin") == 0) 
+                                        type_pitch = aubio_pitch_yin;
+                                else if (strcmp(optarg,"schmitt") == 0) 
+                                        type_pitch = aubio_pitch_schmitt;
+                                else if (strcmp(optarg,"fcomb") == 0) 
+                                        type_pitch = aubio_pitch_fcomb;
+                                else {
+                                        debug("could not get pitch type.\n");
+                                        abort();
+                                }
+                                break;
                         case 'a':
                                 averaging = 1;
                                 break; 
                         case 'H':
                                 overlap_size = atoi(optarg);
                                 break;
-                        case '?': 	/* unknown options */
+                        case '?': /* unknown options */
                                 usage(stderr, 1);
                                 break;
-                        case -1: 		/* done with options */
+                        case -1: /* done with options */
                                 break;
-                        default: 		/*something else unexpected */
+                        default: /*something else unexpected */
                                 abort ();
                 }
         }
@@ -203,7 +224,7 @@ int parse_args (int argc, char **argv) {
                         debug ("Error: Could not switch to jack mode\n   aubio was compiled without jack support\n");
                         exit(1);
                 }
-        }	
+        }
         return 0;
 }
 
@@ -242,7 +263,7 @@ void examples_common_init(int argc,char ** argv) {
 
   if (usepitch) {
     pitchdet = new_aubio_pitchdetection(buffer_size*4, 
-                    overlap_size, channels, samplerate, mode, aubio_pitchm_freq);
+                    overlap_size, channels, samplerate, type_pitch, mode_pitch);
   
   if (median) {
           note_buffer = new_fvec(median, 1);
