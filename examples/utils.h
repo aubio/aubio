@@ -26,9 +26,16 @@
 #include <aubio.h>
 #include <aubioext.h>
 
-#define debug(...) if (verbose) fprintf (stderr, __VA_ARGS__)
-#define errmsg(...) fprintf (stderr, __VA_ARGS__)
-#define outmsg(...) fprintf (stdout, __VA_ARGS__)
+#ifdef HAVE_C99_VARARGS_MACROS
+#define debug(...)              if (verbose) fprintf (stderr, __VA_ARGS__)
+#define errmsg(...)             fprintf (stderr, __VA_ARGS__)
+#define outmsg(...)             fprintf (stdout, __VA_ARGS__)
+#else
+#define debug(format, args...)  if (verbose) fprintf(stderr, format , ##args)
+#define errmsg(format, args...) fprintf(stderr, format , ##args)
+#define outmsg(format, args...) fprintf(stdout, format , ##args)
+#endif
+
 
 extern int frames;
 extern int verbose;
