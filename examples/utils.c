@@ -21,7 +21,7 @@ cca_client_t * aubio_cca_client;
 /* settings */
 const char * output_filename = NULL;
 const char * input_filename  = NULL;
-const char * onset_filename  = "/usr/share/sounds/aubio/woodblock.aiff";
+const char * onset_filename  = AUBIO_PREFIX "/share/sounds/" PACKAGE "/woodblock.aiff";
 int frames = 0;
 int verbose = 0;
 int usejack = 0;
@@ -237,7 +237,8 @@ void examples_common_init(int argc,char ** argv) {
 
   woodblock = new_fvec(buffer_size,1);
   if (output_filename || usejack) {
-          (onsetfile = new_aubio_sndfile_ro(onset_filename)) ||
+          /* dummy assignement to keep egcs happy */
+          isonset = (onsetfile = new_aubio_sndfile_ro(onset_filename)) ||
                   (onsetfile = new_aubio_sndfile_ro("sounds/woodblock.aiff")) ||
                   (onsetfile = new_aubio_sndfile_ro("../sounds/woodblock.aiff"));
   }
