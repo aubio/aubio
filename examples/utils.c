@@ -162,7 +162,7 @@ int parse_args (int argc, char **argv) {
                                 else if (strcmp(optarg,"kl") == 0) 
                                         type_onset = aubio_onset_kl;
                                 else {
-                                        debug("could not get onset type.\n");
+                                        errmsg("unknown onset type.\n");
                                         abort();
                                 }
                                 usedoubled = 0;
@@ -189,7 +189,7 @@ int parse_args (int argc, char **argv) {
                                 else if (strcmp(optarg,"fcomb") == 0) 
                                         type_pitch = aubio_pitch_fcomb;
                                 else {
-                                        debug("could not get pitch type.\n");
+                                        errmsg("unknown pitch type.\n");
                                         abort();
                                 }
                                 break;
