@@ -65,11 +65,11 @@ AC_CONFIG_HEADERS(src/config.h)
 AC_CONFIG_FILES(aubio.pc)
 
 case "${host_os}" in
-mingw*)
+*mingw*)
   mingw32_support="yes"
   AC_CHECK_HEADER(windows.h)
   ;;
-darwin*)
+*darwin*)
   dnl on macosx, cosf went to -lmx
   LDFLAGS="$LDFLAGS -lmx"
   dnl as long double doesn't sit well with -Wall -Werror
@@ -196,7 +196,7 @@ AM_CONDITIONAL(PYTHONFOUND, test "${PYTHON}" != "no")
 
 #if PYTHONFOUND
 case "${host_os}" in
-darwin*)
+*darwin*)
   SWCFLAGS="-Wno-long-double"
   SWLDFLAGS="-bundle -framework python -L${prefix}/lib/python${PYTHON_VERSION}/config -lpython${PYTHON_VERSION}"
   ;;
