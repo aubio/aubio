@@ -26,7 +26,7 @@ manpage.1: manpage.sgml
   <!ENTITY dhsection   "<manvolnum>1</manvolnum>">
   <!ENTITY dhemail     "<email>piem@altern.org</email>">
   <!ENTITY dhusername  "Paul Brossier">
-  <!ENTITY dhucpackage "<refentrytitle>AUBIO</refentrytitle>">
+  <!ENTITY dhucpackage "<refentrytitle>AUBIONOTES</refentrytitle>">
   <!ENTITY dhpackage   "aubionotes">
 
   <!ENTITY debian      "<productname>Debian</productname>">
@@ -102,29 +102,47 @@ supported.</para>
   <term><option>-o</option>
   <option>--output fileout</option></term>
   <listitem>
-<para>Save results in this file. The file will be created on the model of the
-input file. Results are marked by a very short wood-block sample.</para>
+
+  <para>Save results in this file. The file will be created on the model of the
+  input file. Results are marked by a very short wood-block sample.</para>
+
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-P</option>
+  <option>--pitch mode</option></term>
+  <listitem>
+
+  <para>The pitch detection function to run. Available functions are
+  <emphasis>mcomb</emphasis>, <emphasis>yin</emphasis>,
+  <emphasis>fcomb</emphasis> and <emphasis>schmitt</emphasis>.</para>
+
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-O</option>
+  <option>--onset mode</option></term>
+  <listitem>
+
+  <para>The onset detection function to run. Available functions are
+  <emphasis>complexdomain</emphasis>, <emphasis>hfc</emphasis>,
+  <emphasis>phase</emphasis>, <emphasis>specdiff</emphasis>,
+  <emphasis>energy</emphasis>, <emphasis>kl</emphasis> and
+  <emphasis>mkl</emphasis>. By default, both Kullback Liebler (kl) and complex
+  domain are used in parallel.</para>
+
   </listitem>
   </varlistentry>
   <varlistentry>
   <term><option>-t</option>
   <option>--threshold value</option></term>
   <listitem>
-<para>Set the threshold value for the onset peak picking. Typical values are within
-<literal>0.001</literal> and <literal>0.900</literal>. Default is <literal>0.1</literal>. The <emphasis>lower</emphasis> the <emphasis>more
-sensible</emphasis>.  Try <literal>0.3</literal> in case of over-detections.</para>
-  </listitem>
-  </varlistentry>
-  <varlistentry>
-  <term><option>-O</option>
-  <option>--onset value</option></term>
-  <listitem>
 
-  <para>The onset detection function to run. Can be one of
-  <emphasis>complexdomain</emphasis>, <emphasis>hfc</emphasis>,
-  <emphasis>phase</emphasis>, <emphasis>specdiff</emphasis>,
-  <emphasis>energy</emphasis>. By default (<emphasis>fixme</emphasis>), both
-  complex domain and HFC are used in parallel.</para>
+  <para>Set the threshold value for the onset peak picking. Typical values are
+  within <literal>0.001</literal> and <literal>0.900</literal>. Default is
+  <literal>0.1</literal>. The <emphasis>lower</emphasis> the <emphasis>more
+  sensible</emphasis>.  Try <literal>0.3</literal> in case of
+  over-detections.</para>
 
   </listitem>
   </varlistentry>
@@ -156,7 +174,7 @@ sensible</emphasis>.  Try <literal>0.3</literal> in case of over-detections.</pa
   <refsect1>
     <title>SEE ALSO</title>
 
-    <para><emphasis>aubioonset</emphasis> (1)</para>
+    <para><command>aubioonset</command> (1)</para>
 
   </refsect1>
 
