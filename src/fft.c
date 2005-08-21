@@ -34,7 +34,7 @@
 
 #if FFTW3F_SUPPORT
 #define real_t smpl_t
-#else                
+#else
 #define real_t lsmp_t
 #endif
 

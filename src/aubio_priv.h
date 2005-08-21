@@ -44,17 +44,13 @@
 #include <stdio.h>
 #endif
 
+/* must be included before fftw3.h */
 #if HAVE_COMPLEX_H
 #include <complex.h>
 #endif
-/*
-#include <complex.h>
-#include <fftw3.h>
-#define FFTW_TYPE fftwf_complex
-*/
+
 #if HAVE_FFTW3_H
 #include <fftw3.h>
-//#define FFTW_TYPE fftwf_complex
 #endif
 
 #if HAVE_MATH_H

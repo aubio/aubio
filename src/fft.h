@@ -23,10 +23,9 @@
 
 #ifndef FFT_H_
 #define FFT_H_
-/*
-// complex before fftw3 
-#include <complex.h>
-*/
+
+/* <complex.h> is not included here but only in aubio_priv.h, so that c++
+ * projects can still use their own complex definition. */
 #include <fftw3.h>
 
 #if FFTW3F_SUPPORT
