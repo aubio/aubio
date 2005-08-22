@@ -90,38 +90,23 @@ uint_t aubio_pitchyin_getpitch(fvec_t * yin) {
 /* all the above in one */
 uint_t aubio_pitchyin_getpitchfast(fvec_t * input, fvec_t * yin, smpl_t tol){
 	uint_t c=0,j,tau = 0;
-	smpl_t tmp = 0;
-	for (tau=0;tau<yin->length;tau++)
-	{
-		yin->data[c][tau] = 0.;
-	}
+	smpl_t tmp = 0., tmp2 = 0.;
+	yin->data[c][0] = 1.;
 	for (tau=1;tau<yin->length;tau++)
 	{
+		yin->data[c][tau] = 0.;
 		for (j=0;j<yin->length;j++)
 		{
 			tmp = input->data[c][j] - input->data[c][j+tau];
 			yin->data[c][tau] += SQR(tmp);
 		}
-	}
-	yin->data[c][0] = 1.;
-	tmp = 0.;
-	for (tau=1;tau<yin->length;tau++)
-	{
-		tmp += yin->data[c][tau];
-		yin->data[c][tau] *= tau/tmp;
-	}
-	/* should merge the following with above */
-        tau = 1;
-	do 
-	{
-		if(yin->data[c][tau] < tol) { 
-			while (yin->data[c][tau+1] < yin->data[c][tau]) {
-				tau++;
-			}
-			return tau;
+		tmp2 += yin->data[c][tau];
+		yin->data[c][tau] *= tau/tmp2;
+		if((yin->data[c][tau] < tol) && 
+                                (yin->data[c][tau-1] < yin->data[c][tau])) {
+			return tau-1;
 		}
-		tau++;
-	} while (tau<yin->length);
+        }
 	return 0;
 }
 
