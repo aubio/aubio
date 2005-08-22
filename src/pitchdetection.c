@@ -27,14 +27,9 @@
 #include "pitchschmitt.h"
 #include "pitchdetection.h"
 
-smpl_t freqconvpass(smpl_t f);
-smpl_t freqconvpass(smpl_t f){
-        return f;
-}
-
 typedef smpl_t (*aubio_pitchdetection_func_t)(aubio_pitchdetection_t *p, 
                 fvec_t * ibuf);
-typedef smpl_t (*aubio_pitchdetection_conv_t)(smpl_t value);
+typedef smpl_t (*aubio_pitchdetection_conv_t)(smpl_t value,uint_t srate,uint_t bufsize);
 void aubio_pitchdetection_slideblock(aubio_pitchdetection_t *p, fvec_t *ibuf);
 
 struct _aubio_pitchdetection_t {
@@ -55,6 +50,23 @@ struct _aubio_pitchdetection_t {
         aubio_pitchdetection_func_t callback;
         aubio_pitchdetection_conv_t freqconv;
 };
+
+/* convenience wrapper function for frequency unit conversions 
+ * should probably be rewritten with #defines */
+smpl_t freqconvbin(smpl_t f,uint_t srate,uint_t bufsize);
+smpl_t freqconvbin(smpl_t f,uint_t srate,uint_t bufsize){
+        return aubio_freqtobin(f,srate,bufsize);
+}
+
+smpl_t freqconvmidi(smpl_t f,uint_t srate,uint_t bufsize);
+smpl_t freqconvmidi(smpl_t f,uint_t srate,uint_t bufsize){
+        return aubio_freqtomidi(f);
+}
+
+smpl_t freqconvpass(smpl_t f,uint_t srate,uint_t bufsize);
+smpl_t freqconvpass(smpl_t f,uint_t srate,uint_t bufsize){
+        return f;
+}
 
 aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize, 
 		uint_t hopsize, 
@@ -98,15 +110,14 @@ aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize,
                         p->freqconv = freqconvpass;
                         break;
 		case aubio_pitchm_midi:
-                        p->freqconv = aubio_freqtomidi;
+                        p->freqconv = freqconvmidi;
                         break;
 		case aubio_pitchm_cent:
                         /** bug: not implemented */
-                        p->freqconv = freqconvpass;
+                        p->freqconv = freqconvmidi;
                         break;
 		case aubio_pitchm_bin:
-                        /** bug: not implemented */
-                        p->freqconv = freqconvpass;
+                        p->freqconv = freqconvbin;
                         break;
                 default:
                         break;
@@ -157,7 +168,7 @@ void aubio_pitchdetection_slideblock(aubio_pitchdetection_t *p, fvec_t *ibuf){
 }
 
 smpl_t aubio_pitchdetection(aubio_pitchdetection_t *p, fvec_t * ibuf) {
-        return p->freqconv(p->callback(p,ibuf));
+        return p->freqconv(p->callback(p,ibuf),p->srate,p->bufsize);
 }
 
 smpl_t aubio_pitchdetection_mcomb(aubio_pitchdetection_t *p, fvec_t *ibuf) {
