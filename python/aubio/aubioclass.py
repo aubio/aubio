@@ -124,21 +124,35 @@ def check_onset_mode(option, opt, value, parser):
         elif nvalue == 'dual'          :
                  setattr(parser.values, option.dest, 'dual')
         else:
-                 print "unknown detection function selected\n", usage
+                 print "unknown onset detection function selected"
                  sys.exit(1)
 
 def check_pitch_mode(option, opt, value, parser):
         nvalue = parser.rargs[0]
-        if   nvalue == 'mcomb' :
+        if   nvalue == 'mcomb'  :
                  setattr(parser.values, option.dest, aubio_pitch_mcomb)
-        elif nvalue == 'yin'           :
+        elif nvalue == 'yin'    :
                  setattr(parser.values, option.dest, aubio_pitch_yin)
-        elif nvalue == 'fcomb'         :
+        elif nvalue == 'fcomb'  :
                  setattr(parser.values, option.dest, aubio_pitch_fcomb)
-        elif nvalue == 'schmitt'      :
+        elif nvalue == 'schmitt':
                  setattr(parser.values, option.dest, aubio_pitch_schmitt)
         else:
-                 print "unknown detection function selected\n", usage
+                 print "error: unknown pitch detection function selected"
+                 sys.exit(1)
+
+def check_pitchm_mode(option, opt, value, parser):
+        nvalue = parser.rargs[0]
+        if   nvalue == 'freq'  :
+                 setattr(parser.values, option.dest, aubio_pitchm_freq)
+        elif nvalue == 'midi'  :
+                 setattr(parser.values, option.dest, aubio_pitchm_midi)
+        elif nvalue == 'cent'  :
+                 setattr(parser.values, option.dest, aubio_pitchm_cent)
+        elif nvalue == 'bin'   :
+                 setattr(parser.values, option.dest, aubio_pitchm_bin)
+        else:
+                 print "error: unknown pitch detection output selected"
                  sys.exit(1)
 
 
@@ -191,7 +205,7 @@ def cutfile(filein,slicetimes,zerothres=0.008,bufsize=1024,hopsize=512):
     filei     = sndfile(filein)
     framestep = hopsize/(filei.samplerate()+0.)
     channels  = filei.channels()
-    newname   = "%s%s%f%s%s" % (filein.split(".")[0].split("/")[-1],".",
+    newname   = "%s%s%09.5f%s%s" % (filein.split(".")[0].split("/")[-1],".",
                 frameread*framestep,".",filein.split(".")[-1])
     fileo     = sndfile(newname,model=filei)
     myvec     = fvec(hopsize,channels)
@@ -213,7 +227,7 @@ def cutfile(filein,slicetimes,zerothres=0.008,bufsize=1024,hopsize=512):
                     fromcross += 1
                     zerocross += 1
             del fileo
-            fileo = sndfile("%s%s%f%s%s" % 
+            fileo = sndfile("%s%s%09.5f%s%s" % 
                 (filein.split(".")[0].split("/")[-1],".",
                 frameread*framestep,".",filein.split(".")[-1]),model=filei)
             writesize = fileo.write(fromcross,mycopy)
@@ -260,7 +274,7 @@ def getpitch(filein,mode=aubio_pitch_mcomb,bufsize=1024,hopsize=512,omode=aubio_
         if (aubio_silence_detection(myvec(),silence)!=1):
                 mylist.append(freq)
         else: 
-                mylist.append(0)
+                mylist.append(-1.)
         frameread += 1
     return mylist
 

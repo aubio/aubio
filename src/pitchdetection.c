@@ -27,8 +27,14 @@
 #include "pitchschmitt.h"
 #include "pitchdetection.h"
 
+smpl_t freqconvpass(smpl_t f);
+smpl_t freqconvpass(smpl_t f){
+        return f;
+}
+
 typedef smpl_t (*aubio_pitchdetection_func_t)(aubio_pitchdetection_t *p, 
                 fvec_t * ibuf);
+typedef smpl_t (*aubio_pitchdetection_conv_t)(smpl_t value);
 void aubio_pitchdetection_slideblock(aubio_pitchdetection_t *p, fvec_t *ibuf);
 
 struct _aubio_pitchdetection_t {
@@ -47,6 +53,7 @@ struct _aubio_pitchdetection_t {
 	fvec_t * buf;
 	fvec_t * yin;
         aubio_pitchdetection_func_t callback;
+        aubio_pitchdetection_conv_t freqconv;
 };
 
 aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize, 
@@ -59,6 +66,7 @@ aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize,
 	aubio_pitchdetection_t *p = AUBIO_NEW(aubio_pitchdetection_t);
 	p->srate = samplerate;
 	p->type = type;
+	p->mode = mode;
 	p->bufsize = bufsize;
 	switch(p->type) {
 		case aubio_pitch_yin:
@@ -85,6 +93,24 @@ aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize,
                 default:
                         break;
 	}
+	switch(p->mode) {
+		case aubio_pitchm_freq:
+                        p->freqconv = freqconvpass;
+                        break;
+		case aubio_pitchm_midi:
+                        p->freqconv = aubio_freqtomidi;
+                        break;
+		case aubio_pitchm_cent:
+                        /** bug: not implemented */
+                        p->freqconv = freqconvpass;
+                        break;
+		case aubio_pitchm_bin:
+                        /** bug: not implemented */
+                        p->freqconv = freqconvpass;
+                        break;
+                default:
+                        break;
+        }
 	return p;
 }
 
@@ -131,7 +157,7 @@ void aubio_pitchdetection_slideblock(aubio_pitchdetection_t *p, fvec_t *ibuf){
 }
 
 smpl_t aubio_pitchdetection(aubio_pitchdetection_t *p, fvec_t * ibuf) {
-        return p->callback(p,ibuf);
+        return p->freqconv(p->callback(p,ibuf));
 }
 
 smpl_t aubio_pitchdetection_mcomb(aubio_pitchdetection_t *p, fvec_t *ibuf) {

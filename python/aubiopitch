@@ -22,11 +22,16 @@ def parse_args():
                           default=aubio_pitch_mcomb,
                           help="pitch detection mode [default=mcomb] \
                           mcomb|yin|fcomb|schmitt")
+        parser.add_option("-u","--units", action="callback", 
+                          callback=check_pitchm_mode, dest="omode",
+                          default=aubio_pitchm_freq,
+                          help="output pitch in units [default=Hz] \
+                          freq|midi|cent|bin")
         parser.add_option("-B","--bufsize",
-                          action="store", dest="bufsize", default=1024, 
+                          action="store", dest="bufsize", default=None, 
                           help="buffer size [default=1024]")
         parser.add_option("-H","--hopsize",
-                          action="store", dest="hopsize", default=512, 
+                          action="store", dest="hopsize", default=None, 
                           help="overlap size [default=512]")
         parser.add_option("-t","--threshold",
                           action="store", dest="threshold", default=0.1, 
@@ -63,12 +68,21 @@ def parse_args():
                           action="store_false", dest="verbose", default=False, 
                           help="be quiet")
         (options, args) = parser.parse_args()
+        if not options.bufsize:
+                if options.mode == aubio_pitch_yin:     options.bufsize = 1024
+                if options.mode == aubio_pitch_schmitt: options.bufsize = 2048
+                if options.mode == aubio_pitch_mcomb:   options.bufsize = 4096
+                if options.mode == aubio_pitch_fcomb:   options.bufsize = 4096 
+        if not options.hopsize:
+                options.hopsize = float(options.bufsize) / 2
         if not options.filename: 
-                 print "no file name given\n", usage
-                 sys.exit(1)
+                print "no file name given\n", usage
+                sys.exit(1)
         return options, args
 
 options, args = parse_args()
+
+#print options.bufsize, options.hopsize
 
 filename   = options.filename
 samplerate = float(sndfile(filename).samplerate())
@@ -85,9 +99,11 @@ else:             delay = 2./step
 if options.note:
         exit("not implemented yet")
 else:
-        pitch = getpitch(filename, #threshold,silence,
+        pitch = getpitch(filename, #threshold,
                 mode=options.mode,
-                bufsize=bufsize,hopsize=hopsize)
+                omode=options.omode,
+                bufsize=bufsize,hopsize=hopsize,
+                silence=silence)
 
 ## take back system delay
 #if delay != 0:
