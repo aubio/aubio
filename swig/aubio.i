@@ -121,8 +121,11 @@ smpl_t vec_quadint(fvec_t * x,uint_t pos);
 smpl_t aubio_quadfrac(smpl_t s0, smpl_t s1, smpl_t s2, smpl_t pf);
 uint_t vec_peakpick(fvec_t * input, uint_t pos);
 smpl_t aubio_bintomidi(smpl_t bin, smpl_t samplerate, smpl_t fftsize);
+smpl_t aubio_miditobin(smpl_t midi, smpl_t samplerate, smpl_t fftsize);
 smpl_t aubio_bintofreq(smpl_t bin, smpl_t samplerate, smpl_t fftsize);
+smpl_t aubio_freqtobin(smpl_t freq, smpl_t samplerate, smpl_t fftsize);
 smpl_t aubio_freqtomidi(smpl_t freq);
+smpl_t aubio_miditofreq(smpl_t midi);
 uint_t aubio_silence_detection(fvec_t * ibuf, smpl_t threshold);
 smpl_t aubio_level_detection(fvec_t * ibuf, smpl_t threshold);
 

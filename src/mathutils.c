@@ -345,12 +345,19 @@ uint_t vec_peakpick(fvec_t * onset, uint_t pos) {
 }
 
 smpl_t aubio_freqtomidi(smpl_t freq) {
-  smpl_t midi = freq/6.875;
-  /* log(freq/A-2)/log(2) */
-  midi = LOG(midi)/0.69314718055995;
-  midi *= 12;
-  midi -= 3;  
-  return midi;
+        /* log(freq/A-2)/log(2) */
+        smpl_t midi = freq/6.875;
+        midi = LOG(midi)/0.69314718055995;
+        midi *= 12;
+        midi -= 3;  
+        return midi;
+}
+
+smpl_t aubio_miditofreq(smpl_t midi) {
+        smpl_t freq = (midi+3.)/12.;
+        freq = EXP(freq*0.69314718055995);
+        freq *= 6.875;
+        return freq;
 }
 
 smpl_t aubio_bintofreq(smpl_t bin, smpl_t samplerate, smpl_t fftsize) {
@@ -358,10 +365,19 @@ smpl_t aubio_bintofreq(smpl_t bin, smpl_t samplerate, smpl_t fftsize) {
   return freq*bin;
 }
 
-
 smpl_t aubio_bintomidi(smpl_t bin, smpl_t samplerate, smpl_t fftsize) {
   smpl_t midi = aubio_bintofreq(bin,samplerate,fftsize);
   return aubio_freqtomidi(midi);
+}
+
+smpl_t aubio_freqtobin(smpl_t freq, smpl_t samplerate, smpl_t fftsize) {
+  smpl_t bin = fftsize/samplerate;
+  return freq*bin;
+}
+
+smpl_t aubio_miditobin(smpl_t midi, smpl_t samplerate, smpl_t fftsize) {
+  smpl_t freq = aubio_miditofreq(midi);
+  return aubio_freqtobin(freq,samplerate,fftsize);
 }
 
 
