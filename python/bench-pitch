@@ -1,0 +1,34 @@
+#! /usr/bin/python
+
+#from conf.aubio_benchrc import *
+from aubio.bench.config import *
+from aubio.bench.node import *
+import os
+
+datapath = "%s%s" % (DATADIR,'/pitch/isolated/piano/011pfnof')
+respath = '/var/tmp/isolated/testing'
+
+MODES = 'yin', 'mcomb', 'fcomb', 'schmitt'
+
+#        prepareresultpath
+act_on_results(mkdir,datapath,respath,filter='d')
+
+def compute_data(input,output):
+        aubiocmd = "%s%s %s%s" % \
+                ("LD_LIBRARY_PATH=",LD_LIBRARY_PATH,AUBIOHOME,"/python/aubiopitch")
+        for m in MODES:
+                cmd = "%s --input \"%s\" --mode %s --verbose --units midi > \"%s--%s.txt\"" \
+                        % (aubiocmd,input,m,output,m)
+                runcommand(cmd,debug=0)
+
+
+#        computedata
+act_on_data(compute_data,datapath,respath,suffix='',filter='f -name \'*.wav\'')
+
+#        gatherdata
+#act_on_data(my_print,datapath,respath,suffix='.txt',filter='f -name \'*.wav\'')
+#        gatherthreshold
+#        gathermodes
+#        comparediffs
+#        gatherdiffs
+
