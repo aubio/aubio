@@ -5,7 +5,7 @@
 """
 
 import sys
-from aubio.aubioclass import *
+from aubio.tasks import *
 
 usage = "usage: %s [options] -i soundfile" % sys.argv[0]
 
@@ -88,6 +88,7 @@ threshold  = float(options.threshold)
 zerothres  = float(options.zerothres)
 silence    = float(options.silence)
 mintol     = float(options.mintol)*step
+mode       = options.mode
 # default take back system delay
 if options.delay: delay = float(options.delay)
 else:             delay = 3./step
@@ -97,39 +98,44 @@ if options.beat:
         exit("not implemented yet")
 elif options.silencecut:
         onsets = getsilences(filename,hopsize=hopsize,silence=silence)
-elif options.plot:
+elif options.plot: storefunc=True
+else:              storefunc=False
+
+lonsets, lofunc = [], []
+for i in range(len(mode)):
         onsets, ofunc = getonsets(filename,threshold,silence,
-                mode=options.mode,localmin=options.localmin,
+                mode=mode[i],localmin=options.localmin,
                 derivate=options.derivate,
                 bufsize=bufsize,hopsize=hopsize,storefunc=True)
-else:
-        onsets = getonsets(filename,threshold,silence,
-                mode=options.mode,localmin=options.localmin,
-                derivate=options.derivate,
-                bufsize=bufsize,hopsize=hopsize)
 
-# take back system delay
-if delay != 0:
-        for i in range(len(onsets)):
-                onsets[i] -= delay*step
+        # take back system delay
+        if delay != 0:
+                for i in range(len(onsets)):
+                        onsets[i] -= delay*step
 
-# prune doubled 
-if mintol > 0:
-        last = -2*mintol
-        newonsets = []
-        for new in onsets:
-                if (new - last > mintol): 
-                        newonsets.append(new)
-                last = new
-        onsets = newonsets
+        # prune doubled 
+        if mintol > 0:
+                last = -2*mintol
+                newonsets = []
+                for new in onsets:
+                        if (new - last > mintol): 
+                                newonsets.append(new)
+                        last = new
+                onsets = newonsets
+
+        lonsets.append(onsets)
+        lofunc.append(ofunc)
 
 # print times in second
 if options.verbose:
-        for i in onsets: print "%f" % (i/step)
+        maxonset = 0
+        for j in range(len(mode)):
+                for i in range(len(lonsets[j])):
+                        print lonsets[j][i]/step
 
 if options.plot:
         from aubio.gnuplot import plot_onsets
-        plot_onsets(filename, onsets, ofunc, 
+        plot_onsets(filename, lonsets, lofunc, 
                 samplerate=samplerate, hopsize=hopsize, outplot=options.outplot)
 
 if options.cut:

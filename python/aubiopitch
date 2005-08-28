@@ -4,9 +4,8 @@
   it is released under the GNU/GPL license.
 """
 
-
 import sys
-from aubio.aubioclass import *
+from aubio.tasks import *
 
 usage = "usage: %s [options] -i soundfile" % sys.argv[0]
 
@@ -73,6 +72,7 @@ def parse_args():
                 if options.mode == aubio_pitch_schmitt: options.bufsize = 2048
                 if options.mode == aubio_pitch_mcomb:   options.bufsize = 4096
                 if options.mode == aubio_pitch_fcomb:   options.bufsize = 4096 
+                else: options.bufsize = 2048
         if not options.hopsize:
                 options.hopsize = float(options.bufsize) / 2
         if not options.filename: 
@@ -91,6 +91,7 @@ bufsize    = int(options.bufsize)
 step       = float(samplerate)/float(hopsize)
 threshold  = float(options.threshold)
 silence    = float(options.silence)
+mode       = options.mode
 #mintol     = float(options.mintol)*step
 # default take back system delay
 if options.delay: delay = float(options.delay)
@@ -99,11 +100,13 @@ else:             delay = 2./step
 if options.note:
         exit("not implemented yet")
 else:
-        pitch = getpitch(filename, #threshold,
-                mode=options.mode,
-                omode=options.omode,
-                bufsize=bufsize,hopsize=hopsize,
-                silence=silence)
+        pitch = []
+        for i in range(len(mode)):
+                pitch.append(getpitch(filename, #threshold,
+                        mode=mode[i],
+                        omode=options.omode,
+                        bufsize=bufsize,hopsize=hopsize,
+                        silence=silence))
 
 ## take back system delay
 #if delay != 0:
@@ -122,11 +125,13 @@ else:
 
 # print times in second
 if options.verbose:
-        for i in range(len(pitch)): 
-                print "%f\t%f" % (i/step,pitch[i])
+        for j in range(len(pitch[0])): 
+                print "%f\t" % (j/step),
+                for i in range(len(pitch)): 
+                        print "%f\t" % pitch[i][j],
+                print
 
 if options.plot:
         from aubio.gnuplot import plot_pitch
         plot_pitch(filename, pitch, 
                 samplerate=samplerate, hopsize=hopsize, outplot=options.outplot)
-
