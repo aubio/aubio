@@ -25,7 +25,7 @@
 #include "resample.h"
 
 struct _aubio_resampler_t {
-	SRC_DATA 	*proc;
+	SRC_DATA  *proc;
 	SRC_STATE *stat;
 	float ratio;
 	uint_t type;
@@ -33,8 +33,8 @@ struct _aubio_resampler_t {
 
 aubio_resampler_t * new_aubio_resampler(float ratio, uint_t type) {
 	aubio_resampler_t * s  = AUBIO_NEW(aubio_resampler_t);
-	sint_t error = 0;
-	s->stat = src_new (type, 1, (sint_t*)error) ; /* only one channel */
+	int error = 0;
+	s->stat = src_new (type, 1, &error) ; /* only one channel */
 	s->proc = AUBIO_NEW(SRC_DATA);
 	if (error) AUBIO_ERR("%s\n",src_strerror(error));
 	s->ratio = ratio;
