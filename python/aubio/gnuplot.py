@@ -241,7 +241,8 @@ def plot_pitch(filename, pitch, samplerate=44100., hopsize=512, outplot=None):
         maxpitch = 100
         for i in range(len(pitch)):
                 downtime = (hopsize/samplerate)*numarray.arange(len(pitch[i]))
-                d.append(Gnuplot.Data(downtime,pitch[i],with='lines'))
+                d.append(Gnuplot.Data(downtime,pitch[i],with='lines',
+                        title=('%d' % i)))
                 maxpitch = max(maxpitch,max(pitch[i][:])*1.1)
 
         # check if datafile exists truth
@@ -251,9 +252,12 @@ def plot_pitch(filename, pitch, samplerate=44100., hopsize=512, outplot=None):
                 t = Gnuplot.Data(0,0,with='impulses') 
         else:
                 title = "truth file plotting not implemented yet"
-                t = Gnuplot.Data(0,0,with='impulses') 
-                #times,pitch = aubio.txtfile.read_datafile(datafile)
-                #t = Gnuplot.Data(times,pitch,with='lines') 
+                values = aubio.txtfile.read_datafile(datafile)
+                time, pitch = [], []
+                for i in range(len(values)):
+                        time.append(values[i][0])
+                        pitch.append(values[i][1])
+                d.append(Gnuplot.Data(time,pitch,with='lines',title='ground truth'))
                 
                 #orig, missed, merged, expc, bad, doubled = \
                 #        onset_roc(x2,x1,tol)
@@ -300,6 +304,7 @@ def plot_pitch(filename, pitch, samplerate=44100., hopsize=512, outplot=None):
         g('set origin 0,0')
         g('set xrange [0:%f]' % max(time))
         g('set yrange [40:%f]' % maxpitch) 
+        g('set key right top')
         g.xlabel('time')
         g.ylabel('frequency (Hz)')
         g.plot(*d)
