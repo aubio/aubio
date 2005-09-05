@@ -18,7 +18,7 @@ def parse_args():
                           help="input sound file")
         parser.add_option("-m","--mode", action="callback", 
                           callback=check_pitch_mode, dest="mode", 
-                          default=aubio_pitch_mcomb,
+                          default=[aubio_pitch_mcomb],
                           help="pitch detection mode [default=mcomb] \
                           mcomb|yin|fcomb|schmitt")
         parser.add_option("-u","--units", action="callback", 
