@@ -8,7 +8,7 @@ CLEANFILES = *.pyc *.so *.o aubio_wrap.c aubiowrapper.py
 all: _aubiowrapper.so
 
 # removed -Wall -Wmissing-prototypes -Wmissing-declarations 
-CFLAGS = -DJACK_SUPPORT -Werror -Wno-char-subscripts \
+CFLAGS = -fPIC -DJACK_SUPPORT -Werror -Wno-char-subscripts \
 	-Wno-unknown-pragmas $(SWCFLAGS) \
 	-I../../src -I$(srcdir)/../../src -I$(srcdir)/../../ext \
 	-I/usr/include/python${PYTHON_VERSION} \
