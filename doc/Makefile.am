@@ -1,8 +1,11 @@
 EXTRA_DIST = devel.cfg examples.cfg user.cfg aubio.css \
 	aubionotes.sgml aubioonset.sgml \
-	aubioonset.1 aubionotes.1
+	aubiocut.sgml aubiopitch.sgml aubiotrack.sgml \
+	aubioonset.1 aubionotes.1 \
+	aubiocut.1 aubiopitch.1 aubiotrack.1
 
-man_MANS = aubionotes.1 aubioonset.1
+man_MANS = aubionotes.1 aubioonset.1 \
+	aubiocut.1 aubiopitch.1 aubiotrack.1
 CLEANFILES = $(man_MANS)
 
 all: 

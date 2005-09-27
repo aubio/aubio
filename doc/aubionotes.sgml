@@ -71,23 +71,23 @@ manpage.1: manpage.sgml
 
     <para>This manual page documents briefly the <command>&dhpackage;</command> command.</para>
 
-<para>The library <emphasis>aubio</emphasis> provides a small set of functions
-to extract events and objects from audio, from live streams or still files.
-Onsets are used to label the beginning of notes, pitches to label their
-height.</para>
+    <para><command>&dhpackage;</command> is still in an experimental state.
+    Its aim is to extract the melody and output it as a midi stream with a
+    minimal deleay. Pitch candidates are selected at each frame, onset and
+    silences are used to segment the notes.</para>
 
-<para><command>aubionotes</command> is still in an experimental state. Its aim
-is to segment notes with onsets, and label them with their detected pitch. When
-started without an input file argument (<option>-i</option>), aubionotes
-creates a jack input and a midi output. When an input file is given, it outputs
-the results on the console.</para>
+    <para>When started without an input file argument (<option>-i</option>),
+    aubionotes creates a jack input and a midi output. When an input file is
+    given, it outputs the results on the console.</para>
+
 
   </refsect1>
   <refsect1>
     <title>OPTIONS</title>
 
-<para>This program follows the usual GNU command line syntax, with long options
-starting with two dashes (`-').  A summary of options is included below.</para>
+    <para>This program follows the usual GNU command line syntax, with long
+    options starting with two dashes (`-').  A summary of options is included
+    below.</para>
 
 <variablelist>
   <varlistentry>
@@ -174,7 +174,12 @@ supported.</para>
   <refsect1>
     <title>SEE ALSO</title>
 
-    <para><command>aubioonset</command> (1)</para>
+    <para>
+    <command>aubioonset</command>(1)
+    <command>aubiotrack</command>(1)
+    <command>aubionotes</command>(1)
+    <command>aubiopitch</command>(1)
+    </para>
 
   </refsect1>
 

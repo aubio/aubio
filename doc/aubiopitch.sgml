@@ -26,8 +26,8 @@ manpage.1: manpage.sgml
   <!ENTITY dhsection   "<manvolnum>1</manvolnum>">
   <!ENTITY dhemail     "<email>piem@altern.org</email>">
   <!ENTITY dhusername  "Paul Brossier">
-  <!ENTITY dhucpackage "<refentrytitle>AUBIOONSET</refentrytitle>">
-  <!ENTITY dhpackage   "aubioonset">
+  <!ENTITY dhucpackage "<refentrytitle>AUBIOPITCH</refentrytitle>">
+  <!ENTITY dhpackage   "aubiopitch">
 
   <!ENTITY debian      "<productname>Debian</productname>">
   <!ENTITY gnu         "<acronym>GNU</acronym>">
@@ -57,12 +57,13 @@ manpage.1: manpage.sgml
   <refnamediv>
     <refname>&dhpackage;</refname>
 
-    <refpurpose>a command line tool for real time onset extraction</refpurpose>
+    <refpurpose>a command line tool for real time wav to midi
+    conversion</refpurpose>
 
   </refnamediv>
   <refsynopsisdiv>
     <cmdsynopsis>
-      <command>&dhpackage;</command>
+      <command>&dhpackage; <parameter>[options] -i soundfile</parameter></command>
     </cmdsynopsis>
   </refsynopsisdiv>
   <refsect1>
@@ -70,113 +71,147 @@ manpage.1: manpage.sgml
 
     <para>This manual page documents briefly the <command>&dhpackage;</command> command.</para>
 
-<para>The library <emphasis>aubio</emphasis> provides a small set of functions
-to extract events and objects from audio, from live streams or still files.
-Onsets are used to label the beginning of notes, pitches to label their
-height.</para>
-
-<para><command>aubionotes</command> is still in an experimental state. Its aim
-is to segment notes with onsets, and label them with their detected pitch. When
-started without an input file argument (<option>-i</option>), aubionotes
-creates a jack input and a midi output. When an input file is given, it outputs
-the results on the console.</para>
+    <para><command>aubionotes</command> attempts to label each fram of the
+    input sound file with a pitch. When no pitch candidate is found, the
+    output is 0. Results can be printed in Hertz or in MIDI pitch.  A plotting
+    module is available via the Gnuplot Python package. 4 functions are
+    available.</para>
 
   </refsect1>
   <refsect1>
     <title>OPTIONS</title>
 
-<para>This program follows the usual GNU command line syntax, with long options
-starting with two dashes (`-').  A summary of options is included below.</para>
+    <para>This program follows the usual GNU command line syntax, with long
+    options starting with two dashes (`-').  A summary of options is included
+    below.</para>
 
 <variablelist>
   <varlistentry>
   <term><option>-i</option>
   <option>--input filein</option></term>
   <listitem>
-<para>Run analysis on this audio file. Most common (uncompressed) formats are 
-supported.</para>
+  <para>input sound file</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term><option>-o</option>
-  <option>--output fileout</option></term>
+  <term><option>-m</option>
+  <option>--mode pitch_detection_mode</option></term>
   <listitem>
-
-  <para>Save results in this file. The file will be created on the model of the
-  input file. Results are marked by a very short wood-block sample.</para>
-
+  <para>pitch detection mode [default=mcomb] mcomb|yin|fcomb|schmitt</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term><option>-O</option>
-  <option>--onset mode</option></term>
+  <term><option>-u</option>
+  <option>--units unitmode</option></term>
   <listitem>
-
-  <para>The onset detection function to run. Available functions are
-  <emphasis>complexdomain</emphasis>, <emphasis>hfc</emphasis>,
-  <emphasis>phase</emphasis>, <emphasis>specdiff</emphasis>,
-  <emphasis>energy</emphasis>, <emphasis>kl</emphasis> and
-  <emphasis>mkl</emphasis>. By default, both Kullback Liebler (kl) and complex
-  domain are used in parallel.</para>
-
+  <para>output pitch in units [default=Hz] freq|midi|cent|bin</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-B</option>
+  <option>--bufsize=BUFSIZE</option></term>
+  <listitem>
+  <para>buffer size [default=1024]</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-H</option>
+  <option>--hopsize=HOPSIZE</option></term>
+  <listitem>
+  <para>overlap size [default=512]</para>
   </listitem>
   </varlistentry>
   <varlistentry>
   <term><option>-t</option>
-  <option>--threshold value</option></term>
+  <option>--threshold=THRESHOLD</option></term>
   <listitem>
-
-  <para>Set the threshold value for the onset peak picking. Typical values are
-  within <literal>0.001</literal> and <literal>0.900</literal>. Default is
-  <literal>0.1</literal>. The <emphasis>lower</emphasis> the <emphasis>more
-  sensible</emphasis>.  Try <literal>0.3</literal> in case of
-  over-detections.</para>
-
+  <para>pitch threshold (for yin) [default=0.1]</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term><option>-j</option>
-  <option>--jack</option></term>
+  <term><option>-s</option>
+  <option>--silence=SILENCE</option></term>
   <listitem>
-<para>Run in jack mode (default when started without input file) and creates a midi output.</para>
+  <para>silence threshold [default=-70]</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term><option>-h</option>
-  <option>--help</option></term>
+  <term><option>-D</option>
+  <option>--delay=DELAY</option></term>
   <listitem>
-<para>Show summary of options.</para>
+  <para>number of seconds to take back [default=system]
+  default system delay is 2*hopsize/samplerate</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-L</option>
+  <option>--localmin</option></term>
+  <listitem>
+  <para>use local minima after peak detection</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-c</option>
+  <option>--cut</option></term>
+  <listitem>
+  <para>cut input sound file at detected labels (best used with option -L)</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-n</option>
+  <option>--note</option></term>
+  <listitem>
+  <para>NOT IMPLEMENTED output notes</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-p</option>
+  <option>--plot</option></term>
+  <listitem>
+  <para>NOT IMPLEMENTED draw plot</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-O</option>
+  <option>--outplot=OUTPLOT</option></term>
+  <listitem>
+  <para>NOT IMPLEMENTED save plot to output.{ps,png}</para>
   </listitem>
   </varlistentry>
   <varlistentry>
   <term><option>-v</option>
   <option>--verbose</option></term>
   <listitem>
-<para>Show results on the console.</para>
-
+  <para>make lots of noise [default]</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-q</option>
+  <option>--quiet</option></term>
+  <listitem>
+  <para>be quiet</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-h</option>
+  <option>--help</option></term>
+  <listitem>
+  <para>show this help message and exit</para>
   </listitem>
   </varlistentry>
 </variablelist>
 
-  </refsect1>
-<refsect1>
-<title>BUGS</title>
-
-<para>For now the program has been only tested on audio signals sampled at 44.1
-kHz.</para>
 
 </refsect1>
-
   <refsect1>
     <title>SEE ALSO</title>
 
-	<para>
-	<command>aubiocut</command>(1)
-	<command>aubiotrack</command>(1)
-	<command>aubionotes</command>(1)
-	<command>aubiopitch</command>(1)
-	</para>
-
+    <para>
+    <command>aubionotes</command>(1)
+    <command>aubioonset</command>(1)
+    <command>aubiocut</command>(1)
+    <command>aubiotrack</command>(1)
+    </para>
 
   </refsect1>
 
@@ -210,6 +245,5 @@ sgml-local-catalogs:nil
 sgml-local-ecat-files:nil
 End:
 -->
-
 
 

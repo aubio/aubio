@@ -26,8 +26,8 @@ manpage.1: manpage.sgml
   <!ENTITY dhsection   "<manvolnum>1</manvolnum>">
   <!ENTITY dhemail     "<email>piem@altern.org</email>">
   <!ENTITY dhusername  "Paul Brossier">
-  <!ENTITY dhucpackage "<refentrytitle>AUBIOONSET</refentrytitle>">
-  <!ENTITY dhpackage   "aubioonset">
+  <!ENTITY dhucpackage "<refentrytitle>AUBIOTRACK</refentrytitle>">
+  <!ENTITY dhpackage   "aubiotrack">
 
   <!ENTITY debian      "<productname>Debian</productname>">
   <!ENTITY gnu         "<acronym>GNU</acronym>">
@@ -57,12 +57,12 @@ manpage.1: manpage.sgml
   <refnamediv>
     <refname>&dhpackage;</refname>
 
-    <refpurpose>a command line tool for real time onset extraction</refpurpose>
+    <refpurpose>a command line tool for real time beat tracking</refpurpose>
 
   </refnamediv>
   <refsynopsisdiv>
     <cmdsynopsis>
-      <command>&dhpackage;</command>
+      <command>&dhpackage; <parameter>[options]</parameter></command>
     </cmdsynopsis>
   </refsynopsisdiv>
   <refsect1>
@@ -70,16 +70,12 @@ manpage.1: manpage.sgml
 
     <para>This manual page documents briefly the <command>&dhpackage;</command> command.</para>
 
-<para>The library <emphasis>aubio</emphasis> provides a small set of functions
-to extract events and objects from audio, from live streams or still files.
-Onsets are used to label the beginning of notes, pitches to label their
-height.</para>
-
-<para><command>aubionotes</command> is still in an experimental state. Its aim
-is to segment notes with onsets, and label them with their detected pitch. When
-started without an input file argument (<option>-i</option>), aubionotes
-creates a jack input and a midi output. When an input file is given, it outputs
-the results on the console.</para>
+    <para><command>&dhpackage;</command> attempts to tap the beat and detect
+    beat locations in musical sounds. When started with an input file argument
+    (<option>-i</option>), aubiotrack print the beat locations in second
+    detected in the file. Without an input file is given, aubiotrack will start
+    as a jack client and play a woodblock sound at predicted beat
+    locations.</para>
 
   </refsect1>
   <refsect1>
@@ -159,6 +155,18 @@ supported.</para>
 </variablelist>
 
   </refsect1>
+  <refsect1>
+    <title>SEE ALSO</title>
+
+    <para>
+    <command>aubioonset</command>(1)
+    <command>aubiocut</command>(1)
+    <command>aubionotes</command>(1)
+    <command>aubiopitch</command>(1)
+    </para>
+
+  </refsect1>
+
 <refsect1>
 <title>BUGS</title>
 
@@ -166,19 +174,6 @@ supported.</para>
 kHz.</para>
 
 </refsect1>
-
-  <refsect1>
-    <title>SEE ALSO</title>
-
-	<para>
-	<command>aubiocut</command>(1)
-	<command>aubiotrack</command>(1)
-	<command>aubionotes</command>(1)
-	<command>aubiopitch</command>(1)
-	</para>
-
-
-  </refsect1>
 
   <refsect1>
     <title>AUTHOR</title>
