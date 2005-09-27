@@ -158,7 +158,7 @@ int aubio_midi_file_read_mthd(aubio_midi_file_t* mf)
   mf->ntracks = (unsigned) mthd[11];
   mf->ntracks += (unsigned int) (mthd[10]) << 16;
   /** \bug: smpte timing not yet implemented */ 
-  if((int)(mthd[12]) < 0){
+  if(!mthd[12]){
   /*if((mthd[12]) < 0){*/
     mf->uses_smpte = 1;
     mf->smpte_fps = -mthd[12];
