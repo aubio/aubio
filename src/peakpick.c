@@ -37,7 +37,7 @@ struct _aubio_pickpeak_t {
 	/** pre: median filter window (anti-causal part) [post-1] */
 	uint_t 	win_pre; 				
 	/**	threshfn: name or handle of fn for computing adaptive threshold [@median]  */
-	//aubio_thresholdfn_t thresholdfn;
+	aubio_thresholdfn_t thresholdfn;
 	/**	picker:   name or handle of fn for picking event times [@peakpick] */
 	aubio_pickerfn_t pickerfn;
 
@@ -47,7 +47,7 @@ struct _aubio_pickpeak_t {
 	fvec_t * onset_keep;
 	/** modified onsets */
 	fvec_t * onset_proc;
-	/* peak picked window [3] */
+	/** peak picked window [3] */
 	fvec_t * onset_peek;
 	/** scratch pad for biquad and median */
 	fvec_t * scratch;
@@ -97,7 +97,7 @@ uint_t aubio_peakpick_pimrt(fvec_t * onset,  aubio_pickpeak_t * p) {
 	/* copy to scratch */
 	for (j = 0; j < length; j++)
 		scratch->data[i][j] = onset_proc->data[i][j];
-	median = vec_median(scratch);
+	median = p->thresholdfn(scratch);
 	/* } */
 
 	/* for (i=0;i<onset->channels;i++) { */
@@ -164,7 +164,23 @@ uint_t aubio_peakpick_pimrt_wt(fvec_t * onset,  aubio_pickpeak_t * p, smpl_t* pe
 	return isonset;
 }
 
+void aubio_peakpicker_set_threshold(aubio_pickpeak_t * p, smpl_t threshold) {
+	p->threshold = threshold;
+	return;
+}
 
+smpl_t aubio_peakpicker_get_threshold(aubio_pickpeak_t * p) {
+	return p->threshold;
+}
+
+void aubio_peakpicker_set_thresholdfn(aubio_pickpeak_t * p, aubio_thresholdfn_t thresholdfn) {
+	p->thresholdfn = thresholdfn;
+	return;
+}
+
+aubio_thresholdfn_t aubio_peakpicker_get_thresholdfn(aubio_pickpeak_t * p) {
+	return (aubio_thresholdfn_t) (p->thresholdfn);
+}
 
 aubio_pickpeak_t * new_aubio_peakpicker(smpl_t threshold) {
 	aubio_pickpeak_t * t = AUBIO_NEW(aubio_pickpeak_t);
@@ -174,7 +190,7 @@ aubio_pickpeak_t * new_aubio_peakpicker(smpl_t threshold) {
 	t->win_post  = 5;
 	t->win_pre   = 1;
 
-	//t->thresholdfn = (aubio_thresholdfn_t)(vec_median); /* (vec_mean); */
+	t->thresholdfn = (aubio_thresholdfn_t)(vec_median); /* (vec_mean); */
 	t->pickerfn = (aubio_pickerfn_t)(vec_peakpick);
 
 	t->scratch = new_fvec(t->win_post+t->win_pre+1,1);

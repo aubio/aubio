@@ -40,6 +40,11 @@ uint_t aubio_peakpick_pimrt(fvec_t * DF, aubio_pickpeak_t * p);
 uint_t aubio_peakpick_pimrt_wt( fvec_t* DF, aubio_pickpeak_t* p, smpl_t* peakval );
 void del_aubio_peakpicker(aubio_pickpeak_t * p);
 
+void aubio_peakpicker_set_threshold(aubio_pickpeak_t * p, smpl_t threshold);
+smpl_t aubio_peakpicker_get_threshold(aubio_pickpeak_t * p);
+void aubio_peakpicker_set_thresholdfn(aubio_pickpeak_t * p, aubio_thresholdfn_t thresholdfn);
+aubio_thresholdfn_t aubio_peakpicker_get_thresholdfn(aubio_pickpeak_t * p);
+
 #ifdef __cplusplus
 }
 #endif
