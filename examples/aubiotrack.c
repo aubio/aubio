@@ -124,6 +124,9 @@ int main(int argc, char **argv) {
   overlap_size = 512;
   /* override default settings */
   examples_common_init(argc,argv);
+  /* configure peak picker */
+  //aubio_peakpicker_set_thresholdfn(parms,vec_mean);
+  //aubio_peakpicker_set_threshold(parms,0.);
   winlen = SQR(512)/overlap_size;
 
   dfframe = new_fvec(winlen,channels);
