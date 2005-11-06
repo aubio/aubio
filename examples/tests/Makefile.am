@@ -6,4 +6,5 @@ bin_PROGRAMS = \
 	test-fft \
 	test-mfft \
 	test-phasevoc \
-	test-phasevoc-jack
+	test-phasevoc-jack \
+	test-tss
