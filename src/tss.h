@@ -37,6 +37,8 @@ extern aubio_tss_t * new_aubio_tss(smpl_t thrs, smpl_t alfa, smpl_t beta,
 /** public deletion function */
 extern void del_aubio_tss(aubio_tss_t *s);
 
+extern void aubio_tss_set_thres(aubio_tss_t *tss, smpl_t thrs);
+
 /** split input into transient and steady states components*/
 extern void aubio_tss_do(aubio_tss_t *s, cvec_t * input, cvec_t * trans, cvec_t * stead);
 

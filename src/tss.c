@@ -30,6 +30,7 @@ struct _aubio_tss_t
   smpl_t alfa;
   smpl_t beta;
   smpl_t parm;
+  smpl_t thrsfact;
   fvec_t *theta1;
   fvec_t *theta2;
   fvec_t *oft1;
@@ -91,15 +92,21 @@ void aubio_tss_do(aubio_tss_t *o, cvec_t * input,
   }
 }
 
+void aubio_tss_set_thres(aubio_tss_t *o, smpl_t thrs){
+	o->thrs = thrs;
+  	o->parm = thrs*o->thrsfact;
+}
+
 aubio_tss_t * new_aubio_tss(smpl_t thrs, smpl_t alfa, smpl_t beta, 
     uint_t size, uint_t overlap,uint_t channels)
 {
   aubio_tss_t * o = AUBIO_NEW(aubio_tss_t);
   uint_t rsize = size/2+1;
   o->thrs = thrs;
+  o->thrsfact = TWO_PI*overlap/rsize;
   o->alfa = alfa;	
   o->beta = beta;	
-  o->parm = thrs*TWO_PI*overlap/rsize;
+  o->parm = thrs*o->thrsfact;
   o->theta1 = new_fvec(rsize,channels);
   o->theta2 = new_fvec(rsize,channels);
   o->oft1 = new_fvec(rsize,channels);
