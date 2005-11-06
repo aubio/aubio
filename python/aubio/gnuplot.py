@@ -20,79 +20,13 @@ __LICENSE__ = """\
 	 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 """
 
+
 __notesheight = 0.25
 
-from numarray import *
-import Gnuplot, Gnuplot.funcutils
-
-def plotnote(la,title=None) :
-	if la[0,:].size() == 3:
-	        d = plotnote_withends(la, plot_title=title)
-	else: 
-	    # scale data if in freq (for REF.txt files)
-	    if max(la[:,1] > 128 ):
-	        print "scaling frequency data to midi range"
-	        la[:,1] /= 6.875
-	        la[:,1] = log(la[:,1])/0.6931
-	        la[:,1] *= 12
-	        la[:,1] -= 3
-	    d = plotnote_withoutends(la, plot_title=title)
-	return d
-
-def plotnote_multi(lalist,title=None,fileout=None) :
-	d=list()
-	for i in range(len(lalist)):
-	    d.append(plotnote(lalist[i], title=title))
-	return d
-       
-
-def plotnote_withends(la,plot_title=None) :
-	d=[]
-	x_widths = array(la[:,1]-la[:,0])/2.
-	d.append(Gnuplot.Data(
-	        la[:,0]+x_widths,               # x centers
-	        la[:,2],                        # y centers
-	        x_widths,                       # x errors
-	        __notesheight*ones(len(la)),    # y errors
-	        title=plot_title,with=('boxxyerrorbars fs 3')))
-	return d
-
-
-def plotnote_withoutends(la,plot_title=None) :
-        """ bug: fails drawing last note """
-        d=[]
-        x_widths = array(la[1:,0]-la[:-1,0])/2;
-        d.append(Gnuplot.Data(
-                la[:-1,0]+x_widths,             # x centers
-                la[:-1,1],                      # y centers
-                x_widths,                       # x errors
-                __notesheight*ones(len(la)-1),  # y errors
-                title=plot_title,with=('boxxyerrorbars fs 3')))
-        return d
-
-def plotnote_do(d,fileout=None):
-    g = Gnuplot.Gnuplot(debug=1, persist=1)
-    g.gnuplot('set style fill solid border 1; \
-    set size ratio 1/6; \
-    set boxwidth 0.9 relative; \
-    set mxtics 2.5; \
-    set mytics 2.5; \
-    set xtics 5; \
-    set ytics 1; \
-    set grid xtics ytics mxtics mytics')
-
-    g.xlabel('Time (s)')
-    g.ylabel('Midi pitch')
-    # do the plot
-    #g.gnuplot('set multiplot')
-    #for i in d:
-    g.plot(d[0])
-    #g.gnuplot('set nomultiplot') 
-    if fileout != None:
-        g.hardcopy(fileout, enhanced=1, color=0)
 
 def audio_to_array(filename):
 	import aubio.aubioclass
+        import numarray
 	hopsize  = 2048
 	filei    = aubio.aubioclass.sndfile(filename)
 	framestep = 1/(filei.samplerate()+0.)
@@ -108,18 +42,19 @@ def audio_to_array(filename):
 		while (curpos < readsize):
 			data.append(myvec.get(curpos,i))
 			curpos+=1
-	time = arange(len(data))*framestep
+	time = numarray.arange(len(data))*framestep
 	return time,data
 
 def plot_audio(filenames, fileout=None, start=0, end=None, noaxis=None):
-	g = Gnuplot.Gnuplot(debug=1, persist=1)
+	g = gnuplot_init(fileout)
 	d = []
 	todraw = len(filenames)
 	xorig = 0.
 	xsize = 1./todraw
 	g.gnuplot('set multiplot;')
 	while (len(filenames)):
-                d.append(plot_audio_make(filenames.pop(0)))
+	        time,data = audio_to_array(filenames.pop(0))
+                d.append(make_audio_plot(time,data))
 		if not noaxis and todraw==1:
 			g.xlabel('Time (s)')
 			g.ylabel('Amplitude')
@@ -127,27 +62,29 @@ def plot_audio(filenames, fileout=None, start=0, end=None, noaxis=None):
 		g.gnuplot('set origin %f,0.;' % (xorig) )
 		g.gnuplot('set style data lines; \
 			set yrange [-1.:1.]; \
-			set xrange [0:%f]' % b[-1]) 
+			set xrange [0:%f]' % time[-1]) 
 		g.plot(d.pop(0))
 		xorig += 1./todraw
 	g.gnuplot('unset multiplot;')
-	if fileout != None:
-		g.hardcopy(fileout, enhanced=1, color=0)
 
 def make_audio_plot(time,data,maxpoints=10000):
 	""" create gnuplot plot from an audio file """
+	import numarray
+	import Gnuplot, Gnuplot.funcutils
         length = len(time)
 	downsample = length/maxpoints
         if downsample == 0: downsample = 1
-        x = array(time).resize(length)[0:-1:downsample]
-        y = array(data).resize(length)[0:-1:downsample]
+        x = numarray.array(time).resize(length)[0:-1:downsample]
+        y = numarray.array(data).resize(length)[0:-1:downsample]
 	return Gnuplot.Data(x,y,with='lines')
 
 
 def plot_onsets(filename, onsets, ofunc, samplerate=44100., hopsize=512, outplot=None):
+	import Gnuplot, Gnuplot.funcutils
         import aubio.txtfile
         import os.path
         import numarray
+	import re
         from aubio.onsetcompare import onset_roc
 
         d,d2 = [],[]
@@ -185,25 +122,15 @@ def plot_onsets(filename, onsets, ofunc, samplerate=44100., hopsize=512, outplot
                 title = "GD %2.3f%% FP %2.3f%%" % \
                         ((100*float(orig-missed-merged)/(orig)),
                          (100*float(bad+doubled)/(orig)))
-                #print  orig, missed, merged, expc, bad, doubled
-                #print "GD %2.8f\t"        % (100*float(orig-missed-merged)/(orig)),
-                #print "FP %2.8f\t"        % (100*float(bad+doubled)/(orig))       , 
-                #print "GD-merged %2.8f\t" % (100*float(orig-missed)/(orig))       , 
-                #print "FP-pruned %2.8f\t" % (100*float(bad)/(orig))                
 
         # audio data
         time,data = audio_to_array(filename)
         d2.append(make_audio_plot(time,data))
 
         # prepare the plot
-        g = Gnuplot.Gnuplot(debug=1, persist=1)
-        if outplot:
-                extension = outplot.split('.')[-1]
-                if extension == 'ps': extension = 'postscript'
-                g('set terminal %s' % extension)
-                g('set output \'%s\'' % outplot)
+        g = gnuplot_init(outplot)
 
-        g('set title \'%s %s\'' % (filename,title))
+        g('set title \'%s %s\'' % (re.sub('.*/','',filename),title))
 
         g('set multiplot')
 
@@ -236,6 +163,8 @@ def plot_pitch(filename, pitch, samplerate=44100., hopsize=512, outplot=None):
         import aubio.txtfile
         import os.path
         import numarray
+	import Gnuplot
+	import re
 
         d = []
         maxpitch = 100
@@ -245,7 +174,7 @@ def plot_pitch(filename, pitch, samplerate=44100., hopsize=512, outplot=None):
                         title=('%d' % i)))
                 maxpitch = max(maxpitch,max(pitch[i][:])*1.1)
 
-        # check if datafile exists truth
+        # check if ground truth exists
         datafile = filename.replace('.wav','.txt')
         if not os.path.isfile(datafile):
                 title = "truth file not found"
@@ -253,42 +182,23 @@ def plot_pitch(filename, pitch, samplerate=44100., hopsize=512, outplot=None):
         else:
                 title = "truth file plotting not implemented yet"
                 values = aubio.txtfile.read_datafile(datafile)
-                time, pitch = [], []
-                for i in range(len(values)):
-                        time.append(values[i][0])
-                        pitch.append(values[i][1])
-                d.append(Gnuplot.Data(time,pitch,with='lines',title='ground truth'))
+		if (len(datafile[0])) > 1:
+                        time, pitch = [], []
+                        for i in range(len(values)):
+                                time.append(values[i][0])
+                                pitch.append(values[i][1])
+                        d.append(Gnuplot.Data(time,pitch,with='lines',
+				title='ground truth'))
                 
-                #orig, missed, merged, expc, bad, doubled = \
-                #        onset_roc(x2,x1,tol)
-                #title = "GD %2.3f%% FP %2.3f%%" % \
-                #        ((100*float(orig-missed-merged)/(orig)),
-                #         (100*float(bad+doubled)/(orig)))
-                #print  orig, missed, merged, expc, bad, doubled
-                #print "GD %2.8f\t"        % (100*float(orig-missed-merged)/(orig)),
-                #print "FP %2.8f\t"        % (100*float(bad+doubled)/(orig))       , 
-                #print "GD-merged %2.8f\t" % (100*float(orig-missed)/(orig))       , 
-                #print "FP-pruned %2.8f\t" % (100*float(bad)/(orig))                
-
         # audio data
         time,data = audio_to_array(filename)
         f = make_audio_plot(time,data)
 
-        # prepare the plot
-        g = Gnuplot.Gnuplot(debug=1, persist=1)
-        if outplot:
-                extension = outplot.split('.')[-1]
-                if extension == 'ps': extension = 'postscript'
-                g('set terminal %s' % extension)
-                g('set output \'%s\'' % outplot)
-
-        g('set title \'%s %s\'' % (filename,title))
-
+	g = gnuplot_init(outplot)
+        g('set title \'%s %s\'' % (re.sub('.*/','',filename),title))
         g('set multiplot')
-
         # hack to align left axis
         g('set lmargin 15')
-
         # plot waveform and onsets
         g('set size 1,0.3')
         g('set origin 0,0.7')
@@ -296,9 +206,7 @@ def plot_pitch(filename, pitch, samplerate=44100., hopsize=512, outplot=None):
         g('set yrange [-1:1]') 
         g.ylabel('amplitude')
         g.plot(f)
-        
         g('unset title')
-
         # plot onset detection function
         g('set size 1,0.7')
         g('set origin 0,0')
@@ -308,5 +216,18 @@ def plot_pitch(filename, pitch, samplerate=44100., hopsize=512, outplot=None):
         g.xlabel('time')
         g.ylabel('frequency (Hz)')
         g.plot(*d)
-
         g('unset multiplot')
+
+def gnuplot_init(outplot,debug=0,persist=1):
+	import Gnuplot
+        # prepare the plot
+        g = Gnuplot.Gnuplot(debug=debug, persist=persist)
+	if outplot == 'stdout':
+                g("set terminal png fontfile 'p052023l.pfb'")
+                #g('set output \'%s\'' % outplot)
+        elif outplot:
+                extension = outplot.split('.')[-1]
+                if extension == 'ps': extension = 'postscript'
+                g('set terminal %s' % extension)
+                g('set output \'%s\'' % outplot)
+	return g
