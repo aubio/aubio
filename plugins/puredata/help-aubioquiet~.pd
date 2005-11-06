@@ -1,0 +1,20 @@
+#N canvas 225 643 515 246 10;
+#X obj 20 28 adc~;
+#X obj 19 192 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
+-1;
+#X obj 119 192 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
+-1;
+#X obj 19 156 aubioquiet~ -90;
+#X text 140 193 noisy;
+#X text 38 192 quiet;
+#X text 60 26 aubioquiet~ outputs bangs: - on its left input when a
+change to silence is detected - on its right output when a change to
+loudness is detected;
+#X text 59 82 object creation argument and right input can be used
+to set the noise threshold \, in dB. default value is -90;
+#X text 182 138 this object was written as an exercise and test. note
+that it could also easily be rewritten as a patch.;
+#X connect 0 0 3 0;
+#X connect 0 1 3 0;
+#X connect 3 0 1 0;
+#X connect 3 1 2 0;

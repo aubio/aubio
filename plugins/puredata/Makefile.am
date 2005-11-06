@@ -11,10 +11,14 @@ pddir = $(PDDIR)
 pdinstalldir = $(pddir)/extra
 
 # Automake won't accept something ending in ".pd_linux" as a library
-pdinstall_PROGRAMS = aubioonset~.pd_linux
+pdinstall_PROGRAMS = aubio.pd_linux
 
-aubioonset__pd_linux_SOURCES = \
-	aubioonset~.c
+aubio_pd_linux_SOURCES = \
+	aubio_setup.c \
+	aubioonset~.c \
+	aubiotempo~.c \
+	aubiotss~.c \
+	aubioquiet~.c
 
 pdincludedir = $(pddir)/src
 

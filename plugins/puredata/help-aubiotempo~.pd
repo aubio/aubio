@@ -1,0 +1,16 @@
+#N canvas 245 501 672 291 10;
+#X obj 50 33 adc~;
+#X obj 50 97 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
+-1;
+#X floatatom 128 29 5 0 0 0 - - -;
+#X text 180 71 the creation argument and right input can be used to
+set the detection threshold of the onset detection function. see the
+documentation for aubioonset~;
+#X obj 50 65 aubiotempo~ 0.3;
+#X text 181 26 aubiotempo~ takes an input signal and outputs a bang
+when at each detected beat location.;
+#X text 416 45;
+#X connect 0 0 4 0;
+#X connect 0 1 4 0;
+#X connect 2 0 4 1;
+#X connect 4 0 1 0;
