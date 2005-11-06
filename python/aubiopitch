@@ -107,6 +107,9 @@ else:
                         omode=options.omode,
                         bufsize=bufsize,hopsize=hopsize,
                         silence=silence))
+                for j in range(len(pitch[i])):
+                        if pitch[i][j] > 1500 or pitch[i][j] < 40:
+                                pitch[i][j] = 0.;
 
 ## take back system delay
 #if delay != 0:
