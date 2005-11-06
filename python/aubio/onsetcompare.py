@@ -25,8 +25,6 @@ it somewhat implements the Receiver Operating Statistic (ROC).
 see http://en.wikipedia.org/wiki/Receiver_operating_characteristic
 """
 
-from numarray import *
-
 def onset_roc(ltru, lexp, eps):
     """ compute differences between two lists 
           orig = hits + missed + merged 
@@ -74,6 +72,7 @@ def onset_diffs(ltru, lexp, eps):
     return l 
 
 def notes_roc (la, lb, eps):
+    from numarray import *
     """ creates a matrix of size len(la)*len(lb) then look for hit and miss
     in it within eps tolerance windows """
     gdn,fpw,fpg,fpa,fdo,fdp = 0,0,0,0,0,0
