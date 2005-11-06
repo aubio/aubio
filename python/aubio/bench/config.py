@@ -13,7 +13,8 @@ try:
         execfile(filename)
         filefound = 1
 except IOError:
-        print "no user configuration file found in", filename
+        #print "no user configuration file found in", filename
+	pass
 
 if filefound == 0:
         import sys
