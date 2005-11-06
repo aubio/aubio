@@ -11,6 +11,7 @@ AM_LDFLAGS = -L../src -L../ext @LADCCA_LIBS@ -laubioext -laubio
 bin_PROGRAMS = \
 	aubioonset \
 	aubiotrack \
+	aubioquiet \
 	aubionotes
 
 EXTRA_DIST = utils.h
@@ -19,7 +20,9 @@ EXTRA_DIST = utils.h
 aubioonset_SOURCES = aubioonset.c utils.c
 aubionotes_SOURCES = aubionotes.c utils.c
 aubiotrack_SOURCES = aubiotrack.c utils.c
+aubioquiet_SOURCES = aubioquiet.c utils.c
 
 aubioonset_LDADD = @JACK_LIBS@
 aubionotes_LDADD = @JACK_LIBS@
 aubiotrack_LDADD = @JACK_LIBS@
+aubioquiet_LDADD = @JACK_LIBS@
