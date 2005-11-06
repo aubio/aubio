@@ -16,7 +16,7 @@ def parse_args():
                           action="store", dest="filename", 
                           help="input sound file")
         parser.add_option("-m","--mode", action="callback", 
-                          callback=check_onset_mode, dest="mode", default='dual', 
+                          callback=check_onset_mode, dest="mode", default=['dual'], 
                           help="onset detection mode [default=dual] \
                           complexdomain|hfc|phase|specdiff|energy|kl|mkl|dual")
         parser.add_option("-B","--bufsize",
