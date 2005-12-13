@@ -48,5 +48,5 @@ pdinstallexp_DATA = \
 ## My kludge
 noinst_SCRIPTS = libtoolkludge
 
-EXTRA_DIST = $(pdinstall_DATA) $(noinst_SCRIPTS)
+EXTRA_DIST = $(pdinstallref_DATA) $(pdinstallexp_DATA) $(noinst_SCRIPTS)
 
