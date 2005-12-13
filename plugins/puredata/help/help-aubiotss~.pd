@@ -1,0 +1,70 @@
+#N canvas 332 424 550 443 10;
+#X msg 173 64 debug;
+#X obj 138 11 adc~;
+#X obj 183 421 dac~;
+#X floatatom 244 74 5 0 0 0 - - -;
+#X obj 221 12 hsl 256 15 0 256 0 0 empty empty empty -2 -6 0 8 -262144
+-1 -1 25200 1;
+#X obj 167 182 tgl 15 0 empty empty empty 0 -6 0 8 -262144 -1 -1 1
+1;
+#X obj 267 185 tgl 15 0 empty empty empty 0 -6 0 8 -262144 -1 -1 1
+1;
+#X text 265 161 play steady states components;
+#X text 8 160 play transients;
+#X floatatom 10 226 5 0 0 0 - - -;
+#X obj 13 182 hsl 128 15 0 127 0 0 empty empty empty -2 -6 0 8 -262144
+-1 -1 11700 1;
+#X floatatom 285 225 5 0 0 0 - - -;
+#X obj 301 186 hsl 128 15 0 127 0 0 empty empty empty -2 -6 0 8 -262144
+-1 -1 4100 1;
+#X text 236 -1 separation threshold;
+#X obj 144 96 aubiotss~ 0.015;
+#X text 265 99 transient and steady state separation;
+#X obj 244 239 *~ 1;
+#X obj 244 267 *~ 1;
+#X obj 144 240 *~ 1;
+#X obj 144 265 *~ 1;
+#X obj 285 204 / 68;
+#X obj 10 203 / 68;
+#X obj 244 51 / 256;
+#X obj 172 350 *~;
+#X obj 222 334 *~;
+#X obj 199 219 tgl 15 0 empty empty empty 0 -6 0 8 -262144 -1 -1 0
+1;
+#X text 185 204 stereo;
+#X obj 311 139 aubiotss~ 0.015;
+#X obj 299 68 * -1;
+#X obj 353 63 + 1;
+#X floatatom 412 63 5 0 0 0 - - -;
+#X connect 0 0 14 0;
+#X connect 1 0 14 0;
+#X connect 1 0 27 0;
+#X connect 1 1 14 0;
+#X connect 1 1 27 0;
+#X connect 3 0 14 1;
+#X connect 3 0 28 0;
+#X connect 4 0 22 0;
+#X connect 5 0 19 1;
+#X connect 6 0 17 1;
+#X connect 9 0 18 1;
+#X connect 10 0 21 0;
+#X connect 11 0 16 1;
+#X connect 12 0 20 0;
+#X connect 14 0 18 0;
+#X connect 16 0 17 0;
+#X connect 17 0 2 1;
+#X connect 17 0 24 0;
+#X connect 18 0 19 0;
+#X connect 19 0 2 0;
+#X connect 19 0 23 0;
+#X connect 20 0 11 0;
+#X connect 21 0 9 0;
+#X connect 22 0 3 0;
+#X connect 23 0 2 1;
+#X connect 24 0 2 0;
+#X connect 25 0 23 0;
+#X connect 25 0 24 1;
+#X connect 27 1 16 0;
+#X connect 28 0 29 0;
+#X connect 29 0 30 0;
+#X connect 30 0 27 1;

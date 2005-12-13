@@ -1,0 +1,13 @@
+#N canvas 331 521 567 331 10;
+#X obj 23 8 adc~;
+#X obj 24 46 aubioonset~;
+#X obj 24 81 pdp_v4l;
+#X obj 24 116 pdp_xv;
+#X text 110 10 audio input;
+#X text 111 46 onset detection;
+#X text 113 82 video camera;
+#X text 113 121 video screen;
+#X connect 0 0 1 0;
+#X connect 0 1 1 0;
+#X connect 1 0 2 0;
+#X connect 2 0 3 0;

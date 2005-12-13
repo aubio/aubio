@@ -9,6 +9,8 @@ pddir = $(PDDIR)
 
 ## Make and install the shared library.
 pdinstalldir = $(pddir)/extra
+pdinstallrefdir = $(pddir)/doc/5.reference
+pdinstallexpdir = $(pddir)/doc/aubio
 
 # Automake won't accept something ending in ".pd_linux" as a library
 pdinstall_PROGRAMS = aubio.pd_linux
@@ -34,9 +36,14 @@ AM_LDFLAGS = -L../../src/.libs -laubio -export_dynamic -shared
 
 ## Install the documentation.
 
-pdinstall_DATA = \
-	help-aubioonset~.pd
+pdinstallref_DATA = \
+	help/help-aubioonset~.pd \
+	help/help-aubioquiet~.pd \
+	help/help-aubiotempo~.pd \
+	help/help-aubiotss~.pd
 
+pdinstallexp_DATA = \
+	examples/onset-cam.pd
 
 ## My kludge
 noinst_SCRIPTS = libtoolkludge
