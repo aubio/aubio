@@ -88,7 +88,7 @@ dnl Check for header files
 AC_HEADER_STDC
 AC_CHECK_HEADERS([string.h stdlib.h stdio.h math.h errno.h stdarg.h unistd.h signal.h],,)
 AC_CHECK_HEADERS(complex.h,,AC_MSG_ERROR([Ouch! missing complex.h header]))
-AC_CHECK_HEADERS(fftw3.h  ,,AC_MSG_ERROR([Ouch! missing fftw3.h headeri]))
+AC_CHECK_HEADERS(fftw3.h  ,,AC_MSG_ERROR([Ouch! missing fftw3.h header]))
 
 AC_CACHE_CHECK(for C99 __VA_ARGS__ macro,
     ac_cv_varargs_macros,
