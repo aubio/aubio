@@ -67,6 +67,16 @@ def plot_audio(filenames, fileout=None, start=0, end=None, noaxis=None):
 		xorig += 1./todraw
 	g.gnuplot('unset multiplot;')
 
+def downsample_audio(time,data,maxpoints=10000):
+	""" create gnuplot plot from an audio file """
+	import numarray
+        length = len(time)
+	downsample = length/maxpoints
+        if downsample == 0: downsample = 1
+        x = numarray.array(time).resize(length)[0:-1:downsample]
+        y = numarray.array(data).resize(length)[0:-1:downsample]
+	return x,y
+
 def make_audio_plot(time,data,maxpoints=10000):
 	""" create gnuplot plot from an audio file """
 	import numarray
@@ -106,6 +116,7 @@ def plot_onsets(filename, onsets, ofunc, samplerate=44100., hopsize=512, outplot
 
         # check if datafile exists truth
         datafile = filename.replace('.wav','.txt')
+	if datafile == filename: datafile = ""
         if not os.path.isfile(datafile):
                 title = "truth file not found"
                 t = Gnuplot.Data(0,0,with='impulses') 
@@ -176,6 +187,7 @@ def plot_pitch(filename, pitch, samplerate=44100., hopsize=512, outplot=None):
 
         # check if ground truth exists
         datafile = filename.replace('.wav','.txt')
+	if datafile == filename: datafile = ""
         if not os.path.isfile(datafile):
                 title = "truth file not found"
                 t = Gnuplot.Data(0,0,with='impulses') 

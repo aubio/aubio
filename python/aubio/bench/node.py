@@ -24,6 +24,9 @@ def list_files(datapath,filter='f'):
 def list_wav_files(datapath,maxdepth=1):
 	return list_files(datapath, filter="f -name '*.wav' -maxdepth %d"%maxdepth)
 
+def list_snd_files(datapath,maxdepth=1):
+	return list_files(datapath, filter="f -name '*.wav' -o -name '*.aif' -maxdepth %d"%maxdepth)
+
 def list_dirs(datapath):
 	return list_files(datapath, filter="d")
 
