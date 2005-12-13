@@ -31,6 +31,9 @@ doc-examples:
 %.1:	%.sgml
 	docbook-to-man $< > $*.1
 
+%.html: %.sgml
+	docbook2html $< && mv index.html $*.html
+
 clean:
 	rm -rf devel user examples
 
