@@ -70,10 +70,15 @@ aubio_beattracking_t * new_aubio_beattracking(uint_t winlen,
 
         aubio_beattracking_t * p = AUBIO_NEW(aubio_beattracking_t);
         uint_t i        = 0;
-        smpl_t rayparam = 48./512. * winlen;
+	/* parameter for rayleigh weight vector - sets preferred tempo to
+	 * 120bpm [43] */
+	smpl_t rayparam = 48./512. * winlen;
         smpl_t dfwvnorm = EXP((LOG(2.0)/rayparam)*(winlen+2));
+ 	/** length over which beat period is found [128] */
         uint_t laglen   = winlen/4;
-        uint_t step     = winlen/4; /* 1.5 seconds */
+	/** step increment - both in detection function samples -i.e. 11.6ms or
+	 * 1 onset frame [128] */
+	uint_t step     = winlen/4; /* 1.5 seconds */
 
         p->rayparam = rayparam;
         p->step    = step;

@@ -30,22 +30,19 @@ extern "C" {
 typedef struct _aubio_beattracking_t aubio_beattracking_t;
 /**
  * create beat tracking object
- * \param frame size [512] 
- * \param step increment - both in detection function samples -i.e. 11.6ms or 1 onset frame [128]
- * \param length over which beat period is found [128]
- * \param parameter for rayleigh weight vector - sets preferred tempo to 120bpm [43]
- * \param channel number (not functionnal) [1] */
-aubio_beattracking_t * new_aubio_beattracking(uint_t winlen,
-                uint_t channels);
-/**
- * track the beat 
- * \param beat tracking object
- * \param current input detection function frame. already smoothed by adaptive median threshold. 
- * \param stored tactus candidate positions
+ * \param winlen: frame size [512] 
+ * \param channels number (not functionnal) [1] */
+aubio_beattracking_t * new_aubio_beattracking(uint_t winlen, uint_t channels);
+/** track the beat 
+ * \param bt beat tracking object
+ * \param dfframes current input detection function frame. already smoothed by
+ * adaptive median threshold. 
+ * \param out stored tactus candidate positions
  */
 void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframes, fvec_t * out);
 /**
  * delete beat tracker object
+ * \param p beat tracking object
  */
 void del_aubio_beattracking(aubio_beattracking_t * p);
 

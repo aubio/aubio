@@ -36,9 +36,9 @@ struct _aubio_pickpeak_t {
 	uint_t 	win_post; 			
 	/** pre: median filter window (anti-causal part) [post-1] */
 	uint_t 	win_pre; 				
-	/**	threshfn: name or handle of fn for computing adaptive threshold [@median]  */
+	/** threshfn: name or handle of fn for computing adaptive threshold [median]  */
 	aubio_thresholdfn_t thresholdfn;
-	/**	picker:   name or handle of fn for picking event times [@peakpick] */
+	/** picker: name or handle of fn for picking event times [peakpick] */
 	aubio_pickerfn_t pickerfn;
 
 	/** biquad lowpass filter */

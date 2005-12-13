@@ -42,6 +42,7 @@ aubio_resampler_t * new_aubio_resampler(float ratio, uint_t type);
 void del_aubio_resampler(aubio_resampler_t *s);
 /** 
  * resample input in output
+ * \param s resampler object
  * \param input input buffer of size N
  * \param output output buffer of size N*ratio
  */
