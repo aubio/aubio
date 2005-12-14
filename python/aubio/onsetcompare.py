@@ -72,17 +72,17 @@ def onset_diffs(ltru, lexp, eps):
     return l 
 
 def notes_roc (la, lb, eps):
-    from numarray import *
+    from numarray import transpose, add, resize 
     """ creates a matrix of size len(la)*len(lb) then look for hit and miss
     in it within eps tolerance windows """
     gdn,fpw,fpg,fpa,fdo,fdp = 0,0,0,0,0,0
     m = len(la)
     n = len(lb)
-    x =           resize(la[:,0],(n,m))
-    y = transpose(resize(lb[:,0],(m,n)))
+    x =           resize(la[:][0],(n,m))
+    y = transpose(resize(lb[:][0],(m,n)))
     teps =  (abs(x-y) <= eps[0]) 
-    x =           resize(la[:,1],(n,m))
-    y = transpose(resize(lb[:,1],(m,n)))
+    x =           resize(la[:][1],(n,m))
+    y = transpose(resize(lb[:][1],(m,n)))
     tpitc = (abs(x-y) <= eps[1]) 
     res = teps * tpitc
     res = add.reduce(res,axis=0)

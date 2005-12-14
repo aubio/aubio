@@ -21,7 +21,7 @@ def parse_args():
                           complexdomain|hfc|phase|specdiff|energy|kl|mkl|dual")
         parser.add_option("-B","--bufsize",
                           action="store", dest="bufsize", default=512, 
-                          help="buffer size [default=1024]")
+                          help="buffer size [default=512]")
         parser.add_option("-H","--hopsize",
                           action="store", dest="hopsize", default=256, 
                           help="overlap size [default=256]")
