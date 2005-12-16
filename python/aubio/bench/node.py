@@ -41,23 +41,24 @@ def mkdir(path):
         cmd = '%s%s' % ('mkdir -p ',path)
         return runcommand(cmd)
 
-def act_on_data (action,datapath,respath,suffix='.txt',filter='f',sub='\.wav$',**keywords):
+def act_on_data (action,datapath,respath=None,suffix='.txt',filter='f',sub='\.wav$',**keywords):
         """ execute action(datafile,resfile) on all files in datapath """
         dirlist = list_files(datapath,filter=filter)
         if dirlist == ['']: dirlist = []
-        respath_in_datapath = re.split(datapath, respath,maxsplit=1)[1:]
-        if(respath_in_datapath and suffix == ''): 
-                print 'error: respath in datapath and no suffix used'
-                #sys.exit(1)
+        if respath:
+		respath_in_datapath = re.split(datapath, respath,maxsplit=1)[1:]
+        	if(respath_in_datapath and suffix == ''): 
+                	print 'error: respath in datapath and no suffix used'
         for i in dirlist:
                 j = re.split(datapath, i,maxsplit=1)[1]
                 j = re.sub(sub,'',j)
                 #j = "%s%s%s"%(respath,j,suffix)
-                j = "%s%s"%(respath,j)
-		if sub != '':
-			j = re.sub(sub,suffix,j)
-		else:
-			j = "%s%s" % (j,suffix)
+		if respath:
+			j = "%s%s"%(respath,j)
+			if sub != '':
+				j = re.sub(sub,suffix,j)
+			else:
+				j = "%s%s" % (j,suffix)
                 action(i,j,**keywords)
 
 def act_on_results (action,datapath,respath,filter='d'):
@@ -72,9 +73,10 @@ def act_on_results (action,datapath,respath,filter='d'):
 
 class bench:
 
-	def __init__(self,datadir,resdir,checkres=False,checkanno=False):
+	def __init__(self,datadir,resdir=None,checkres=False,checkanno=False):
 		self.datadir = datadir
 		self.resdir = resdir
+		self.results = []
 		print "Checking data directory", self.datadir
 		self.checkdata()
 		if checkanno: self.checkanno()
