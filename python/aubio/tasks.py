@@ -1,4 +1,5 @@
 from aubioclass import * 
+from bench.node import bench
 
 def get_onset_mode(nvalue):
         """ utility function to convert a string to aubio_onsetdetection_type """
@@ -23,6 +24,21 @@ def get_onset_mode(nvalue):
 		 print "unknown onset detection function selected"
 		 sys.exit(1)
 
+def get_pitch_mode(nvalue):
+        """ utility function to convert a string to aubio_pitchdetection_type """
+	if   nvalue == 'mcomb'  :
+		 return aubio_pitch_mcomb
+	elif nvalue == 'yin'    :
+		 return aubio_pitch_yin
+	elif nvalue == 'fcomb'  :
+		 return aubio_pitch_fcomb
+	elif nvalue == 'schmitt':
+		 return aubio_pitch_schmitt
+	else:
+		 import sys
+		 print "error: unknown pitch detection function selected"
+		 sys.exit(1)
+
 def check_onset_mode(option, opt, value, parser):
         """ wrapper function to convert a list of modes to 
 		aubio_onsetdetection_type """
@@ -37,18 +53,7 @@ def check_pitch_mode(option, opt, value, parser):
         nvalues = parser.rargs[0].split(',')
         val = []
         for nvalue in nvalues:
-                if   nvalue == 'mcomb'  :
-                         val.append(aubio_pitch_mcomb)
-                elif nvalue == 'yin'    :
-                         val.append(aubio_pitch_yin)
-                elif nvalue == 'fcomb'  :
-                         val.append(aubio_pitch_fcomb)
-                elif nvalue == 'schmitt':
-                         val.append(aubio_pitch_schmitt)
-                else:
-                         import sys
-                         print "error: unknown pitch detection function selected"
-                         sys.exit(1)
+		val.append(get_pitch_mode(nvalue))
                 setattr(parser.values, option.dest, val)
 
 def check_pitchm_mode(option, opt, value, parser):
@@ -166,6 +171,7 @@ def getsilences(filein,hopsize=512,silence=-70):
         frameread += 1
     return mylist
 
+
 def getpitch(filein,mode=aubio_pitch_mcomb,bufsize=1024,hopsize=512,omode=aubio_pitchm_freq,
         samplerate=44100.,silence=-70):
     frameread = 0
@@ -187,4 +193,106 @@ def getpitch(filein,mode=aubio_pitch_mcomb,bufsize=1024,hopsize=512,omode=aubio_
                 mylist.append(-1.)
         frameread += 1
     return mylist
+
+
+class taskparams:
+	""" default parameters for task classes """
+	def __init__(self,input=None,output=None):
+		self.silence = -70
+		self.derivate = False
+		self.localmin = False
+		self.bufsize = 512
+		self.hopsize = 256
+		self.samplerate = 44100
+		self.tol = 0.05
+		self.step = float(self.hopsize)/float(self.samplerate)
+		self.threshold = 0.1
+		self.mode = 'yin'
+		self.omode = aubio_pitchm_freq
+
+class task(taskparams):
+	def __init__(self,input,output=None,params=None):
+		""" open the input file and initialize default argument """
+		if params == None: self.params = taskparams()
+		else: self.params = params
+		self.input     = input
+		self.filei     = sndfile(self.input)
+		self.srate     = self.filei.samplerate()
+		self.channels  = self.filei.channels()
+		self.output    = output
+	def compute_step(self):
+		pass
+	def compute_all(self):
+		""" Compute data """
+    		mylist    = []
+		while(self.readsize==self.params.hopsize):
+			mylist.append(self())
+    		return mylist
+
+	def eval(self,results):
+		""" Eval data """
+		pass
+
+	def plot(self):
+		""" Plot data """
+		pass
+
+class taskpitch(task):
+	#def __init__(self,input,output): 
+	#	pass
+	#	task.__init__(self,input)
+	#	#taskparams.__init__(self)
+	def __init__(self,input,params=None):
+		task.__init__(self,input,params=params)
+		self.myvec     = fvec(self.params.hopsize,self.channels)
+		self.frameread = 0
+		self.readsize  = self.params.hopsize
+		self.pitchdet  = pitchdetection(mode=get_pitch_mode(self.params.mode),
+			bufsize=self.params.bufsize,
+			hopsize=self.params.hopsize,
+			channels=self.channels,
+			samplerate=self.srate,
+			omode=self.params.omode)
+
+	def __call__(self):
+		self.readsize = self.filei.read(self.params.hopsize,self.myvec)
+		freq = self.pitchdet(self.myvec)
+		#print "%.3f     %.2f" % (now,freq)
+		self.frameread += 1
+		if (aubio_silence_detection(self.myvec(),self.params.silence)!=1):
+			return freq
+		else: 
+			return -1.
+
+	def gettruth(self):
+		return float(self.input.split('.')[-2])
+		
+
+	def eval(self,results):
+		from median import short_find 
+		self.truth = self.gettruth()
+		num = 0
+		sum = 0
+		res = []
+		for i in results:
+			if i == -1: pass
+			else: 
+				res.append(i)
+				sum += i
+				num += 1
+		avg = aubio_freqtomidi(sum / float(num))
+		avgdist = self.truth - avg
+		med = aubio_freqtomidi(short_find(res,len(res)/2))
+		meddist = self.truth - med
+		return avgdist, meddist
+
+	def plot(self):
+		from aubio.gnuplot import plot_pitch
+		plot_pitch(self.input, 
+			pitch, 
+			samplerate=samplerate, 
+			hopsize=self.params.hopsize, 
+			outplot=options.outplot)
+
+
 

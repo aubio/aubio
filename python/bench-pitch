@@ -1,34 +1,56 @@
 #! /usr/bin/python
 
-#from conf.aubio_benchrc import *
-from aubio.bench.config import *
 from aubio.bench.node import *
-import os
+from aubio.tasks import *
 
-datapath = "%s%s" % (DATADIR,'/pitch/isolated/piano/011pfnof')
-respath = '/var/tmp/isolated/testing'
+class benchpitch(bench):
+	
+	def compute_file(self,input,output):
+		filetask = self.task(input,params=self.params)
+		computed_data = filetask.compute_all()
+		results = filetask.eval(computed_data)
+		self.results.append(results)
+		truth = filetask.gettruth()
+		#print input, results, results - float(input.split('.')[-2])
+		self.pretty_print((self.params.mode, truth, 
+			truth - results[0], results[0],
+			truth - results[1], results[1]))
+			
+	def compute_data(self):
+		self.orig, self.missed, self.merged, self.expc, \
+			self.bad, self.doubled = 0, 0, 0, 0, 0, 0
+		act_on_data(self.compute_file,self.datadir, \
+			suffix='',filter='f -name \'*.wav\'')
+	
+	def compute_results(self,truth):
+		for i in self.results: print i
 
-MODES = 'yin', 'mcomb', 'fcomb', 'schmitt'
+	def run_bench(self,modes=['dual']):
+		self.modes = modes
+		self.pretty_print(self.titles)
+		for mode in self.modes:
+			self.params.mode = mode
+			self.compute_data()
+			#self.compute_results()
+			#self.pretty_print(self.results)
 
-#        prepareresultpath
-act_on_results(mkdir,datapath,respath,filter='d')
+if __name__ == "__main__":
+	import sys
+	if len(sys.argv) > 1: datapath = sys.argv[1]
+	else: print "error: a path is required"; sys.exit(1)
 
-def compute_data(input,output):
-        aubiocmd = "%s%s %s%s" % \
-                ("LD_LIBRARY_PATH=",LD_LIBRARY_PATH,AUBIOHOME,"/python/aubiopitch")
-        for m in MODES:
-                cmd = "%s --input \"%s\" --mode %s --verbose --units midi > \"%s--%s.txt\"" \
-                        % (aubiocmd,input,m,output,m)
-                runcommand(cmd,debug=0)
+	modes = ['schmitt', 'yin', 'mcomb', 'fcomb']
 
+	benchpitch = benchpitch(datapath)
+	benchpitch.params = taskparams()
+	benchpitch.task = taskpitch
 
-#        computedata
-act_on_data(compute_data,datapath,respath,suffix='',filter='f -name \'*.wav\'')
+	benchpitch.titles  = [ 'mode', 'thres', 'avg', 'avgdist' ]
+	benchpitch.formats = ["%12s" , "| %6s", "| %6s", "| %6s", "| %6s", "| %6s" ]
+	try:
+		benchpitch.run_bench(modes=modes)
+	except KeyboardInterrupt:
+		print "Interrupted by user"
+		sys.exit(1)
 
-#        gatherdata
-#act_on_data(my_print,datapath,respath,suffix='.txt',filter='f -name \'*.wav\'')
-#        gatherthreshold
-#        gathermodes
-#        comparediffs
-#        gatherdiffs
-
+	sys.exit(0)
