@@ -15,17 +15,24 @@ def runcommand(cmd,debug=0):
                 print 'error:',status,output
                 print 'command returning error was',cmd
                 #sys.exit(1)
+	if output == '' or output == ['']: return
         return output 
 
-def list_files(datapath,filter='f'):
-        cmd = '%s%s%s%s' % ('find ',datapath,' -type ',filter)
+def list_files(datapath,filter='f', maxdepth = -1):
+	if maxdepth >= 0: maxstring = " -maxdepth %d " % maxdepth	
+	else: maxstring = ""
+        cmd = '%s' * 5 % ('find ',datapath,maxstring,' -type ',filter)
         return runcommand(cmd)
 
-def list_wav_files(datapath,maxdepth=1):
-	return list_files(datapath, filter="f -name '*.wav' -maxdepth %d"%maxdepth)
+def list_wav_files(datapath,maxdepth = -1):
+	return list_files(datapath, filter="f -name '*.wav'",maxdepth = maxdepth)
 
-def list_snd_files(datapath,maxdepth=1):
-	return list_files(datapath, filter="f -name '*.wav' -o -name '*.aif' -maxdepth %d"%maxdepth)
+def list_snd_files(datapath,maxdepth = -1):
+	return list_files(datapath, filter="f -name '*.wav' -o -name '*.aif'", 
+		maxdepth = maxdepth)
+
+def list_res_files(datapath,maxdepth = -1):
+	return list_files(datapath, filter="f -name '*.txt'", maxdepth = maxdepth)
 
 def list_dirs(datapath):
 	return list_files(datapath, filter="d")
@@ -62,3 +69,35 @@ def act_on_results (action,datapath,respath,filter='d'):
         for i in dirlist:
                 s = re.split(datapath, i ,maxsplit=1)[1]
                 action("%s%s%s"%(respath,'/',s))
+
+class task:
+
+	def __init__(self,datadir,resdir):
+		self.datadir = datadir
+		self.resdir = resdir
+		print "Checking data directory", self.datadir
+		self.checkdata()
+		self.checkres()
+	
+	def checkdata(self):
+		print "Listing directories in data directory",
+		self.dirlist = list_dirs(self.datadir)
+		print " (%d elements)" % len(self.dirlist)
+		#for each in self.dirlist: print each
+		print "Listing sound files in data directory",
+		self.sndlist = list_snd_files(self.datadir)
+		print " (%d elements)" % len(self.sndlist)
+		#for each in self.sndlist: print each
+		print "Listing annotations in data directory",
+		self.reslist = list_res_files(self.datadir)
+		print " (%d elements)" % len(self.reslist)
+		#for each in self.reslist: print each
+		if not self.reslist or len(self.reslist) < len (self.sndlist):
+			print "ERR: not enough annotations"
+			return -1
+		else:
+			print "Found enough annotations"
+	
+	def checkres(self):
+		print "Creating results directory"
+		act_on_results(mkdir,self.datadir,self.resdir,filter='d')
