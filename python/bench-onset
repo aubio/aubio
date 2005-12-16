@@ -17,13 +17,8 @@ class onset_parameters:
 		self.threshold = 0.1
 		self.mode = 'dual'
 
-class taskonset(task):
+class benchonset(bench):
 	
-	def pretty_print(self,values):
-		for i in range(len(values)):
-			print self.formats[i] % values[i],
-		print
-
 	def compute_results(self):
 		self.P = 100*float(self.expc-self.missed-self.merged)/(self.expc-self.missed-self.merged + self.bad+self.doubled)
 		self.R = 100*float(self.expc-self.missed-self.merged)/(self.expc-self.missed-self.merged + self.missed+self.merged)
@@ -157,19 +152,19 @@ thresholds = [ 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5]
 datapath = "%s%s" % (DATADIR,'/onset/DB/PercussivePhrases/RobertRich')
 respath = '/var/tmp/DB-testings'
 
-taskonset = taskonset(datapath,respath)
+benchonset = benchonset(datapath,respath,checkres=True,checkanno=True)
 
-taskonset.params = onset_parameters()
+benchonset.params = onset_parameters()
 
-taskonset.titles = [ 'mode', 'thres', 'orig', 'expc', 'missd', 'mergd',
+benchonset.titles = [ 'mode', 'thres', 'orig', 'expc', 'missd', 'mergd',
 'bad', 'doubl', 'corrt', 'GD', 'FP', 'GD-merged', 'FP-pruned',
 'prec', 'recl', 'dist' ]
-taskonset.formats = ["%12s" , "| %6s", "| %6s", "| %6s", "| %6s", "| %6s", 
+benchonset.formats = ["%12s" , "| %6s", "| %6s", "| %6s", "| %6s", "| %6s", 
 "| %6s", "| %6s", "| %6s", "| %8s", "| %8s", "| %8s", "| %8s",
 "| %6s", "| %6s", "| %6s"] 
 
-#taskonset.run_bench(modes=modes,thresholds=thresholds)
-taskonset.auto_learn(modes=modes)
+#benchonset.run_bench(modes=modes,thresholds=thresholds)
+benchonset.auto_learn(modes=modes)
 
 #        gatherdata
 #act_on_data(my_print,datapath,respath,suffix='.txt',filter='f -name \'*.wav\'')

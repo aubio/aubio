@@ -70,14 +70,15 @@ def act_on_results (action,datapath,respath,filter='d'):
                 s = re.split(datapath, i ,maxsplit=1)[1]
                 action("%s%s%s"%(respath,'/',s))
 
-class task:
+class bench:
 
-	def __init__(self,datadir,resdir):
+	def __init__(self,datadir,resdir,checkres=False,checkanno=False):
 		self.datadir = datadir
 		self.resdir = resdir
 		print "Checking data directory", self.datadir
 		self.checkdata()
-		self.checkres()
+		if checkanno: self.checkanno()
+		if checkres: self.checkres()
 	
 	def checkdata(self):
 		print "Listing directories in data directory",
@@ -88,6 +89,8 @@ class task:
 		self.sndlist = list_snd_files(self.datadir)
 		print " (%d elements)" % len(self.sndlist)
 		#for each in self.sndlist: print each
+	
+	def checkanno(self):
 		print "Listing annotations in data directory",
 		self.reslist = list_res_files(self.datadir)
 		print " (%d elements)" % len(self.reslist)
@@ -101,3 +104,9 @@ class task:
 	def checkres(self):
 		print "Creating results directory"
 		act_on_results(mkdir,self.datadir,self.resdir,filter='d')
+
+	def pretty_print(self,values):
+		for i in range(len(values)):
+			print self.formats[i] % values[i],
+		print
+
