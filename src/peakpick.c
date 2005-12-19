@@ -115,51 +115,12 @@ uint_t aubio_peakpick_pimrt(fvec_t * onset,  aubio_pickpeak_t * p) {
 /** function added by Miguel Ramirez to return the onset detection amplitude in peakval */
 uint_t aubio_peakpick_pimrt_wt(fvec_t * onset,  aubio_pickpeak_t * p, smpl_t* peakval) 
 {
-	fvec_t * onset_keep = (fvec_t *)p->onset_keep;
-	fvec_t * onset_proc = (fvec_t *)p->onset_proc;
-	fvec_t * onset_peek = (fvec_t *)p->onset_peek;
-	fvec_t * scratch    = (fvec_t *)p->scratch;
-	smpl_t mean = 0., median = 0.;
-	uint_t length = p->win_post + p->win_pre + 1;
-	uint_t i = 0, j, isonset = 0;
-
-	/* store onset in onset_keep */
-	/* shift all elements but last, then write last */
-	for (j=0;j<length-1;j++) 
-	{
-		onset_keep->data[i][j] = onset_keep->data[i][j+1];
-		onset_proc->data[i][j] = onset_keep->data[i][j];
-	}
-	onset_keep->data[i][length-1] = onset->data[i][0];
-	onset_proc->data[i][length-1] = onset->data[i][0];
-
-
-	/* filter onset_proc */
-	/** \bug filtfilt calculated post+pre times should be only once !? */
-
-	aubio_biquad_do_filtfilt(p->biquad,onset_proc,scratch);
-		
-	/* calculate mean and median for onset_proc */
-
-	mean = vec_mean(onset_proc);
-	/* copy to scratch */
-	for (j = 0; j < length; j++)
-		scratch->data[i][j] = onset_proc->data[i][j];
-	median = vec_median(scratch);
-
-	/* shift peek array */
-	for (j=0;j<3-1;j++) 
-		onset_peek->data[i][j] = onset_peek->data[i][j+1];
-	/* calculate new peek value */
-	
-	onset_peek->data[i][2] = 
-		onset_proc->data[i][p->win_post] - median - mean * p->threshold;
-	
-	isonset = (p->pickerfn)(onset_peek,1);
+	uint_t i = 0, isonset = 0;
+	isonset = aubio_peakpick_pimrt(onset,p);
 
 	//if ( isonset && peakval != NULL )
 	if ( peakval != NULL )
-		*peakval = onset_peek->data[i][1];
+		*peakval = p->onset_peek->data[i][1];
 
 	return isonset;
 }
