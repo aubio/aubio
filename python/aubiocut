@@ -15,8 +15,8 @@ def parse_args():
         parser.add_option("-i","--input",
                           action="store", dest="filename", 
                           help="input sound file")
-        parser.add_option("-m","--mode", action="callback", 
-                          callback=check_onset_mode, dest="mode", default=['dual'], 
+        parser.add_option("-m","--mode", 
+			  action="store", dest="mode", default=['dual'], 
                           help="onset detection mode [default=dual] \
                           complexdomain|hfc|phase|specdiff|energy|kl|mkl|dual")
         parser.add_option("-B","--bufsize",
@@ -80,45 +80,50 @@ def parse_args():
 options, args = parse_args()
 
 filename   = options.filename
-samplerate = float(sndfile(filename).samplerate())
-hopsize    = int(options.hopsize)
-bufsize    = int(options.bufsize)
-step       = float(samplerate)/float(hopsize)
-threshold  = float(options.threshold)
-zerothres  = float(options.zerothres)
-silence    = float(options.silence)
-mintol     = float(options.mintol)*step
-mode       = options.mode
+params = taskparams()
+params.hopsize    = int(options.hopsize)
+params.bufsize    = int(options.bufsize)
+params.threshold  = float(options.threshold)
+params.zerothres  = float(options.zerothres)
+params.silence    = float(options.silence)
+params.mintol     = float(options.mintol)
 # default take back system delay
 if options.delay: delay = float(options.delay)
-else:             delay = 3./step
+else:             delay = 3./params.step
 
 if options.beat:
         #onsets = getbeats(filename,threshold,silence,mode=options.mode)
         exit("not implemented yet")
 elif options.silencecut:
         onsets = getsilences(filename,hopsize=hopsize,silence=silence)
-elif options.plot: storefunc=True
-else:              storefunc=False
+elif options.plot: params.storefunc=True
+else:              params.storefunc=False
 
 lonsets, lofunc = [], []
-for i in range(len(mode)):
-        onsets, ofunc = getonsets(filename,threshold,silence,
-                mode=mode[i],localmin=options.localmin,
-                derivate=options.derivate,
-                bufsize=bufsize,hopsize=hopsize,storefunc=True)
+modes = options.mode.split(',')
+for i in range(len(modes)):
+
+	params.onsetmode = modes[i] 
+	filetask = taskonset(filename,params=params)
+	onsets = filetask.compute_all()
+	ofunc = filetask.ofunc
+        #onsets, ofunc = getonsets(filename,threshold,silence,
+        #        mode=mode[i],localmin=options.localmin,
+        #        derivate=options.derivate,
+        #        bufsize=bufsize,hopsize=hopsize,storefunc=True)
 
         # take back system delay
         if delay != 0:
-                for i in range(len(onsets)):
-                        onsets[i] -= delay*step
+                for each in range(len(onsets)):
+			onsets[each] = onsets[each][0] - delay*params.step
 
         # prune doubled 
-        if mintol > 0:
-                last = -2*mintol
+	params.mintol *= params.step
+        if params.mintol > 0:
+                last = -2*params.mintol
                 newonsets = []
                 for new in onsets:
-                        if (new - last > mintol): 
+                        if (new - last > params.mintol): 
                                 newonsets.append(new)
                         last = new
                 onsets = newonsets
@@ -126,17 +131,17 @@ for i in range(len(mode)):
         lonsets.append(onsets)
         lofunc.append(ofunc)
 
-# print times in second
-if options.verbose:
-        maxonset = 0
-        for j in range(len(mode)):
-                for i in range(len(lonsets[j])):
-                        print lonsets[j][i]/step
+	# print times in second
+	if options.verbose:
+		print modes[i]
+		maxonset = 0
+		for i in range(len(onsets)):
+				print onsets[i]*params.step
 
-if options.plot:
-        from aubio.gnuplot import plot_onsets
-        plot_onsets(filename, lonsets, lofunc, 
-                samplerate=samplerate, hopsize=hopsize, outplot=options.outplot)
+	if options.plot:
+		filetask.plot(onsets, ofunc)
+		filetask.plotplot(outplot=options.outplot)
 
 if options.cut:
-        cutfile(filename,onsets,zerothres=zerothres,bufsize=bufsize,hopsize=hopsize)
+        a = taskcut(filename,onsets,params=params)
+	a.compute_all()

@@ -5,45 +5,38 @@ from aubio.tasks import *
 
 class benchpitch(bench):
 	
-	def compute_file(self,input,output):
+	def file_exec(self,input,output):
 		filetask = self.task(input,params=self.params)
 		computed_data = filetask.compute_all()
 		results = filetask.eval(computed_data)
 		self.results.append(results)
 		truth = filetask.gettruth()
 		#print input, results, results - float(input.split('.')[-2])
-		self.pretty_print((self.params.mode, truth, 
+		self.pretty_print((self.params.pitchmode, truth, 
 			truth - results[0], results[0],
 			truth - results[1], results[1]))
 			
-	def compute_data(self):
-		self.orig, self.missed, self.merged, self.expc, \
-			self.bad, self.doubled = 0, 0, 0, 0, 0, 0
-		act_on_data(self.compute_file,self.datadir, \
-			suffix='',filter='f -name \'*.wav\'')
-	
-	def compute_results(self,truth):
-		for i in self.results: print i
-
-	def run_bench(self,modes=['dual']):
+	def run_bench(self,modes=['schmitt']):
 		self.modes = modes
 		self.pretty_print(self.titles)
 		for mode in self.modes:
-			self.params.mode = mode
-			self.compute_data()
-			#self.compute_results()
-			#self.pretty_print(self.results)
+			self.params.pitchmode = mode
+			self.dir_exec()
+			self.dir_eval()
+			self.dir_plot()
 
 if __name__ == "__main__":
 	import sys
 	if len(sys.argv) > 1: datapath = sys.argv[1]
 	else: print "error: a path is required"; sys.exit(1)
-
-	modes = ['schmitt', 'yin', 'mcomb', 'fcomb']
+	if len(sys.argv) > 2:
+		for each in sys.argv[3:-1]: print each
+	modes = ['yin', 'schmitt', 'mcomb', 'fcomb']
 
 	benchpitch = benchpitch(datapath)
 	benchpitch.params = taskparams()
 	benchpitch.task = taskpitch
+
 
 	benchpitch.titles  = [ 'mode', 'thres', 'avg', 'avgdist' ]
 	benchpitch.formats = ["%12s" , "| %6s", "| %6s", "| %6s", "| %6s", "| %6s" ]
