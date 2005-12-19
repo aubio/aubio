@@ -19,6 +19,10 @@ def runcommand(cmd,debug=0):
         return output 
 
 def list_files(datapath,filter='f', maxdepth = -1):
+	if not os.path.exists(datapath):
+		print
+		print "ERR: no directory %s were found" % datapath
+		sys.exit(1)
 	if maxdepth >= 0: maxstring = " -maxdepth %d " % maxdepth	
 	else: maxstring = ""
         cmd = '%s' * 5 % ('find ',datapath,maxstring,' -type ',filter)
@@ -27,8 +31,10 @@ def list_files(datapath,filter='f', maxdepth = -1):
 def list_wav_files(datapath,maxdepth = -1):
 	return list_files(datapath, filter="f -name '*.wav'",maxdepth = maxdepth)
 
+sndfile_filter = "f -name '*.wav' -o -name '*.aif' -o -name '*.aiff'"
+
 def list_snd_files(datapath,maxdepth = -1):
-	return list_files(datapath, filter="f -name '*.wav' -o -name '*.aif'", 
+	return list_files(datapath, filter=sndfile_filter, 
 		maxdepth = maxdepth)
 
 def list_res_files(datapath,maxdepth = -1):
@@ -72,7 +78,7 @@ def act_on_results (action,datapath,respath,filter='d'):
                 action("%s%s%s"%(respath,'/',s))
 
 class bench:
-
+	""" class to run benchmarks on directories """
 	def __init__(self,datadir,resdir=None,checkres=False,checkanno=False):
 		self.datadir = datadir
 		self.resdir = resdir
@@ -85,11 +91,20 @@ class bench:
 	def checkdata(self):
 		print "Listing directories in data directory",
 		self.dirlist = list_dirs(self.datadir)
-		print " (%d elements)" % len(self.dirlist)
-		#for each in self.dirlist: print each
+		if self.dirlist:
+			print " (%d elements)" % len(self.dirlist)
+		else:
+			print " (0 elements)"
+			print "ERR: no directory %s were found" % self.datadir
+			sys.exit(1)
 		print "Listing sound files in data directory",
 		self.sndlist = list_snd_files(self.datadir)
-		print " (%d elements)" % len(self.sndlist)
+		if self.sndlist:
+			print " (%d elements)" % len(self.sndlist)
+		else:
+			print " (0 elements)"
+			print "ERR: no sound files were found in", self.datadir
+			sys.exit(1)
 		#for each in self.sndlist: print each
 	
 	def checkanno(self):
@@ -112,3 +127,31 @@ class bench:
 			print self.formats[i] % values[i],
 		print
 
+	def dir_exec(self):
+		""" run file_exec on every input file """
+		self.orig, self.missed, self.merged, self.expc, \
+			self.bad, self.doubled = 0, 0, 0, 0, 0, 0
+		act_on_data(self.file_exec,self.datadir,self.resdir, \
+			suffix='',filter=sndfile_filter)
+	
+	def dir_eval(self):
+		pass
+
+	def file_exec(self):
+		pass
+	
+	def file_eval(self):
+		pass
+	
+	def file_plot(self):
+		pass
+
+	def dir_plot(self):
+		pass
+	
+	def run_bench(self):
+		for mode in self.modes:
+			self.params.mode = mode
+			self.dir_exec()
+			self.dir_eval()
+			self.dir_plot()
