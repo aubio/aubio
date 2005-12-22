@@ -195,7 +195,7 @@ def getpitch(filein,mode=aubio_pitch_mcomb,bufsize=1024,hopsize=512,omode=aubio_
     return mylist
 
 
-class taskparams:
+class taskparams(object):
 	""" default parameters for task classes """
 	def __init__(self,input=None,output=None):
 		self.silence = -70
@@ -288,8 +288,12 @@ class taskpitch(task):
 
 	def gettruth(self):
 		""" big hack to extract midi note from /path/to/file.<midinote>.wav """
-		return float(self.input.split('.')[-2])
-		
+		floatpit = self.input.split('.')[-2]
+		try:
+			return float(floatpit)
+		except ValueError:
+			print "ERR: no truth file found"
+			return 0
 
 	def eval(self,results):
 		from median import short_find 
@@ -339,7 +343,7 @@ class taskonset(task):
 		self.d,self.d2 = [],[]
 		self.maxofunc = 0
 		if self.params.localmin:
-			ovalist   = [0., 0., 0., 0., 0.]
+			self.ovalist   = [0., 0., 0., 0., 0.]
 
 	def __call__(self):
 		task.__call__(self)
@@ -349,9 +353,9 @@ class taskonset(task):
                 if self.params.storefunc:
                         self.ofunc.append(val)
                 if self.params.localmin:
-                        if val > 0: ovalist.append(val)
-                        else: ovalist.append(0)
-                        ovalist.pop(0)
+                        if val > 0: self.ovalist.append(val)
+                        else: self.ovalist.append(0)
+                        self.ovalist.pop(0)
                 if (isonset == 1):
                         if self.params.localmin:
                                 i=len(self.ovalist)-1
@@ -365,14 +369,25 @@ class taskonset(task):
                                 now = 0
 			return now, val 
 
+	def gettruth(self):
+		from os.path import isfile
+		ftru = '.'.join(self.input.split('.')[:-1])
+		ftru = '.'.join((ftru,'txt'))
+		if isfile(ftru): return ftru
+		else:		 return
+
 	def eval(self,lres):
 		from txtfile import read_datafile 
 		from onsetcompare import onset_roc
 		amode = 'roc'
 		vmode = 'verbose'
 		vmode = ''
+		ftru = self.gettruth()
+		if not ftru:
+			print "ERR: no truth file found"
+			return
+		ltru = read_datafile(ftru,depth=0)
 		for i in range(len(lres)): lres[i] = lres[i][0]*self.params.step
-		ltru = read_datafile(self.input.replace('.wav','.txt'),depth=0)
 		if vmode=='verbose':
 			print "Running with mode %s" % self.params.mode, 
 			print " and threshold %f" % self.params.threshold, 
@@ -502,3 +517,39 @@ class taskcut(task):
 			writesize = self.fileo.write(fromcross,self.mycopy)
 		else:
 			writesize = self.fileo.write(self.readsize,self.myvec)
+
+class taskbeat(taskonset):
+	def __init__(self,input,params=None,output=None):
+		""" open the input file and initialize arguments 
+		parameters should be set *before* calling this method.
+		"""
+		taskonset.__init__(self,input,output=None,params=params)
+		self.btwinlen  = 512**2/self.params.hopsize
+		self.btstep    = self.btwinlen/4
+		self.btoutput  = fvec(self.btstep,self.channels)
+		self.dfframe   = fvec(self.btwinlen,self.channels)
+		self.bt	       = beattracking(self.btwinlen,self.channels)
+		self.pos2      = 0
+
+	def __call__(self):
+		taskonset.__call__(self)
+		# write to current file
+                if self.pos2 == self.btstep - 1 : 
+                        self.bt.do(self.dfframe,self.btoutput)
+                        for i in range (self.btwinlen - self.btstep):
+                                self.dfframe.set(self.dfframe.get(i+self.btstep,0),i,0) 
+                        for i in range(self.btwinlen - self.btstep, self.btwinlen): 
+                                self.dfframe.set(0,i,0)
+                        self.pos2 = -1;
+                self.pos2 += 1
+		val = self.opick.pp.getval()
+		self.dfframe.set(val,self.btwinlen - self.btstep + self.pos2,0)
+                i=0
+                for i in range(1,int( self.btoutput.get(0,0) ) ):
+                        if self.pos2 == self.btoutput.get(i,0) and \
+				aubio_silence_detection(self.myvec(),
+					self.params.silence)!=1: 
+				return self.frameread, 0 
+	
+	def eval(self,results):
+		pass
