@@ -77,11 +77,24 @@ def act_on_results (action,datapath,respath,filter='d'):
                 s = re.split(datapath, i ,maxsplit=1)[1]
                 action("%s%s%s"%(respath,'/',s))
 
+def act_on_files (action,listfiles,listres=None,suffix='.txt',filter='f',sub='\.wav$',**keywords):
+        """ execute action(respath) an all subdirectories in respath """
+        if listres and len(listfiles) <= len(listres): 
+		for i in listfiles:
+			action(i,listres[i],**keywords)
+        else:
+		for i in listfiles:
+                	action(i,None,**keywords)
+
 class bench:
 	""" class to run benchmarks on directories """
 	def __init__(self,datadir,resdir=None,checkres=False,checkanno=False):
 		self.datadir = datadir
+		# path to write results path to
 		self.resdir = resdir
+		# list of annotation files
+		self.reslist = []
+		# list used to gather results
 		self.results = []
 		print "Checking data directory", self.datadir
 		self.checkdata()
@@ -89,8 +102,17 @@ class bench:
 		if checkres: self.checkres()
 	
 	def checkdata(self):
+		if os.path.isfile(self.datadir):
+			self.dirlist = os.path.dirname(self.datadir)
+			print "DBG: found a file"
+		elif os.path.isdir(self.datadir):
+			self.dirlist = list_dirs(self.datadir)
+			print "DBG: found a dir"
+		# allow dir* matching through find commands?
+		else:
+			print "ERR: path not understood"
+			sys.exit(1)
 		print "Listing directories in data directory",
-		self.dirlist = list_dirs(self.datadir)
 		if self.dirlist:
 			print " (%d elements)" % len(self.dirlist)
 		else:
@@ -105,7 +127,6 @@ class bench:
 			print " (0 elements)"
 			print "ERR: no sound files were found in", self.datadir
 			sys.exit(1)
-		#for each in self.sndlist: print each
 	
 	def checkanno(self):
 		print "Listing annotations in data directory",
@@ -131,7 +152,7 @@ class bench:
 		""" run file_exec on every input file """
 		self.orig, self.missed, self.merged, self.expc, \
 			self.bad, self.doubled = 0, 0, 0, 0, 0, 0
-		act_on_data(self.file_exec,self.datadir,self.resdir, \
+		act_on_files(self.file_exec,self.sndlist,self.reslist, \
 			suffix='',filter=sndfile_filter)
 	
 	def dir_eval(self):
