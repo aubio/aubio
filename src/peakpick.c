@@ -112,15 +112,24 @@ uint_t aubio_peakpick_pimrt(fvec_t * onset,  aubio_pickpeak_t * p) {
 	return (p->pickerfn)(onset_peek,1);
 }
 
+/** this method returns the current value in the pick peaking buffer
+ * after smoothing
+ */
+smpl_t aubio_peakpick_pimrt_getval(aubio_pickpeak_t * p) 
+{
+	uint_t i = 0;
+	return p->onset_peek->data[i][1];
+}
+
 /** function added by Miguel Ramirez to return the onset detection amplitude in peakval */
 uint_t aubio_peakpick_pimrt_wt(fvec_t * onset,  aubio_pickpeak_t * p, smpl_t* peakval) 
 {
-	uint_t i = 0, isonset = 0;
+	uint_t isonset = 0;
 	isonset = aubio_peakpick_pimrt(onset,p);
 
 	//if ( isonset && peakval != NULL )
 	if ( peakval != NULL )
-		*peakval = p->onset_peek->data[i][1];
+		*peakval = aubio_peakpick_pimrt_getval(p); 
 
 	return isonset;
 }
