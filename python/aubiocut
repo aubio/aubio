@@ -16,7 +16,7 @@ def parse_args():
                           action="store", dest="filename", 
                           help="input sound file")
         parser.add_option("-m","--mode", 
-			  action="store", dest="mode", default=['dual'], 
+			  action="store", dest="mode", default='dual', 
                           help="onset detection mode [default=dual] \
                           complexdomain|hfc|phase|specdiff|energy|kl|mkl|dual")
         parser.add_option("-B","--bufsize",
@@ -91,20 +91,22 @@ params.mintol     = float(options.mintol)
 if options.delay: delay = float(options.delay)
 else:             delay = 3./params.step
 
-if options.beat:
-        #onsets = getbeats(filename,threshold,silence,mode=options.mode)
-        exit("not implemented yet")
-elif options.silencecut:
-        onsets = getsilences(filename,hopsize=hopsize,silence=silence)
-elif options.plot: params.storefunc=True
-else:              params.storefunc=False
 
 lonsets, lofunc = [], []
 modes = options.mode.split(',')
 for i in range(len(modes)):
 
 	params.onsetmode = modes[i] 
-	filetask = taskonset(filename,params=params)
+	dotask = taskonset
+	if options.beat:
+		dotask = taskbeat
+	elif options.silencecut:
+		dotask = tasksilence
+	elif options.plot: 
+		params.storefunc=True
+	else:              
+		params.storefunc=False
+	filetask = dotask(filename,params=params)
 	onsets = filetask.compute_all()
 	ofunc = filetask.ofunc
         #onsets, ofunc = getonsets(filename,threshold,silence,
@@ -133,8 +135,7 @@ for i in range(len(modes)):
 
 	# print times in second
 	if options.verbose:
-		print modes[i]
-		maxonset = 0
+		#print modes[i]
 		for i in range(len(onsets)):
 				print onsets[i]*params.step
 
