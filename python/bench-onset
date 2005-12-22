@@ -97,6 +97,38 @@ class benchonset(bench):
 				if topt == lesst:
 					lesst /= 2.
 
+	def auto_learn2(self,modes=['dual'],thresholds=[0.1,1.0]):
+		""" simple dichotomia like algorithm to optimise threshold """
+		self.modes = modes
+		self.pretty_print(self.titles)
+		for mode in self.modes:
+			steps = 10 
+			step = thresholds[1]
+			curt = thresholds[0] 
+			self.params.onsetmode = mode
+
+			self.params.threshold = curt 
+			self.dir_exec()
+			self.dir_eval()
+			self.pretty_print(self.values)
+			curexp = self.expc
+
+			for i in range(steps):
+				if curexp < self.orig:
+					#print "we found at most less onsets than annotated"
+					self.params.threshold -= step 
+					step /= 2
+				elif curexp > self.orig:
+					#print "we found more onsets than annotated"
+					self.params.threshold += step 
+					step /= 2
+				self.dir_exec()
+				self.dir_eval()
+				curexp = self.expc
+				self.pretty_print(self.values)
+				if self.orig == 100.0 or self.orig == self.expc: 
+					print "assuming we converged, stopping" 
+					break
 
 if __name__ == "__main__":
 	import sys
@@ -122,7 +154,7 @@ if __name__ == "__main__":
 	"| %6s", "| %6s", "| %6s"] 
 
 	try:
-		benchonset.auto_learn(modes=modes)
+		benchonset.auto_learn2(modes=modes)
 		#benchonset.run_bench(modes=modes)
 	except KeyboardInterrupt:
 		sys.exit(1)
