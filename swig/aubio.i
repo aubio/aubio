@@ -223,6 +223,7 @@ void del_aubio_pitchfcomb (aubio_pitchfcomb_t *p);
 /* peakpicker */
 aubio_pickpeak_t * new_aubio_peakpicker(smpl_t threshold);
 uint_t aubio_peakpick_pimrt(fvec_t * DF, aubio_pickpeak_t * p);
+smpl_t aubio_peakpick_pimrt_getval(aubio_pickpeak_t* p);
 uint_t aubio_peakpick_pimrt_wt( fvec_t* DF, aubio_pickpeak_t* p, smpl_t* peakval );
 void del_aubio_peakpicker(aubio_pickpeak_t * p);
 
@@ -231,6 +232,12 @@ aubio_tss_t * new_aubio_tss(smpl_t thrs, smpl_t alfa, smpl_t beta,
     uint_t size, uint_t overlap,uint_t channels);
 void del_aubio_tss(aubio_tss_t *s);
 void aubio_tss_do(aubio_tss_t *s, cvec_t * input, cvec_t * trans, cvec_t * stead);
+
+/* beattracking */
+aubio_beattracking_t * new_aubio_beattracking(uint_t winlen, uint_t channels);
+void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframes, fvec_t * out);
+void del_aubio_beattracking(aubio_beattracking_t * p);
+
 
 
 /* jack */
