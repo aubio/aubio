@@ -70,6 +70,8 @@ class peakpick:
         self.pp = new_aubio_peakpicker(threshold)
     def do(self,fv):
         return aubio_peakpick_pimrt(fv(),self.pp)
+    def getval(self):
+        return aubio_peakpick_pimrt_getval(self.pp)
     def __del__(self):
         del_aubio_peakpicker(self.pp)
 
@@ -126,3 +128,13 @@ class filter:
         pass
     def __call__(self,myvec):
         aubio_filter_do(self.filter,myvec())
+
+class beattracking:
+    """ class for aubio_beattracking """
+    def __init__(self,winlen,channels):
+        self.p = new_aubio_beattracking(winlen,channels)
+    def do(self,dfframe,out):
+        return aubio_beattracking_do(self.p,dfframe(),out())
+    def __del__(self):
+        del_aubio_beattracking(self.p)
+
