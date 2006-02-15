@@ -70,7 +70,7 @@ def parse_args():
         # to be implemented
         parser.add_option("-b","--beat",
                           action="store_true", dest="beat", default=False,
-                          help="NOT IMPLEMENTED output beat locations")
+                          help="output beat locations")
         (options, args) = parser.parse_args()
         if not options.filename: 
                  print "no file name given\n", usage

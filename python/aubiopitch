@@ -16,9 +16,8 @@ def parse_args():
         parser.add_option("-i","--input",
                           action="store", dest="filename", 
                           help="input sound file")
-        parser.add_option("-m","--mode", action="callback", 
-                          callback=check_pitch_mode, dest="mode", 
-                          default=[aubio_pitch_mcomb],
+        parser.add_option("-m","--mode", 
+			  action="store", dest="mode", default='mcomb',
                           help="pitch detection mode [default=mcomb] \
                           mcomb|yin|fcomb|schmitt")
         parser.add_option("-u","--units", action="callback", 
@@ -85,56 +84,43 @@ options, args = parse_args()
 #print options.bufsize, options.hopsize
 
 filename   = options.filename
-samplerate = float(sndfile(filename).samplerate())
-hopsize    = int(options.hopsize)
-bufsize    = int(options.bufsize)
-step       = float(samplerate)/float(hopsize)
-threshold  = float(options.threshold)
-silence    = float(options.silence)
-mode       = options.mode
+params = taskparams()
+#params.samplerate = float(sndfile(filename).samplerate())
+params.hopsize    = int(options.hopsize)
+params.bufsize    = int(options.bufsize)
+#params.step       = float(samplerate)/float(hopsize)
+params.threshold  = float(options.threshold)
+params.silence    = float(options.silence)
 #mintol     = float(options.mintol)*step
 # default take back system delay
 if options.delay: delay = float(options.delay)
-else:             delay = 2./step
+else:             delay = 2./params.step
 
 if options.note:
         exit("not implemented yet")
-else:
-        pitch = []
-        for i in range(len(mode)):
-                pitch.append(getpitch(filename, #threshold,
-                        mode=mode[i],
-                        omode=options.omode,
-                        bufsize=bufsize,hopsize=hopsize,
-                        silence=silence))
-                for j in range(len(pitch[i])):
-                        if pitch[i][j] > 1500 or pitch[i][j] < 40:
-                                pitch[i][j] = 0.;
 
-## take back system delay
-#if delay != 0:
-#        for i in range(len(onsets)):
-#                onsets[i] -= delay*step
-#
-## prune doubled 
-#if mintol > 0:
-#        last = -2*mintol
-#        newonsets = []
-#        for new in onsets:
-#                if (new - last > mintol): 
-#                        newonsets.append(new)
-#                last = new
-#        onsets = newonsets
 
-# print times in second
-if options.verbose:
-        for j in range(len(pitch[0])): 
-                print "%f\t" % (j/step),
-                for i in range(len(pitch)): 
-                        print "%f\t" % pitch[i][j],
-                print
+pitch = []
+modes = options.mode.split(',')
+for i in range(len(modes)):
+	params.pitchmode  = modes[i]
+	dotask = taskpitch
+	#pitch.append(getpitch(filename, #threshold,
+	#	mode=mode[i],
+	#	omode=options.omode,
+	#	bufsize=bufsize,hopsize=hopsize,
+	#	silence=silence))
+	filetask = dotask(filename,params=params)
+	pitch.append(filetask.compute_all())
+	for j in range(len(pitch[i])):
+		if pitch[i][j] > 10000 or pitch[i][j] < 40:
+			pitch[i][j] = 0.;
 
-if options.plot:
-        from aubio.gnuplot import plot_pitch
-        plot_pitch(filename, pitch, 
-                samplerate=samplerate, hopsize=hopsize, outplot=options.outplot)
+	if options.verbose:
+		for j in range(len(pitch[i])): 
+			print "%f\t" % (j/params.step),
+			print "%f\t" % pitch[i][j],
+			print
+
+	if options.plot:
+		filetask.plot(pitch,outplot=options.outplot)
