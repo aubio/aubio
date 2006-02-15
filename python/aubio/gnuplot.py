@@ -180,6 +180,8 @@ def plot_pitch(filename, pitch, samplerate=44100., hopsize=512, outplot=None):
         d = []
         maxpitch = 100
         for i in range(len(pitch)):
+                #if len(pitch[i]) == 0: pitch[i] = [0.];
+
                 downtime = (hopsize/samplerate)*numarray.arange(len(pitch[i]))
                 d.append(Gnuplot.Data(downtime,pitch[i],with='lines',
                         title=('%d' % i)))

@@ -20,7 +20,8 @@ aubio_pd_linux_SOURCES = \
 	aubioonset~.c \
 	aubiotempo~.c \
 	aubiotss~.c \
-	aubioquiet~.c
+	aubioquiet~.c \
+	aubiopitch~.c
 
 pdincludedir = $(pddir)/src
 
@@ -40,7 +41,8 @@ pdinstallref_DATA = \
 	help/help-aubioonset~.pd \
 	help/help-aubioquiet~.pd \
 	help/help-aubiotempo~.pd \
-	help/help-aubiotss~.pd
+	help/help-aubiotss~.pd \
+	help/help-aubiopitch~.pd
 
 pdinstallexp_DATA = \
 	examples/onset-cam.pd

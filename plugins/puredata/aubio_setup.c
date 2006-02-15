@@ -8,6 +8,7 @@ extern void aubioonset_tilde_setup (void);
 extern void aubiotempo_tilde_setup (void);
 extern void aubiotss_tilde_setup (void);
 extern void aubioquiet_tilde_setup (void);
+extern void aubiopitch_tilde_setup (void);
 
 void aubio_setup (void)
 {
@@ -16,4 +17,5 @@ void aubio_setup (void)
 	aubiotempo_tilde_setup();
 	aubiotss_tilde_setup();
 	aubioquiet_tilde_setup();
+	aubiopitch_tilde_setup();
 }
