@@ -79,6 +79,7 @@ def onset_rocloc(ltru, lexp, eps):
     """
     orig, expc = len(ltru), len(lexp)
     l = []
+    labs = []
     mean = 0
     # if lexp is empty
     if expc == 0 : return orig,orig,0,0,0,0,l,mean
@@ -97,11 +98,12 @@ def onset_rocloc(ltru, lexp, eps):
             if abs(x-y) <= eps:    
 	    	correspond += 1
             	l.append(y-x) 
+            	labs.append(abs(y-x))
         if correspond == 0:        bad += 1
         elif correspond > 1:       merged += correspond - 1
     # check consistancy of the results
     assert ( orig - missed - merged == expc - bad - doubled)
-    return orig, missed, merged, expc, bad, doubled, l, sum(l)/float(max(len(l),1))
+    return orig, missed, merged, expc, bad, doubled, l, labs
 
 def notes_roc (la, lb, eps):
     from numarray import transpose, add, resize 
