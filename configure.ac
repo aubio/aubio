@@ -230,6 +230,7 @@ AC_OUTPUT([
 		plugins/wavesurfer/Makefile
                 plugins/puredata/Makefile
                 python/test/bench/onset/Makefile
+                python/test/bench/pitch/Makefile
                 doc/Makefile
 	])
 
