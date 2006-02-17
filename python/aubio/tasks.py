@@ -377,40 +377,34 @@ class taskonset(task):
                                 now = 0
 			return now, val 
 
-	def gettruth(self):
-		from os.path import isfile
-		ftru = '.'.join(self.input.split('.')[:-1])
-		ftru = '.'.join((ftru,'txt'))
-		if isfile(ftru): return ftru
-		else:		 return
 
-	def eval(self,lres):
+	def eval(self,inputdata,ftru,mode='roc',vmode=''):
 		from txtfile import read_datafile 
-		from onsetcompare import onset_roc
-		amode = 'roc'
-		vmode = 'verbose'
-		vmode = ''
-		ftru = self.gettruth()
-		if not ftru:
-			print "ERR: no truth file found"
-			return
+		from onsetcompare import onset_roc, onset_diffs, onset_rocloc
 		ltru = read_datafile(ftru,depth=0)
-		for i in range(len(lres)): lres[i] = lres[i][0]*self.params.step
+		lres = []
+		for i in range(len(inputdata)): lres.append(inputdata[i][0]*self.params.step)
 		if vmode=='verbose':
-			print "Running with mode %s" % self.params.mode, 
+			print "Running with mode %s" % self.params.onsetmode, 
 			print " and threshold %f" % self.params.threshold, 
-			print " on file", input
+			print " on file", self.input
 		#print ltru; print lres
-		if amode == 'localisation':
+		if mode == 'local':
 			l = onset_diffs(ltru,lres,self.params.tol)
 			mean = 0
 			for i in l: mean += i
-			if len(l): print "%.3f" % (mean/len(l))
-			else: print "?0"
-		elif amode == 'roc':
+			if len(l): mean = "%.3f" % (mean/len(l))
+			else: mean = "?0"
+			return l, mean
+		elif mode == 'roc':
 			self.orig, self.missed, self.merged, \
 				self.expc, self.bad, self.doubled = \
 				onset_roc(ltru,lres,self.params.tol)
+		elif mode == 'rocloc':
+			self.orig, self.missed, self.merged, \
+				self.expc, self.bad, self.doubled, \
+				self.l, self.mean = \
+				onset_rocloc(ltru,lres,self.params.tol)
 
 	def plot(self,onsets,ofunc):
 		import Gnuplot, Gnuplot.funcutils
