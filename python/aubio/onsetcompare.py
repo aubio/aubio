@@ -71,6 +71,38 @@ def onset_diffs(ltru, lexp, eps):
     # return list of diffs
     return l 
 
+def onset_rocloc(ltru, lexp, eps):
+    """ compute differences between two lists 
+          orig = hits + missed + merged 
+          expc = hits + bad + doubled
+        returns orig, missed, merged, expc, bad, doubled 
+    """
+    orig, expc = len(ltru), len(lexp)
+    l = []
+    mean = 0
+    # if lexp is empty
+    if expc == 0 : return orig,orig,0,0,0,0,l,mean
+    missed, bad, doubled, merged = 0, 0, 0, 0
+    # find missed and doubled ones first
+    for x in ltru:
+        correspond = 0
+        for y in lexp:
+            if abs(x-y) <= eps:    correspond += 1
+        if correspond == 0:        missed += 1
+        elif correspond > 1:       doubled += correspond - 1 
+    # then look for bad and merged ones
+    for y in lexp:
+        correspond = 0
+        for x in ltru:
+            if abs(x-y) <= eps:    
+	    	correspond += 1
+            	l.append(y-x) 
+        if correspond == 0:        bad += 1
+        elif correspond > 1:       merged += correspond - 1
+    # check consistancy of the results
+    assert ( orig - missed - merged == expc - bad - doubled)
+    return orig, missed, merged, expc, bad, doubled, l, sum(l)/float(max(len(l),1))
+
 def notes_roc (la, lb, eps):
     from numarray import transpose, add, resize 
     """ creates a matrix of size len(la)*len(lb) then look for hit and miss
