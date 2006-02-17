@@ -63,6 +63,8 @@ class benchonset(bench):
 		self.v['aTfn']      = totalfn/N
 		self.v['aTm']       = sum(self.v['Tm'])/N
 		self.v['aTd']       = sum(self.v['Td'])/N
+		self.v['Tm']       = sum(self.v['Tm'])
+		self.v['Td']       = sum(self.v['Td'])
 		self.v['mean']      = mmean(self.v['l'])
 		self.v['smean']     = stdev(self.v['l'])
 		self.v['amean']     = mmean(self.v['labs'])

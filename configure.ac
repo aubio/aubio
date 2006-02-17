@@ -229,6 +229,7 @@ AC_OUTPUT([
 		plugins/audacity/plug-ins/Makefile
 		plugins/wavesurfer/Makefile
                 plugins/puredata/Makefile
+                python/test/bench/onset/Makefile
                 doc/Makefile
 	])
 
