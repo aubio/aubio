@@ -143,20 +143,62 @@ class bench:
 		print "Creating results directory"
 		act_on_results(mkdir,self.datadir,self.resdir,filter='d')
 
-	def pretty_print(self,values,sep='|'):
-		for i in range(len(values)):
-			print self.formats[i] % values[i], sep,
+	def pretty_print(self,sep='|'):
+		for i in self.printnames:
+			print self.formats[i] % self.v[i], sep,
+		print
+
+	def pretty_titles(self,sep='|'):
+		for i in self.printnames:
+			print self.formats[i] % i, sep,
 		print
 
 	def dir_exec(self):
 		""" run file_exec on every input file """
-		pass
+		self.l , self.labs = [], [] 
+		self.v = {}
+		for i in self.valuenames:
+			self.v[i] = [] 
+		for i in self.valuelists:
+			self.v[i] = [] 
+		act_on_files(self.file_exec,self.sndlist,self.reslist, \
+			suffix='',filter=sndfile_filter)
 
 	def dir_eval(self):
 		pass
 
-	def file_exec(self):
-		pass
+	def file_gettruth(self,input):
+		""" get ground truth filenames """
+		from os.path import isfile
+		ftrulist = []
+		# search for match as filetask.input,".txt" 
+		ftru = '.'.join(input.split('.')[:-1])
+		ftru = '.'.join((ftru,'txt'))
+		if isfile(ftru):
+			ftrulist.append(ftru)
+		else:
+			# search for matches for filetask.input in the list of results
+			for i in range(len(self.reslist)):
+				check = '.'.join(self.reslist[i].split('.')[:-1])
+				check = '_'.join(check.split('_')[:-1])
+				if check == '.'.join(input.split('.')[:-1]):
+					ftrulist.append(self.reslist[i])
+		return ftrulist
+
+	def file_exec(self,input,output):
+		""" create filetask, extract data, evaluate """
+		filetask = self.task(input,params=self.params)
+		computed_data = filetask.compute_all()
+		ftrulist = self.file_gettruth(filetask.input)
+		for i in ftrulist:
+			filetask.eval(computed_data,i,mode='rocloc',vmode='')
+			""" append filetask.v to self.v """
+			for i in self.valuenames:
+				self.v[i].append(filetask.v[i])
+			for j in self.valuelists:
+				if filetask.v[j]:
+					for i in range(len(filetask.v[j])):
+						self.v[j].append(filetask.v[j][i])
 	
 	def file_eval(self):
 		pass
