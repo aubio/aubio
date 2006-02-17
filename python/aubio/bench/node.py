@@ -80,8 +80,8 @@ def act_on_results (action,datapath,respath,filter='d'):
 def act_on_files (action,listfiles,listres=None,suffix='.txt',filter='f',sub='\.wav$',**keywords):
         """ execute action(respath) an all subdirectories in respath """
         if listres and len(listfiles) <= len(listres): 
-		for i in listfiles:
-			action(i,listres[i],**keywords)
+		for i in range(len(listfiles)):
+			action(listfiles[i],listres[i],**keywords)
         else:
 		for i in listfiles:
                 	action(i,None,**keywords)
@@ -152,6 +152,7 @@ class bench:
 		""" run file_exec on every input file """
 		self.orig, self.missed, self.merged, self.expc, \
 			self.bad, self.doubled = 0, 0, 0, 0, 0, 0
+		self.l , self.mean = [], 0
 		act_on_files(self.file_exec,self.sndlist,self.reslist, \
 			suffix='',filter=sndfile_filter)
 	
