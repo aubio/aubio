@@ -3,60 +3,150 @@
 from aubio.bench.node import *
 from aubio.tasks import *
 
-class benchonset(bench):
-	
-	def dir_eval(self):
-		self.P = 100*float(self.expc-self.missed-self.merged)/(self.expc-self.missed-self.merged + self.bad+self.doubled)
-		self.R = 100*float(self.expc-self.missed-self.merged)/(self.expc-self.missed-self.merged + self.missed+self.merged)
-		if self.R < 0: self.R = 0
-		self.F = 2* self.P*self.R / (self.P+self.R)
 
-		self.values = [self.params.onsetmode, 
-		"%2.3f" % self.params.threshold,
-		self.orig,
-		self.expc,
-		self.missed,
-		self.merged,
-		self.bad,
-		self.doubled,
-		(self.orig-self.missed-self.merged),
-		"%2.3f" % (100*float(self.orig-self.missed-self.merged)/(self.orig)),
-		"%2.3f" % (100*float(self.bad+self.doubled)/(self.orig)), 
-		"%2.3f" % (100*float(self.orig-self.missed)/(self.orig)), 
-		"%2.3f" % (100*float(self.bad)/(self.orig)),
-		"%2.3f" % self.P,
-		"%2.3f" % self.R,
-		"%2.3f" % self.F  ]
+
+
+def mmean(l):
+	return sum(l)/float(len(l))
+
+def stdev(l):
+	smean = 0
+	lmean = mmean(l)
+	for i in l:
+		smean += (i-lmean)**2
+	smean *= 1. / len(l)
+	return smean**.5
+
+class benchonset(bench):
+
+	valuenames = ['orig','missed','Tm','expc','bad','Td']
+	valuelists = ['l','labs']
+	printnames = [ 'mode', 'thres', 'dist', 'prec', 'recl', 'Ttrue', 'Tfp',  'Tfn',  'Tm',   'Td',
+		'aTtrue', 'aTfp', 'aTfn', 'aTm',  'aTd',  'mean', 'smean',  'amean', 'samean']
+
+	formats = {'mode': "%12s" , 
+	'thres': "%5.4s",
+	'dist':  "%5.4s",
+	'prec':  "%5.4s",
+	'recl':  "%5.4s",
+                 
+	'Ttrue': "%5.4s", 
+	'Tfp':   "%5.4s",
+	'Tfn':   "%5.4s",
+	'Tm':    "%5.4s",
+	'Td':    "%5.4s",
+                 
+	'aTtrue':"%5.4s", 
+	'aTfp':  "%5.4s",
+	'aTfn':  "%5.4s",
+	'aTm':   "%5.4s",
+	'aTd':   "%5.4s",
+                 
+	'mean':  "%5.40s", 
+	'smean': "%5.40s",
+	'amean':  "%5.40s", 
+	'samean': "%5.40s"}
+	
+	def file_gettruth(self,input):
+		from os.path import isfile
+		ftrulist = []
+		# search for match as filetask.input,".txt" 
+		ftru = '.'.join(input.split('.')[:-1])
+		ftru = '.'.join((ftru,'txt'))
+		if isfile(ftru):
+			ftrulist.append(ftru)
+		else:
+			# search for matches for filetask.input in the list of results
+			for i in range(len(self.reslist)):
+				check = '.'.join(self.reslist[i].split('.')[:-1])
+				check = '_'.join(check.split('_')[:-1])
+				if check == '.'.join(input.split('.')[:-1]):
+					ftrulist.append(self.reslist[i])
+		return ftrulist
 
 	def file_exec(self,input,output):
 		filetask = self.task(input,params=self.params)
 		computed_data = filetask.compute_all()
-		results = filetask.eval(computed_data)
-		self.orig    += filetask.orig
-		self.missed  += filetask.missed
-		self.merged  += filetask.merged
-		self.expc    += filetask.expc
-		self.bad     += filetask.bad
-		self.doubled += filetask.doubled
+		ftrulist = self.file_gettruth(filetask.input)
+		for i in ftrulist:
+			#print i
+			filetask.eval(computed_data,i,mode='rocloc',vmode='')
+			for i in self.valuenames:
+				self.v[i] += filetask.v[i]
+			for i in filetask.v['l']:
+				self.v['l'].append(i)
+			for i in filetask.v['labs']:
+				self.v['labs'].append(i)
+	
+	def dir_exec(self):
+		""" run file_exec on every input file """
+		self.l , self.labs = [], [] 
+		self.v = {}
+		for i in self.valuenames:
+			self.v[i] = 0. 
+		for i in self.valuelists:
+			self.v[i] = [] 
+		self.v['thres'] = self.params.threshold 
+		act_on_files(self.file_exec,self.sndlist,self.reslist, \
+			suffix='',filter=sndfile_filter)
 
+	def dir_eval(self):
+		totaltrue = self.v['expc']-self.v['bad']-self.v['Td']
+		totalfp = self.v['bad']+self.v['Td']
+                totalfn = self.v['missed']+self.v['Tm']
+		self.P = 100*float(totaltrue)/max(totaltrue + totalfp,1)
+		self.R = 100*float(totaltrue)/max(totaltrue + totalfn,1)
+		if self.R < 0: self.R = 0
+		self.F = 2.* self.P*self.R / max(float(self.P+self.R),1)
+		
+		N = float(len(self.reslist))
+
+		self.v['mode']      = self.params.onsetmode
+		self.v['thres']     = "%2.3f" % self.params.threshold
+		self.v['dist']      = "%2.3f" % self.F
+		self.v['prec']      = "%2.3f" % self.P
+		self.v['recl']      = "%2.3f" % self.R
+		self.v['Ttrue']     = totaltrue
+		self.v['Tfp']       = totalfp
+		self.v['Tfn']       = totalfn
+		self.v['aTtrue']    = totaltrue/N
+		self.v['aTfp']      = totalfp/N
+		self.v['aTfn']      = totalfn/N
+		self.v['aTm']       = self.v['Tm']/N
+		self.v['aTd']       = self.v['Td']/N
+		self.v['mean']      = mmean(self.v['l'])
+		self.v['smean']     = stdev(self.v['l'])
+		self.v['amean']     = mmean(self.v['labs'])
+		self.v['samean']    = stdev(self.v['labs'])
 
 	def run_bench(self,modes=['dual'],thresholds=[0.5]):
 		self.modes = modes
 		self.thresholds = thresholds
 
-		self.pretty_print(self.titles)
+		self.pretty_titles()
 		for mode in self.modes:
 			self.params.onsetmode = mode
 			for threshold in self.thresholds:
 				self.params.threshold = threshold
 				self.dir_exec()
 				self.dir_eval()
-				self.pretty_print(self.values)
+				self.pretty_print()
+				#print self.v
+
+	def pretty_print(self,sep='|'):
+		for i in self.printnames:
+			print self.formats[i] % self.v[i], sep,
+		print
+
+	def pretty_titles(self,sep='|'):
+		for i in self.printnames:
+			print self.formats[i] % i, sep,
+		print
 
 	def auto_learn(self,modes=['dual'],thresholds=[0.1,1.5]):
 		""" simple dichotomia like algorithm to optimise threshold """
 		self.modes = modes
-		self.pretty_print(self.titles)
+		self.pretty_titles()
 		for mode in self.modes:
 			steps = 10 
 			lesst = thresholds[0] 
@@ -66,20 +156,20 @@ class benchonset(bench):
 			self.params.threshold = topt 
 			self.dir_exec()
 			self.dir_eval()
-			self.pretty_print(self.values)
+			self.pretty_print()
 			topF = self.F 
 
 			self.params.threshold = lesst 
 			self.dir_exec()
 			self.dir_eval()
-			self.pretty_print(self.values)
+			self.pretty_print()
 			lessF = self.F 
 
 			for i in range(steps):
 				self.params.threshold = ( lesst + topt ) * .5 
 				self.dir_exec()
 				self.dir_eval()
-				self.pretty_print(self.values)
+				self.pretty_print()
 				if self.F == 100.0 or self.F == topF: 
 					print "assuming we converged, stopping" 
 					break
@@ -97,46 +187,51 @@ class benchonset(bench):
 				if topt == lesst:
 					lesst /= 2.
 
-	def auto_learn2(self,modes=['dual'],thresholds=[0.1,1.0]):
+	def auto_learn2(self,modes=['dual'],thresholds=[0.00001,1.0]):
 		""" simple dichotomia like algorithm to optimise threshold """
 		self.modes = modes
-		self.pretty_print(self.titles)
+		self.pretty_titles([])
 		for mode in self.modes:
 			steps = 10 
-			step = thresholds[1]
-			curt = thresholds[0] 
+			step = 0.4
 			self.params.onsetmode = mode
-
-			self.params.threshold = curt 
-			self.dir_exec()
-			self.dir_eval()
-			self.pretty_print(self.values)
-			curexp = self.expc
+			self.params.threshold = thresholds[0] 
+			cur = 0
 
 			for i in range(steps):
-				if curexp < self.orig:
-					#print "we found at most less onsets than annotated"
-					self.params.threshold -= step 
-					step /= 2
-				elif curexp > self.orig:
-					#print "we found more onsets than annotated"
-					self.params.threshold += step 
-					step /= 2
 				self.dir_exec()
 				self.dir_eval()
-				curexp = self.expc
-				self.pretty_print(self.values)
-				if self.orig == 100.0 or self.orig == self.expc: 
-					print "assuming we converged, stopping" 
+				self.pretty_print()
+				new = self.P
+				if self.R == 0.0:
+					#print "Found maximum, highering"
+					step /= 2.
+					self.params.threshold -= step 
+				elif new == 100.0:
+					#print "Found maximum, highering"
+					step *= .99
+					self.params.threshold += step 
+				elif cur > new:
+					#print "lower"
+					step /= 2.
+					self.params.threshold -= step 
+				elif cur < new:
+					#print "higher"
+					step *= .99
+					self.params.threshold += step 
+				else:
+					print "Assuming we converged"
 					break
+				cur = new
+
 
 if __name__ == "__main__":
 	import sys
 	if len(sys.argv) > 1: datapath = sys.argv[1]
 	else: print "ERR: a path is required"; sys.exit(1)
 	modes = ['complex', 'energy', 'phase', 'specdiff', 'kl', 'mkl', 'dual']
-	#modes = [ 'complex' ]
-	thresholds = [ 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5]
+	#modes = [ 'phase' ]
+	thresholds = [ 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2]
 	#thresholds = [1.5]
 
 	#datapath = "%s%s" % (DATADIR,'/onset/DB/*/')
@@ -145,16 +240,11 @@ if __name__ == "__main__":
 	benchonset = benchonset(datapath,respath,checkres=True,checkanno=True)
 	benchonset.params = taskparams()
 	benchonset.task = taskonset
+	benchonset.valuesdict = {}
 
-	benchonset.titles = [ 'mode', 'thres', 'orig', 'expc', 'missd', 'mergd',
-	'bad', 'doubl', 'corrt', 'GD', 'FP', 'GD-merged', 'FP-pruned',
-	'prec', 'recl', 'dist' ]
-	benchonset.formats = ["%12s" , "| %6s", "| %6s", "| %6s", "| %6s", "| %6s", 
-	"| %6s", "| %6s", "| %6s", "| %8s", "| %8s", "| %8s", "| %8s",
-	"| %6s", "| %6s", "| %6s"] 
 
 	try:
-		benchonset.auto_learn2(modes=modes)
-		#benchonset.run_bench(modes=modes)
+		#benchonset.auto_learn2(modes=modes)
+		benchonset.run_bench(modes=modes,thresholds=thresholds)
 	except KeyboardInterrupt:
 		sys.exit(1)
