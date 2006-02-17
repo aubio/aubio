@@ -401,9 +401,10 @@ class taskonset(task):
 				self.expc, self.bad, self.doubled = \
 				onset_roc(ltru,lres,self.params.tol)
 		elif mode == 'rocloc':
-			self.orig, self.missed, self.merged, \
-				self.expc, self.bad, self.doubled, \
-				self.l, self.mean = \
+			self.v = {}
+			self.v['orig'], self.v['missed'], self.v['Tm'], \
+				self.v['expc'], self.v['bad'], self.v['Td'], \
+				self.v['l'], self.v['labs'] = \
 				onset_rocloc(ltru,lres,self.params.tol)
 
 	def plot(self,onsets,ofunc):

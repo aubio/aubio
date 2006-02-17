@@ -143,19 +143,15 @@ class bench:
 		print "Creating results directory"
 		act_on_results(mkdir,self.datadir,self.resdir,filter='d')
 
-	def pretty_print(self,values):
+	def pretty_print(self,values,sep='|'):
 		for i in range(len(values)):
-			print self.formats[i] % values[i],
+			print self.formats[i] % values[i], sep,
 		print
 
 	def dir_exec(self):
 		""" run file_exec on every input file """
-		self.orig, self.missed, self.merged, self.expc, \
-			self.bad, self.doubled = 0, 0, 0, 0, 0, 0
-		self.l , self.mean = [], 0
-		act_on_files(self.file_exec,self.sndlist,self.reslist, \
-			suffix='',filter=sndfile_filter)
-	
+		pass
+
 	def dir_eval(self):
 		pass
 
