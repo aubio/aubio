@@ -82,7 +82,7 @@ class onsetpick:
         self.pv       = pvoc(bufsize,hopsize,channels)
         if mode in ['dual'] :
                 self.myod     = onsetdetection(aubio_onset_hfc,bufsize,channels)
-                self.myod2    = onsetdetection(aubio_onset_complex,bufsize,channels)
+                self.myod2    = onsetdetection(aubio_onset_mkl,bufsize,channels)
                 self.myonset  = fvec(1,channels)
                 self.myonset2 = fvec(1,channels)
         else: 
