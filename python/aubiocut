@@ -108,7 +108,8 @@ for i in range(len(modes)):
 		params.storefunc=False
 	filetask = dotask(filename,params=params)
 	onsets = filetask.compute_all()
-	ofunc = filetask.ofunc
+	if not options.silencecut:
+		ofunc = filetask.ofunc
         #onsets, ofunc = getonsets(filename,threshold,silence,
         #        mode=mode[i],localmin=options.localmin,
         #        derivate=options.derivate,
@@ -131,7 +132,8 @@ for i in range(len(modes)):
                 onsets = newonsets
 
         lonsets.append(onsets)
-        lofunc.append(ofunc)
+	if not options.silencecut:
+		lofunc.append(ofunc)
 
 	# print times in second
 	if options.verbose:
