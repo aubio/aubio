@@ -1,0 +1,63 @@
+#! /usr/bin/python
+
+from aubio.tasks import *
+
+from benchonset import mmean, stdev, plotdiffs, plotplotdiffs, benchonset
+
+class mybenchonset(benchonset):
+
+	def run_bench(self,modes=['dual'],thresholds=[0.5]):
+		from os.path import dirname,basename
+		self.thresholds = thresholds
+		self.pretty_titles()
+		for mode in modes:
+
+			self.params.onsetmode = mode
+			self.params.threshold = thresholds[0]
+			self.params.localmin = False 
+
+			for delay in (0., 4.):
+				d = []
+				outplot = "_-_".join(("window",mode,"delay-%s" % delay,
+					basename(self.datadir) ))
+				self.params.delay = delay 
+
+				for buf in (2048, 1024, 512):
+					for hop in (buf/2, buf/4):
+						self.params.bufsize = buf 
+						self.params.hopsize = hop 
+						self.params.step = float(self.params.hopsize)/float(self.params.samplerate)
+
+						self.dir_exec()
+						self.dir_eval()
+						self.pretty_print()
+						plotdiffs(self.v,d,plottitle="%s %s" % (buf,hop))
+
+				plotplotdiffs(d)
+				plotplotdiffs(d,outplot=outplot,extension="png")
+				plotplotdiffs(d,outplot=outplot,extension="ps")
+				plotplotdiffs(d,outplot=outplot,extension="svg")
+
+
+if __name__ == "__main__":
+	import sys
+	if len(sys.argv) > 1: datapath = sys.argv[1]
+	else: print "ERR: a path is required"; sys.exit(1)
+	modes = ['complex', 'energy', 'phase', 'specdiff', 'kl', 'mkl', 'dual']
+	#modes = [ 'complex' ]
+	thresholds = [ 0.5]
+	#thresholds = [1.5]
+
+	#datapath = "%s%s" % (DATADIR,'/onset/DB/*/')
+	respath = '/var/tmp/DB-testings'
+
+	benchonset = mybenchonset(datapath,respath,checkres=True,checkanno=True)
+	benchonset.params = taskparams()
+	benchonset.task = taskonset
+	benchonset.valuesdict = {}
+
+	try:
+		#benchonset.auto_learn2(modes=modes)
+		benchonset.run_bench(modes=modes,thresholds=thresholds)
+	except KeyboardInterrupt:
+		sys.exit(1)

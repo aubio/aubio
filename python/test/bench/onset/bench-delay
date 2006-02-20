@@ -1,0 +1,72 @@
+#! /usr/bin/python
+
+from aubio.bench.node import *
+from aubio.tasks import *
+
+from benchonset import mmean, stdev, benchonset
+
+class mybenchonset(benchonset):
+
+	def run_bench(self,modes=['dual'],thresholds=[0.5]):
+		from os.path import dirname,basename
+		self.modes = modes
+		self.thresholds = thresholds
+		self.pretty_titles()
+		for mode in self.modes:
+			d = []
+			outplot = "_-_".join(("delay",mode,
+				basename(self.datadir) ))
+
+			self.params.onsetmode = mode
+			self.params.threshold = thresholds[0]
+
+			self.params.localmin = False 
+			self.params.delay = 0. 
+
+			self.dir_exec()
+			self.dir_eval()
+			self.pretty_print()
+			self.plotdiffs(d,plottitle="Causal")
+
+			self.params.localmin = True
+			self.params.delay = 0. 
+			self.dir_exec()
+			self.dir_eval()
+			self.pretty_print()
+			self.plotdiffs(d,plottitle="Local min")
+
+			self.params.localmin = False 
+			self.params.delay = 6. 
+			self.dir_exec()
+			self.dir_eval()
+			self.pretty_print()
+			self.plotdiffs(d,plottitle="Fixed delay")
+
+			self.plotplotdiffs(d)
+			self.plotplotdiffs(d,outplot=outplot,extension="png")
+			self.plotplotdiffs(d,outplot=outplot,extension="ps")
+			self.plotplotdiffs(d,outplot=outplot,extension="svg")
+
+
+if __name__ == "__main__":
+	import sys
+	if len(sys.argv) > 1: datapath = sys.argv[1]
+	else: print "ERR: a path is required"; sys.exit(1)
+	modes = ['complex', 'energy', 'phase', 'specdiff', 'kl', 'mkl', 'dual']
+	#modes = [ 'complex' ]
+	thresholds = [ 0.5]
+	#thresholds = [1.5]
+
+	#datapath = "%s%s" % (DATADIR,'/onset/DB/*/')
+	respath = '/var/tmp/DB-testings'
+
+	benchonset = mybenchonset(datapath,respath,checkres=True,checkanno=True)
+	benchonset.params = taskparams()
+	benchonset.task = taskonset
+	benchonset.valuesdict = {}
+
+	try:
+		#benchonset.auto_learn2(modes=modes)
+		benchonset.run_bench(modes=modes,thresholds=thresholds)
+	except KeyboardInterrupt:
+		sys.exit(1)
