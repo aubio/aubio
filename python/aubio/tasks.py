@@ -1,5 +1,4 @@
 from aubioclass import * 
-from bench.node import bench
 
 def get_onset_mode(nvalue):
         """ utility function to convert a string to aubio_onsetdetection_type """
@@ -201,6 +200,7 @@ class taskparams(object):
 		self.silence = -70
 		self.derivate = False
 		self.localmin = False
+		self.delay = 0.
 		self.storefunc = False
 		self.bufsize = 512
 		self.hopsize = 256
@@ -271,9 +271,9 @@ class tasksilence(task):
 			else: self.issilence = -1 
 			self.wassilence = 0
 		if self.issilence == -1:
-			return -1, self.frameread 
+			return self.frameread, -1
 		elif self.issilence == 2:
-			return 2, self.frameread 
+			return self.frameread, 2 
 
 class taskpitch(task):
 	def __init__(self,input,params=None):
@@ -373,6 +373,7 @@ class taskonset(task):
                                 now = (self.frameread+1-i)
                         else:
                                 now = self.frameread
+			if self.params.delay != 0.: now -= self.params.delay
                         if now < 0 :
                                 now = 0
 			return now, val 
