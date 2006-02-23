@@ -233,8 +233,8 @@ def plot_pitch(filename, pitch, samplerate=44100., hopsize=512, outplot=None):
         g('unset multiplot')
 
 def gnuplot_init(outplot,debug=0,persist=1):
-	import Gnuplot
         # prepare the plot
+	import Gnuplot
         g = Gnuplot.Gnuplot(debug=debug, persist=persist)
 	if outplot == 'stdout':
                 g("set terminal png fontfile 'p052023l.pfb'")
@@ -244,4 +244,17 @@ def gnuplot_init(outplot,debug=0,persist=1):
                 if extension == 'ps': extension = 'postscript'
                 g('set terminal %s' % extension)
                 g('set output \'%s\'' % outplot)
+	return g
+
+def gnuplot_create(outplot='',extension='',debug=0,persist=1):
+	import Gnuplot
+        g = Gnuplot.Gnuplot(debug=debug, persist=persist)
+	if not extension or not outplot: return g
+	if   extension == 'ps':  ext, extension = '.ps' , 'postscript'
+	elif extension == 'png': ext, extension = '.png', 'png'
+	elif extension == 'svg': ext, extension = '.svg', 'svg'
+	else: exit("ERR: unknown plot extension")
+	g('set terminal %s' % extension)
+	if outplot != "stdout":
+		g('set output \'roc-%s%s\'' % (outplot,ext))
 	return g
