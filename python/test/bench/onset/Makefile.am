@@ -28,9 +28,9 @@ final-aubiodelay:         $(patsubst %, %.aubiodelay,  $(SOURCE))
 final-aubiowindow:        $(patsubst %, %.aubiowindow, $(SOURCE))
 
 %.aubiocut: %
-	rm -f `basename $<`.aubiocut
-	./bench-onset $< | tee `basename $<`.aubiocut
-	-diff `basename $<`.aubiocut.ref `basename $<`.aubiocut
+	rm -f `basename $@`
+	./bench-onset $< | tee `basename $@`
+	-diff `basename $@`.ref `basename $@`
 
 %.aubiodelay: %
 	rm -f `basename $@`
