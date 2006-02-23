@@ -2,7 +2,7 @@
 
 from aubio.tasks import *
 
-from benchonset import mmean, stdev, plotdiffs, plotplotdiffs, benchonset
+from benchonset import mmean, stdev, benchonset
 
 class mybenchonset(benchonset):
 
@@ -10,43 +10,39 @@ class mybenchonset(benchonset):
 		from os.path import dirname,basename
 		self.thresholds = thresholds
 		self.pretty_titles()
+
 		for mode in modes:
 
 			self.params.onsetmode = mode
+			self.params.localmin = True
+			self.params.delay = 1. 
 			self.params.threshold = thresholds[0]
 			self.params.localmin = False 
-
+			#
 			for delay in (0., 4.):
 				d = []
-				outplot = "_-_".join(("window",mode,"delay-%s" % delay,
-					basename(self.datadir) ))
 				self.params.delay = delay 
-
 				for buf in (2048, 1024, 512):
 					for hop in (buf/2, buf/4):
 						self.params.bufsize = buf 
 						self.params.hopsize = hop 
 						self.params.step = float(self.params.hopsize)/float(self.params.samplerate)
-
-						self.dir_exec()
-						self.dir_eval()
-						self.pretty_print()
-						plotdiffs(self.v,d,plottitle="%s %s" % (buf,hop))
-
-				plotplotdiffs(d)
-				plotplotdiffs(d,outplot=outplot,extension="png")
-				plotplotdiffs(d,outplot=outplot,extension="ps")
-				plotplotdiffs(d,outplot=outplot,extension="svg")
-
+						self.dir_eval_print()
+						self.plotdiffs(d,plottitle="%s %s" % (buf,hop))
+				#plotplotdiffs(d)
+				outplot = "_-_".join(("window",mode,"delay-%s" % int(delay),
+					basename(self.datadir) ))
+				for ext in ("png","svg","ps"):
+					self.plotplotdiffs(d,outplot=outplot,extension=ext)
 
 if __name__ == "__main__":
 	import sys
 	if len(sys.argv) > 1: datapath = sys.argv[1]
 	else: print "ERR: a path is required"; sys.exit(1)
-	modes = ['complex', 'energy', 'phase', 'specdiff', 'kl', 'mkl', 'dual']
-	#modes = [ 'complex' ]
-	thresholds = [ 0.5]
-	#thresholds = [1.5]
+	modes = ['complex', 'energy', 'phase', 'hfc', 'specdiff', 'kl', 'mkl', 'dual']
+	#thresholds = [ 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2]
+	#modes = [ 'hfc' ]
+	thresholds = [0.5]
 
 	#datapath = "%s%s" % (DATADIR,'/onset/DB/*/')
 	respath = '/var/tmp/DB-testings'

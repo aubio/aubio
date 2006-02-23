@@ -1,6 +1,5 @@
 #! /usr/bin/python
 
-from aubio.bench.node import *
 from aubio.tasks import *
 
 from benchonset import mmean, stdev, benchonset
@@ -9,53 +8,44 @@ class mybenchonset(benchonset):
 
 	def run_bench(self,modes=['dual'],thresholds=[0.5]):
 		from os.path import dirname,basename
-		self.modes = modes
 		self.thresholds = thresholds
 		self.pretty_titles()
-		for mode in self.modes:
+
+		for mode in modes:
 			d = []
-			outplot = "_-_".join(("delay",mode,
-				basename(self.datadir) ))
-
 			self.params.onsetmode = mode
+			self.params.localmin = True
+			self.params.delay = 1. 
 			self.params.threshold = thresholds[0]
-
+			#
 			self.params.localmin = False 
 			self.params.delay = 0. 
-
-			self.dir_exec()
-			self.dir_eval()
-			self.pretty_print()
+			self.dir_eval_print()
 			self.plotdiffs(d,plottitle="Causal")
-
+			#
 			self.params.localmin = True
 			self.params.delay = 0. 
-			self.dir_exec()
-			self.dir_eval()
-			self.pretty_print()
+			self.dir_eval_print()
 			self.plotdiffs(d,plottitle="Local min")
 
 			self.params.localmin = False 
 			self.params.delay = 6. 
-			self.dir_exec()
-			self.dir_eval()
-			self.pretty_print()
+			self.dir_eval_print()
 			self.plotdiffs(d,plottitle="Fixed delay")
 
-			self.plotplotdiffs(d)
-			self.plotplotdiffs(d,outplot=outplot,extension="png")
-			self.plotplotdiffs(d,outplot=outplot,extension="ps")
-			self.plotplotdiffs(d,outplot=outplot,extension="svg")
-
+			#self.plotplotdiffs(d)
+			outplot = "_-_".join(("delay",mode,basename(self.datadir) ))
+			for ext in ("png","svg","ps"):
+				self.plotplotdiffs(d,outplot=outplot,extension=ext)
 
 if __name__ == "__main__":
 	import sys
 	if len(sys.argv) > 1: datapath = sys.argv[1]
 	else: print "ERR: a path is required"; sys.exit(1)
-	modes = ['complex', 'energy', 'phase', 'specdiff', 'kl', 'mkl', 'dual']
-	#modes = [ 'complex' ]
-	thresholds = [ 0.5]
-	#thresholds = [1.5]
+	modes = ['complex', 'energy', 'phase', 'hfc', 'specdiff', 'kl', 'mkl', 'dual']
+	#thresholds = [ 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2]
+	#modes = [ 'hfc' ]
+	thresholds = [0.5]
 
 	#datapath = "%s%s" % (DATADIR,'/onset/DB/*/')
 	respath = '/var/tmp/DB-testings'

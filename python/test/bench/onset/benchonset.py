@@ -46,6 +46,10 @@ class benchonset(bench):
 
 		v['mode']      = self.params.onsetmode
 		v['thres']     = self.params.threshold 
+		v['bufsize']   = self.params.bufsize
+		v['hopsize']   = self.params.hopsize
+		v['silence']   = self.params.silence
+		v['mintol']   = self.params.mintol
 
 		v['Torig']     = sum(v['orig'])
 		v['TTm']       = sum(v['Tm'])
@@ -93,6 +97,11 @@ class benchonset(bench):
 		self.v['dist']      = self.F
 		self.v['prec']      = self.P
 		self.v['recl']      = self.R
+
+
+	"""
+	Plot functions 
+	"""
 
 	def plotroc(self,d,plottitle=""):
 		import Gnuplot, Gnuplot.funcutils
@@ -189,6 +198,33 @@ class benchonset(bench):
 		#g('set format \"%g\"')
 		g.plot(*d)
 
+	def plotfmeasvar(self,d,var,plottitle=""):
+		import Gnuplot, Gnuplot.funcutils
+		x,y = [],[]
+		for i in self.vlist:
+			x.append(i[var]) 
+			y.append(i['dist']) 
+		d.append(Gnuplot.Data(x, y, with='linespoints', 
+			title="%s %s" % (plottitle,i['mode']) ))
+	
+	def plotplotfmeasvar(self,d,var,outplot="",extension='ps', title="F-measure"):
+		import Gnuplot, Gnuplot.funcutils
+		from sys import exit
+		g = Gnuplot.Gnuplot(debug=0, persist=1)
+		if outplot:
+			if   extension == 'ps':  terminal = 'postscript'
+			elif extension == 'png': terminal = 'png'
+			elif extension == 'svg': terminal = 'svg'
+			else: exit("ERR: unknown plot extension")
+			g('set terminal %s' % terminal)
+			g('set output \'fmeas-%s.%s\'' % (outplot,extension))
+		g.xlabel(var)
+		g.ylabel('F-measure (%)')
+		#g('set xrange [0:1.2]')
+		g('set yrange [0:100]')
+		g.title(basename(self.datadir))
+		g.plot(*d)
+
 	def plotdiffs(self,d,plottitle=""):
 		import Gnuplot, Gnuplot.funcutils
 		v = self.v
@@ -229,7 +265,38 @@ class benchonset(bench):
 		g.xlabel('delay to hand-labelled onset (s)')
 		g.ylabel('% number of correct detections / ms ')
 		g('set xrange [-0.05:0.05]')
-		g('set yrange [0:50]')
+		g('set yrange [0:20]')
+		g.plot(*d)
+
+
+	def plothistcat(self,d,plottitle=""):
+		import Gnuplot, Gnuplot.funcutils
+		total = v['Torig']
+		for i in range(len(per)): per[i] /= total/100.
+
+		d.append(Gnuplot.Data(val, per, with='fsteps', 
+			title="%s %s" % (plottitle,v['mode']) ))
+		#d.append('mean=%f,sigma=%f,eps(x) title \"\"'% (mean,smean))
+		#d.append('mean=%f,sigma=%f,eps(x) title \"\"'% (amean,samean))
+
+
+	def plotplothistcat(self,d,outplot=0,extension='ps'):
+		import Gnuplot, Gnuplot.funcutils
+		from sys import exit
+		g = Gnuplot.Gnuplot(debug=0, persist=1)
+		if outplot:
+			if   extension == 'ps':  ext, extension = '.ps' , 'postscript'
+			elif extension == 'png': ext, extension = '.png', 'png'
+			elif extension == 'svg': ext, extension = '.svg', 'svg'
+			else: exit("ERR: unknown plot extension")
+			g('set terminal %s' % extension)
+			g('set output \'diffhist-%s%s\'' % (outplot,ext))
+		g('eps(x) = 1./(sigma*(2.*3.14159)**.5) * exp ( - ( x - mean ) ** 2. / ( 2. * sigma ** 2. ))')
+		g.title(basename(self.datadir))
+		g.xlabel('delay to hand-labelled onset (s)')
+		g.ylabel('% number of correct detections / ms ')
+		g('set xrange [-0.05:0.05]')
+		g('set yrange [0:20]')
 		g.plot(*d)
 
 

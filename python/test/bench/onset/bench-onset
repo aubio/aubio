@@ -10,21 +10,28 @@ class mybenchonset(benchonset):
 		from os.path import dirname,basename
 		self.thresholds = thresholds
 		self.pretty_titles()
-		d,e,f = [],[],[]
+		d,e,f,g = [],[],[],[]
 		for mode in modes:
 			self.vlist = []
 			self.params.onsetmode = mode
+			#self.params.localmin = True
+			self.params.delay = 2. 
+			self.params.bufsize = 1024 
+			self.params.hopsize = 256
+			self.params.step = float(self.params.hopsize)/float(self.params.samplerate)
+			#self.params.mintol = 8. 
+
 			for threshold in self.thresholds:
 				self.params.threshold = threshold
-				self.dir_exec()
-				self.dir_eval()
-				self.pretty_print()
-				#print self.v
+				self.dir_eval_print()
 				self.vlist.append(self.v)
 			self.plotroc(d)
 			self.plotfmeas(e)
 			self.plotpr(f)
-			#print vlist
+			#self.plothistcat(g)
+
+
+
 		#self.plotplotroc(d)
 		#self.plotplotfmeas(e)
 		#self.plotplotpr(f)
@@ -33,93 +40,7 @@ class mybenchonset(benchonset):
 			self.plotplotroc(d,outplot=outplot,extension=ext)
 			self.plotplotfmeas(e,outplot=outplot,extension=ext)
 			self.plotplotpr(f,outplot=outplot,extension=ext)
-
-
-	def auto_learn(self,modes=['dual'],thresholds=[0.1,1.5]):
-		""" simple dichotomia like algorithm to optimise threshold """
-		self.modes = modes
-		self.pretty_titles()
-		for mode in self.modes:
-			steps = 11 
-			lesst = thresholds[0] 
-			topt = thresholds[1]
-			self.params.onsetmode = mode
-
-			self.params.threshold = topt 
-			self.dir_exec()
-			self.dir_eval()
-			self.pretty_print()
-			topF = self.F 
-
-			self.params.threshold = lesst 
-			self.dir_exec()
-			self.dir_eval()
-			self.pretty_print()
-			lessF = self.F 
-
-			for i in range(steps):
-				self.params.localmin = True
-				self.params.delay = 1. 
-				self.dir_exec()
-				self.dir_eval()
-				self.params.threshold = ( lesst + topt ) * .5 
-				self.dir_exec()
-				self.dir_eval()
-				self.pretty_print()
-				if self.F == 100.0 or self.F == topF: 
-					print "assuming we converged, stopping" 
-					break
-				#elif abs(self.F - topF) < 0.01 :
-				#	print "done converging"
-				#	break
-				if topF < self.F:
-					#lessF = topF
-					#lesst = topt 
-					topF = self.F
-					topt = self.params.threshold
-				elif lessF < self.F:
-					lessF = self.F
-					lesst = self.params.threshold
-				if topt == lesst:
-					lesst /= 2.
-
-	def auto_learn2(self,modes=['dual'],thresholds=[0.00001,1.0]):
-		""" simple dichotomia like algorithm to optimise threshold """
-		self.modes = modes
-		self.pretty_titles([])
-		for mode in self.modes:
-			steps = 10 
-			step = 0.4
-			self.params.onsetmode = mode
-			self.params.threshold = thresholds[0] 
-			cur = 0
-
-			for i in range(steps):
-				self.dir_exec()
-				self.dir_eval()
-				self.pretty_print()
-				new = self.P
-				if self.R == 0.0:
-					#print "Found maximum, highering"
-					step /= 2.
-					self.params.threshold -= step 
-				elif new == 100.0:
-					#print "Found maximum, highering"
-					step *= .99
-					self.params.threshold += step 
-				elif cur > new:
-					#print "lower"
-					step /= 2.
-					self.params.threshold -= step 
-				elif cur < new:
-					#print "higher"
-					step *= .99
-					self.params.threshold += step 
-				else:
-					print "Assuming we converged"
-					break
-				cur = new
-
+			#self.plotplothistcat(g,outplot=outplot,extension=ext)
 
 if __name__ == "__main__":
 	import sys
@@ -128,7 +49,7 @@ if __name__ == "__main__":
 	modes = ['complex', 'energy', 'phase', 'hfc', 'specdiff', 'kl', 'mkl', 'dual']
 	thresholds = [ 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2]
 	#modes = [ 'hfc' ]
-	#thresholds = [0.1, 1.5]
+	#thresholds = [0.5]
 
 	#datapath = "%s%s" % (DATADIR,'/onset/DB/*/')
 	respath = '/var/tmp/DB-testings'
