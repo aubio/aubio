@@ -206,6 +206,7 @@ class taskparams(object):
 		self.hopsize = 256
 		self.samplerate = 44100
 		self.tol = 0.05
+		self.mintol = 0.0
 		self.step = float(self.hopsize)/float(self.samplerate)
 		self.threshold = 0.1
 		self.onsetmode = 'dual'
@@ -298,31 +299,28 @@ class taskpitch(task):
 		""" big hack to extract midi note from /path/to/file.<midinote>.wav """
 		floatpit = self.input.split('.')[-2]
 		try:
-			return float(floatpit)
+			return aubio_miditofreq(float(floatpit))
 		except ValueError:
 			print "ERR: no truth file found"
 			return 0
 
 	def eval(self,results):
+		def mmean(l):
+			return sum(l)/max(float(len(l)),1)
+
 		from median import short_find 
 		self.truth = self.gettruth()
-		num = 0
-		sum = 0
 		res = []
 		for i in results:
 			if i == -1: pass
 			else: 
-				res.append(i)
-				sum += i
-				num += 1
-		if num == 0: 
-			avg = 0; med = 0
+				res.append(self.truth-i)
+		if not res: 
+			avg = self.truth; med = self.truth 
 		else:
-			avg = aubio_freqtomidi(sum / float(num))
-			med = aubio_freqtomidi(short_find(res,len(res)/2))
-		avgdist = self.truth - avg
-		meddist = self.truth - med
-		return avgdist, meddist
+			avg = mmean(res) 
+			med = short_find(res,len(res)/2) 
+		return self.truth, self.truth-med, self.truth-avg
 
 	def plot(self,pitch,outplot=None):
 		from aubio.gnuplot import plot_pitch
@@ -350,6 +348,7 @@ class taskonset(task):
 		self.ofunc = []
 		self.d,self.d2 = [],[]
 		self.maxofunc = 0
+		self.last = 0
 		if self.params.localmin:
 			self.ovalist   = [0., 0., 0., 0., 0.]
 
@@ -376,7 +375,13 @@ class taskonset(task):
 			if self.params.delay != 0.: now -= self.params.delay
                         if now < 0 :
                                 now = 0
-			return now, val 
+			if self.params.mintol:
+				#print now - self.last, self.params.mintol
+				if (now - self.last) > self.params.mintol:
+					self.last = now
+					return now, val
+			else:
+				return now, val 
 
 
 	def eval(self,inputdata,ftru,mode='roc',vmode=''):
