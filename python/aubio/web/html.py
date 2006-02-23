@@ -170,15 +170,14 @@ def show_task(req,task):
 
 ## waveform_foo
 def draw_sound(req):
-    #draw_func(req,"aubioplot-audio %%i stdout 2> /dev/null")
-    draw_func(req,"gdtest %%i 2> /dev/null")
+    draw_func(req,"aubioplot-audio %%i stdout 2> /dev/null")
 
 def show_sound(req):
     show_task(req,"sound")
 
 ## pitch foo
 def draw_pitch(req,threshold='0.3'):
-    draw_func(req,"aubiopitch -i %%i -p -m yin -t %s -O stdout -B 2048 -H 1024" % threshold)
+    draw_func(req,"aubiopitch -i %%i -p -m yin -t %s -O stdout" % threshold)
 
 def show_pitch(req):
     show_task(req,"pitch")
