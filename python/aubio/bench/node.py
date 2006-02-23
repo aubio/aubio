@@ -88,7 +88,7 @@ def act_on_files (action,listfiles,listres=None,suffix='.txt',filter='f',sub='\.
 
 class bench:
 	""" class to run benchmarks on directories """
-	def __init__(self,datadir,resdir=None,checkres=False,checkanno=False):
+	def __init__(self,datadir,resdir=None,checkres=False,checkanno=False,params=[]):
 		self.datadir = datadir
 		# path to write results path to
 		self.resdir = resdir
@@ -96,6 +96,8 @@ class bench:
 		self.reslist = []
 		# list used to gather results
 		self.results = []
+		if not params: self.params = taskparams()
+		else:          self.params = params
 		print "Checking data directory", self.datadir
 		self.checkdata()
 		if checkanno: self.checkanno()
@@ -104,10 +106,8 @@ class bench:
 	def checkdata(self):
 		if os.path.isfile(self.datadir):
 			self.dirlist = os.path.dirname(self.datadir)
-			print "DBG: found a file"
 		elif os.path.isdir(self.datadir):
 			self.dirlist = list_dirs(self.datadir)
-			print "DBG: found a dir"
 		# allow dir* matching through find commands?
 		else:
 			print "ERR: path not understood"
@@ -215,3 +215,9 @@ class bench:
 			self.dir_exec()
 			self.dir_eval()
 			self.dir_plot()
+
+	def dir_eval_print(self):
+		self.dir_exec()
+		self.dir_eval()
+		self.pretty_print()
+
