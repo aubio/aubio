@@ -28,6 +28,9 @@ def parse_args():
         parser.add_option("-t","--threshold",
                           action="store", dest="threshold", default=0.650, 
                           help="onset peak picking threshold [default=0.650]")
+        parser.add_option("-C","--dcthreshold",
+                          action="store", dest="dcthreshold", default=-1., 
+                          help="onset peak picking DC component [default=-1.]")
         parser.add_option("-s","--silence",
                           action="store", dest="silence", default=-70, 
                           help="silence threshold [default=-70]")
@@ -58,6 +61,12 @@ def parse_args():
         parser.add_option("-p","--plot",
                           action="store_true", dest="plot", default=False, 
                           help="draw plot")
+	parser.add_option("-f","--function",
+			  action="store_true", dest="func", default=False, 
+			  help="print detection function")
+        parser.add_option("-n","--no-onsets",
+                          action="store_true", dest="nplot", default=False, 
+                          help="plot only detection functions")
         parser.add_option("-O","--outplot",
                           action="store", dest="outplot", default=None, 
                           help="save plot to output.{ps,png}")
@@ -84,66 +93,44 @@ params = taskparams()
 params.hopsize    = int(options.hopsize)
 params.bufsize    = int(options.bufsize)
 params.threshold  = float(options.threshold)
+params.dcthreshold = float(options.dcthreshold)
 params.zerothres  = float(options.zerothres)
 params.silence    = float(options.silence)
 params.mintol     = float(options.mintol)
+params.verbose    = options.verbose
 # default take back system delay
-if options.delay: delay = float(options.delay)
-else:             delay = 3./params.step
+if options.delay: params.delay = int(float(options.delay)/params.step)
 
+dotask = taskonset
+if options.beat:
+	dotask = taskbeat
+elif options.silencecut:
+	dotask = tasksilence
+elif options.plot or options.func: 
+	params.storefunc=True
+else:              
+	params.storefunc=False
 
 lonsets, lofunc = [], []
+wplot,oplots = [],[]
 modes = options.mode.split(',')
 for i in range(len(modes)):
-
 	params.onsetmode = modes[i] 
-	dotask = taskonset
-	if options.beat:
-		dotask = taskbeat
-	elif options.silencecut:
-		dotask = tasksilence
-	elif options.plot: 
-		params.storefunc=True
-	else:              
-		params.storefunc=False
 	filetask = dotask(filename,params=params)
 	onsets = filetask.compute_all()
+
+        #lonsets.append(onsets)
 	if not options.silencecut:
 		ofunc = filetask.ofunc
-        #onsets, ofunc = getonsets(filename,threshold,silence,
-        #        mode=mode[i],localmin=options.localmin,
-        #        derivate=options.derivate,
-        #        bufsize=bufsize,hopsize=hopsize,storefunc=True)
-
-        # take back system delay
-        if delay != 0:
-                for each in range(len(onsets)):
-			onsets[each] = onsets[each][0] - delay*params.step
-
-        # prune doubled 
-	params.mintol *= params.step
-        if params.mintol > 0:
-                last = -2*params.mintol
-                newonsets = []
-                for new in onsets:
-                        if (new - last > params.mintol): 
-                                newonsets.append(new)
-                        last = new
-                onsets = newonsets
-
-        lonsets.append(onsets)
-	if not options.silencecut:
 		lofunc.append(ofunc)
 
-	# print times in second
-	if options.verbose:
-		#print modes[i]
-		for i in range(len(onsets)):
-				print onsets[i]*params.step
+	if options.plot: filetask.plot(onsets, ofunc, wplot, oplots, nplot=options.nplot)
 
-	if options.plot:
-		filetask.plot(onsets, ofunc)
-		filetask.plotplot(outplot=options.outplot)
+	if options.func: 
+		for i in ofunc: 
+			print i 
+
+if options.plot: filetask.plotplot(wplot, oplots, outplot=options.outplot)
 
 if options.cut:
         a = taskcut(filename,onsets,params=params)
