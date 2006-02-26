@@ -89,6 +89,7 @@ def act_on_files (action,listfiles,listres=None,suffix='.txt',filter='f',sub='\.
 class bench:
 	""" class to run benchmarks on directories """
 	def __init__(self,datadir,resdir=None,checkres=False,checkanno=False,params=[]):
+		from aubio.tasks import taskparams
 		self.datadir = datadir
 		# path to write results path to
 		self.resdir = resdir
