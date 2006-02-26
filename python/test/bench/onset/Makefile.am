@@ -5,6 +5,7 @@ export LD_LIBRARY_PATH=$(BASEDIR)/src/.libs:$(BASEDIR)/ext/.libs
 DETAILSOURCE = \
 	/var/tmp/Onset-Mirex2005/poly_pitched \
 	/var/tmp/Onset-Mirex2005/solo_bars_and_bells \
+	/var/tmp/Onset-Mirex2005/solo_brass \
 	/var/tmp/Onset-Mirex2005/solo_drums \
 	/var/tmp/Onset-Mirex2005/solo_plucked_strings \
 	/var/tmp/Onset-Mirex2005/solo_singing_voice \
