@@ -200,7 +200,7 @@ class taskparams(object):
 		self.silence = -70
 		self.derivate = False
 		self.localmin = False
-		self.delay = 0.
+		self.delay = 4.
 		self.storefunc = False
 		self.bufsize = 512
 		self.hopsize = 256
@@ -211,7 +211,9 @@ class taskparams(object):
 		self.threshold = 0.1
 		self.onsetmode = 'dual'
 		self.pitchmode = 'yin'
+		self.dcthreshold = -1.
 		self.omode = aubio_pitchm_freq
+		self.verbose   = False
 
 class task(taskparams):
 	""" default template class to apply tasks on a stream """
@@ -229,7 +231,7 @@ class task(taskparams):
 		self.filei     = sndfile(self.input)
 		self.srate     = self.filei.samplerate()
 		self.channels  = self.filei.channels()
-		self.step      = float(self.srate)/float(self.params.hopsize)
+		self.params.step = float(self.params.hopsize)/float(self.srate)
 		self.myvec     = fvec(self.params.hopsize,self.channels)
 		self.output    = output
 
@@ -242,8 +244,14 @@ class task(taskparams):
     		mylist    = []
 		while(self.readsize==self.params.hopsize):
 			tmp = self()
-			if tmp: mylist.append(tmp)
+			if tmp: 
+				mylist.append(tmp)
+				if self.params.verbose:
+					self.fprint(tmp)
     		return mylist
+	
+	def fprint(self,foo):
+		print foo
 
 	def eval(self,results):
 		""" Eval data """
@@ -272,9 +280,14 @@ class tasksilence(task):
 			else: self.issilence = -1 
 			self.wassilence = 0
 		if self.issilence == -1:
-			return self.frameread, -1
+			return max(self.frameread-self.params.delay,0.), -1
 		elif self.issilence == 2:
-			return self.frameread, 2 
+			return max(self.frameread+self.params.delay,0.), 2 
+
+	def fprint(self,foo):
+		print self.params.step*foo[0],
+		if foo[1] == 2: print "OFF"
+		else: print "ON"
 
 class taskpitch(task):
 	def __init__(self,input,params=None):
@@ -343,10 +356,10 @@ class taskonset(task):
 			self.myvec,
 			self.params.threshold,
 			mode=get_onset_mode(self.params.onsetmode),
+			dcthreshold=self.params.dcthreshold,
 			derivate=self.params.derivate)
 		self.olist = [] 
 		self.ofunc = []
-		self.d,self.d2 = [],[]
 		self.maxofunc = 0
 		self.last = 0
 		if self.params.localmin:
@@ -365,24 +378,28 @@ class taskonset(task):
                         self.ovalist.pop(0)
                 if (isonset == 1):
                         if self.params.localmin:
-                                i=len(self.ovalist)-1
                                 # find local minima before peak 
+                                i=len(self.ovalist)-1
                                 while self.ovalist[i-1] < self.ovalist[i] and i > 0:
                                         i -= 1
                                 now = (self.frameread+1-i)
                         else:
                                 now = self.frameread
+			# take back delay
 			if self.params.delay != 0.: now -= self.params.delay
                         if now < 0 :
                                 now = 0
 			if self.params.mintol:
-				#print now - self.last, self.params.mintol
+				# prune doubled 
 				if (now - self.last) > self.params.mintol:
 					self.last = now
 					return now, val
 			else:
 				return now, val 
 
+
+	def fprint(self,foo):
+		print self.params.step*foo[0]
 
 	def eval(self,inputdata,ftru,mode='roc',vmode=''):
 		from txtfile import read_datafile 
@@ -413,36 +430,47 @@ class taskonset(task):
 				self.v['l'], self.v['labs'] = \
 				onset_rocloc(ltru,lres,self.params.tol)
 
-	def plot(self,onsets,ofunc):
+	def plot(self,onsets,ofunc,wplot,oplots,nplot=False):
 		import Gnuplot, Gnuplot.funcutils
 		import aubio.txtfile
 		import os.path
 		import numarray
 		from aubio.onsetcompare import onset_roc
 
+		x1,y1,y1p = [],[],[]
+		oplot = []
+
 		self.lenofunc = len(ofunc) 
-		self.maxofunc = max(max(ofunc), self.maxofunc)
+		self.maxofunc = max(ofunc)
 		# onset detection function 
-		downtime = numarray.arange(len(ofunc))/self.step
-		self.d.append(Gnuplot.Data(downtime,ofunc,with='lines'))
+		downtime = numarray.arange(len(ofunc))*self.params.step
+		oplot.append(Gnuplot.Data(downtime,ofunc,with='lines',title=self.params.onsetmode))
 
 		# detected onsets
-		x1 = numarray.array(onsets)/self.step
-		y1 = self.maxofunc*numarray.ones(len(onsets))
-		self.d.append(Gnuplot.Data(x1,y1,with='impulses'))
-		self.d2.append(Gnuplot.Data(x1,-y1,with='impulses'))
+		if not nplot:
+			for i in onsets:
+				x1.append(i[0]*self.params.step)
+				y1.append(self.maxofunc)
+				y1p.append(-self.maxofunc)
+			#x1 = numarray.array(onsets)*self.params.step
+			#y1 = self.maxofunc*numarray.ones(len(onsets))
+			if x1:
+				oplot.append(Gnuplot.Data(x1,y1,with='impulses'))
+				wplot.append(Gnuplot.Data(x1,y1p,with='impulses'))
+
+		oplots.append(oplot)
 
 		# check if datafile exists truth
 		datafile = self.input.replace('.wav','.txt')
 		if datafile == self.input: datafile = ""
 		if not os.path.isfile(datafile):
-			self.title = "truth file not found"
+			self.title = "" #"(no ground truth)"
 			t = Gnuplot.Data(0,0,with='impulses') 
 		else:
 			t_onsets = aubio.txtfile.read_datafile(datafile)
-			y2 = self.maxofunc*numarray.ones(len(t_onsets))
 			x2 = numarray.array(t_onsets).resize(len(t_onsets))
-			self.d2.append(Gnuplot.Data(x2,y2,with='impulses'))
+			y2 = self.maxofunc*numarray.ones(len(t_onsets))
+			wplot.append(Gnuplot.Data(x2,y2,with='impulses'))
 			
 			tol = 0.050 
 
@@ -453,21 +481,35 @@ class taskonset(task):
 				 (100*float(bad+doubled)/(orig)))
 
 
-	def plotplot(self,outplot=None):
+	def plotplot(self,wplot,oplot,outplot=None):
 		from aubio.gnuplot import gnuplot_init, audio_to_array, make_audio_plot
 		import re
 		# audio data
 		time,data = audio_to_array(self.input)
-		self.d2.append(make_audio_plot(time,data))
+		wplot = [make_audio_plot(time,data)] + wplot
 		# prepare the plot
 		g = gnuplot_init(outplot)
-
-		g('set title \'%s %s\'' % (re.sub('.*/','',self.input),self.title))
 
 		g('set multiplot')
 
 		# hack to align left axis
-		g('set lmargin 15')
+		g('set lmargin 6')
+		g('set tmargin 0')
+		g('set format x ""')
+		g('set format y ""')
+		g('set noytics')
+
+		for i in range(len(oplot)):
+			# plot onset detection functions
+			g('set size 1,%f' % (0.7/(len(oplot))))
+			g('set origin 0,%f' % (float(i)*0.7/(len(oplot))))
+			g('set xrange [0:%f]' % (self.lenofunc*self.params.step))
+			g.plot(*oplot[i])
+
+		g('set tmargin 3')
+		g('set format x "%10.1f"')
+
+		g('set title \'%s %s\'' % (re.sub('.*/','',self.input),self.title))
 
 		# plot waveform and onsets
 		g('set size 1,0.3')
@@ -475,19 +517,8 @@ class taskonset(task):
 		g('set xrange [0:%f]' % max(time)) 
 		g('set yrange [-1:1]') 
 		g.ylabel('amplitude')
-		g.plot(*self.d2)
+		g.plot(*wplot)
 		
-		g('unset title')
-
-		# plot onset detection function
-		g('set size 1,0.7')
-		g('set origin 0,0')
-		g('set xrange [0:%f]' % (self.lenofunc/self.step))
-		g('set yrange [0:%f]' % (self.maxofunc*1.01))
-		g.xlabel('time')
-		g.ylabel('onset detection value')
-		g.plot(*self.d)
-
 		g('unset multiplot')
 
 class taskcut(task):
@@ -497,16 +528,16 @@ class taskcut(task):
 		"""
 		task.__init__(self,input,output=None,params=params)
 		self.newname   = "%s%s%09.5f%s%s" % (self.input.split(".")[0].split("/")[-1],".",
-					self.frameread/self.step,".",self.input.split(".")[-1])
-		self.fileo	 = sndfile(self.newname,model=self.filei)
-		self.myvec	 = fvec(self.params.hopsize,self.channels)
+					self.frameread*self.params.step,".",self.input.split(".")[-1])
+		self.fileo	= sndfile(self.newname,model=self.filei)
+		self.myvec	= fvec(self.params.hopsize,self.channels)
 		self.mycopy	= fvec(self.params.hopsize,self.channels)
 		self.slicetimes = slicetimes 
 
 	def __call__(self):
 		task.__call__(self)
 		# write to current file
-		if len(self.slicetimes) and self.frameread >= self.slicetimes[0]:
+		if len(self.slicetimes) and self.frameread >= self.slicetimes[0][0]:
 			self.slicetimes.pop(0)
 			# write up to 1st zero crossing
 			zerocross = 0
@@ -522,7 +553,7 @@ class taskcut(task):
 			del self.fileo
 			self.fileo = sndfile("%s%s%09.5f%s%s" % 
 				(self.input.split(".")[0].split("/")[-1],".",
-				self.frameread/self.step,".",self.input.split(".")[-1]),model=self.filei)
+				self.frameread*self.params.step,".",self.input.split(".")[-1]),model=self.filei)
 			writesize = self.fileo.write(fromcross,self.mycopy)
 		else:
 			writesize = self.fileo.write(self.readsize,self.myvec)
