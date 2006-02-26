@@ -77,7 +77,7 @@ class peakpick:
 
 class onsetpick:
     """ superclass for aubio_pvoc + aubio_onsetdetection + aubio_peakpicker """
-    def __init__(self,bufsize,hopsize,channels,myvec,threshold,mode='dual',derivate=False):
+    def __init__(self,bufsize,hopsize,channels,myvec,threshold,mode='dual',derivate=False,dcthreshold=0):
         self.myfft    = cvec(bufsize,channels)
         self.pv       = pvoc(bufsize,hopsize,channels)
         if mode in ['dual'] :
@@ -91,6 +91,7 @@ class onsetpick:
         self.mode     = mode
         self.pp       = peakpick(float(threshold))
         self.derivate = derivate
+	self.dcthreshold = dcthreshold 
         self.oldval   = 0.
 
     def do(self,myvec): 
@@ -103,6 +104,10 @@ class onsetpick:
                 val         = self.myonset.get(0,0)
                 dval        = val - self.oldval
                 self.oldval = val
+                if dval > 0: self.myonset.set(dval,0,0)
+                else:  self.myonset.set(0.,0,0)
+	if self.dcthreshold:
+                dval        = self.myonset.get(0,0) - self.dcthreshold
                 if dval > 0: self.myonset.set(dval,0,0)
                 else:  self.myonset.set(0.,0,0)
         return self.pp.do(self.myonset),self.myonset.get(0,0)
