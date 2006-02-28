@@ -48,6 +48,16 @@ public:
 /* cvec */
 extern cvec_t * new_cvec(uint_t length, uint_t channels);
 extern void del_cvec(cvec_t *s);
+extern void cvec_write_norm(cvec_t *s, smpl_t data, uint_t channel, uint_t position);
+extern void cvec_write_phas(cvec_t *s, smpl_t data, uint_t channel, uint_t position);
+extern smpl_t cvec_read_norm(cvec_t *s, uint_t channel, uint_t position);
+extern smpl_t cvec_read_phas(cvec_t *s, uint_t channel, uint_t position);
+extern void cvec_put_norm_channel(cvec_t *s, smpl_t * data, uint_t channel);
+extern void cvec_put_phas_channel(cvec_t *s, smpl_t * data, uint_t channel);
+extern smpl_t * cvec_get_norm_channel(cvec_t *s, uint_t channel);
+extern smpl_t * cvec_get_phas_channel(cvec_t *s, uint_t channel);
+extern smpl_t ** cvec_get_norm(cvec_t *s);
+extern smpl_t ** cvec_get_phas(cvec_t *s);
 
 
 /* sndfile */

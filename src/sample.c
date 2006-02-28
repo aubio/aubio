@@ -89,3 +89,34 @@ void del_cvec(cvec_t *s) {
   AUBIO_FREE(s->phas);
   AUBIO_FREE(s);
 }
+
+void cvec_write_norm(cvec_t *s, smpl_t data, uint_t channel, uint_t position) {
+  s->norm[channel][position] = data;
+}
+void cvec_write_phas(cvec_t *s, smpl_t data, uint_t channel, uint_t position) {
+  s->phas[channel][position] = data;
+}
+smpl_t cvec_read_norm(cvec_t *s, uint_t channel, uint_t position) {
+  return s->norm[channel][position];
+}
+smpl_t cvec_read_phas(cvec_t *s, uint_t channel, uint_t position) {
+  return s->phas[channel][position];
+}
+void cvec_put_norm_channel(cvec_t *s, smpl_t * data, uint_t channel) {
+  s->norm[channel] = data;
+}
+void cvec_put_phas_channel(cvec_t *s, smpl_t * data, uint_t channel) {
+  s->phas[channel] = data;
+}
+smpl_t * cvec_get_norm_channel(cvec_t *s, uint_t channel) {
+  return s->norm[channel];
+}
+smpl_t * cvec_get_phas_channel(cvec_t *s, uint_t channel) {
+  return s->phas[channel];
+}
+smpl_t ** cvec_get_norm(cvec_t *s) {
+  return s->norm;
+}
+smpl_t ** cvec_get_phas(cvec_t *s) {
+  return s->phas;
+}

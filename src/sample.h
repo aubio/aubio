@@ -71,8 +71,19 @@ void  fvec_write_sample(fvec_t *s, smpl_t data, uint_t channel, uint_t position)
 smpl_t * fvec_get_channel(fvec_t *s, uint_t channel);
 smpl_t ** fvec_get_data(fvec_t *s);
 void fvec_put_channel(fvec_t *s, smpl_t * data, uint_t channel);
+
 extern cvec_t * new_cvec(uint_t length, uint_t channels);
 extern void del_cvec(cvec_t *s);
+void cvec_write_norm(cvec_t *s, smpl_t data, uint_t channel, uint_t position);
+void cvec_write_phas(cvec_t *s, smpl_t data, uint_t channel, uint_t position);
+smpl_t cvec_read_norm(cvec_t *s, uint_t channel, uint_t position);
+smpl_t cvec_read_phas(cvec_t *s, uint_t channel, uint_t position);
+void cvec_put_norm_channel(cvec_t *s, smpl_t * data, uint_t channel);
+void cvec_put_phas_channel(cvec_t *s, smpl_t * data, uint_t channel);
+smpl_t * cvec_get_norm_channel(cvec_t *s, uint_t channel);
+smpl_t * cvec_get_phas_channel(cvec_t *s, uint_t channel);
+smpl_t ** cvec_get_norm(cvec_t *s);
+smpl_t ** cvec_get_phas(cvec_t *s);
 
 #ifdef __cplusplus
 }
