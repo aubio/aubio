@@ -24,7 +24,18 @@ class cvec:
     def __del__(self):
         del_cvec(self())
     def get(self,pos,chan):
-        return fvec_read_sample(self(),chan,pos)
+        return cvec_read_norm(self(),chan,pos)
+
+    """
+	cvec_write_norm(cvec_t *s, smpl_t data, uint_t channel, uint_t position);
+	cvec_write_phas(cvec_t *s, smpl_t data, uint_t channel, uint_t position);
+	cvec_read_norm (cvec_t *s, uint_t channel, uint_t position);
+	cvec_read_phas (cvec_t *s, uint_t channel, uint_t position);
+	cvec_put_norm_channel(cvec_t *s, smpl_t * data, uint_t channel);
+	cvec_put_phas_channel(cvec_t *s, smpl_t * data, uint_t channel);
+	cvec_get_norm_channel(cvec_t *s, uint_t channel);
+	cvec_get_phas_channel(cvec_t *s, uint_t channel);
+    """
 
 class sndfile:
     def __init__(self,filename,model=None):
