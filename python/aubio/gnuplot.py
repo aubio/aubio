@@ -53,8 +53,8 @@ def plot_audio(filenames, fileout=None, start=0, end=None, noaxis=None):
 	xsize = 1./todraw
 	g.gnuplot('set multiplot;')
 	while (len(filenames)):
-	        time,data = audio_to_array(filenames.pop(0))
-                d.append(make_audio_plot(time,data))
+		time,data = audio_to_array(filenames.pop(0))
+		d.append(make_audio_plot(time,data))
 		if not noaxis and todraw==1:
 			g.xlabel('Time (s)')
 			g.ylabel('Amplitude')
@@ -67,8 +67,69 @@ def plot_audio(filenames, fileout=None, start=0, end=None, noaxis=None):
 		xorig += 1./todraw
 	g.gnuplot('unset multiplot;')
 
+def audio_to_spec(filename):
+	from aubioclass import fvec,cvec,pvoc,sndfile
+	from math import log
+	bufsize   = 256*16
+	hopsize   = bufsize/4 # could depend on filelength
+	filei     = sndfile(filename)
+	srate     = float(filei.samplerate())
+	framestep = hopsize/srate
+	freqstep  = srate/bufsize
+	channels  = filei.channels()
+	myvec = fvec(hopsize,channels)
+        myfft = cvec(bufsize,channels)
+        pv    = pvoc(bufsize,hopsize,channels)
+	data,time,freq = [],[],[]
+	for f in range(bufsize/2):
+		freq.append(f*freqstep)
+	readsize = hopsize
+	frameread = 0
+	while (readsize==hopsize):
+		readsize = filei.read(hopsize,myvec)
+		pv.do(myvec,myfft)
+		frame = []
+		i = 0 #for i in range(channels):
+		curpos = 0
+		while (curpos < bufsize/2):
+			frame.append(log(myfft.get(curpos,i)**2+0.000001))
+			curpos+=1
+		time.append(frameread*framestep)
+		data.append(frame)
+		frameread += 1
+	# crop data if unfinished frames
+	if len(data[-1]) != len(data[0]):
+		data = data[0:-2]
+		time = time[0:-2]
+	# verify size consistency
+	assert len(data) == len(time)
+	assert len(data[0]) == len(freq)
+	return data,time,freq
+
+def plot_spec(filenames, outplot='',extension='', fileout=None, start=0, end=None, noaxis=None,log=1):
+	import Gnuplot
+	g = gnuplot_create(outplot,extension)
+	todraw = len(filenames)
+	xorig = 0.
+	xsize = 1./todraw
+	data,time,freq = audio_to_spec(filenames.pop(0))
+		
+	if not noaxis and todraw==1:
+		g.xlabel('Time (s)')
+		g.ylabel('Frequency (Hz)')
+	g.gnuplot('set pm3d map')
+	#g.gnuplot('set palette rgbformulae 30,31,32')
+	#g.gnuplot('set palette')
+	g.gnuplot('set xrange [0.:%f]' % time[-1]) 
+	g.gnuplot('set yrange [1.:%f]' % (freq[-1]/1.))
+	if log:
+		g.gnuplot('set yrange [10.1:%f]' % (freq[-1]/1.))
+		g.gnuplot('set log y')
+	g.splot(Gnuplot.GridData(data,time,freq, binary=1))
+	xorig += 1./todraw
+
 def downsample_audio(time,data,maxpoints=10000):
-	""" create gnuplot plot from an audio file """
+	""" resample audio data to last only maxpoints """
 	import numarray
         length = len(time)
 	downsample = length/maxpoints
@@ -178,7 +239,7 @@ def plot_pitch(filename, pitch, samplerate=44100., hopsize=512, outplot=None):
 	import re
 
         d = []
-        maxpitch = 100
+        maxpitch = 1000.
         for i in range(len(pitch)):
                 #if len(pitch[i]) == 0: pitch[i] = [0.];
 
@@ -227,6 +288,7 @@ def plot_pitch(filename, pitch, samplerate=44100., hopsize=512, outplot=None):
         g('set xrange [0:%f]' % max(time))
         g('set yrange [40:%f]' % maxpitch) 
         g('set key right top')
+        g('set noclip one') 
         g.xlabel('time')
         g.ylabel('frequency (Hz)')
         g.plot(*d)
