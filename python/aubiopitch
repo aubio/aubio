@@ -85,12 +85,13 @@ options, args = parse_args()
 
 filename   = options.filename
 params = taskparams()
-#params.samplerate = float(sndfile(filename).samplerate())
+params.samplerate = float(sndfile(filename).samplerate())
 params.hopsize    = int(options.hopsize)
 params.bufsize    = int(options.bufsize)
-#params.step       = float(samplerate)/float(hopsize)
+params.step       = params.samplerate/float(params.hopsize)
 params.threshold  = float(options.threshold)
 params.silence    = float(options.silence)
+params.verbose    = options.verbose
 #mintol     = float(options.mintol)*step
 # default take back system delay
 if options.delay: delay = float(options.delay)
@@ -100,27 +101,14 @@ if options.note:
         exit("not implemented yet")
 
 
-pitch = []
+wplot,oplots = [],[]
 modes = options.mode.split(',')
 for i in range(len(modes)):
+	pitch = []
 	params.pitchmode  = modes[i]
-	dotask = taskpitch
-	#pitch.append(getpitch(filename, #threshold,
-	#	mode=mode[i],
-	#	omode=options.omode,
-	#	bufsize=bufsize,hopsize=hopsize,
-	#	silence=silence))
-	filetask = dotask(filename,params=params)
-	pitch.append(filetask.compute_all())
-	for j in range(len(pitch[i])):
-		if pitch[i][j] > 10000 or pitch[i][j] < 40:
-			pitch[i][j] = 0.;
+	filetask = taskpitch(filename,params=params)
+	pitch = filetask.compute_all()
+	#print filetask.eval(pitch[i]) 
+	filetask.plot(pitch,wplot,oplots)
 
-	if options.verbose:
-		for j in range(len(pitch[i])): 
-			print "%f\t" % (j/params.step),
-			print "%f\t" % pitch[i][j],
-			print
-
-	if options.plot:
-		filetask.plot(pitch,outplot=options.outplot)
+filetask.plotplot(wplot,oplots,outplot=options.outplot)
