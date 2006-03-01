@@ -27,11 +27,14 @@ inspired from http://www.ics.uci.edu/~eppstein/161/python/peters-selection.py
 """
 
 def short_find(a, rank):
-    a.sort()
-    return a[rank - 1]
+    """ find the rank-th value in sorted a """
+    # copy to b before sorting
+    b = a[:]
+    b.sort()
+    return b[rank - 1]
 
-# Find the rank'th-smallest value in a, in worst-case linear time.
 def percental(a, rank):
+    """ Find the rank'th-smallest value in a, in worst-case linear time. """
     n = len(a)
     assert 1 <= rank <= n
     if n <= 7:
