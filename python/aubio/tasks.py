@@ -211,6 +211,9 @@ class taskparams(object):
 		self.threshold = 0.1
 		self.onsetmode = 'dual'
 		self.pitchmode = 'yin'
+		self.pitchsmooth = 20
+		self.pitchmin=100.
+		self.pitchmax=1500.
 		self.dcthreshold = -1.
 		self.omode = aubio_pitchm_freq
 		self.verbose   = False
@@ -292,6 +295,7 @@ class tasksilence(task):
 class taskpitch(task):
 	def __init__(self,input,params=None):
 		task.__init__(self,input,params=params)
+		self.shortlist = [0. for i in range(self.params.pitchsmooth)]
 		self.pitchdet  = pitchdetection(mode=get_pitch_mode(self.params.pitchmode),
 			bufsize=self.params.bufsize,
 			hopsize=self.params.hopsize,
@@ -300,13 +304,36 @@ class taskpitch(task):
 			omode=self.params.omode)
 
 	def __call__(self):
-		#print "%.3f     %.2f" % (now,freq)
+		from median import short_find
 		task.__call__(self)
-		freq = self.pitchdet(self.myvec)
-		if (aubio_silence_detection(self.myvec(),self.params.silence)!=1):
+		if (aubio_silence_detection(self.myvec(),self.params.silence)==1):
+			freq = -1.
+		else:
+			freq = self.pitchdet(self.myvec)
+		minpitch = self.params.pitchmin
+		maxpitch = self.params.pitchmax
+		if maxpitch and freq > maxpitch : 
+			freq = -1.
+		elif minpitch and freq < minpitch :
+			freq = -1.
+		if self.params.pitchsmooth:
+			self.shortlist.append(freq)
+			self.shortlist.pop(0)
+			smoothfreq = short_find(self.shortlist,
+				len(self.shortlist)/2)
+			return smoothfreq
+		else:
 			return freq
-		else: 
-			return -1.
+
+	def compute_all(self):
+		""" Compute data """
+    		mylist    = []
+		while(self.readsize==self.params.hopsize):
+			freq = self()
+			mylist.append(freq)
+			if self.params.verbose:
+				self.fprint("%s\t%s" % (self.frameread*self.params.step,freq))
+    		return mylist
 
 	def gettruth(self):
 		""" big hack to extract midi note from /path/to/file.<midinote>.wav """
@@ -321,27 +348,89 @@ class taskpitch(task):
 		def mmean(l):
 			return sum(l)/max(float(len(l)),1)
 
-		from median import short_find 
+		from median import percental 
 		self.truth = self.gettruth()
 		res = []
 		for i in results:
-			if i == -1: pass
-			else: 
-				res.append(self.truth-i)
+			if i <= 0: pass
+			else: res.append(self.truth-i)
 		if not res: 
 			avg = self.truth; med = self.truth 
 		else:
 			avg = mmean(res) 
-			med = short_find(res,len(res)/2) 
+			med = percental(res,len(res)/2) 
 		return self.truth, self.truth-med, self.truth-avg
 
-	def plot(self,pitch,outplot=None):
-		from aubio.gnuplot import plot_pitch
-		plot_pitch(self.input, 
-			pitch, 
-			samplerate=float(self.srate), 
-			hopsize=self.params.hopsize, 
-			outplot=outplot)
+	def plot(self,pitch,wplot,oplots,outplot=None):
+		from aubio.txtfile import read_datafile
+		import os.path
+		import numarray
+		import Gnuplot
+
+		downtime = self.params.step*numarray.arange(len(pitch))
+		oplots.append(Gnuplot.Data(downtime,pitch,with='lines',
+			title=self.params.pitchmode))
+
+		# check if ground truth exists
+		datafile = self.input.replace('.wav','.txt')
+		if datafile == self.input: datafile = ""
+		if not os.path.isfile(datafile):
+			self.title = "" #"truth file not found"
+			t = Gnuplot.Data(0,0,with='impulses') 
+		else:
+			self.title = "" #"truth file plotting not implemented yet"
+			values = read_datafile(datafile)
+			if (len(datafile[0])) > 1:
+				time, pitch = [], []
+				for i in range(len(values)):
+					time.append(values[i][0])
+					pitch.append(values[i][1])
+				oplots.append(Gnuplot.Data(time,pitch,with='lines',
+					title='ground truth'))
+			
+	def plotplot(self,wplot,oplots,outplot=None):
+		from aubio.gnuplot import gnuplot_init, audio_to_array, make_audio_plot
+		import re
+		# audio data
+		time,data = audio_to_array(self.input)
+		f = make_audio_plot(time,data)
+
+		g = gnuplot_init(outplot)
+		g('set title \'%s %s\'' % (re.sub('.*/','',self.input),self.title))
+		g('set multiplot')
+		# hack to align left axis
+		g('set lmargin 15')
+		# plot waveform and onsets
+		g('set size 1,0.3')
+		g('set origin 0,0.7')
+		g('set xrange [0:%f]' % max(time)) 
+		g('set yrange [-1:1]') 
+		g.ylabel('amplitude')
+		g.plot(f)
+		g('unset title')
+		# plot onset detection function
+
+
+		g('set size 1,0.7')
+		g('set origin 0,0')
+		g('set xrange [0:%f]' % max(time))
+		g('set yrange [40:%f]' % self.params.pitchmax) 
+		g('set key right top')
+		g('set noclip one') 
+		g('set format x ""')
+		#g.xlabel('time (s)')
+		g.ylabel('frequency (Hz)')
+		multiplot = 1
+		if multiplot:
+			for i in range(len(oplots)):
+				# plot onset detection functions
+				g('set size 1,%f' % (0.7/(len(oplots))))
+				g('set origin 0,%f' % (float(i)*0.7/(len(oplots))))
+				g('set xrange [0:%f]' % max(time))
+				g.plot(oplots[i])
+		else:
+			g.plot(*oplots)
+		g('unset multiplot')
 
 
 class taskonset(task):
@@ -439,6 +528,7 @@ class taskonset(task):
 
 		x1,y1,y1p = [],[],[]
 		oplot = []
+		if self.params.onsetmode in ('mkl','kl'): ofunc[0:10] = [0] * 10
 
 		self.lenofunc = len(ofunc) 
 		self.maxofunc = max(ofunc)
@@ -481,7 +571,7 @@ class taskonset(task):
 				 (100*float(bad+doubled)/(orig)))
 
 
-	def plotplot(self,wplot,oplot,outplot=None):
+	def plotplot(self,wplot,oplots,outplot=None):
 		from aubio.gnuplot import gnuplot_init, audio_to_array, make_audio_plot
 		import re
 		# audio data
@@ -499,15 +589,16 @@ class taskonset(task):
 		g('set format y ""')
 		g('set noytics')
 
-		for i in range(len(oplot)):
+		for i in range(len(oplots)):
 			# plot onset detection functions
-			g('set size 1,%f' % (0.7/(len(oplot))))
-			g('set origin 0,%f' % (float(i)*0.7/(len(oplot))))
+			g('set size 1,%f' % (0.7/(len(oplots))))
+			g('set origin 0,%f' % (float(i)*0.7/(len(oplots))))
 			g('set xrange [0:%f]' % (self.lenofunc*self.params.step))
-			g.plot(*oplot[i])
+			g.plot(*oplots[i])
 
-		g('set tmargin 3')
-		g('set format x "%10.1f"')
+		g('set tmargin 3.0')
+		g('set xlabel "time (s)" 1,0')
+		g('set format x "%1.1f"')
 
 		g('set title \'%s %s\'' % (re.sub('.*/','',self.input),self.title))
 
