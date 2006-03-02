@@ -88,9 +88,9 @@ class taskparams(object):
 		self.threshold = 0.1
 		self.onsetmode = 'dual'
 		self.pitchmode = 'yin'
-		self.pitchsmooth = 20
+		self.pitchsmooth = 7
 		self.pitchmin=100.
-		self.pitchmax=1500.
+		self.pitchmax=1000.
 		self.dcthreshold = -1.
 		self.omode = aubio_pitchm_freq
 		self.verbose   = False
@@ -213,25 +213,58 @@ class taskpitch(task):
     		return mylist
 
 	def gettruth(self):
-		""" big hack to extract midi note from /path/to/file.<midinote>.wav """
+		""" extract ground truth array in frequency """
+		import os.path
+		""" from wavfile.txt """
+		datafile = self.input.replace('.wav','.txt')
+		if datafile == self.input: datafile = ""
+		""" from file.<midinote>.wav """
+		# FIXME very weak check
 		floatpit = self.input.split('.')[-2]
-		try:
-			return aubio_miditofreq(float(floatpit))
-		except ValueError:
-			print "ERR: no truth file found"
-			return 0
+
+		if not os.path.isfile(datafile) and not len(self.input.split('.')) < 3:
+			print "no ground truth "
+			return False,False
+		elif floatpit:
+			try:
+				self.truth = aubio_miditofreq(float(floatpit))
+				print "ground truth found in filename:", self.truth
+				tasksil = tasksilence(self.input)
+				time,pitch =[],[]
+				while(tasksil.readsize==tasksil.params.hopsize):
+					tasksil()
+					time.append(tasksil.params.step*tasksil.frameread)
+					if not tasksil.issilence:
+						pitch.append(self.truth)
+					else:
+						pitch.append(-1.)
+				return time,pitch #0,aubio_miditofreq(float(floatpit))
+			except ValueError:
+				# FIXME very weak check
+				if not os.path.isfile(datafile):
+					print "no ground truth found"
+					return 0,0
+				else:
+					from aubio.txtfile import read_datafile
+					values = read_datafile(datafile)
+					time, pitch = [], []
+					for i in range(len(values)):
+						time.append(values[i][0])
+						pitch.append(values[i][1])
+					return time,pitch
 
 	def eval(self,results):
 		def mmean(l):
 			return sum(l)/max(float(len(l)),1)
 
 		from median import percental 
-		self.truth = self.gettruth()
+		timet,pitcht = self.gettruth()
 		res = []
 		for i in results:
+			#print i,self.truth
 			if i <= 0: pass
 			else: res.append(self.truth-i)
-		if not res: 
+		if not res or len(res) < 3: 
 			avg = self.truth; med = self.truth 
 		else:
 			avg = mmean(res) 
@@ -239,8 +272,6 @@ class taskpitch(task):
 		return self.truth, self.truth-med, self.truth-avg
 
 	def plot(self,pitch,wplot,oplots,outplot=None):
-		from aubio.txtfile import read_datafile
-		import os.path
 		import numarray
 		import Gnuplot
 
@@ -248,32 +279,25 @@ class taskpitch(task):
 		oplots.append(Gnuplot.Data(downtime,pitch,with='lines',
 			title=self.params.pitchmode))
 
-		# check if ground truth exists
-		datafile = self.input.replace('.wav','.txt')
-		if datafile == self.input: datafile = ""
-		if not os.path.isfile(datafile):
-			self.title = "" #"truth file not found"
-			t = Gnuplot.Data(0,0,with='impulses') 
-		else:
-			self.title = "" #"truth file plotting not implemented yet"
-			values = read_datafile(datafile)
-			if (len(datafile[0])) > 1:
-				time, pitch = [], []
-				for i in range(len(values)):
-					time.append(values[i][0])
-					pitch.append(values[i][1])
-				oplots.append(Gnuplot.Data(time,pitch,with='lines',
-					title='ground truth'))
 			
-	def plotplot(self,wplot,oplots,outplot=None):
+	def plotplot(self,wplot,oplots,outplot=None,multiplot = 1):
 		from aubio.gnuplot import gnuplot_init, audio_to_array, make_audio_plot
 		import re
+		import Gnuplot
 		# audio data
 		time,data = audio_to_array(self.input)
 		f = make_audio_plot(time,data)
 
+		# check if ground truth exists
+		timet,pitcht = self.gettruth()
+		if timet and pitcht:
+			oplots = [Gnuplot.Data(timet,pitcht,with='lines',
+				title='ground truth')] + oplots
+
+		t = Gnuplot.Data(0,0,with='impulses') 
+
 		g = gnuplot_init(outplot)
-		g('set title \'%s %s\'' % (re.sub('.*/','',self.input),self.title))
+		g('set title \'%s\'' % (re.sub('.*/','',self.input)))
 		g('set multiplot')
 		# hack to align left axis
 		g('set lmargin 15')
@@ -291,13 +315,13 @@ class taskpitch(task):
 		g('set size 1,0.7')
 		g('set origin 0,0')
 		g('set xrange [0:%f]' % max(time))
-		g('set yrange [40:%f]' % self.params.pitchmax) 
+		g('set yrange [100:%f]' % self.params.pitchmax) 
 		g('set key right top')
 		g('set noclip one') 
 		g('set format x ""')
+		g('set log y')
 		#g.xlabel('time (s)')
-		g.ylabel('frequency (Hz)')
-		multiplot = 1
+		g.ylabel('f0 (Hz)')
 		if multiplot:
 			for i in range(len(oplots)):
 				# plot onset detection functions
@@ -427,12 +451,11 @@ class taskonset(task):
 
 		oplots.append(oplot)
 
-		# check if datafile exists truth
+		# check if ground truth datafile exists
 		datafile = self.input.replace('.wav','.txt')
 		if datafile == self.input: datafile = ""
 		if not os.path.isfile(datafile):
 			self.title = "" #"(no ground truth)"
-			t = Gnuplot.Data(0,0,with='impulses') 
 		else:
 			t_onsets = aubio.txtfile.read_datafile(datafile)
 			x2 = numarray.array(t_onsets).resize(len(t_onsets))
@@ -454,6 +477,7 @@ class taskonset(task):
 		# audio data
 		time,data = audio_to_array(self.input)
 		wplot = [make_audio_plot(time,data)] + wplot
+		self.title = self.input
 		# prepare the plot
 		g = gnuplot_init(outplot)
 
