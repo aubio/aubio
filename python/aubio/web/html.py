@@ -177,7 +177,7 @@ def show_sound(req):
 
 ## pitch foo
 def draw_pitch(req,threshold='0.3'):
-    draw_func(req,"aubiopitch -i %%i -p -m yin -t %s -O stdout" % threshold)
+    draw_func(req,"aubiopitch -i %%i -p -m schmitt,yin,fcomb,mcomb -t %s -O stdout" % threshold)
 
 def show_pitch(req):
     show_task(req,"pitch")
