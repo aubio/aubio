@@ -106,15 +106,13 @@ def audio_to_spec(filename):
 	assert len(data[0]) == len(freq)
 	return data,time,freq
 
-def plot_spec(filenames, outplot='',extension='', fileout=None, start=0, end=None, noaxis=None,log=1):
+def plot_spec(filename, outplot='',extension='', fileout=None, start=0, end=None, noaxis=None,log=1):
 	import Gnuplot
 	g = gnuplot_create(outplot,extension)
-	todraw = len(filenames)
+	data,time,freq = audio_to_spec(filename)
 	xorig = 0.
-	xsize = 1./todraw
-	data,time,freq = audio_to_spec(filenames.pop(0))
-		
-	if not noaxis and todraw==1:
+	xsize = 1.#/todraw
+	if not noaxis:
 		g.xlabel('Time (s)')
 		g.ylabel('Frequency (Hz)')
 	g.gnuplot('set pm3d map')
@@ -126,7 +124,7 @@ def plot_spec(filenames, outplot='',extension='', fileout=None, start=0, end=Non
 		g.gnuplot('set yrange [10.1:%f]' % (freq[-1]/1.))
 		g.gnuplot('set log y')
 	g.splot(Gnuplot.GridData(data,time,freq, binary=1))
-	xorig += 1./todraw
+	#xorig += 1./todraw
 
 def downsample_audio(time,data,maxpoints=10000):
 	""" resample audio data to last only maxpoints """
@@ -173,5 +171,5 @@ def gnuplot_create(outplot='',extension='',debug=0,persist=1):
 	else: exit("ERR: unknown plot extension")
 	g('set terminal %s' % extension)
 	if outplot != "stdout":
-		g('set output \'roc-%s%s\'' % (outplot,ext))
+		g('set output \'%s%s\'' % (outplot,ext))
 	return g
