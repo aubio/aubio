@@ -60,8 +60,8 @@ class taskonset(task):
 		print self.params.step*foo[0]
 
 	def eval(self,inputdata,ftru,mode='roc',vmode=''):
-		from txtfile import read_datafile 
-		from onsetcompare import onset_roc, onset_diffs, onset_rocloc
+		from aubio.txtfile import read_datafile 
+		from aubio.onsetcompare import onset_roc, onset_diffs, onset_rocloc
 		ltru = read_datafile(ftru,depth=0)
 		lres = []
 		for i in range(len(inputdata)): lres.append(inputdata[i][0]*self.params.step)

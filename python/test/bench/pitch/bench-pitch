@@ -1,7 +1,7 @@
 #! /usr/bin/python
 
 from aubio.bench.node import *
-from aubio.tasks import *
+from aubio.task import *
 
 class benchpitch(bench):
 	

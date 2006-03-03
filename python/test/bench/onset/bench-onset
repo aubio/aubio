@@ -1,8 +1,8 @@
 #! /usr/bin/python
 
-from aubio.tasks import *
+from aubio.task import *
 
-from benchonset import mmean, stdev, benchonset
+from aubio.bench.onset import mmean, stdev, benchonset
 
 class mybenchonset(benchonset):
 
