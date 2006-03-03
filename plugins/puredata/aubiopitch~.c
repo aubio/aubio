@@ -12,7 +12,7 @@
 
 char aubiopitch_version[] = "aubiopitch~ version 0.1";
 
-aubio_pitchdetection_type type_pitch = aubio_pitch_schmitt; // aubio_pitch_mcomb
+aubio_pitchdetection_type type_pitch = aubio_pitch_mcomb; // aubio_pitch_mcomb
 aubio_pitchdetection_mode mode_pitch = aubio_pitchm_freq;
 
 static t_class *aubiopitch_tilde_class;
