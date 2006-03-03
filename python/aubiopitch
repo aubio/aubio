@@ -5,7 +5,7 @@
 """
 
 import sys
-from aubio.tasks import *
+from aubio.task import *
 
 usage = "usage: %s [options] -i soundfile" % sys.argv[0]
 
