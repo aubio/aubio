@@ -74,6 +74,12 @@ extern uint_t aubio_sndfile_samplerate(aubio_sndfile_t * file);
 extern void aubio_fft_getnorm(smpl_t * norm, fft_data_t * spectrum, uint_t size);
 extern void aubio_fft_getphas(smpl_t * phase, fft_data_t * spectrum, uint_t size);
 
+extern aubio_mfft_t * new_aubio_mfft(uint_t winsize, uint_t channels);
+extern void aubio_mfft_do (aubio_mfft_t * fft,fvec_t * in,cvec_t * fftgrain);
+extern void aubio_mfft_rdo(aubio_mfft_t * fft,cvec_t * fftgrain, fvec_t * out);
+extern void del_aubio_mfft(aubio_mfft_t * fft);
+
+
 /* filter */
 extern aubio_filter_t * new_aubio_filter(uint_t samplerate, uint_t order);
 extern aubio_filter_t * new_aubio_adsgn_filter(uint_t samplerate);
