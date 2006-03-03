@@ -79,7 +79,10 @@ class benchpitch(bench):
 		g('orig(x) = beta*x')
 		g.xlabel('original pitch (Hz)')
 		g.ylabel('detected pitch (Hz)')
+		g('set key left top')
 		g('set log xy')
+		g('set xrange [50:2000]')
+		g('set yrange [50:2000]')
 		g.plot(*d)
 
 
@@ -93,8 +96,10 @@ if __name__ == "__main__":
 	#modes = ['fcomb']
 
 	params = taskparams()
-	params.bufsize = 2048
-	params.hopsize = params.bufsize/2
+	params.bufsize = 4096 
+	params.hopsize = params.bufsize/4
+	params.silence = -1000.
+	params.pitchsmooth = 50
 	benchpitch = benchpitch(datapath,params=params)
 	benchpitch.task = taskpitch
 
