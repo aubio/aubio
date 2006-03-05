@@ -25,7 +25,7 @@ def list_files(datapath,filter='f', maxdepth = -1):
 		sys.exit(1)
 	if maxdepth >= 0: maxstring = " -maxdepth %d " % maxdepth	
 	else: maxstring = ""
-        cmd = '%s' * 5 % ('find ',datapath,maxstring,' -type ',filter)
+        cmd = '%s' * 6 % ('find ',datapath,maxstring,' -type ',filter, "| sort -n")
         return runcommand(cmd)
 
 def list_wav_files(datapath,maxdepth = -1):

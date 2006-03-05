@@ -60,9 +60,9 @@ class taskpitch(task):
 			return False,False
 		elif floatpit:
 			try:
-				self.truth = aubio_miditofreq(float(floatpit))
-				print "ground truth found in filename:", self.truth
-				tasksil = tasksilence(self.input)
+				self.truth = float(floatpit)
+				#print "ground truth found in filename:", self.truth
+				tasksil = tasksilence(self.input,params=self.params)
 				time,pitch =[],[]
 				while(tasksil.readsize==tasksil.params.hopsize):
 					tasksil()
@@ -83,10 +83,10 @@ class taskpitch(task):
 					time, pitch = [], []
 					for i in range(len(values)):
 						time.append(values[i][0])
-						pitch.append(values[i][1])
+						pitch.append(aubio_freqtomidi(values[i][1]))
 					return time,pitch
 
-	def eval(self,results):
+	def oldeval(self,results):
 		def mmean(l):
 			return sum(l)/max(float(len(l)),1)
 
@@ -104,23 +104,44 @@ class taskpitch(task):
 			med = percental(res,len(res)/2) 
 		return self.truth, self.truth-med, self.truth-avg
 
-	def neweval(self,results):
+	def eval(self,pitch,tol=0.9):
 		timet,pitcht = self.gettruth()
-		for i in timet:
-			print results[i]
-		return self.truth, self.truth-med, self.truth-avg
+		pitch = [aubio_freqtomidi(i) for i in pitch]
+		for i in range(len(pitch)):
+			if pitch[i] == "nan" or pitch[i] == -1:
+				pitch[i] = -1
+		time = [ i*self.params.step for i in range(len(pitch)) ]
+		assert len(timet) == len(time) 
+		assert len(pitcht) == len(pitch)
+		osil, esil, opit, epit, echr = 0, 0, 0, 0, 0
+		for i in range(len(pitcht)):
+			if pitcht[i] == -1: # currently silent
+				osil += 1 # count a silence
+				if pitch[i] == -1. or pitch[i] == "nan": 
+					esil += 1 # found a silence
+			else:
+				opit +=1
+				if abs(pitcht[i] - pitch[i]) < tol:
+					epit += 1
+					echr += 1
+				elif abs(pitcht[i] - pitch[i]) % 12. < tol:
+					echr += 1
+				#else:
+				#	print timet[i], pitcht[i], time[i], pitch[i]
+		#print "origsilence", "foundsilence", "origpitch", "foundpitch", "orig pitchroma", "found pitchchroma"
+		#print 100.*esil/float(osil), 100.*epit/float(opit), 100.*echr/float(opit)
+		return osil, esil, opit, epit, echr
 
 	def plot(self,pitch,wplot,oplots,outplot=None):
 		import numarray
 		import Gnuplot
 
-		self.eval(pitch)
 		downtime = self.params.step*numarray.arange(len(pitch))
-		oplots.append(Gnuplot.Data(downtime,pitch,with='lines',
+		oplots.append(Gnuplot.Data(downtime,pitch,with='linespoints',
 			title=self.params.pitchmode))
 
 			
-	def plotplot(self,wplot,oplots,outplot=None,multiplot = 1):
+	def plotplot(self,wplot,oplots,outplot=None,multiplot = 0):
 		from aubio.gnuplot import gnuplot_init, audio_to_array, make_audio_plot
 		import re
 		import Gnuplot
@@ -131,6 +152,7 @@ class taskpitch(task):
 		# check if ground truth exists
 		timet,pitcht = self.gettruth()
 		if timet and pitcht:
+			pitcht = [aubio_miditofreq(i) for i in pitcht]
 			oplots = [Gnuplot.Data(timet,pitcht,with='lines',
 				title='ground truth')] + oplots
 
