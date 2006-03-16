@@ -45,6 +45,7 @@ smpl_t aubio_pitchdetection_yin(aubio_pitchdetection_t *p, fvec_t *ibuf);
 smpl_t aubio_pitchdetection_schmitt(aubio_pitchdetection_t *p, fvec_t *ibuf);
 smpl_t aubio_pitchdetection_fcomb(aubio_pitchdetection_t *p, fvec_t *ibuf);
 
+void aubio_pitchdetection_set_yinthresh(aubio_pitchdetection_t *p, smpl_t thres);
 void del_aubio_pitchdetection(aubio_pitchdetection_t * p);
 
 aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize, 

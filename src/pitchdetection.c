@@ -20,7 +20,7 @@
 #include "sample.h"
 #include "phasevoc.h"
 #include "mathutils.h"
-//#include "filter.h"
+#include "filter.h"
 #include "pitchmcomb.h"
 #include "pitchyin.h"
 #include "pitchfcomb.h"
@@ -43,12 +43,13 @@ struct _aubio_pitchdetection_t {
 	aubio_pitchmcomb_t * mcomb;
 	aubio_pitchfcomb_t * fcomb;
 	aubio_pitchschmitt_t * schmitt;
-	//aubio_filter_t * filter;
+	aubio_filter_t * filter;
 	/* for yin */
 	fvec_t * buf;
 	fvec_t * yin;
         aubio_pitchdetection_func_t callback;
         aubio_pitchdetection_conv_t freqconv;
+	smpl_t yinthres;
 };
 
 /* convenience wrapper function for frequency unit conversions 
@@ -85,16 +86,18 @@ aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize,
 			p->buf      = new_fvec(bufsize,channels);
 			p->yin      = new_fvec(bufsize/2,channels);
                         p->callback = aubio_pitchdetection_yin;
+			p->yinthres = 0.2;
 			break;
 		case aubio_pitch_mcomb:
 			p->pv       = new_aubio_pvoc(bufsize, hopsize, channels);
 			p->fftgrain = new_cvec(bufsize, channels);
-			p->mcomb    = new_aubio_pitchmcomb(bufsize,channels);
+			p->mcomb    = new_aubio_pitchmcomb(bufsize,channels,samplerate);
+			p->filter   = new_aubio_cdsgn_filter(samplerate);
                         p->callback = aubio_pitchdetection_mcomb;
 			break;
                 case aubio_pitch_fcomb:
 			p->buf      = new_fvec(bufsize,channels);
-                        p->fcomb    = new_aubio_pitchfcomb(bufsize,samplerate);
+                        p->fcomb    = new_aubio_pitchfcomb(bufsize,hopsize,samplerate);
                         p->callback = aubio_pitchdetection_fcomb;
                         break;
                 case aubio_pitch_schmitt:
@@ -167,12 +170,17 @@ void aubio_pitchdetection_slideblock(aubio_pitchdetection_t *p, fvec_t *ibuf){
         }
 }
 
+void aubio_pitchdetection_set_yinthresh(aubio_pitchdetection_t *p, smpl_t thres) {
+        p->yinthres = thres;
+}
+
 smpl_t aubio_pitchdetection(aubio_pitchdetection_t *p, fvec_t * ibuf) {
         return p->freqconv(p->callback(p,ibuf),p->srate,p->bufsize);
 }
 
 smpl_t aubio_pitchdetection_mcomb(aubio_pitchdetection_t *p, fvec_t *ibuf) {
 	smpl_t pitch = 0.;
+	aubio_filter_do(p->filter,ibuf);
         aubio_pvoc_do(p->pv,ibuf,p->fftgrain);
         pitch = aubio_pitchmcomb_detect(p->mcomb,p->fftgrain);
         /** \bug should move the >0 check within aubio_bintofreq */
@@ -187,7 +195,7 @@ smpl_t aubio_pitchdetection_mcomb(aubio_pitchdetection_t *p, fvec_t *ibuf) {
 smpl_t aubio_pitchdetection_yin(aubio_pitchdetection_t *p, fvec_t *ibuf) {
 	smpl_t pitch = 0.;
         aubio_pitchdetection_slideblock(p,ibuf);
-        pitch = aubio_pitchyin_getpitchfast(p->buf,p->yin, 0.5);
+        pitch = aubio_pitchyin_getpitchfast(p->buf,p->yin, p->yinthres);
         if (pitch>0) {
                 pitch = p->srate/(pitch+0.);
         } else {
