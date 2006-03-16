@@ -109,6 +109,7 @@ for i in range(len(modes)):
 	filetask = taskpitch(filename,params=params)
 	pitch = filetask.compute_all()
 	#print filetask.eval(pitch[i]) 
-	filetask.plot(pitch,wplot,oplots)
+	if options.plot: filetask.plot(pitch,wplot,oplots)
 
-filetask.plotplot(wplot,oplots,outplot=options.outplot)
+if options.plot: 
+	filetask.plotplot(wplot,oplots,outplot=options.outplot)
