@@ -124,9 +124,10 @@ class onsetpick:
 
 class pitchdetection:
     def __init__(self,mode=aubio_pitch_mcomb,bufsize=2048,hopsize=1024,
-        channels=1,samplerate=44100.,omode=aubio_pitchm_freq):
+        channels=1,samplerate=44100.,omode=aubio_pitchm_freq,yinthresh=0.1):
         self.pitchp = new_aubio_pitchdetection(bufsize,hopsize,channels,
                 samplerate,mode,omode)
+	aubio_pitchdetection_set_yinthresh(self.pitchp,yinthresh)
         #self.filt     = filter(srate,"adsgn")
     def __del__(self):
         del_aubio_pitchdetection(self.pitchp)
