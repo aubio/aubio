@@ -12,7 +12,7 @@
 
 char aubiopitch_version[] = "aubiopitch~ version 0.1";
 
-aubio_pitchdetection_type type_pitch = aubio_pitch_mcomb; // aubio_pitch_mcomb
+aubio_pitchdetection_type type_pitch = aubio_pitch_mcomb;
 aubio_pitchdetection_mode mode_pitch = aubio_pitchm_freq;
 
 static t_class *aubiopitch_tilde_class;
@@ -89,11 +89,19 @@ static void *aubiopitch_tilde_new (void)
 	return (void *)x;
 }
 
+static void *aubiopitch_tilde_del(t_aubiopitch_tilde *x)
+{
+    	del_aubio_pitchdetection(x->o);
+	del_fvec(x->vec);
+	return 0;
+}
+
 void aubiopitch_tilde_setup (void)
 {
 	aubiopitch_tilde_class = class_new (gensym ("aubiopitch~"),
 			(t_newmethod)aubiopitch_tilde_new,
-			0, sizeof (t_aubiopitch_tilde),
+			(t_method)aubiopitch_tilde_del,
+			sizeof (t_aubiopitch_tilde),
 			CLASS_DEFAULT, A_DEFFLOAT, 0);
 	class_addmethod(aubiopitch_tilde_class, 
 			(t_method)aubiopitch_tilde_dsp, 
