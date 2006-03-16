@@ -49,6 +49,7 @@ class task(taskparams):
 
 	def time(self):
 		import time
-		print "CPU time is now %f seconds," % time.clock(),
-		print "task execution took %f seconds" % (time.time() - self.tic)
+		#print "CPU time is now %f seconds," % time.clock(),
+		#print "task execution took %f seconds" % (time.time() - self.tic)
+		return time.time() - self.tic
 
