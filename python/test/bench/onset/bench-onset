@@ -53,7 +53,7 @@ if __name__ == "__main__":
 	benchonset.params = taskparams()
 	benchonset.params.dcthreshold = -1.
 	benchonset.params.silence = -100.
-	benchonset.params.delay = 3. 
+	benchonset.params.delay = 5. 
 	benchonset.params.bufsize = 1024 
 	benchonset.params.hopsize = 256 
 	benchonset.params.step = float(benchonset.params.hopsize)/float(benchonset.params.samplerate)
