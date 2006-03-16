@@ -10,6 +10,8 @@ class taskparams(object):
 		self.storefunc = False
 		self.bufsize = 512
 		self.hopsize = 256
+		self.pbufsize = 2048
+		self.phopsize =  512
 		self.samplerate = 44100
 		self.tol = 0.05
 		self.mintol = 0.0
@@ -17,7 +19,8 @@ class taskparams(object):
 		self.threshold = 0.1
 		self.onsetmode = 'dual'
 		self.pitchmode = 'yin'
-		self.pitchsmooth = 7
+		self.yinthresh = 0.2
+		self.pitchsmooth = 0
 		self.pitchmin=100.
 		self.pitchmax=1000.
 		self.dcthreshold = -1.
