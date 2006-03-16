@@ -30,7 +30,7 @@
 #include "aubio_priv.h"
 #include "sample.h"
 #include "mathutils.h"
-#include "phasevoc.h"
+#include "fft.h"
 #include "pitchfcomb.h"
 
 #define MAX_PEAKS 8
@@ -42,30 +42,37 @@ typedef struct {
 
 struct _aubio_pitchfcomb_t {
         uint_t fftSize;
+        uint_t stepSize;
         uint_t rate;
+	fvec_t * winput;
+	fvec_t * win;
         cvec_t * fftOut;
         fvec_t * fftLastPhase;
-        aubio_pvoc_t * pvoc;
+	aubio_mfft_t * fft;
+        //aubio_pvoc_t * pvoc;
 };
 
-aubio_pitchfcomb_t * new_aubio_pitchfcomb (uint_t size, uint_t samplerate)
+aubio_pitchfcomb_t * new_aubio_pitchfcomb (uint_t bufsize, uint_t hopsize, uint_t samplerate)
 {
   aubio_pitchfcomb_t * p = AUBIO_NEW(aubio_pitchfcomb_t);
-  uint_t overlap_rate = 4;
   p->rate         = samplerate;
-  p->fftSize      = size;
-  p->fftOut       = new_cvec(size,1);
-  p->fftLastPhase = new_fvec(size,1);
-  p->pvoc = new_aubio_pvoc(size, size/overlap_rate, 1);
+  p->fftSize      = bufsize;
+  p->stepSize     = hopsize; 
+  p->winput       = new_fvec(bufsize,1);
+  p->fftOut       = new_cvec(bufsize,1);
+  p->fftLastPhase = new_fvec(bufsize,1);
+  p->fft = new_aubio_mfft(bufsize, 1);
+  p->win = new_fvec(bufsize,1);
+  aubio_window(p->win->data[0], bufsize, aubio_win_hanning);
   return p;
 }
 
 /* input must be stepsize long */
 smpl_t aubio_pitchfcomb_detect (aubio_pitchfcomb_t * p, fvec_t * input)
 {
-  uint_t k, l, maxharm = 0, stepSize = input->length;
+  uint_t k, l, maxharm = 0;
   smpl_t freqPerBin = p->rate/(smpl_t)p->fftSize,
-    phaseDifference = TWO_PI*(smpl_t)stepSize/(smpl_t)p->fftSize;
+    phaseDifference = TWO_PI*(smpl_t)p->stepSize/(smpl_t)p->fftSize;
   aubio_fpeak_t peaks[MAX_PEAKS];
 
   for (k=0; k<MAX_PEAKS; k++) {
@@ -73,10 +80,12 @@ smpl_t aubio_pitchfcomb_detect (aubio_pitchfcomb_t * p, fvec_t * input)
     peaks[k].freq = 0.;
   }
 
-  aubio_pvoc_do (p->pvoc, input, p->fftOut);
+  for (k=0; k < input->length; k++){
+	  p->winput->data[0][k] = p->win->data[0][k] * input->data[0][k];
+  }
+  aubio_mfft_do(p->fft,input,p->fftOut);
 
-  for (k=0; k<=p->fftSize; k++) {
-    //long qpd;
+  for (k=0; k<=p->fftSize/2; k++) {
     smpl_t
       magnitude = 20.*LOG10(2.*p->fftOut->norm[0][k]/(smpl_t)p->fftSize),
       phase     = p->fftOut->phas[0][k],
@@ -90,15 +99,15 @@ smpl_t aubio_pitchfcomb_detect (aubio_pitchfcomb_t * p, fvec_t * input)
     tmp -= (smpl_t)k*phaseDifference;
 
     /* map delta phase into +/- Pi interval */
-    tmp = aubio_unwrap2pi(tmp);
+    tmp = aubio_unwrap2pi(tmp) + PI;
 
     /* get deviation from bin frequency from the +/- Pi interval */
-    tmp = p->fftSize/input->length*tmp/(TWO_PI);
+    tmp = p->stepSize/(smpl_t)p->fftSize*tmp/(TWO_PI);
 
     /* compute the k-th partials' true frequency */
     freq = (smpl_t)k*freqPerBin + tmp*freqPerBin;
 
-    if (freq > 0.0 && magnitude > peaks[0].db && magnitude < 0) {
+    if (freq > 0.0 && magnitude > peaks[0].db) { // && magnitude < 0) {
       memmove(peaks+1, peaks, sizeof(aubio_fpeak_t)*(MAX_PEAKS-1));
       peaks[0].freq = freq;
       peaks[0].db = magnitude;
@@ -128,7 +137,7 @@ void del_aubio_pitchfcomb (aubio_pitchfcomb_t * p)
 {
   del_cvec(p->fftOut);
   del_fvec(p->fftLastPhase);
-  del_aubio_pvoc(p->pvoc);
+  del_aubio_mfft(p->fft);
   AUBIO_FREE(p);
 }
 

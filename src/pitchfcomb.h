@@ -27,7 +27,7 @@ extern "C" {
 typedef struct _aubio_pitchfcomb_t aubio_pitchfcomb_t;
 
 smpl_t aubio_pitchfcomb_detect (aubio_pitchfcomb_t *p, fvec_t * input);
-aubio_pitchfcomb_t * new_aubio_pitchfcomb (uint_t size, uint_t samplerate);
+aubio_pitchfcomb_t * new_aubio_pitchfcomb (uint_t bufsize, uint_t hopsize, uint_t samplerate);
 void del_aubio_pitchfcomb (aubio_pitchfcomb_t *p);
 
 
