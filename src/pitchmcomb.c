@@ -93,17 +93,18 @@ smpl_t aubio_pitchmcomb_detect(aubio_pitchmcomb_t * p, cvec_t * fftgrain) {
   for (j=0; j< newmag->length; j++)
     newmag->data[i][j]=fftgrain->norm[i][j];
   /* detect only if local energy > 10. */ 
-  if (vec_local_energy(newmag)>10.) {
+  //if (vec_local_energy(newmag)>10.) {
     //hfc = vec_local_hfc(newmag); //not used
     aubio_pitchmcomb_spectral_pp(p, newmag);
     aubio_pitchmcomb_combdet(p,newmag);
+    //aubio_pitchmcomb_sort_cand_freq(p->candidates,p->ncand);
     // print picked candidate
     //AUBIO_DBG("%f\n",p->candidates[p->goodcandidate]->ebin);
     //AUBIO_DBG("%f\n",p->candidates[p->goodcandidate]->ebin);
     return p->candidates[p->goodcandidate]->ebin;
-  } else {
+  /*} else {
     return -1.;
-  }
+  }*/
 }
 
 uint_t aubio_pitch_cands(aubio_pitchmcomb_t * p, cvec_t * fftgrain, 
@@ -138,7 +139,7 @@ uint_t aubio_pitch_cands(aubio_pitchmcomb_t * p, cvec_t * fftgrain,
 
 void aubio_pitchmcomb_spectral_pp(aubio_pitchmcomb_t * p, fvec_t * newmag) {
   fvec_t * mag = (fvec_t *)p->scratch;
-  //fvec_t * tmp = (fvec_t *)p->scratch2;
+  fvec_t * tmp = (fvec_t *)p->scratch2;
   uint_t i=0,j;
   uint_t length = mag->length;
   /* copy newmag to mag (scracth) */
@@ -149,7 +150,7 @@ void aubio_pitchmcomb_spectral_pp(aubio_pitchmcomb_t * p, fvec_t * newmag) {
   vec_alpha_normalise(mag,p->alpha); /* alpha normalisation  */
   /* skipped */                      /* low pass filtering   */
   /** \bug: vec_movind_thres writes out of bounds */
-  //vec_adapt_thres(mag,tmp,p->win_post,p->win_pre); /* adaptative threshold */
+  vec_adapt_thres(mag,tmp,p->win_post,p->win_pre); /* adaptative threshold */
   vec_add(mag,-p->threshold);        /* fixed threshold      */
   {
     aubio_spectralpeak_t * peaks = (aubio_spectralpeak_t *)p->peaks;
@@ -191,6 +192,9 @@ void aubio_pitchmcomb_combdet(aubio_pitchmcomb_t * p, fvec_t * newmag) {
 
   /* get the biggest peak in the spectrum */
   root_peak = aubio_pitchmcomb_get_root_peak(peaks,count);
+  if (peaks[root_peak].ebin > aubio_miditofreq(80.)/p->tau) N = 3;
+  if (peaks[root_peak].ebin > aubio_miditofreq(85.)/p->tau) N = 2;
+  if (peaks[root_peak].ebin > aubio_miditofreq(90.)/p->tau) N = 1;
   /* now calculate the energy of each of the 5 combs */
   for (l=0;l<M;l++) {
     smpl_t scaler = (1./(l+1.));
@@ -207,7 +211,7 @@ void aubio_pitchmcomb_combdet(aubio_pitchmcomb_t * p, fvec_t * newmag) {
       candidate[l]->ecomb[k]=0.;
     /* for each in candidate[l]->ecomb[k] */
     for (k=0;k<curlen;k++) {
-      xx = 10000.;
+      xx = 100000.;
       /** get the candidate->ecomb the closer to peaks.ebin 
        * (to cope with the inharmonicity)*/
       for (d=0;d<count;d++) { 
@@ -254,7 +258,7 @@ uint_t aubio_pitchmcomb_quadpick(aubio_spectralpeak_t * spectral_peaks, fvec_t *
       if (ispeak) {
         count += ispeak;
         spectral_peaks[count-1].bin = j;
-        spectral_peaks[count-1].ebin = vec_quadint(X,j);
+        spectral_peaks[count-1].ebin = vec_quadint(X,j) - 1.;
       }
     }
   return count;
@@ -306,19 +310,19 @@ void aubio_pitchmcomb_sort_cand_freq(aubio_spectralcandidate_t ** candidates, ui
   }
 }
 
-aubio_pitchmcomb_t * new_aubio_pitchmcomb(uint_t size, uint_t channels) {
+aubio_pitchmcomb_t * new_aubio_pitchmcomb(uint_t size, uint_t channels, uint_t samplerate) {
   aubio_pitchmcomb_t * p = AUBIO_NEW(aubio_pitchmcomb_t);
   /** \bug should check if size / 8 > post+pre+1 */
   uint_t i;
   uint_t spec_size;
-  p->spec_partition   = 2;
+  p->spec_partition   = 4;
   p->ncand            = 5;
-  p->npartials        = 10;
+  p->npartials        = 5;
   p->cutoff           = 1.;
   p->threshold        = 0.01;
   p->win_post         = 8;
   p->win_pre          = 7;
-  p->tau              = 44100./size;
+  p->tau              = samplerate/size;
   p->alpha            = 9.;
   p->goodcandidate    = 0;
   spec_size = size/p->spec_partition;
