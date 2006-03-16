@@ -35,10 +35,12 @@ class benchonset(bench):
 		'TTm':    "%5.4s", 'TTd':    "%5.4s",
 		'aTtrue':"%5.4s", 'aTfp':  "%5.4s", 'aTfn':  "%5.4s", 
 		'aTm':   "%5.4s", 'aTd':   "%5.4s",
-		'mean':  "%5.40s", 'smean': "%5.40s", 
-		'amean':  "%5.40s", 'samean': "%5.40s", 
+		'mean':  "%5.6s", 'smean': "%5.6s", 
+		'amean':  "%5.6s", 'samean': "%5.6s", 
 		"GD":     "%5.4s", "FP":     "%5.4s",
-		"GDm":     "%5.4s", "FPd":     "%5.4s"}
+		"GDm":     "%5.4s", "FPd":     "%5.4s",
+		"bufsize": "%5.4s", "hopsize": "%5.4s",
+		"time":   "%5.4s"}
 
 	def dir_eval(self):
 		""" evaluate statistical data over the directory """
