@@ -204,6 +204,8 @@ smpl_t aubio_pitchdetection(aubio_pitchdetection_t * p, fvec_t * ibuf);
 smpl_t aubio_pitchdetection_mcomb(aubio_pitchdetection_t *p, fvec_t * ibuf);
 smpl_t aubio_pitchdetection_yin(aubio_pitchdetection_t *p, fvec_t *ibuf);
 
+void aubio_pitchdetection_set_yinthresh(aubio_pitchdetection_t *p, smpl_t thres);
+
 void del_aubio_pitchdetection(aubio_pitchdetection_t * p);
 
 aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize, 
@@ -215,7 +217,7 @@ aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize,
 
 
 /* pitch mcomb */
-aubio_pitchmcomb_t * new_aubio_pitchmcomb(uint_t size, uint_t channels);
+aubio_pitchmcomb_t * new_aubio_pitchmcomb(uint_t size, uint_t channels, uint_t samplerate);
 smpl_t aubio_pitchmcomb_detect(aubio_pitchmcomb_t * p, cvec_t * fftgrain);
 uint_t aubio_pitch_cands(aubio_pitchmcomb_t * p, cvec_t * fftgrain, smpl_t * cands);
 void del_aubio_pitchmcomb (aubio_pitchmcomb_t *p);
@@ -232,7 +234,7 @@ smpl_t aubio_pitchschmitt_detect (aubio_pitchschmitt_t *p, fvec_t * input);
 void del_aubio_pitchschmitt (aubio_pitchschmitt_t *p);
 
 /* pitch fcomb */
-aubio_pitchfcomb_t * new_aubio_pitchfcomb (uint_t size, uint_t samplerate);
+aubio_pitchfcomb_t * new_aubio_pitchfcomb (uint_t size, uint_t hopsize, uint_t samplerate);
 smpl_t aubio_pitchfcomb_detect (aubio_pitchfcomb_t *p, fvec_t * input);
 void del_aubio_pitchfcomb (aubio_pitchfcomb_t *p);
 
