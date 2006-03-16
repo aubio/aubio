@@ -12,7 +12,8 @@ class taskpitch(task):
 			hopsize=self.params.hopsize,
 			channels=self.channels,
 			samplerate=self.srate,
-			omode=self.params.omode)
+			omode=self.params.omode,
+			yinthresh=self.params.yinthresh)
 
 	def __call__(self):
 		from aubio.median import short_find
@@ -83,7 +84,10 @@ class taskpitch(task):
 					time, pitch = [], []
 					for i in range(len(values)):
 						time.append(values[i][0])
-						pitch.append(aubio_freqtomidi(values[i][1]))
+						if values[i][1] == 0.0:
+							pitch.append(-1.)
+						else:
+							pitch.append(aubio_freqtomidi(values[i][1]))
 					return time,pitch
 
 	def oldeval(self,results):
@@ -104,20 +108,29 @@ class taskpitch(task):
 			med = percental(res,len(res)/2) 
 		return self.truth, self.truth-med, self.truth-avg
 
-	def eval(self,pitch,tol=0.9):
+	def eval(self,pitch,tol=0.5):
 		timet,pitcht = self.gettruth()
 		pitch = [aubio_freqtomidi(i) for i in pitch]
 		for i in range(len(pitch)):
 			if pitch[i] == "nan" or pitch[i] == -1:
 				pitch[i] = -1
 		time = [ i*self.params.step for i in range(len(pitch)) ]
-		assert len(timet) == len(time) 
+		#print len(timet),len(pitcht)
+		#print len(time),len(pitch)
+		if len(timet) != len(time):
+			time = time[1:len(timet)+1]
+			pitch = pitch[1:len(pitcht)+1]
+			#pitcht = [aubio_freqtomidi(i) for i in pitcht]
+			for i in range(len(pitcht)):
+				if pitcht[i] == "nan" or pitcht[i] == "-inf" or pitcht[i] == -1:
+					pitcht[i] = -1
+		assert len(timet) == len(time)
 		assert len(pitcht) == len(pitch)
 		osil, esil, opit, epit, echr = 0, 0, 0, 0, 0
 		for i in range(len(pitcht)):
 			if pitcht[i] == -1: # currently silent
 				osil += 1 # count a silence
-				if pitch[i] == -1. or pitch[i] == "nan": 
+				if pitch[i] <= 0. or pitch[i] == "nan": 
 					esil += 1 # found a silence
 			else:
 				opit +=1
@@ -137,11 +150,12 @@ class taskpitch(task):
 		import Gnuplot
 
 		downtime = self.params.step*numarray.arange(len(pitch))
-		oplots.append(Gnuplot.Data(downtime,pitch,with='linespoints',
+		pitch = [aubio_freqtomidi(i) for i in pitch]
+		oplots.append(Gnuplot.Data(downtime,pitch,with='lines',
 			title=self.params.pitchmode))
 
 			
-	def plotplot(self,wplot,oplots,outplot=None,multiplot = 0):
+	def plotplot(self,wplot,oplots,outplot=None,multiplot = 1, midi = 1):
 		from aubio.gnuplot import gnuplot_init, audio_to_array, make_audio_plot
 		import re
 		import Gnuplot
@@ -152,7 +166,6 @@ class taskpitch(task):
 		# check if ground truth exists
 		timet,pitcht = self.gettruth()
 		if timet and pitcht:
-			pitcht = [aubio_miditofreq(i) for i in pitcht]
 			oplots = [Gnuplot.Data(timet,pitcht,with='lines',
 				title='ground truth')] + oplots
 
@@ -177,13 +190,17 @@ class taskpitch(task):
 		g('set size 1,0.7')
 		g('set origin 0,0')
 		g('set xrange [0:%f]' % max(time))
-		g('set yrange [100:%f]' % self.params.pitchmax) 
+		if not midi:
+			g('set log y')
+			#g.xlabel('time (s)')
+			g.ylabel('f0 (Hz)')
+			g('set yrange [100:%f]' % self.params.pitchmax) 
+		else: 
+			g.ylabel('pitch (midi)')
+			g('set yrange [%f:%f]' % (40, aubio_freqtomidi(self.params.pitchmax)))
 		g('set key right top')
 		g('set noclip one') 
 		g('set format x ""')
-		g('set log y')
-		#g.xlabel('time (s)')
-		g.ylabel('f0 (Hz)')
 		if multiplot:
 			for i in range(len(oplots)):
 				# plot onset detection functions
