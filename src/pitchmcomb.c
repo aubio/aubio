@@ -63,6 +63,9 @@ struct _aubio_pitchmcomb_t {
   fvec_t * newmag;                         /**< vec to store mag                     */
   fvec_t * scratch;                        /**< vec to store modified mag            */
   fvec_t * scratch2;                       /**< vec to compute moving median         */
+  fvec_t * theta;                         /**< vec to store phase                     */
+  smpl_t phasediff;
+  smpl_t phasefreq;
   /** threshfn: name or handle of fn for computing adaptive threshold [median] */
   /** aubio_thresholdfn_t thresholdfn; */
   /** picker: name or handle of fn for picking event times [quadpick] */
@@ -87,6 +90,7 @@ struct _aubio_spectralcandidate_t {
 
 smpl_t aubio_pitchmcomb_detect(aubio_pitchmcomb_t * p, cvec_t * fftgrain) {
   uint_t i=0,j;
+  smpl_t instfreq;
   fvec_t * newmag = (fvec_t *)p->newmag;
   //smpl_t hfc; //fe=instfreq(theta1,theta,ops); //theta1=theta;
   /* copy incoming grain to newmag */
@@ -98,10 +102,16 @@ smpl_t aubio_pitchmcomb_detect(aubio_pitchmcomb_t * p, cvec_t * fftgrain) {
     aubio_pitchmcomb_spectral_pp(p, newmag);
     aubio_pitchmcomb_combdet(p,newmag);
     //aubio_pitchmcomb_sort_cand_freq(p->candidates,p->ncand);
-    // print picked candidate
-    //AUBIO_DBG("%f\n",p->candidates[p->goodcandidate]->ebin);
-    //AUBIO_DBG("%f\n",p->candidates[p->goodcandidate]->ebin);
-    return p->candidates[p->goodcandidate]->ebin;
+    //return p->candidates[p->goodcandidate]->ebin;
+  j = (uint_t)FLOOR(p->candidates[p->goodcandidate]->ebin+.5);
+  instfreq  = aubio_unwrap2pi(fftgrain->phas[0][j]
+		  - p->theta->data[0][j] - j*p->phasediff);
+  instfreq *= p->phasefreq;
+  /* store phase for next run */
+  for (j=0; j< p->theta->length; j++) {
+    p->theta->data[i][j]=fftgrain->phas[i][j];
+  }
+  return FLOOR(p->candidates[p->goodcandidate]->ebin+.5) + instfreq;
   /*} else {
     return -1.;
   }*/
@@ -192,9 +202,6 @@ void aubio_pitchmcomb_combdet(aubio_pitchmcomb_t * p, fvec_t * newmag) {
 
   /* get the biggest peak in the spectrum */
   root_peak = aubio_pitchmcomb_get_root_peak(peaks,count);
-  if (peaks[root_peak].ebin > aubio_miditofreq(80.)/p->tau) N = 3;
-  if (peaks[root_peak].ebin > aubio_miditofreq(85.)/p->tau) N = 2;
-  if (peaks[root_peak].ebin > aubio_miditofreq(90.)/p->tau) N = 1;
   /* now calculate the energy of each of the 5 combs */
   for (l=0;l<M;l++) {
     smpl_t scaler = (1./(l+1.));
@@ -226,16 +233,17 @@ void aubio_pitchmcomb_combdet(aubio_pitchmcomb_t * p, fvec_t * newmag) {
       if ( 17. * xx < candidate[l]->ecomb[k] ) {
         candidate[l]->ecomb[k]=peaks[position].ebin;
         candidate[l]->ene += /* ecomb rounded to nearest int */
-          SQR(newmag->data[0][(uint_t)FLOOR(candidate[l]->ecomb[k]-.5)]);
+          POW(newmag->data[0][(uint_t)FLOOR(candidate[l]->ecomb[k]+.5)],0.25);
         candidate[l]->len += 1./curlen;
       } else
         candidate[l]->ecomb[k]=0.;
     }
     /* punishment */
-    if (candidate[l]->len<0.6)
-      candidate[l]->ene=0.; 
-    /* remember best candidate energy */
-    if (tmpene <= candidate[l]->ene) {
+    /*if (candidate[l]->len<0.6)
+      candidate[l]->ene=0.; */
+    /* remember best candidate energy (in polyphonic, could check for
+     * tmpene*1.1 < candidate->ene to reduce jumps towards low frequencies) */
+    if (tmpene < candidate[l]->ene) {
       tmpl = l;
       tmpene = candidate[l]->ene;
     }
@@ -310,7 +318,7 @@ void aubio_pitchmcomb_sort_cand_freq(aubio_spectralcandidate_t ** candidates, ui
   }
 }
 
-aubio_pitchmcomb_t * new_aubio_pitchmcomb(uint_t size, uint_t channels, uint_t samplerate) {
+aubio_pitchmcomb_t * new_aubio_pitchmcomb(uint_t bufsize, uint_t hopsize, uint_t channels, uint_t samplerate) {
   aubio_pitchmcomb_t * p = AUBIO_NEW(aubio_pitchmcomb_t);
   /** \bug should check if size / 8 > post+pre+1 */
   uint_t i;
@@ -322,16 +330,20 @@ aubio_pitchmcomb_t * new_aubio_pitchmcomb(uint_t size, uint_t channels, uint_t s
   p->threshold        = 0.01;
   p->win_post         = 8;
   p->win_pre          = 7;
-  p->tau              = samplerate/size;
+  p->tau              = samplerate/bufsize;
   p->alpha            = 9.;
   p->goodcandidate    = 0;
-  spec_size = size/p->spec_partition;
+  p->phasefreq        = bufsize/hopsize/TWO_PI;
+  p->phasediff        = TWO_PI*hopsize/bufsize;
+  spec_size = bufsize/p->spec_partition;
   //p->pickerfn = quadpick;
   //p->biquad = new_biquad(0.1600,0.3200,0.1600, -0.5949, 0.2348);
   /* allocate temp memory */
   p->newmag     = new_fvec(spec_size,channels);
   /* array for median */
   p->scratch    = new_fvec(spec_size,channels);
+  /* array for phase */
+  p->theta      = new_fvec(spec_size,channels);
   /* array for adaptative threshold */
   p->scratch2   = new_fvec(p->win_post+p->win_pre+1,channels);
   /* array of spectral peaks */
