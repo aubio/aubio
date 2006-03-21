@@ -106,7 +106,7 @@ smpl_t aubio_pitchyin_getpitchfast(fvec_t * input, fvec_t * yin, smpl_t tol){
 		period = tau-3;
 		if(tau > 4 && (yin->data[c][period] < tol) && 
                                 (yin->data[c][period] < yin->data[c][period+1])) {
-			return vec_quadint_min(yin,period,1)-1;
+			return vec_quadint_min(yin,period,1);
 		}
         }
 	return 0;
