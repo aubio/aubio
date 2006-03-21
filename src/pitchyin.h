@@ -38,7 +38,7 @@ void aubio_pitchyin_getcum(fvec_t * yinbuf);
 
 uint_t aubio_pitchyin_getpitch(fvec_t *yinbuf);
 
-uint_t aubio_pitchyin_getpitchfast(fvec_t * input, fvec_t *yinbuf, smpl_t tol);
+smpl_t aubio_pitchyin_getpitchfast(fvec_t * input, fvec_t *yinbuf, smpl_t tol);
 
 #ifdef __cplusplus
 }

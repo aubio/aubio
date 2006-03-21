@@ -88,8 +88,9 @@ uint_t aubio_pitchyin_getpitch(fvec_t * yin) {
 
 
 /* all the above in one */
-uint_t aubio_pitchyin_getpitchfast(fvec_t * input, fvec_t * yin, smpl_t tol){
+smpl_t aubio_pitchyin_getpitchfast(fvec_t * input, fvec_t * yin, smpl_t tol){
 	uint_t c=0,j,tau = 0;
+	sint_t period;
 	smpl_t tmp = 0., tmp2 = 0.;
 	yin->data[c][0] = 1.;
 	for (tau=1;tau<yin->length;tau++)
@@ -102,9 +103,10 @@ uint_t aubio_pitchyin_getpitchfast(fvec_t * input, fvec_t * yin, smpl_t tol){
 		}
 		tmp2 += yin->data[c][tau];
 		yin->data[c][tau] *= tau/tmp2;
-		if((yin->data[c][tau] < tol) && 
-                                (yin->data[c][tau-1] < yin->data[c][tau])) {
-			return tau-1;
+		period = tau-3;
+		if(tau > 4 && (yin->data[c][period] < tol) && 
+                                (yin->data[c][period] < yin->data[c][period+1])) {
+			return vec_quadint_min(yin,period,1)-1;
 		}
         }
 	return 0;

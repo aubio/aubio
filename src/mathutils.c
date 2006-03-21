@@ -330,6 +330,28 @@ smpl_t vec_quadint(fvec_t * x,uint_t pos) {
   return exactpos;
 }
 
+smpl_t vec_quadint_min(fvec_t * x,uint_t pos, uint_t span) {
+  smpl_t step = 1./200.;
+  /* init resold to - something (in case x[pos+-span]<0)) */
+  smpl_t res, frac, s0, s1, s2, exactpos = (smpl_t)pos, resold = 100000.;
+  if ((pos > span) && (pos < x->length-span)) {
+    s0 = x->data[0][pos-span];
+    s1 = x->data[0][pos]     ;
+    s2 = x->data[0][pos+span];
+    /* increase frac */
+    for (frac = 0.; frac < 2.; frac = frac + step) {
+      res = aubio_quadfrac(s0, s1, s2, frac);
+      if (res < resold) {
+        resold = res;
+      } else {				
+        exactpos += (frac-step)*span - span/2.;
+        break;
+      }
+    }
+  }
+  return exactpos;
+}
+
 smpl_t aubio_quadfrac(smpl_t s0, smpl_t s1, smpl_t s2, smpl_t pf) {
   smpl_t tmp = s0 + (pf/2.) * (pf * ( s0 - 2.*s1 + s2 ) - 3.*s0 + 4.*s1 - s2);
   return tmp;
