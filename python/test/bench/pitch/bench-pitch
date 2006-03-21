@@ -9,15 +9,18 @@ class benchpitch(bench):
 	valuenames = ['mode']
 	""" list of lists to store per file """
 	valuelists = ['truth', 'osil', 'esil', 'opit', 'epit', 'echr', 
-               'Msil', 'Mpit', 'Mchr']
+               'Msil', 'Mpit', 'Mchr',
+	       'TotalPit', 'TotalPit', 'TotalChr' ]
 	""" list of values to print per dir """
-	printnames = [ 'mode', 'truth', 'Msil', 'Mpit', 'Mchr']
+	printnames = [ 'mode', 'MinPit', 'MaxPit', 'TotalSil', 'TotalPit', 'TotalChr']
 
 	""" per dir """
 	formats = {'mode': "%12s" , 
 		'truth': "%s",
 		'osil': "%s", 'esil': "%s", 
 		'opit': "%s", 'epit': "%s", 'echr': "%s",
+		'TotalPit': "%s", 'TotalSil': "%s", 'TotalChr': "%s",
+		'MinPit': "%s", 'MaxPit': "%s",
 		'Msil': "%s", 'Mpit': "%s", 'Mchr': "%s"}
 
 	def dir_eval(self):
@@ -28,7 +31,7 @@ class benchpitch(bench):
 	def file_exec(self,input,output):
 		filetask = self.task(input,params=self.params)
 		computed_data = filetask.compute_all()
- 		osil, esil, opit, epit, echr = filetask.eval(computed_data)
+ 		osil, esil, opit, epit, echr = filetask.eval(computed_data,tol=0.5)
 		self.v['truth'].append(int(filetask.truth))
 		assert opit > 0
 		
@@ -51,7 +54,8 @@ class benchpitch(bench):
 		d = []
 		for mode in self.modes:
 			self.params.pitchmode = mode
-			self.dir_eval_print()
+			self.dir_exec()
+			self.dir_eval()
 			truth   = [i for i in range(min(self.v['truth']),max(self.v['truth'])+1)]
 			allOsil = [0 for i in range(min(self.v['truth']),max(self.v['truth'])+1)]
 			allEsil = [0 for i in range(min(self.v['truth']),max(self.v['truth'])+1)]
@@ -68,9 +72,17 @@ class benchpitch(bench):
 				allEpit[self.v['truth'][i]-min(self.v['truth'])] += self.v['epit'][i]
 				allEchr[self.v['truth'][i]-min(self.v['truth'])] += self.v['echr'][i]
 			for i in range(len(truth)):
+				allOsil[i] = max(1,allOsil[i])
+				allOpit[i] = max(1,allOpit[i])
 				allMsil[i] = allEsil[i]/float(allOsil[i])*100.
 				allMpit[i] = allEpit[i]/float(allOpit[i])*100.
 				allMchr[i] = allEchr[i]/float(allOpit[i])*100.
+			self.v['TotalSil'] = sum(allMsil)/len(truth)
+			self.v['TotalPit'] = sum(allMpit)/len(truth)
+			self.v['TotalChr'] = sum(allMchr)/len(truth)
+			self.v['MinPit'] = min(truth) 
+			self.v['MaxPit'] = max(truth) 
+			self.pretty_print()
 
 			plot = []
 			self.plotpitchtessiture(plot,
@@ -155,16 +167,16 @@ if __name__ == "__main__":
 	else: print "error: a path is required"; sys.exit(1)
 	if len(sys.argv) > 2:
 		for each in sys.argv[3:-1]: print each
-	modes = ['schmitt', 'yin', 'mcomb', 'fcomb']
-	modes = ['schmitt', 'yin', 'fcomb']
+	modes = ['schmitt', 'yin', 'yinfft', 'mcomb', 'fcomb']
 
 	params = taskparams()
-	params.bufsize = 2048 
-	params.hopsize = params.bufsize/8
-	params.silence = -60.
+	params.bufsize = 2048 #4096 
+	params.hopsize = 256
+	params.silence = -70.
 	params.pitchsmooth = 0 
 	params.pitchmax = 20000
 	params.pitchmin = 20
+	params.pitchyinfft = 0.95
 	benchpitch = benchpitch(datapath,params=params)
 	benchpitch.task = taskpitch
 
