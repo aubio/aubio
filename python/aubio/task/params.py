@@ -3,7 +3,7 @@ from aubio.aubioclass import aubio_pitchm_freq
 class taskparams(object):
 	""" default parameters for task classes """
 	def __init__(self,input=None,output=None):
-		self.silence = -70
+		self.silence = -90
 		self.derivate = False
 		self.localmin = False
 		self.delay = 4.
@@ -19,10 +19,14 @@ class taskparams(object):
 		self.threshold = 0.1
 		self.onsetmode = 'dual'
 		self.pitchmode = 'yin'
-		self.yinthresh = 0.2
+		# best threshold for yin monophonic Mirex04 (depth of f0) 
+		self.yinthresh = 0.15 
+		# best thresh for yinfft monophonic Mirex04 (tradeoff sil/gd)
+		# also best param for yinfft polyphonic Mirex04
+		self.yinfftthresh = 0.85 
 		self.pitchsmooth = 0
-		self.pitchmin=100.
-		self.pitchmax=1000.
+		self.pitchmin=10.
+		self.pitchmax=20000.
 		self.dcthreshold = -1.
 		self.omode = aubio_pitchm_freq
 		self.verbose   = False
