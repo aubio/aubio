@@ -7,13 +7,19 @@ class taskpitch(task):
 	def __init__(self,input,params=None):
 		task.__init__(self,input,params=params)
 		self.shortlist = [0. for i in range(self.params.pitchsmooth)]
+		if self.params.pitchmode == 'yinfft':
+			yinthresh = self.params.yinfftthresh
+		elif self.params.pitchmode == 'yin':
+			yinthresh = self.params.yinthresh
+		else:
+			yinthresh = 0.
 		self.pitchdet  = pitchdetection(mode=get_pitch_mode(self.params.pitchmode),
 			bufsize=self.params.bufsize,
 			hopsize=self.params.hopsize,
 			channels=self.channels,
 			samplerate=self.srate,
 			omode=self.params.omode,
-			yinthresh=self.params.yinthresh)
+			yinthresh=yinthresh)
 
 	def __call__(self):
 		from aubio.median import short_find
@@ -67,7 +73,7 @@ class taskpitch(task):
 				time,pitch =[],[]
 				while(tasksil.readsize==tasksil.params.hopsize):
 					tasksil()
-					time.append(tasksil.params.step*tasksil.frameread)
+					time.append(tasksil.params.step*(tasksil.frameread))
 					if not tasksil.issilence:
 						pitch.append(self.truth)
 					else:
@@ -155,7 +161,7 @@ class taskpitch(task):
 			title=self.params.pitchmode))
 
 			
-	def plotplot(self,wplot,oplots,outplot=None,multiplot = 1, midi = 1):
+	def plotplot(self,wplot,oplots,outplot=None,multiplot = 0, midi = 1):
 		from aubio.gnuplot import gnuplot_init, audio_to_array, make_audio_plot
 		import re
 		import Gnuplot
@@ -197,7 +203,7 @@ class taskpitch(task):
 			g('set yrange [100:%f]' % self.params.pitchmax) 
 		else: 
 			g.ylabel('pitch (midi)')
-			g('set yrange [%f:%f]' % (40, aubio_freqtomidi(self.params.pitchmax)))
+			g('set yrange [%f:%f]' % (aubio_freqtomidi(self.params.pitchmin), aubio_freqtomidi(self.params.pitchmax)))
 		g('set key right top')
 		g('set noclip one') 
 		g('set format x ""')

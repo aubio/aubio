@@ -25,6 +25,7 @@
 #include "pitchyin.h"
 #include "pitchfcomb.h"
 #include "pitchschmitt.h"
+#include "pitchyinfft.h"
 #include "pitchdetection.h"
 
 typedef smpl_t (*aubio_pitchdetection_func_t)(aubio_pitchdetection_t *p, 
@@ -43,6 +44,7 @@ struct _aubio_pitchdetection_t {
 	aubio_pitchmcomb_t * mcomb;
 	aubio_pitchfcomb_t * fcomb;
 	aubio_pitchschmitt_t * schmitt;
+	aubio_pitchyinfft_t * yinfft;
 	aubio_filter_t * filter;
 	/* for yin */
 	fvec_t * buf;
@@ -91,7 +93,7 @@ aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize,
 		case aubio_pitch_mcomb:
 			p->pv       = new_aubio_pvoc(bufsize, hopsize, channels);
 			p->fftgrain = new_cvec(bufsize, channels);
-			p->mcomb    = new_aubio_pitchmcomb(bufsize,channels,samplerate);
+			p->mcomb    = new_aubio_pitchmcomb(bufsize,hopsize,channels,samplerate);
 			p->filter   = new_aubio_cdsgn_filter(samplerate);
                         p->callback = aubio_pitchdetection_mcomb;
 			break;
@@ -104,6 +106,12 @@ aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize,
 			p->buf      = new_fvec(bufsize,channels);
                         p->schmitt  = new_aubio_pitchschmitt(bufsize,samplerate);
                         p->callback = aubio_pitchdetection_schmitt;
+                        break;
+		case aubio_pitch_yinfft:
+			p->buf      = new_fvec(bufsize,channels);
+                        p->yinfft   = new_aubio_pitchyinfft(bufsize);
+                        p->callback = aubio_pitchdetection_yinfft;
+			p->yinthres = 0.2;
                         break;
                 default:
                         break;
@@ -146,6 +154,10 @@ void del_aubio_pitchdetection(aubio_pitchdetection_t * p) {
                 case aubio_pitch_fcomb:
 			del_fvec(p->buf);
                         del_aubio_pitchfcomb(p->fcomb);
+                        break;
+                case aubio_pitch_yinfft:
+			del_fvec(p->buf);
+                        del_aubio_pitchyinfft(p->yinfft);
                         break;
 		default:
 			break;
@@ -204,6 +216,18 @@ smpl_t aubio_pitchdetection_yin(aubio_pitchdetection_t *p, fvec_t *ibuf) {
         return pitch;
 }
 
+
+smpl_t aubio_pitchdetection_yinfft(aubio_pitchdetection_t *p, fvec_t *ibuf){
+	smpl_t pitch = 0.;
+	aubio_pitchdetection_slideblock(p,ibuf);
+	pitch = aubio_pitchyinfft_detect(p->yinfft,p->buf,p->yinthres);
+        if (pitch>0) {
+                pitch = p->srate/(pitch+0.);
+        } else {
+                pitch = 0.;
+        }
+	return pitch; 
+}
 
 smpl_t aubio_pitchdetection_fcomb(aubio_pitchdetection_t *p, fvec_t *ibuf){
         aubio_pitchdetection_slideblock(p,ibuf);

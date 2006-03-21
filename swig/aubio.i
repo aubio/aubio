@@ -190,7 +190,8 @@ typedef enum {
         aubio_pitch_yin,
         aubio_pitch_mcomb,
         aubio_pitch_schmitt,
-        aubio_pitch_fcomb
+        aubio_pitch_fcomb,
+	aubio_pitch_yinfft
 } aubio_pitchdetection_type;
 
 typedef enum {
@@ -217,7 +218,7 @@ aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize,
 
 
 /* pitch mcomb */
-aubio_pitchmcomb_t * new_aubio_pitchmcomb(uint_t size, uint_t channels, uint_t samplerate);
+aubio_pitchmcomb_t * new_aubio_pitchmcomb(uint_t bufsize, uint_t hopsize, uint_t channels, uint_t samplerate);
 smpl_t aubio_pitchmcomb_detect(aubio_pitchmcomb_t * p, cvec_t * fftgrain);
 uint_t aubio_pitch_cands(aubio_pitchmcomb_t * p, cvec_t * fftgrain, smpl_t * cands);
 void del_aubio_pitchmcomb (aubio_pitchmcomb_t *p);
@@ -226,7 +227,7 @@ void del_aubio_pitchmcomb (aubio_pitchmcomb_t *p);
 void aubio_pitchyin_diff(fvec_t *input, fvec_t *yin);
 void aubio_pitchyin_getcum(fvec_t *yin);
 uint_t aubio_pitchyin_getpitch(fvec_t *yin);
-uint_t aubio_pitchyin_getpitchfast(fvec_t * input, fvec_t *yin, smpl_t tol);
+smpl_t aubio_pitchyin_getpitchfast(fvec_t * input, fvec_t *yin, smpl_t tol);
 
 /* pitch schmitt */
 aubio_pitchschmitt_t * new_aubio_pitchschmitt (uint_t size, uint_t samplerate);

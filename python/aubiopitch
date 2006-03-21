@@ -89,7 +89,7 @@ params.samplerate = float(sndfile(filename).samplerate())
 params.hopsize    = int(options.hopsize)
 params.bufsize    = int(options.bufsize)
 params.step       = params.samplerate/float(params.hopsize)
-params.threshold  = float(options.threshold)
+params.yinthresh  = float(options.threshold)
 params.silence    = float(options.silence)
 params.verbose    = options.verbose
 #mintol     = float(options.mintol)*step
@@ -99,7 +99,6 @@ else:             delay = 2./params.step
 
 if options.note:
         exit("not implemented yet")
-
 
 wplot,oplots = [],[]
 modes = options.mode.split(',')

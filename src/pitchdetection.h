@@ -27,7 +27,8 @@ typedef enum {
         aubio_pitch_yin,
         aubio_pitch_mcomb,
         aubio_pitch_schmitt,
-        aubio_pitch_fcomb
+        aubio_pitch_fcomb,
+	aubio_pitch_yinfft
 } aubio_pitchdetection_type;
 
 typedef enum {
@@ -44,6 +45,7 @@ smpl_t aubio_pitchdetection_mcomb(aubio_pitchdetection_t *p, fvec_t * ibuf);
 smpl_t aubio_pitchdetection_yin(aubio_pitchdetection_t *p, fvec_t *ibuf);
 smpl_t aubio_pitchdetection_schmitt(aubio_pitchdetection_t *p, fvec_t *ibuf);
 smpl_t aubio_pitchdetection_fcomb(aubio_pitchdetection_t *p, fvec_t *ibuf);
+smpl_t aubio_pitchdetection_yinfft(aubio_pitchdetection_t *p, fvec_t *ibuf);
 
 void aubio_pitchdetection_set_yinthresh(aubio_pitchdetection_t *p, smpl_t thres);
 void del_aubio_pitchdetection(aubio_pitchdetection_t * p);

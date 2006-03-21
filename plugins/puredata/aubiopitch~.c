@@ -12,7 +12,7 @@
 
 char aubiopitch_version[] = "aubiopitch~ version 0.1";
 
-aubio_pitchdetection_type type_pitch = aubio_pitch_mcomb;
+aubio_pitchdetection_type type_pitch = aubio_pitch_yinfft;
 aubio_pitchdetection_mode mode_pitch = aubio_pitchm_freq;
 
 static t_class *aubiopitch_tilde_class;
@@ -80,6 +80,7 @@ static void *aubiopitch_tilde_new (void)
 	//FIXME: get the real samplerate
     	x->o = new_aubio_pitchdetection(x->bufsize*4, 
                     x->hopsize, 1, 44100., type_pitch, mode_pitch);
+	aubio_pitchdetection_set_yinthresh(x->o, 0.7);
 	x->vec = (fvec_t *)new_fvec(x->hopsize,1);
 
   	//floatinlet_new (&x->x_obj, &x->threshold);

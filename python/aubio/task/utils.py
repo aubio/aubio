@@ -33,6 +33,8 @@ def get_pitch_mode(nvalue):
 		 return aubio_pitch_fcomb
 	elif nvalue == 'schmitt':
 		 return aubio_pitch_schmitt
+	elif nvalue == 'yinfft':
+		 return aubio_pitch_yinfft
 	else:
 		 import sys
 		 print "error: unknown pitch detection function selected"
