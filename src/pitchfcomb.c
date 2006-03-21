@@ -83,7 +83,7 @@ smpl_t aubio_pitchfcomb_detect (aubio_pitchfcomb_t * p, fvec_t * input)
   for (k=0; k < input->length; k++){
 	  p->winput->data[0][k] = p->win->data[0][k] * input->data[0][k];
   }
-  aubio_mfft_do(p->fft,input,p->fftOut);
+  aubio_mfft_do(p->fft,p->winput,p->fftOut);
 
   for (k=0; k<=p->fftSize/2; k++) {
     smpl_t
@@ -99,10 +99,10 @@ smpl_t aubio_pitchfcomb_detect (aubio_pitchfcomb_t * p, fvec_t * input)
     tmp -= (smpl_t)k*phaseDifference;
 
     /* map delta phase into +/- Pi interval */
-    tmp = aubio_unwrap2pi(tmp) + PI;
+    tmp = aubio_unwrap2pi(tmp);
 
     /* get deviation from bin frequency from the +/- Pi interval */
-    tmp = p->stepSize/(smpl_t)p->fftSize*tmp/(TWO_PI);
+    tmp = p->fftSize/(smpl_t)p->stepSize*tmp/(TWO_PI);
 
     /* compute the k-th partials' true frequency */
     freq = (smpl_t)k*freqPerBin + tmp*freqPerBin;
