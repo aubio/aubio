@@ -34,17 +34,16 @@ test-aubiopitch-monophonic:  $(patsubst %, %.aubiopitch-monophonic, $(MONOSOURCE
 test-aubiopitch-polyphonic:  $(patsubst %, %.aubiopitch-polyphonic, $(POLYSOURCE))
 
 plotpitch:
-	../../../aubiopitch -m mcomb,fcomb,yin,schmitt -i $(BASEDIR)/isolated/piano/011pfnof/011pfnof.69.wav -O 011pfnof.69.ps
-	../../../aubiopitch -m mcomb,fcomb,yin,schmitt -i $(BASEDIR)/isolated/rhodes/021epnof/021epnof.69.wav -O 021epnof.69.ps
-	../../../aubiopitch -m mcomb,fcomb,yin,schmitt -i $(BASEDIR)/isolated/harpsichord/031hcsim/031hcsim.69.wav -O 031hcsim.69.ps
-	../../../aubiopitch -m mcomb,fcomb,yin,schmitt -i $(BASEDIR)/isolated/vibraphone/041vihnf/041vihnf.69.wav -O 041vihnf.69.ps
+	../../../aubiopitch -m fcomb,mcomb,yinfft,yin,schmitt -i jazz2REF.wav -p -t 0.2 -l 100 -M 600 -O jazz2REF.ps
+	../../../aubiopitch -m fcomb,mcomb,yinfft,yin,schmitt -p -t 0.2 -l 300 -M 900 -i opera_fem2REF.wav -O opera_fem2REF.ps
 
 timings:
 	./bench-timings $(BASEDIR)/polyphonic/Mirex04/opera
 
 %.aubiopitch-isolated: %
-	rm -f isolated/`basename $@`
-	./bench-pitch $< | tee isolated/`basename $@`
+	$(CP) isolated/`basename $@` isolated/`basename $@`.old
+	./bench-pitch-isolated $< | tee isolated/`basename $@`
+	-diff isolated/`basename $@`.old isolated/`basename $@`
 	-diff isolated/`basename $@`.ref isolated/`basename $@`
 
 %.aubiopitch-monophonic: %
