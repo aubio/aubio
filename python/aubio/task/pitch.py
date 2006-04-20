@@ -78,7 +78,7 @@ class taskpitch(task):
 						pitch.append(self.truth)
 					else:
 						pitch.append(-1.)
-				return time,pitch #0,aubio_miditofreq(float(floatpit))
+				return time,pitch
 			except ValueError:
 				# FIXME very weak check
 				if not os.path.isfile(datafile):
@@ -120,7 +120,7 @@ class taskpitch(task):
 		for i in range(len(pitch)):
 			if pitch[i] == "nan" or pitch[i] == -1:
 				pitch[i] = -1
-		time = [ i*self.params.step for i in range(len(pitch)) ]
+		time = [ (i+self.params.pitchdelay)*self.params.step for i in range(len(pitch)) ]
 		#print len(timet),len(pitcht)
 		#print len(time),len(pitch)
 		if len(timet) != len(time):
@@ -152,16 +152,15 @@ class taskpitch(task):
 		return osil, esil, opit, epit, echr
 
 	def plot(self,pitch,wplot,oplots,outplot=None):
-		import numarray
 		import Gnuplot
 
-		downtime = self.params.step*numarray.arange(len(pitch))
+		time = [ (i+self.params.pitchdelay)*self.params.step for i in range(len(pitch)) ]
 		pitch = [aubio_freqtomidi(i) for i in pitch]
-		oplots.append(Gnuplot.Data(downtime,pitch,with='lines',
+		oplots.append(Gnuplot.Data(time,pitch,with='lines',
 			title=self.params.pitchmode))
 
 			
-	def plotplot(self,wplot,oplots,outplot=None,multiplot = 0, midi = 1):
+	def plotplot(self,wplot,oplots,outplot=None,multiplot = 1, midi = 1):
 		from aubio.gnuplot import gnuplot_init, audio_to_array, make_audio_plot
 		import re
 		import Gnuplot
@@ -184,6 +183,7 @@ class taskpitch(task):
 		g('set lmargin 15')
 		# plot waveform and onsets
 		g('set size 1,0.3')
+		g('set ytics 10')
 		g('set origin 0,0.7')
 		g('set xrange [0:%f]' % max(time)) 
 		g('set yrange [-1:1]') 
@@ -202,7 +202,7 @@ class taskpitch(task):
 			g.ylabel('f0 (Hz)')
 			g('set yrange [100:%f]' % self.params.pitchmax) 
 		else: 
-			g.ylabel('pitch (midi)')
+			g.ylabel('midi')
 			g('set yrange [%f:%f]' % (aubio_freqtomidi(self.params.pitchmin), aubio_freqtomidi(self.params.pitchmax)))
 		g('set key right top')
 		g('set noclip one') 

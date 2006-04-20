@@ -25,8 +25,9 @@ class taskparams(object):
 		# also best param for yinfft polyphonic Mirex04
 		self.yinfftthresh = 0.85 
 		self.pitchsmooth = 0
-		self.pitchmin=10.
+		self.pitchmin=20.
 		self.pitchmax=20000.
+		self.pitchdelay = -0.5
 		self.dcthreshold = -1.
 		self.omode = aubio_pitchm_freq
 		self.verbose   = False

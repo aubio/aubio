@@ -39,15 +39,16 @@ def parse_args():
                           help="silence threshold [default=-70]")
         parser.add_option("-D","--delay",
                           action="store", dest="delay",  
-                          help="number of seconds to take back [default=system]\
-                          default system delay is 2*hopsize/samplerate")
-        parser.add_option("-L","--localmin",
-                          action="store_true", dest="localmin", default=False, 
-                          help="use local minima after peak detection")
-        parser.add_option("-c","--cut",
-                          action="store_true", dest="cut", default=False,
-                          help="cut input sound file at detected labels \
-                          best used with option -L")
+                          help="number of seconds frames to take back [default=0]")
+	parser.add_option("-S","--smoothing",
+			  action="store", dest="smoothing", default=False, 
+			  help="use a median filter of N frames [default=0]")
+	parser.add_option("-M","--maximum",
+			  action="store", dest="pitchmax", default=False, 
+			  help="maximum pitch value to look for (Hz) [default=20000]")
+	parser.add_option("-l","--minimum",
+			  action="store", dest="pitchmin", default=False, 
+			  help="minimum pitch value to look for (Hz) [default=20]")
         # to be implemented
         parser.add_option("-n","--note",
                           action="store_true", dest="note", default=False,
@@ -55,13 +56,13 @@ def parse_args():
         # plotting functions
         parser.add_option("-p","--plot",
                           action="store_true", dest="plot", default=False, 
-                          help="NOT IMPLEMENTED draw plot")
+                          help="draw plot of the pitch track")
         parser.add_option("-O","--outplot",
                           action="store", dest="outplot", default=None, 
-                          help="NOT IMPLEMENTED save plot to output.{ps,png}")
+                          help="save the plot to output.{ps,png,svg} instead of displaying it")
         parser.add_option("-v","--verbose",
                           action="store_true", dest="verbose", default=False,
-                          help="make lots of noise [default]")
+                          help="make lots of noise")
         parser.add_option("-q","--quiet",
                           action="store_false", dest="verbose", default=False, 
                           help="be quiet")
@@ -92,10 +93,12 @@ params.step       = params.samplerate/float(params.hopsize)
 params.yinthresh  = float(options.threshold)
 params.silence    = float(options.silence)
 params.verbose    = options.verbose
+if options.smoothing: params.pitchsmooth = int(options.smoothing)
+if options.pitchmax:  params.pitchmax    = int(options.pitchmax)
+if options.pitchmin:  params.pitchmin    = int(options.pitchmin)
 #mintol     = float(options.mintol)*step
 # default take back system delay
-if options.delay: delay = float(options.delay)
-else:             delay = 2./params.step
+if options.delay: params.pitchdelay = float(options.delay)
 
 if options.note:
         exit("not implemented yet")
