@@ -111,6 +111,7 @@ smpl_t aubio_pitchmcomb_detect(aubio_pitchmcomb_t * p, cvec_t * fftgrain) {
   for (j=0; j< p->theta->length; j++) {
     p->theta->data[i][j]=fftgrain->phas[i][j];
   }
+  //return p->candidates[p->goodcandidate]->ebin;
   return FLOOR(p->candidates[p->goodcandidate]->ebin+.5) + instfreq;
   /*} else {
     return -1.;
@@ -202,6 +203,9 @@ void aubio_pitchmcomb_combdet(aubio_pitchmcomb_t * p, fvec_t * newmag) {
 
   /* get the biggest peak in the spectrum */
   root_peak = aubio_pitchmcomb_get_root_peak(peaks,count);
+  /* not enough partials in highest notes, could be forced */
+  //if (peaks[root_peak].ebin >= aubio_miditofreq(85.)/p->tau) N=2;
+  //if (peaks[root_peak].ebin >= aubio_miditofreq(90.)/p->tau) N=1;
   /* now calculate the energy of each of the 5 combs */
   for (l=0;l<M;l++) {
     smpl_t scaler = (1./(l+1.));
