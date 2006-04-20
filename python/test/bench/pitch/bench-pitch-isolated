@@ -47,7 +47,7 @@ class benchpitch(bench):
 		#print results#, computed_data
 		#print input, results, results - float(input.split('.')[-2])
 			
-	def run_bench(self,modes=['schmitt']):
+	def run_bench(self,modes=['schmitt'],multiplot=0):
 		from os.path import basename
 		self.modes = modes
 		self.pretty_titles()
@@ -90,12 +90,12 @@ class benchpitch(bench):
 				allMpit,
 				plottitle="%s %s" % (self.v['mode'],self.params.bufsize),
 				plotmode='lines')
+			"""
 			self.plotpitchtessiture(plot,
 				truth, 
 				allMchr,
 				plottitle="%s %s" % (self.v['mode'],"%12"),
 				plotmode='lines')
-			"""
 			self.plotpitchtessiture(plot,
 				truth, 
 				allMsil,
@@ -103,17 +103,20 @@ class benchpitch(bench):
 				plotmode='lines')
 			"""
 			title = basename(self.datadir)
-			d.append(plot)
+			if multiplot:
+				d.append(plot)
+			else:
+				d += plot
 		outplot = "_-_".join(('pitchtessiture',title))
-		self.xmin = 20. #min(self.v['truth'])
-		self.xmax = 110. #max(self.v['truth'])
-		for ext in ('ps','png','svg',''):
+		self.xmin = min(self.v['truth']) #20.
+		self.xmax = max(self.v['truth'])
+		for ext in ('ps','png','svg'): #,''):
 			self.plotplotpitchtessiture(d,
 				plottitle="".join(['Performance against MIDI Note number (',
 					title,
 					", %s" % len(self.sndlist), " samples)"]),
 				outplot=outplot,
-				extension=ext)
+				extension=ext,multiplot=multiplot)
 		#d.append('beta = .25,orig(x) title \"-2 octave\"')
 		#d.append('beta = .50,orig(x) title \"-1 octave\"')
 		#d.append('beta = 1.0,orig(x) title \"original\"')
@@ -132,28 +135,23 @@ class benchpitch(bench):
 		g = gnuplot_create(outplot=outplot,extension=extension) 
 		#g.title(plottitle)
 		#g('orig(x) = beta*x')
-		#g.xlabel('original pitch (Hz)')
-		#g.ylabel('detected pitch (Hz)')
-		#g('set key left top')
-		#g('set log xy')
-		#g('set xrange [50:2000]')
-		g('set yrange [0:100]')
+		g.title(plottitle)
+		g('set yrange [50:100]')
+		# erase axis
+		g('set xrange [%f:%f]' % (self.xmin,self.xmax)) #(self.xmax - (self.xmax-self.xmin)*5./4.,self.xmax))
 		#g.plot(*d)
+		g('set border 3')
+		g('set xtics nomirror')
+		g('set ytics nomirror')
+		g('set key bottom')
 		if multiplot:
 			g('set multiplot')
 			for i in range(len(d)):
 				# plot onset detection functions
 				g('set size   1,%f' % ( 1.0/float(len(d)) ) )
 				g('set origin 0,%f' % ( 1.0*float(len(d)-i-1)/float(len(d)) ) )
-				# erase axis
-				g('set border 3')
-				g('set xtics nomirror')
-				g('set ytics nomirror')
-				g('set key left top')
-				g('set xrange [%f:%f]' % (self.xmin,self.xmax)) #(self.xmax - (self.xmax-self.xmin)*5./4.,self.xmax))
 				#g.ylabel('%Correct detections')
-				if i == len(d)-1:
-					g.xlabel(plottitle)
+				g('set xrange [%f:%f]' % (self.xmin,self.xmax)) #(self.xmax - (self.xmax-self.xmin)*5./4.,self.xmax))
 				g.plot(*d[i])
 				g('unset title')
 			g('unset multiplot')
@@ -168,11 +166,12 @@ if __name__ == "__main__":
 	if len(sys.argv) > 2:
 		for each in sys.argv[3:-1]: print each
 	modes = ['schmitt', 'yin', 'yinfft', 'mcomb', 'fcomb']
+	#modes = ['mcomb']
 
 	params = taskparams()
-	params.bufsize = 2048 #4096 
+	params.bufsize = 2048 # 4096 
 	params.hopsize = 256
-	params.silence = -70.
+	params.silence = -60.
 	params.pitchsmooth = 0 
 	params.pitchmax = 20000
 	params.pitchmin = 20
