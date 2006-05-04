@@ -151,16 +151,17 @@ class taskpitch(task):
 		#print 100.*esil/float(osil), 100.*epit/float(opit), 100.*echr/float(opit)
 		return osil, esil, opit, epit, echr
 
-	def plot(self,pitch,wplot,oplots,outplot=None):
+	def plot(self,pitch,wplot,oplots,titles,outplot=None):
 		import Gnuplot
 
 		time = [ (i+self.params.pitchdelay)*self.params.step for i in range(len(pitch)) ]
 		pitch = [aubio_freqtomidi(i) for i in pitch]
 		oplots.append(Gnuplot.Data(time,pitch,with='lines',
 			title=self.params.pitchmode))
+		titles.append(self.params.pitchmode)
 
 			
-	def plotplot(self,wplot,oplots,outplot=None,multiplot = 1, midi = 1):
+	def plotplot(self,wplot,oplots,titles,outplot=None,multiplot = 1, midi = 1, truth = 1):
 		from aubio.gnuplot import gnuplot_init, audio_to_array, make_audio_plot
 		import re
 		import Gnuplot
@@ -169,10 +170,11 @@ class taskpitch(task):
 		f = make_audio_plot(time,data)
 
 		# check if ground truth exists
-		timet,pitcht = self.gettruth()
-		if timet and pitcht:
-			oplots = [Gnuplot.Data(timet,pitcht,with='lines',
-				title='ground truth')] + oplots
+		if truth:
+			timet,pitcht = self.gettruth()
+			if timet and pitcht:
+				oplots = [Gnuplot.Data(timet,pitcht,with='lines',
+					title='ground truth')] + oplots
 
 		t = Gnuplot.Data(0,0,with='impulses') 
 
@@ -180,13 +182,17 @@ class taskpitch(task):
 		g('set title \'%s\'' % (re.sub('.*/','',self.input)))
 		g('set multiplot')
 		# hack to align left axis
-		g('set lmargin 15')
+		g('set lmargin 4')
+		g('set rmargin 4')
 		# plot waveform and onsets
 		g('set size 1,0.3')
 		g('set ytics 10')
 		g('set origin 0,0.7')
 		g('set xrange [0:%f]' % max(time)) 
 		g('set yrange [-1:1]') 
+		g('set noytics')
+		g('set y2tics -1,1')
+		g.xlabel('time (s)',offset=(0,0.8))
 		g.ylabel('amplitude')
 		g.plot(f)
 		g('unset title')
@@ -204,15 +210,20 @@ class taskpitch(task):
 		else: 
 			g.ylabel('midi')
 			g('set yrange [%f:%f]' % (aubio_freqtomidi(self.params.pitchmin), aubio_freqtomidi(self.params.pitchmax)))
+			g('set y2tics %f,%f' % (round(aubio_freqtomidi(self.params.pitchmin)+.5),12))
 		g('set key right top')
 		g('set noclip one') 
 		g('set format x ""')
 		if multiplot:
+			g('set tmargin 0')
 			for i in range(len(oplots)):
 				# plot onset detection functions
 				g('set size 1,%f' % (0.7/(len(oplots))))
-				g('set origin 0,%f' % (float(i)*0.7/(len(oplots))))
+				g('set origin 0,%f' % ((len(oplots)-float(i)-1)*0.7/(len(oplots))))
 				g('set xrange [0:%f]' % max(time))
+				g('set nokey')
+				g.ylabel(titles[i])
+				g.xlabel('')
 				g.plot(oplots[i])
 		else:
 			g.plot(*oplots)
