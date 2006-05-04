@@ -58,7 +58,7 @@ aubio_pickpeak_t * parms;
 /* pitch objects */
 smpl_t pitch               = 0.;
 aubio_pitchdetection_t * pitchdet;
-aubio_pitchdetection_type type_pitch = aubio_pitch_schmitt; // aubio_pitch_mcomb
+aubio_pitchdetection_type type_pitch = aubio_pitch_yinfft; // aubio_pitch_mcomb
 aubio_pitchdetection_mode mode_pitch = aubio_pitchm_freq;
 uint_t median         = 6;
 
@@ -182,6 +182,8 @@ int parse_args (int argc, char **argv) {
                         case 'p':
                                 if (strcmp(optarg,"mcomb") == 0) 
                                         type_pitch = aubio_pitch_mcomb;
+                                else if (strcmp(optarg,"yinfft") == 0) 
+                                        type_pitch = aubio_pitch_yin;
                                 else if (strcmp(optarg,"yin") == 0) 
                                         type_pitch = aubio_pitch_yin;
                                 else if (strcmp(optarg,"schmitt") == 0) 
@@ -264,12 +266,13 @@ void examples_common_init(int argc,char ** argv) {
 
   if (usepitch) {
     pitchdet = new_aubio_pitchdetection(buffer_size*4, 
-                    overlap_size, channels, samplerate, type_pitch, mode_pitch);
-  
-  if (median) {
-          note_buffer = new_fvec(median, 1);
-          note_buffer2= new_fvec(median, 1);
-  }
+        overlap_size, channels, samplerate, type_pitch, mode_pitch);
+    aubio_pitchdetection_set_yinthresh(pitchdet, 0.7);
+
+    if (median) {
+      note_buffer = new_fvec(median, 1);
+      note_buffer2= new_fvec(median, 1);
+    }
   }
   /* phase vocoder */
   pv = new_aubio_pvoc(buffer_size, overlap_size, channels);
