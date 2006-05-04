@@ -144,6 +144,7 @@ smpl_t aubio_freqtomidi(smpl_t freq);
 smpl_t aubio_miditofreq(smpl_t midi);
 uint_t aubio_silence_detection(fvec_t * ibuf, smpl_t threshold);
 smpl_t aubio_level_detection(fvec_t * ibuf, smpl_t threshold);
+void aubio_autocorr(fvec_t * in, fvec_t * acf);
 
 /* scale */
 extern aubio_scale_t * new_aubio_scale(smpl_t flow, smpl_t fhig, smpl_t ilow, smpl_t ihig	);
