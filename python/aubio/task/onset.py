@@ -117,7 +117,7 @@ class taskonset(task):
 				oplot.append(Gnuplot.Data(x1,y1,with='impulses'))
 				wplot.append(Gnuplot.Data(x1,y1p,with='impulses'))
 
-		oplots.append(oplot)
+		oplots.append((oplot,self.params.onsetmode,self.maxofunc))
 
 		# check if ground truth datafile exists
 		datafile = self.input.replace('.wav','.txt')
@@ -145,29 +145,38 @@ class taskonset(task):
 		# audio data
 		time,data = audio_to_array(self.input)
 		wplot = [make_audio_plot(time,data)] + wplot
-		self.title = self.input
 		# prepare the plot
 		g = gnuplot_init(outplot)
 
 		g('set multiplot')
 
 		# hack to align left axis
-		g('set lmargin 6')
+		g('set lmargin 3')
+		g('set rmargin 6')
 		g('set tmargin 0')
 		g('set format x ""')
-		g('set format y ""')
+		g('set format y "%3e"')
 		g('set noytics')
 
 		for i in range(len(oplots)):
 			# plot onset detection functions
 			g('set size 1,%f' % (0.7/(len(oplots))))
-			g('set origin 0,%f' % (float(i)*0.7/(len(oplots))))
+			g('set origin 0,%f' % ((len(oplots)-float(i)-1)*0.7/(len(oplots))))
 			g('set xrange [0:%f]' % (self.lenofunc*self.params.step))
-			g.plot(*oplots[i])
+			g('set nokey')
+			g('set yrange [0:%f]' % (1.1*oplots[i][2]))
+			g('set y2tics ("0" 0, "%d" %d)' % (round(oplots[i][2]),round(oplots[i][2])))
+			g.ylabel(oplots[i][1])
+			if i == len(oplots)-1:
+				g.xlabel('time (s)',offset=(0,0.7))
+			g.plot(*oplots[i][0])
 
-		g('set tmargin 3.0')
-		g('set xlabel "time (s)" 1,0')
+		g('set tmargin 2')
+		g.xlabel('time (s)',offset=(0,0.7))
 		g('set format x "%1.1f"')
+		g('set format y "%1f"')
+		g('set y2tics -1,1')
+
 
 		g('set title \'%s %s\'' % (re.sub('.*/','',self.input),self.title))
 
