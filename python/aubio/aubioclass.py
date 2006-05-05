@@ -101,25 +101,25 @@ class onsetpick:
         self.mode     = mode
         self.pp       = peakpick(float(threshold))
         self.derivate = derivate
-	self.dcthreshold = dcthreshold 
+        self.dcthreshold = dcthreshold 
         self.oldval   = 0.
 
     def do(self,myvec): 
         self.pv.do(myvec,self.myfft)
         self.myod.do(self.myfft,self.myonset)
         if self.mode == 'dual':
-                self.myod2.do(self.myfft,self.myonset2)
-                self.myonset.set(self.myonset.get(0,0)*self.myonset2.get(0,0),0,0)
+           self.myod2.do(self.myfft,self.myonset2)
+           self.myonset.set(self.myonset.get(0,0)*self.myonset2.get(0,0),0,0)
         if self.derivate:
-                val         = self.myonset.get(0,0)
-                dval        = val - self.oldval
-                self.oldval = val
-                if dval > 0: self.myonset.set(dval,0,0)
-                else:  self.myonset.set(0.,0,0)
-	if self.dcthreshold:
-                dval        = self.myonset.get(0,0) - self.dcthreshold
-                if dval > 0: self.myonset.set(dval,0,0)
-                else:  self.myonset.set(0.,0,0)
+           val         = self.myonset.get(0,0)
+           dval        = val - self.oldval
+           self.oldval = val
+           if dval > 0: self.myonset.set(dval,0,0)
+           else:  self.myonset.set(0.,0,0)
+        if self.dcthreshold:
+           dval        = self.myonset.get(0,0) - self.dcthreshold
+           if dval > 0: self.myonset.set(dval,0,0)
+           else:  self.myonset.set(0.,0,0)
         return self.pp.do(self.myonset),self.myonset.get(0,0)
 
 class pitchdetection:
