@@ -12,13 +12,16 @@ class benchpitch(bench):
                'Msil', 'Mpit', 'Mchr',
 	       'TotalPit', 'TotalPit', 'TotalChr' ]
 	""" list of values to print per dir """
-	printnames = [ 'mode', 'MinPit', 'MaxPit', 'TotalSil', 'TotalPit', 'TotalChr']
+	printnames_total = [ 'mode', 'MinPit', 'MaxPit', 'TotalSil', 'TotalPit', 'TotalChr']
+	printnames_notes = [ 'mode', 'Note', 'Sil', 'Pit', 'Chr']
+	printnames = printnames_notes 
 
 	""" per dir """
 	formats = {'mode': "%12s" , 
 		'truth': "%s",
 		'osil': "%s", 'esil': "%s", 
 		'opit': "%s", 'epit': "%s", 'echr': "%s",
+    'Note': "%s", 'Sil': "%s", 'Chr': "%s", 'Pit': "%s",
 		'TotalPit': "%s", 'TotalSil': "%s", 'TotalChr': "%s",
 		'MinPit': "%s", 'MaxPit': "%s",
 		'Msil': "%s", 'Mpit': "%s", 'Mchr': "%s"}
@@ -77,12 +80,17 @@ class benchpitch(bench):
 				allMsil[i] = allEsil[i]/float(allOsil[i])*100.
 				allMpit[i] = allEpit[i]/float(allOpit[i])*100.
 				allMchr[i] = allEchr[i]/float(allOpit[i])*100.
+				self.v['Sil'], self.v['Pit'], self.v['Chr'] = allMsil[i], allMpit[i], allMchr[i]
+				self.v['Note'] = truth[i]
+				#self.printnames = self.printnames_notes
+				self.pretty_print()
 			self.v['TotalSil'] = sum(allMsil)/len(truth)
 			self.v['TotalPit'] = sum(allMpit)/len(truth)
 			self.v['TotalChr'] = sum(allMchr)/len(truth)
 			self.v['MinPit'] = min(truth) 
 			self.v['MaxPit'] = max(truth) 
-			self.pretty_print()
+			#self.printnames = self.printnames_total
+			#self.pretty_print()
 
 			plot = []
 			self.plotpitchtessiture(plot,
