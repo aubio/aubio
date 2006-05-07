@@ -45,43 +45,54 @@ def audio_to_array(filename):
 	time = numarray.arange(len(data))*framestep
 	return time,data
 
-def plot_audio(filenames, fileout=None, start=0, end=None, noaxis=None):
+def plot_audio(filenames, fileout=None, start=0, end=None, noaxis=None,xsize=1.,ysize=1.):
 	g = gnuplot_init(fileout)
 	d = []
 	todraw = len(filenames)
 	xorig = 0.
-	xsize = 1./todraw
+	xratio = 1./todraw
+	g.gnuplot('set size %f,%f;' % (xsize,ysize) )
 	g.gnuplot('set multiplot;')
 	while (len(filenames)):
 		time,data = audio_to_array(filenames.pop(0))
-		d.append(make_audio_plot(time,data))
 		if not noaxis and todraw==1:
-			g.xlabel('Time (s)')
+			if max(time) < 1.:
+				time = [t*1000. for t in time]
+				g.xlabel('Time (ms)')
+			else:
+				g.xlabel('Time (s)')
 			g.ylabel('Amplitude')
-		g.gnuplot('set size %f,1.;' % (xsize) )
+		d.append(make_audio_plot(time,data))
+		g.gnuplot('set size %f,%f;' % (xsize*xratio,ysize) )
 		g.gnuplot('set origin %f,0.;' % (xorig) )
 		g.gnuplot('set style data lines; \
 			set yrange [-1.:1.]; \
 			set xrange [0:%f]' % time[-1]) 
 		g.plot(d.pop(0))
-		xorig += 1./todraw
+		xorig += xsize*xratio 
 	g.gnuplot('unset multiplot;')
 
-def audio_to_spec(filename):
+def audio_to_spec(filename,minf = 0, maxf = 0, lowthres = 0.):
 	from aubioclass import fvec,cvec,pvoc,sndfile
-	from math import log
-	bufsize   = 256*16
-	hopsize   = bufsize/4 # could depend on filelength
+	from math import log10
+	bufsize   = 8192
+	hopsize   = bufsize/8 # could depend on filelength
 	filei     = sndfile(filename)
 	srate     = float(filei.samplerate())
 	framestep = hopsize/srate
 	freqstep  = srate/bufsize
 	channels  = filei.channels()
 	myvec = fvec(hopsize,channels)
-        myfft = cvec(bufsize,channels)
-        pv    = pvoc(bufsize,hopsize,channels)
+	myfft = cvec(bufsize,channels)
+	pv    = pvoc(bufsize,hopsize,channels)
 	data,time,freq = [],[],[]
-	for f in range(bufsize/2):
+
+	if maxf == 0.: maxf = bufsize/2
+	else: maxf = int(maxf/freqstep)
+	if minf: minf = int(minf/freqstep)
+	else: minf = 0 
+
+	for f in range(minf,maxf):
 		freq.append(f*freqstep)
 	readsize = hopsize
 	frameread = 0
@@ -90,9 +101,9 @@ def audio_to_spec(filename):
 		pv.do(myvec,myfft)
 		frame = []
 		i = 0 #for i in range(channels):
-		curpos = 0
-		while (curpos < bufsize/2):
-			frame.append(log(myfft.get(curpos,i)**2+0.000001))
+		curpos = minf 
+		while (curpos < maxf):
+			frame.append(max(lowthres,20.*log10(myfft.get(curpos,i)**2+0.00001)))
 			curpos+=1
 		time.append(frameread*framestep)
 		data.append(frame)
@@ -106,24 +117,24 @@ def audio_to_spec(filename):
 	assert len(data[0]) == len(freq)
 	return data,time,freq
 
-def plot_spec(filename, outplot='',extension='', fileout=None, start=0, end=None, noaxis=None,log=1):
+def plot_spec(filename, outplot='',extension='', fileout=None, start=0, end=None, noaxis=None,log=1, minf=0, maxf= 0, xsize = 1., ysize = 1.):
 	import Gnuplot
 	g = gnuplot_create(outplot,extension)
-	data,time,freq = audio_to_spec(filename)
+	data,time,freq = audio_to_spec(filename,minf=minf,maxf=maxf)
 	xorig = 0.
-	xsize = 1.#/todraw
 	if not noaxis:
 		g.xlabel('Time (s)')
 		g.ylabel('Frequency (Hz)')
-	g.gnuplot('set pm3d map')
-	#g.gnuplot('set palette rgbformulae 30,31,32')
-	#g.gnuplot('set palette')
-	g.gnuplot('set xrange [0.:%f]' % time[-1]) 
-	g.gnuplot('set yrange [1.:%f]' % (freq[-1]/1.))
+	g('set size %f,%f' % (xsize, ysize))
+	g('set pm3d map')
+	g('set palette rgbformulae -25,-24,-32')
+	#g('set colorbox horizontal')
+	g('set xrange [0.:%f]' % time[-1]) 
+	g('set yrange [%f:%f]' % (minf,maxf))
 	if log:
-		g.gnuplot('set yrange [10.1:%f]' % (freq[-1]/1.))
-		g.gnuplot('set log y')
-	g.splot(Gnuplot.GridData(data,time,freq, binary=1))
+		g('set yrange [%f:%f]' % (max(10,minf),maxf))
+		g('set log y')
+	g.splot(Gnuplot.GridData(data,time,freq, binary=1, title='mag. (dB)'))
 	#xorig += 1./todraw
 
 def downsample_audio(time,data,maxpoints=10000):
@@ -166,6 +177,8 @@ def gnuplot_create(outplot='',extension='',debug=0,persist=1):
         g = Gnuplot.Gnuplot(debug=debug, persist=persist)
 	if not extension or not outplot: return g
 	if   extension == 'ps':  ext, extension = '.ps' , 'postscript'
+	elif extension == 'eps': ext, extension = '.eps' , 'postscript enhanced'
+	elif extension == 'epsc': ext, extension = '.eps' , 'postscript enhanced color'
 	elif extension == 'png': ext, extension = '.png', 'png'
 	elif extension == 'svg': ext, extension = '.svg', 'svg'
 	else: exit("ERR: unknown plot extension")
