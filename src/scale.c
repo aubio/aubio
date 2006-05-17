@@ -14,7 +14,7 @@
 	 You should have received a copy of the GNU General Public License
 	 along with this program; if not, write to the Free Software
 	 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-	 */
+*/
 
 #include "aubio_priv.h"
 #include "sample.h"
@@ -35,11 +35,6 @@ struct _aubio_scale_t {
 	*/
 };
 
-
-/********************************************************
- * Object Memory Allocation
- */
-
 static aubio_scale_t * aubio_scale_malloc(void);
 static void aubio_scale_free(aubio_scale_t * s);
 
@@ -52,9 +47,6 @@ void aubio_scale_free(aubio_scale_t * s) {
 	AUBIO_FREE(s);
 }
 
-/***
- * Object creation/deletion calls
- */
 aubio_scale_t * new_aubio_scale (smpl_t ilow, smpl_t ihig, smpl_t olow, smpl_t ohig	){
 	aubio_scale_t * s = aubio_scale_malloc();
 	aubio_scale_set (s, ilow, ihig, olow, ohig);
@@ -65,9 +57,6 @@ void del_aubio_scale(aubio_scale_t *s) {
 	aubio_scale_free(s);
 }
 
-/***
- * set parmams
- */
 void aubio_scale_set (aubio_scale_t *s, smpl_t ilow, smpl_t ihig, smpl_t olow, smpl_t ohig) 
 {
 	smpl_t inputrange = ihig - ilow;
@@ -85,9 +74,6 @@ void aubio_scale_set (aubio_scale_t *s, smpl_t ilow, smpl_t ihig, smpl_t olow, s
 	}
 }
 
-/***
- * do it
- */
 void aubio_scale_do (aubio_scale_t *s, fvec_t *input) 
 {
 	uint_t i, j;
