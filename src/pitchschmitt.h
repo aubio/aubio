@@ -17,6 +17,20 @@
 
 */
 
+/** \file 
+
+   Pitch detection using a Schmitt trigger 
+ 
+   This pitch extraction method implements a Schmitt trigger to estimate the
+   period of a signal.
+
+   This file was derived from the tuneit project, written by Mario Lang to
+   detect the fundamental frequency of a sound.
+   
+   see http://delysid.org/tuneit.html 
+
+*/
+
 #ifndef _PITCHSCHMITT_H
 #define _PITCHSCHMITT_H
 
@@ -24,10 +38,28 @@
 extern "C" {
 #endif
 
+/** pitch detection object */
 typedef struct _aubio_pitchschmitt_t aubio_pitchschmitt_t;
 
+/** execute pitch detection on an input buffer 
+ 
+  \param p pitch detection object as returned by new_aubio_pitchschmitt 
+  \param input input signal window (length as specified at creation time) 
+ 
+*/
 smpl_t aubio_pitchschmitt_detect (aubio_pitchschmitt_t *p, fvec_t * input);
+/** creation of the pitch detection object
+ 
+  \param size size of the input buffer to analyse 
+  \param samplerate sampling rate of the signal 
+ 
+*/
 aubio_pitchschmitt_t * new_aubio_pitchschmitt (uint_t size, uint_t samplerate);
+/** deletion of the pitch detection object
+ 
+  \param p pitch detection object as returned by new_aubio_pitchschmitt 
+ 
+*/
 void del_aubio_pitchschmitt (aubio_pitchschmitt_t *p);
 
 

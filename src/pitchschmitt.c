@@ -17,14 +17,6 @@
 
 */
 
-/* 
-  
-   This file was taken from the tuneit project, in the file
-   tuneit.c -- Detect fundamental frequency of a sound
-   see http://delysid.org/tuneit.html 
-  
- */
-
 #include "aubio_priv.h"
 #include "sample.h"
 #include "pitchschmitt.h"
