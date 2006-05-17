@@ -20,18 +20,19 @@
 #ifndef AUBIO_TYPES_H
 #define AUBIO_TYPES_H
 
-/**
- * \file
- * API wise types
- *
- * \todo replace all known types with their alias (in midi*.[ch])
- * 
- * \todo add unknown types aliases (char, FILE)
- *
- * \todo add OS switches
- *
- * \todo add long/float switches
- */
+/** \file
+ 
+  Definition of data types used in aubio
+ 
+  \todo replace all known types with their alias (in midi*.[ch])
+  
+  \todo add unknown types aliases (char, FILE)
+ 
+  \todo add OS switches
+ 
+  \todo add long/float switches
+
+*/
 
 #ifdef __cplusplus
 extern "C" {
