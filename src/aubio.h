@@ -42,7 +42,7 @@
  * Programmers just need to include this file as:
  *
  * @code
- *   #include "aubio.h"
+ *   #include <aubio/aubio.h>
  * @endcode
  *
  * @file aubio.h
