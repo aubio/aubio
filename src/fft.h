@@ -17,15 +17,17 @@
 	 
 */
 
-/** @file 
- * Fft object (fftw3f)
- * */
+/** \file 
+
+  Fast Fourier Transform object
+
+*/
 
 #ifndef FFT_H_
 #define FFT_H_
 
-/* <complex.h> is not included here but only in aubio_priv.h, so that c++
- * projects can still use their own complex definition. */
+/* note that <complex.h> is not included here but only in aubio_priv.h, so that
+ * c++ projects can still use their own complex definition. */
 #include <fftw3.h>
 
 #if FFTW3F_SUPPORT
@@ -40,25 +42,101 @@ extern "C" {
 
 typedef FFTW_TYPE fft_data_t;
 
+/** FFT object
+ 
+  This object computes forward and backward FFTs, using the complex type to
+  store the results. The phase vocoder or aubio_mfft_t objects should be
+  preferred to using directly aubio_fft_t. The FFT are computed using FFTW3
+  (although support for another library could be added).
+
+*/
 typedef struct _aubio_fft_t aubio_fft_t;
 
-/* fftw funcs */
+/** create new FFT computation object
+
+  \param size length of the FFT
+
+*/
 extern aubio_fft_t * new_aubio_fft(uint_t size);
+/** delete FFT object 
+
+  \param s fft object as returned by new_aubio_fft
+
+*/
 extern void del_aubio_fft(aubio_fft_t * s);
+/** compute forward FFT
+
+  \param s fft object as returned by new_aubio_fft
+  \param data input signal 
+  \param spectrum output spectrum 
+  \param size length of the input vector 
+
+*/
 extern void aubio_fft_do (const aubio_fft_t *s, const smpl_t * data,
     fft_data_t * spectrum, const uint_t size);
+/** compute backward (inverse) FFT
+
+  \param s fft object as returned by new_aubio_fft
+  \param spectrum input spectrum 
+  \param data output signal 
+  \param size length of the input vector 
+
+*/
 extern void aubio_fft_rdo(const aubio_fft_t *s, const fft_data_t * spectrum,
     smpl_t * data, const uint_t size);
-/** get norm from spectrum */
+/** compute norm vector from input spectrum
+
+  \param norm magnitude vector output
+  \param spectrum spectral data input
+  \param size size of the vectors
+
+*/
 void aubio_fft_getnorm(smpl_t * norm, fft_data_t * spectrum, uint_t size);
-/** get phase from spectrum */
+/** compute phase vector from input spectrum 
+ 
+  \param phase phase vector output
+  \param spectrum spectral data input
+  \param size size of the vectors
+
+*/
 void aubio_fft_getphas(smpl_t * phase, fft_data_t * spectrum, uint_t size);
 
+/** FFT object (using cvec)
 
+  This object works similarly as aubio_fft_t, except the spectral data is
+  stored in a cvec_t as two vectors, magnitude and phase. 
+
+*/
 typedef struct _aubio_mfft_t aubio_mfft_t;
+
+/** create new FFT computation object
+
+  \param winsize length of the FFT
+  \param channels number of channels 
+
+*/
 aubio_mfft_t * new_aubio_mfft(uint_t winsize, uint_t channels);
+/** compute forward FFT
+
+  \param fft fft object as returned by new_aubio_mfft
+  \param in input signal 
+  \param fftgrain output spectrum
+
+*/
 void aubio_mfft_do (aubio_mfft_t * fft,fvec_t * in,cvec_t * fftgrain);
+/** compute backward (inverse) FFT
+
+  \param fft fft object as returned by new_aubio_mfft
+  \param fftgrain input spectrum (cvec) 
+  \param out output signal 
+
+*/
 void aubio_mfft_rdo(aubio_mfft_t * fft,cvec_t * fftgrain, fvec_t * out);
+/** delete FFT object 
+
+  \param fft fft object as returned by new_aubio_mfft
+
+*/
 void del_aubio_mfft(aubio_mfft_t * fft);
 
 
