@@ -16,14 +16,20 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-/* This algorithm was developped by A. de Cheveigne and H. Kawahara and
- * published in:
- * 
- * de Cheveigné, A., Kawahara, H. (2002) "YIN, a fundamental frequency
- * estimator for speech and music", J. Acoust. Soc. Am. 111, 1917-1930.  
- *
- * see http://recherche.ircam.fr/equipes/pcm/pub/people/cheveign.html
- */
+/** \file
+ 
+  Pitch detection using a spectral implementation of the YIN algorithm
+  
+  This algorithm was derived from the YIN algorithm (see pitchyin.c). In this
+  implementation, a Fourier transform is used to compute a tapered square
+  difference function, which allows spectral weighting. Because the difference
+  function is tapered, the selection of the period is simplified.
+ 
+  Paul Brossier, ``Automatic annotation of musical audio for interactive
+  systems'', Chapter 3, Pitch Analysis, PhD thesis, Centre for Digital music,
+  Queen Mary University of London, London, UK, 2003.
+
+*/
 
 #ifndef PITCHYINFFT_H
 #define PITCHYINFFT_H
@@ -32,9 +38,22 @@
 extern "C" {
 #endif
 
+/** pitch detection object */
 typedef struct _aubio_pitchyinfft_t aubio_pitchyinfft_t;
 
+/** execute pitch detection on an input buffer 
+ 
+  \param p pitch detection object as returned by new_aubio_pitchyinfft
+  \param input input signal window (length as specified at creation time) 
+  \param tol tolerance parameter for minima selection [default 0.85] 
+ 
+*/
 smpl_t aubio_pitchyinfft_detect (aubio_pitchyinfft_t *p, fvec_t * input, smpl_t tol);
+/** creation of the pitch detection object
+ 
+  \param bufsize size of the input buffer to analyse 
+ 
+*/
 aubio_pitchyinfft_t * new_aubio_pitchyinfft (uint_t bufsize);
 void del_aubio_pitchyinfft (aubio_pitchyinfft_t *p);
 

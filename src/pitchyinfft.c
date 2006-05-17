@@ -16,19 +16,6 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-/* This algorithm was developped by A. de Cheveigne and H. Kawahara and
- * published in:
- * 
- * de Cheveigné, A., Kawahara, H. (2002) "YIN, a fundamental frequency
- * estimator for speech and music", J. Acoust. Soc. Am. 111, 1917-1930.  
- *
- * see http://recherche.ircam.fr/equipes/pcm/pub/people/cheveign.html
- *
- * This implementation is using an FFT to compute the square difference
- * function, which allows spectral weighting 
- * 
- */
-
 #include "aubio_priv.h"
 #include "sample.h"
 #include "mathutils.h"
@@ -138,7 +125,7 @@ smpl_t aubio_pitchyinfft_detect(aubio_pitchyinfft_t * p, fvec_t * input, smpl_t 
 	  //return tau+2;
 	  /* 3 point quadratic interpolation */
 	  //return vec_quadint_min(yin,tau,1);
-	  /* additional check nlikely octave doubling in higher frequencies */
+	  /* additional check for (unlikely) octave doubling in higher frequencies */
 	  if (tau>35) {
 		  return vec_quadint_min(yin,tau,1)+1;
 	  } else {

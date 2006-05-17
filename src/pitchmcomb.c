@@ -160,7 +160,7 @@ void aubio_pitchmcomb_spectral_pp(aubio_pitchmcomb_t * p, fvec_t * newmag) {
   vec_dc_removal(mag);               /* dc removal           */
   vec_alpha_normalise(mag,p->alpha); /* alpha normalisation  */
   /* skipped */                      /* low pass filtering   */
-  /** \bug: vec_movind_thres writes out of bounds */
+  /** \bug vec_moving_thres may write out of bounds */
   vec_adapt_thres(mag,tmp,p->win_post,p->win_pre); /* adaptative threshold */
   vec_add(mag,-p->threshold);        /* fixed threshold      */
   {
@@ -324,7 +324,7 @@ void aubio_pitchmcomb_sort_cand_freq(aubio_spectralcandidate_t ** candidates, ui
 
 aubio_pitchmcomb_t * new_aubio_pitchmcomb(uint_t bufsize, uint_t hopsize, uint_t channels, uint_t samplerate) {
   aubio_pitchmcomb_t * p = AUBIO_NEW(aubio_pitchmcomb_t);
-  /** \bug should check if size / 8 > post+pre+1 */
+  /* bug: should check if size / 8 > post+pre+1 */
   uint_t i;
   uint_t spec_size;
   p->spec_partition   = 4;

@@ -18,10 +18,19 @@
 */
 
 /** \file
- * spectral pitch detection function
- * 
- * \todo check/fix peak picking
- */
+
+  Pitch detection using multiple-comb filter
+
+  This fundamental frequency estimation algorithm implements spectral
+  flattening, multi-comb filtering and peak histogramming. 
+
+  This method was designed by Juan P. Bello and described in:
+
+  Juan-Pablo Bello. ``Towards the Automated Analysis of Simple Polyphonic
+  Music''.  PhD thesis, Centre for Digital Music, Queen Mary University of
+  London, London, UK, 2003.
+
+*/
 
 #ifndef PITCHMCOMB_H
 #define PITCHMCOMB_H
@@ -30,11 +39,31 @@
 extern "C" {
 #endif
 
+/** pitch detection object */
 typedef struct _aubio_pitchmcomb_t aubio_pitchmcomb_t;
 
+/** execute pitch detection on an input spectral frame
+ 
+  \param p pitch detection object as returned by new_aubio_pitchmcomb
+  \param fftgrain input signal spectrum as computed by aubio_pvoc_do 
+ 
+*/
 smpl_t aubio_pitchmcomb_detect(aubio_pitchmcomb_t * p, cvec_t * fftgrain);
 uint_t aubio_pitch_cands(aubio_pitchmcomb_t * p, cvec_t * fftgrain, smpl_t * cands);
+/** creation of the pitch detection object
+ 
+  \param bufsize size of the input buffer to analyse 
+  \param hopsize step size between two consecutive analysis instant 
+  \param channels number of channels to analyse
+  \param samplerate sampling rate of the signal 
+ 
+*/
 aubio_pitchmcomb_t * new_aubio_pitchmcomb(uint_t bufsize, uint_t hopsize, uint_t channels, uint_t samplerate);
+/** deletion of the pitch detection object
+ 
+  \param p pitch detection object as returned by new_aubio_pitchfcomb
+ 
+*/
 void del_aubio_pitchmcomb(aubio_pitchmcomb_t *p);
 
 #ifdef __cplusplus
