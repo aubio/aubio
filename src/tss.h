@@ -17,9 +17,19 @@
 	 
 */
 
-/** @file
- * implement Transient / Steady State separation
- */
+/** \file
+
+  Transient / Steady-state Separation (TSS)
+
+  This file implement a Transient / Steady-state Separation (TSS) as described
+  in:
+
+  Christopher Duxbury, Mike E. Davies, and Mark B. Sandler. Separation of
+  transient information in musical audio using multiresolution analysis
+  techniques. In Proceedings of the Digital Audio Effects Conference, DAFx-01,
+  pages 1­5, Limerick, Ireland, 2001.
+
+*/
 
 #ifndef TSS_H
 #define TSS_H
@@ -28,18 +38,43 @@
 extern "C" {
 #endif
 
-/** tss publictype derived from tss.c _tss_t internal structure */
+/** TSS object */
 typedef struct _aubio_tss_t aubio_tss_t;
 
-/** public creation function */
+/** create tss object
+
+  \param thrs separation threshold
+  \param alfa alfa parameter
+  \param beta beta parameter
+  \param size buffer size
+  \param overlap step size
+  \param channels number of input channels
+
+*/
 extern aubio_tss_t * new_aubio_tss(smpl_t thrs, smpl_t alfa, smpl_t beta, 
     uint_t size, uint_t overlap,uint_t channels);
-/** public deletion function */
+/** delete tss object
+
+  \param s tss object as returned by new_aubio_tss
+
+*/
 extern void del_aubio_tss(aubio_tss_t *s);
 
-extern void aubio_tss_set_thres(aubio_tss_t *tss, smpl_t thrs);
+/** set transient / steady state separation threshold 
+ 
+  \param tss tss object as returned by new_aubio_tss
+  \param thrs new threshold value
 
-/** split input into transient and steady states components*/
+*/
+extern void aubio_tss_set_thres(aubio_tss_t *tss, smpl_t thrs);
+/** split input into transient and steady states components
+ 
+  \param s tss object as returned by new_aubio_tss
+  \param input input spectral frame
+  \param trans output transient components
+  \param stead output steady state components
+
+*/
 extern void aubio_tss_do(aubio_tss_t *s, cvec_t * input, cvec_t * trans, cvec_t * stead);
 
 #ifdef __cplusplus
