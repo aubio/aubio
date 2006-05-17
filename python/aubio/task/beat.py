@@ -17,6 +17,7 @@ class taskbeat(taskonset):
 
 	def __call__(self):
 		taskonset.__call__(self)
+		#results = taskonset.__call__(self)
 		# write to current file
 		if self.pos2 == self.btstep - 1 : 
 			self.bt.do(self.dfframe,self.btoutput)
@@ -27,6 +28,8 @@ class taskbeat(taskonset):
 			self.pos2 = -1;
 		self.pos2 += 1
 		val = self.opick.pp.getval()
+		#if not results: val = 0
+		#else: val = results[1] 
 		self.dfframe.set(val,self.btwinlen - self.btstep + self.pos2,0)
 		i=0
 		for i in range(1,int( self.btoutput.get(0,0) ) ):

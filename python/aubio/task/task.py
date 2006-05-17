@@ -52,4 +52,3 @@ class task(taskparams):
 		#print "CPU time is now %f seconds," % time.clock(),
 		#print "task execution took %f seconds" % (time.time() - self.tic)
 		return time.time() - self.tic
-
