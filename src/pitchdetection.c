@@ -33,6 +33,12 @@ typedef smpl_t (*aubio_pitchdetection_func_t)(aubio_pitchdetection_t *p,
 typedef smpl_t (*aubio_pitchdetection_conv_t)(smpl_t value,uint_t srate,uint_t bufsize);
 void aubio_pitchdetection_slideblock(aubio_pitchdetection_t *p, fvec_t *ibuf);
 
+smpl_t aubio_pitchdetection_mcomb(aubio_pitchdetection_t *p, fvec_t * ibuf);
+smpl_t aubio_pitchdetection_yin(aubio_pitchdetection_t *p, fvec_t *ibuf);
+smpl_t aubio_pitchdetection_schmitt(aubio_pitchdetection_t *p, fvec_t *ibuf);
+smpl_t aubio_pitchdetection_fcomb(aubio_pitchdetection_t *p, fvec_t *ibuf);
+smpl_t aubio_pitchdetection_yinfft(aubio_pitchdetection_t *p, fvec_t *ibuf);
+
 struct _aubio_pitchdetection_t {
 	aubio_pitchdetection_type type;
 	aubio_pitchdetection_mode mode;
@@ -124,7 +130,7 @@ aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize,
                         p->freqconv = freqconvmidi;
                         break;
 		case aubio_pitchm_cent:
-                        /** bug: not implemented */
+                        /* bug: not implemented */
                         p->freqconv = freqconvmidi;
                         break;
 		case aubio_pitchm_bin:

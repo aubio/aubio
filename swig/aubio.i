@@ -203,8 +203,6 @@ typedef enum {
 } aubio_pitchdetection_mode;
 
 smpl_t aubio_pitchdetection(aubio_pitchdetection_t * p, fvec_t * ibuf);
-smpl_t aubio_pitchdetection_mcomb(aubio_pitchdetection_t *p, fvec_t * ibuf);
-smpl_t aubio_pitchdetection_yin(aubio_pitchdetection_t *p, fvec_t *ibuf);
 
 void aubio_pitchdetection_set_yinthresh(aubio_pitchdetection_t *p, smpl_t thres);
 
