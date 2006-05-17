@@ -88,7 +88,7 @@ aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize,
 			p->buf      = new_fvec(bufsize,channels);
 			p->yin      = new_fvec(bufsize/2,channels);
                         p->callback = aubio_pitchdetection_yin;
-			p->yinthres = 0.2;
+			p->yinthres = 0.15;
 			break;
 		case aubio_pitch_mcomb:
 			p->pv       = new_aubio_pvoc(bufsize, hopsize, channels);
@@ -111,7 +111,7 @@ aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize,
 			p->buf      = new_fvec(bufsize,channels);
                         p->yinfft   = new_aubio_pitchyinfft(bufsize);
                         p->callback = aubio_pitchdetection_yinfft;
-			p->yinthres = 0.2;
+			p->yinthres = 0.85;
                         break;
                 default:
                         break;
