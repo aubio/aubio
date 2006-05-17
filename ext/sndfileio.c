@@ -42,8 +42,11 @@ aubio_sndfile_t * new_aubio_sndfile_ro(const char* outputname) {
         aubio_sndfile_t * f = AUBIO_NEW(aubio_sndfile_t);
         SF_INFO sfinfo;
         AUBIO_MEMSET(&sfinfo, 0, sizeof (sfinfo));
+        sfinfo.format = 0;
 
-        if (! (f->handle = sf_open (outputname, SFM_READ, &sfinfo))) {
+        f->handle = sf_open (outputname, SFM_READ, &sfinfo);
+
+        if (f->handle == NULL) {
                 AUBIO_ERR("Unable to open input file %s.\n", outputname);
                 AUBIO_ERR("%s\n",sf_strerror (NULL)); /* libsndfile err msg */
                 return NULL;
@@ -66,7 +69,7 @@ aubio_sndfile_t * new_aubio_sndfile_ro(const char* outputname) {
 
 int aubio_sndfile_open_wo(aubio_sndfile_t * f, const char* inputname) {
         SF_INFO sfinfo;
-        memset (&sfinfo, 0, sizeof (sfinfo));
+        AUBIO_MEMSET(&sfinfo, 0, sizeof (sfinfo));
 
         /* define file output spec */
         sfinfo.samplerate = f->samplerate;
