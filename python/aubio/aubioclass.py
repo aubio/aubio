@@ -116,11 +116,10 @@ class onsetpick:
            self.oldval = val
            if dval > 0: self.myonset.set(dval,0,0)
            else:  self.myonset.set(0.,0,0)
+        isonset, dval = self.pp.do(self.myonset),self.myonset.get(0,0)
         if self.dcthreshold:
-           dval        = self.myonset.get(0,0) - self.dcthreshold
-           if dval > 0: self.myonset.set(dval,0,0)
-           else:  self.myonset.set(0.,0,0)
-        return self.pp.do(self.myonset),self.myonset.get(0,0)
+           if dval < self.dcthreshold: isonset = 0 
+        return isonset, dval
 
 class pitchdetection:
     def __init__(self,mode=aubio_pitch_mcomb,bufsize=2048,hopsize=1024,
