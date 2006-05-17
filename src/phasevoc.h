@@ -17,9 +17,16 @@
 
 */
 
-/** @file
- * Phase vocoder object
- */
+/** \file
+
+  Phase vocoder object
+
+  This object implements a phase vocoder. The spectral frames are computed
+  using a HanningZ window and a swapped version of the signal to simplify the
+  phase relationships across frames. The window sizes and overlap are specified
+  at creation time. Multiple channels are fully supported.
+
+*/
 
 #ifndef _PHASEVOC_H
 #define _PHASEVOC_H
@@ -31,29 +38,65 @@ extern "C" {
 /** phasevocoder object */
 typedef struct _aubio_pvoc_t aubio_pvoc_t;
 
-/** create phase vocoder object */
+/** create phase vocoder object
+
+  \param win_s size of analysis buffer (and length the FFT transform)
+  \param hop_s step size between two consecutive analysis
+  \param channels number of channels
+
+*/
 aubio_pvoc_t * new_aubio_pvoc (uint_t win_s, uint_t hop_s, uint_t channels);
-/** delete phase vocoder object */
+/** delete phase vocoder object
+
+  \param pv phase vocoder object as returned by new_aubio_pvoc
+
+*/
 void del_aubio_pvoc(aubio_pvoc_t *pv);
 
-/** 
- * fill pvoc with inp[c][hop_s] 
- * slide current buffer 
- * calculate norm and phas of current grain 
- */
+/** compute spectral frame
+  
+  This function accepts an input vector of size [channels]x[hop_s]. The
+  analysis buffer is rotated and filled with the new data. After windowing of
+  this signal window, the Fourier transform is computed and returned in
+  fftgrain as two vectors, magnitude and phase.
+
+  \param pv phase vocoder object as returned by new_aubio_pvoc
+  \param in new input signal (hop_s long) 
+  \param fftgrain output spectral frame
+
+*/
 void aubio_pvoc_do(aubio_pvoc_t *pv, fvec_t *in, cvec_t * fftgrain);
-/**
- * do additive resynthesis to 
- * from current norm and phase
- * to out[c][hop_s] 
- */
+/** compute signal from spectral frame
+
+  This function takes an input spectral frame fftgrain of size
+  [channels]x[buf_s] and computes its inverse Fourier transform. Overlap-add
+  synthesis is then computed using the previously synthetised frames, and the
+  output stored in out.
+  
+  \param pv phase vocoder object as returned by new_aubio_pvoc
+  \param fftgrain input spectral frame
+  \param out output signal (hop_s long) 
+
+*/
 void aubio_pvoc_rdo(aubio_pvoc_t *pv, cvec_t * fftgrain, fvec_t *out);
 
-/** get window size */
+/** get window size
+
+  \param pv phase vocoder to get the window size from
+
+*/
 uint_t aubio_pvoc_get_win(aubio_pvoc_t* pv);
-/** get hop size */
+/** get hop size
+
+  \param pv phase vocoder to get the hop size from
+
+*/
 uint_t aubio_pvoc_get_hop(aubio_pvoc_t* pv);
-/** get channel number */
+/** get channel number
+ 
+  \param pv phase vocoder to get the number of channels from
+
+*/
 uint_t aubio_pvoc_get_channels(aubio_pvoc_t* pv);
 
 #ifdef __cplusplus
