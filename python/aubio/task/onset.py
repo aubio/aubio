@@ -139,15 +139,16 @@ class taskonset(task):
 				 (100*float(bad+doubled)/(orig)))
 
 
-	def plotplot(self,wplot,oplots,outplot=None):
-		from aubio.gnuplot import gnuplot_init, audio_to_array, make_audio_plot
+	def plotplot(self,wplot,oplots,outplot=None,extension=None,xsize=1.,ysize=1.,spectro=False):
+		from aubio.gnuplot import gnuplot_create, audio_to_array, make_audio_plot, audio_to_spec
 		import re
-		# audio data
-		time,data = audio_to_array(self.input)
-		wplot = [make_audio_plot(time,data)] + wplot
 		# prepare the plot
-		g = gnuplot_init(outplot)
-
+		g = gnuplot_create(outplot=outplot, extension=extension)
+		
+		if spectro:
+			g('set size %f,%f' % (xsize,1.3*ysize) )
+		else:
+			g('set size %f,%f' % (xsize,ysize) )
 		g('set multiplot')
 
 		# hack to align left axis
@@ -160,8 +161,8 @@ class taskonset(task):
 
 		for i in range(len(oplots)):
 			# plot onset detection functions
-			g('set size 1,%f' % (0.7/(len(oplots))))
-			g('set origin 0,%f' % ((len(oplots)-float(i)-1)*0.7/(len(oplots))))
+			g('set size %f,%f' % (xsize,0.7*ysize/(len(oplots))))
+			g('set origin 0,%f' % ((len(oplots)-float(i)-1)*0.7*ysize/(len(oplots))))
 			g('set xrange [0:%f]' % (self.lenofunc*self.params.step))
 			g('set nokey')
 			g('set yrange [0:%f]' % (1.1*oplots[i][2]))
@@ -171,18 +172,46 @@ class taskonset(task):
 				g.xlabel('time (s)',offset=(0,0.7))
 			g.plot(*oplots[i][0])
 
+		if spectro:
+			import Gnuplot
+			minf = 50
+			maxf = 500 
+			data,time,freq = audio_to_spec(self.input,minf=minf,maxf=maxf)
+			g('set size %f,%f' % (1.24*xsize , 0.34*ysize) )
+			g('set origin %f,%f' % (-0.12,0.65*ysize))
+			g('set xrange [0.:%f]' % time[-1]) 
+			g('set yrange [%f:%f]' % (minf,maxf))
+			g('set pm3d map')
+			g('unset colorbox')
+			g('set lmargin 0')
+			g('set rmargin 0')
+			g('set tmargin 0')
+			g('set palette rgbformulae -25,-24,-32')
+			g.xlabel('')
+			g.ylabel('freq (Hz)')
+			#if log:
+			#	g('set yrange [%f:%f]' % (max(10,minf),maxf))
+			#	g('set log y')
+			g.splot(Gnuplot.GridData(data,time,freq, binary=1, title=''))
+			g('set lmargin 3')
+			g('set rmargin 6')
+			g('set origin 0,%f' % (1.0*ysize) ) 
+			g('set format x "%1.1f"')
+			g.xlabel('time (s)',offset=(0,1.))
+		else:
+			# plot waveform and onsets
+			g('set origin 0,%f' % (0.7*ysize) )
+			g.xlabel('time (s)',offset=(0,0.7))
+			g('set format y "%1f"')
+
+		g('set size %f,%f' % (1.*xsize, 0.3*ysize))
+		g('set title \'%s %s\'' % (re.sub('.*/','',self.input),self.title))
 		g('set tmargin 2')
-		g.xlabel('time (s)',offset=(0,0.7))
-		g('set format x "%1.1f"')
-		g('set format y "%1f"')
+		# audio data
+		time,data = audio_to_array(self.input)
+		wplot = [make_audio_plot(time,data)] + wplot
 		g('set y2tics -1,1')
 
-
-		g('set title \'%s %s\'' % (re.sub('.*/','',self.input),self.title))
-
-		# plot waveform and onsets
-		g('set size 1,0.3')
-		g('set origin 0,0.7')
 		g('set xrange [0:%f]' % max(time)) 
 		g('set yrange [-1:1]') 
 		g.ylabel('amplitude')

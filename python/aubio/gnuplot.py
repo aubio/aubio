@@ -72,7 +72,7 @@ def plot_audio(filenames, fileout=None, start=0, end=None, noaxis=None,xsize=1.,
 		xorig += xsize*xratio 
 	g.gnuplot('unset multiplot;')
 
-def audio_to_spec(filename,minf = 0, maxf = 0, lowthres = 0.):
+def audio_to_spec(filename,minf = 0, maxf = 0, lowthres = -20.):
 	from aubioclass import fvec,cvec,pvoc,sndfile
 	from math import log10
 	bufsize   = 8192
@@ -134,7 +134,7 @@ def plot_spec(filename, outplot='',extension='', fileout=None, start=0, end=None
 	if log:
 		g('set yrange [%f:%f]' % (max(10,minf),maxf))
 		g('set log y')
-	g.splot(Gnuplot.GridData(data,time,freq, binary=1, title='mag. (dB)'))
+	g.splot(Gnuplot.GridData(data,time,freq, binary=1))
 	#xorig += 1./todraw
 
 def downsample_audio(time,data,maxpoints=10000):

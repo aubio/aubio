@@ -61,15 +61,24 @@ def parse_args():
         parser.add_option("-p","--plot",
                           action="store_true", dest="plot", default=False, 
                           help="draw plot")
-	parser.add_option("-f","--function",
-			  action="store_true", dest="func", default=False, 
-			  help="print detection function")
+        parser.add_option("-x","--xsize",
+                          action="store", dest="xsize", default=1., 
+                          type='float', help="define xsize for plot")
+        parser.add_option("-y","--ysize",
+                          action="store", dest="ysize", default=1., 
+                          type='float', help="define ysize for plot")
+        parser.add_option("-f","--function",
+                          action="store_true", dest="func", default=False, 
+                          help="print detection function")
         parser.add_option("-n","--no-onsets",
                           action="store_true", dest="nplot", default=False, 
-                          help="plot only detection functions")
+                          help="do not plot detected onsets")
         parser.add_option("-O","--outplot",
                           action="store", dest="outplot", default=None, 
                           help="save plot to output.{ps,png}")
+        parser.add_option("-F","--spectrogram",
+                          action="store_true", dest="spectro", default=False,
+                          help="add spectrogram to the plot")
         parser.add_option("-v","--verbose",
                           action="store_true", dest="verbose", default=False,
                           help="make lots of noise [default]")
@@ -130,7 +139,13 @@ for i in range(len(modes)):
 		for i in ofunc: 
 			print i 
 
-if options.plot: filetask.plotplot(wplot, oplots, outplot=options.outplot)
+if options.outplot:
+  extension = options.outplot.split('.')[-1] 
+  outplot = '.'.join(options.outplot.split('.')[:-1])
+else:
+  extension,outplot = None,None
+if options.plot: filetask.plotplot(wplot, oplots, outplot=outplot, extension=extension,
+  xsize=options.xsize,ysize=options.ysize,spectro=options.spectro)
 
 if options.cut:
         a = taskcut(filename,onsets,params=params)
