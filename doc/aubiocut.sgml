@@ -109,21 +109,28 @@ starting with two dashes (`-').  A summary of options is included below.</para>
   <term><option>-B</option>
   <option>--bufsize=BUFSIZE</option></term>
   <listitem>
-  <para>buffer size [default=1024]</para>
+  <para>buffer size [default=512]</para>
   </listitem>
   </varlistentry>
   <varlistentry>
   <term><option>-H</option>
   <option>--hopsize=HOPSIZE</option></term>
   <listitem>
-  <para>overlap size [default=512]</para>
+  <para>overlap size [default=256]</para>
   </listitem>
   </varlistentry>
   <varlistentry>
   <term><option>-t</option>
   <option>--threshold=THRESHOLD</option></term>
   <listitem>
-  <para>pitch threshold (for yin) [default=0.1]</para>
+  <para>onset peak picking threshold [default=0.3]</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-C</option>
+  <option>--dcthreshold=DCTHRESHOLD</option></term>
+  <listitem>
+  <para>onset peak picking DC component [default=1.]</para>
   </listitem>
   </varlistentry>
   <varlistentry>
@@ -134,11 +141,18 @@ starting with two dashes (`-').  A summary of options is included below.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
+  <term><option>-M</option>
+  <option>--mintol=MINIOI</option></term>
+  <listitem>
+  <para>minimum inter onset interval [default=0.048s]</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
   <term><option>-D</option>
   <option>--delay=DELAY</option></term>
   <listitem>
   <para>number of seconds to take back [default=system]
-  default system delay is 2*hopsize/samplerate</para>
+  default system delay is 3*hopsize/samplerate</para>
   </listitem>
   </varlistentry>
   <varlistentry>
@@ -184,10 +198,38 @@ starting with two dashes (`-').  A summary of options is included below.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
+  <term><option>-x</option>
+  <option>--xsize=SIZE</option></term>
+  <listitem>
+  <para>define horizontal plot size [default=1.]</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-y</option>
+  <option>--ysize=SIZE</option></term>
+  <listitem>
+  <para>define vertical plot size [default=1.]</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-f</option>
+  <option>--function</option></term>
+  <listitem>
+  <para>print detection function</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-n</option>
+  <option>--no-onsets</option></term>
+  <listitem>
+  <para>do not plot detected onsets, only detection functions</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
   <term><option>-O</option>
   <option>--outplot=OUTPLOT</option></term>
   <listitem>
-  <para>save plot to output.{ps,png}</para>
+  <para>save plot to output.{eps,ps,png,svg}</para>
   </listitem>
   </varlistentry>
   <varlistentry>
@@ -208,7 +250,7 @@ starting with two dashes (`-').  A summary of options is included below.</para>
   <term><option>-b</option>
   <option>--beat</option></term>
   <listitem>
-  <para>NOT IMPLEMENTED output beat locations</para>
+  <para>detect beats and output beat locations</para>
   </listitem>
   </varlistentry>
 </variablelist>

@@ -139,22 +139,28 @@ manpage.1: manpage.sgml
   <term><option>-D</option>
   <option>--delay=DELAY</option></term>
   <listitem>
-  <para>number of seconds to take back [default=system]
-  default system delay is 2*hopsize/samplerate</para>
+  <para>number of seconds to take back [default=0]</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term><option>-L</option>
-  <option>--localmin</option></term>
+  <term><option>-S</option>
+  <option>--smoothing=frames</option></term>
   <listitem>
-  <para>use local minima after peak detection</para>
+  <para>temporal smoothing using a median filter of N frames [default=0]</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term><option>-c</option>
-  <option>--cut</option></term>
+  <term><option>-M</option>
+  <option>--pitchmax=max</option></term>
   <listitem>
-  <para>cut input sound file at detected labels (best used with option -L)</para>
+  <para>maximum pitch values to look for (Hz) [default=20000]</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-l</option>
+  <option>--pitchmin=min</option></term>
+  <listitem>
+  <para>minimum pitch values to look for (Hz) [default=20]</para>
   </listitem>
   </varlistentry>
   <varlistentry>
@@ -168,14 +174,21 @@ manpage.1: manpage.sgml
   <term><option>-p</option>
   <option>--plot</option></term>
   <listitem>
-  <para>NOT IMPLEMENTED draw plot</para>
+  <para>draw plot of the pitch track</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-T</option>
+  <option>--plottruth</option></term>
+  <listitem>
+  <para>draw plot of the ground truth pitch track</para>
   </listitem>
   </varlistentry>
   <varlistentry>
   <term><option>-O</option>
   <option>--outplot=OUTPLOT</option></term>
   <listitem>
-  <para>NOT IMPLEMENTED save plot to output.{ps,png}</para>
+  <para>save plot to output.{ps,eps,png,svg} instead of displaying it</para>
   </listitem>
   </varlistentry>
   <varlistentry>
