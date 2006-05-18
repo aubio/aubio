@@ -266,8 +266,6 @@ else
 fi
 if test "${LADCCA_SUPPORT}" = "1"; then
   echo "Ladcca:                  yes"
-else
-  echo "Ladcca:                  no"
 fi
 echo "**************************************************************"
 echo Configuration completed successfully. Type \'make\' to build ${PACKAGE}
