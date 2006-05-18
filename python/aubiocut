@@ -29,8 +29,8 @@ def parse_args():
                           action="store", dest="threshold", default=0.650, 
                           help="onset peak picking threshold [default=0.650]")
         parser.add_option("-C","--dcthreshold",
-                          action="store", dest="dcthreshold", default=-1., 
-                          help="onset peak picking DC component [default=-1.]")
+                          action="store", dest="dcthreshold", default=1., 
+                          help="onset peak picking DC component [default=1.]")
         parser.add_option("-s","--silence",
                           action="store", dest="silence", default=-70, 
                           help="silence threshold [default=-70]")
