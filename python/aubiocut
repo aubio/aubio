@@ -26,8 +26,8 @@ def parse_args():
                           action="store", dest="hopsize", default=256, 
                           help="overlap size [default=256]")
         parser.add_option("-t","--threshold",
-                          action="store", dest="threshold", default=0.650, 
-                          help="onset peak picking threshold [default=0.650]")
+                          action="store", dest="threshold", default=0.3, 
+                          help="onset peak picking threshold [default=0.3]")
         parser.add_option("-C","--dcthreshold",
                           action="store", dest="dcthreshold", default=1., 
                           help="onset peak picking DC component [default=1.]")
