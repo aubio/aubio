@@ -27,7 +27,7 @@ def parse_args():
       freq|midi|cent|bin")
   parser.add_option("-B","--bufsize",
       action="store", dest="bufsize", default=None, 
-      help="buffer size [default=1024]")
+      help="buffer size [default=2048]")
   parser.add_option("-H","--hopsize",
       action="store", dest="hopsize", default=None, 
       help="overlap size [default=512]")
