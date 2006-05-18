@@ -228,10 +228,8 @@ AC_OUTPUT([
 		plugins/audacity/Makefile
 		plugins/audacity/plug-ins/Makefile
 		plugins/wavesurfer/Makefile
-                plugins/puredata/Makefile
-                python/test/bench/onset/Makefile
-                python/test/bench/pitch/Makefile
-                doc/Makefile
+		plugins/puredata/Makefile
+		doc/Makefile
 	])
 
 echo
