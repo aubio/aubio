@@ -11,8 +11,10 @@ AM_LDFLAGS = -L../src -L../ext @LADCCA_LIBS@ -laubioext -laubio
 bin_PROGRAMS = \
 	aubioonset \
 	aubiotrack \
-	aubioquiet \
 	aubionotes
+
+noinst_PROGRAMS = \
+	aubioquiet
 
 EXTRA_DIST = utils.h
 
