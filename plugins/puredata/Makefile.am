@@ -30,7 +30,7 @@ LIBTOOL=$(SHELL) $(srcdir)/libtoolkludge
 INCLUDES = -I$(top_srcdir) -I$(pdincludedir)
 
 AM_CFLAGS = -I$(srcdir)/../../src \
-    -DPD -O2 -funroll-loops -fomit-frame-pointer \
+    -DPD -O2 -fPIC -funroll-loops -fomit-frame-pointer \
     -Wall -W -Wshadow -Wstrict-prototypes -Werror \
     -Wno-unused -Wno-parentheses -Wno-switch
 AM_LDFLAGS = -L../../src/.libs -laubio -export_dynamic -shared 
