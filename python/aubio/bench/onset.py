@@ -1,4 +1,3 @@
-#! /usr/bin/python
 
 from aubio.bench.node import *
 from os.path import dirname,basename
