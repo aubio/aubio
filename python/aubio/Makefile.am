@@ -1,5 +1,42 @@
-pkgpython_PYTHON = __init__.py onsetcompare.py\
-	gnuplot.py median.py txtfile.py aubioclass.py
+pkgpython_PYTHON = \
+	__init__.py \
+	onsetcompare.py \
+	gnuplot.py \
+	median.py \
+	txtfile.py \
+	aubioclass.py
+
+pkgpythontaskdir = $(pkgpythondir)/task
+pkgpythontask_PYTHON = \
+	task/__init__.py \
+	task/params.py \
+	task/utils.py \
+	task/onset.py \
+	task/silence.py \
+	task/cut.py \
+	task/beat.py \
+	task/task.py \
+	task/pitch.py \
+	task/notes.py
+
+pkgpythonbenchdir = $(pkgpythondir)/bench
+pkgpythonbench_PYTHON = \
+	bench/__init__.py \
+	bench/broadcast.py \
+	bench/config.py \
+	bench/node.py \
+	bench/onset.py
+
+pkgpythonplotdir = $(pkgpythondir)/plot
+pkgpythonplot_PYTHON = \
+	plot/__init__.py \
+	plot/keyboard.py
+
+pkgpythonwebdir = $(pkgpythondir)/web
+pkgpythonweb_PYTHON = \
+	web/__init__.py \
+	web/browser.py \
+	web/html.py
 
 nodist_pkgpython_PYTHON = aubiowrapper.py _aubiowrapper.so
 
