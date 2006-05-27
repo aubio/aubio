@@ -131,8 +131,6 @@ void aubiotss_tilde_setup (void)
 	class_addmethod(aubiotss_tilde_class, 
 			(t_method)aubiotss_tilde_debug,
         		gensym("debug"), 0);
-	class_sethelpsymbol(aubiotss_tilde_class, 
-			gensym("help-aubiotss~.pd"));
 	CLASS_MAINSIGNALIN(aubiotss_tilde_class, 
 			t_aubiotss_tilde, thres);
 }

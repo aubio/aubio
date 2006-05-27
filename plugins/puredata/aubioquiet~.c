@@ -111,8 +111,6 @@ void aubioquiet_tilde_setup (void)
 	class_addmethod(aubioquiet_tilde_class, 
 			(t_method)aubioquiet_tilde_debug,
         		gensym("debug"), 0);
-	class_sethelpsymbol(aubioquiet_tilde_class, 
-			gensym("help-aubioquiet~.pd"));
 	CLASS_MAINSIGNALIN(aubioquiet_tilde_class, 
 			t_aubioquiet_tilde, threshold);
 }

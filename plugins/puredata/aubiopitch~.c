@@ -110,8 +110,6 @@ void aubiopitch_tilde_setup (void)
 	class_addmethod(aubiopitch_tilde_class, 
 			(t_method)aubiopitch_tilde_debug,
         		gensym("debug"), 0);
-	class_sethelpsymbol(aubiopitch_tilde_class, 
-			gensym("help-aubiopitch~.pd"));
 	CLASS_MAINSIGNALIN(aubiopitch_tilde_class, 
 			t_aubiopitch_tilde, threshold);
 }

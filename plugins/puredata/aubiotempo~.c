@@ -149,8 +149,6 @@ void aubiotempo_tilde_setup (void)
 	class_addmethod(aubiotempo_tilde_class, 
 			(t_method)aubiotempo_tilde_debug,
         		gensym("debug"), 0);
-	class_sethelpsymbol(aubiotempo_tilde_class, 
-			gensym("help-aubiotempo~.pd"));
 	CLASS_MAINSIGNALIN(aubiotempo_tilde_class, 
 			t_aubiotempo_tilde, threshold);
 }

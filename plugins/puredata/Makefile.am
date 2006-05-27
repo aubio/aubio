@@ -38,11 +38,11 @@ AM_LDFLAGS = -L../../src/.libs -laubio -export_dynamic -shared
 ## Install the documentation.
 
 pdinstallref_DATA = \
-	help/help-aubioonset~.pd \
-	help/help-aubioquiet~.pd \
-	help/help-aubiotempo~.pd \
-	help/help-aubiotss~.pd \
-	help/help-aubiopitch~.pd
+	help/aubioonset~-help.pd \
+	help/aubioquiet~-help.pd \
+	help/aubiotempo~-help.pd \
+	help/aubiotss~-help.pd \
+	help/aubiopitch~-help.pd
 
 pdinstallexp_DATA = \
 	examples/onset-cam.pd
