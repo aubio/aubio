@@ -83,7 +83,7 @@ extern cca_client_t * aubio_cca_client;
 #define AUBIO_NEW(_t)			(_t*)malloc(sizeof(_t))
 #define AUBIO_ARRAY(_t,_n)		(_t*)malloc((_n)*sizeof(_t))
 #define AUBIO_MEMCPY(_dst,_src,_n)	memcpy(_dst,_src,_n)
-#define AUBIO_MEMSET(_dst,_src,_t)	memset(_dst,_src,sizeof(_t))
+#define AUBIO_MEMSET(_dst,_src,_t)	memset(_dst,_src,_t)
 #define AUBIO_FREE(_p)			free(_p)	
 
 

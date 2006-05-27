@@ -42,7 +42,6 @@ aubio_sndfile_t * new_aubio_sndfile_ro(const char* outputname) {
         aubio_sndfile_t * f = AUBIO_NEW(aubio_sndfile_t);
         SF_INFO sfinfo;
         AUBIO_MEMSET(&sfinfo, 0, sizeof (sfinfo));
-        sfinfo.format = 0;
 
         f->handle = sf_open (outputname, SFM_READ, &sfinfo);
 
