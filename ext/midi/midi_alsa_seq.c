@@ -379,9 +379,6 @@ snd_seq_event_t ev;
 void aubio_midi_direct_output(aubio_midi_driver_t * d, aubio_midi_event_t * event) 
 {
     aubio_alsa_seq_driver_t* dev = (aubio_alsa_seq_driver_t*) d;
-    if (dev->thread){ if(pthread_join(dev->thread, NULL)) {
-        AUBIO_ERR( "Failed to join the midi thread");
-    }}
     switch(event->type) 
     {
         case NOTE_ON:
@@ -407,9 +404,6 @@ void aubio_midi_direct_output(aubio_midi_driver_t * d, aubio_midi_event_t * even
         snd_seq_ev_set_source(&ev, dev->seq_port);
         snd_seq_event_output_direct(dev->seq_handle, &ev);
     }
-    if (dev->thread) { if(pthread_detach(dev->thread)) {
-        AUBIO_ERR( "Failed to leave the midi thread");
-    }}
 }
 
 #endif /* #if ALSA_SUPPORT */
