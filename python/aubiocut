@@ -133,7 +133,11 @@ for i in range(len(modes)):
 		ofunc = filetask.ofunc
 		lofunc.append(ofunc)
 
-	if options.plot: filetask.plot(onsets, ofunc, wplot, oplots, nplot=options.nplot)
+	if options.plot:
+		if options.beat: 
+			filetask.plot(oplots, onsets)
+		else:
+			filetask.plot(onsets, ofunc, wplot, oplots, nplot=options.nplot)
 
 	if options.func: 
 		for i in ofunc: 

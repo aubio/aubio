@@ -192,14 +192,14 @@ class taskbeat(taskonset):
 		import Gnuplot
 		oplots.append(Gnuplot.Data(results,with='linespoints',title="auto"))
 
-	def plotplot(self,oplots,outplot=None):
+	def plotplot(self,wplot,oplots,outplot=None,extension=None,xsize=1.,ysize=1.,spectro=False):
 		import Gnuplot
-		from aubio.gnuplot import gnuplot_init, audio_to_array, make_audio_plot
+		from aubio.gnuplot import gnuplot_create, audio_to_array, make_audio_plot
 		import re
 		# audio data
 		#time,data = audio_to_array(self.input)
 		#f = make_audio_plot(time,data)
 
-		g = gnuplot_init(outplot)
+		g = gnuplot_create(outplot=outplot, extension=extension)
 		oplots = [Gnuplot.Data(self.gettruth(),with='linespoints',title="orig")] + oplots
 		g.plot(*oplots)
