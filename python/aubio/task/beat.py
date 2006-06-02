@@ -39,7 +39,7 @@ class taskbeat(taskonset):
 				now = self.frameread-0
 				period = (60 * self.params.samplerate) / ((now - self.old) * self.params.hopsize)
 				self.old = now
-				return now*self.params.step,period
+				return now*self.btstep*self.params.step,period
 	
 	def eval(self,results,tol=0.20,tolcontext=0.25):
 		obeats = self.gettruth()
