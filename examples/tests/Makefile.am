@@ -1,6 +1,5 @@
-AM_CFLAGS = -I$(srcdir)/../../src -I$(srcdir)/../../ext @LADCCA_CFLAGS@
-AM_LDFLAGS = -L../../src -L../../ext @LADCCA_LIBS@ -laubioext -laubio
-LDADD = @JACK_LIBS@
+AM_CFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/ext @LADCCA_CFLAGS@
+AM_LDFLAGS = -L$(top_builddir)/src -L$(top_builddir)/ext -laubioext -laubio @JACK_LIBS@ @LADCCA_LIBS@
 
 bin_PROGRAMS = \
 	test-fft \

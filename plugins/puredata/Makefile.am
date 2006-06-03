@@ -30,7 +30,7 @@ LIBTOOL=$(SHELL) $(srcdir)/libtoolkludge
 INCLUDES = -I$(top_srcdir)/src -I$(pdincludedir)
 
 AM_CFLAGS  = -DPD -fPIC -DPIC
-AM_LDFLAGS = -L../../src/.libs -laubio -export_dynamic -shared 
+AM_LDFLAGS = -L$(top_builddir)/src/.libs -laubio -export_dynamic -shared 
 
 ## Install the documentation.
 

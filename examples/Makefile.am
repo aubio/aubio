@@ -3,8 +3,8 @@ SUBDIRS = tests
 endif
 
 # global flags
-AM_CFLAGS = -DAUBIO_PREFIX=\"$(prefix)\" -I$(srcdir)/../src -I$(srcdir)/../ext @LADCCA_CFLAGS@ @FFTWLIB_CFLAGS@
-AM_LDFLAGS = -L../src -L../ext @LADCCA_LIBS@ -laubioext -laubio
+AM_CFLAGS = -DAUBIO_PREFIX=\"$(prefix)\" -I$(top_srcdir)/src -I$(top_srcdir)/ext @LADCCA_CFLAGS@ @FFTWLIB_CFLAGS@
+AM_LDFLAGS = -L$(top_builddir)/src -L$(top_builddir)/ext -laubioext -laubio @LADCCA_LIBS@
 #AM_SOURCES = utils.c
 
 # add your programs to this list

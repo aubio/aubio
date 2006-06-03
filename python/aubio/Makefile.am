@@ -48,16 +48,18 @@ NOWARN_CFLAGS = -Wno-missing-prototypes -Wno-missing-declarations \
 	-Wno-strict-aliasing
 
 AM_CFLAGS = $(SWCFLAGS) -fPIC -DPIC \
-	-I../../src -I$(srcdir)/../../src -I$(srcdir)/../../ext \
+	-I$(top_builddir)/src -I$(top_srcdir)/src -I$(top_srcdir)/ext \
 	-I/usr/include/python${PYTHON_VERSION} \
 	-I${prefix}/include/python${PYTHON_VERSION} \
 	-I/usr/include \
 	-I${prefix}/include
 
-AM_LDFLAGS = $(SWLDFLAGS) -L../../ext/.libs -laubioext -L../../src/.libs -laubio
+AM_LDFLAGS = $(SWLDFLAGS) \
+	-L$(top_builddir)/ext/.libs -laubioext \
+	-L$(top_builddir)/src/.libs -laubio
 
 aubio_wrap.c:
-	$(SWIG) -outdir . -o aubio_wrap.c -python $(srcdir)/../../swig/aubio.i
+	$(SWIG) -outdir . -o aubio_wrap.c -python $(top_srcdir)/swig/aubio.i
 
 _aubiowrapper.so: aubio_wrap.c
 	$(CC) $(AM_CFLAGS) $(CFLAGS) $(NOWARN_CFLAGS) -c aubio_wrap.c
