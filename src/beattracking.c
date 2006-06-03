@@ -147,7 +147,7 @@ void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframe, fvec_t *
         //beat alignment
         uint_t phase; 
         uint_t kmax;
-        uint_t beat; 
+        sint_t beat; 
 
         for (i = 0; i < winlen; i++){
                 dfrev[winlen-1-i] = 0.;
