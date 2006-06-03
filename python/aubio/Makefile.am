@@ -44,21 +44,21 @@ CLEANFILES = *.pyc *.so *.o aubio_wrap.c aubiowrapper.py
 
 all: _aubiowrapper.so
 
-# removed -Wall -Wmissing-prototypes -Wmissing-declarations 
-CFLAGS = -fPIC -DJACK_SUPPORT -Werror -Wno-char-subscripts \
-	-Wno-unknown-pragmas $(SWCFLAGS) \
+NOWARN_CFLAGS = -Wno-missing-prototypes -Wno-missing-declarations \
+	-Wno-strict-aliasing
+
+AM_CFLAGS = $(SWCFLAGS) -fPIC -DPIC \
 	-I../../src -I$(srcdir)/../../src -I$(srcdir)/../../ext \
 	-I/usr/include/python${PYTHON_VERSION} \
 	-I${prefix}/include/python${PYTHON_VERSION} \
 	-I/usr/include \
 	-I${prefix}/include
 
-LDFLAGS = $(SWLDFLAGS) -L../../ext/.libs -laubioext -L../../src/.libs -laubio
+AM_LDFLAGS = $(SWLDFLAGS) -L../../ext/.libs -laubioext -L../../src/.libs -laubio
 
 aubio_wrap.c:
 	$(SWIG) -outdir . -o aubio_wrap.c -python $(srcdir)/../../swig/aubio.i
 
 _aubiowrapper.so: aubio_wrap.c
-	$(CC) $(CFLAGS) -c aubio_wrap.c
-	$(CC) $(LDFLAGS) aubio_wrap.o -o _aubiowrapper.so
-
+	$(CC) $(AM_CFLAGS) $(CFLAGS) $(NOWARN_CFLAGS) -c aubio_wrap.c
+	$(CC) $(AM_LDFLAGS) $(LDFLAGS) aubio_wrap.o -o _aubiowrapper.so
