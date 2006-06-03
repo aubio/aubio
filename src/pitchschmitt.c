@@ -61,7 +61,7 @@ smpl_t aubio_schmittS16LE (aubio_pitchschmitt_t *p, uint_t nframes, signed short
 
   for (i=0; i<nframes; i++) {
     *schmittPointer++ = indata[i];
-    if (schmittPointer-schmittBuffer >= blockSize) {
+    if (schmittPointer-schmittBuffer >= (sint_t)blockSize) {
       sint_t endpoint, startpoint, t1, t2, A1, A2, tc, schmittTriggered;
 
       schmittPointer = schmittBuffer;
