@@ -41,8 +41,7 @@ AC_ARG_ENABLE(warnme,
   with_warnme="yes")
 if test "$with_warnme" = "yes"
 then
-  ALL_CWARNINGS="-Wall -Werror -Wmissing-prototypes -Wmissing-declarations -Wno-char-subscripts -Wno-unknown-pragmas"
-  CFLAGS="$CFLAGS $ALL_CWARNINGS"
+  CFLAGS="$CFLAGS -Wall -Wextra -Werror -Wmissing-prototypes -Wmissing-declarations -Wno-unused-parameter"
 fi
 
 
@@ -73,7 +72,7 @@ case "${host_os}" in
   dnl on macosx, cosf went to -lmx
   LDFLAGS="$LDFLAGS -lmx"
   dnl as long double doesn't sit well with -Wall -Werror
-  CFLAGS="$CLFAGS -Wno-long-double"
+  CFLAGS="$CFLAGS -Wno-long-double"
   AC_ISC_POSIX
   ;;
 *)
