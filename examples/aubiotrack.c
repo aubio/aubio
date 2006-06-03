@@ -34,7 +34,7 @@ int aubio_process(float **input, float **output, int nframes) {
   unsigned int i;       /*channels*/
   unsigned int j;       /*frames*/
   smpl_t * btoutput = out->data[0];
-  for (j=0;j<nframes;j++) {
+  for (j=0;j<(unsigned)nframes;j++) {
     if(usejack) {
       for (i=0;i<channels;i++) {
         /* write input to datanew */

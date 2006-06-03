@@ -338,7 +338,7 @@ void examples_common_process(aubio_process_func_t process_func, aubio_print_func
 
     frames = 0;
 
-    while (overlap_size == aubio_sndfile_read(file, overlap_size, ibuf))
+    while ((signed)overlap_size == aubio_sndfile_read(file, overlap_size, ibuf))
     {
       isonset=0;
       process_func(ibuf->data, obuf->data, overlap_size);
