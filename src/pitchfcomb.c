@@ -110,7 +110,7 @@ smpl_t aubio_pitchfcomb_detect (aubio_pitchfcomb_t * p, fvec_t * input)
     for (harmonic=5; harmonic>1; harmonic--) {
       if (peaks[0].freq / peaks[l].freq < harmonic+.02 &&
   	peaks[0].freq / peaks[l].freq > harmonic-.02) {
-        if (harmonic > maxharm &&
+        if (harmonic > (sint_t)maxharm &&
   	  peaks[0].db < peaks[l].db/2) {
           maxharm = harmonic;
   	  k = l;
