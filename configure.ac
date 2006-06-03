@@ -1,29 +1,34 @@
 dnl Process this file with autoconf to produce a configure script
 
+dnl Init autoconf
 AC_INIT(src/aubio.h)
 
-dnl package version
+dnl Package name and version
+PACKAGE=aubio
 . $srcdir/VERSION
 AUBIO_VERSION=${AUBIO_MAJOR_VERSION}.${AUBIO_MINOR_VERSION}.${AUBIO_PATCH_VERSION}${AUBIO_VERSION_STATUS}
 VERSION=${AUBIO_VERSION}
-PACKAGE=aubio
 
-dnl shared library version
+dnl Shared library version
 LIBAUBIO_LT_CURRENT=2
 LIBAUBIO_LT_REVISION=0
 LIBAUBIO_LT_AGE=0
 SHARED_VERSION_INFO="$LIBAUBIO_LT_CURRENT:$LIBAUBIO_LT_REVISION:$LIBAUBIO_LT_AGE"
 AC_SUBST(SHARED_VERSION_INFO)
 
+dnl Init automake
 AM_INIT_AUTOMAKE(${PACKAGE}, ${VERSION})
+
+dnl Maintainer mode
 AM_MAINTAINER_MODE
 
-AC_PREFIX_DEFAULT(/usr)
+dnl Guess the host
+AC_CANONICAL_HOST
 
-dnl enable optimization
+dnl Default optimization
 CFLAGS="$CFLAGS -O2"
 
-dnl Check for debug
+dnl Enable debugging (no)
 AC_ARG_ENABLE(debug,
   [  --enable-debug[[=value]]   compile with debug [[default=no]]],
   with_debug="yes",
@@ -34,7 +39,7 @@ then
   CFLAGS="$CFLAGS -g"
 fi
 
-dnl
+dnl Enable full warnings (yes)
 AC_ARG_ENABLE(warnme,
   [  --enable-warnme[[=value]]   compile with all -W [[default=yes]]],
   with_warnme="no",
@@ -43,10 +48,6 @@ if test "$with_warnme" = "yes"
 then
   CFLAGS="$CFLAGS -Wall -Wextra -Werror -Wmissing-prototypes -Wmissing-declarations -Wno-unused-parameter"
 fi
-
-
-dnl Guess the host
-AC_CANONICAL_HOST
 
 dnl Check for programs
 AC_PROG_CC
@@ -89,6 +90,7 @@ AC_CHECK_HEADERS([string.h stdlib.h stdio.h math.h errno.h stdarg.h unistd.h sig
 AC_CHECK_HEADERS(complex.h,,AC_MSG_ERROR([Ouch! missing complex.h header]))
 AC_CHECK_HEADERS(fftw3.h  ,,AC_MSG_ERROR([Ouch! missing fftw3.h header]))
 
+dnl Check for __VAR_ARGS__ support
 AC_CACHE_CHECK(for C99 __VA_ARGS__ macro,
     ac_cv_varargs_macros,
 AC_TRY_COMPILE([
@@ -106,30 +108,28 @@ if test "$ac_cv_varargs_macros" = "yes"; then
             [Defined when c99 style varargs macros are supported])
 fi
 
-
-dnl check for pkg-config
+dnl Check for pkg-config
 AC_PATH_PROG(PKG_CONFIG,pkg-config,no)
 
-PKG_CHECK_MODULES(SNDLIB,     sndfile >= 1.0.4,	      SNDLIB_SUPPORT=1)
+PKG_CHECK_MODULES(SNDLIB,     sndfile >= 1.0.4,       SNDLIB_SUPPORT=1)
 PKG_CHECK_MODULES(SAMPLERATE, samplerate  >= 0.0.15,  SAMPLERATE_SUPPORT=1)
 
 if test "${SNDLIB_SUPPORT}" = "1"; then
   AC_DEFINE(SNDLIB_SUPPORT,1,[Define to enable libsndfile support])
 fi
 
-
-dnl Check for optional libraries
+dnl Check for fftw3 (required)
 AC_ARG_ENABLE(fftw3f,
   AC_HELP_STRING([--enable-fftw3f],[compile with fftw3f [[default=auto]]]),
   [with_fftw3f=$enableval],
   with_fftw3f="yes")
 if test "$with_fftw3f" = "yes"; then
-	PKG_CHECK_MODULES(FFTWLIB,    fftw3f  >= 3.0.0,     FFTW3F_SUPPORT=1, FFTW3F_SUPPORT=0)
+  PKG_CHECK_MODULES(FFTWLIB,    fftw3f >= 3.0.0,     FFTW3F_SUPPORT=1, FFTW3F_SUPPORT=0)
 else
-        PKG_CHECK_MODULES(FFTWLIB,    fftw3  >= 3.0.0,	    FFTW3_SUPPORT=1)
+  PKG_CHECK_MODULES(FFTWLIB,    fftw3  >= 3.0.0,     FFTW3_SUPPORT=1)
 fi
 if test "${FFTW3F_SUPPORT}" = "0"; then
-        PKG_CHECK_MODULES(FFTWLIB,    fftw3  >= 3.0.0,	    FFTW3_SUPPORT=1)
+  PKG_CHECK_MODULES(FFTWLIB,    fftw3  >= 3.0.0,     FFTW3_SUPPORT=1)
 fi
 if test "${FFTW3_SUPPORT}" = "1"; then
   AC_DEFINE(FFTW3_SUPPORT,1,[Define to enable fftw3 support])
@@ -138,61 +138,64 @@ if test "${FFTW3F_SUPPORT}" = "1"; then
   AC_DEFINE(FFTW3F_SUPPORT,1,[Define to enable fftw3f support])
 fi
 
+dnl Enable jack support (auto)
 AC_ARG_ENABLE(jack,
   AC_HELP_STRING([--enable-jack],[compile with jack [[default=auto]]]),
   [with_jack=$enableval],
   with_jack="yes")
 if test "$with_jack" = "yes"
 then
-	PKG_CHECK_MODULES(JACK,       jack  >= 0.15.0,	      JACK_SUPPORT=1, JACK_SUPPORT=0)
-	if test "${JACK_SUPPORT}" = "1"; then
-	  AC_DEFINE(JACK_SUPPORT,1,[Define to enable jack support])
-	fi
+  PKG_CHECK_MODULES(JACK,       jack  >= 0.15.0,     JACK_SUPPORT=1, JACK_SUPPORT=0)
+  if test "${JACK_SUPPORT}" = "1"; then
+    AC_DEFINE(JACK_SUPPORT,1,[Define to enable jack support])
+  fi
 fi
 
+dnl Enable alsa support (auto)
 AC_ARG_ENABLE(alsa,
   AC_HELP_STRING([--enable-alsa],[compile with alsa [[default=auto]]]),
   [with_alsa=$enableval],
   with_alsa="yes")
 if test "$with_alsa" = "yes"
 then
-        if test "$with_jack" = "yes"
-        then
-	PKG_CHECK_MODULES(ALSA,       alsa >= 0.0.9,          ALSA_SUPPORT=1, ALSA_SUPPORT=0)
-	if test "${ALSA_SUPPORT}" = "1"; then
-	  AC_DEFINE(ALSA_SUPPORT,1,[Define to enable alsa support])
-	fi
-        else
-        AC_MSG_WARN([Disabling alsa as jack was not found])
-        fi
+  if test "$with_jack" = "yes"
+  then
+    PKG_CHECK_MODULES(ALSA,      alsa >= 0.0.9,      ALSA_SUPPORT=1, ALSA_SUPPORT=0)
+    if test "${ALSA_SUPPORT}" = "1"; then
+      AC_DEFINE(ALSA_SUPPORT,1,[Define to enable alsa support])
+    fi
+  else
+    AC_MSG_WARN([Disabling alsa as jack was not found])
+  fi
 fi
 
+dnl Enable ladcca support (obsolete)
 AC_ARG_ENABLE(ladcca,
   AC_HELP_STRING([--enable-ladcca],[compile with ladcca [[default=no]]]),
   [with_ladcca=$enableval],
   with_ladcca="no")
 if test "$with_ladcca" = "yes"
 then
-	PKG_CHECK_MODULES(LADCCA,       ladcca-1.0 >= 0.4.0,          LADCCA_SUPPORT=1)
-	if test "${LADCCA_SUPPORT}" = "1"; then
-	  AC_DEFINE(LADCCA_SUPPORT,1,[Define to enable ladcca support])
-	fi
+  PKG_CHECK_MODULES(LADCCA,   ladcca-1.0 >= 0.4.0,   LADCCA_SUPPORT=1)
+  if test "${LADCCA_SUPPORT}" = "1"; then
+    AC_DEFINE(LADCCA_SUPPORT,1,[Define to enable ladcca support])
+  fi
 fi
   
+dnl Enable unit tests 
 AC_ARG_ENABLE(testprogs,
   AC_HELP_STRING([--enable-testprogs],[compile test programs [[default=no]]]),
   [with_testprogs=$enableval],
   with_testprogs="no")
 AM_CONDITIONAL(COMPILE_TESTS,test "${with_testprogs}" != "no")
 
-dnl Check for optional programs
-
+dnl Check for swig and python
 dnl should check for swig version and python headers
 AC_PATH_PROG(SWIG,swig,no)
 AM_CONDITIONAL(SWIGFOUND, test "${SWIG}" != "no")
 AM_PATH_PYTHON
 AM_CONDITIONAL(PYTHONFOUND, test "${PYTHON}" != "no")
-
+#
 #if PYTHONFOUND
 case "${host_os}" in
 *darwin*)
@@ -203,34 +206,38 @@ case "${host_os}" in
   SWLDFLAGS="-shared"
   ;;
 esac
-
+#
 AC_SUBST(SWCFLAGS)
 AC_SUBST(SWLDFLAGS)
 
+dnl Check for docbook-to-man
 AC_PATH_PROG(DOCBOOK_TO_MAN,docbook-to-man,no)
 AM_CONDITIONAL(DOCBOOKFOUND, test "${DOCBOOK_TO_MAN}" != "no")
 
+dnl Check for Puredata
 AC_CHECK_HEADER(m_pd.h,PUREDATA=y,AC_MSG_WARN([Puredata header not found.]))
 AM_CONDITIONAL(PUREDATAFOUND, test "${PUREDATA}" = "y")
 
+dnl Create Makefiles
 AC_OUTPUT([
-		Makefile
-		src/Makefile
-		ext/Makefile
-		examples/Makefile
-		examples/tests/Makefile
-		sounds/Makefile
-		swig/Makefile
-		python/Makefile
-		python/aubio/Makefile
-		plugins/Makefile
-		plugins/audacity/Makefile
-		plugins/audacity/plug-ins/Makefile
-		plugins/wavesurfer/Makefile
-		plugins/puredata/Makefile
-		doc/Makefile
-	])
+    Makefile
+    src/Makefile
+    ext/Makefile
+    examples/Makefile
+    examples/tests/Makefile
+    sounds/Makefile
+    swig/Makefile
+    python/Makefile
+    python/aubio/Makefile
+    plugins/Makefile
+    plugins/audacity/Makefile
+    plugins/audacity/plug-ins/Makefile
+    plugins/wavesurfer/Makefile
+    plugins/puredata/Makefile
+    doc/Makefile
+  ])
 
+dnl Print summary
 echo
 echo "**************************************************************"
 echo "Summary:"
