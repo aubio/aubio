@@ -6,9 +6,11 @@ class taskcut(task):
 		""" open the input file and initialize arguments 
 		parameters should be set *before* calling this method.
 		"""
+		from os.path import basename,splitext
 		task.__init__(self,input,output=None,params=params)
-		self.newname   = "%s%s%09.5f%s%s" % (self.input.split(".")[0].split("/")[-1],".",
-					self.frameread*self.params.step,".",self.input.split(".")[-1])
+		self.soundoutbase, self.soundoutext = splitext(basename(self.input))
+		self.newname   = "%s%s%09.5f%s%s" % (self.soundoutbase,".",
+					self.frameread*self.params.step,".",self.soundoutext)
 		self.fileo	= sndfile(self.newname,model=self.filei)
 		self.myvec	= fvec(self.params.hopsize,self.channels)
 		self.mycopy	= fvec(self.params.hopsize,self.channels)
@@ -31,9 +33,8 @@ class taskcut(task):
 					fromcross += 1
 					zerocross += 1
 			del self.fileo
-			self.fileo = sndfile("%s%s%09.5f%s%s" % 
-				(self.input.split(".")[0].split("/")[-1],".",
-				self.frameread*self.params.step,".",self.input.split(".")[-1]),model=self.filei)
+			self.fileo = sndfile("%s%s%09.5f%s%s" % (self.soundoutbase,".",
+				self.frameread*self.params.step,".",self.soundoutext),model=self.filei)
 			writesize = self.fileo.write(fromcross,self.mycopy)
 		else:
 			writesize = self.fileo.write(self.readsize,self.myvec)
