@@ -1,3 +1,41 @@
+2006-27-06  Paul Brossier <piem@altern.org>
+	* plugins/puredata/Makefile.am: move pd help to pattern-help.pd
+		- thanks goes to Frank Barknecht
+	* ext/sndfileio.c src/aubio_priv.h: fixes memset in aubio_priv.h, remove
+		useless sfinfo.format=0 - thanks karsten wiese 
+	* ext/midi/midi_alsa_seq.c: do not call pthread_ in aubio_midi_direct_output
+		- thanks karsten wiese
+	* python/aubio/task/beat.py: task beat() output seconds
+	* python/aubio/task/beat.py: ugly hack to plot beat track anyway
+	* examples/aubionotes.c: fix signed/unsigned mismatches in examples
+	* src/beattracking.c: fix signed/unsigned mismatches in beattracking
+	* src/pitchfcomb.c: fix signed/unsigned mismatches in pitchfcomb
+	* src/pitchschmitt.c: fix signed/unsigned mismatches in pitchscmitt
+	* configure.ac: use -Wextra but unused parameters, fix macos CFLAGS
+	* plugins/puredata/Makefile.am: simplify puredata Makefile.am
+	* python/aubio/Makefile.am: avoid overwriting CFLAGS
+	* examples/Makefile.am: use top_{build,src}dir instead of ../
+	* configure.ac: make configure.ac more readable
+	* python/aubio/task/cut.py: use os.path to derive default output filenames
+	* VERSION: 0.3.1
+
+2006-18-05 Paul Brossier <piem@altern.org>
+	* src/pitchyinfft.{c,h}: new pitch detection method
+	* src/beattracking.c: algorithm improved
+	* plugins/puredata/: new puredata external
+	* python/tasks: enhancements to the onset detection algorithms
+	* python/aubiocut: improved, can now slice at beats and silences
+	* python/aubiopitch: new python program to extract pitch tracks
+	* python/: plotting features for aubiocut and aubiopitch
+	* python/: interface refactored
+	* doc/: updated documentation 
+	* VERSION: 0.3.0
+
+2006-18-05  Paul Brossier <piem@altern.org>
+	* src/beattracking.c: added beattracking.c
+	* various bug fixes
+	* VERSION: 0.2.0
+
 2005-29-03  Paul Brossier <piem@altern.org>
 	* python/aubio/gnuplot.py: clean up and add plotsound
 	* python/aubiocompare-onset: updated
