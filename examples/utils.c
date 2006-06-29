@@ -12,11 +12,17 @@
 #include <math.h> /* for isfinite */
 #include "utils.h"
 
-/* not supported yet */
-#ifdef LADCCA_SUPPORT
-#include <ladcca/ladcca.h>
-cca_client_t * aubio_cca_client;
-#endif /* LADCCA_SUPPORT */
+#ifdef LASH_SUPPORT
+#include <lash/lash.h>
+#include <pthread.h>
+lash_client_t * aubio_lash_client;
+lash_args_t * lash_args;
+void * lash_thread_main (void * data);
+int lash_main (void);
+void save_data (void);
+void restore_data(lash_config_t * config);
+pthread_t lash_thread;
+#endif /* LASH_SUPPORT */
 
 /* settings */
 const char * output_filename = NULL;
@@ -120,6 +126,9 @@ int parse_args (int argc, char **argv) {
                 {"hopsize",   1, NULL, 'H'},
                 {NULL       , 0, NULL, 0}
         };
+#ifdef LASH_SUPPORT
+        lash_args = lash_extract_args(&argc, &argv);
+#endif /* LASH_SUPPORT */
         prog_name = argv[0];
         if( argc < 1 ) {
                 usage (stderr, 1);
@@ -227,6 +236,7 @@ int parse_args (int argc, char **argv) {
                         exit(1);
                 }
         }
+
         return 0;
 }
 
@@ -259,6 +269,23 @@ void examples_common_init(int argc,char ** argv) {
     if (output_filename != NULL)
       fileout = new_aubio_sndfile_wo(file, output_filename);
   }
+#ifdef LASH_SUPPORT
+  else {
+    aubio_lash_client = lash_init(lash_args, argv[0],
+        LASH_Config_Data_Set | LASH_Terminal,
+        LASH_PROTOCOL(2, 0));
+    if (!aubio_lash_client) {
+      fprintf(stderr, "%s: could not initialise lash\n", __FUNCTION__);
+    }
+    /* tell the lash server our client id */
+    if (lash_enabled(aubio_lash_client)) {
+      lash_event_t * event = (lash_event_t *)lash_event_new_with_type(LASH_Client_Name);
+      lash_event_set_string(event, "aubio");
+      lash_send_event(aubio_lash_client, event);
+    }
+  }
+  pthread_create(&lash_thread, NULL, lash_thread_main, NULL);
+#endif /* LASH_SUPPORT */
 
   ibuf      = new_fvec(overlap_size, channels);
   obuf      = new_fvec(overlap_size, channels);
@@ -405,4 +432,75 @@ uint_t get_note(fvec_t *note_buffer, fvec_t *note_buffer2){
   }
   return vec_median(note_buffer2);
 }
+
+#if LASH_SUPPORT
+
+void * lash_thread_main(void *data)
+{
+	printf("LASH thread running\n");
+
+	while (!lash_main())
+		usleep(1000);
+
+	printf("LASH thread finished\n");
+	return NULL;
+}
+
+int lash_main(void) {
+	lash_event_t *event;
+	lash_config_t *config;
+
+	while ((event = lash_get_event(aubio_lash_client))) {
+		switch (lash_event_get_type(event)) {
+		case LASH_Quit:
+			lash_event_destroy(event);
+      exit(1);
+      return 1;
+		case LASH_Restore_Data_Set:
+			lash_send_event(aubio_lash_client, event);
+			break;
+		case LASH_Save_Data_Set:
+			save_data();
+			lash_send_event(aubio_lash_client, event);
+			break;
+		case LASH_Server_Lost:
+			return 1;
+		default:
+			printf("%s: received unknown LASH event of type %d",
+				   __FUNCTION__, lash_event_get_type(event));
+			lash_event_destroy(event);
+      break;
+		}
+	}
+
+	while ((config = lash_get_config(aubio_lash_client))) {
+		restore_data(config);
+		lash_config_destroy(config);
+	}
+
+	return 0;
+}
+
+void save_data() {
+	lash_config_t *config;
+
+	config = lash_config_new_with_key("threshold");
+	lash_config_set_value_double(config, threshold);
+	lash_send_config(aubio_lash_client, config);
+
+}
+
+void restore_data(lash_config_t * config) {
+	const char *key;
+
+	key = lash_config_get_key(config);
+
+	if (strcmp(key, "threshold") == 0) {
+		threshold = lash_config_get_value_double(config);
+		return;
+	}
+
+}
+
+#endif /* LASH_SUPPORT */
 
