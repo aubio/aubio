@@ -25,12 +25,19 @@ AM_MAINTAINER_MODE
 dnl Guess the host
 AC_CANONICAL_HOST
 
+dnl Check for programs
+AC_PROG_CC
+if test "$ac_cv_prog_cc" = "no" ; then
+   AC_MSG_ERROR([*** No C compiler found !])
+fi
+AC_PROG_INSTALL
+
 dnl Default optimization
 CFLAGS="$CFLAGS -O2"
 
 dnl Enable debugging (no)
 AC_ARG_ENABLE(debug,
-  [  --enable-debug[[=value]]   compile with debug [[default=no]]],
+  [  --enable-debug[[=value]]  compile with debug [[default=no]]],
   with_debug="yes",
   with_debug="no")
 if test "$with_debug" = "yes"
@@ -41,20 +48,30 @@ fi
 
 dnl Enable full warnings (yes)
 AC_ARG_ENABLE(warnme,
-  [  --enable-warnme[[=value]]   compile with all -W [[default=yes]]],
+  [  --enable-warnme[[=value]] compile with all -W [[default=yes]]],
   with_warnme="no",
   with_warnme="yes")
 if test "$with_warnme" = "yes"
 then
-  CFLAGS="$CFLAGS -Wall -Wextra -Werror -Wmissing-prototypes -Wmissing-declarations -Wno-unused-parameter"
+  dnl Check for -Wextra support to allow compilation on gcc <= 3.4
+  AC_CACHE_CHECK([for -Wextra option to $CC], ac_cv_cc_wextra, 
+  [old_CFLAGS="$CFLAGS"
+  CFLAGS="$CFLAGS -Wextra"
+  AC_COMPILE_IFELSE([void foo (void) {}],
+          ac_cv_cc_wextra=yes, ac_cv_cc_wextra=no)
+  ])
+  if test "$ac_cv_cc_wextra" = "yes"
+  then
+    CFLAGS="$old_CFLAGS -Wall -Wextra"
+  else 
+    CFLAGS="$old_CFLAGS -Wall"
+  fi
 fi
 
-dnl Check for programs
-AC_PROG_CC
-if test "$ac_cv_prog_cc" = "no" ; then
-   AC_MSG_ERROR([*** No C compiler found !])
-fi
-AC_PROG_INSTALL
+AC_ARG_ENABLE(failonerror,
+  [  --enable-fwarn[[=value]]  fail on compilation warnings [[default=yes]]],
+  with_warnme="no",
+  CFLAGS="$CFLAGS -Werror -Wmissing-prototypes -Wmissing-declarations -Wno-unused-parameter")
 
 dnl Check for libtool
 AC_LIBTOOL_DLOPEN
