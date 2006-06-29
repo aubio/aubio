@@ -186,16 +186,16 @@ then
   fi
 fi
 
-dnl Enable ladcca support (obsolete)
-AC_ARG_ENABLE(ladcca,
-  AC_HELP_STRING([--enable-ladcca],[compile with ladcca [[default=no]]]),
-  [with_ladcca=$enableval],
-  with_ladcca="no")
-if test "$with_ladcca" = "yes"
+dnl Enable lash support
+AC_ARG_ENABLE(lash,
+  AC_HELP_STRING([--enable-lash],[compile with lash [[default=auto]]]),
+  [with_lash=$enableval],
+  with_lash="yes")
+if test "$with_lash" = "yes"
 then
-  PKG_CHECK_MODULES(LADCCA,   ladcca-1.0 >= 0.4.0,   LADCCA_SUPPORT=1)
-  if test "${LADCCA_SUPPORT}" = "1"; then
-    AC_DEFINE(LADCCA_SUPPORT,1,[Define to enable ladcca support])
+  PKG_CHECK_MODULES(LASH,   lash-1.0 >= 0.5.0,   LASH_SUPPORT=1, LASH_SUPPORT=0)
+  if test "${LASH_SUPPORT}" = "1"; then
+    LASH_CFLAGS+="-DLASH_SUPPORT"
   fi
 fi
   
@@ -287,8 +287,15 @@ if test "${ALSA_SUPPORT}" = "1"; then
 else
   echo "ALSA midi:               no"
 fi
-if test "${LADCCA_SUPPORT}" = "1"; then
-  echo "Ladcca:                  yes"
+if test "${LASH_SUPPORT}" = "1"; then
+  echo "Lash:                    yes"
+else
+  echo "Lash:                    no"
+fi
+if test "${PUREDATA}" = "y"; then
+  echo "PureData:                yes"
+else
+  echo "PureData:                no"
 fi
 echo "**************************************************************"
 echo Configuration completed successfully. Type \'make\' to build ${PACKAGE}
