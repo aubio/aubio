@@ -120,16 +120,6 @@ aubio_midi_driver_t*  new_aubio_alsa_seq_driver(//aubio_settings_t* settings,
         goto error_recovery;
     }
 
-    /* tell the ladcca server our client id */
-#ifdef LADCCA_SUPPORT
-    {
-        int enable_ladcca = 1;
-        //aubio_settings_getint (settings, "ladcca.enable", &enable_ladcca);
-        if (enable_ladcca)
-            cca_alsa_client_id (aubio_cca_client, snd_seq_client_id (dev->seq_handle));
-    }
-#endif /* LADCCA_SUPPORT */
-
     /* get # of MIDI file descriptors */
     count = snd_seq_poll_descriptors_count(dev->seq_handle, POLLIN);
     if (count > 0) {        /* make sure there are some */
