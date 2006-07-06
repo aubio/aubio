@@ -20,7 +20,7 @@ lash_args_t * lash_args;
 void * lash_thread_main (void * data);
 int lash_main (void);
 void save_data (void);
-void restore_data(lash_config_t * config);
+void restore_data(lash_config_t * lash_config);
 pthread_t lash_thread;
 #endif /* LASH_SUPPORT */
 
@@ -447,56 +447,56 @@ void * lash_thread_main(void *data)
 }
 
 int lash_main(void) {
-	lash_event_t *event;
-	lash_config_t *config;
+	lash_event_t *lash_event;
+	lash_config_t *lash_config;
 
-	while ((event = lash_get_event(aubio_lash_client))) {
-		switch (lash_event_get_type(event)) {
+	while ((lash_event = lash_get_event(aubio_lash_client))) {
+		switch (lash_event_get_type(lash_event)) {
 		case LASH_Quit:
-			lash_event_destroy(event);
+			lash_event_destroy(lash_event);
       exit(1);
       return 1;
 		case LASH_Restore_Data_Set:
-			lash_send_event(aubio_lash_client, event);
+			lash_send_event(aubio_lash_client, lash_event);
 			break;
 		case LASH_Save_Data_Set:
 			save_data();
-			lash_send_event(aubio_lash_client, event);
+			lash_send_event(aubio_lash_client, lash_event);
 			break;
 		case LASH_Server_Lost:
 			return 1;
 		default:
 			printf("%s: received unknown LASH event of type %d",
-				   __FUNCTION__, lash_event_get_type(event));
-			lash_event_destroy(event);
+				   __FUNCTION__, lash_event_get_type(lash_event));
+			lash_event_destroy(lash_event);
       break;
 		}
 	}
 
-	while ((config = lash_get_config(aubio_lash_client))) {
-		restore_data(config);
-		lash_config_destroy(config);
+	while ((lash_config = lash_get_config(aubio_lash_client))) {
+		restore_data(lash_config);
+		lash_config_destroy(lash_config);
 	}
 
 	return 0;
 }
 
 void save_data() {
-	lash_config_t *config;
+	lash_config_t *lash_config;
 
-	config = lash_config_new_with_key("threshold");
-	lash_config_set_value_double(config, threshold);
-	lash_send_config(aubio_lash_client, config);
+	lash_config = lash_config_new_with_key("threshold");
+	lash_config_set_value_double(lash_config, threshold);
+	lash_send_config(aubio_lash_client, lash_config);
 
 }
 
-void restore_data(lash_config_t * config) {
-	const char *key;
+void restore_data(lash_config_t * lash_config) {
+	const char *lash_key;
 
-	key = lash_config_get_key(config);
+	lash_key = lash_config_get_key(lash_config);
 
-	if (strcmp(key, "threshold") == 0) {
-		threshold = lash_config_get_value_double(config);
+	if (strcmp(lash_key, "threshold") == 0) {
+		threshold = lash_config_get_value_double(lash_config);
 		return;
 	}
 
