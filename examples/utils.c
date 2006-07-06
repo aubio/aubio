@@ -282,9 +282,9 @@ void examples_common_init(int argc,char ** argv) {
       lash_event_t * event = (lash_event_t *)lash_event_new_with_type(LASH_Client_Name);
       lash_event_set_string(event, "aubio");
       lash_send_event(aubio_lash_client, event);
+      pthread_create(&lash_thread, NULL, lash_thread_main, NULL);
     }
   }
-  pthread_create(&lash_thread, NULL, lash_thread_main, NULL);
 #endif /* LASH_SUPPORT */
 
   ibuf      = new_fvec(overlap_size, channels);
