@@ -46,7 +46,7 @@ int aubio_process(float **input, float **output, int nframes) {
       isonset = aubio_peakpick_pimrt(onset,parms);
       if (isonset) {
         /* test for silence */
-        if (aubio_silence_detection(ibuf, threshold2)==1)
+        if (aubio_silence_detection(ibuf, silence)==1)
           isonset=0;
         else
           for (pos = 0; pos < overlap_size; pos++){

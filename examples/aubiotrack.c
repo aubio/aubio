@@ -84,7 +84,7 @@ int aubio_process(float **input, float **output, int nframes) {
                       //printf("tempo:\t%3.5f bpm \n", 
                       //60.*44100./overlap_size/abs(btoutput[2]-btoutput[1]));
                       /* test for silence */
-                      if (aubio_silence_detection(ibuf, threshold2)==1) {
+                      if (aubio_silence_detection(ibuf, silence)==1) {
                               isonset  = 0;
                               istactus = 0;
                       } else {

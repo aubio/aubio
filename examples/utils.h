@@ -75,7 +75,7 @@ extern int usedoubled;
 extern aubio_onsetdetection_type type_onset;
 extern aubio_onsetdetection_type type_onset2;
 extern smpl_t threshold;
-extern smpl_t threshold2;
+extern smpl_t silence;
 extern uint_t buffer_size;
 extern uint_t overlap_size;
 extern uint_t channels;

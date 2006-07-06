@@ -38,7 +38,7 @@ int aubio_process(float **input, float **output, int nframes) {
     /*time for fft*/
     if (pos == overlap_size-1) {         
       /* test for silence */
-      if (aubio_silence_detection(ibuf, threshold2)==1) {
+      if (aubio_silence_detection(ibuf, silence)==1) {
 	if (wassilence==1) issilence = 1;
 	else issilence = 2;
         wassilence=1;

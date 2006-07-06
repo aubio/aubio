@@ -51,7 +51,7 @@ int aubio_process(float **input, float **output, int nframes) {
       }
 
       /* curlevel is negatif or 1 if silence */
-      curlevel = aubio_level_detection(ibuf, threshold2);
+      curlevel = aubio_level_detection(ibuf, silence);
       if (isonset) {
               /* test for silence */
               if (curlevel == 1.) {
