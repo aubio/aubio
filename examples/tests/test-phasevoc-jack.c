@@ -57,7 +57,7 @@ int main(){
 int aubio_process(float **input, float **output, int nframes) {
   uint_t i;       /*channels*/
   uint_t j;       /*frames*/
-  for (j=0;j<nframes;j++) {
+  for (j=0;j<(unsigned)nframes;j++) {
     for (i=0;i<channels;i++) {
       /* write input to datanew */
       fvec_write_sample(in, input[i][j], i, pos);
