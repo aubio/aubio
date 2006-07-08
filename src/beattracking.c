@@ -193,8 +193,8 @@ void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframe, fvec_t *
 
         // get float period
         myperiod = fvec_getperiod(bt,timesig,rp);
-	//AUBIO_DBG("\nrp =  %d myperiod = %f\n",rp,myperiod);
-	//AUBIO_DBG("accurate tempo is %f bpm\n",5168./myperiod);
+        //AUBIO_DBG("\nrp =  %d myperiod = %f\n",rp,myperiod);
+        //AUBIO_DBG("accurate tempo is %f bpm\n",5168./myperiod);
 
         /* activate biased filterbank */
         aubio_beattracking_checkstate(bt);
@@ -408,8 +408,8 @@ void aubio_beattracking_checkstate(aubio_beattracking_t * bt) {
                                 phwv[j] = EXP(-.5*SQR((smpl_t)(1.+j-step+lastbeat))/(bp/8.));
                         }
                 } else { 
-                        AUBIO_DBG("NOT using phase weighting as step is %d and lastbeat %d \n",
-                                        step,lastbeat);
+                        //AUBIO_DBG("NOT using phase weighting as step is %d and lastbeat %d \n",
+                        //                step,lastbeat);
                         for(j=0;j<2*laglen;j++)  {phwv[j] = 1.;} 
                 }
         } else {
@@ -423,8 +423,7 @@ void aubio_beattracking_checkstate(aubio_beattracking_t * bt) {
 
         /* if tempo is > 206 bpm, half it */
         while (bp < 25) {
-        //while (bp < fact/206.) {
-                AUBIO_DBG("warning, doubling the beat period from %d\n", bp);
+                //AUBIO_DBG("warning, doubling the beat period from %d\n", bp);
                 //AUBIO_DBG("warning, halving the tempo from %f\n", 60.*samplerate/hopsize/bp);
                 bp = bp*2;
         }
