@@ -127,6 +127,8 @@ void del_aubio_pitchfcomb (aubio_pitchfcomb_t * p)
 {
   del_cvec(p->fftOut);
   del_fvec(p->fftLastPhase);
+  del_fvec(p->win);
+  del_fvec(p->winput);
   del_aubio_mfft(p->fft);
   AUBIO_FREE(p);
 }
