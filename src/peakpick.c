@@ -175,9 +175,10 @@ aubio_pickpeak_t * new_aubio_peakpicker(smpl_t threshold) {
 }
 
 void del_aubio_peakpicker(aubio_pickpeak_t * p) {
-	//del_aubio_biquad(p->biquad);
+	del_aubio_biquad(p->biquad);
 	del_fvec(p->onset_keep);
 	del_fvec(p->onset_proc);
 	del_fvec(p->onset_peek);
 	del_fvec(p->scratch);
+	AUBIO_FREE(p);
 }
