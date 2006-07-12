@@ -43,6 +43,7 @@ aubio_resampler_t * new_aubio_resampler(float ratio, uint_t type) {
 
 void del_aubio_resampler(aubio_resampler_t *s) {
 	src_delete(s->stat);
+	AUBIO_FREE(s->proc);
 	AUBIO_FREE(s);
 }
 
