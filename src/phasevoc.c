@@ -127,6 +127,7 @@ void del_aubio_pvoc(aubio_pvoc_t *pv) {
 	del_fvec(pv->synth);
 	del_fvec(pv->dataold);
 	del_fvec(pv->synthold);
+	del_aubio_mfft(pv->fft);
 	AUBIO_FREE(pv->w);
 	AUBIO_FREE(pv);
 }
