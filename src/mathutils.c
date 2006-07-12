@@ -65,7 +65,7 @@ void aubio_window(smpl_t *w, uint_t size, aubio_window_type wintype) {
       break;
     case aubio_win_parzen:
       for (i=0;i<size;i++)
-        w[i] = 1.0 - fabsf((2*i-size)/(size+1.0));
+        w[i] = 1.0 - ABS((2*i-size)/(size+1.0));
       break;
     default:
       break;
@@ -75,7 +75,7 @@ void aubio_window(smpl_t *w, uint_t size, aubio_window_type wintype) {
 
 smpl_t aubio_unwrap2pi(smpl_t phase) {
   /* mod(phase+pi,-2pi)+pi */
-  return phase + TWO_PI * (1. + floorf(-(phase+PI)/TWO_PI));
+  return phase + TWO_PI * (1. + FLOOR(-(phase+PI)/TWO_PI));
 }
 
 
