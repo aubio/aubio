@@ -66,6 +66,13 @@ void aubio_biquad_do_filtfilt(aubio_biquad_t * b, fvec_t * in, fvec_t * tmp);
 */
 aubio_biquad_t * new_aubio_biquad(lsmp_t b1, lsmp_t b2, lsmp_t b3, lsmp_t a2, lsmp_t a3);
 
+/** delete biquad filter 
+ 
+  \param b biquad object to delete 
+
+*/
+void del_aubio_biquad(aubio_biquad_t * b);
+
 #ifdef __cplusplus
 }
 #endif
