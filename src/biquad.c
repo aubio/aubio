@@ -109,3 +109,6 @@ aubio_biquad_t * new_aubio_biquad(
   return b;
 }
 
+void del_aubio_biquad(aubio_biquad_t * b) {
+  AUBIO_FREE(b);
+}
