@@ -46,29 +46,12 @@ struct _aubio_fft_t {
 	fftw_plan 	pfw, pbw;
 };
 
-static aubio_fft_t * aubio_fft_alloc(uint_t size);
-static void aubio_fft_free(aubio_fft_t *s);
-
-static aubio_fft_t * aubio_fft_alloc(uint_t size) {
+aubio_fft_t * new_aubio_fft(uint_t size) {
 	aubio_fft_t * s = AUBIO_NEW(aubio_fft_t);
 	/* allocate memory */
 	s->in       = AUBIO_ARRAY(real_t,size);
 	s->out      = AUBIO_ARRAY(real_t,size);
 	s->specdata = (fft_data_t*)fftw_malloc(sizeof(fft_data_t)*size);
-	return s;
-}
-
-static void aubio_fft_free(aubio_fft_t * s) { 
-	/* destroy data */
-	fftw_destroy_plan(s->pfw);
-	fftw_destroy_plan(s->pbw);
-	if (s->specdata) 	fftw_free(s->specdata);
-	if (s->out)		AUBIO_FREE(s->out);
-	if (s->in )		AUBIO_FREE(s->in );
-}
-
-aubio_fft_t * new_aubio_fft(uint_t size) {
-	aubio_fft_t * s =(aubio_fft_t *)aubio_fft_alloc(size);
 	/* create plans */
 	s->pfw = fftw_plan_dft_r2c_1d(size, s->in,  s->specdata, FFTW_ESTIMATE);
 	s->pbw = fftw_plan_dft_c2r_1d(size, s->specdata, s->out, FFTW_ESTIMATE);
@@ -76,8 +59,13 @@ aubio_fft_t * new_aubio_fft(uint_t size) {
 }
 
 void del_aubio_fft(aubio_fft_t * s) {
-	aubio_fft_free(s);
-        AUBIO_FREE(s);
+	/* destroy data */
+	fftw_destroy_plan(s->pfw);
+	fftw_destroy_plan(s->pbw);
+	fftw_free(s->specdata);
+	AUBIO_FREE(s->out);
+	AUBIO_FREE(s->in );
+	AUBIO_FREE(s);
 }
 
 void aubio_fft_do(const aubio_fft_t * s, 
@@ -161,6 +149,6 @@ void del_aubio_mfft(aubio_mfft_t * fft) {
         for (i=0; i < fft->channels; i++)
                 AUBIO_FREE(fft->spec[i]);
         AUBIO_FREE(fft->spec);
-	aubio_fft_free(fft->fft);
+        del_aubio_fft(fft->fft);
         AUBIO_FREE(fft);        
 }
