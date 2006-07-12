@@ -35,26 +35,14 @@ struct _aubio_scale_t {
 	*/
 };
 
-static aubio_scale_t * aubio_scale_malloc(void);
-static void aubio_scale_free(aubio_scale_t * s);
-
-aubio_scale_t * aubio_scale_malloc() {
-	aubio_scale_t * s = AUBIO_NEW(aubio_scale_t);
-	return s;
-}
-
-void aubio_scale_free(aubio_scale_t * s) {
-	AUBIO_FREE(s);
-}
-
 aubio_scale_t * new_aubio_scale (smpl_t ilow, smpl_t ihig, smpl_t olow, smpl_t ohig	){
-	aubio_scale_t * s = aubio_scale_malloc();
+	aubio_scale_t * s = AUBIO_NEW(aubio_scale_t);
 	aubio_scale_set (s, ilow, ihig, olow, ohig);
 	return s;	
 }
 
 void del_aubio_scale(aubio_scale_t *s) {
-	aubio_scale_free(s);
+	AUBIO_FREE(s);
 }
 
 void aubio_scale_set (aubio_scale_t *s, smpl_t ilow, smpl_t ihig, smpl_t olow, smpl_t ohig) 
