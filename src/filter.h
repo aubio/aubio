@@ -84,6 +84,12 @@ aubio_filter_t * new_aubio_adsgn_filter(uint_t samplerate);
 
 */
 aubio_filter_t * new_aubio_cdsgn_filter(uint_t samplerate);
+/** delete a filter object
+ 
+  \param f filter object to delete
+
+*/
+void del_aubio_filter(aubio_filter_t * f);
 
 #ifdef __cplusplus
 }

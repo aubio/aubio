@@ -215,3 +215,11 @@ aubio_filter_t * new_aubio_filter(uint_t samplerate, uint_t order) {
   return f;
 }
 
+void del_aubio_filter(aubio_filter_t * f) {
+  AUBIO_FREE(f->a);
+  AUBIO_FREE(f->b);
+  AUBIO_FREE(f->x);
+  AUBIO_FREE(f->y);
+  AUBIO_FREE(f);
+  return;
+}
