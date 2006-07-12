@@ -277,6 +277,10 @@ aubio_onsetdetection_alloc (aubio_onsetdetection_type type,
 }
 
 void aubio_onsetdetection_free (aubio_onsetdetection_t *o){
+  del_aubio_onsetdetection(o);
+}
+
+void del_aubio_onsetdetection (aubio_onsetdetection_t *o){
 
 	switch(o->type) {
 		/* for both energy and hfc, only fftgrain->norm is required */

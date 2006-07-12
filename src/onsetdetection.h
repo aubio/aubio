@@ -162,7 +162,14 @@ aubio_onsetdetection_t * new_aubio_onsetdetection(aubio_onsetdetection_type type
   \param o onset detection object as returned by new_aubio_pitchfcomb
 
 */
+void del_aubio_onsetdetection(aubio_onsetdetection_t *o);
+/** deletion of an onset detection object (obsolete)
+
+  \param o onset detection object as returned by new_aubio_pitchfcomb
+
+*/
 void aubio_onsetdetection_free(aubio_onsetdetection_t *o);
+
 
 #ifdef __cplusplus
 }
