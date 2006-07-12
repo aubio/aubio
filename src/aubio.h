@@ -73,6 +73,7 @@ extern "C" {
 #include "pitchdetection.h"
 #include "pitchmcomb.h"
 #include "pitchyin.h"
+#include "pitchyinfft.h"
 #include "pitchschmitt.h"
 #include "pitchfcomb.h"
 #include "beattracking.h"
