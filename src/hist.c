@@ -78,6 +78,7 @@ void del_aubio_hist(aubio_hist_t *s) {
 void aubio_hist_do (aubio_hist_t *s, fvec_t *input) 
 {
 	uint_t i,j;
+	sint_t tmp = 0;
 	aubio_scale_do(s->scaler, input);
 	/* reset data */
 	for (i=0; i < s->channels; i++)
@@ -85,13 +86,18 @@ void aubio_hist_do (aubio_hist_t *s, fvec_t *input)
 			s->hist[i][j] = 0;
 	/* run accum */
 	for (i=0; i < input->channels; i++)
-		for (j=0;  j < input->length; j++) 
-				s->hist[i][(uint_t)floor(input->data[i][j])] += 1;
+		for (j=0;  j < input->length; j++)
+		{
+			tmp = (sint_t)FLOOR(input->data[i][j]);
+			if ((tmp >= 0) && (tmp < (sint_t)s->nelems))
+				s->hist[i][tmp] += 1;
+		}
 }
 
 void aubio_hist_do_notnull (aubio_hist_t *s, fvec_t *input) 
 {
 	uint_t i,j;
+	sint_t tmp = 0;
 	aubio_scale_do(s->scaler, input);
 	/* reset data */
 	for (i=0; i < s->channels; i++)
@@ -100,14 +106,20 @@ void aubio_hist_do_notnull (aubio_hist_t *s, fvec_t *input)
 	/* run accum */
 	for (i=0; i < input->channels; i++)
 		for (j=0;  j < input->length; j++) 
-			if (input->data[i][j]!=0.0f) //input is not 0
-				s->hist[i][(uint_t)floor(input->data[i][j])] += 1;
+		{
+			if (input->data[i][j] != 0) {
+				tmp = (sint_t)FLOOR(input->data[i][j]);
+				if ((tmp >= 0) && (tmp < (sint_t)s->nelems))
+					s->hist[i][tmp] += 1;
+			}
+		}
 }
 
 
 void aubio_hist_dyn_notnull (aubio_hist_t *s, fvec_t *input) 
 {
 	uint_t i,j;
+	sint_t tmp = 0;
 	smpl_t ilow = vec_min(input);
 	smpl_t ihig = vec_max(input);
 	smpl_t step = (ihig-ilow)/(smpl_t)(s->nelems);
@@ -130,8 +142,13 @@ void aubio_hist_dyn_notnull (aubio_hist_t *s, fvec_t *input)
 	/* run accum */
 	for (i=0; i < input->channels; i++)
 		for (j=0;  j < input->length; j++) 
-			if (input->data[i][j]!=0.) //input was not 0
-				s->hist[i][(uint_t)floorf(input->data[i][j])] += 1;
+		{
+			if (input->data[i][j] != 0) {
+				tmp = (sint_t)FLOOR(input->data[i][j]);
+				if ((tmp >= 0) && (tmp < (sint_t)s->nelems))
+					s->hist[i][tmp] += 1;
+			}
+		}
 }
 
 void aubio_hist_weigth (aubio_hist_t *s) 
