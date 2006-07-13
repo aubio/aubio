@@ -161,13 +161,10 @@ class taskpitch(task):
 		titles.append(self.params.pitchmode)
 
 			
-	def plotplot(self,wplot,oplots,titles,outplot=None,multiplot = 1, midi = 1, truth = 1):
-		from aubio.gnuplot import gnuplot_init, audio_to_array, make_audio_plot
+	def plotplot(self,wplot,oplots,titles,outplot=None,extension=None,xsize=1.,ysize=1.,multiplot = 1, midi = 1, truth = 1):
+		from aubio.gnuplot import gnuplot_create , audio_to_array, make_audio_plot
 		import re
 		import Gnuplot
-		# audio data
-		time,data = audio_to_array(self.input)
-		f = make_audio_plot(time,data)
 
 		# check if ground truth exists
 		if truth:
@@ -176,32 +173,35 @@ class taskpitch(task):
 				oplots = [Gnuplot.Data(timet,pitcht,with='lines',
 					title='ground truth')] + oplots
 
-		t = Gnuplot.Data(0,0,with='impulses') 
-
-		g = gnuplot_init(outplot)
+		g = gnuplot_create(outplot=outplot, extension=extension)
 		g('set title \'%s\'' % (re.sub('.*/','',self.input)))
+		g('set size %f,%f' % (xsize,ysize) )
 		g('set multiplot')
 		# hack to align left axis
 		g('set lmargin 4')
 		g('set rmargin 4')
-		# plot waveform and onsets
-		g('set size 1,0.3')
-		g('set ytics 10')
-		g('set origin 0,0.7')
+    # plot waveform
+		time,data = audio_to_array(self.input)
+		wplot = [make_audio_plot(time,data)]
+		g('set origin 0,%f' % (0.7*ysize) )
+		g('set size %f,%f' % (xsize,0.3*ysize))
+		#g('set format y "%1f"')
 		g('set xrange [0:%f]' % max(time)) 
 		g('set yrange [-1:1]') 
 		g('set noytics')
 		g('set y2tics -1,1')
-		g.xlabel('time (s)',offset=(0,0.8))
+		g.xlabel('time (s)',offset=(0,0.7))
 		g.ylabel('amplitude')
-		g.plot(f)
+		g.plot(*wplot)
+
+		# default settings for next plots
 		g('unset title')
-		# plot onset detection function
+		g('set format x ""')
+		g('set format y "%3e"')
+		g('set tmargin 0')
+		g.xlabel('')
+		g('set noclip one') 
 
-
-		g('set size 1,0.7')
-		g('set origin 0,0')
-		g('set xrange [0:%f]' % max(time))
 		if not midi:
 			g('set log y')
 			#g.xlabel('time (s)')
@@ -211,21 +211,26 @@ class taskpitch(task):
 			g.ylabel('midi')
 			g('set yrange [%f:%f]' % (aubio_freqtomidi(self.params.pitchmin), aubio_freqtomidi(self.params.pitchmax)))
 			g('set y2tics %f,%f' % (round(aubio_freqtomidi(self.params.pitchmin)+.5),12))
-		g('set key right top')
-		g('set noclip one') 
-		g('set format x ""')
+		
 		if multiplot:
-			g('set tmargin 0')
-			for i in range(len(oplots)):
-				# plot onset detection functions
-				g('set size 1,%f' % (0.7/(len(oplots))))
-				g('set origin 0,%f' % ((len(oplots)-float(i)-1)*0.7/(len(oplots))))
-				g('set xrange [0:%f]' % max(time))
+			N = len(oplots)
+			y = 0.7*ysize # the vertical proportion of the plot taken by onset functions
+			delta = 0.035 # the constant part of y taken by last plot label and data
+			for i in range(N):
+				# plot pitch detection functions
+				g('set size %f,%f' % ( xsize, (y-delta)/N))
+				g('set origin 0,%f' % ((N-i-1)*(y-delta)/N + delta ))
 				g('set nokey')
+				g('set xrange [0:%f]' % max(time))
 				g.ylabel(titles[i])
-				g.xlabel('')
+				if i == N-1:
+					g('set size %f,%f' % (xsize, (y-delta)/N + delta ) )
+					g('set origin 0,0')
+					g.xlabel('time (s)', offset=(0,0.7))
+					g('set format x')
 				g.plot(oplots[i])
 		else:
+			g('set key right top')
 			g.plot(*oplots)
 		g('unset multiplot')
 

@@ -144,7 +144,7 @@ class taskonset(task):
 		import re
 		# prepare the plot
 		g = gnuplot_create(outplot=outplot, extension=extension)
-		
+		g('set title \'%s\'' % (re.sub('.*/','',self.input)))
 		if spectro:
 			g('set size %f,%f' % (xsize,1.3*ysize) )
 		else:
@@ -154,23 +154,6 @@ class taskonset(task):
 		# hack to align left axis
 		g('set lmargin 3')
 		g('set rmargin 6')
-		g('set tmargin 0')
-		g('set format x ""')
-		g('set format y "%3e"')
-		g('set noytics')
-
-		for i in range(len(oplots)):
-			# plot onset detection functions
-			g('set size %f,%f' % (xsize,0.7*ysize/(len(oplots))))
-			g('set origin 0,%f' % ((len(oplots)-float(i)-1)*0.7*ysize/(len(oplots))))
-			g('set xrange [0:%f]' % (self.lenofunc*self.params.step))
-			g('set nokey')
-			g('set yrange [0:%f]' % (1.1*oplots[i][2]))
-			g('set y2tics ("0" 0, "%d" %d)' % (round(oplots[i][2]),round(oplots[i][2])))
-			g.ylabel(oplots[i][1])
-			if i == len(oplots)-1:
-				g.xlabel('time (s)',offset=(0,0.7))
-			g.plot(*oplots[i][0])
 
 		if spectro:
 			import Gnuplot
@@ -187,36 +170,53 @@ class taskonset(task):
 			g('set rmargin 0')
 			g('set tmargin 0')
 			g('set palette rgbformulae -25,-24,-32')
-			g.xlabel('')
+			g.xlabel('time (s)',offset=(0,1.))
 			g.ylabel('freq (Hz)')
+			g('set origin 0,%f' % (1.0*ysize) ) 
+			g('set format x "%1.1f"')
 			#if log:
 			#	g('set yrange [%f:%f]' % (max(10,minf),maxf))
 			#	g('set log y')
 			g.splot(Gnuplot.GridData(data,time,freq, binary=1, title=''))
-			g('set lmargin 3')
-			g('set rmargin 6')
-			g('set origin 0,%f' % (1.0*ysize) ) 
-			g('set format x "%1.1f"')
-			g.xlabel('time (s)',offset=(0,1.))
 		else:
 			# plot waveform and onsets
+			time,data = audio_to_array(self.input)
+			wplot = [make_audio_plot(time,data)] + wplot
 			g('set origin 0,%f' % (0.7*ysize) )
-			g.xlabel('time (s)',offset=(0,0.7))
+			g('set size %f,%f' % (xsize,0.3*ysize))
 			g('set format y "%1f"')
+			g('set xrange [0:%f]' % max(time)) 
+			g('set yrange [-1:1]') 
+			g('set noytics')
+			g('set y2tics -1,1')
+			g.xlabel('time (s)',offset=(0,0.7))
+			g.ylabel('amplitude')
+			g.plot(*wplot)
 
-		g('set size %f,%f' % (1.*xsize, 0.3*ysize))
-		g('set title \'%s %s\'' % (re.sub('.*/','',self.input),self.title))
-		g('set tmargin 2')
-		# audio data
-		time,data = audio_to_array(self.input)
-		wplot = [make_audio_plot(time,data)] + wplot
-		g('set y2tics -1,1')
+		# default settings for next plots
+		g('unset title')
+		g('set format x ""')
+		g('set format y "%3e"')
+		g('set tmargin 0')
+		g.xlabel('')
 
-		g('set xrange [0:%f]' % max(time)) 
-		g('set yrange [-1:1]') 
-		g.ylabel('amplitude')
-		g.plot(*wplot)
-		
+		N = len(oplots)
+		y = 0.7*ysize # the vertical proportion of the plot taken by onset functions
+		delta = 0.035 # the constant part of y taken by last plot label and data
+		for i in range(N):
+			# plot onset detection functions
+			g('set size %f,%f' % ( xsize, (y-delta)/N))
+			g('set origin 0,%f' % ((N-i-1)*(y-delta)/N + delta ))
+			g('set nokey')
+			g('set xrange [0:%f]' % (self.lenofunc*self.params.step))
+			g('set yrange [0:%f]' % (1.1*oplots[i][2]))
+			g('set y2tics ("0" 0, "%d" %d)' % (round(oplots[i][2]),round(oplots[i][2])))
+			g.ylabel(oplots[i][1])
+			if i == N-1:
+				g('set size %f,%f' % ( xsize, (y-delta)/N + delta ) )
+				g('set origin 0,0')
+				g.xlabel('time (s)', offset=(0,0.7))
+				g('set format x')
+			g.plot(*oplots[i][0])
+
 		g('unset multiplot')
-
-
