@@ -35,40 +35,21 @@ struct _aubio_hist_t {
 	aubio_scale_t *scaler;
 };
 
-
-/********************************************************
- * Object Memory Allocation
+/**
+ * Object creation/deletion calls
  */
-
-static aubio_hist_t * aubio_hist_malloc(uint_t channels, uint_t nelems);
-static void aubio_hist_free(aubio_hist_t * s);
-
-aubio_hist_t * aubio_hist_malloc(uint_t channels, uint_t nelems) {
-	uint_t i;
+aubio_hist_t * new_aubio_hist (smpl_t ilow, smpl_t ihig, uint_t nelems, uint_t channels){
 	aubio_hist_t * s = AUBIO_NEW(aubio_hist_t);
+	smpl_t step = (ihig-ilow)/(smpl_t)(nelems);
+	smpl_t accum = step;
+	uint_t i;
 	s->channels = channels;
 	s->nelems = nelems;
-	
 	s->hist = AUBIO_ARRAY(smpl_t*, channels);
 	for (i=0; i< s->channels; i++) {
 		s->hist[i] = AUBIO_ARRAY(smpl_t, nelems);
 	}
 	s->cent = AUBIO_ARRAY(smpl_t, nelems);
-	return s;
-}
-
-void aubio_hist_free(aubio_hist_t * s) {
-	AUBIO_FREE(s);
-}
-
-/***
- * Object creation/deletion calls
- */
-aubio_hist_t * new_aubio_hist (smpl_t ilow, smpl_t ihig, uint_t nelems, uint_t channels){
-	smpl_t step = (ihig-ilow)/(smpl_t)(nelems);
-	smpl_t accum = step;
-	uint_t i;
-	aubio_hist_t * s = aubio_hist_malloc(channels, nelems);
 	
 	/* use scale to map ilow/ihig -> 0/nelems */
 	s->scaler = new_aubio_scale(ilow,ihig,0,nelems);
@@ -81,7 +62,14 @@ aubio_hist_t * new_aubio_hist (smpl_t ilow, smpl_t ihig, uint_t nelems, uint_t c
 }
 
 void del_aubio_hist(aubio_hist_t *s) {
-	aubio_hist_free(s);
+	uint_t i;
+	for (i=0; i< s->channels; i++) {
+		AUBIO_FREE(s->hist[i]);
+	}
+	AUBIO_FREE(s->hist);
+	AUBIO_FREE(s->cent);
+	del_aubio_scale(s->scaler);
+	AUBIO_FREE(s);
 }
 
 /***
