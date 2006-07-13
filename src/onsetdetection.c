@@ -40,8 +40,6 @@ struct _aubio_onsetdetection_t {
 };
 
 
-static aubio_onsetdetection_t * aubio_onsetdetection_alloc(aubio_onsetdetection_type type, uint_t size, uint_t channels);
-
 /* Energy based onset detection function */
 void aubio_onsetdetection_energy  (aubio_onsetdetection_t *o,
 		cvec_t * fftgrain, fvec_t * onset) {
@@ -192,16 +190,11 @@ aubio_onsetdetection(aubio_onsetdetection_t *o, cvec_t * fftgrain,
 	o->funcpointer(o,fftgrain,onset);
 }
 
-/* Allocate memory for an onset detection */
+/* Allocate memory for an onset detection 
+ * depending on the choosen type, allocate memory as needed
+ */
 aubio_onsetdetection_t * 
 new_aubio_onsetdetection (aubio_onsetdetection_type type, 
-		uint_t size, uint_t channels){
-	return aubio_onsetdetection_alloc(type,size,channels);
-}
-
-/* depending on the choosen type, allocate memory as needed */
-aubio_onsetdetection_t * 
-aubio_onsetdetection_alloc (aubio_onsetdetection_type type, 
 		uint_t size, uint_t channels){
 	aubio_onsetdetection_t * o = AUBIO_NEW(aubio_onsetdetection_t);
 	uint_t rsize = size/2+1;
@@ -306,6 +299,12 @@ void del_aubio_onsetdetection (aubio_onsetdetection_t *o){
                         del_fvec(o->oldmag);
 	                del_fvec(o->dev1);
                         del_aubio_hist(o->histog);
+			break;
+		case aubio_onset_kl:
+	                del_fvec(o->oldmag);
+			break;
+		case aubio_onset_mkl:
+	                del_fvec(o->oldmag);
 			break;
 		default:
 			break;
