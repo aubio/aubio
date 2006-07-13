@@ -60,6 +60,12 @@ def parse_args():
   parser.add_option("-p","--plot",
       action="store_true", dest="plot", default=False, 
       help="draw plot of the pitch track")
+  parser.add_option("-x","--xsize",
+      action="store", dest="xsize", default=1., 
+      type='float', help="define xsize for plot")
+  parser.add_option("-y","--ysize",
+      action="store", dest="ysize", default=1., 
+      type='float', help="define ysize for plot")
   parser.add_option("-O","--outplot",
       action="store", dest="outplot", default=None, 
       help="save the plot to output.{ps,png,svg} instead of displaying it")
@@ -116,5 +122,11 @@ for i in range(len(modes)):
 	#print filetask.eval(pitch[i]) 
 	if options.plot: filetask.plot(pitch,wplot,oplots,titles)
 
+if options.outplot:
+  extension = options.outplot.split('.')[-1] 
+  outplot = '.'.join(options.outplot.split('.')[:-1])
+else:
+  extension,outplot = None,None
 if options.plot: 
-	filetask.plotplot(wplot,oplots,titles,outplot=options.outplot,truth=options.plottruth)
+	filetask.plotplot(wplot,oplots,titles,outplot=outplot,extension=extension,
+  xsize=options.xsize,ysize=options.ysize,truth=options.plottruth)
