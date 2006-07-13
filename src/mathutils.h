@@ -245,6 +245,14 @@ smpl_t aubio_level_detection(fvec_t * ibuf, smpl_t threshold);
  * calculate normalised autocorrelation function
  */
 void aubio_autocorr(fvec_t * input, fvec_t * output);
+/**
+ * clean up cached memory at the end of program
+ *
+ * use this function at the end of programs to purge all
+ * cached memory. so far this function is only used to clean
+ * fftw cache.
+ */
+void aubio_cleanup(void);
 
 #ifdef __cplusplus
 }

@@ -22,6 +22,7 @@
 #include "aubio_priv.h"
 #include "sample.h"
 #include "mathutils.h"
+#include "config.h"
 
 void aubio_window(smpl_t *w, uint_t size, aubio_window_type wintype) {
   uint_t i;
@@ -453,3 +454,13 @@ void aubio_autocorr(fvec_t * input, fvec_t * output){
         }
 }
 
+void aubio_cleanup(void)
+{
+#if FFTW3_SUPPORT
+        fftw_cleanup();
+#else
+#if FFTW3F_SUPPORT
+        fftwf_cleanup();
+#endif
+#endif
+}
