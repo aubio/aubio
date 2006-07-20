@@ -147,4 +147,7 @@ void del_aubio_pitchyinfft(aubio_pitchyinfft_t *p){
 	del_fvec(p->sqrmag);
 	del_cvec(p->res);
 	del_cvec(p->fftout);
+	del_fvec(p->winput);
+	del_fvec(p->weight);
+	AUBIO_FREE(p);
 }
