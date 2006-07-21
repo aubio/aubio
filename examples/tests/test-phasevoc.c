@@ -1,11 +1,6 @@
-/* test sample for phase vocoder 
- *
- * this program should start correctly using JACK_START_SERVER=true and
- * reconstruct each audio input frame perfectly on the corresponding input with
- * a delay equal to the window size, hop_s.
- */
+/* test sample for phase vocoder */
 
-#include "aubio.h"
+#include <aubio.h>
 
 int main(){
         uint_t win_s    = 1024; /* window size                       */
@@ -29,6 +24,7 @@ int main(){
         del_fvec(in);
         del_cvec(fftgrain);
         del_fvec(out);
+        aubio_cleanup();
         printf("memory freed\n");
         return 0;
 }
