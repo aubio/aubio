@@ -117,7 +117,7 @@ smpl_t aubio_pitchyinfft_detect(aubio_pitchyinfft_t * p, fvec_t * input, smpl_t 
   yin->data[0][0] = 1.; 
   for (tau=1; tau < yin->length; tau++) {
 	  yin->data[0][tau] = sum -
-		  res->norm[0][tau+1]*COS(res->phas[0][tau+1]); 
+		  res->norm[0][tau]*COS(res->phas[0][tau]); 
 	  tmp += yin->data[0][tau];
 	  yin->data[0][tau] *= tau/tmp;
   }
@@ -129,14 +129,14 @@ smpl_t aubio_pitchyinfft_detect(aubio_pitchyinfft_t * p, fvec_t * input, smpl_t 
 	  //return vec_quadint_min(yin,tau,1);
 	  /* additional check for (unlikely) octave doubling in higher frequencies */
 	  if (tau>35) {
-		  return vec_quadint_min(yin,tau,1)+1;
+		  return vec_quadint_min(yin,tau,1);
 	  } else {
 		  /* should compare the minimum value of each interpolated peaks */
 		  halfperiod = FLOOR(tau/2+.5);
 		  if (yin->data[0][halfperiod] < tol)
-			  return vec_quadint_min(yin,halfperiod,1)+1;
+			  return vec_quadint_min(yin,halfperiod,1);
 		  else
-			  return vec_quadint_min(yin,tau,1)+1;
+			  return vec_quadint_min(yin,tau,1);
 	  }
   } else
 	  return 0;
