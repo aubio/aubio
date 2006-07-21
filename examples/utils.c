@@ -253,6 +253,10 @@ void examples_common_init(int argc,char ** argv) {
           isonset = (onsetfile = new_aubio_sndfile_ro(onset_filename)) ||
                   (onsetfile = new_aubio_sndfile_ro("sounds/woodblock.aiff")) ||
                   (onsetfile = new_aubio_sndfile_ro("../sounds/woodblock.aiff"));
+          if (onsetfile == NULL) {
+            outmsg("Could not find woodblock.aiff\n");
+            exit(1);
+          }
   }
   if (onsetfile) {
           /* read the output sound once */
@@ -263,6 +267,10 @@ void examples_common_init(int argc,char ** argv) {
   {
     debug("Opening files ...\n");
     file = new_aubio_sndfile_ro (input_filename);
+    if (file == NULL) {
+      outmsg("Could not open input file %s.\n", input_filename);
+      exit(1);
+    }
     if (verbose) aubio_sndfile_info(file);
     channels = aubio_sndfile_channels(file);
     samplerate = aubio_sndfile_samplerate(file);
