@@ -1,6 +1,10 @@
-
-#include "aubio_priv.h"
+#include <stdlib.h>
+#include <math.h>
+#include <complex.h>
 #include <aubio.h>
+
+#define NEW_ARRAY(_t,_n)		(_t*)malloc((_n)*sizeof(_t))
+
 
 int main(){
         uint_t i,j;
@@ -13,11 +17,11 @@ int main(){
   
         /* allocate fft and other memory space */
         aubio_fft_t * fft      = new_aubio_fft(win_s);      /* fft interface */
-        smpl_t * w             = AUBIO_ARRAY(smpl_t,win_s); /* window */
+        smpl_t * w             = NEW_ARRAY(smpl_t,win_s); /* window */
         /* complex spectral data */
-        fft_data_t ** spec      = AUBIO_ARRAY(fft_data_t*,channels); 
+        fft_data_t ** spec     = NEW_ARRAY(fft_data_t*,channels); 
         for (i=0; i < channels; i++)
-                spec[i] = AUBIO_ARRAY(fft_data_t,win_s);
+                spec[i] = NEW_ARRAY(fft_data_t,win_s);
         /* initialize the window (see mathutils.c) */
         aubio_window(w,win_s,aubio_win_hanningz);
   
@@ -34,7 +38,7 @@ int main(){
         /* execute inverse fourier transform */
         for (i=0; i < channels; i++) {
                 for (j=0; j<win_s/2+1; j++) {
-                        spec[i][j]  = CEXPC(I*aubio_unwrap2pi(fftgrain->phas[i][j]));
+                        spec[i][j]  = cexp(I*aubio_unwrap2pi(fftgrain->phas[i][j]));
                         spec[i][j] *= fftgrain->norm[i][j];
                 }
                 aubio_fft_rdo(fft,spec[i],out->data[i],win_s);
@@ -43,11 +47,11 @@ int main(){
         del_fvec(in);
         del_fvec(out);
         del_cvec(fftgrain);
-        AUBIO_FREE(w);
+        free(w);
         del_aubio_fft(fft);
         for (i=0; i < channels; i++)
-                AUBIO_FREE(spec[i]);
-        AUBIO_FREE(spec); 
+                free(spec[i]);
+        free(spec); 
         aubio_cleanup();
         return 0;
 }
