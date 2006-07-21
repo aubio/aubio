@@ -22,47 +22,33 @@
 #include "mathutils.h"
 #include "beattracking.h"
 
-// 60*samplerate/winlen
-
-/* maximum length for rp */
-static smpl_t constthresh = 3.901; //empirically derived!
-
 uint_t fvec_gettimesig(smpl_t * acf, uint_t acflen, uint_t gp);
 void aubio_beattracking_checkstate(aubio_beattracking_t * bt);
-smpl_t fvec_getperiod(aubio_beattracking_t * bt, uint_t timesig, uint_t rp);
-
-/* could move to struct */
-uint_t gp         = 0, bp  = 0, rp1 = 0, rp2 = 0, bp2 = 0;
-smpl_t g_mu       = 0.;
-smpl_t g_var      = 3.901;
-uint_t flagconst  = 0;
-uint_t flagstep   = 0;
-// needs to be a signed ?
-sint_t counter    = 0;
-uint_t maxindex   = 0;
-uint_t timesig    = 0;
-uint_t rp         = 1;
-uint_t lastbeat   = 0;
-//number of harmonics in shift invariant comb filterbank
-uint_t numelem    = 4;
-smpl_t myperiod   = 0.;
-
-uint_t maxnumelem = 4;
+smpl_t fvec_getperiod(aubio_beattracking_t * bt);
 
 struct _aubio_beattracking_t {
-        fvec_t * rwv;    /* rayleigh weight vector - rayleigh distribution function */                    
-        fvec_t * gwv;    /* rayleigh weight vector - rayleigh distribution function */                    
-        fvec_t * dfwv;   /* detection function weighting - exponential curve */
-        fvec_t * dfrev;  /* reversed onset detection function */
-        fvec_t * acf;    /* vector for autocorrelation function (of current detection function frame) */
-        fvec_t * acfout; /* store result of passing acf through s.i.c.f.b. */
-        fvec_t * phwv;   /* beat expectation alignment weighting */
+        fvec_t * rwv;    /** rayleigh weight vector - rayleigh distribution function */                    
+        fvec_t * gwv;    /** rayleigh weight vector - rayleigh distribution function */                    
+        fvec_t * dfwv;   /** detection function weighting - exponential curve */
+        fvec_t * dfrev;  /** reversed onset detection function */
+        fvec_t * acf;    /** vector for autocorrelation function (of current detection function frame) */
+        fvec_t * acfout; /** store result of passing acf through s.i.c.f.b. */
+        fvec_t * phwv;   /** beat expectation alignment weighting */
         fvec_t * phout;
-        //uint_t timesig;  /* time signature of input, set to zero until context dependent model activated */
+        uint_t timesig;  /** time signature of input, set to zero until context dependent model activated */
         uint_t step;
-        fvec_t * locacf; /* vector to store harmonics of filterbank of acf */
-        fvec_t * inds;      /* vector for max index outputs for each harmonic */
-        uint_t rayparam; /* Rayleigh parameter */
+        fvec_t * locacf; /** vector to store harmonics of filterbank of acf */
+        fvec_t * inds;   /** vector for max index outputs for each harmonic */
+        uint_t rayparam; /** Rayleigh parameter */
+        uint_t lastbeat;
+        sint_t counter;
+        uint_t flagstep;
+        smpl_t g_var;
+        uint_t gp;
+        uint_t bp;
+        uint_t rp;
+        uint_t rp1;
+        uint_t rp2;
 };
 
 aubio_beattracking_t * new_aubio_beattracking(uint_t winlen,
@@ -80,6 +66,14 @@ aubio_beattracking_t * new_aubio_beattracking(uint_t winlen,
 	 * 1 onset frame [128] */
 	uint_t step     = winlen/4; /* 1.5 seconds */
 
+        uint_t maxnumelem = 4; /* max number of index output */
+        p->lastbeat = 0;
+        p->counter = 0;
+        p->flagstep = 0;
+        p->g_var = 3.901; // constthresh empirically derived!
+        p->rp = 1;
+        p->gp = 0;
+
         p->rayparam = rayparam;
         p->step    = step;
         p->rwv     = new_fvec(laglen,channels);
@@ -91,7 +85,7 @@ aubio_beattracking_t * new_aubio_beattracking(uint_t winlen,
         p->phwv    = new_fvec(2*laglen,channels);
         p->phout   = new_fvec(winlen,channels);
 
-        //p->timesig = 0;
+        p->timesig = 0;
 
         p->inds    = new_fvec(maxnumelem,channels);
         p->locacf  = new_fvec(winlen,channels); 
@@ -140,6 +134,11 @@ void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframe, fvec_t *
         smpl_t * rwv    = bt->rwv->data[0];
         smpl_t * acfout = bt->acfout->data[0];
         smpl_t * acf    = bt->acf->data[0];
+        uint_t maxindex = 0;
+        //number of harmonics in shift invariant comb filterbank
+        uint_t numelem  = 4;
+
+        //smpl_t myperiod   = 0.;
         //smpl_t * out    = output->data[0];
 
         //parameters for making s.i.c.f.b.
@@ -148,6 +147,7 @@ void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframe, fvec_t *
         uint_t phase; 
         uint_t kmax;
         sint_t beat; 
+        uint_t bp;
 
         for (i = 0; i < winlen; i++){
                 dfrev[winlen-1-i] = 0.;
@@ -165,11 +165,11 @@ void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframe, fvec_t *
 
         /* get acfout - assume Rayleigh weightvector only */
         /* if timesig is unknown, use metrically unbiased version of filterbank */
-        if(!timesig)  
+        if(!bt->timesig)  
                 numelem = 4;
         //        AUBIO_DBG("using unbiased filterbank, timesig: %d\n", timesig);
         else
-                numelem = timesig;
+                numelem = bt->timesig;
         //        AUBIO_DBG("using biased filterbank, timesig: %d\n", timesig);
 
         /* first and last output values are left intentionally as zero */
@@ -187,17 +187,18 @@ void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframe, fvec_t *
 
         /* find non-zero Rayleigh period */
         maxindex = vec_max_elem(bt->acfout);
-        rp = maxindex ? maxindex : 1;
+        bt->rp = maxindex ? maxindex : 1;
         //rp = (maxindex==127) ? 43 : maxindex; //rayparam
-        rp = (maxindex==bt->acfout->length-1) ? bt->rayparam : maxindex; //rayparam
+        bt->rp = (maxindex==bt->acfout->length-1) ? bt->rayparam : maxindex; //rayparam
 
         // get float period
-        myperiod = fvec_getperiod(bt,timesig,rp);
-        //AUBIO_DBG("\nrp =  %d myperiod = %f\n",rp,myperiod);
+        //myperiod = fvec_getperiod(bt);
+        //AUBIO_DBG("\nrp =  %d myperiod = %f\n",bt->rp,myperiod);
         //AUBIO_DBG("accurate tempo is %f bpm\n",5168./myperiod);
 
         /* activate biased filterbank */
         aubio_beattracking_checkstate(bt);
+        bp = bt->bp;
         /* end of biased filterbank */
 
         /* initialize output */
@@ -220,7 +221,7 @@ void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframe, fvec_t *
 
         /* debug */
         //AUBIO_DBG("beat period = %d, rp1 = %d, rp2 = %d\n", bp, rp1, rp2);
-        //AUBIO_DBG("rp = %d, gp = %d, phase = %d\n", rp, gp, phase);
+        //AUBIO_DBG("rp = %d, gp = %d, phase = %d\n", bt->rp, bt->gp, phase);
 
         /* reset output */
         for (i = 0; i < laglen; i++)
@@ -242,7 +243,7 @@ void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframe, fvec_t *
                 i++;
         }
 
-        lastbeat = beat;
+        bt->lastbeat = beat;
         /* store the number of beat found in this frame as the first element */
         output->data[0][0] = i;
 }
@@ -265,21 +266,22 @@ uint_t fvec_gettimesig(smpl_t * acf, uint_t acflen, uint_t gp){
         return (three_energy > four_energy) ? 3 : 4;
 }
 
-smpl_t fvec_getperiod(aubio_beattracking_t * bt, uint_t timesig, uint_t rp){
+smpl_t fvec_getperiod(aubio_beattracking_t * bt){
       	/*function to make a more accurate beat period measurement.*/
 
 	smpl_t period = 0.;
 	smpl_t maxval = 0.;
+	uint_t numelem    = 4;
 	
 	sint_t a,b;
 	uint_t i,j;	
-	uint_t acfmi = rp; //acfout max index
+	uint_t acfmi = bt->rp; //acfout max index
 	uint_t maxind = 0;
 
-	if(!timesig)
+	if(!bt->timesig)
 		numelem = 4;
 	else
-		numelem = timesig;
+		numelem = bt->timesig;
 
 	for (i=0;i<numelem;i++) // initialize
 	bt->inds->data[0][i] = 0.;
@@ -297,7 +299,7 @@ smpl_t fvec_getperiod(aubio_beattracking_t * bt, uint_t timesig, uint_t rp){
 
 	for(i=0;i<numelem;i++){
 
-		maxindex = 0;
+		maxind = 0;
 		maxval = 0.0;
 	
 		for (j=0;j<(acfmi*(i+1)+(i)); j++){
@@ -324,6 +326,14 @@ smpl_t fvec_getperiod(aubio_beattracking_t * bt, uint_t timesig, uint_t rp){
 
 void aubio_beattracking_checkstate(aubio_beattracking_t * bt) {
         uint_t i,j,a,b;
+        uint_t flagconst  = 0;
+        sint_t counter  = bt->counter;
+        uint_t flagstep = bt->flagstep;
+        uint_t gp       = bt->gp;
+        uint_t bp       = bt->bp;
+        uint_t rp       = bt->rp;
+        uint_t rp1      = bt->rp1;
+        uint_t rp2      = bt->rp2;
         uint_t laglen   = bt->rwv->length;
         uint_t acflen   = bt->acf->length;
         uint_t step     = bt->step;
@@ -341,7 +351,7 @@ void aubio_beattracking_checkstate(aubio_beattracking_t * bt) {
                 for (i=0; i < bt->acfout->length; i++)
                        acfout[i] = 0.;
                 for(i=1;i<laglen-1;i++){ 
-                        for (a=1;a<=timesig;a++){
+                        for (a=1;a<=bt->timesig;a++){
                                 for(b=(1-a);b<a;b++){
                                         acfout[i] += acf[a*(i+1)+b-1] 
                                                 * 1. * gwv[i];
@@ -361,7 +371,7 @@ void aubio_beattracking_checkstate(aubio_beattracking_t * bt) {
         //now look for step change - i.e. a difference between gp and rp that 
         // is greater than 2*constthresh - always true in first case, since gp = 0
         if(counter == 0){
-                if(ABS(gp - rp) > 2.*constthresh) {
+                if(ABS(gp - rp) > 2.*bt->g_var) {
                         flagstep = 1; // have observed  step change.
                         counter  = 3; // setup 3 frame counter
                 } else {
@@ -372,7 +382,7 @@ void aubio_beattracking_checkstate(aubio_beattracking_t * bt) {
         //i.e. 3rd frame after flagstep initially set
         if (counter==1 && flagstep==1) {
                 //check for consistency between previous beatperiod values
-                if(ABS(2.*rp - rp1 -rp2) < constthresh) {
+                if(ABS(2.*rp - rp1 -rp2) < bt->g_var) {
                         //if true, can activate context dependent model
                         flagconst = 1;
                         counter   = 0; // reset counter and flagstep
@@ -391,25 +401,24 @@ void aubio_beattracking_checkstate(aubio_beattracking_t * bt) {
         if (flagconst) {
                 /* first run of new hypothesis */
                 gp = rp;
-                g_mu = gp;
-                timesig = fvec_gettimesig(acf,acflen, gp);
+                bt->timesig = fvec_gettimesig(acf,acflen, gp);
                 for(j=0;j<laglen;j++)
-                        gwv[j] = EXP(-.5*SQR((smpl_t)(j+1.-g_mu))/SQR(g_var));
+                        gwv[j] = EXP(-.5*SQR((smpl_t)(j+1.-gp))/SQR(bt->g_var));
                 flagconst = 0;
                 bp = gp;
                 /* flat phase weighting */
                 for(j=0;j<2*laglen;j++)  {phwv[j] = 1.;} 
-        } else if (timesig) {
+        } else if (bt->timesig) {
                 /* context dependant model */
                 bp = gp;
                 /* gaussian phase weighting */
-                if (step > lastbeat) {
+                if (step > bt->lastbeat) {
                         for(j=0;j<2*laglen;j++)  {
-                                phwv[j] = EXP(-.5*SQR((smpl_t)(1.+j-step+lastbeat))/(bp/8.));
+                                phwv[j] = EXP(-.5*SQR((smpl_t)(1.+j-step+bt->lastbeat))/(bp/8.));
                         }
                 } else { 
                         //AUBIO_DBG("NOT using phase weighting as step is %d and lastbeat %d \n",
-                        //                step,lastbeat);
+                        //                step,bt->lastbeat);
                         for(j=0;j<2*laglen;j++)  {phwv[j] = 1.;} 
                 }
         } else {
@@ -434,6 +443,12 @@ void aubio_beattracking_checkstate(aubio_beattracking_t * bt) {
         //bp = (uint_t) (0.8 * (smpl_t)bp + 0.2 * (smpl_t)bp2);
         //AUBIO_DBG("tempo:\t%3.5f bpm smoothed | bp2 %d | bp %d | ", 5168./bp, bp2, bp);
         //bp2 = bp;
-        //AUBIO_DBG("time signature: %d \n", timesig);
+        //AUBIO_DBG("time signature: %d \n", bt->timesig);
+        bt->counter = counter;
+        bt->flagstep = flagstep;
+        bt->gp = gp;
+        bt->bp = bp;
+        bt->rp1 = rp1;
+        bt->rp2 = rp2;
 
 }
