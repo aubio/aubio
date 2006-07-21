@@ -1,6 +1,6 @@
 
 #include "aubio_priv.h"
-#include "aubio.h"
+#include <aubio.h>
 
 int main(){
         uint_t i,j;
@@ -12,8 +12,8 @@ int main(){
         fvec_t * out      = new_fvec (win_s, channels); /* output buffer */
   
         /* allocate fft and other memory space */
-        aubio_fft_t * fft      = new_aubio_fft(win_s);              /* fftw interface */
-        smpl_t * w             = AUBIO_ARRAY(smpl_t,win_s);         /* window */
+        aubio_fft_t * fft      = new_aubio_fft(win_s);      /* fft interface */
+        smpl_t * w             = AUBIO_ARRAY(smpl_t,win_s); /* window */
         /* complex spectral data */
         fft_data_t ** spec      = AUBIO_ARRAY(fft_data_t*,channels); 
         for (i=0; i < channels; i++)
@@ -39,5 +39,15 @@ int main(){
                 }
                 aubio_fft_rdo(fft,spec[i],out->data[i],win_s);
         }
+
+        del_fvec(in);
+        del_fvec(out);
+        del_cvec(fftgrain);
+        AUBIO_FREE(w);
+        del_aubio_fft(fft);
+        for (i=0; i < channels; i++)
+                AUBIO_FREE(spec[i]);
+        AUBIO_FREE(spec); 
+        aubio_cleanup();
         return 0;
 }
