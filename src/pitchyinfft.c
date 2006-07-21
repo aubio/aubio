@@ -101,9 +101,11 @@ smpl_t aubio_pitchyinfft_detect(aubio_pitchyinfft_t * p, fvec_t * input, smpl_t 
   aubio_mfft_do(p->fft,p->winput,p->fftout);
   for (l=0; l < p->fftout->length; l++){
 	  p->sqrmag->data[0][l] = SQR(p->fftout->norm[0][l]);
-	  p->sqrmag->data[0][(p->fftout->length-1)*2-l] = 
-	  	SQR(p->fftout->norm[0][l]);
 	  p->sqrmag->data[0][l] *= p->weight->data[0][l]; 
+  }
+  for (l=1; l < p->fftout->length; l++){
+	  p->sqrmag->data[0][(p->fftout->length-1)*2-l] = 
+	   SQR(p->fftout->norm[0][l]);
 	  p->sqrmag->data[0][(p->fftout->length-1)*2-l] *=
 		 p->weight->data[0][l];
   }
