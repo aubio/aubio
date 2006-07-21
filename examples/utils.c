@@ -324,11 +324,19 @@ void examples_common_del(void){
                   del_fvec(note_buffer2);
           }
   }
+  if (usedoubled)    {
+    del_aubio_onsetdetection(o2);
+    del_fvec(onset2);
+  }
+  del_aubio_onsetdetection(o);
+  del_aubio_peakpicker(parms);
   del_aubio_pvoc(pv);
   del_fvec(obuf);
   del_fvec(ibuf);
   del_cvec(fftgrain);
   del_fvec(onset);
+  del_fvec(woodblock);
+  aubio_cleanup();
 }
 
 void examples_common_process(aubio_process_func_t process_func, aubio_print_func_t print ){
