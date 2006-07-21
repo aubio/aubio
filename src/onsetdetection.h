@@ -131,7 +131,7 @@ void aubio_onsetdetection_kl(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_
 
   Paul Brossier, ``Automatic annotation of musical audio for interactive
   systems'', Chapter 2, Temporal segmentation, PhD thesis, Centre for Digital
-  music, Queen Mary University of London, London, UK, 2003.
+  music, Queen Mary University of London, London, UK, 2006.
 
   \param o onset detection object as returned by new_aubio_pitchfcomb
   \param fftgrain input spectral frame

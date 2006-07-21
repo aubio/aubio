@@ -27,7 +27,7 @@
  
   Paul Brossier, ``Automatic annotation of musical audio for interactive
   systems'', Chapter 3, Pitch Analysis, PhD thesis, Centre for Digital music,
-  Queen Mary University of London, London, UK, 2003.
+  Queen Mary University of London, London, UK, 2006.
 
 */
 
