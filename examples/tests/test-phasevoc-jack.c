@@ -5,15 +5,15 @@
  * a delay equal to the window size, hop_s.
  */
 
-#include <unistd.h>  /* pause() */
-#include "aubio.h"
-#include "aubioext.h"
+#include <unistd.h>  /* pause() or sleep() */
+#include <aubio.h>
+#include <aubioext.h>
 
 uint_t win_s    = 32; /* window size                       */
 uint_t hop_s    = 8;  /* hop size                          */
-uint_t channels = 4;    /* number of channels                */
-uint_t pos      = 0;    /* frames%dspblocksize for jack loop */
-uint_t usejack    = 1;
+uint_t channels = 4;  /* number of channels                */
+uint_t pos      = 0;  /* frames%dspblocksize for jack loop */
+uint_t usejack  = 1;
 
 fvec_t * in;
 cvec_t * fftgrain;
@@ -45,11 +45,15 @@ int main(){
                 jack_setup  = new_aubio_jack(channels, channels,
                                 (aubio_process_func_t)aubio_process);
                 aubio_jack_activate(jack_setup);
-                pause(); /* enter main jack loop */
+                sleep(10); //pause(); /* enter main jack loop */
                 aubio_jack_close(jack_setup);
         }
         
         del_aubio_pvoc(pv);
+        del_cvec(fftgrain);
+        del_fvec(in);
+        del_fvec(out);
+        aubio_cleanup();
         printf("memory freed\n");
         return 0;
 }
