@@ -5,7 +5,7 @@
  * a delay equal to the window size, hop_s.
  */
 
-#include "aubio.h"
+#include <aubio.h>
 
 int main(){
 	int i;
@@ -28,7 +28,7 @@ int main(){
         /* fill input with some data */
         printf("initialised\n");
         /* execute stft */
-	for (i = 0; i < 1000; i++) {
+	for (i = 0; i < 10; i++) {
 		aubio_pvoc_do (pv,in,fftgrain);
 		aubio_tss_do  (tss,fftgrain,ctrans,cstead);
 		aubio_pvoc_rdo(pvt,cstead,stead);
@@ -41,6 +41,7 @@ int main(){
         del_cvec(ctrans);
         del_fvec(stead);
         del_fvec(trans);
+        aubio_cleanup();
         printf("memory freed\n");
         return 0;
 }
