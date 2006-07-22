@@ -77,6 +77,8 @@ extern "C" {
 #include "pitchschmitt.h"
 #include "pitchfcomb.h"
 #include "beattracking.h"
+#include "onset.h"
+#include "tempo.h"
 
 #ifdef __cplusplus
 } /* extern "C" */

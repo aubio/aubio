@@ -19,6 +19,8 @@ pkginclude_HEADERS = aubio.h \
 	pitchfcomb.h \
 	pitchyinfft.h \
 	beattracking.h \
+	onset.h \
+	tempo.h \
 	filter.h
 nodist_pkginclude_HEADERS = config.h
 
@@ -61,6 +63,10 @@ libaubio_la_SOURCES = aubio.h \
 	pitchyinfft.h \
 	beattracking.c \
 	beattracking.h \
+	onset.c \
+	onset.h \
+	tempo.c \
+	tempo.h \
 	filter.c \
 	filter.h
 
