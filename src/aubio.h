@@ -21,8 +21,8 @@
  *
  * \section whatis Introduction
  *
- * 	Aubio is a library for audio labelling: it provides function for pitch
- * 	estimation and onset detection.
+ * 	Aubio is a library for audio labelling: it provides functions for pitch
+ * 	estimation, onset detection, beat tracking, and other annotation tasks.
  *
  *  \verbinclude README
  *
