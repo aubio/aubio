@@ -22,17 +22,16 @@
 #include "fft.h"
 #include "pitchyinfft.h"
 
+/** pitch yinfft structure */
 struct _aubio_pitchyinfft_t {
-        uint_t bufsize;
-        uint_t rate;
-	fvec_t * win;
-	fvec_t * winput;
-	cvec_t * res;
-	fvec_t * sqrmag;
-	fvec_t * weight;
-	cvec_t * fftout;
-	aubio_mfft_t * fft;
-	fvec_t * yinfft;
+  fvec_t * win;       /**< temporal weighting window */
+  fvec_t * winput;    /**< windowed spectrum */
+  cvec_t * res;       /**< complex vector to compute square difference function */
+  fvec_t * sqrmag;    /**< square difference function */
+  fvec_t * weight;    /**< spectral weighting window (psychoacoustic model) */
+  cvec_t * fftout;    /**< Fourier transform output */
+  aubio_mfft_t * fft; /**< fft object to compute square difference function */
+  fvec_t * yinfft;    /**< Yin function */
 };
 
 static const smpl_t freqs[] = {0., 20., 25., 31.5, 40., 50., 63., 80., 100.,
@@ -48,7 +47,6 @@ static const smpl_t weight[] = {-75.8, -70.1, -60.8, -52.1, -44.2, -37.5,
 aubio_pitchyinfft_t * new_aubio_pitchyinfft (uint_t bufsize)
 {
   aubio_pitchyinfft_t * p = AUBIO_NEW(aubio_pitchyinfft_t);
-  p->bufsize      = bufsize;
   p->winput       = new_fvec(bufsize,1);
   p->fft          = new_aubio_mfft(bufsize, 1);
   p->fftout       = new_cvec(bufsize,1);
@@ -124,7 +122,7 @@ smpl_t aubio_pitchyinfft_detect(aubio_pitchyinfft_t * p, fvec_t * input, smpl_t 
   tau = vec_min_elem(yin); 
   if (yin->data[0][tau] < tol) {
 	  /* no interpolation */
-	  //return tau+2;
+	  //return tau;
 	  /* 3 point quadratic interpolation */
 	  //return vec_quadint_min(yin,tau,1);
 	  /* additional check for (unlikely) octave doubling in higher frequencies */
