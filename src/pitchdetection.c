@@ -39,25 +39,24 @@ smpl_t aubio_pitchdetection_schmitt(aubio_pitchdetection_t *p, fvec_t *ibuf);
 smpl_t aubio_pitchdetection_fcomb(aubio_pitchdetection_t *p, fvec_t *ibuf);
 smpl_t aubio_pitchdetection_yinfft(aubio_pitchdetection_t *p, fvec_t *ibuf);
 
+/** generic pitch detection structure */
 struct _aubio_pitchdetection_t {
-	aubio_pitchdetection_type type;
-	aubio_pitchdetection_mode mode;
-	uint_t srate;
-	uint_t bufsize;
-	/* for mcomb */	
-	aubio_pvoc_t * pv;
-	cvec_t * fftgrain; 
-	aubio_pitchmcomb_t * mcomb;
-	aubio_pitchfcomb_t * fcomb;
-	aubio_pitchschmitt_t * schmitt;
-	aubio_pitchyinfft_t * yinfft;
-	aubio_filter_t * filter;
-	/* for yin */
-	fvec_t * buf;
-	fvec_t * yin;
-        aubio_pitchdetection_func_t callback;
-        aubio_pitchdetection_conv_t freqconv;
-	smpl_t yinthres;
+  aubio_pitchdetection_type type; /**< pitch detection mode */
+  aubio_pitchdetection_mode mode; /**< pitch detection output mode */
+  uint_t srate;                   /**< samplerate */
+  uint_t bufsize;                 /**< buffer size */
+  aubio_pitchmcomb_t * mcomb;     /**< mcomb object */
+  aubio_pitchfcomb_t * fcomb;     /**< fcomb object */
+  aubio_pitchschmitt_t * schmitt; /**< schmitt object */
+  aubio_pitchyinfft_t * yinfft;   /**< yinfft object */
+  aubio_filter_t * filter;        /**< filter */
+  aubio_pvoc_t * pv;              /**< phase vocoder for mcomb */ 
+  cvec_t * fftgrain;              /**< spectral frame for mcomb */
+  fvec_t * buf;                   /**< temporary buffer for yin */
+  fvec_t * yin;                   /**< yin function */
+  smpl_t yinthres;                /**< yin peak picking threshold parameter */
+  aubio_pitchdetection_func_t callback; /**< pointer to current pitch detection method */
+  aubio_pitchdetection_conv_t freqconv; /**< pointer to current pitch conversion method */ 
 };
 
 /* convenience wrapper function for frequency unit conversions 
