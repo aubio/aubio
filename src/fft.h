@@ -57,13 +57,13 @@ typedef struct _aubio_fft_t aubio_fft_t;
   \param size length of the FFT
 
 */
-extern aubio_fft_t * new_aubio_fft(uint_t size);
+aubio_fft_t * new_aubio_fft(uint_t size);
 /** delete FFT object 
 
   \param s fft object as returned by new_aubio_fft
 
 */
-extern void del_aubio_fft(aubio_fft_t * s);
+void del_aubio_fft(aubio_fft_t * s);
 /** compute forward FFT
 
   \param s fft object as returned by new_aubio_fft
@@ -72,7 +72,7 @@ extern void del_aubio_fft(aubio_fft_t * s);
   \param size length of the input vector 
 
 */
-extern void aubio_fft_do (const aubio_fft_t *s, const smpl_t * data,
+void aubio_fft_do (const aubio_fft_t *s, const smpl_t * data,
     fft_data_t * spectrum, const uint_t size);
 /** compute backward (inverse) FFT
 
@@ -82,7 +82,7 @@ extern void aubio_fft_do (const aubio_fft_t *s, const smpl_t * data,
   \param size length of the input vector 
 
 */
-extern void aubio_fft_rdo(const aubio_fft_t *s, const fft_data_t * spectrum,
+void aubio_fft_rdo(const aubio_fft_t *s, const fft_data_t * spectrum,
     smpl_t * data, const uint_t size);
 /** compute norm vector from input spectrum
 
