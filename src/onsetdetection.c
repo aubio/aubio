@@ -25,18 +25,19 @@
 #include "onsetdetection.h"
 
 
+/** structure to store object state */
 struct _aubio_onsetdetection_t {
-	aubio_onsetdetection_type type;
-	/** Pointer to aubio_onsetdetection_<type> function */
-	void (*funcpointer)(aubio_onsetdetection_t *o,
-			cvec_t * fftgrain, fvec_t * onset);
-	smpl_t threshold;
-	fvec_t *oldmag;
-	fft_data_t *meas;
-	fvec_t *dev1 ;
-	fvec_t *theta1;
-	fvec_t *theta2;
-	aubio_hist_t * histog;
+  aubio_onsetdetection_type type; /**< onset detection type */
+  /** Pointer to aubio_onsetdetection_<type> function */
+  void (*funcpointer)(aubio_onsetdetection_t *o,
+    cvec_t * fftgrain, fvec_t * onset);
+  smpl_t threshold;      /**< minimum norm threshold for phase and specdiff */
+  fvec_t *oldmag;        /**< previous norm vector */
+  fft_data_t *meas;      /**< current onset detection measure complex vector */
+  fvec_t *dev1 ;         /**< current onset detection measure vector */
+  fvec_t *theta1;        /**< previous phase vector, one frame behind */
+  fvec_t *theta2;        /**< previous phase vector, two frames behind */
+  aubio_hist_t * histog; /**< histogram */
 };
 
 
