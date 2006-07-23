@@ -25,17 +25,17 @@
 #include "mathutils.h"
 #include "onset.h"
 
-/* structure to store object state */
+/** structure to store object state */
 struct _aubio_onset_t {
-  aubio_pvoc_t * pv;            /** phase vocoder */
-  aubio_onsetdetection_t * od;  /** onset detection */ 
-  aubio_pickpeak_t * pp;        /** peak picker */
-  cvec_t * fftgrain;            /** phase vocoder output */
-  fvec_t * of;                  /** onset detection function */
-  smpl_t threshold;             /** onset peak picking threshold */
-  smpl_t silence;               /** silence threhsold */
-  uint_t minioi;                /** minimum inter onset interval */
-  uint_t wasonset;              /** number of frames since last onset */
+  aubio_pvoc_t * pv;            /**< phase vocoder */
+  aubio_onsetdetection_t * od;  /**< onset detection */ 
+  aubio_pickpeak_t * pp;        /**< peak picker */
+  cvec_t * fftgrain;            /**< phase vocoder output */
+  fvec_t * of;                  /**< onset detection function */
+  smpl_t threshold;             /**< onset peak picking threshold */
+  smpl_t silence;               /**< silence threhsold */
+  uint_t minioi;                /**< minimum inter onset interval */
+  uint_t wasonset;              /**< number of frames since last onset */
 };
 
 /* execute onset detection function on iput buffer */
