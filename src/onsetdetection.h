@@ -27,9 +27,6 @@
  
   These functions were first adapted from Juan Pablo Bello's code, and now
   include further improvements and modifications made within aubio.
- 
-  \todo Write a generic driver similar to pitchdetection.c, including the phase
-  vocoder, the silence detection, and the peak picking.
 
 */
 
@@ -58,7 +55,7 @@ typedef struct _aubio_onsetdetection_t aubio_onsetdetection_t;
  
   This function calculates the local energy of the input spectral frame.
   
-  \param o onset detection object as returned by new_aubio_pitchfcomb
+  \param o onset detection object as returned by new_aubio_onsetdetection()
   \param fftgrain input spectral frame
   \param onset output onset detection function
 
@@ -72,7 +69,7 @@ void aubio_onsetdetection_energy(aubio_onsetdetection_t *o, cvec_t * fftgrain, f
   Paul Masri. Computer modeling of Sound for Transformation and Synthesis of
   Musical Signal. PhD dissertation, University of Bristol, UK, 1996.
   
-  \param o onset detection object as returned by new_aubio_pitchfcomb
+  \param o onset detection object as returned by new_aubio_onsetdetection()
   \param fftgrain input spectral frame
   \param onset output onset detection function
 
@@ -82,9 +79,9 @@ void aubio_onsetdetection_hfc(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec
  
   Christopher Duxbury, Mike E. Davies, and Mark B. Sandler. Complex domain
   onset detection for musical signals. In Proceedings of the Digital Audio
-  Effects Conference, DAFx-03, pages 90­93, London, UK, 2003.
+  Effects Conference, DAFx-03, pages 90-93, London, UK, 2003.
 
-  \param o onset detection object as returned by new_aubio_pitchfcomb
+  \param o onset detection object as returned by new_aubio_onsetdetection()
   \param fftgrain input spectral frame
   \param onset output onset detection function
 
@@ -97,7 +94,7 @@ void aubio_onsetdetection_complex(aubio_onsetdetection_t *o, cvec_t * fftgrain, 
   Conference on Acoustics Speech and Signal Processing, pages 441­444,
   Hong-Kong, 2003.
 
-  \param o onset detection object as returned by new_aubio_pitchfcomb
+  \param o onset detection object as returned by new_aubio_onsetdetection()
   \param fftgrain input spectral frame
   \param onset output onset detection function
 
@@ -109,7 +106,7 @@ void aubio_onsetdetection_phase(aubio_onsetdetection_t *o, cvec_t * fftgrain, fv
   rhythm analysis. In IEEE International Conference on Multimedia and Expo
   (ICME 2001), pages 881­884, Tokyo, Japan, August 2001.
 
-  \param o onset detection object as returned by new_aubio_pitchfcomb
+  \param o onset detection object as returned by new_aubio_onsetdetection()
   \param fftgrain input spectral frame
   \param onset output onset detection function
 
@@ -121,7 +118,7 @@ void aubio_onsetdetection_specdiff(aubio_onsetdetection_t *o, cvec_t * fftgrain,
   signals. In Proceedings of the International Computer Music Conference
   (ICMC), Singapore, 2003.
   
-  \param o onset detection object as returned by new_aubio_pitchfcomb
+  \param o onset detection object as returned by new_aubio_onsetdetection()
   \param fftgrain input spectral frame
   \param onset output onset detection function
 
@@ -133,7 +130,7 @@ void aubio_onsetdetection_kl(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_
   systems'', Chapter 2, Temporal segmentation, PhD thesis, Centre for Digital
   music, Queen Mary University of London, London, UK, 2006.
 
-  \param o onset detection object as returned by new_aubio_pitchfcomb
+  \param o onset detection object as returned by new_aubio_onsetdetection()
   \param fftgrain input spectral frame
   \param onset output onset detection function
 
@@ -143,7 +140,7 @@ void aubio_onsetdetection_mkl(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec
 
   Generic function to compute onset detection.
  
-  \param o onset detection object as returned by new_aubio_onsetdetection
+  \param o onset detection object as returned by new_aubio_onsetdetection()
   \param fftgrain input signal spectrum as computed by aubio_pvoc_do
   \param onset output vector (one sample long, to send to the peak picking)
 
@@ -159,13 +156,13 @@ void aubio_onsetdetection(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t *
 aubio_onsetdetection_t * new_aubio_onsetdetection(aubio_onsetdetection_type type, uint_t size, uint_t channels);
 /** deletion of an onset detection object
 
-  \param o onset detection object as returned by new_aubio_pitchfcomb
+  \param o onset detection object as returned by new_aubio_onsetdetection()
 
 */
 void del_aubio_onsetdetection(aubio_onsetdetection_t *o);
 /** deletion of an onset detection object (obsolete)
 
-  \param o onset detection object as returned by new_aubio_pitchfcomb
+  \param o onset detection object as returned by new_aubio_onsetdetection()
 
 */
 void aubio_onsetdetection_free(aubio_onsetdetection_t *o);
