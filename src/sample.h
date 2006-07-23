@@ -57,13 +57,13 @@ struct _cvec_t {
   \param channels the number of channels in the buffer
 
 */
-extern fvec_t * new_fvec(uint_t length, uint_t channels);
+fvec_t * new_fvec(uint_t length, uint_t channels);
 /** fvec_t buffer deletion function
 
   \param s buffer to delete as returned by new_fvec()
 
 */
-extern void del_fvec(fvec_t *s);
+void del_fvec(fvec_t *s);
 /** read sample value in a buffer
 
   Note that this function is not used in the aubio library, since the same
@@ -135,13 +135,13 @@ smpl_t ** fvec_get_data(fvec_t *s);
   \param channels the number of channels in the buffer
 
 */
-extern cvec_t * new_cvec(uint_t length, uint_t channels);
+cvec_t * new_cvec(uint_t length, uint_t channels);
 /** cvec_t buffer deletion function
 
   \param s buffer to delete as returned by new_cvec()
 
 */
-extern void del_cvec(cvec_t *s);
+void del_cvec(cvec_t *s);
 /** write norm value in a complex buffer
 
   Note that this function is not used in the aubio library, since the same
