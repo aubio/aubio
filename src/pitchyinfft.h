@@ -55,6 +55,11 @@ smpl_t aubio_pitchyinfft_detect (aubio_pitchyinfft_t *p, fvec_t * input, smpl_t 
  
 */
 aubio_pitchyinfft_t * new_aubio_pitchyinfft (uint_t bufsize);
+/** deletion of the pitch detection object
+ 
+  \param p pitch detection object as returned by new_aubio_pitchyinfft()
+ 
+*/
 void del_aubio_pitchyinfft (aubio_pitchyinfft_t *p);
 
 #ifdef __cplusplus
