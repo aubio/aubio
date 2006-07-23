@@ -51,14 +51,14 @@ typedef struct _aubio_tss_t aubio_tss_t;
   \param channels number of input channels
 
 */
-extern aubio_tss_t * new_aubio_tss(smpl_t thrs, smpl_t alfa, smpl_t beta, 
+aubio_tss_t * new_aubio_tss(smpl_t thrs, smpl_t alfa, smpl_t beta, 
     uint_t size, uint_t overlap,uint_t channels);
 /** delete tss object
 
   \param s tss object as returned by new_aubio_tss
 
 */
-extern void del_aubio_tss(aubio_tss_t *s);
+void del_aubio_tss(aubio_tss_t *s);
 
 /** set transient / steady state separation threshold 
  
@@ -66,7 +66,7 @@ extern void del_aubio_tss(aubio_tss_t *s);
   \param thrs new threshold value
 
 */
-extern void aubio_tss_set_thres(aubio_tss_t *tss, smpl_t thrs);
+void aubio_tss_set_thres(aubio_tss_t *tss, smpl_t thrs);
 /** split input into transient and steady states components
  
   \param s tss object as returned by new_aubio_tss
@@ -75,7 +75,7 @@ extern void aubio_tss_set_thres(aubio_tss_t *tss, smpl_t thrs);
   \param stead output steady state components
 
 */
-extern void aubio_tss_do(aubio_tss_t *s, cvec_t * input, cvec_t * trans, cvec_t * stead);
+void aubio_tss_do(aubio_tss_t *s, cvec_t * input, cvec_t * trans, cvec_t * stead);
 
 #ifdef __cplusplus
 }
