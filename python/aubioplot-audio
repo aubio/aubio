@@ -1,0 +1,33 @@
+#!/usr/bin/python
+
+import aubio.gnuplot, sys
+
+usage = "usage: %s [options] -i soundfile" % sys.argv[0]
+
+def parse_args():
+        from optparse import OptionParser
+        parser = OptionParser(usage=usage)
+        parser.add_option("-i","--input",
+                          action="store", dest="filename", 
+                          help="input sound file")
+        parser.add_option("-x","--xsize",
+                          action="store", dest="xsize", default=1., 
+                          help="define xsize for plot")
+        parser.add_option("-y","--ysize",
+                          action="store", dest="ysize", default=1., 
+                          help="define ysize for plot")
+        parser.add_option("-O","--outplot",
+                          action="store", dest="outplot", default=None, 
+                          help="save plot to output.{ps,png}")
+        (options, args) = parser.parse_args()
+        if not options.filename: 
+                 print "no file name given\n", usage
+                 sys.exit(1)
+        return options, args
+
+options, args = parse_args()
+
+aubio.gnuplot.plot_audio(options.filename.split(','),
+  fileout=options.outplot,
+  xsize=float(options.xsize),
+  ysize=float(options.ysize))
