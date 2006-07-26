@@ -1,8 +1,8 @@
 AM_CFLAGS = -I$(top_srcdir)/src
 AM_LDFLAGS = -L$(top_builddir)/src -laubio @FFTWLIB_LIBS@
 
-test_phasevoc_jack_CFLAGS = -I$(top_builddir)/ext @JACK_CFLAGS@
-test_phasevoc_jack_LDADD  = -laubioext -L$(top_builddir)/ext @JACK_LIBS@ 
+test_phasevoc_jack_CFLAGS = $(AM_CFLAGS) -I$(top_srcdir)/ext @JACK_CFLAGS@
+test_phasevoc_jack_LDADD  = $(AM_LDFLAGS) -laubioext -L$(top_builddir)/ext @JACK_LIBS@ 
 
 bin_PROGRAMS = \
 	test-fft \

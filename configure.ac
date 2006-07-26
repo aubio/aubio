@@ -32,9 +32,6 @@ if test "$ac_cv_prog_cc" = "no" ; then
 fi
 AC_PROG_INSTALL
 
-dnl Default optimization
-CFLAGS="$CFLAGS -O2"
-
 dnl Enable debugging (no)
 AC_ARG_ENABLE(debug,
   [  --enable-debug[[=value]]  compile with debug [[default=no]]],
