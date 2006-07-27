@@ -66,7 +66,7 @@ int aubio_process(float **input, float **output, int nframes) {
                               /* kill old note */
                               send_noteon(curnote,0);
                               /* get and send new one */
-                              send_noteon(pitch,127+(int)FLOOR(curlevel));
+                              send_noteon(pitch,127+(int)floor(curlevel));
                               curnote = pitch;
                       }
 
@@ -86,7 +86,7 @@ int aubio_process(float **input, float **output, int nframes) {
                               curnote = newnote;
                               /* get and send new one */
                               if (curnote>45){
-                                      send_noteon(curnote,127+(int)FLOOR(curlevel));
+                                      send_noteon(curnote,127+(int)floor(curlevel));
                               }
                       }
               } // if median
