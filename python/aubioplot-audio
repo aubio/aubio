@@ -12,10 +12,10 @@ def parse_args():
                           help="input sound file")
         parser.add_option("-x","--xsize",
                           action="store", dest="xsize", default=1., 
-                          help="define xsize for plot")
+                          type='float',help="define xsize for plot")
         parser.add_option("-y","--ysize",
                           action="store", dest="ysize", default=1., 
-                          help="define ysize for plot")
+                          type='float',help="define ysize for plot")
         parser.add_option("-O","--outplot",
                           action="store", dest="outplot", default=None, 
                           help="save plot to output.{ps,png}")
@@ -34,8 +34,9 @@ else:
   extension = ''
   outplot = None
 
-aubio.gnuplot.plot_audio(options.filename.split(','),
+aubio.gnuplot.plot_audio(options.filename.split(','), 
   extension = extension,
   outplot = outplot,
-  xsize=float(options.xsize),
-  ysize=float(options.ysize))
+g,
+  xsize=options.xsize,
+  ysize=options.ysize)
