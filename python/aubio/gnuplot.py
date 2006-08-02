@@ -162,18 +162,36 @@ def make_audio_plot(time,data,maxpoints=10000):
   x,y = downsample_audio(time,data,maxpoints=maxpoints)
   return Gnuplot.Data(x,y,with='lines')
 
-def gnuplot_create(outplot='',extension='',debug=0,persist=1, xsize=1., ysize=1.):
-	import Gnuplot
-        g = Gnuplot.Gnuplot(debug=debug, persist=persist)
-	if not extension or not outplot: return g
-	if   extension == 'ps':  ext, extension = '.ps' , 'postscript'
-	elif extension == 'eps': ext, extension = '.eps' , 'postscript enhanced'
-	elif extension == 'epsc': ext, extension = '.eps' , 'postscript enhanced color'
-	elif extension == 'png': ext, extension = '.png', 'png'
-	elif extension == 'svg': ext, extension = '.svg', 'svg'
-	else: exit("ERR: unknown plot extension")
-	g('set terminal %s' % extension)
-	if outplot != "stdout":
-		g('set output \'%s%s\'' % (outplot,ext))
-	g('set size %f,%f' % (xsize, ysize))
-	return g
+def gnuplot_addargs(parser):
+  """ add common gnuplot argument to OptParser object """
+  parser.add_option("-x","--xsize",
+          action="store", dest="xsize", default=1., 
+          type='float',help="define xsize for plot")
+  parser.add_option("-y","--ysize",
+          action="store", dest="ysize", default=1., 
+          type='float',help="define ysize for plot")
+  parser.add_option("-d","--debug",
+          action="store_true", dest="debug", default=False, 
+          help="use gnuplot debug mode")
+  parser.add_option("-p","--persist",
+          action="store_false", dest="persist", default=True, 
+          help="do not use gnuplot persistant mode")
+  parser.add_option("-O","--outplot",
+          action="store", dest="outplot", default=None, 
+          help="save plot to output.{ps,png}")
+
+def gnuplot_create(outplot='',extension='', options=None):
+  import Gnuplot
+  g = Gnuplot.Gnuplot(debug=options.debug, persist=options.persist)
+  if not extension or not outplot: return g
+  if   extension == 'ps':  ext, extension = '.ps' , 'postscript'
+  elif extension == 'eps': ext, extension = '.eps' , 'postscript enhanced'
+  elif extension == 'epsc': ext, extension = '.eps' , 'postscript enhanced color'
+  elif extension == 'png': ext, extension = '.png', 'png'
+  elif extension == 'svg': ext, extension = '.svg', 'svg'
+  else: exit("ERR: unknown plot extension")
+  g('set terminal %s' % extension)
+  if outplot != "stdout":
+    g('set output \'%s%s\'' % (outplot,ext))
+  g('set size %f,%f' % (options.xsize, options.ysize))
+  return g

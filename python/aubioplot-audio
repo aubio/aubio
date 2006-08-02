@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
-import aubio.gnuplot, sys
+import sys
+from aubio.gnuplot import gnuplot_create,gnuplot_addargs,plot_audio
 
 usage = "usage: %s [options] -i soundfile" % sys.argv[0]
 
@@ -10,15 +11,7 @@ def parse_args():
         parser.add_option("-i","--input",
                           action="store", dest="filename", 
                           help="input sound file")
-        parser.add_option("-x","--xsize",
-                          action="store", dest="xsize", default=1., 
-                          type='float',help="define xsize for plot")
-        parser.add_option("-y","--ysize",
-                          action="store", dest="ysize", default=1., 
-                          type='float',help="define ysize for plot")
-        parser.add_option("-O","--outplot",
-                          action="store", dest="outplot", default=None, 
-                          help="save plot to output.{ps,png}")
+        gnuplot_addargs(parser)
         (options, args) = parser.parse_args()
         if not options.filename: 
                  print "no file name given\n", usage
@@ -34,7 +27,7 @@ else:
   extension = ''
   outplot = None
 
-g = aubio.gnuplot.gnuplot_create(outplot,extension,xsize=options.xsize, ysize=options.xsize)
-aubio.gnuplot.plot_audio(options.filename.split(','), g,
+g = gnuplot_create(outplot,extension,options)
+plot_audio(options.filename.split(','), g,
   xsize=options.xsize,
   ysize=options.ysize)
