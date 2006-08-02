@@ -16,7 +16,7 @@ def parse_args():
                           action="store", dest="filename", 
                           help="input sound file")
         parser.add_option("-M","--maxf",
-                          action="store", dest="maxf", default=0., 
+                          action="store", dest="maxf", default=10000., 
                           type='float',help="higher frequency limit")
         parser.add_option("-L","--minf",
                           action="store", dest="minf", default=0., 
@@ -33,6 +33,12 @@ def parse_args():
         parser.add_option("-O","--outplot",
                           action="store", dest="outplot", default=None, 
                           help="save plot to output.{ps,png}")
+        parser.add_option("-B","--bufsize", type='int',
+                          action="store", dest="bufsize", default=8192, 
+                          help="buffer size [default=8192]")
+        parser.add_option("-H","--hopsize", type='int',
+                          action="store", dest="hopsize", default=1024, 
+                          help="overlap size [default=1024]")
         (options, args) = parser.parse_args()
         if not options.filename: 
                  print "no file name given\n", usage
@@ -51,4 +57,5 @@ else:
 
 plot_spec(filename, outplot=outplot, extension=extension, log=options.log,
   maxf = options.maxf, minf = options.minf, 
-  xsize = options.xsize, ysize = options.ysize)
+  xsize = options.xsize, ysize = options.ysize,
+  bufsize = options.bufsize, hopsize = options.hopsize)

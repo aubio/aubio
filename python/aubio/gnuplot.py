@@ -72,11 +72,10 @@ def plot_audio(filenames, fileout=None, start=0, end=None, noaxis=None,xsize=1.,
 		xorig += xsize*xratio 
 	g.gnuplot('unset multiplot;')
 
-def audio_to_spec(filename,minf = 0, maxf = 0, lowthres = -20.):
+def audio_to_spec(filename,minf = 0, maxf = 0, lowthres = -20., 
+		bufsize= 8192, hopsize = 1024):
 	from aubioclass import fvec,cvec,pvoc,sndfile
 	from math import log10
-	bufsize   = 8192
-	hopsize   = bufsize/8 # could depend on filelength
 	filei     = sndfile(filename)
 	srate     = float(filei.samplerate())
 	framestep = hopsize/srate
@@ -117,10 +116,10 @@ def audio_to_spec(filename,minf = 0, maxf = 0, lowthres = -20.):
 	assert len(data[0]) == len(freq)
 	return data,time,freq
 
-def plot_spec(filename, outplot='',extension='', fileout=None, start=0, end=None, noaxis=None,log=1, minf=0, maxf= 0, xsize = 1., ysize = 1.):
+def plot_spec(filename, outplot='',extension='', fileout=None, start=0, end=None, noaxis=None,log=1, minf=0, maxf= 0, xsize = 1., ysize = 1.,bufsize=8192, hopsize=1024):
 	import Gnuplot
 	g = gnuplot_create(outplot,extension)
-	data,time,freq = audio_to_spec(filename,minf=minf,maxf=maxf)
+	data,time,freq = audio_to_spec(filename,minf=minf,maxf=maxf,bufsize=bufsize,hopsize=hopsize)
 	xorig = 0.
 	if not noaxis:
 		g.xlabel('Time (s)')
