@@ -147,25 +147,20 @@ def plot_spec(filename, g, start=0, end=None, noaxis=None,log=1, minf=0, maxf= 0
 	#xorig += 1./todraw
 
 def downsample_audio(time,data,maxpoints=10000):
-	""" resample audio data to last only maxpoints """
-	import numarray
-        length = len(time)
-	downsample = length/maxpoints
-        if downsample == 0: downsample = 1
-        x = numarray.array(time).resize(length)[0:-1:downsample]
-        y = numarray.array(data).resize(length)[0:-1:downsample]
-	return x,y
+  """ resample audio data to last only maxpoints """
+  import numarray
+  length = len(time)
+  downsample = length/maxpoints
+  if downsample == 0: downsample = 1
+  x = numarray.array(time).resize(length)[0:-1:downsample]
+  y = numarray.array(data).resize(length)[0:-1:downsample]
+  return x,y
 
 def make_audio_plot(time,data,maxpoints=10000):
-	""" create gnuplot plot from an audio file """
-	import numarray
-	import Gnuplot, Gnuplot.funcutils
-        length = len(time)
-	downsample = length/maxpoints
-        if downsample == 0: downsample = 1
-        x = numarray.array(time).resize(length)[0:-1:downsample]
-        y = numarray.array(data).resize(length)[0:-1:downsample]
-	return Gnuplot.Data(x,y,with='lines')
+  """ create gnuplot plot from an audio file """
+  import Gnuplot, Gnuplot.funcutils
+  x,y = downsample_audio(time,data,maxpoints=maxpoints)
+  return Gnuplot.Data(x,y,with='lines')
 
 def gnuplot_create(outplot='',extension='',debug=0,persist=1, xsize=1., ysize=1.):
 	import Gnuplot
