@@ -122,7 +122,11 @@ def plot_spec(filename, outplot='',extension='', fileout=None, start=0, end=None
 	data,time,freq = audio_to_spec(filename,minf=minf,maxf=maxf,bufsize=bufsize,hopsize=hopsize)
 	xorig = 0.
 	if not noaxis:
-		g.xlabel('Time (s)')
+		if max(time) < 1.:
+			time = [t*1000. for t in time]
+			g.xlabel('Time (ms)')
+		else:
+			g.xlabel('Time (s)')
 		g.ylabel('Frequency (Hz)')
 	g('set size %f,%f' % (xsize, ysize))
 	g('set pm3d map')
