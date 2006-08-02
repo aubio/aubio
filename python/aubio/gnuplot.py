@@ -167,20 +167,6 @@ def make_audio_plot(time,data,maxpoints=10000):
         y = numarray.array(data).resize(length)[0:-1:downsample]
 	return Gnuplot.Data(x,y,with='lines')
 
-def gnuplot_init(outplot,debug=0,persist=1):
-        # prepare the plot
-	import Gnuplot
-        g = Gnuplot.Gnuplot(debug=debug, persist=persist)
-	if outplot == 'stdout':
-                g("set terminal png fontfile 'p052023l.pfb'")
-                #g('set output \'%s\'' % outplot)
-        elif outplot:
-                extension = outplot.split('.')[-1]
-                if extension == 'ps': extension = 'postscript'
-                g('set terminal %s' % extension)
-                g('set output \'%s\'' % outplot)
-	return g
-
 def gnuplot_create(outplot='',extension='',debug=0,persist=1, xsize=1., ysize=1.):
 	import Gnuplot
         g = Gnuplot.Gnuplot(debug=debug, persist=persist)
