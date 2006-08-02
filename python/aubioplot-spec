@@ -55,7 +55,8 @@ else:
   extension = ''
   outplot = None
 
-plot_spec(filename, outplot=outplot, extension=extension, log=options.log,
+g = gnuplot_create(outplot,extension,xsize=options.xsize, ysize=options.ysize)
+plot_spec(filename, g, log=options.log,
   maxf = options.maxf, minf = options.minf, 
   xsize = options.xsize, ysize = options.ysize,
   bufsize = options.bufsize, hopsize = options.hopsize)

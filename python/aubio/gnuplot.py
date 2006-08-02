@@ -45,14 +45,13 @@ def audio_to_array(filename):
 	time = numarray.arange(len(data))*framestep
 	return time,data
 
-def plot_audio(filenames, outplot='', extension='', start=0, end=None, noaxis=None,xsize=1.,ysize=1.):
-	g = gnuplot_create(outplot, extension)
+def plot_audio(filenames, g, start=0, end=None, noaxis=None,xsize=1.,ysize=1.):
 	d = []
 	todraw = len(filenames)
 	xorig = 0.
 	xratio = 1./todraw
-	g.gnuplot('set size %f,%f;' % (xsize,ysize) )
-	g.gnuplot('set multiplot;')
+	#g('set rmargin 7')
+	g('set multiplot;')
 	while (len(filenames)):
 		time,data = audio_to_array(filenames.pop(0))
 		if not noaxis and todraw==1:
@@ -63,14 +62,14 @@ def plot_audio(filenames, outplot='', extension='', start=0, end=None, noaxis=No
 				g.xlabel('Time (s)')
 			g.ylabel('Amplitude')
 		d.append(make_audio_plot(time,data))
-		g.gnuplot('set size %f,%f;' % (xsize*xratio,ysize) )
-		g.gnuplot('set origin %f,0.;' % (xorig) )
-		g.gnuplot('set style data lines; \
+		g('set size %f,%f;' % (xsize*xratio,ysize) )
+		g('set origin %f,0.;' % (xorig) )
+		g('set style data lines; \
 			set yrange [-1.:1.]; \
 			set xrange [0:%f]' % time[-1]) 
 		g.plot(d.pop(0))
 		xorig += xsize*xratio 
-	g.gnuplot('unset multiplot;')
+	g('unset multiplot;')
 
 def audio_to_spec(filename,minf = 0, maxf = 0, lowthres = -20., 
 		bufsize= 8192, hopsize = 1024):
@@ -116,9 +115,8 @@ def audio_to_spec(filename,minf = 0, maxf = 0, lowthres = -20.,
 	assert len(data[0]) == len(freq)
 	return data,time,freq
 
-def plot_spec(filename, outplot='',extension='', fileout=None, start=0, end=None, noaxis=None,log=1, minf=0, maxf= 0, xsize = 1., ysize = 1.,bufsize=8192, hopsize=1024):
+def plot_spec(filename, g, start=0, end=None, noaxis=None,log=1, minf=0, maxf= 0, xsize = 1., ysize = 1.,bufsize=8192, hopsize=1024):
 	import Gnuplot
-	g = gnuplot_create(outplot,extension)
 	data,time,freq = audio_to_spec(filename,minf=minf,maxf=maxf,bufsize=bufsize,hopsize=hopsize)
 	xorig = 0.
 	if not noaxis:
@@ -127,16 +125,24 @@ def plot_spec(filename, outplot='',extension='', fileout=None, start=0, end=None
 			g.xlabel('Time (ms)')
 		else:
 			g.xlabel('Time (s)')
-		g.ylabel('Frequency (Hz)')
-	g('set size %f,%f' % (xsize, ysize))
+		if xsize < 0.5 and not log and max(time) > 1.:
+			freq = [f/1000. for f in freq]
+			minf /= 1000.
+			maxf /= 1000.
+			g.ylabel('Frequency (kHz)')
+		else:
+			g.ylabel('Frequency (Hz)')
 	g('set pm3d map')
 	g('set palette rgbformulae -25,-24,-32')
+	#g('set lmargin 4')
+	g('set cbtics 20')
 	#g('set colorbox horizontal')
 	g('set xrange [0.:%f]' % time[-1]) 
-	g('set yrange [%f:%f]' % (minf,maxf))
 	if log:
-		g('set yrange [%f:%f]' % (max(10,minf),maxf))
 		g('set log y')
+		g('set yrange [%f:%f]' % (max(10,minf),maxf))
+	else:
+		g('set yrange [%f:%f]' % (minf,maxf))
 	g.splot(Gnuplot.GridData(data,time,freq, binary=1))
 	#xorig += 1./todraw
 
@@ -175,7 +181,7 @@ def gnuplot_init(outplot,debug=0,persist=1):
                 g('set output \'%s\'' % outplot)
 	return g
 
-def gnuplot_create(outplot='',extension='',debug=0,persist=1):
+def gnuplot_create(outplot='',extension='',debug=0,persist=1, xsize=1., ysize=1.):
 	import Gnuplot
         g = Gnuplot.Gnuplot(debug=debug, persist=persist)
 	if not extension or not outplot: return g
@@ -188,4 +194,5 @@ def gnuplot_create(outplot='',extension='',debug=0,persist=1):
 	g('set terminal %s' % extension)
 	if outplot != "stdout":
 		g('set output \'%s%s\'' % (outplot,ext))
+	g('set size %f,%f' % (xsize, ysize))
 	return g
