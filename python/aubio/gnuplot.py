@@ -45,8 +45,8 @@ def audio_to_array(filename):
 	time = numarray.arange(len(data))*framestep
 	return time,data
 
-def plot_audio(filenames, fileout=None, start=0, end=None, noaxis=None,xsize=1.,ysize=1.):
-	g = gnuplot_init(fileout)
+def plot_audio(filenames, outplot='', extension='', start=0, end=None, noaxis=None,xsize=1.,ysize=1.):
+	g = gnuplot_create(outplot, extension)
 	d = []
 	todraw = len(filenames)
 	xorig = 0.

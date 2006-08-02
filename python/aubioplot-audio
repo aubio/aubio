@@ -27,7 +27,15 @@ def parse_args():
 
 options, args = parse_args()
 
+if options.outplot: 
+  extension = options.outplot.split('.')[-1] 
+  outplot = '.'.join(options.outplot.split('.')[:-1])
+else: 
+  extension = ''
+  outplot = None
+
 aubio.gnuplot.plot_audio(options.filename.split(','),
-  fileout=options.outplot,
+  extension = extension,
+  outplot = outplot,
   xsize=float(options.xsize),
   ysize=float(options.ysize))
