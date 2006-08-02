@@ -48,7 +48,4 @@ else:
   outplot = None
 
 g = gnuplot_create(outplot,extension,options)
-plot_spec(filename, g, log=options.log,
-  maxf = options.maxf, minf = options.minf, 
-  xsize = options.xsize, ysize = options.ysize,
-  bufsize = options.bufsize, hopsize = options.hopsize)
+plot_spec(filename, g, options)

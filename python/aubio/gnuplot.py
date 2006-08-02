@@ -21,9 +21,6 @@ __LICENSE__ = """\
 """
 
 
-__notesheight = 0.25
-
-
 def audio_to_array(filename):
 	import aubio.aubioclass
         import numarray
@@ -45,16 +42,15 @@ def audio_to_array(filename):
 	time = numarray.arange(len(data))*framestep
 	return time,data
 
-def plot_audio(filenames, g, start=0, end=None, noaxis=None,xsize=1.,ysize=1.):
+def plot_audio(filenames, g, options):
 	d = []
 	todraw = len(filenames)
 	xorig = 0.
 	xratio = 1./todraw
-	#g('set rmargin 7')
 	g('set multiplot;')
 	while (len(filenames)):
 		time,data = audio_to_array(filenames.pop(0))
-		if not noaxis and todraw==1:
+		if todraw==1:
 			if max(time) < 1.:
 				time = [t*1000. for t in time]
 				g.xlabel('Time (ms)')
@@ -62,13 +58,13 @@ def plot_audio(filenames, g, start=0, end=None, noaxis=None,xsize=1.,ysize=1.):
 				g.xlabel('Time (s)')
 			g.ylabel('Amplitude')
 		d.append(make_audio_plot(time,data))
-		g('set size %f,%f;' % (xsize*xratio,ysize) )
+		g('set size %f,%f;' % (options.xsize*xratio,options.ysize) )
 		g('set origin %f,0.;' % (xorig) )
 		g('set style data lines; \
 			set yrange [-1.:1.]; \
 			set xrange [0:%f]' % time[-1]) 
 		g.plot(d.pop(0))
-		xorig += xsize*xratio 
+		xorig += options.xsize*xratio 
 	g('unset multiplot;')
 
 def audio_to_spec(filename,minf = 0, maxf = 0, lowthres = -20., 
@@ -115,34 +111,34 @@ def audio_to_spec(filename,minf = 0, maxf = 0, lowthres = -20.,
 	assert len(data[0]) == len(freq)
 	return data,time,freq
 
-def plot_spec(filename, g, start=0, end=None, noaxis=None,log=1, minf=0, maxf= 0, xsize = 1., ysize = 1.,bufsize=8192, hopsize=1024):
+def plot_spec(filename, g, options):
 	import Gnuplot
-	data,time,freq = audio_to_spec(filename,minf=minf,maxf=maxf,bufsize=bufsize,hopsize=hopsize)
+	data,time,freq = audio_to_spec(filename,
+    minf=options.minf,maxf=options.maxf,
+    bufsize=options.bufsize,hopsize=options.hopsize)
 	xorig = 0.
-	if not noaxis:
-		if max(time) < 1.:
-			time = [t*1000. for t in time]
-			g.xlabel('Time (ms)')
-		else:
-			g.xlabel('Time (s)')
-		if xsize < 0.5 and not log and max(time) > 1.:
-			freq = [f/1000. for f in freq]
-			minf /= 1000.
-			maxf /= 1000.
-			g.ylabel('Frequency (kHz)')
-		else:
-			g.ylabel('Frequency (Hz)')
+	if max(time) < 1.:
+		time = [t*1000. for t in time]
+		g.xlabel('Time (ms)')
+	else:
+		g.xlabel('Time (s)')
+	if options.xsize < 0.5 and not options.log and max(time) > 1.:
+		freq = [f/1000. for f in freq]
+		options.minf /= 1000.
+		options.maxf /= 1000.
+		g.ylabel('Frequency (kHz)')
+	else:
+		g.ylabel('Frequency (Hz)')
 	g('set pm3d map')
 	g('set palette rgbformulae -25,-24,-32')
-	#g('set lmargin 4')
 	g('set cbtics 20')
 	#g('set colorbox horizontal')
 	g('set xrange [0.:%f]' % time[-1]) 
-	if log:
+	if options.log:
 		g('set log y')
-		g('set yrange [%f:%f]' % (max(10,minf),maxf))
+		g('set yrange [%f:%f]' % (max(10,options.minf),options.maxf))
 	else:
-		g('set yrange [%f:%f]' % (minf,maxf))
+		g('set yrange [%f:%f]' % (options.minf,options.maxf))
 	g.splot(Gnuplot.GridData(data,time,freq, binary=1))
 	#xorig += 1./todraw
 
@@ -170,12 +166,24 @@ def gnuplot_addargs(parser):
   parser.add_option("-y","--ysize",
           action="store", dest="ysize", default=1., 
           type='float',help="define ysize for plot")
-  parser.add_option("-d","--debug",
+  parser.add_option("--debug",
           action="store_true", dest="debug", default=False, 
           help="use gnuplot debug mode")
-  parser.add_option("-p","--persist",
+  parser.add_option("--persist",
           action="store_false", dest="persist", default=True, 
           help="do not use gnuplot persistant mode")
+  parser.add_option("--lmargin",
+          action="store", dest="lmargin", default=None, 
+          type='int',help="define left margin for plot")
+  parser.add_option("--rmargin",
+          action="store", dest="rmargin", default=None, 
+          type='int',help="define right margin for plot")
+  parser.add_option("--bmargin",
+          action="store", dest="bmargin", default=None, 
+          type='int',help="define bottom margin for plot")
+  parser.add_option("--tmargin",
+          action="store", dest="tmargin", default=None, 
+          type='int',help="define top margin for plot")
   parser.add_option("-O","--outplot",
           action="store", dest="outplot", default=None, 
           help="save plot to output.{ps,png}")
@@ -191,6 +199,10 @@ def gnuplot_create(outplot='',extension='', options=None):
   elif extension == 'svg': ext, extension = '.svg', 'svg'
   else: exit("ERR: unknown plot extension")
   g('set terminal %s' % extension)
+  if options.lmargin: g('set lmargin %i' % options.lmargin)
+  if options.rmargin: g('set rmargin %i' % options.rmargin)
+  if options.bmargin: g('set bmargin %i' % options.bmargin)
+  if options.tmargin: g('set tmargin %i' % options.tmargin)
   if outplot != "stdout":
     g('set output \'%s%s\'' % (outplot,ext))
   g('set size %f,%f' % (options.xsize, options.ysize))

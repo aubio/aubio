@@ -28,6 +28,4 @@ else:
   outplot = None
 
 g = gnuplot_create(outplot,extension,options)
-plot_audio(options.filename.split(','), g,
-  xsize=options.xsize,
-  ysize=options.ysize)
+plot_audio(options.filename.split(','), g, options)
