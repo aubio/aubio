@@ -7,7 +7,7 @@
 import sys,time
 from aubio.task import taskbeat,taskparams
 from aubio.aubioclass import fvec, aubio_autocorr
-from aubio.gnuplot import gnuplot_create
+from aubio.gnuplot import gnuplot_create, gnuplot_addargs
 from aubio.aubiowrapper import *
 from math import exp,log
 
@@ -22,15 +22,7 @@ def parse_args():
         parser.add_option("-n","--printframe",
                           action="store", dest="printframe", default=-1, 
                           help="make a plot of the n_th frame")
-        parser.add_option("-x","--xsize",
-                          action="store", dest="xsize", default=1., 
-                          type='float', help="define xsize for plot")
-        parser.add_option("-y","--ysize",
-                          action="store", dest="ysize", default=1., 
-                          type='float', help="define ysize for plot")
-        parser.add_option("-O","--outplot",
-                          action="store", dest="outplot", default=None, 
-                          help="save plot to output.{ps,png}")
+        gnuplot_addargs(parser)
         (options, args) = parser.parse_args()
         if not options.filename: 
                  print "no file name given\n", usage
@@ -54,7 +46,7 @@ if options.outplot and printframe > 0:
 else: 
   extension = ''
   outplot = None
-f = gnuplot_create(outplot=outplot,extension=extension)
+f = gnuplot_create(outplot,extension,options)
 
 params = taskparams()
 params.onsetmode = 'specdiff'
@@ -107,13 +99,6 @@ rwv = [(i+1.)/rayparam**2 * exp(-(i+1.)**2 / (2.*rayparam)**2)
         for i in range(0,laglen)] 
 acf = fvec(winlen,1)
 
-if options.outplot and printframe > 0: 
-  extension = options.outplot.split('.')[-1] 
-  outplot = '.'.join(options.outplot.split('.')[:-1])
-else: 
-  extension = ''
-  outplot = None
-f = gnuplot_create(outplot=outplot,extension=extension)
 nrframe = 0
 while (task.readsize == params.hopsize):
   task()
@@ -149,12 +134,14 @@ while (task.readsize == params.hopsize):
       f('set size %f,%f' % (1.0*xsize,0.33*ysize) )
       f('set orig %f,%f' % (0.0*xsize,0.66*ysize) )
       f('set xrange [%f:%f]' % (0,btstep*hopsize) )
+      f('set yrange [%f:%f]' % (-1.2*max(sig),1.2*max(sig)) )
       f.title('Input signal')
       f.xlabel('time (samples)')
       f.plot(*d[0])
       f('set size %f,%f' % (1.0*xsize,0.33*ysize) )
       f('set orig %f,%f' % (0.0*xsize,0.33*ysize) )
       f('set xrange [%f:%f]' % (-winlen,0) )
+      f('set autoscale y')
       f.title('Onset detection function')
       f.xlabel('time (df samples)')
       f.plot(*d[1])

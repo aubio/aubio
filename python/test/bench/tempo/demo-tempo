@@ -7,7 +7,7 @@
 import sys,time
 from aubio.task import taskbeat,taskparams
 from aubio.aubioclass import fvec, aubio_autocorr
-from aubio.gnuplot import gnuplot_create
+from aubio.gnuplot import gnuplot_create, gnuplot_addargs
 from aubio.aubiowrapper import *
 from math import exp,log
 
@@ -22,15 +22,7 @@ def parse_args():
         parser.add_option("-n","--printframe",
                           action="store", dest="printframe", default=-1, 
                           help="make a plot of the n_th frame")
-        parser.add_option("-x","--xsize",
-                          action="store", dest="xsize", default=1., 
-                          type='float', help="define xsize for plot")
-        parser.add_option("-y","--ysize",
-                          action="store", dest="ysize", default=1., 
-                          type='float', help="define ysize for plot")
-        parser.add_option("-O","--outplot",
-                          action="store", dest="outplot", default=None, 
-                          help="save plot to output.{ps,png}")
+        gnuplot_addargs(parser)
         (options, args) = parser.parse_args()
         if not options.filename: 
                  print "no file name given\n", usage
@@ -54,7 +46,7 @@ if options.outplot and printframe > 0:
 else: 
   extension = ''
   outplot = None
-f = gnuplot_create(outplot=outplot,extension=extension)
+f = gnuplot_create(outplot=outplot,extension=extension,options=options)
 
 params = taskparams()
 params.onsetmode = 'specdiff'
