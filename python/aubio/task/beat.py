@@ -40,7 +40,7 @@ class taskbeat(taskonset):
 				period = (60 * self.params.samplerate) / ((now - self.old) * self.params.hopsize)
 				self.old = now
 				return now*self.btstep*self.params.step,period
-	
+
 	def eval(self,results,tol=0.20,tolcontext=0.25):
 		obeats = self.gettruth()
 		etime = [result[0] for result in results]
@@ -169,7 +169,64 @@ class taskbeat(taskonset):
 #			while freq[i]>freqs[j]:
 #				j += 1
 			
+	def eval2(self,results,tol=0.2):
+		truth = self.gettruth()
+		obeats = [i[0] for i in truth] 
+		ebeats = [i[0]*self.params.step for i in results] 
+		NP = max(len(obeats), len(ebeats))
+		N  = int(round(max(max(obeats), max(ebeats))*100.)+100)
+		W  = int(round(tol*100.*60./median([i[1] for i in truth], len(truth)/2)))
+		ofunc = [0 for i in range(N+W)]
+		efunc = [0 for i in range(N+W)]
+		for i in obeats: ofunc[int(round(i*100.)+W)] = 1
+		for i in ebeats: efunc[int(round(i*100.)+W)] = 1
+		assert len(obeats) == sum(ofunc)
+		autocor = 0; m =0
+		for m in range (-W, W):
+			for i in range(W,N):
+				autocor += ofunc[i] * efunc[i-m] 
+		autocor /= float(NP)
+		return autocor
 	
+	def evaluation(self,results,tol=0.2,start=5.):
+
+		""" beat tracking evaluation function
+
+		computes P-score of experimental results (ebeats)
+		        against ground truth annotations (obeats) """
+
+		from aubio.median import short_find as median
+		truth = self.gettruth()
+		ebeats = [i[0]*self.params.step for i in results] 
+		obeats = [i[0] for i in truth] 
+
+		# trim anything found before start
+		while obeats[0] < start: obeats.pop(0)
+		while ebeats[0] < start: ebeats.pop(0)
+		# maximum number of beats found 
+		NP = max(len(obeats), len(ebeats))
+		# length of ofunc and efunc vector 
+		N  = int(round(max(max(obeats), max(ebeats))*100.)+100)
+		# compute W median of ground truth tempi 
+		tempi = []
+		for i in range(1,len(obeats)): tempi.append(obeats[i]-obeats[i-1])
+		W  = int(round(tol*100.*median(tempi,len(tempi)/2)))
+		# build ofunc and efunc functions, starting with W zeros  
+		ofunc = [0 for i in range(N+W)]
+		efunc = [0 for i in range(N+W)]
+		for i in obeats: ofunc[int(round(i*100.)+W)] = 1
+		for i in ebeats: efunc[int(round(i*100.)+W)] = 1
+		# optional: make sure we didn't miss any beats  
+		assert len(obeats) == sum(ofunc)
+		assert len(ebeats) == sum(efunc)
+		# compute auto correlation 
+		autocor = 0; m =0
+		for m in range (-W, W):
+		  for i in range(W,N):
+		    autocor += ofunc[i] * efunc[i-m] 
+		autocor /= float(NP)
+		return autocor
+
 	def gettruth(self):
 		import os.path
 		from aubio.txtfile import read_datafile
