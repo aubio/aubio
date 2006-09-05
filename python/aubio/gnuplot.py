@@ -43,7 +43,6 @@ def audio_to_array(filename):
 	return time,data
 
 def plot_audio(filenames, g, options):
-	d = []
 	todraw = len(filenames)
 	xorig = 0.
 	xratio = 1./todraw
@@ -57,13 +56,13 @@ def plot_audio(filenames, g, options):
 			else:
 				g.xlabel('Time (s)')
 			g.ylabel('Amplitude')
-		d.append(make_audio_plot(time,data))
+		curplot = make_audio_plot(time,data)
 		g('set size %f,%f;' % (options.xsize*xratio,options.ysize) )
 		g('set origin %f,0.;' % (xorig) )
 		g('set style data lines; \
 			set yrange [-1.:1.]; \
 			set xrange [0:%f]' % time[-1]) 
-		g.plot(d.pop(0))
+		g.plot(curplot)
 		xorig += options.xsize*xratio 
 	g('unset multiplot;')
 
@@ -158,6 +157,16 @@ def make_audio_plot(time,data,maxpoints=10000):
   x,y = downsample_audio(time,data,maxpoints=maxpoints)
   return Gnuplot.Data(x,y,with='lines')
 
+def make_audio_envelope(time,data,maxpoints=10000):
+  """ create gnuplot plot from an audio file """
+  import numarray
+  import Gnuplot, Gnuplot.funcutils
+  bufsize = 500
+  x = [i.mean() for i in numarray.array(time).resize(len(time)/bufsize,bufsize)] 
+  y = [i.mean() for i in numarray.array(data).resize(len(time)/bufsize,bufsize)] 
+  x,y = downsample_audio(x,y,maxpoints=maxpoints)
+  return Gnuplot.Data(x,y,with='lines')
+
 def gnuplot_addargs(parser):
   """ add common gnuplot argument to OptParser object """
   parser.add_option("-x","--xsize",
@@ -190,7 +199,10 @@ def gnuplot_addargs(parser):
 
 def gnuplot_create(outplot='',extension='', options=None):
   import Gnuplot
-  g = Gnuplot.Gnuplot(debug=options.debug, persist=options.persist)
+  if options:
+    g = Gnuplot.Gnuplot(debug=options.debug, persist=options.persist)
+  else:
+    g = Gnuplot.Gnuplot(persist=1)
   if not extension or not outplot: return g
   if   extension == 'ps':  ext, extension = '.ps' , 'postscript'
   elif extension == 'eps': ext, extension = '.eps' , 'postscript enhanced'
@@ -199,11 +211,11 @@ def gnuplot_create(outplot='',extension='', options=None):
   elif extension == 'svg': ext, extension = '.svg', 'svg'
   else: exit("ERR: unknown plot extension")
   g('set terminal %s' % extension)
-  if options.lmargin: g('set lmargin %i' % options.lmargin)
-  if options.rmargin: g('set rmargin %i' % options.rmargin)
-  if options.bmargin: g('set bmargin %i' % options.bmargin)
-  if options.tmargin: g('set tmargin %i' % options.tmargin)
+  if options and options.lmargin: g('set lmargin %i' % options.lmargin)
+  if options and options.rmargin: g('set rmargin %i' % options.rmargin)
+  if options and options.bmargin: g('set bmargin %i' % options.bmargin)
+  if options and options.tmargin: g('set tmargin %i' % options.tmargin)
   if outplot != "stdout":
     g('set output \'%s%s\'' % (outplot,ext))
-  g('set size %f,%f' % (options.xsize, options.ysize))
+  if options: g('set size %f,%f' % (options.xsize, options.ysize))
   return g
