@@ -105,6 +105,7 @@ params.verbose    = options.verbose
 if options.smoothing: params.pitchsmooth = int(options.smoothing)
 if options.pitchmax:  params.pitchmax    = int(options.pitchmax)
 if options.pitchmin:  params.pitchmin    = int(options.pitchmin)
+if options.omode:     params.omode       = int(options.omode)
 #mintol     = float(options.mintol)*step
 # default take back system delay
 if options.delay: params.pitchdelay = float(options.delay)
