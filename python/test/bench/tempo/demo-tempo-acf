@@ -76,7 +76,7 @@ rayparam = 48/512.*winlen
 t     = [i for i in range(hopsize)]
 #tlong = [i for i in range(hopsize*(btstep-1))]
 #tall  = [i for i in range(hopsize*btstep)]
-sig    = [0 for i in range(hopsize*btstep)]
+sig    = [0 for i in range(hopsize*btstep*4)]
 dfx = [i for i in range(winlen)]
 dfframe = [0 for i in range(winlen)]
 dfrev = [0 for i in range(winlen)]
@@ -103,7 +103,7 @@ nrframe = 0
 while (task.readsize == params.hopsize):
   task()
   #print task.pos2
-  sig[:-hopsize] = [i for i in sig[-(btstep-1)*hopsize:]]
+  sig[:-hopsize] = [i for i in sig[-(btstep*4-1)*hopsize:]]
   sig[-hopsize:] = [task.myvec.get(i,0) for i in t]
 
   #g('set xrange [%f:%f]' % (t[0],t[-1]))
@@ -118,7 +118,7 @@ while (task.readsize == params.hopsize):
     aubio_autocorr(task.dfframe(),acf()); 
     acframe = [acf.get(i,0) for i in range(winlen/2)]
     if printframe == nrframe or printframe == -1:
-      d  = [[plotdata(range(btstep*hopsize),sig,plottitle="input signal", with='lines')]]
+      d  = [[plotdata(range(0,btstep*hopsize*4,4),sig[0:-1:4],plottitle="input signal", with='lines')]]
       d  += [[plotdata(range(-winlen,0),dfframe,plottitle="onset detection", with='lines')]]
       d  += [[plotdata(range(winlen/2),acframe,plottitle="autocorrelation", with='lines')]]
 
@@ -133,7 +133,7 @@ while (task.readsize == params.hopsize):
 
       f('set size %f,%f' % (1.0*xsize,0.33*ysize) )
       f('set orig %f,%f' % (0.0*xsize,0.66*ysize) )
-      f('set xrange [%f:%f]' % (0,btstep*hopsize) )
+      f('set xrange [%f:%f]' % (0,btstep*hopsize*4) )
       f('set yrange [%f:%f]' % (-1.2*max(sig),1.2*max(sig)) )
       f.title('Input signal')
       f.xlabel('time (samples)')
