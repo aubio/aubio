@@ -43,12 +43,12 @@ nodist_pkgpython_PYTHON = aubiowrapper.py _aubiowrapper.so
 _aubiowrapper.so: _aubiowrapper.la
 
 if MINGW
-SWLDFLAGS = ""
+SWLDFLAGS = 
 else
 if DARWIN
-SWLDFLAGS = "-bundle -framework Python"
+SWLDFLAGS = -bundle -framework Python
 else
-SWLDFLAGS = "-shared"
+SWLDFLAGS = -shared
 endif
 endif
 
