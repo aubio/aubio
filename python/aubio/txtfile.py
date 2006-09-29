@@ -22,7 +22,11 @@ __LICENSE__ = """\
 
 def read_datafile(filename,depth=-1):
     """read list data from a text file (columns of float)"""
-    fres = open(filename,'ro')
+    if filename == '--' or filename == '-':
+        import sys
+        fres = sys.stdin
+    else:
+        fres = open(filename,'ro')
     l = []
     while 1:
         tmp = fres.readline()
