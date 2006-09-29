@@ -15,16 +15,17 @@ update-docs: doc-devel
 doc-clean:
 	-rm -rf devel
 
+PROJECT_NUMBER = `source $(top_srcdir)/VERSION; echo $$AUBIO_MAJOR_VERSION.$$AUBIO_MINOR_VERSION.$$AUBIO_PATCH_VERSION$$AUBIO_VERSION_STATUS`
 maintainer-clean-local: doc-clean
 
 doc-devel: 
-	doxygen $(srcdir)/devel.cfg
+	(echo PROJECT_NUMBER = $(PROJECT_NUMBER) ; cat $(srcdir)/devel.cfg)	| doxygen -
 
 doc-user: 
-	doxygen $(srcdir)/user.cfg
+	(echo PROJECT_NUMBER = $(PROJECT_NUMBER) ; cat $(srcdir)/user.cfg)	| doxygen -
 
 doc-examples: 
-	doxygen $(srcdir)/examples.cfg
+	(echo PROJECT_NUMBER = $(PROJECT_NUMBER) ; cat $(srcdir)/examples.cfg)	| doxygen -
 
 %.sgml: 
 
