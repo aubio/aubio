@@ -29,6 +29,8 @@ if test "$ac_cv_prog_cc" = "no" ; then
 fi
 AC_PROG_INSTALL
 
+AUBIO_CFLAGS=
+
 dnl Enable debugging (no)
 AC_ARG_ENABLE(debug,
   [  --enable-debug[[=value]]  compile with debug [[default=no]]],
@@ -37,7 +39,7 @@ AC_ARG_ENABLE(debug,
 if test "$with_debug" = "yes"
 then
   AC_DEFINE(DEBUG,1,[Define to enable debug])
-  CFLAGS="$CFLAGS -g"
+  AUBIO_CFLAGS="$(AUBIO_CFLAGS) -g"
 fi
 
 dnl Enable full warnings (yes)
@@ -53,19 +55,20 @@ then
   CFLAGS="$CFLAGS -Wextra"
   AC_COMPILE_IFELSE([void foo (void) {}],
           ac_cv_cc_wextra=yes, ac_cv_cc_wextra=no)
+  CFLAGS="$old_CFLAGS"
   ])
   if test "$ac_cv_cc_wextra" = "yes"
   then
-    CFLAGS="$old_CFLAGS -Wall -Wextra"
+    AUBIO_CFLAGS="$AUBIO_CFLAGS -Wall -Wextra"
   else 
-    CFLAGS="$old_CFLAGS -Wall"
+    AUBIO_CFLAGS="$AUBIO_CFLAGS -Wall"
   fi
 fi
 
 AC_ARG_ENABLE(failonerror,
   [  --enable-fwarn[[=value]]  fail on compilation warnings [[default=yes]]],
   with_warnme="no",
-  CFLAGS="$CFLAGS -Werror -Wmissing-prototypes -Wmissing-declarations -Wno-unused-parameter")
+  AUBIO_CFLAGS="$AUBIO_CFLAGS -Werror -Wmissing-prototypes -Wmissing-declarations -Wno-unused-parameter")
 
 dnl Check for libtool
 AC_LIBTOOL_DLOPEN
@@ -84,7 +87,7 @@ case "${host_os}" in
   dnl on macosx, cosf went to -lmx
   LDFLAGS="$LDFLAGS -lmx"
   dnl as long double doesn't sit well with -Wall -Werror
-  CFLAGS="$CFLAGS -Wno-long-double"
+  AUBIO_CFLAGS="$AUBIO_CFLAGS -Wno-long-double"
   AC_ISC_POSIX
   ;;
 *)
