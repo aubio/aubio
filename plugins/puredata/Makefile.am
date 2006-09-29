@@ -5,17 +5,25 @@
 SUFFIXES = .pd_linux
 PDDIR = $(prefix)/lib/pd
 pddir = $(PDDIR)
-#SUBDIRS = ladspa vst win
 
 ## Make and install the shared library.
 pdinstalldir = $(pddir)/extra
 pdinstallrefdir = $(pddir)/doc/5.reference
 pdinstallexpdir = $(pddir)/doc/aubio
 
-# Automake won't accept something ending in ".pd_linux" as a library
-pdinstall_PROGRAMS = aubio.pd_linux
+if MINGW
+PDEXT = aubio.dll
+else
+if DARWIN
+PDEXT = aubio.pd_darwin
+else
+PDEXT = aubio.pd_linux
+endif
+endif
 
-aubio_pd_linux_SOURCES = \
+pdinstall_PROGRAMS = $(PDEXT)
+
+ALLSOURCES = \
 	aubio_setup.c \
 	aubioonset~.c \
 	aubiotempo~.c \
@@ -23,14 +31,23 @@ aubio_pd_linux_SOURCES = \
 	aubioquiet~.c \
 	aubiopitch~.c
 
+aubio_pd_linux_SOURCES = $(ALLSOURCES)
+aubio_pd_darwin_SOURCES = $(ALLSOURCES)
+aubio_dll_SOURCES = $(ALLSOURCES)
+
 pdincludedir = $(pddir)/src
 
-LIBTOOL=$(SHELL) $(srcdir)/libtoolkludge
-
-INCLUDES = -I$(top_srcdir)/src -I$(pdincludedir)
-
-AM_CFLAGS  = -DPD -fPIC -DPIC
+AM_CFLAGS  = -I$(top_srcdir)/src -I$(pdincludedir) -DPD -fPIC -DPIC @AUBIO_CFLAGS@
+if MINGW
 AM_LDFLAGS = -L$(top_builddir)/src/.libs -laubio -export_dynamic -shared 
+else
+if DARWIN
+AM_LDFLAGS = -L$(top_builddir)/src/.libs -laubio -export_dynamic -shared 
+else
+AM_LDFLAGS = -L$(top_builddir)/src/.libs -laubio -export_dynamic -shared 
+endif
+endif
+
 
 ## Install the documentation.
 
@@ -44,8 +61,4 @@ pdinstallref_DATA = \
 pdinstallexp_DATA = \
 	examples/onset-cam.pd
 
-## My kludge
-noinst_SCRIPTS = libtoolkludge
-
-EXTRA_DIST = $(pdinstallref_DATA) $(pdinstallexp_DATA) $(noinst_SCRIPTS)
-
+EXTRA_DIST = $(pdinstallref_DATA) $(pdinstallexp_DATA)

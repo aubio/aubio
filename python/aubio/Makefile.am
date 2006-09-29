@@ -40,27 +40,39 @@ pkgpythonweb_PYTHON = \
 
 nodist_pkgpython_PYTHON = aubiowrapper.py _aubiowrapper.so
 
-CLEANFILES = *.pyc *.so *.o aubio_wrap.c aubiowrapper.py 
+_aubiowrapper.so: _aubiowrapper.la
 
-all: _aubiowrapper.so
+if MINGW
+SWLDFLAGS = ""
+else
+if DARWIN
+SWLDFLAGS = "-bundle -framework Python"
+else
+SWLDFLAGS = "-shared"
+endif
+endif
+
+CLEANFILES = *.pyc *.so *.o aubio_wrap.c aubiowrapper.py 
 
 NOWARN_CFLAGS = -Wno-missing-prototypes -Wno-missing-declarations \
 	-Wno-strict-aliasing
 
-AM_CFLAGS = $(SWCFLAGS) -fPIC -DPIC \
+AM_CFLAGS = @AUBIO_CFLAGS@ $(NOWARN_CFLAGS) $(SWCFLAGS) \
 	-I$(top_builddir)/src -I$(top_srcdir)/src -I$(top_srcdir)/ext \
 	-I/usr/include/python${PYTHON_VERSION} \
 	-I${prefix}/include/python${PYTHON_VERSION} \
 	-I/usr/include \
 	-I${prefix}/include
 
-AM_LDFLAGS = $(SWLDFLAGS) \
+AUBIO_LDFLAGS = $(SWLDFLAGS) \
 	-L$(top_builddir)/ext/.libs -laubioext \
 	-L$(top_builddir)/src/.libs -laubio
 
-aubio_wrap.c:
-	$(SWIG) -outdir . -o aubio_wrap.c -python $(top_srcdir)/swig/aubio.i
+python_DATA = aubiowrapper.py
+python_LTLIBRARIES = _aubiowrapper.la
 
-_aubiowrapper.so: aubio_wrap.c
-	$(CC) $(AM_CFLAGS) $(CFLAGS) $(NOWARN_CFLAGS) -c aubio_wrap.c
-	$(CC) $(AM_LDFLAGS) $(LDFLAGS) aubio_wrap.o -o _aubiowrapper.so
+_aubiowrapper_la_LDFLAGS = -no-undefined -module -avoid-version $(AUBIO_LDFLAGS) 
+_aubiowrapper_la_SOURCES = aubio_wrap.c
+
+aubio_wrap.c aubiowrapper.py:
+	$(SWIG) -outdir . -o aubio_wrap.c -python $(top_srcdir)/swig/aubio.i

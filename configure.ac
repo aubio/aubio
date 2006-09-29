@@ -78,10 +78,13 @@ AC_PROG_LIBTOOL
 AC_CONFIG_HEADERS(src/config.h)
 AC_CONFIG_FILES(aubio.pc)
 
+AM_CONDITIONAL(MINGW, false)
+AM_CONDITIONAL(DARWIN, false)
 case "${host_os}" in
 *mingw*)
   mingw32_support="yes"
   AC_CHECK_HEADER(windows.h)
+  AM_CONDITIONAL(MINGW, true)
   ;;
 *darwin*)
   dnl on macosx, cosf went to -lmx
@@ -89,6 +92,7 @@ case "${host_os}" in
   dnl as long double doesn't sit well with -Wall -Werror
   AUBIO_CFLAGS="$AUBIO_CFLAGS -Wno-long-double"
   AC_ISC_POSIX
+  AM_CONDITIONAL(DARWIN, true)
   ;;
 *)
   AC_ISC_POSIX
@@ -211,20 +215,6 @@ AC_PATH_PROG(SWIG,swig,no)
 AM_CONDITIONAL(SWIGFOUND, test "${SWIG}" != "no")
 AM_PATH_PYTHON
 AM_CONDITIONAL(PYTHONFOUND, test "${PYTHON}" != "no")
-#
-#if PYTHONFOUND
-case "${host_os}" in
-*darwin*)
-  SWCFLAGS="-Wno-long-double"
-  SWLDFLAGS="-bundle -framework python -L${prefix}/lib/python${PYTHON_VERSION}/config -lpython${PYTHON_VERSION}"
-  ;;
-*)
-  SWLDFLAGS="-shared"
-  ;;
-esac
-#
-AC_SUBST(SWCFLAGS)
-AC_SUBST(SWLDFLAGS)
 
 dnl Check for docbook-to-man
 AC_PATH_PROG(DOCBOOK_TO_MAN,docbook-to-man,no)
