@@ -29,57 +29,6 @@
 #ifndef MATHUTILS_H
 #define MATHUTILS_H
 
-#define PI 				(M_PI)
-#define TWO_PI 		(PI*2.)
-
-/* aliases to math.h functions */
-#define EXP				expf
-#define COS				cosf
-#define SIN				sinf
-#define ABS				fabsf
-#define POW				powf
-#define SQRT			sqrtf
-#define LOG10			log10f
-#define LOG			  logf
-#define FLOOR			floorf
-#define TRUNC			truncf
-
-/* aliases to complex.h functions */
-#if defined(WIN32)
-/* mingw32 does not know about c*f functions */
-#define EXPC			cexp
-/** complex = CEXPC(complex) */
-#define CEXPC			cexp
-/** sample = ARGC(complex) */
-#define ARGC			carg
-/** sample = ABSC(complex) norm */
-#define ABSC			cabs
-/** sample = REAL(complex) */
-#define REAL			creal
-/** sample = IMAG(complex) */
-#define IMAG			cimag
-#else
-/** sample = EXPC(complex) */
-#define EXPC			cexpf
-/** complex = CEXPC(complex) */
-#define CEXPC			cexp
-/** sample = ARGC(complex) */
-#define ARGC			cargf
-/** sample = ABSC(complex) norm */
-#define ABSC			cabsf
-/** sample = REAL(complex) */
-#define REAL			crealf
-/** sample = IMAG(complex) */
-#define IMAG			cimagf
-#endif
-
-/* handy shortcuts */
-#define DB2LIN(g) (POW(10.0f,(g)*0.05f))
-#define LIN2DB(v) (20.0f*LOG10(v))
-#define SQR(_a) 	(_a*_a)
-
-#define ELEM_SWAP(a,b) { register smpl_t t=(a);(a)=(b);(b)=t; }
-
 /** Window types 
  * 
  * inspired from 
