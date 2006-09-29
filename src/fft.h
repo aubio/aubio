@@ -30,10 +30,18 @@
  * c++ projects can still use their own complex definition. */
 #include <fftw3.h>
 
+#ifdef HAVE_COMPLEX_H
 #if FFTW3F_SUPPORT
 #define FFTW_TYPE fftwf_complex
 #else
 #define FFTW_TYPE fftw_complex
+#endif
+#else
+#if FFTW3F_SUPPORT
+#define FFTW_TYPE float
+#else
+#define FFTW_TYPE double
+#endif
 #endif
 
 #ifdef __cplusplus
