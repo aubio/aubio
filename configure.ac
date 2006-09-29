@@ -203,6 +203,8 @@ AC_ARG_ENABLE(testprogs,
   with_testprogs="no")
 AM_CONDITIONAL(COMPILE_TESTS,test "${with_testprogs}" != "no")
 
+AC_SUBST(AUBIO_CFLAGS)
+
 dnl Check for swig and python
 dnl should check for swig version and python headers
 AC_PATH_PROG(SWIG,swig,no)
