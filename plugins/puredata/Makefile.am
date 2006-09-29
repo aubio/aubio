@@ -42,7 +42,7 @@ if MINGW
 AM_LDFLAGS = -L$(top_builddir)/src/.libs -laubio -export_dynamic -shared 
 else
 if DARWIN
-AM_LDFLAGS = -L$(top_builddir)/src/.libs -laubio -export_dynamic -shared 
+AM_LDFLAGS = -L$(top_builddir)/src/.libs -laubio -bundle -undefined suppress -flat_namespace
 else
 AM_LDFLAGS = -L$(top_builddir)/src/.libs -laubio -export_dynamic -shared 
 endif
