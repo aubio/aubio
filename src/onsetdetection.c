@@ -76,12 +76,22 @@ void aubio_onsetdetection_complex (aubio_onsetdetection_t *o, cvec_t * fftgrain,
 					fftgrain->phas[i][j]
 					-2.0*o->theta1->data[i][j]+
 					o->theta2->data[i][j]);
+#ifdef HAVE_COMPLEX_H
 			o->meas[j] = fftgrain->norm[i][j]*CEXPC(I*o->dev1->data[i][j]);
 			/* sum on all bins */
 			onset->data[i][0]		 += //(fftgrain->norm[i][j]);
 					SQRT(SQR( REAL(o->oldmag->data[i][j]-o->meas[j]) )
 						+  SQR( IMAG(o->oldmag->data[i][j]-o->meas[j]) )
 						);
+#else
+			o->meas[j]             = (fftgrain->norm[i][j])*COS(o->dev1->data[i][j]);
+			o->meas[(nbins-1)*2-j] = (fftgrain->norm[i][j])*SIN(o->dev1->data[i][j]);
+			/* sum on all bins */
+			onset->data[i][0]		 += //(fftgrain->norm[i][j]);
+					SQRT(SQR( (o->oldmag->data[i][j]-o->meas[j]) )
+						+  SQR( (-o->meas[(nbins-1)*2-j]) )
+						);
+#endif
 			/* swap old phase data (need to remember 2 frames behind)*/
 			o->theta2->data[i][j] = o->theta1->data[i][j];
 			o->theta1->data[i][j] = fftgrain->phas[i][j];
@@ -199,6 +209,7 @@ new_aubio_onsetdetection (aubio_onsetdetection_type type,
 		uint_t size, uint_t channels){
 	aubio_onsetdetection_t * o = AUBIO_NEW(aubio_onsetdetection_t);
 	uint_t rsize = size/2+1;
+  uint_t i;
 	switch(type) {
 		/* for both energy and hfc, only fftgrain->norm is required */
 		case aubio_onset_energy: 
@@ -209,7 +220,8 @@ new_aubio_onsetdetection (aubio_onsetdetection_type type,
 		case aubio_onset_complex:
 			o->oldmag = new_fvec(rsize,channels);
 			/** bug: must be complex array */
-			o->meas = AUBIO_ARRAY(fft_data_t,size);
+			o->meas = AUBIO_ARRAY(fft_data_t,size+1);
+			for (i=0; i<size+1; i++) o->meas[i] = 0;
 			o->dev1	 = new_fvec(rsize,channels);
 			o->theta1 = new_fvec(rsize,channels);
 			o->theta2 = new_fvec(rsize,channels);

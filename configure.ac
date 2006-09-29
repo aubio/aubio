@@ -105,8 +105,14 @@ AC_CHECK_LIB(pthread, pthread_create)
 dnl Check for header files
 AC_HEADER_STDC
 AC_CHECK_HEADERS([string.h stdlib.h stdio.h math.h errno.h stdarg.h unistd.h signal.h],,)
-AC_CHECK_HEADERS(complex.h,,AC_MSG_ERROR([Ouch! missing complex.h header]))
 AC_CHECK_HEADERS(fftw3.h  ,,AC_MSG_ERROR([Ouch! missing fftw3.h header]))
+AC_ARG_ENABLE(complex,
+  AC_HELP_STRING([--enable-complex],[compile with complex.h [[default=auto]]]),
+  [with_complex=$enableval],
+  with_complex="yes")
+if test "$with_complex" = "yes"; then
+  AC_CHECK_HEADERS(complex.h,,AC_MSG_WARN([Ouch! missing complex.h header]))
+fi
 
 dnl Check for __VAR_ARGS__ support
 AC_CACHE_CHECK(for C99 __VA_ARGS__ macro,
