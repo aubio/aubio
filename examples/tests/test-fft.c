@@ -26,6 +26,7 @@ int main(){
         aubio_window(w,win_s,aubio_win_hanningz);
   
         /* fill input with some data */
+        in->data[0][win_s/2] = 1;
   
         /* execute stft */
         for (i=0; i < channels; i++) {
