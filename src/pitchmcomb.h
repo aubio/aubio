@@ -49,6 +49,7 @@ typedef struct _aubio_pitchmcomb_t aubio_pitchmcomb_t;
  
 */
 smpl_t aubio_pitchmcomb_detect(aubio_pitchmcomb_t * p, cvec_t * fftgrain);
+/** select the best candidates */
 uint_t aubio_pitch_cands(aubio_pitchmcomb_t * p, cvec_t * fftgrain, smpl_t * cands);
 /** creation of the pitch detection object
  

@@ -66,8 +66,7 @@ void aubio_filter_do_outplace(aubio_filter_t * b, fvec_t * in, fvec_t * out);
 void aubio_filter_do_filtfilt(aubio_filter_t * b, fvec_t * in, fvec_t * tmp);
 /** create new IIR filter
 
-  \param b vector of forward coefficients 
-  \param a vector of feedback coefficients
+  \param samplerate signal sampling rate
   \param order order of the filter (number of coefficients)
 
 */

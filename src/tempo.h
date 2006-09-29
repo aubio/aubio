@@ -17,6 +17,15 @@
 
 */
 
+/** \file 
+  
+  Tempo detection driver
+
+  This object stores all the memory required for tempo detection algorithm
+  and returns the estimated beat locations.
+
+*/
+
 #ifndef TEMPO_H
 #define TEMPO_H
 
@@ -24,6 +33,7 @@
 extern "C" {
 #endif
 
+/** tempo detection structure */
 typedef struct _aubio_tempo_t aubio_tempo_t;
 
 /** create tempo detection object */

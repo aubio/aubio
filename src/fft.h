@@ -38,8 +38,10 @@
 #endif
 #else
 #if FFTW3F_SUPPORT
+/** fft data type */
 #define FFTW_TYPE float
 #else
+/** fft data type */
 #define FFTW_TYPE double
 #endif
 #endif
@@ -48,6 +50,7 @@
 extern "C" {
 #endif
 
+/** fft data type */
 typedef FFTW_TYPE fft_data_t;
 
 /** FFT object

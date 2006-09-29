@@ -42,10 +42,15 @@ typedef struct _aubio_hist_t aubio_hist_t;
 aubio_hist_t * new_aubio_hist(smpl_t flow, smpl_t fhig, uint_t nelems, uint_t channels);
 /** histogram deletion */
 void del_aubio_hist(aubio_hist_t *s);
+/** compute the histogram */
 void aubio_hist_do(aubio_hist_t *s, fvec_t * input);
+/** compute the histogram ignoring null elements */
 void aubio_hist_do_notnull(aubio_hist_t *s, fvec_t * input);
+/** compute the mean of the histogram */
 smpl_t aubio_hist_mean(aubio_hist_t *s); 
+/** weight the histogram */
 void aubio_hist_weigth(aubio_hist_t *s); 
+/** compute dynamic histogram for non-null elements */
 void aubio_hist_dyn_notnull (aubio_hist_t *s, fvec_t *input);
 
 #ifdef __cplusplus
