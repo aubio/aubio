@@ -43,8 +43,8 @@ then
 fi
 
 dnl Enable full warnings (yes)
-AC_ARG_ENABLE(warnme,
-  [  --enable-warnme[[=value]] compile with all -W [[default=yes]]],
+AC_ARG_ENABLE(warnings,
+  [  --enable-warnings[[=value]] compile with all gcc warnings [[default=yes]]],
   with_warnme="no",
   with_warnme="yes")
 if test "$with_warnme" = "yes"
@@ -65,10 +65,10 @@ then
   fi
 fi
 
-AC_ARG_ENABLE(failonerror,
-  [  --enable-fwarn[[=value]]  fail on compilation warnings [[default=yes]]],
-  with_warnme="no",
-  AUBIO_CFLAGS="$AUBIO_CFLAGS -Werror -Wmissing-prototypes -Wmissing-declarations -Wno-unused-parameter")
+AC_ARG_ENABLE(errorfail,
+  [  --enable-errorfail[[=value]]  fail on compilation warnings [[default=no]]],
+  AUBIO_CFLAGS="$AUBIO_CFLAGS -Werror -Wmissing-prototypes -Wmissing-declarations -Wno-unused-parameter",
+  with_warnme="no")
 
 dnl Check for libtool
 AC_LIBTOOL_DLOPEN
