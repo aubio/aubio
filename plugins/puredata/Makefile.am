@@ -39,7 +39,7 @@ pdincludedir = $(pddir)/src
 
 AM_CFLAGS  = -I$(top_srcdir)/src -I$(pdincludedir) -DPD -fPIC -DPIC @AUBIO_CFLAGS@
 if MINGW
-AM_LDFLAGS = -L$(top_builddir)/src/.libs -laubio -export_dynamic -shared 
+AM_LDFLAGS = -L$(top_builddir)/src/.libs -laubio -export_dynamic -shared -lpd
 else
 if DARWIN
 AM_LDFLAGS = -L$(top_builddir)/src/.libs -laubio -bundle -undefined suppress -flat_namespace
