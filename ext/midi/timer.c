@@ -40,6 +40,7 @@
 
 #if 0
 #include <winbase.h>
+#endif
 
 struct _aubio_timer_t 
 {
@@ -73,13 +74,17 @@ new_aubio_timer(int msec, aubio_timer_callback_t callback, void* data,
   timer->auto_destroy = auto_destroy;
 
   if (new_thread) {
+#if 0
     timer->thread = CreateThread(NULL, 0, aubio_timer_run, (LPVOID) timer, 0, &timer->thread_id);
+#endif
     if (timer->thread == NULL) {
       AUBIO_ERR( "Couldn't create timer thread");     
       AUBIO_FREE(timer);
       return NULL;
     }
+#if 0
     SetThreadPriority(timer->thread, THREAD_PRIORITY_TIME_CRITICAL);
+#endif
   } else {
     aubio_timer_run((LPVOID) timer); 
   }
@@ -89,6 +94,7 @@ new_aubio_timer(int msec, aubio_timer_callback_t callback, void* data,
 DWORD WINAPI 
 aubio_timer_run(LPVOID data)
 {
+#if 0
   int count = 0;
   int cont = 1;
   long start;
@@ -130,6 +136,7 @@ aubio_timer_run(LPVOID data)
   }
 
   ExitThread(0);
+#endif
   return 0;
 }
 
@@ -145,12 +152,16 @@ delete_aubio_timer(aubio_timer_t* timer)
 int 
 aubio_timer_join(aubio_timer_t* timer)
 {
+#if 0
   DWORD wait_result;
   if (timer->thread == 0) {
     return AUBIO_OK;
   }
   wait_result = WaitForSingleObject(timer->thread, INFINITE);
   return (wait_result == WAIT_OBJECT_0)? AUBIO_OK : AUBIO_FAIL;
+#else
+  return 0;
+#endif
 }
 /***************************************************************
  *
@@ -176,9 +187,13 @@ double aubio_utime(void)
 
 double rdtsc(void)
 {
+#if 0
   LARGE_INTEGER t;
   QueryPerformanceCounter(&t);
   return (double) t.QuadPart;
+#else
+  return 0.;
+#endif
 }
 
 double aubio_estimate_cpu_frequency(void)
@@ -209,6 +224,7 @@ double aubio_estimate_cpu_frequency(void)
   return freq;
 
 #else
+#if 0
   unsigned int before, after;
   LARGE_INTEGER start, stop;
 
@@ -222,9 +238,10 @@ double aubio_estimate_cpu_frequency(void)
 
   return (double) 1000 * (stop.QuadPart - start.QuadPart) / (after - before);
 #endif
+  return 0;
+#endif
 }
 
-#endif
 
 
 #elif defined(MACOS9)
