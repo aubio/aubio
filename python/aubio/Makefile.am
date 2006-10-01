@@ -43,7 +43,7 @@ nodist_pkgpython_PYTHON = aubiowrapper.py _aubiowrapper.so
 _aubiowrapper.so: _aubiowrapper.la
 
 if MINGW
-SWLDFLAGS = 
+SWLDFLAGS = -lpython${PYTHON_VERSION}
 else
 if DARWIN
 SWLDFLAGS = -bundle -framework Python
