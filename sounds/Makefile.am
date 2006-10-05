@@ -1,11 +1,5 @@
-EXTRA_DIST = woodblock.aiff
-SUBDIRS = 
+soundsdir = $(datadir)/sounds/aubio
 
-install-data-local:
-	$(mkinstalldirs) "$(DESTDIR)$(datadir)/sounds/aubio"
-	$(INSTALL_DATA) $(srcdir)/woodblock.aiff "$(DESTDIR)$(datadir)/sounds/aubio"
+sounds_DATA = woodblock.aiff
 
-
-uninstall-local:
-	rm -rf "$(DESTDIR)$(datadir)/sounds/aubio"
-
+EXTRA_DIST = $(sounds_DATA)
