@@ -80,17 +80,20 @@ AC_CONFIG_FILES(aubio.pc)
 
 AM_CONDITIONAL(MINGW, false)
 AM_CONDITIONAL(DARWIN, false)
-case "${host_os}" in
-*mingw*)
+case "${build_os}" in
+*mingw* | *cygwin*)
   mingw32_support="yes"
   AC_CHECK_HEADER(windows.h)
   AM_CONDITIONAL(MINGW, true)
+  LDFLAGS="$LDFLAGS -no-undefined"
   ;;
-*darwin*)
+*darwin* | *rhapsody* | *macosx*)
   dnl on macosx, cosf went to -lmx
   LDFLAGS="$LDFLAGS -lmx"
   dnl as long double doesn't sit well with -Wall -Werror
   AUBIO_CFLAGS="$AUBIO_CFLAGS -Wno-long-double"
+  dnl Workaround darwin autoconf bug
+  CPPFLAGS="$CPPFLAGS -I${prefix}/include"
   AC_ISC_POSIX
   AM_CONDITIONAL(DARWIN, true)
   ;;
@@ -105,7 +108,7 @@ AC_CHECK_LIB(pthread, pthread_create)
 dnl Check for header files
 AC_HEADER_STDC
 AC_CHECK_HEADERS([string.h stdlib.h stdio.h math.h errno.h stdarg.h unistd.h signal.h],,)
-AC_CHECK_HEADERS(fftw3.h  ,,AC_MSG_ERROR([Ouch! missing fftw3.h header]))
+AC_CHECK_HEADERS(fftw3.h,,AC_MSG_ERROR([Ouch! missing fftw3.h header]))
 AC_ARG_ENABLE(complex,
   AC_HELP_STRING([--enable-complex],[compile with complex.h [[default=auto]]]),
   [with_complex=$enableval],
