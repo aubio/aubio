@@ -2,9 +2,7 @@
 # inspired from Guenter Geiger's Makefile.am for plugin 
 # pure-data/externals/plugin~/Makefile.am -- rev 1.1
 
-SUFFIXES = .pd_linux
-PDDIR = $(prefix)/lib/pd
-pddir = $(PDDIR)
+pddir = $(prefix)/lib/pd
 
 ## Make and install the shared library.
 pdinstalldir = $(pddir)/extra
@@ -37,17 +35,22 @@ aubio_dll_SOURCES = $(ALLSOURCES)
 
 pdincludedir = $(pddir)/src
 
-AM_CFLAGS  = -I$(top_srcdir)/src -I$(pdincludedir) -DPD -fPIC -DPIC @AUBIO_CFLAGS@
+AM_CFLAGS  = -I$(top_srcdir)/src -I$(pdincludedir) -DPD @AUBIO_CFLAGS@
 if MINGW
-AM_LDFLAGS = -L$(top_builddir)/src/.libs -laubio -export_dynamic -shared -lpd
 else
-if DARWIN
-AM_LDFLAGS = -L$(top_builddir)/src/.libs -laubio -bundle -undefined suppress -flat_namespace
-else
-AM_LDFLAGS = -L$(top_builddir)/src/.libs -laubio -export_dynamic -shared 
-endif
+AM_CFLAGS += -fPIC -DPIC 
 endif
 
+AM_LDFLAGS  = -L$(top_builddir)/src -laubio 
+if MINGW
+AM_LDFLAGS += -export_dynamic -shared -lpd
+else
+if DARWIN
+AM_LDFLAGS += -bundle -undefined suppress -flat_namespace
+else
+AM_LDFLAGS += -export_dynamic -shared 
+endif
+endif
 
 ## Install the documentation.
 
