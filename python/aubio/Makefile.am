@@ -43,7 +43,7 @@ nodist_pkgpython_PYTHON = aubiowrapper.py _aubiowrapper.so
 _aubiowrapper.so: _aubiowrapper.la
 
 if MINGW
-SWLDFLAGS = -lpython${PYTHON_VERSION}
+SWLDFLAGS = -L${prefix}/bin -lpython${PYTHON_VERSION}
 else
 if DARWIN
 SWLDFLAGS = -bundle -framework Python
@@ -65,13 +65,13 @@ AM_CFLAGS = @AUBIO_CFLAGS@ $(NOWARN_CFLAGS) $(SWCFLAGS) \
 	-I${prefix}/include
 
 AUBIO_LDFLAGS = $(SWLDFLAGS) \
-	-L$(top_builddir)/ext/.libs -laubioext \
-	-L$(top_builddir)/src/.libs -laubio
+	-L$(top_builddir)/ext -laubioext \
+	-L$(top_builddir)/src -laubio
 
 python_DATA = aubiowrapper.py
 python_LTLIBRARIES = _aubiowrapper.la
 
-_aubiowrapper_la_LDFLAGS = -no-undefined -module -avoid-version $(AUBIO_LDFLAGS) 
+_aubiowrapper_la_LDFLAGS = -module -avoid-version $(AUBIO_LDFLAGS) 
 _aubiowrapper_la_SOURCES = aubio_wrap.c
 
 aubio_wrap.c aubiowrapper.py:
