@@ -62,7 +62,7 @@ manpage.1: manpage.sgml
   </refnamediv>
   <refsynopsisdiv>
     <cmdsynopsis>
-      <command>&dhpackage;</command>
+      <command>&dhpackage; <parameter>[options] [-i soundfile]</parameter></command>
     </cmdsynopsis>
   </refsynopsisdiv>
   <refsect1>
@@ -70,31 +70,36 @@ manpage.1: manpage.sgml
 
     <para>This manual page documents briefly the <command>&dhpackage;</command> command.</para>
 
-<para>The library <emphasis>aubio</emphasis> provides a small set of functions
-to extract events and objects from audio, from live streams or still files.
-Onsets are used to label the beginning of notes, pitches to label their
-height.</para>
+    <para>The <emphasis>aubio</emphasis> library provides a small set of
+    functions to extract events and objects from audio, from live streams or
+    still files. Onsets are used to label the beginning of notes, pitches to
+    label their height.</para>
 
-<para><command>aubionotes</command> is still in an experimental state. Its aim
-is to segment notes with onsets, and label them with their detected pitch. When
-started without an input file argument (<option>-i</option>), aubionotes
-creates a jack input and a midi output. When an input file is given, it outputs
-the results on the console.</para>
+    <para><command>&dhpackage;</command> attempts to detect onset times, the
+    beginning of discreted sound events, in audio signals.</para>
+
+    <para>When started without an input file argument
+    (<option>--input</option>), <command>&dhpackage;</command> creates jack
+    input and output ports. When an input file is given, the results are given
+    on the console.</para>
 
   </refsect1>
   <refsect1>
     <title>OPTIONS</title>
 
-<para>This program follows the usual GNU command line syntax, with long options
-starting with two dashes (`-').  A summary of options is included below.</para>
+    <para>This program follows the usual GNU command line syntax, with long
+    options starting with two dashes (`-').  A summary of options is included
+    below.</para>
 
 <variablelist>
   <varlistentry>
   <term><option>-i</option>
   <option>--input filein</option></term>
   <listitem>
-<para>Run analysis on this audio file. Most common (uncompressed) formats are 
-supported.</para>
+
+  <para>Run analysis on this audio file. Most common uncompressed formats are
+  supported.</para>
+
   </listitem>
   </varlistentry>
   <varlistentry>
@@ -103,7 +108,7 @@ supported.</para>
   <listitem>
 
   <para>Save results in this file. The file will be created on the model of the
-  input file. Results are marked by a very short wood-block sample.</para>
+  input file. Results are marked by a short wood-block sample.</para>
 
   </listitem>
   </varlistentry>
@@ -128,9 +133,9 @@ supported.</para>
 
   <para>Set the threshold value for the onset peak picking. Typical values are
   within <literal>0.001</literal> and <literal>0.900</literal>. Default is
-  <literal>0.1</literal>. The <emphasis>lower</emphasis> the <emphasis>more
-  sensible</emphasis>.  Try <literal>0.3</literal> in case of
-  over-detections.</para>
+  <literal>0.1</literal>. <emphasis>Lower</emphasis> threshold values imply 
+  <emphasis>more</emphasis> onsets detected. Try <literal>0.3</literal> in
+  case of over-detections.</para>
 
   </listitem>
   </varlistentry>
@@ -138,45 +143,43 @@ supported.</para>
   <term><option>-j</option>
   <option>--jack</option></term>
   <listitem>
-<para>Run in jack mode (default when started without input file) and creates a midi output.</para>
-  </listitem>
-  </varlistentry>
-  <varlistentry>
-  <term><option>-h</option>
-  <option>--help</option></term>
-  <listitem>
-<para>Show summary of options.</para>
+  <para>Run in jack mode (default when started without input file) and creates a midi output.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
   <term><option>-v</option>
   <option>--verbose</option></term>
   <listitem>
-<para>Show results on the console.</para>
-
+  <para>Show results on the console (default).</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-h</option>
+  <option>--help</option></term>
+  <listitem>
+  <para>Show summary of options.</para>
   </listitem>
   </varlistentry>
 </variablelist>
 
   </refsect1>
-<refsect1>
-<title>BUGS</title>
+  <refsect1>
+  <title>BUGS</title>
 
-<para>For now the program has been only tested on audio signals sampled at 44.1
-kHz.</para>
+  <para>For now the program has only been tested on audio signals sampled at
+  44.1&nbsp;kHz.</para>
 
-</refsect1>
+  </refsect1>
 
   <refsect1>
     <title>SEE ALSO</title>
 
-	<para>
-	<command>aubiocut</command>(1)
-	<command>aubiotrack</command>(1)
-	<command>aubionotes</command>(1)
-	<command>aubiopitch</command>(1)
-	</para>
-
+    <para>
+    <command>aubiotrack</command>(1)
+    <command>aubionotes</command>(1)
+    <command>aubiocut</command>(1)
+    <command>aubiopitch</command>(1)
+    </para>
 
   </refsect1>
 
@@ -210,6 +213,5 @@ sgml-local-catalogs:nil
 sgml-local-ecat-files:nil
 End:
 -->
-
 
 

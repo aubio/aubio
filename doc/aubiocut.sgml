@@ -57,8 +57,7 @@ manpage.1: manpage.sgml
   <refnamediv>
     <refname>&dhpackage;</refname>
 
-    <refpurpose>a command line tool for real time wav to midi
-    conversion</refpurpose>
+    <refpurpose>a command line tool to extract onsets and tempo from sound files.</refpurpose>
 
   </refnamediv>
   <refsynopsisdiv>
@@ -69,28 +68,33 @@ manpage.1: manpage.sgml
   <refsect1>
     <title>DESCRIPTION</title>
 
-    <para>This manual page documents briefly the <command>&dhpackage;</command> command. </para>
-    
-    <para><command>&dhpackage;</command> takes an input sound file and produce
-    small file sliced at onset locations. The slices can then be sent to a
-    player, a sequencer, a sampler, or wherever else. The files can be cut at
-    onset times or at silences.</para>
+    <para>This manual page documents briefly the <command>&dhpackage;</command> command.</para>
+
+    <para>The <emphasis>aubio</emphasis> library provides a small set of
+    functions to extract events and objects from audio, from live streams or
+    still files. Onsets are used to label the beginning of notes, pitches to
+    label their height.</para>
+
+    <para><command>&dhpackage;</command> attempts to detect onset times, the
+    beginning of discreted sound events, or beat locations, in audio
+    signals.</para>
+
+    <para>When using the <option>--cut</option> option,
+    <command>&dhpackage;</command> takes an input sound file and produce small
+    files sliced at onset locations (or silences). The slices can then be sent
+    for example to a player, a sequencer, or a sampler.</para>
+
+    <para>A plotting module is available via the Gnuplot Python package.</para>
 
   </refsect1>
   <refsect1>
     <title>OPTIONS</title>
 
-<para>This program follows the usual GNU command line syntax, with long options
-starting with two dashes (`-').  A summary of options is included below.</para>
+    <para>This program follows the usual GNU command line syntax, with long
+    options starting with two dashes (`-').  A summary of options is included
+    below.</para>
 
 <variablelist>
-  <varlistentry>
-  <term><option>-h</option>
-  <option>--help</option></term>
-  <listitem>
-  <para>show this help message and exit</para>
-  </listitem>
-  </varlistentry>
   <varlistentry>
   <term><option>-i</option>
   <option>--input filein</option></term>
@@ -103,6 +107,13 @@ starting with two dashes (`-').  A summary of options is included below.</para>
   <option>--mode onset_detection_mode</option></term>
   <listitem>
   <para>onset detection mode [default=dual] complexdomain|hfc|phase|specdiff|energy|kl|mkl|dual</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-b</option>
+  <option>--beat</option></term>
+  <listitem>
+  <para>detect beats and output beat locations</para>
   </listitem>
   </varlistentry>
   <varlistentry>
@@ -191,10 +202,54 @@ starting with two dashes (`-').  A summary of options is included below.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
+  <term><option>-f</option>
+  <option>--function</option></term>
+  <listitem>
+  <para>print detection function</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-q</option>
+  <option>--quiet</option></term>
+  <listitem>
+  <para>be quiet</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-h</option>
+  <option>--help</option></term>
+  <listitem>
+  <para>Show a summary of options.</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-v</option>
+  <option>--verbose</option></term>
+  <listitem>
+  <para>make lots of noise [default]</para>
+  </listitem>
+  </varlistentry>
+  </variablelist>
+
+  <refsect2>
+    <title>Plotting options</title>
+
+  <para>When the Python interface to Gnuplot is installed, the following
+  additional options are available.</para>
+
+  <variablelist>
+  <varlistentry>
   <term><option>-p</option>
   <option>--plot</option></term>
   <listitem>
   <para>draw plot</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-n</option>
+  <option>--no-onsets</option></term>
+  <listitem>
+  <para>do not plot detected onsets, only detection functions</para>
   </listitem>
   </varlistentry>
   <varlistentry>
@@ -212,50 +267,24 @@ starting with two dashes (`-').  A summary of options is included below.</para>
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term><option>-f</option>
-  <option>--function</option></term>
-  <listitem>
-  <para>print detection function</para>
-  </listitem>
-  </varlistentry>
-  <varlistentry>
-  <term><option>-n</option>
-  <option>--no-onsets</option></term>
-  <listitem>
-  <para>do not plot detected onsets, only detection functions</para>
-  </listitem>
-  </varlistentry>
-  <varlistentry>
   <term><option>-O</option>
   <option>--outplot=OUTPLOT</option></term>
   <listitem>
-  <para>save plot to output.{eps,ps,png,svg}</para>
+  <para>save plot to output.{ps,eps,png,svg} instead of displaying it</para>
   </listitem>
   </varlistentry>
-  <varlistentry>
-  <term><option>-v</option>
-  <option>--verbose</option></term>
-  <listitem>
-  <para>make lots of noise [default]</para>
-  </listitem>
-  </varlistentry>
-  <varlistentry>
-  <term><option>-q</option>
-  <option>--quiet</option></term>
-  <listitem>
-  <para>be quiet</para>
-  </listitem>
-  </varlistentry>
-  <varlistentry>
-  <term><option>-b</option>
-  <option>--beat</option></term>
-  <listitem>
-  <para>detect beats and output beat locations</para>
-  </listitem>
-  </varlistentry>
-</variablelist>
+  </variablelist>
+  </refsect2>
 
-</refsect1>
+  </refsect1>
+  <refsect1>
+  <title>BUGS</title>
+
+  <para>For now the program has only been tested on audio signals sampled at
+  44.1&nbsp;kHz.</para>
+
+  </refsect1>
+
   <refsect1>
     <title>SEE ALSO</title>
 

@@ -57,8 +57,7 @@ manpage.1: manpage.sgml
   <refnamediv>
     <refname>&dhpackage;</refname>
 
-    <refpurpose>a command line tool for real time wav to midi
-    conversion</refpurpose>
+    <refpurpose>a command line tool to extract pitch candidates from sound files.</refpurpose>
 
   </refnamediv>
   <refsynopsisdiv>
@@ -71,11 +70,17 @@ manpage.1: manpage.sgml
 
     <para>This manual page documents briefly the <command>&dhpackage;</command> command.</para>
 
-    <para><command>aubionotes</command> attempts to label each fram of the
-    input sound file with a pitch. When no pitch candidate is found, the
-    output is 0. Results can be printed in Hertz or in MIDI pitch.  A plotting
-    module is available via the Gnuplot Python package. 4 functions are
-    available.</para>
+    <para>The <emphasis>aubio</emphasis> library provides a small set of
+    functions to extract events and objects from audio, from live streams or
+    still files. Onsets are used to label the beginning of notes, pitches to
+    label their height.</para>
+
+    <para><command>&dhpackage;</command> attempts to extract fundamental
+    frequency in sound files. When no pitch candidate is found, the output is
+    0. Five fundamental frequency extraction methods are available. Results can
+    be printed in Hertz or in MIDI pitch.</para>
+
+    <para>A plotting module is available via the Gnuplot Python package.</para>
 
   </refsect1>
   <refsect1>
@@ -171,6 +176,36 @@ manpage.1: manpage.sgml
   </listitem>
   </varlistentry>
   <varlistentry>
+  <term><option>-q</option>
+  <option>--quiet</option></term>
+  <listitem>
+  <para>be quiet</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-h</option>
+  <option>--help</option></term>
+  <listitem>
+  <para>Show a summary of options.</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-v</option>
+  <option>--verbose</option></term>
+  <listitem>
+  <para>make lots of noise [default]</para>
+  </listitem>
+  </varlistentry>
+  </variablelist>
+
+  <refsect2>
+    <title>Plotting options</title>
+
+  <para>When the Python interface to Gnuplot is installed, the following
+  additional options are available.</para>
+
+  <variablelist>
+  <varlistentry>
   <term><option>-p</option>
   <option>--plot</option></term>
   <listitem>
@@ -185,45 +220,46 @@ manpage.1: manpage.sgml
   </listitem>
   </varlistentry>
   <varlistentry>
+  <term><option>-x</option>
+  <option>--xsize=SIZE</option></term>
+  <listitem>
+  <para>define horizontal plot size [default=1.]</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
+  <term><option>-y</option>
+  <option>--ysize=SIZE</option></term>
+  <listitem>
+  <para>define vertical plot size [default=1.]</para>
+  </listitem>
+  </varlistentry>
+  <varlistentry>
   <term><option>-O</option>
   <option>--outplot=OUTPLOT</option></term>
   <listitem>
   <para>save plot to output.{ps,eps,png,svg} instead of displaying it</para>
   </listitem>
   </varlistentry>
-  <varlistentry>
-  <term><option>-v</option>
-  <option>--verbose</option></term>
-  <listitem>
-  <para>make lots of noise [default]</para>
-  </listitem>
-  </varlistentry>
-  <varlistentry>
-  <term><option>-q</option>
-  <option>--quiet</option></term>
-  <listitem>
-  <para>be quiet</para>
-  </listitem>
-  </varlistentry>
-  <varlistentry>
-  <term><option>-h</option>
-  <option>--help</option></term>
-  <listitem>
-  <para>show this help message and exit</para>
-  </listitem>
-  </varlistentry>
-</variablelist>
+  </variablelist>
+  </refsect2>
 
+  </refsect1>
+  <refsect1>
+  <title>BUGS</title>
 
-</refsect1>
+  <para>For now the program has only been tested on audio signals sampled at
+  44.1&nbsp;kHz.</para>
+
+  </refsect1>
+
   <refsect1>
     <title>SEE ALSO</title>
 
     <para>
-    <command>aubionotes</command>(1)
     <command>aubioonset</command>(1)
-    <command>aubiocut</command>(1)
     <command>aubiotrack</command>(1)
+    <command>aubionotes</command>(1)
+    <command>aubiocut</command>(1)
     </para>
 
   </refsect1>
