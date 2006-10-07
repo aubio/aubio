@@ -68,13 +68,6 @@ manpage.1: manpage.sgml
   <refsect1>
     <title>DESCRIPTION</title>
 
-    <para>This manual page documents briefly the <command>&dhpackage;</command> command.</para>
-
-    <para>The <emphasis>aubio</emphasis> library provides a small set of
-    functions to extract events and objects from audio, from live streams or
-    still files. Onsets are used to label the beginning of notes, pitches to
-    label their height.</para>
-
     <para><command>&dhpackage;</command> attempts to detect notes in audio
     signals, segmenting consecutive events using onset detection, and
     determining their pitch using a fundamental frequency extraction algorithm.
