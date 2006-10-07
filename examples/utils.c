@@ -95,6 +95,7 @@ void usage (FILE * stream, int exit_code)
         fprintf(stream, "usage: %s [ options ] \n", prog_name);
         fprintf(stream, 
                         "       -h      --help          Display this message.\n"
+                        "       -v      --verbose       Be verbose.\n"
                         "       -j      --jack          Use Jack.\n"
                         "       -o      --output        Output type.\n"
                         "       -i      --input         Input type.\n"
