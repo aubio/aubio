@@ -6,6 +6,7 @@
 # '. README'
 
 export LD_LIBRARY_PATH=../src/.libs:../ext/.libs
+export PYTHONPATH=aubio/.libs
 
 echo """
 
