@@ -70,10 +70,10 @@ def parse_args():
       action="store", dest="outplot", default=None, 
       help="save the plot to output.{ps,png,svg} instead of displaying it")
   parser.add_option("-v","--verbose",
-      action="store_true", dest="verbose", default=False,
+      action="store_true", dest="verbose", default=True,
       help="make lots of noise")
   parser.add_option("-q","--quiet",
-      action="store_false", dest="verbose", default=False, 
+      action="store_false", dest="verbose", default=True, 
       help="be quiet")
   (options, args) = parser.parse_args()
   if not options.bufsize:

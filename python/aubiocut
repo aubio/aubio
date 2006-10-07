@@ -80,10 +80,10 @@ def parse_args():
                           action="store_true", dest="spectro", default=False,
                           help="add spectrogram to the plot")
         parser.add_option("-v","--verbose",
-                          action="store_true", dest="verbose", default=False,
+                          action="store_true", dest="verbose", default=True,
                           help="make lots of noise [default]")
         parser.add_option("-q","--quiet",
-                          action="store_false", dest="verbose", default=False, 
+                          action="store_false", dest="verbose", default=True, 
                           help="be quiet")
         # to be implemented
         parser.add_option("-b","--beat",
