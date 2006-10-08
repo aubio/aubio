@@ -39,7 +39,7 @@ AC_ARG_ENABLE(debug,
 if test "$with_debug" = "yes"
 then
   AC_DEFINE(DEBUG,1,[Define to enable debug])
-  AUBIO_CFLAGS="$(AUBIO_CFLAGS) -g"
+  AUBIO_CFLAGS="$AUBIO_CFLAGS -g"
 fi
 
 dnl Enable full warnings (yes)
