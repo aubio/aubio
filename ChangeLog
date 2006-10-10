@@ -1,3 +1,14 @@
+2006-11-10  Paul Brossier <piem@altern.org>
+	* configure.ac: check c compiler for -Wextra option
+	* examples/*: add lash support to aubioonset, aubiotrack, and aubionotes
+	* */Makefile.am: improve compilation on Mac OS X, mingw and cygwin
+	* src/{onset,tempo}.[ch]: add simple c interfaces to onset and tempo tasks
+	* src/beattracking.c: allow the use of two beat trackers simultaneously
+	* examples/tests: add test programs for most c functions
+	* src/*.c: add most missing free calls
+	* src/*.c: fix some out of array writes
+	* src/,ext/: more gcc warning fixes
+
 2006-27-06  Paul Brossier <piem@altern.org>
 	* plugins/puredata/Makefile.am: move pd help to pattern-help.pd
 		- thanks goes to Frank Barknecht
