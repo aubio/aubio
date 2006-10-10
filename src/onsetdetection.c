@@ -42,7 +42,7 @@ struct _aubio_onsetdetection_t {
 
 
 /* Energy based onset detection function */
-void aubio_onsetdetection_energy  (aubio_onsetdetection_t *o,
+void aubio_onsetdetection_energy  (aubio_onsetdetection_t *o UNUSED,
 		cvec_t * fftgrain, fvec_t * onset) {
 	uint_t i,j;
 	for (i=0;i<fftgrain->channels;i++) {
@@ -54,7 +54,8 @@ void aubio_onsetdetection_energy  (aubio_onsetdetection_t *o,
 }
 
 /* High Frequency Content onset detection function */
-void aubio_onsetdetection_hfc(aubio_onsetdetection_t *o,	cvec_t * fftgrain, fvec_t * onset){
+void aubio_onsetdetection_hfc(aubio_onsetdetection_t *o UNUSED,
+    cvec_t * fftgrain, fvec_t * onset){
 	uint_t i,j;
 	for (i=0;i<fftgrain->channels;i++) {
 		onset->data[i][0] = 0.;

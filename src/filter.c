@@ -191,7 +191,7 @@ aubio_filter_t * new_aubio_cdsgn_filter(uint_t samplerate) {
   return f;
 }
 
-aubio_filter_t * new_aubio_filter(uint_t samplerate, uint_t order) {
+aubio_filter_t * new_aubio_filter(uint_t samplerate UNUSED, uint_t order) {
   aubio_filter_t * f = AUBIO_NEW(aubio_filter_t);
   lsmp_t * x = f->x;
   lsmp_t * y = f->y;

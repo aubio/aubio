@@ -151,7 +151,7 @@ static uint_t aubio_jack_free(aubio_jack_t * jack_setup) {
 }
 
 /* jack callback functions */
-static void aubio_jack_shutdown (void *arg){
+static void aubio_jack_shutdown (void *arg UNUSED){
   AUBIO_ERR("jack shutdown\n");
   AUBIO_QUIT(AUBIO_OK);
 }

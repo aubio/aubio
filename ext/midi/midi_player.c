@@ -475,7 +475,7 @@ sint_t aubio_midi_send_event(aubio_midi_player_t* player, aubio_midi_event_t* ev
  *
  * \note This could be moved to a callback function defined in the main programs
  */
-sint_t aubio_midi_receive_event(aubio_midi_player_t* player, aubio_midi_event_t* event)
+sint_t aubio_midi_receive_event(aubio_midi_player_t* player UNUSED, aubio_midi_event_t* event)
 {
   /* current time in seconds */
   //smpl_t print_time = player->msec_passed * 1e-3;

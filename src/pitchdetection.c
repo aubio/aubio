@@ -67,12 +67,12 @@ smpl_t freqconvbin(smpl_t f,uint_t srate,uint_t bufsize){
 }
 
 smpl_t freqconvmidi(smpl_t f,uint_t srate,uint_t bufsize);
-smpl_t freqconvmidi(smpl_t f,uint_t srate,uint_t bufsize){
+smpl_t freqconvmidi(smpl_t f,uint_t srate UNUSED,uint_t bufsize UNUSED){
         return aubio_freqtomidi(f);
 }
 
 smpl_t freqconvpass(smpl_t f,uint_t srate,uint_t bufsize);
-smpl_t freqconvpass(smpl_t f,uint_t srate,uint_t bufsize){
+smpl_t freqconvpass(smpl_t f,uint_t srate UNUSED,uint_t bufsize UNUSED){
         return f;
 }
 
