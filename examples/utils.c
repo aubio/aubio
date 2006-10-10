@@ -452,7 +452,7 @@ uint_t get_note(fvec_t *note_buffer, fvec_t *note_buffer2){
 
 #if LASH_SUPPORT
 
-void * lash_thread_main(void *data)
+void * lash_thread_main(void *data __attribute__((unused)))
 {
 	printf("LASH thread running\n");
 
