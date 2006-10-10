@@ -30,7 +30,7 @@ bin_PROGRAMS = \
 	test-tss
 
 run-tests: $(bin_PROGRAMS)
-	@for i in $(bin_PROGRAMS); do echo $$i; time (./$$i 2>&1 > /dev/null; echo $$?); done
+	@for i in $(bin_PROGRAMS); do echo $$i; ((time ./$$i 2>&1 > /dev/null) 2>&1; echo $$?); done
 
 run-valgrind-tests: $(bin_PROGRAMS)
 	@for i in $(bin_PROGRAMS); do echo $$i; valgrind .libs/lt-$$i 2>&1 | grep ERROR\ SUMMARY -A4; echo $$?; done
