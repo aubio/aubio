@@ -169,4 +169,6 @@ typedef enum {
 
 #define ELEM_SWAP(a,b) { register smpl_t t=(a);(a)=(b);(b)=t; }
 
+#define UNUSED __attribute__((unused))
+
 #endif/*_AUBIO_PRIV_H*/
