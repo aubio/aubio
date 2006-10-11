@@ -11,7 +11,6 @@ endif
 
 SUBDIRS = src ext examples sounds plugins $(PYTHONDIR) $(SWIGDIR) $(DOC)
 EXTRA_DIST = bootstrap VERSION
-DISTCLEANFILES = autom4te.cache
 
 docs:
 	cd doc && make update-docs && cd ..
