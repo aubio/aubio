@@ -3,8 +3,8 @@ DOC = doc
 endif
 
 if SWIGFOUND
-if PYTHONFOUND
 SWIGDIR = swig
+if PYTHONFOUND
 PYTHONDIR = python
 endif
 endif
