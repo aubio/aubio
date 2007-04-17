@@ -204,6 +204,10 @@ smpl_t aubio_level_detection(fvec_t * ibuf, smpl_t threshold);
  */
 void aubio_autocorr(fvec_t * input, fvec_t * output);
 /**
+ * zero-crossing rate (number of zero cross per sample)
+ */
+smpl_t aubio_zero_crossing_rate(fvec_t * input);
+/**
  * clean up cached memory at the end of program
  *
  * use this function at the end of programs to purge all

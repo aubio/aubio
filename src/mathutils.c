@@ -440,6 +440,23 @@ smpl_t aubio_level_detection(fvec_t * ibuf, smpl_t threshold) {
       return loudness;
 }
 
+smpl_t aubio_zero_crossing_rate(fvec_t * input) {
+  uint_t i=0,j;
+  uint_t zcr = 0;
+  for ( j = 1; j < input->length; j++ ) {
+    // previous was negative
+    if( input->data[i][j-1] <= 0. ) {
+      if ( input->data[i][j] > 0. ) {
+        zcr += 1;
+      }
+    //previous was positive
+    } else if ( input->data[i][j] <= 0. ){
+      zcr += 1;
+    }
+  }
+  return zcr/(smpl_t)input->length;
+}
+
 void aubio_autocorr(fvec_t * input, fvec_t * output){
         uint_t i = 0, j = 0, length = input->length;
         smpl_t * data = input->data[0];
