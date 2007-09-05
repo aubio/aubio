@@ -23,6 +23,8 @@
 #ifndef MFCC_H 
 #define MFCC_H 
 
+#include "aubiofilterbank.h"
+
 #define NYQUIST 22050.f
 
 //libXtract enums

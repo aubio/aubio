@@ -24,10 +24,10 @@
 
 // Initialization
 
-int aubio_mfcc_init(int N, float nyquist, int style, float freq_min, float freq_max, int freq_bands, float **fft_tables){
+int aubio_mfcc_init(int N, smpl_t nyquist, int style, smpl_t freq_min, smpl_t freq_max, int freq_bands, smpl_t **fft_tables){
 
     int n, i, k, *fft_peak, M, next_peak; 
-    float norm, mel_freq_max, mel_freq_min, norm_fact, height, inc, val, 
+    smpl_t norm, mel_freq_max, mel_freq_min, norm_fact, height, inc, val, 
         freq_bw_mel, *mel_peak, *height_norm, *lin_peak;
 
     mel_peak = height_norm = lin_peak = NULL;
@@ -38,11 +38,11 @@ int aubio_mfcc_init(int N, float nyquist, int style, float freq_min, float freq_
     mel_freq_min = 1127 * log(1 + freq_min / 700);
     freq_bw_mel = (mel_freq_max - mel_freq_min) / freq_bands;
 
-    mel_peak = (float *)malloc((freq_bands + 2) * sizeof(float)); 
+    mel_peak = (smpl_t *)malloc((freq_bands + 2) * sizeof(smpl_t)); 
     /* +2 for zeros at start and end */
-    lin_peak = (float *)malloc((freq_bands + 2) * sizeof(float));
+    lin_peak = (smpl_t *)malloc((freq_bands + 2) * sizeof(smpl_t));
     fft_peak = (int *)malloc((freq_bands + 2) * sizeof(int));
-    height_norm = (float *)malloc(freq_bands * sizeof(float));
+    height_norm = (smpl_t *)malloc(freq_bands * sizeof(smpl_t));
 
     if(mel_peak == NULL || height_norm == NULL || 
                     lin_peak == NULL || fft_peak == NULL)

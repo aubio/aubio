@@ -41,10 +41,9 @@ int aubio_process(float **input, float **output, int nframes) {
       //compute mag spectrum
       aubio_pvoc_do (pv,ibuf, fftgrain);
       
-      //TODO: extract Magnitude buffer f_fvec from fftgrain cvec
-
-      //compute mfccs
-      aubio_mffc_do (magbuf, nframes, filterbank, outbuf);
+       
+      //compute mfcics
+      aubio_mffc_do(fftgrain->norm, nframes, filterbank, outbuf);
       
       
 
@@ -73,10 +72,31 @@ void process_print (void) {
 
 int main(int argc, char **argv) {
   examples_common_init(argc,argv);
+  
+  //allocate and initialize mel filter bank
+  uint_t n_filters=20;
+  uint_t nyquist= samplerate / 2.; 
+
+  uint_t banksize = (uint) ( sizeof(aubio_mel_filter));
+  aubio_mel_filter * mf = (aubio_mel_filter *)getbytes(banksize);
+
+  mfilterbank->n_filters = 20;
+  mfilterbank->filters = (smpl_t **)getbytes(mf->n_filters * sizeof(smpl_t *));
+  for(n = 0; n < mf->n_filters; n++)
+    mf->filters[n] = (smpl_t *)getbytes((buffer_size/2+1) * sizeof(smpl_t));
+  
+  //populating the filter
+  new_aubio_mfcc(buffer_size, nyquist, XTRACT_EQUAL_GAIN, 80.0f, 18000.0f, mf->n_filters, mf->filters);
+
+  //process
   examples_common_process(aubio_process,process_print);
   examples_common_del();
   debug("End of program.\n");
   fflush(stderr);
+  
+  //destroying filterbank
+  free(mf);
+  
   return 0;
 }
 
