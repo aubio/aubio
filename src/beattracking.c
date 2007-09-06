@@ -452,3 +452,11 @@ void aubio_beattracking_checkstate(aubio_beattracking_t * bt) {
         bt->rp2 = rp2;
 
 }
+
+smpl_t aubio_beattracking_get_bpm(aubio_beattracking_t * bt) {
+        if (bt->timesig != 0 && bt->counter == 0 && bt->flagstep == 0) {
+          return 5168. / (smpl_t)bt->gp;
+        } else {
+          return 0.;
+        }
+}
