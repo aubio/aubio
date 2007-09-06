@@ -23,6 +23,7 @@
 #ifndef MFCC_H 
 #define MFCC_H 
 
+#include "filterbank.h"
 
 //libXtract enums
 // TODO: remove them 
