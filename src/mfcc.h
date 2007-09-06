@@ -23,7 +23,6 @@
 #ifndef MFCC_H 
 #define MFCC_H 
 
-#define NYQUIST 22050.f
 
 //libXtract enums
 // TODO: remove them 

@@ -25,6 +25,11 @@ int aubio_process(float **input, float **output, int nframes);
 int aubio_process(float **input, float **output, int nframes) {
   unsigned int i;       /*channels*/
   unsigned int j;       /*frames*/
+  
+  // declare the mel filter bank
+  // TODO: should be done only once
+  aubio_mfcc_init(int N, NYQUIST, int style, float freq_min, float freq_max, int freq_bands, float **fft_tables);
+
   for (j=0;j<(unsigned)nframes;j++) {
     if(usejack) {
       for (i=0;i<channels;i++) {
