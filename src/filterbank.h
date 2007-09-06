@@ -22,14 +22,13 @@
 #ifndef AUBIOFILTERBANK_H
 #define AUBIOFILTERBANK_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-// Struct Declaration
 
-/** \brief A structure to store a set of n_filters Mel filters */
-typedef struct aubio_mel_filter_ {
-    int n_filters;
-    smpl_t **filters;
-} aubio_mel_filter;
+
+typedef struct aubio_mel_filter_ aubio_mel_filter;
 
 // Initialization
 
@@ -37,6 +36,10 @@ typedef struct aubio_mel_filter_ {
  * 
  * It is up to the caller to pass in a pointer to memory allocated for freq_bands arrays of length N. This function populates these arrays with magnitude coefficients representing the mel filterbank on a linear scale 
  */
-int aubio_mfcc_init(int N, float nyquist, int style, float freq_min, float freq_max, int freq_bands, smpl_t ** fft_tables);
+int aubio_mfcc_init(int N, smpl_t nyquist, int style, smpl_t freq_min, smpl_t freq_max, int freq_bands, smpl_t ** fft_tables);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
