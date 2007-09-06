@@ -49,7 +49,7 @@ int aubio_process(float **input, float **output, int nframes) {
         outbuf[coef_cnt]=0.f;
        
       //compute mfccs
-      aubio_mffc_do(fftgrain->norm, nframes, filterbank, outbuf);
+      aubio_mffc_do(fftgrain->norm, nframes, mf, outbuf);
       
       for (coef_cnt=0; coef_cnt<n_filters ; coef_cnt++)
         outmsg("%f ",outbuf[coef_cnt]);
@@ -92,8 +92,8 @@ int main(int argc, char **argv) {
   uint_t banksize = (uint) ( sizeof(aubio_mel_filter));
   aubio_mel_filter * mf = (aubio_mel_filter *)getbytes(banksize);
 
-  mfilterbank->n_filters = 20;
-  mfilterbank->filters = (smpl_t **)getbytes(mf->n_filters * sizeof(smpl_t *));
+  mf->n_filters = 20;
+  mf->filters = (smpl_t **)getbytes(mf->n_filters * sizeof(smpl_t *));
   for(n = 0; n < mf->n_filters; n++)
     mf->filters[n] = (smpl_t *)getbytes((buffer_size/2+1) * sizeof(smpl_t));
   

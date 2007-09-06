@@ -40,6 +40,7 @@ int aubio_mfcc_do(const float *data, const int N, const void *argv, float *resul
         result[filter] = log(result[filter] < XTRACT_LOG_LIMIT ? XTRACT_LOG_LIMIT : result[filter]);
     }
 
+    //TODO: check that zero padding
     for(n = filter + 1; n < N; n++) result[n] = 0; 
     
     aubio_dct_do(result, f->n_filters, NULL, result);
@@ -49,13 +50,28 @@ int aubio_mfcc_do(const float *data, const int N, const void *argv, float *resul
 
 int aubio_dct_do(const float *data, const int N, const void *argv, float *result){
     
+    
+    //call aubio p_voc in dct setting
+
+    //TODO: fvec as input? Remove data length, N?
+
+    //compute mag spectrum
+    aubio_pvoc_do (pv,data, fftgrain);
+
+    int i;
+    //extract real part of fft grain
+    for(i=0; i<N ;i++){
+      result[i]= fftgrain->norm[i]*cos(fftgrain->phase[i]);
+    }
+    
+    /*
     fftwf_plan plan;
     
     plan = 
         fftwf_plan_r2r_1d(N, (float *) data, result, FFTW_REDFT00, FFTW_ESTIMATE);
     
     fftwf_execute(plan);
-    fftwf_destroy_plan(plan);
+    fftwf_destroy_plan(plan);*/
 
     return XTRACT_SUCCESS;
 }
