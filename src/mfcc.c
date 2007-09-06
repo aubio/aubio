@@ -22,7 +22,6 @@
 
 
 #include "mffc.h"
-#include "aubiofilterbank.h"
 
 // Computation
 

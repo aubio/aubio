@@ -20,7 +20,7 @@
 
 */
 
-#include "aubiofilterbank.h"
+#include "filterbank.h"
 
 // Initialization
 

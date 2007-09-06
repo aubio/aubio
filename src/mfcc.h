@@ -23,9 +23,7 @@
 #ifndef MFCC_H 
 #define MFCC_H 
 
-#include "aubiofilterbank.h"
-
-#define NYQUIST 22050.f
+#include "filterbank.h"
 
 //libXtract enums
 // TODO: remove them 
