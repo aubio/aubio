@@ -147,30 +147,66 @@ typedef enum xtract_vector_ {
 } xtract_vector_t;
 
 
+typedef struct aubio_mfcc_t_ aubio_mfcc_t;
+
+// Creation
+
+/** create mfcc object
+
+  \param win_s size of analysis buffer (and length the FFT transform)
+  \param samplerate 
+  \param n_coefs: number of desired coefs
+  \param lowfreq: lowest frequency to use in filterbank
+  \param highfreq highest frequency to use in filterbank
+  \param channels number of channels
+
+*/
+aubio_mfcc_t * new_aubio_mfcc (uint_t win_s, uint_t samplerate ,uint_t n_coefs, smpl_t lowfreq, smpl_t highfreq, uint_t channels);
+
+// Deletion
+
+/** delete mfcc object
+
+  \param mf mfcc object as returned by new_aubio_mfcc
+
+*/
+void del_aubio_mfcc(aubio_mfcc_t *mf);
+
+// Process
+
+/** mfcc object processing
+
+  \param mf mfcc object as returned by new_aubio_mfcc
+  \param in input spectrum (win_s long)
+  \param out output mel coefficients buffer (n_filters/2 +1 long)
+
+*/
+
+void aubio_mfcc_do(aubio_mfcc_t * mf, cvec_t *in, fvec_t *out);
+
+/** intermediate dct involved in aubio_mfcc_do
+
+  \param mf mfcc object as returned by new_aubio_mfcc
+  \param in input spectrum (n_filters long)
+  \param out output mel coefficients buffer (n_filters/2 +1 long)
+
+*/
+
+void aubio_dct_do(aubio_mfcc_t * mf, fvec_t *in, fvec_t *out);
 
 
-// Computation
-
-/** \brief Extract Mel Frequency Cepstral Coefficients based on a method described by Rabiner
- * 
- * \param *data: a pointer to the first element in an array of spectral magnitudes, e.g. the first half of the array pointed to by *resul from xtract_spectrum()
- * \param N: the number of array elements to be considered
- * \param *argv: a pointer to a data structure of type xtract_mel_filter, containing n_filters coefficient tables to make up a mel-spaced filterbank
- * \param *result: a pointer to an array containing the resultant MFCC
- * 
- * The data structure pointed to by *argv must be obtained by first calling xtract_init_mfcc
- */
 
 
+//old code
+
+
+/*
 int aubio_mfcc_do(const float *data, const int N, const void *argv, float *result, aubio_mfft_t *fft_dct, cvec_t *fftgrain_dct);
 
-/** \brief Extract the Discrete Cosine transform of a time domain signal
- * \param *data: a pointer to the first element in an array of floats representing an audio vector
- * \param N: the number of array elements to be considered
- * \param *argv: a pointer to NULL 
- * \param *result: a pointer to an array containing resultant dct coefficients
- */
-int aubio_dct_do(const float *data, const int N, const void *argv, float *result, aubio_mfft_t *fft_dct, cvec_t *fftgrain_dct);
+int aubio_dct_do(const float *data, const int N, const void *argv, float *result, aubio_mfft_t *fft_dct, cvec_t *fftgrain_dct);*/
+
+
+
 
 #ifdef __cplusplus
 }

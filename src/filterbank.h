@@ -1,6 +1,6 @@
 /*
    Copyright (C) 2007 Amaury Hazan
-   Ported to aubio from LibXtract
+   adapted to aubio from LibXtract
    http://libxtract.sourceforge.net/
    
 
@@ -19,6 +19,14 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+/** \file
+
+  Filterbank object
+
+  General-purpose spectral filterbank object. Comes with mel-filter initialization function.
+
+*/
+
 #ifndef AUBIOFILTERBANK_H
 #define AUBIOFILTERBANK_H
 
@@ -28,7 +36,34 @@ extern "C" {
 
 
 
-typedef struct aubio_mel_filter_ aubio_mel_filter;
+typedef struct aubio_filterbank_t_ aubio_filterbank_t;
+
+/** create filterbank object
+
+  \param win_s size of analysis buffer (and length the FFT transform)
+  \param n_filters number of filters to create
+
+*/
+
+aubio_filterbank_t * new_aubio_filterbank(uint_t n_filters, uint_t win_s);
+
+/** destroy filterbank object
+
+  \param fb filterbank, as returned by new_aubio_filterbank method
+
+*/
+void del_aubio_filterbank(aubio_filterbank_t * fb);
+
+/** filterbank initialization for mel filters
+
+  \param fb filterbank, as returned by new_aubio_filterbank method
+  \param nyquist nyquist frequency, i.e. half of the sampling rate
+  \param style libxtract style
+  \param freqmin lowest filter frequency
+  \param freqmax highest filter frequency
+
+*/
+void aubio_filterbank_mfcc_init(aubio_filterbank_t * fb, smpl_t nyquist, int style, smpl_t freq_min, smpl_t freq_max);
 
 // Initialization
 
