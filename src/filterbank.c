@@ -20,7 +20,17 @@
 
 */
 
+#include "aubio_priv.h"
 #include "filterbank.h"
+
+
+// Struct Declaration
+
+/** \brief A structure to store a set of n_filters Mel filters */
+typedef struct aubio_mel_filter_ {
+    int n_filters;
+    smpl_t **filters;
+};
 
 // Initialization
 

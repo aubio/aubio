@@ -21,7 +21,8 @@ pkginclude_HEADERS = aubio.h \
 	beattracking.h \
 	onset.h \
 	tempo.h \
-	filter.h 
+	filter.h \
+	mfcc.h
 
 nodist_pkginclude_HEADERS = config.h
 
@@ -70,6 +71,8 @@ libaubio_la_SOURCES = aubio.h \
 	tempo.h \
 	filter.c \
 	filter.h \
+	mfcc.h \
+	mfcc.c 
 
 AM_CFLAGS = @AUBIO_CFLAGS@ @FFTWLIB_CFLAGS@ @SAMPLERATE_CFLAGS@
 libaubio_la_LIBADD = @FFTWLIB_LIBS@ @SAMPLERATE_LIBS@ @LTLIBOBJS@

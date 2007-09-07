@@ -25,6 +25,7 @@ int aubio_process(float **input, float **output, int nframes);
 int aubio_process(float **input, float **output, int nframes) {
   unsigned int i;       /*channels*/
   unsigned int j;       /*frames*/
+  
   for (j=0;j<(unsigned)nframes;j++) {
     if(usejack) {
       for (i=0;i<channels;i++) {
@@ -41,18 +42,18 @@ int aubio_process(float **input, float **output, int nframes) {
       //compute mag spectrum
       aubio_pvoc_do (pv,ibuf, fftgrain);
      
+      uint_t n_coefs= n_filters/2 +1;
       uint_t coef_cnt;
-      uint_t n_filters=20;
-      smpl_t outbuf[20];
+       
 
-      for (coef_cnt=0; coef_cnt<n_filters ; coef_cnt++)
-        outbuf[coef_cnt]=0.f;
+      for (coef_cnt=0; coef_cnt<n_coefs ; coef_cnt++)
+        mfcc_outbuf[coef_cnt]=0.f;
        
       //compute mfccs
-      aubio_mffc_do(fftgrain->norm, nframes, mf, outbuf);
+      aubio_mffc_do(fftgrain->norm, nframes, mf, mfcc_outbuf, fft_dct, fftgrain_dct);
       
-      for (coef_cnt=0; coef_cnt<n_filters ; coef_cnt++)
-        outmsg("%f ",outbuf[coef_cnt]);
+      for (coef_cnt=0; coef_cnt<n_coefs ; coef_cnt++)
+        outmsg("%f ",mfcc_outbuf[coef_cnt]);
       outmsg("\n");
       
       
@@ -84,13 +85,11 @@ int main(int argc, char **argv) {
   examples_common_init(argc,argv);
   
   //allocate and initialize mel filter bank
-  uint_t n_filters=20;
-  uint_t nyquist= samplerate / 2.; 
-  smpl_t lowfreq=80.f;
-  smpl_t highfreq=18000.f;
+  
 
+  //allocating global mf (in utils.c)
   uint_t banksize = (uint) ( sizeof(aubio_mel_filter));
-  aubio_mel_filter * mf = (aubio_mel_filter *)getbytes(banksize);
+  mf = (aubio_mel_filter *)getbytes(banksize);
 
   mf->n_filters = 20;
   mf->filters = (smpl_t **)getbytes(mf->n_filters * sizeof(smpl_t *));
