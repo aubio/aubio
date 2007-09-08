@@ -43,6 +43,17 @@ typedef struct aubio_filterbank_t_ aubio_filterbank_t;
 
 aubio_filterbank_t * new_aubio_filterbank(uint_t n_filters, uint_t win_s);
 
+/** filterbank initialization for mel filters
+
+  \param nyquist nyquist frequency, i.e. half of the sampling rate
+  \param style libxtract style
+  \param freqmin lowest filter frequency
+  \param freqmax highest filter frequency
+
+*/
+aubio_filterbank_t * new_aubio_filterbank_mfcc(uint_t n_filters, uint_t win_s, smpl_t samplerate, smpl_t freq_min, smpl_t freq_max);
+
+
 /** destroy filterbank object
 
   \param fb filterbank, as returned by new_aubio_filterbank method
@@ -50,24 +61,10 @@ aubio_filterbank_t * new_aubio_filterbank(uint_t n_filters, uint_t win_s);
 */
 void del_aubio_filterbank(aubio_filterbank_t * fb);
 
-/** filterbank initialization for mel filters
-
-  \param fb filterbank, as returned by new_aubio_filterbank method
-  \param nyquist nyquist frequency, i.e. half of the sampling rate
-  \param style libxtract style
-  \param freqmin lowest filter frequency
-  \param freqmax highest filter frequency
+/** compute filterbank
 
 */
-void aubio_filterbank_mfcc_init(aubio_filterbank_t * fb, smpl_t nyquist, int style, smpl_t freq_min, smpl_t freq_max);
-
-// Initialization
-
-/** \brief A function to initialise a mel filter bank 
- * 
- * It is up to the caller to pass in a pointer to memory allocated for freq_bands arrays of length N. This function populates these arrays with magnitude coefficients representing the mel filterbank on a linear scale 
- */
-int aubio_mfcc_init(int N, smpl_t nyquist, int style, smpl_t freq_min, smpl_t freq_max, int freq_bands, smpl_t ** fft_tables);
+void aubio_filterbank_do(aubio_filterbank_t * fb, cvec_t * in, fvec_t *out);
 
 #ifdef __cplusplus
 }

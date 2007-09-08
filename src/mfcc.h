@@ -29,6 +29,7 @@
 extern "C" {
 #endif
 
+#include "sample.h"
 #include "filterbank.h"
 
 typedef struct aubio_mfcc_t_ aubio_mfcc_t;
