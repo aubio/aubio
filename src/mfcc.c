@@ -32,37 +32,16 @@
 /** Internal structure for mfcc object **/
 
 struct aubio_mfcc_t_{
-
-  /** grain length */
-  uint_t win_s;
-  
-  /** sample rate (needed?) */
-  uint_t samplerate;
-
-  /** number of channels */
-  uint_t channels;
-  
-  /** filter bank */
-  aubio_filterbank_t * fb;
-
-  /** number of coefficients (= fb->n_filters/2 +1) */
-  uint_t n_coefs;
-
-  /** lowest frequency for filters */ 
-  smpl_t lowfreq;
-  
-  /** highest frequency for filters */
-  smpl_t highfreq;
-
-  /** input buffer for dct * [fb->n_filters] */
-  fvec_t * in_dct;
-
-  /** fft object for dct */
-  aubio_mfft_t * fft_dct;
-
-  /** output buffer for dct */
-  cvec_t * fftgrain_dct;
-
+  uint_t win_s;             /** grain length */
+  uint_t samplerate;        /** sample rate (needed?) */
+  uint_t channels;          /** number of channels */
+  uint_t n_coefs;           /** number of coefficients (= fb->n_filters/2 +1) */
+  smpl_t lowfreq;           /** lowest frequency for filters */ 
+  smpl_t highfreq;          /** highest frequency for filters */
+  aubio_filterbank_t * fb;  /** filter bank */
+  fvec_t * in_dct;          /** input buffer for dct * [fb->n_filters] */
+  aubio_mfft_t * fft_dct;   /** fft object for dct */
+  cvec_t * fftgrain_dct;    /** output buffer for dct */
 };
 
 
