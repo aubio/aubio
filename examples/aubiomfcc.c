@@ -18,6 +18,10 @@
 
 #include "utils.h"
 
+/* mfcc objects */
+fvec_t * mfcc_outbuf;
+aubio_mfcc_t * mfcc;
+
 unsigned int pos = 0; /*frames%dspblocksize*/
 uint_t usepitch = 0;
 
@@ -42,21 +46,8 @@ int aubio_process(float **input, float **output, int nframes) {
       //compute mag spectrum
       aubio_pvoc_do (pv,ibuf, fftgrain);
      
-      uint_t n_coefs= n_filters/2 +1;
-      uint_t coef_cnt;
-       
-
-      for (coef_cnt=0; coef_cnt<n_coefs ; coef_cnt++)
-        mfcc_outbuf[coef_cnt]=0.f;
-       
       //compute mfccs
-      aubio_mffc_do(fftgrain->norm, nframes, mf, mfcc_outbuf, fft_dct, fftgrain_dct);
-      
-      for (coef_cnt=0; coef_cnt<n_coefs ; coef_cnt++)
-        outmsg("%f ",mfcc_outbuf[coef_cnt]);
-      outmsg("\n");
-      
-      
+      aubio_mfcc_do(mfcc, fftgrain, mfcc_outbuf);
 
       /* end of block loop */
       pos = -1; /* so it will be zero next j loop */
@@ -82,22 +73,16 @@ void process_print (void) {
 }
 
 int main(int argc, char **argv) {
+  // params
+  uint_t n_filters = 11;
+  smpl_t lowfreq = 500.;
+  smpl_t highfreq = 2000.;
   examples_common_init(argc,argv);
-  
-  //allocate and initialize mel filter bank
-  
-
-  //allocating global mf (in utils.c)
-  uint_t banksize = (uint) ( sizeof(aubio_mel_filter));
-  mf = (aubio_mel_filter *)getbytes(banksize);
-
-  mf->n_filters = 20;
-  mf->filters = (smpl_t **)getbytes(mf->n_filters * sizeof(smpl_t *));
-  for(n = 0; n < mf->n_filters; n++)
-    mf->filters[n] = (smpl_t *)getbytes((buffer_size/2+1) * sizeof(smpl_t));
+  mfcc_outbuf = new_fvec(n_filters,channels);
   
   //populating the filter
-  aubio_mfcc_init(buffer_size, nyquist, XTRACT_EQUAL_GAIN, lowfreq, highfreq, mf->n_filters, mf->filters);
+  mfcc = new_aubio_mfcc(buffer_size, samplerate, n_filters, lowfreq, highfreq,
+      channels);
 
   //process
   examples_common_process(aubio_process,process_print);
@@ -105,8 +90,9 @@ int main(int argc, char **argv) {
   debug("End of program.\n");
   fflush(stderr);
   
-  //destroying filterbank
-  free(mf);
+  //destroying mfcc 
+  del_aubio_mfcc(mfcc);
+  del_fvec(mfcc_outbuf);
   
   return 0;
 }

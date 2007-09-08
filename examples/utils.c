@@ -63,16 +63,15 @@ aubio_pickpeak_t * parms;
 /* mfcc objects */
 //parameters
 uint_t n_filters=20;
-uint_t nyquist= samplerate / 2.; 
 smpl_t lowfreq=80.f;
 smpl_t highfreq=18000.f;
 // filterbank object
-aubio_mel_filter * mf;
+aubio_filterbank_t * mf;
 
 // DCT mfft and result storage
-aubio_mfft * fft_dct;
+aubio_mfft_t * fft_dct;
 cvec_t * fftgrain_dct;
-smpl_t mfcc_outbuf[11];
+smpl_t * mfcc_outbuf[11];
 
 
 /* pitch objects */
