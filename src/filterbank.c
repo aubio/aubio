@@ -169,9 +169,10 @@ void del_aubio_filterbank(aubio_filterbank_t * fb){
 
 void aubio_filterbank_do(aubio_filterbank_t * f, cvec_t * in, fvec_t *out) {
   uint_t n, filter_cnt;
-  for(filter_cnt = 0; filter_cnt < f->n_filters; filter_cnt++){
+  for(filter_cnt = 0; (filter_cnt < f->n_filters)
+    && (filter_cnt < out->length); filter_cnt++){
       out->data[0][filter_cnt] = 0.f;
-      for(n = 0; n < f->win_s; n++){
+      for(n = 0; n < in->length; n++){
           out->data[0][filter_cnt] += in->norm[0][n] 
             * f->filters[filter_cnt]->data[0][n];
       }
