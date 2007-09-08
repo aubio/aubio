@@ -19,7 +19,7 @@
 #include "utils.h"
 
 /* mfcc objects */
-fvec_t * mfcc_outbuf;
+fvec_t * mfcc_out;
 aubio_mfcc_t * mfcc;
 
 unsigned int pos = 0; /*frames%dspblocksize*/
@@ -47,7 +47,7 @@ int aubio_process(float **input, float **output, int nframes) {
       aubio_pvoc_do (pv,ibuf, fftgrain);
      
       //compute mfccs
-      aubio_mfcc_do(mfcc, fftgrain, mfcc_outbuf);
+      aubio_mfcc_do(mfcc, fftgrain, mfcc_out);
 
       /* end of block loop */
       pos = -1; /* so it will be zero next j loop */
@@ -63,12 +63,18 @@ void process_print (void) {
          write extracted mfccs
       */
       
+      uint_t filter_cnt;
       if (output_filename == NULL) {
         if(frames >= 4) {
-          outmsg("%f\n",(frames-4)*overlap_size/(float)samplerate);
+          outmsg("%f\t",(frames-4)*overlap_size/(float)samplerate);
         } else if (frames < 4) {
-          outmsg("%f\n",0.);
+          outmsg("%f\t",0.);
         }
+        outmsg("%f",mfcc_out->data[0][0]);
+        for (filter_cnt = 1; filter_cnt < mfcc_out->length; filter_cnt++) {
+          outmsg(",%f",mfcc_out->data[0][filter_cnt]);
+        }
+        outmsg("\n");
       }
 }
 
@@ -78,7 +84,7 @@ int main(int argc, char **argv) {
   smpl_t lowfreq = 500.;
   smpl_t highfreq = 2000.;
   examples_common_init(argc,argv);
-  mfcc_outbuf = new_fvec(n_filters,channels);
+  mfcc_out = new_fvec(n_filters,channels);
   
   //populating the filter
   mfcc = new_aubio_mfcc(buffer_size, samplerate, n_filters, lowfreq, highfreq,
@@ -92,7 +98,7 @@ int main(int argc, char **argv) {
   
   //destroying mfcc 
   del_aubio_mfcc(mfcc);
-  del_fvec(mfcc_outbuf);
+  del_fvec(mfcc_out);
   
   return 0;
 }
