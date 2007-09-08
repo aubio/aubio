@@ -1,8 +1,6 @@
 /*
-   Copyright (C) 2007 Amaury Hazan
-   adapted to aubio from LibXtract
-   http://libxtract.sourceforge.net/
-   
+   Copyright (C) 2007 Amaury Hazan <ahazan@iua.upf.edu>
+                  and Paul Brossier <piem@piem.org>
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -27,14 +25,12 @@
 
 */
 
-#ifndef AUBIOFILTERBANK_H
-#define AUBIOFILTERBANK_H
+#ifndef FILTERBANK_H
+#define FILTERBANK_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-
 
 typedef struct aubio_filterbank_t_ aubio_filterbank_t;
 
@@ -77,4 +73,4 @@ int aubio_mfcc_init(int N, smpl_t nyquist, int style, smpl_t freq_min, smpl_t fr
 }
 #endif
 
-#endif
+#endif // FILTERBANK_H
