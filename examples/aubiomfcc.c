@@ -82,9 +82,9 @@ void process_print (void) {
 int main(int argc, char **argv) {
   // params
   uint_t n_filters = 11;
-  smpl_t lowfreq = 500.;
-  smpl_t highfreq = 2000.;
   examples_common_init(argc,argv);
+  smpl_t lowfreq = 0.;
+  smpl_t highfreq = samplerate;
   mfcc_out = new_fvec(n_filters,channels);
   
   //populating the filter
@@ -93,13 +93,14 @@ int main(int argc, char **argv) {
 
   //process
   examples_common_process(aubio_process,process_print);
-  examples_common_del();
-  debug("End of program.\n");
-  fflush(stderr);
   
   //destroying mfcc 
   del_aubio_mfcc(mfcc);
   del_fvec(mfcc_out);
+
+  examples_common_del();
+  debug("End of program.\n");
+  fflush(stderr);
   
   return 0;
 }
