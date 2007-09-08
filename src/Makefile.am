@@ -22,6 +22,7 @@ pkginclude_HEADERS = aubio.h \
 	onset.h \
 	tempo.h \
 	filter.h \
+	filterbank.h \
 	mfcc.h
 
 nodist_pkginclude_HEADERS = config.h
@@ -71,6 +72,8 @@ libaubio_la_SOURCES = aubio.h \
 	tempo.h \
 	filter.c \
 	filter.h \
+	filterbank.c \
+	filterbank.h \
 	mfcc.h \
 	mfcc.c 
 
