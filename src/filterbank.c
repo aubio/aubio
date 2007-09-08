@@ -1,8 +1,6 @@
 /*
-   Copyright (C) 2007 Amaury Hazan
-   Ported to aubio from LibXtract
-   http://libxtract.sourceforge.net/
-   
+   Copyright (C) 2007 Amaury Hazan <ahazan@iua.upf.edu>
+                  and Paul Brossier <piem@piem.org>
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -20,11 +18,12 @@
 
 */
 
+/* part of this mfcc implementation were inspired from LibXtract
+   http://libxtract.sourceforge.net/
+*/
+
 #include "aubio_priv.h"
 #include "filterbank.h"
-
-
-// Struct Declaration
 
 /** \brief A structure to store a set of n_filters filters of lenghts win_s */
 struct aubio_filterbank_t_ {
@@ -34,15 +33,14 @@ struct aubio_filterbank_t_ {
 };
 
 aubio_filterbank_t * new_aubio_filterbank(uint_t n_filters, uint_t win_s){
-  
-  int filter_cnt;
   /** allocating space for filterbank object */
   aubio_filterbank_t * fb = AUBIO_NEW(aubio_filterbank_t);
+  uint_t filter_cnt;
   fb->win_s=win_s;
   fb->n_filters=n_filters;
 
   /** allocating filter tables */
-  fb->filters=AUBIO_ARRAY(n_filters,f_vec_t);
+  fb->filters=AUBIO_ARRAY(n_filters,fvec_t);
   for (filter_cnt=0; filter_cnt<n_filters; filter_cnt++)
     /* considering one-channel filters */
     filters[filter_cnt]=new_fvec(win_s, 1);
