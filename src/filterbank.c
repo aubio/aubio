@@ -85,7 +85,6 @@ aubio_filterbank_t * new_aubio_filterbank_mfcc(uint_t n_filters, uint_t win_s, s
   lin_peak[0] = 700 * (exp(mel_peak[0] / 1127) - 1);
   fft_peak[0] = lin_peak[0] / nyquist * M;
 
-
   for (n = 1; n <= fb->n_filters; n++){  
     /*roll out peak locations - mel, linear and linear on fft window scale */
     mel_peak[n] = mel_peak[n - 1] + freq_bw_mel;
@@ -119,12 +118,10 @@ aubio_filterbank_t * new_aubio_filterbank_mfcc(uint_t n_filters, uint_t win_s, s
 
     /*zero the start of the array*/
     for(k = 0; k < i; k++)
-      //fft_tables[n][k] = 0.f;
       fb->filters[n]->data[0][k]=0.f;
 
     /*fill in the rise */
     for(; i <= fft_peak[n]; i++){ 
-      // fft_tables[n][i] = val;
       fb->filters[n]->data[0][k]=val;
       val += inc;
     }
@@ -137,14 +134,12 @@ aubio_filterbank_t * new_aubio_filterbank_mfcc(uint_t n_filters, uint_t win_s, s
 
     /*reverse fill the 'fall' */
     for(i = next_peak; i > fft_peak[n]; i--){ 
-      //fft_tables[n][i] = val;
       fb->filters[n]->data[0][k]=val;
       val += inc;
     }
 
     /*zero the rest of the array*/
     for(k = next_peak + 1; k < fb->win_s; k++)
-      //fft_tables[n][k] = 0.f;
       fb->filters[n]->data[0][k]=0.f;
   }
 
