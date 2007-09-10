@@ -59,6 +59,15 @@ aubio_beattracking_t * new_aubio_beattracking(uint_t winlen, uint_t channels);
 
 */
 void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframes, fvec_t * out);
+/** get current tempo in bpm
+
+  \param bt beat tracking object
+
+  Returns the currently observed tempo, in beats per minutes, or 0 if no
+  consistent value is found.
+
+*/
+smpl_t aubio_beattracking_get_bpm(aubio_beattracking_t * bt);
 /** delete beat tracking object
 
   \param p beat tracking object

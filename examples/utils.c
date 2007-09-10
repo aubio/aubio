@@ -60,21 +60,6 @@ fvec_t *onset2;
 int isonset = 0;
 aubio_pickpeak_t * parms;
 
-/* mfcc objects */
-//parameters
-uint_t n_filters=20;
-uint_t nyquist= samplerate / 2.; 
-smpl_t lowfreq=80.f;
-smpl_t highfreq=18000.f;
-// filterbank object
-aubio_mel_filter * mf;
-
-// DCT mfft and result storage
-aubio_mfft * fft_dct;
-cvec_t * fftgrain_dct;
-smpl_t mfcc_outbuf[11];
-
-
 /* pitch objects */
 smpl_t pitch               = 0.;
 aubio_pitchdetection_t * pitchdet;
@@ -314,9 +299,7 @@ void examples_common_init(int argc,char ** argv) {
   obuf      = new_fvec(overlap_size, channels);
   fftgrain  = new_cvec(buffer_size, channels);
 
-  //init for mfcc process
-  fftgrain_dct= new_cvec(n_filters, channels);
-
+  
   if (usepitch) {
     pitchdet = new_aubio_pitchdetection(buffer_size*4, 
         overlap_size, channels, samplerate, type_pitch, mode_pitch);
@@ -330,10 +313,6 @@ void examples_common_init(int argc,char ** argv) {
   /* phase vocoder */
   pv = new_aubio_pvoc(buffer_size, overlap_size, channels);
   
-  // dct phase vocoder
-  //TODO: check size
-  fft_dct = new_aubio_mfft(n_filters, channels);
-
   /* onsets */
   parms = new_aubio_peakpicker(threshold);
   o = new_aubio_onsetdetection(type_onset,buffer_size,channels);
@@ -367,10 +346,6 @@ void examples_common_del(void){
   del_cvec(fftgrain);
   del_fvec(onset);
   del_fvec(woodblock);
-  
-  //mffc related
-  del_aubio_mfft(fft_dct);
-  del_cvec(fftgrain_dct);
   
   aubio_cleanup();
 }

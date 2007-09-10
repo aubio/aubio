@@ -1,8 +1,6 @@
 /*
-   Copyright (C) 2007 Amaury Hazan
-   Ported to aubio from LibXtract
-   http://libxtract.sourceforge.net/
-   
+   Copyright (C) 2007 Amaury Hazan <ahazan@iua.upf.edu>
+                  and Paul Brossier <piem@piem.org>
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -19,27 +17,57 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#ifndef AUBIOFILTERBANK_H
-#define AUBIOFILTERBANK_H
+/** \file
+
+  Filterbank object
+
+  General-purpose spectral filterbank object. Comes with mel-filter initialization function.
+
+*/
+
+#ifndef FILTERBANK_H
+#define FILTERBANK_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+typedef struct aubio_filterbank_t_ aubio_filterbank_t;
+
+/** create filterbank object
+
+  \param win_s size of analysis buffer (and length the FFT transform)
+  \param n_filters number of filters to create
+
+*/
+
+aubio_filterbank_t * new_aubio_filterbank(uint_t n_filters, uint_t win_s);
+
+/** filterbank initialization for mel filters
+
+  \param nyquist nyquist frequency, i.e. half of the sampling rate
+  \param style libxtract style
+  \param freqmin lowest filter frequency
+  \param freqmax highest filter frequency
+
+*/
+aubio_filterbank_t * new_aubio_filterbank_mfcc(uint_t n_filters, uint_t win_s, smpl_t samplerate, smpl_t freq_min, smpl_t freq_max);
 
 
-typedef struct aubio_mel_filter_ aubio_mel_filter;
+/** destroy filterbank object
 
-// Initialization
+  \param fb filterbank, as returned by new_aubio_filterbank method
 
-/** \brief A function to initialise a mel filter bank 
- * 
- * It is up to the caller to pass in a pointer to memory allocated for freq_bands arrays of length N. This function populates these arrays with magnitude coefficients representing the mel filterbank on a linear scale 
- */
-int aubio_mfcc_init(int N, smpl_t nyquist, int style, smpl_t freq_min, smpl_t freq_max, int freq_bands, smpl_t ** fft_tables);
+*/
+void del_aubio_filterbank(aubio_filterbank_t * fb);
+
+/** compute filterbank
+
+*/
+void aubio_filterbank_do(aubio_filterbank_t * fb, cvec_t * in, fvec_t *out);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif // FILTERBANK_H

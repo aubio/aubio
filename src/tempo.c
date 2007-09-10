@@ -123,6 +123,10 @@ aubio_tempo_t * new_aubio_tempo (aubio_onsetdetection_type type_onset,
   return o;
 }
 
+smpl_t aubio_tempo_get_bpm(aubio_tempo_t *o) {
+  return aubio_beattracking_get_bpm(o->bt);
+}
+
 void del_aubio_tempo (aubio_tempo_t *o)
 {
   del_aubio_onsetdetection(o->od);

@@ -1,5 +1,6 @@
 /*
-   Copyright (C) 2007 Amaury Hazan
+   Copyright (C) 2007 Amaury Hazan <ahazan@iua.upf.edu>
+                  and Paul Brossier <piem@piem.org>
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -17,6 +18,13 @@
 */
 
 #include "utils.h"
+
+/* mfcc objects */
+fvec_t * mfcc_out;
+aubio_mfcc_t * mfcc;
+
+uint_t n_filters = 20;
+uint_t n_coefs = 11;
 
 unsigned int pos = 0; /*frames%dspblocksize*/
 uint_t usepitch = 0;
@@ -42,21 +50,8 @@ int aubio_process(float **input, float **output, int nframes) {
       //compute mag spectrum
       aubio_pvoc_do (pv,ibuf, fftgrain);
      
-      uint_t n_coefs= n_filters/2 +1;
-      uint_t coef_cnt;
-       
-
-      for (coef_cnt=0; coef_cnt<n_coefs ; coef_cnt++)
-        mfcc_outbuf[coef_cnt]=0.f;
-       
       //compute mfccs
-      aubio_mffc_do(fftgrain->norm, nframes, mf, mfcc_outbuf, fft_dct, fftgrain_dct);
-      
-      for (coef_cnt=0; coef_cnt<n_coefs ; coef_cnt++)
-        outmsg("%f ",mfcc_outbuf[coef_cnt]);
-      outmsg("\n");
-      
-      
+      aubio_mfcc_do(mfcc, fftgrain, mfcc_out);
 
       /* end of block loop */
       pos = -1; /* so it will be zero next j loop */
@@ -72,41 +67,46 @@ void process_print (void) {
          write extracted mfccs
       */
       
+      uint_t coef_cnt;
       if (output_filename == NULL) {
-        if(frames >= 4) {
-          outmsg("%f\n",(frames-4)*overlap_size/(float)samplerate);
-        } else if (frames < 4) {
-          outmsg("%f\n",0.);
+//         if(frames >= 4) {
+//           outmsg("%f\t",(frames-4)*overlap_size/(float)samplerate);
+//         } 
+//         else if (frames < 4) {
+//           outmsg("%f\t",0.);
+//         }
+        //outmsg("%f ",mfcc_out->data[0][0]);
+        
+        /*for (coef_cnt = 0; coef_cnt < n_coefs; coef_cnt++) {
+          outmsg("%f ",mfcc_out->data[0][coef_cnt]);
         }
+        outmsg("\n");/*/
       }
 }
 
 int main(int argc, char **argv) {
+  // params
+  //uint_t n_filters = 40;
+  //uint_t n_coefs = 15;
+
   examples_common_init(argc,argv);
-  
-  //allocate and initialize mel filter bank
-  
-
-  //allocating global mf (in utils.c)
-  uint_t banksize = (uint) ( sizeof(aubio_mel_filter));
-  mf = (aubio_mel_filter *)getbytes(banksize);
-
-  mf->n_filters = 20;
-  mf->filters = (smpl_t **)getbytes(mf->n_filters * sizeof(smpl_t *));
-  for(n = 0; n < mf->n_filters; n++)
-    mf->filters[n] = (smpl_t *)getbytes((buffer_size/2+1) * sizeof(smpl_t));
+  smpl_t lowfreq = 133.333f;
+  smpl_t highfreq = 44100.f;
+  mfcc_out = new_fvec(n_coefs,channels);
   
   //populating the filter
-  aubio_mfcc_init(buffer_size, nyquist, XTRACT_EQUAL_GAIN, lowfreq, highfreq, mf->n_filters, mf->filters);
+  mfcc = new_aubio_mfcc(buffer_size, samplerate, n_filters, n_coefs , lowfreq, highfreq, channels);
 
   //process
   examples_common_process(aubio_process,process_print);
+  
+  //destroying mfcc 
+  del_aubio_mfcc(mfcc);
+  del_fvec(mfcc_out);
+
   examples_common_del();
   debug("End of program.\n");
   fflush(stderr);
-  
-  //destroying filterbank
-  free(mf);
   
   return 0;
 }

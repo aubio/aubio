@@ -97,19 +97,6 @@ extern fvec_t *onset2;
 extern int isonset;
 extern aubio_pickpeak_t * parms;
 
-/* mfcc objects */
-// params
-extern uint_t n_filters;
-extern uint_t nyquist; 
-extern smpl_t lowfreq;
-extern smpl_t highfreq;
-// filterbank object
-extern aubio_mel_filter * mf;
-// DCT pvoc and result storage
-extern aubio_mfft_t * fft_dct;
-extern cvec_t * fftgrain_dct;
-extern smpl_t mfcc_outbuf[20];
-
 /* pitch objects */
 extern smpl_t pitch;
 extern aubio_pitchdetection_t * pitchdet;
