@@ -97,7 +97,6 @@ extern fvec_t *onset2;
 extern int isonset;
 extern aubio_pickpeak_t * parms;
 
-
 /* pitch objects */
 extern smpl_t pitch;
 extern aubio_pitchdetection_t * pitchdet;

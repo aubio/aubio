@@ -49,6 +49,15 @@ void aubio_tempo_set_silence(aubio_tempo_t * o, smpl_t silence);
 /** set tempo detection peak picking threshold  */
 void aubio_tempo_set_threshold(aubio_tempo_t * o, smpl_t threshold);
 
+/** get current tempo
+
+  \param bt beat tracking object
+
+  Returns the currently observed tempo, or 0 if no consistent value is found
+
+*/
+smpl_t aubio_tempo_get_bpm(aubio_tempo_t * bt);
+
 /** delete tempo detection object */
 void del_aubio_tempo(aubio_tempo_t * o);
 

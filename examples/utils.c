@@ -60,7 +60,6 @@ fvec_t *onset2;
 int isonset = 0;
 aubio_pickpeak_t * parms;
 
-
 /* pitch objects */
 smpl_t pitch               = 0.;
 aubio_pitchdetection_t * pitchdet;
@@ -300,6 +299,7 @@ void examples_common_init(int argc,char ** argv) {
   obuf      = new_fvec(overlap_size, channels);
   fftgrain  = new_cvec(buffer_size, channels);
 
+  
   if (usepitch) {
     pitchdet = new_aubio_pitchdetection(buffer_size*4, 
         overlap_size, channels, samplerate, type_pitch, mode_pitch);
@@ -312,6 +312,7 @@ void examples_common_init(int argc,char ** argv) {
   }
   /* phase vocoder */
   pv = new_aubio_pvoc(buffer_size, overlap_size, channels);
+  
   /* onsets */
   parms = new_aubio_peakpicker(threshold);
   o = new_aubio_onsetdetection(type_onset,buffer_size,channels);
@@ -345,6 +346,7 @@ void examples_common_del(void){
   del_cvec(fftgrain);
   del_fvec(onset);
   del_fvec(woodblock);
+  
   aubio_cleanup();
 }
 
