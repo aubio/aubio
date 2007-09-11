@@ -53,7 +53,7 @@ aubio_filterbank_t * new_aubio_filterbank(uint_t n_filters, uint_t win_s);
   \param freq_max highest filter frequency
 
 */
-aubio_filterbank_t * new_aubio_filterbank_mfcc(uint_t n_filters, uint_t win_s, smpl_t samplerate, smpl_t freq_min, smpl_t freq_max);
+aubio_filterbank_t * new_aubio_filterbank_mfcc(uint_t n_filters, uint_t win_s, uint_t samplerate, smpl_t freq_min, smpl_t freq_max);
 
 /** filterbank initialization for mel filters
 
@@ -64,7 +64,7 @@ aubio_filterbank_t * new_aubio_filterbank_mfcc(uint_t n_filters, uint_t win_s, s
   \param freq_max highest filter frequency
 
 */
-aubio_filterbank_t * new_aubio_filterbank_mfcc_2(uint_t n_filters, uint_t win_s, smpl_t samplerate, smpl_t freq_min, smpl_t freq_max);
+aubio_filterbank_t * new_aubio_filterbank_mfcc_2(uint_t n_filters, uint_t win_s, uint_t samplerate, smpl_t freq_min, smpl_t freq_max);
 
 
 /** destroy filterbank object
