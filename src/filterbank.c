@@ -180,15 +180,12 @@ aubio_filterbank_t * new_aubio_filterbank_mfcc2(uint_t n_filters, uint_t win_s, 
   uint_t allFilters = linearFilters + logFilters;
   
   //buffers for computing filter frequencies
-  fvec_t * freqs=new_fvec( allFilters +2 , 1);
+  fvec_t * freqs=new_fvec(allFilters+2 , 1);
   
   fvec_t * lower_freqs=new_fvec( allFilters, 1);
   fvec_t * upper_freqs=new_fvec( allFilters, 1);
   fvec_t * center_freqs=new_fvec( allFilters, 1);
-     
-  /*fvec_t * lower_freqs=freqs;
-  fvec_t * upper_freqs=freqs;
-  fvec_t * center_freqs=freqs*/;
+
   
   fvec_t * triangle_heights=new_fvec( allFilters, 1);
   //lookup table of each bin frequency in hz
@@ -196,29 +193,33 @@ aubio_filterbank_t * new_aubio_filterbank_mfcc2(uint_t n_filters, uint_t win_s, 
 
   uint_t filter_cnt, bin_cnt;
   
-  //first: filling all the linear filter frequencies
+  //first step: filling all the linear filter frequencies
   for(filter_cnt=0; filter_cnt<linearFilters; filter_cnt++){
     freqs->data[0][filter_cnt]=lowestFrequency+ filter_cnt*linearSpacing;
   }
   smpl_t lastlinearCF=freqs->data[0][filter_cnt-1];
   
-  //second: filling all the log filter frequencies
+  //second step: filling all the log filter frequencies
   for(filter_cnt=0; filter_cnt<logFilters+2; filter_cnt++){
     freqs->data[0][filter_cnt+linearFilters]=lastlinearCF*(pow(logSpacing,filter_cnt+1));
   }
-  
-  
-  //make fvec->data point directly to freqs arrays
-  lower_freqs->data=freqs->data;
-  center_freqs->data[0]=&(freqs->data[0][1]);
-  upper_freqs->data[0]=&(freqs->data[0][2]);
 
-  
+  //Option 1. copying interesting values to lower_freqs, center_freqs and upper freqs arrays
+  //TODO: would be nicer to have a reference to freqs->data, anyway we do not care in this init step
+    
+  for(filter_cnt=0; filter_cnt<allFilters; filter_cnt++){
+    lower_freqs->data[0][filter_cnt]=freqs->data[0][filter_cnt];
+    center_freqs->data[0][filter_cnt]=freqs->data[0][filter_cnt+1];
+    upper_freqs->data[0][filter_cnt]=freqs->data[0][filter_cnt+2];
+  }
+
+
   //computing triangle heights so that each triangle has unit area
   for(filter_cnt=0; filter_cnt<allFilters; filter_cnt++){
     triangle_heights->data[0][filter_cnt]=2./(upper_freqs->data[0][filter_cnt]-lower_freqs->data[0][filter_cnt]);
   }
-
+  
+  
   //AUBIO_DBG
   AUBIO_DBG("filter tables frequencies\n");
   for(filter_cnt=0; filter_cnt<allFilters; filter_cnt++)
@@ -299,16 +300,14 @@ aubio_filterbank_t * new_aubio_filterbank_mfcc2(uint_t n_filters, uint_t win_s, 
   }
   
   
-  del_fvec(freqs);
-  //TODO: Check how to do a proper free for the following f_vec
 
-  //del_fvec(lower_freqs);
-  //del_fvec(upper_freqs);
-  //del_fvec(center_freqs);
+  del_fvec(freqs);
+  del_fvec(lower_freqs);
+  del_fvec(upper_freqs);
+  del_fvec(center_freqs);
+
   del_fvec(triangle_heights);
   del_fvec(fft_freqs);
-
-  
 
   return fb;
 
