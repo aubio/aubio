@@ -23,7 +23,7 @@
 fvec_t * mfcc_out;
 aubio_mfcc_t * mfcc;
 
-uint_t n_filters = 20;
+uint_t n_filters = 40;
 uint_t n_coefs = 11;
 
 unsigned int pos = 0; /*frames%dspblocksize*/
@@ -52,7 +52,13 @@ int aubio_process(float **input, float **output, int nframes) {
      
       //compute mfccs
       aubio_mfcc_do(mfcc, fftgrain, mfcc_out);
-
+      
+      uint_t coef_cnt;
+      for (coef_cnt = 0; coef_cnt < n_coefs; coef_cnt++) {
+          outmsg("%f ",mfcc_out->data[0][coef_cnt]);
+      }
+      outmsg("\n");
+      
       /* end of block loop */
       pos = -1; /* so it will be zero next j loop */
     }
@@ -77,26 +83,24 @@ void process_print (void) {
 //         }
         //outmsg("%f ",mfcc_out->data[0][0]);
         
-        /*for (coef_cnt = 0; coef_cnt < n_coefs; coef_cnt++) {
-          outmsg("%f ",mfcc_out->data[0][coef_cnt]);
-        }
-        outmsg("\n");/*/
+        
       }
 }
 
 int main(int argc, char **argv) {
   // params
-  //uint_t n_filters = 40;
-  //uint_t n_coefs = 15;
-
+  
   examples_common_init(argc,argv);
   smpl_t lowfreq = 133.333f;
   smpl_t highfreq = 44100.f;
   mfcc_out = new_fvec(n_coefs,channels);
   
+  
   //populating the filter
   mfcc = new_aubio_mfcc(buffer_size, samplerate, n_filters, n_coefs , lowfreq, highfreq, channels);
-
+  dump_filterbank(mfcc);
+  
+  
   //process
   examples_common_process(aubio_process,process_print);
   

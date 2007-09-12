@@ -59,8 +59,9 @@ aubio_mfcc_t * new_aubio_mfcc (uint_t win_s, uint_t samplerate, uint_t n_filters
   mfcc->lowfreq=lowfreq;
   mfcc->highfreq=highfreq;
 
+  
   /** filterbank allocation */
-  mfcc->fb = new_aubio_filterbank_mfcc(n_filters, mfcc->win_s, samplerate, lowfreq, highfreq);
+  mfcc->fb = new_aubio_filterbank_mfcc2(n_filters, mfcc->win_s, samplerate, lowfreq, highfreq);
 
   /** allocating space for fft object (used for dct) */
   mfcc->fft_dct=new_aubio_mfft(n_filters, 1);
@@ -109,5 +110,11 @@ void aubio_dct_do(aubio_mfcc_t * mf, fvec_t *in, fvec_t *out){
         *COS(mf->fftgrain_dct->phas[0][i]);
     }
     return;
+}
+
+//a bit a kludge
+void dump_filterbank(aubio_mfcc_t * mf){
+  aubio_dump_filterbank(mf->fb);
+
 }
 

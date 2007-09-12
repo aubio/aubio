@@ -18,9 +18,6 @@
 
 */
 
-/* part of this mfcc implementation were inspired from LibXtract
-   http://libxtract.sourceforge.net/
-*/
 
 #include "aubio_priv.h"
 #include "sample.h"
@@ -54,14 +51,8 @@ aubio_filterbank_t * new_aubio_filterbank(uint_t n_filters, uint_t win_s){
   return fb;
 }
 
-aubio_filterbank_t * new_aubio_filterbank_mfcc(uint_t n_filters, uint_t win_s, smpl_t samplerate, smpl_t freq_min, smpl_t freq_max){
+aubio_filterbank_t * new_aubio_filterbank_mfcc(uint_t n_filters, uint_t win_s, uint_t samplerate, smpl_t freq_min, smpl_t freq_max){
   
-  uint_t writelog=1;
-
-  FILE * mlog;
-  if(writelog==1) mlog=fopen("filterbank.txt","w");
-  
-
   smpl_t nyquist = samplerate/2.;
   uint_t style = 1;
   aubio_filterbank_t * fb = new_aubio_filterbank(n_filters, win_s);
@@ -151,14 +142,6 @@ aubio_filterbank_t * new_aubio_filterbank_mfcc(uint_t n_filters, uint_t win_s, s
     for(k = next_peak + 1; k < fb->win_s; k++)
       fb->filters[n]->data[0][k]=0.f;
 
-    if(writelog){
-      //dumping filter values
-      smpl_t area_tmp=0.f;
-      for(k = 0; k < fb->win_s; k++){
-        fprintf(mlog,"%f ",fb->filters[n]->data[0][k]);
-      }
-      fprintf(mlog,"\n");
-    }
 
   }
 
@@ -167,12 +150,187 @@ aubio_filterbank_t * new_aubio_filterbank_mfcc(uint_t n_filters, uint_t win_s, s
   free(height_norm);
   free(fft_peak);
 
-  if(mlog) fclose(mlog);
 
   return fb;
 
 }
 
+/*
+FB initialization based on Slaney's auditory toolbox
+TODO:
+  *solve memory leak problems while
+  *solve quantization issues when constructing signal:
+    *bug for win_s=512
+    *corrections for win_s=1024 -> why even filters with smaller amplitude
+
+*/
+
+aubio_filterbank_t * new_aubio_filterbank_mfcc2(uint_t n_filters, uint_t win_s, uint_t samplerate, smpl_t freq_min, smpl_t freq_max){
+  
+  aubio_filterbank_t * fb = new_aubio_filterbank(n_filters, win_s);
+  
+  
+  //slaney params
+  smpl_t lowestFrequency = 133.3333;
+  smpl_t linearSpacing = 66.66666666;
+  smpl_t logSpacing = 1.0711703;
+
+  uint_t linearFilters = 13;
+  uint_t logFilters = 27;
+  uint_t allFilters = linearFilters + logFilters;
+  
+  //buffers for computing filter frequencies
+  fvec_t * freqs=new_fvec( allFilters +2 , 1);
+  
+  fvec_t * lower_freqs=new_fvec( allFilters, 1);
+  fvec_t * upper_freqs=new_fvec( allFilters, 1);
+  fvec_t * center_freqs=new_fvec( allFilters, 1);
+     
+  /*fvec_t * lower_freqs=freqs;
+  fvec_t * upper_freqs=freqs;
+  fvec_t * center_freqs=freqs*/;
+  
+  fvec_t * triangle_heights=new_fvec( allFilters, 1);
+  //lookup table of each bin frequency in hz
+  fvec_t * fft_freqs=new_fvec(win_s, 1);
+
+  uint_t filter_cnt, bin_cnt;
+  
+  //first: filling all the linear filter frequencies
+  for(filter_cnt=0; filter_cnt<linearFilters; filter_cnt++){
+    freqs->data[0][filter_cnt]=lowestFrequency+ filter_cnt*linearSpacing;
+  }
+  smpl_t lastlinearCF=freqs->data[0][filter_cnt-1];
+  
+  //second: filling all the log filter frequencies
+  for(filter_cnt=0; filter_cnt<logFilters+2; filter_cnt++){
+    freqs->data[0][filter_cnt+linearFilters]=lastlinearCF*(pow(logSpacing,filter_cnt+1));
+  }
+  
+  
+  //make fvec->data point directly to freqs arrays
+  lower_freqs->data=freqs->data;
+  center_freqs->data[0]=&(freqs->data[0][1]);
+  upper_freqs->data[0]=&(freqs->data[0][2]);
+
+  
+  //computing triangle heights so that each triangle has unit area
+  for(filter_cnt=0; filter_cnt<allFilters; filter_cnt++){
+    triangle_heights->data[0][filter_cnt]=2./(upper_freqs->data[0][filter_cnt]-lower_freqs->data[0][filter_cnt]);
+  }
+
+  //AUBIO_DBG
+  AUBIO_DBG("filter tables frequencies\n");
+  for(filter_cnt=0; filter_cnt<allFilters; filter_cnt++)
+    AUBIO_DBG("filter n. %d %f %f %f %f\n",filter_cnt, lower_freqs->data[0][filter_cnt], center_freqs->data[0][filter_cnt], upper_freqs->data[0][filter_cnt], triangle_heights->data[0][filter_cnt]);
+  
+  
+  //filling the fft_freqs lookup table, which assigns the frequency in hz to each bin
+  
+  for(bin_cnt=0; bin_cnt<win_s; bin_cnt++){
+    
+    //TODO: check the formula!
+    
+    fft_freqs->data[0][bin_cnt]= (smpl_t)samplerate* (smpl_t)bin_cnt/ (smpl_t)win_s;
+
+  }
+  
+  
+  //building each filter table
+  for(filter_cnt=0; filter_cnt<allFilters; filter_cnt++){
+
+    //TODO:check special case : lower freq =0
+    
+    //calculating rise increment in mag/Hz
+    smpl_t riseInc= triangle_heights->data[0][filter_cnt]/(center_freqs->data[0][filter_cnt]-lower_freqs->data[0][filter_cnt]);
+    
+    //zeroing begining of filter
+    AUBIO_DBG("\nfilter %d",filter_cnt);
+
+    AUBIO_DBG("\nzero begin\n");
+    
+    for(bin_cnt=0; bin_cnt<win_s-1; bin_cnt++){
+      //zeroing beigining of array
+      fb->filters[filter_cnt]->data[0][bin_cnt]=0.f;
+      AUBIO_DBG(".");
+      //AUBIO_DBG("%f %f %f\n", fft_freqs->data[0][bin_cnt], fft_freqs->data[0][bin_cnt+1], lower_freqs->data[0][filter_cnt]); 
+      if(fft_freqs->data[0][bin_cnt]<= lower_freqs->data[0][filter_cnt] && fft_freqs->data[0][bin_cnt+1]> lower_freqs->data[0][filter_cnt]){
+        break;
+      }
+    }
+    bin_cnt++;
+    
+    AUBIO_DBG("\npos slope\n");
+    //positive slope
+    for(; bin_cnt<win_s-1; bin_cnt++){
+      AUBIO_DBG(".");
+      fb->filters[filter_cnt]->data[0][bin_cnt]=(fft_freqs->data[0][bin_cnt]-lower_freqs->data[0][filter_cnt])*riseInc;
+      //if(fft_freqs->data[0][bin_cnt]<= center_freqs->data[0][filter_cnt] && fft_freqs->data[0][bin_cnt+1]> center_freqs->data[0][filter_cnt])
+      if(fft_freqs->data[0][bin_cnt+1]> center_freqs->data[0][filter_cnt])
+        break;
+    }
+    //bin_cnt++;
+    
+    
+    //negative slope
+    AUBIO_DBG("\nneg slope\n");   
+    for(; bin_cnt<win_s-1; bin_cnt++){
+      //AUBIO_DBG(".");
+      
+      //checking whether last value is less than 0...
+      smpl_t val=triangle_heights->data[0][filter_cnt]-(fft_freqs->data[0][bin_cnt]-center_freqs->data[0][filter_cnt])*riseInc;
+      if(val>=0)
+        fb->filters[filter_cnt]->data[0][bin_cnt]=val;
+      else fb->filters[filter_cnt]->data[0][bin_cnt]=0.f;
+      
+      //if(fft_freqs->data[0][bin_cnt]<= upper_freqs->data[0][bin_cnt] && fft_freqs->data[0][bin_cnt+1]> upper_freqs->data[0][filter_cnt])
+      //TODO: CHECK whether bugfix correct
+      if(fft_freqs->data[0][bin_cnt+1]> upper_freqs->data[0][filter_cnt])
+        break;
+    }
+    //bin_cnt++;
+    
+    AUBIO_DBG("\nzero end\n");
+    //zeroing tail
+    for(; bin_cnt<win_s; bin_cnt++)
+      //AUBIO_DBG(".");
+      fb->filters[filter_cnt]->data[0][bin_cnt]=0.f;
+
+  }
+  
+  
+  del_fvec(freqs);
+  //TODO: Check how to do a proper free for the following f_vec
+
+  //del_fvec(lower_freqs);
+  //del_fvec(upper_freqs);
+  //del_fvec(center_freqs);
+  del_fvec(triangle_heights);
+  del_fvec(fft_freqs);
+
+  
+
+  return fb;
+
+}
+
+void aubio_dump_filterbank(aubio_filterbank_t * fb){
+
+  FILE * mlog;
+  mlog=fopen("filterbank.txt","w");
+  
+  int k,n;
+  //dumping filter values
+  //smpl_t area_tmp=0.f;
+  for(n = 0; n < fb->n_filters; n++){
+    for(k = 0; k < fb->win_s; k++){
+      fprintf(mlog,"%f ",fb->filters[n]->data[0][k]);
+    }
+    fprintf(mlog,"\n");
+  }
+  
+  if(mlog) fclose(mlog);
+}
 
 void del_aubio_filterbank(aubio_filterbank_t * fb){
   uint_t filter_cnt;

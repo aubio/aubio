@@ -39,8 +39,10 @@ aubio_onsetdetection_type type_onset  = aubio_onset_kl;
 aubio_onsetdetection_type type_onset2 = aubio_onset_complex;
 smpl_t threshold                      = 0.3;
 smpl_t silence                        = -90.;
-uint_t buffer_size                    = 512; //1024;
-uint_t overlap_size                   = 256; //512;
+// uint_t buffer_size                    = 512;
+// uint_t overlap_size                   = 256;
+uint_t buffer_size                    = 1024;
+uint_t overlap_size                   = 512;
 uint_t channels                       = 1;
 uint_t samplerate                     = 44100;
 

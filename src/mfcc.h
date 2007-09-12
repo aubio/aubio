@@ -69,6 +69,13 @@ void aubio_mfcc_do(aubio_mfcc_t * mf, cvec_t *in, fvec_t *out);
 */
 void aubio_dct_do(aubio_mfcc_t * mf, fvec_t *in, fvec_t *out);
 
+/** dump filterbank to log file
+
+  \param mf mfcc object as returned by new_aubio_mfcc
+  
+*/
+void dump_filterbank(aubio_mfcc_t * mf);
+
 #ifdef __cplusplus
 }
 #endif
