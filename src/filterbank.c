@@ -224,32 +224,24 @@ aubio_filterbank_t * new_aubio_filterbank_mfcc2(uint_t n_filters, uint_t win_s, 
   AUBIO_DBG("filter tables frequencies\n");
   for(filter_cnt=0; filter_cnt<allFilters; filter_cnt++)
     AUBIO_DBG("filter n. %d %f %f %f %f\n",filter_cnt, lower_freqs->data[0][filter_cnt], center_freqs->data[0][filter_cnt], upper_freqs->data[0][filter_cnt], triangle_heights->data[0][filter_cnt]);
-  
-  
-  //filling the fft_freqs lookup table, which assigns the frequency in hz to each bin
-  
-  for(bin_cnt=0; bin_cnt<win_s; bin_cnt++){
-    
-    //TODO: check the formula!
-    
-    fft_freqs->data[0][bin_cnt]= (smpl_t)samplerate* (smpl_t)bin_cnt/ (smpl_t)win_s;
 
+  //filling the fft_freqs lookup table, which assigns the frequency in hz to each bin
+  for(bin_cnt=0; bin_cnt<win_s; bin_cnt++){
+    //TODO: check the formula!
+    fft_freqs->data[0][bin_cnt]= (smpl_t)samplerate* (smpl_t)bin_cnt/ (smpl_t)win_s;
   }
-  
-  
+
   //building each filter table
   for(filter_cnt=0; filter_cnt<allFilters; filter_cnt++){
 
     //TODO:check special case : lower freq =0
-    
     //calculating rise increment in mag/Hz
     smpl_t riseInc= triangle_heights->data[0][filter_cnt]/(center_freqs->data[0][filter_cnt]-lower_freqs->data[0][filter_cnt]);
     
-    //zeroing begining of filter
-    AUBIO_DBG("\nfilter %d",filter_cnt);
 
+    AUBIO_DBG("\nfilter %d",filter_cnt);
+    //zeroing begining of filter
     AUBIO_DBG("\nzero begin\n");
-    
     for(bin_cnt=0; bin_cnt<win_s-1; bin_cnt++){
       //zeroing beigining of array
       fb->filters[filter_cnt]->data[0][bin_cnt]=0.f;
