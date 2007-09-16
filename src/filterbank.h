@@ -55,18 +55,6 @@ aubio_filterbank_t * new_aubio_filterbank(uint_t n_filters, uint_t win_s);
 */
 aubio_filterbank_t * new_aubio_filterbank_mfcc(uint_t n_filters, uint_t win_s, uint_t samplerate, smpl_t freq_min, smpl_t freq_max);
 
-/** filterbank initialization for mel filters
-
-  \param n_filters number of filters
-  \param win_s window size
-  \param samplerate
-  \param freq_min lowest filter frequency
-  \param freq_max highest filter frequency
-
-*/
-aubio_filterbank_t * new_aubio_filterbank_mfcc_2(uint_t n_filters, uint_t win_s, uint_t samplerate, smpl_t freq_min, smpl_t freq_max);
-
-
 /** destroy filterbank object
 
   \param fb filterbank, as returned by new_aubio_filterbank method
@@ -78,11 +66,6 @@ void del_aubio_filterbank(aubio_filterbank_t * fb);
 
 */
 void aubio_filterbank_do(aubio_filterbank_t * fb, cvec_t * in, fvec_t *out);
-
-/** dump filterbank filter tables in a txt file
-
-*/
-void aubio_dump_filterbank(aubio_filterbank_t * fb);
 
 #ifdef __cplusplus
 }
