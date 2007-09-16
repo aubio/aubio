@@ -189,24 +189,6 @@ aubio_filterbank_t * new_aubio_filterbank_mfcc(uint_t n_filters, uint_t win_s, u
 
 }
 
-void aubio_dump_filterbank(aubio_filterbank_t * fb){
-
-  FILE * mlog;
-  mlog=fopen("filterbank.txt","w");
-  
-  int k,n;
-  //dumping filter values
-  //smpl_t area_tmp=0.f;
-  for(n = 0; n < fb->n_filters; n++){
-    for(k = 0; k < fb->win_s; k++){
-      fprintf(mlog,"%f ",fb->filters[n]->data[0][k]);
-    }
-    fprintf(mlog,"\n");
-  }
-  
-  if(mlog) fclose(mlog);
-}
-
 void del_aubio_filterbank(aubio_filterbank_t * fb){
   uint_t filter_cnt;
   /** deleting filter tables first */
