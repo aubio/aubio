@@ -23,6 +23,9 @@
 fvec_t * mfcc_out;
 aubio_mfcc_t * mfcc;
 
+uint_t n_filters = 40;
+uint_t n_coefs = 11;
+
 unsigned int pos = 0; /*frames%dspblocksize*/
 uint_t usepitch = 0;
 
@@ -49,7 +52,13 @@ int aubio_process(float **input, float **output, int nframes) {
      
       //compute mfccs
       aubio_mfcc_do(mfcc, fftgrain, mfcc_out);
-
+      
+      uint_t coef_cnt;
+      for (coef_cnt = 0; coef_cnt < n_coefs; coef_cnt++) {
+          outmsg("%f ",mfcc_out->data[0][coef_cnt]);
+      }
+      outmsg("\n");
+      
       /* end of block loop */
       pos = -1; /* so it will be zero next j loop */
     }
@@ -64,33 +73,34 @@ void process_print (void) {
          write extracted mfccs
       */
       
-      uint_t filter_cnt;
+      uint_t coef_cnt;
       if (output_filename == NULL) {
-        if(frames >= 4) {
-          outmsg("%f\t",(frames-4)*overlap_size/(float)samplerate);
-        } else if (frames < 4) {
-          outmsg("%f\t",0.);
-        }
-        outmsg("%f",mfcc_out->data[0][0]);
-        for (filter_cnt = 1; filter_cnt < mfcc_out->length; filter_cnt++) {
-          outmsg(",%f",mfcc_out->data[0][filter_cnt]);
-        }
-        outmsg("\n");
+//         if(frames >= 4) {
+//           outmsg("%f\t",(frames-4)*overlap_size/(float)samplerate);
+//         } 
+//         else if (frames < 4) {
+//           outmsg("%f\t",0.);
+//         }
+        //outmsg("%f ",mfcc_out->data[0][0]);
+        
+        
       }
 }
 
 int main(int argc, char **argv) {
   // params
-  uint_t n_filters = 11;
+  
   examples_common_init(argc,argv);
-  smpl_t lowfreq = 0.;
-  smpl_t highfreq = samplerate;
-  mfcc_out = new_fvec(n_filters,channels);
+  smpl_t lowfreq = 133.333f;
+  smpl_t highfreq = 44100.f;
+  mfcc_out = new_fvec(n_coefs,channels);
+  
   
   //populating the filter
-  mfcc = new_aubio_mfcc(buffer_size, samplerate, n_filters, lowfreq, highfreq,
-      channels);
-
+  mfcc = new_aubio_mfcc(buffer_size, samplerate, n_filters, n_coefs , lowfreq, highfreq, channels);
+  dump_filterbank(mfcc);
+  
+  
   //process
   examples_common_process(aubio_process,process_print);
   

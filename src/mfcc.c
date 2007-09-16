@@ -33,7 +33,8 @@ struct aubio_mfcc_t_{
   uint_t win_s;             /** grain length */
   uint_t samplerate;        /** sample rate (needed?) */
   uint_t channels;          /** number of channels */
-  uint_t n_coefs;           /** number of coefficients (= fb->n_filters/2 +1) */
+  uint_t n_filters;         /** number of  *filters */
+  uint_t n_coefs;           /** number of coefficients (<= n_filters/2 +1) */
   smpl_t lowfreq;           /** lowest frequency for filters */ 
   smpl_t highfreq;          /** highest frequency for filters */
   aubio_filterbank_t * fb;  /** filter bank */
@@ -43,22 +44,24 @@ struct aubio_mfcc_t_{
 };
 
 
-aubio_mfcc_t * new_aubio_mfcc (uint_t win_s, uint_t samplerate ,uint_t n_coefs, smpl_t lowfreq, smpl_t highfreq, uint_t channels){
+aubio_mfcc_t * new_aubio_mfcc (uint_t win_s, uint_t samplerate, uint_t n_filters, uint_t n_coefs, smpl_t lowfreq, smpl_t highfreq, uint_t channels){
   /** allocating space for mfcc object */
   aubio_mfcc_t * mfcc = AUBIO_NEW(aubio_mfcc_t);
 
   //we need (n_coefs-1)*2 filters to obtain n_coefs coefficients after dct
-  uint_t n_filters = (n_coefs-1)*2;
+  //uint_t n_filters = (n_coefs-1)*2;
   
   mfcc->win_s=win_s;
   mfcc->samplerate=samplerate;
   mfcc->channels=channels;
+  mfcc->n_filters=n_filters;
   mfcc->n_coefs=n_coefs;
   mfcc->lowfreq=lowfreq;
   mfcc->highfreq=highfreq;
 
+  
   /** filterbank allocation */
-  mfcc->fb = new_aubio_filterbank_mfcc(n_filters, mfcc->win_s, samplerate, lowfreq, highfreq);
+  mfcc->fb = new_aubio_filterbank_mfcc2(n_filters, mfcc->win_s, samplerate, lowfreq, highfreq);
 
   /** allocating space for fft object (used for dct) */
   mfcc->fft_dct=new_aubio_mfft(n_filters, 1);
@@ -101,11 +104,17 @@ void aubio_dct_do(aubio_mfcc_t * mf, fvec_t *in, fvec_t *out){
     //compute mag spectrum
     aubio_mfft_do (mf->fft_dct, in, mf->fftgrain_dct);
     //extract real part of fft grain
-    //for(i=0; i<mf->n_coefs ;i++){
-    for(i=0; i<out->length;i++){
+    for(i=0; i<mf->n_coefs ;i++){
+    //for(i=0; i<out->length;i++){
       out->data[0][i]= mf->fftgrain_dct->norm[0][i]
         *COS(mf->fftgrain_dct->phas[0][i]);
     }
     return;
+}
+
+//a bit a kludge
+void dump_filterbank(aubio_mfcc_t * mf){
+  aubio_dump_filterbank(mf->fb);
+
 }
 

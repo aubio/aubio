@@ -44,7 +44,7 @@ typedef struct aubio_mfcc_t_ aubio_mfcc_t;
   \param channels number of channels
 
 */
-aubio_mfcc_t * new_aubio_mfcc (uint_t win_s, uint_t samplerate ,uint_t n_coefs, smpl_t lowfreq, smpl_t highfreq, uint_t channels);
+aubio_mfcc_t * new_aubio_mfcc (uint_t win_s, uint_t samplerate, uint_t n_filters, uint_t n_coefs, smpl_t lowfreq, smpl_t highfreq, uint_t channels);
 /** delete mfcc object
 
   \param mf mfcc object as returned by new_aubio_mfcc
@@ -68,6 +68,13 @@ void aubio_mfcc_do(aubio_mfcc_t * mf, cvec_t *in, fvec_t *out);
 
 */
 void aubio_dct_do(aubio_mfcc_t * mf, fvec_t *in, fvec_t *out);
+
+/** dump filterbank to log file
+
+  \param mf mfcc object as returned by new_aubio_mfcc
+  
+*/
+void dump_filterbank(aubio_mfcc_t * mf);
 
 #ifdef __cplusplus
 }

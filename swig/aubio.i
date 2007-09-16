@@ -148,6 +148,14 @@ void aubio_autocorr(fvec_t * in, fvec_t * acf);
 smpl_t aubio_zero_crossing_rate(fvec_t * input);
 smpl_t aubio_spectral_centroid(cvec_t * spectrum, smpl_t samplerate);
 
+/* filterbank */
+
+/* mfcc */
+aubio_mfcc_t * new_aubio_mfcc (uint_t win_s, uint_t samplerate, uint_t n_filters, uint_t n_coefs, smpl_t lowfreq, smpl_t highfreq, uint_t channels);
+void del_aubio_mfcc(aubio_mfcc_t *mf);
+void aubio_mfcc_do(aubio_mfcc_t *mf, cvec_t *in, fvec_t *out);
+
+
 /* scale */
 extern aubio_scale_t * new_aubio_scale(smpl_t flow, smpl_t fhig, smpl_t ilow, smpl_t ihig	);
 extern void aubio_scale_set (aubio_scale_t *s, smpl_t ilow, smpl_t ihig, smpl_t olow, smpl_t ohig);
