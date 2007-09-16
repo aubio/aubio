@@ -84,6 +84,8 @@ void process_print (void) {
 
 int main(int argc, char **argv) {
   // params
+  buffer_size  = 1024;
+  overlap_size = 512;
   
   examples_common_init(argc,argv);
   smpl_t lowfreq = 133.333f;
