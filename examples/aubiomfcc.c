@@ -53,12 +53,6 @@ int aubio_process(float **input, float **output, int nframes) {
       //compute mfccs
       aubio_mfcc_do(mfcc, fftgrain, mfcc_out);
       
-      uint_t coef_cnt;
-      for (coef_cnt = 0; coef_cnt < n_coefs; coef_cnt++) {
-          outmsg("%f ",mfcc_out->data[0][coef_cnt]);
-      }
-      outmsg("\n");
-      
       /* end of block loop */
       pos = -1; /* so it will be zero next j loop */
     }
@@ -75,15 +69,16 @@ void process_print (void) {
       
       uint_t coef_cnt;
       if (output_filename == NULL) {
-//         if(frames >= 4) {
-//           outmsg("%f\t",(frames-4)*overlap_size/(float)samplerate);
-//         } 
-//         else if (frames < 4) {
-//           outmsg("%f\t",0.);
-//         }
-        //outmsg("%f ",mfcc_out->data[0][0]);
-        
-        
+         if(frames >= 4) {
+           outmsg("%f\t",(frames-4)*overlap_size/(float)samplerate);
+         } 
+         else if (frames < 4) {
+           outmsg("%f\t",0.);
+         }
+        for (coef_cnt = 0; coef_cnt < n_coefs; coef_cnt++) {
+            outmsg("%f ",mfcc_out->data[0][coef_cnt]);
+        }
+        outmsg("\n");
       }
 }
 
@@ -98,8 +93,6 @@ int main(int argc, char **argv) {
   
   //populating the filter
   mfcc = new_aubio_mfcc(buffer_size, samplerate, n_filters, n_coefs , lowfreq, highfreq, channels);
-  dump_filterbank(mfcc);
-  
   
   //process
   examples_common_process(aubio_process,process_print);
