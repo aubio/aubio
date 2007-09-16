@@ -67,6 +67,11 @@ void del_aubio_filterbank(aubio_filterbank_t * fb);
 */
 void aubio_filterbank_do(aubio_filterbank_t * fb, cvec_t * in, fvec_t *out);
 
+/** return the vector containing the filter coefficients of one channel
+
+ */
+fvec_t * aubio_filterbank_getchannel(aubio_filterbank_t * f, uint_t channel);
+
 #ifdef __cplusplus
 }
 #endif

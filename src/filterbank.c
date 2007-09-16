@@ -22,6 +22,7 @@
 #include "aubio_priv.h"
 #include "sample.h"
 #include "filterbank.h"
+#include "mathutils.h"
 
 #include "stdio.h"
 
@@ -124,8 +125,7 @@ aubio_filterbank_t * new_aubio_filterbank_mfcc(uint_t n_filters, uint_t win_s, u
 
   //filling the fft_freqs lookup table, which assigns the frequency in hz to each bin
   for(bin_cnt=0; bin_cnt<win_s; bin_cnt++){
-    //TODO: check the formula!
-    fft_freqs->data[0][bin_cnt]= (smpl_t)samplerate* (smpl_t)bin_cnt/ (smpl_t)win_s;
+    fft_freqs->data[0][bin_cnt]= aubio_bintofreq(bin_cnt, samplerate, win_s);
   }
 
   //building each filter table
@@ -213,4 +213,9 @@ void aubio_filterbank_do(aubio_filterbank_t * f, cvec_t * in, fvec_t *out) {
   }
 
   return;
+}
+
+fvec_t * aubio_filterbank_getchannel(aubio_filterbank_t * f, uint_t channel) {
+  if ( (channel >= 0) && (channel < f->n_filters) ) { return f->filters[channel]; }
+  else { return NULL; }
 }
