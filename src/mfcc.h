@@ -60,22 +60,6 @@ void del_aubio_mfcc(aubio_mfcc_t *mf);
 */
 void aubio_mfcc_do(aubio_mfcc_t * mf, cvec_t *in, fvec_t *out);
 
-/** intermediate dct involved in aubio_mfcc_do
-
-  \param mf mfcc object as returned by new_aubio_mfcc
-  \param in input spectrum (n_filters long)
-  \param out output mel coefficients buffer (n_filters/2 +1 long)
-
-*/
-void aubio_dct_do(aubio_mfcc_t * mf, fvec_t *in, fvec_t *out);
-
-/** dump filterbank to log file
-
-  \param mf mfcc object as returned by new_aubio_mfcc
-  
-*/
-void dump_filterbank(aubio_mfcc_t * mf);
-
 #ifdef __cplusplus
 }
 #endif

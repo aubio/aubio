@@ -87,6 +87,16 @@ void del_aubio_mfcc(aubio_mfcc_t *mf){
   AUBIO_FREE(mf);
 }
 
+
+/** intermediate dct involved in aubio_mfcc_do
+
+  \param mf mfcc object as returned by new_aubio_mfcc
+  \param in input spectrum (n_filters long)
+  \param out output mel coefficients buffer (n_filters/2 +1 long)
+
+*/
+void aubio_dct_do(aubio_mfcc_t * mf, fvec_t *in, fvec_t *out);
+
 void aubio_mfcc_do(aubio_mfcc_t * mf, cvec_t *in, fvec_t *out){
     // compute filterbank
     aubio_filterbank_do(mf->fb, in, mf->in_dct);
@@ -110,11 +120,5 @@ void aubio_dct_do(aubio_mfcc_t * mf, fvec_t *in, fvec_t *out){
         *COS(mf->fftgrain_dct->phas[0][i]);
     }
     return;
-}
-
-//a bit a kludge
-void dump_filterbank(aubio_mfcc_t * mf){
-  aubio_dump_filterbank(mf->fb);
-
 }
 
