@@ -8,7 +8,7 @@ sys.path.append(os.path.join('..','aubio','.libs'))
 
 import unittest
 
-modules_to_test = ('aubiomodule')
+modules_to_test = ['aubiomodule']
 
 if __name__ == '__main__':
   for module in modules_to_test: exec('from %s import *' % module)
