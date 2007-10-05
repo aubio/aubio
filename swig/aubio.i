@@ -257,6 +257,8 @@ void aubio_tss_do(aubio_tss_t *s, cvec_t * input, cvec_t * trans, cvec_t * stead
 aubio_beattracking_t * new_aubio_beattracking(uint_t winlen, uint_t channels);
 void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframes, fvec_t * out);
 void del_aubio_beattracking(aubio_beattracking_t * p);
+smpl_t aubio_beattracking_get_bpm(aubio_beattracking_t * p);
+smpl_t aubio_beattracking_get_confidence(aubio_beattracking_t * p);
 
 
 

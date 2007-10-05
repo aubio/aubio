@@ -68,6 +68,15 @@ void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframes, fvec_t 
 
 */
 smpl_t aubio_beattracking_get_bpm(aubio_beattracking_t * bt);
+/** get current tempo confidence 
+
+  \param bt beat tracking object
+
+  Returns the confidence with which the tempo has been observed, 0 if no
+  consistent value is found.
+
+*/
+smpl_t aubio_beattracking_get_confidence(aubio_beattracking_t * bt);
 /** delete beat tracking object
 
   \param p beat tracking object

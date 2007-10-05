@@ -460,3 +460,8 @@ smpl_t aubio_beattracking_get_bpm(aubio_beattracking_t * bt) {
           return 0.;
         }
 }
+
+smpl_t aubio_beattracking_get_confidence(aubio_beattracking_t * bt) {
+        if (bt->gp) return vec_max(bt->acfout);
+        else return 0.;
+}
