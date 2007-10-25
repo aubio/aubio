@@ -12,12 +12,17 @@ int main(){
 
         uint_t i = 0;
 
-        smpl_t curtempo;
+        smpl_t curtempo, curtempoconf;
 
         while (i < 10) {
           aubio_beattracking_do(tempo,in,out);
           curtempo = aubio_beattracking_get_bpm(tempo);
           if (curtempo != 0.) {
+            fprintf(stdout,"%f\n",curtempo);
+            return 1;
+          }
+          curtempoconf = aubio_beattracking_get_confidence(tempo);
+          if (curtempoconf != 0.) {
             fprintf(stdout,"%f\n",curtempo);
             return 1;
           }

@@ -127,6 +127,10 @@ smpl_t aubio_tempo_get_bpm(aubio_tempo_t *o) {
   return aubio_beattracking_get_bpm(o->bt);
 }
 
+smpl_t aubio_tempo_get_confidence(aubio_tempo_t *o) {
+  return aubio_beattracking_get_confidence(o->bt);
+}
+
 void del_aubio_tempo (aubio_tempo_t *o)
 {
   del_aubio_onsetdetection(o->od);

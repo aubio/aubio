@@ -58,6 +58,16 @@ void aubio_tempo_set_threshold(aubio_tempo_t * o, smpl_t threshold);
 */
 smpl_t aubio_tempo_get_bpm(aubio_tempo_t * bt);
 
+/** get current tempo confidence
+
+  \param bt beat tracking object
+
+  Returns the confidence with which the tempo has been observed, 0 if no
+  consistent value is found.
+
+*/
+smpl_t aubio_tempo_get_confidence(aubio_tempo_t * bt);
+
 /** delete tempo detection object */
 void del_aubio_tempo(aubio_tempo_t * o);
 

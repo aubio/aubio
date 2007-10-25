@@ -24,6 +24,7 @@ AC_CANONICAL_HOST
 
 dnl Check for programs
 AC_PROG_CC
+AM_PROG_CC_C_O dnl compiling with per-target flag 
 if test "$ac_cv_prog_cc" = "no" ; then
    AC_MSG_ERROR([*** No C compiler found !])
 fi

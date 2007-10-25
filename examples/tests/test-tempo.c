@@ -9,13 +9,19 @@ int main(){
         aubio_tempo_t * o  = new_aubio_tempo(aubio_onset_complex, win_s, win_s/4, channels);
         uint_t i = 0;
 
-        smpl_t curtempo;
+        smpl_t curtempo, curtempoconf;
 
         while (i < 1000) {
           aubio_tempo(o,in,out);
           curtempo = aubio_tempo_get_bpm(o);
           if (curtempo != 0.) {
             fprintf(stdout,"%f\n",curtempo);
+            return 1;
+          }
+          curtempoconf = aubio_beattracking_get_confidence(o);
+          if (curtempoconf != 0.) {
+            fprintf(stdout,"%f\n",curtempo);
+            return 1;
           }
           i++;
         };

@@ -1,0 +1,30 @@
+#! /usr/bin/python
+
+from glob import glob
+from os.path import splitext, exists
+import sys
+
+if len(sys.argv) > 1: verbose = True
+else: verbose = False
+
+cfiles = [ file.split('/')[-1] for file in glob('../../src/*.c') ]
+cfiles.sort()
+
+for cfile in cfiles: 
+  pythonfile=splitext(cfile)[0]+'.py'
+  if not exists(pythonfile):
+    print "[X] %30s" % cfile, "[ ] %30s" % pythonfile
+    #print cfile, "has NO test", pythonfile
+  elif verbose:
+    print "[X] %30s" % cfile, "[X] %30s" % pythonfile
+
+pythonfiles = [ file.split('/')[-1] for file in glob('*.py') ]
+pythonfiles.sort()
+
+for pythonfile in pythonfiles: 
+  cfile=splitext(pythonfile)[0]+'.c'
+  if not exists('../../'+cfile):
+    print "[ ] %30s" % cfile, "[X] %30s" % pythonfile
+    #print pythonfile, "has NO source", cfile
+  elif verbose:
+    print "[X] %30s" % cfile, "[X] %30s" % pythonfile
