@@ -1,0 +1,37 @@
+#! /usr/bin/python
+
+from glob import glob
+from os.path import splitext, exists, join, dirname
+import sys
+
+tst_dir = join(dirname(sys.argv[0]),'python')
+src_dir = join(dirname(sys.argv[0]),'..','src')
+
+if len(sys.argv) > 1: verbose = True
+else: verbose = False
+
+status = 0
+
+cfiles = [ file.split('/')[-1] for file in glob(join(src_dir,'*.c')) ]
+cfiles.sort()
+
+for cfile in cfiles: 
+  pythonfile=splitext(cfile)[0]+'.py'
+  if not exists(pythonfile):
+    print "%20s [X]" % cfile, "[ ] %s" % pythonfile
+    status = 1
+  elif verbose:
+    print "%20s [X]" % cfile, "[X] %s" % pythonfile
+
+pythonfiles = [ file.split('/')[-1] for file in glob(join(tst_dir,'*.py')) ]
+pythonfiles.sort()
+
+for pythonfile in pythonfiles: 
+  cfile=splitext(pythonfile)[0]+'.c'
+  if not exists(join(src_dir,cfile)):
+    print "%20s [ ]" % cfile, "[X] %s" % pythonfile
+    status = 1
+  elif verbose:
+    print "%20s [X]" % cfile, "[X] %s" % pythonfile
+
+sys.exit(status)
