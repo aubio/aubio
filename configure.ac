@@ -240,7 +240,8 @@ AC_OUTPUT([
     src/Makefile
     ext/Makefile
     examples/Makefile
-    examples/tests/Makefile
+    tests/Makefile
+    tests/src/Makefile
     sounds/Makefile
     swig/Makefile
     python/Makefile
