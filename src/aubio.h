@@ -1,35 +1,35 @@
 /*
-	 Copyright (C) 2003 Paul Brossier <piem@altern.org>
+   Copyright (C) 2003 Paul Brossier <piem@altern.org>
 
-	 This program is free software; you can redistribute it and/or modify
-	 it under the terms of the GNU General Public License as published by
-	 the Free Software Foundation; either version 2 of the License, or
-	 (at your option) any later version.
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
 
-	 This program is distributed in the hope that it will be useful,
-	 but WITHOUT ANY WARRANTY; without even the implied warranty of
-	 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	 GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-	 You should have received a copy of the GNU General Public License
-	 along with this program; if not, write to the Free Software
-	 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-	 
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+   
 */
 
 /** \mainpage 
  *
  * \section whatis Introduction
  *
- * 	Aubio is a library for audio labelling: it provides functions for pitch
- * 	estimation, onset detection, beat tracking, and other annotation tasks.
+ *  Aubio is a library for audio labelling: it provides functions for pitch
+ *  estimation, onset detection, beat tracking, and other annotation tasks.
  *
  *  \verbinclude README
  *
  * \section bugs bugs and todo
  *
- *	This software is under development. It needs debugging and
- *	optimisations.
+ *  This software is under development. It needs debugging and
+ *  optimisations.
  *
  *  See <a href='bug.html'>bugs</a> and <a href='todo.html'>todo</a> lists.
  * 
