@@ -5,6 +5,8 @@ pkginclude_HEADERS = aubio.h \
 	mathutils.h \
 	fft.h \
 	sample.h \
+	fvec.h \
+	cvec.h \
 	hist.h \
 	scale.h \
 	resample.h \
@@ -33,8 +35,10 @@ libaubio_la_SOURCES = aubio.h \
 	mathutils.h \
 	fft.c \
 	fft.h \
-	sample.c \
-	sample.h \
+	fvec.c \
+	fvec.h \
+	cvec.c \
+	cvec.h \
 	hist.c \
 	hist.h \
 	scale.c \
