@@ -17,7 +17,7 @@ def check_tst_against_src(src_dir, src_ext, ext_dir, verbose = False, tst_prefix
       print "%20s [X]" % src_file, "[X] %s" % tst_file
   return status
 
-def check_src_against_tst(tst_dir, tst_ext, src_dir, verbose = False, tst_prefix = 'test-'):
+def check_src_against_tst(tst_dir, tst_ext, src_dir, verbose = False, tst_prefix = ''):
   tst_files = [ basename(file) for file in glob( join(tst_dir, '*'+tst_ext) ) ]
   tst_files.sort()
   status = 0
