@@ -30,24 +30,35 @@ def check_src_against_tst(tst_dir, tst_ext, src_dir, verbose = False, tst_prefix
       print "%20s [X]" % src_file, "[X] %s" % tst_file
   return status
 
+def check_two_ways(src_dir, src_ext, tst_dir, tst_ext, verbose = False, tst_prefix = ''):
+  print "%20s    " % (" FILES IN " + src_dir) + "|" + "    FILES IN " + tst_dir
+  status  = check_tst_against_src(src_dir, src_ext, tst_dir, verbose = verbose, tst_prefix = tst_prefix)
+  status += check_src_against_tst(tst_dir, tst_ext, src_dir, verbose = verbose, tst_prefix = tst_prefix)
+  return status
+
 if __name__ == '__main__':
 
   if len(sys.argv) > 1: verbose = True
   else: verbose = False
 
-  src_dir = join(dirname(sys.argv[0]),'..','src')
+  base_directory = dirname(sys.argv[0])
+
+  status = 0
+
+  src_dir = join(base_directory,'..','src')
   src_ext = '.c'
-
-  tst_dir = join(dirname(sys.argv[0]),'python')
+  tst_dir = join(base_directory,'python')
   tst_ext = '.py'
-  print "%20s    " % (" FILES IN " + src_dir) + "|" + "    FILES IN " + tst_dir
-  status  = check_tst_against_src(src_dir, src_ext, tst_dir, verbose=verbose)
-  status += check_src_against_tst(tst_dir, tst_ext, src_dir, verbose=verbose)
+  status += check_two_ways(src_dir, src_ext, tst_dir, tst_ext, verbose = verbose)
 
-  tst_dir = join(dirname(sys.argv[0]),'src')
+  tst_dir = join(base_directory,'src')
   tst_ext = '.c'
-  print "%20s    " % (" FILES IN " + src_dir) + "|" + "    FILES IN " + tst_dir
-  status += check_tst_against_src(src_dir, src_ext, tst_dir, verbose=verbose, tst_prefix = 'test-')
-  status += check_src_against_tst(tst_dir, tst_ext, src_dir, verbose=verbose, tst_prefix = 'test-')
+  status += check_two_ways(src_dir, src_ext, tst_dir, tst_ext, verbose = verbose, tst_prefix = 'test-')
+
+  src_dir = join(base_directory,'..','examples')
+  src_ext = '.c'
+  tst_dir = join(base_directory,'python','examples')
+  tst_ext = '.py'
+  status += check_two_ways(src_dir, src_ext, tst_dir, tst_ext, verbose = verbose)
 
   sys.exit(status)
