@@ -6,9 +6,7 @@ class program_test_case(unittest.TestCase):
   filename = "/dev/null"
   progname = "UNDEFINED"
   command = ""
-
-  def setUp(self, options = ""):
-    self.options = options 
+  options = ""
 
   def getOutput(self, expected_status = 0):
     self.command = self.progname + ' -i ' + self.filename + self.command

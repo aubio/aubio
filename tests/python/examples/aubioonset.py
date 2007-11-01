@@ -9,7 +9,6 @@ class aubioonset_test_case(program_test_case):
   def test_aubioonset(self):
     """ test aubioonset with default parameters """
     self.getOutput()
-    assert len(self.output) != 0, self.output
     assert len(str(self.output)) != 0, "no output produced with command:\n" \
       + self.command
 
@@ -24,40 +23,14 @@ class aubioonset_test_case(program_test_case):
     self.command += " -s -100 " 
     self.getOutput()
     # only one onset in woodblock.aiff
-    assert len(self.output.split('\n')) == 1
     assert len(str(self.output)) != 0, "no output produced with command:\n" \
       + self.command
+    assert len(self.output.split('\n')) == 1
     # onset should be at 0.00000
     assert float(self.output.strip()) == 0.
 
-class aubioonset_test_case_energy(aubioonset_test_case):
-  def setUp(self, options = " -O energy "):
-    aubioonset_test_case.setUp(self, options = options)
+for name in ["energy", "specdiff", "hfc", "complex", "phase", "kl", "mkl"]:
+  exec("class aubioonset_test_case_"+name+"(aubioonset_test_case):\n\
+  options = \" -O "+name+" \"")
 
-class aubioonset_test_case_specdiff(aubioonset_test_case):
-  def setUp(self, options = " -O specdiff "):
-    aubioonset_test_case.setUp(self, options = options)
-
-class aubioonset_test_case_hfc(aubioonset_test_case):
-  def setUp(self, options = " -O hfc "):
-    aubioonset_test_case.setUp(self, options = options)
-
-class aubioonset_test_case_complex(aubioonset_test_case):
-  def setUp(self, options = " -O complex "):
-    aubioonset_test_case.setUp(self, options = options)
-
-class aubioonset_test_case_phase(aubioonset_test_case):
-  def setUp(self, options = " -O phase"):
-    aubioonset_test_case.setUp(self, options = options)
-
-class aubioonset_test_case_kl(aubioonset_test_case):
-  def setUp(self, options = " -O kl "):
-    aubioonset_test_case.setUp(self, options = options)
-
-class aubioonset_test_case_mkl(aubioonset_test_case):
-  def setUp(self, options = " -O mkl "):
-    aubioonset_test_case.setUp(self, options = options)
-
-if __name__ == '__main__':
-
-  unittest.main()
+if __name__ == '__main__': unittest.main()
