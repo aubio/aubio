@@ -9,6 +9,9 @@ class aubioonset_test_case(program_test_case):
   def test_aubioonset(self):
     """ test aubioonset with default parameters """
     self.getOutput()
+    assert len(self.output) != 0, self.output
+    assert len(str(self.output)) != 0, "no output produced with command:\n" \
+      + self.command
 
   def test_aubioonset_with_inf_silence(self):
     """ test aubioonset with -s 0  """
@@ -22,7 +25,8 @@ class aubioonset_test_case(program_test_case):
     self.getOutput()
     # only one onset in woodblock.aiff
     assert len(self.output.split('\n')) == 1
-    assert len(str(self.output)) != 0, "no output produced with command:\n" + self.command
+    assert len(str(self.output)) != 0, "no output produced with command:\n" \
+      + self.command
     # onset should be at 0.00000
     assert float(self.output.strip()) == 0.
 
@@ -43,7 +47,7 @@ class aubioonset_test_case_complex(aubioonset_test_case):
     aubioonset_test_case.setUp(self, options = options)
 
 class aubioonset_test_case_phase(aubioonset_test_case):
-  def setUp(self, options = " -O phase "):
+  def setUp(self, options = " -O phase"):
     aubioonset_test_case.setUp(self, options = options)
 
 class aubioonset_test_case_kl(aubioonset_test_case):
@@ -55,4 +59,5 @@ class aubioonset_test_case_mkl(aubioonset_test_case):
     aubioonset_test_case.setUp(self, options = options)
 
 if __name__ == '__main__':
+
   unittest.main()
