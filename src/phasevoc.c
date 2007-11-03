@@ -33,7 +33,7 @@ struct _aubio_pvoc_t {
   fvec_t * synthold;  /**last input frame [win_s-hop_s] */
   fvec_t * data;      /**current input grain [win_s] */
   fvec_t * dataold;   /**last input frame [win_s-hop_s] */
-  float * w;          /** grain window [win_s] */
+  smpl_t * w;          /** grain window [win_s] */
 };
 
 
