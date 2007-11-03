@@ -14,8 +14,8 @@ class aubio_mfft_test_case(unittest.TestCase):
   def tearDown(self):
     del_aubio_mfft(self.o)
 
-  def test_aubio_mfft(self):
-    """ create and delete mfft """
+  def test_create(self):
+    """ test creation and deletion of fft object """
     pass
 
   def test_aubio_mfft_do_zeroes(self):
@@ -99,6 +99,22 @@ class aubio_mfft_test_case(unittest.TestCase):
     for index in range(buf_size/2+1):
       for channel in range(channels):
         self.assertEqual(fvec_read_sample(output, channel, index),1./buf_size)
+    del fftgrain
+    del output
+
+  def test_aubio_mfft_do_back_and_forth(self):
+    """ test aubio_mfft_rdo on a constant """
+    input    = new_fvec(buf_size, channels)
+    output   = new_fvec(buf_size, channels)
+    fftgrain = new_cvec(buf_size, channels)
+    for index in range(buf_size/2+1):
+      for channel in range(channels):
+        fvec_write_sample(input, 0.67, channel, index)
+    aubio_mfft_do(self.o, input, fftgrain)
+    aubio_mfft_rdo(self.o, fftgrain, output)
+    for index in range(buf_size/2+1):
+      for channel in range(channels):
+        self.assertAlmostEqual(fvec_read_sample(output, channel, index), 0.67, 7)
     del fftgrain
     del output
 
