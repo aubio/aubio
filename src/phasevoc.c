@@ -76,7 +76,7 @@ void aubio_pvoc_do(aubio_pvoc_t *pv, fvec_t * datanew, cvec_t *fftgrain) {
 }
 
 void aubio_pvoc_rdo(aubio_pvoc_t *pv,cvec_t * fftgrain, fvec_t * synthnew) {
-	uint_t i,j;
+	uint_t i;
 	/* calculate rfft */
         aubio_mfft_rdo(pv->fft,fftgrain,pv->synth);
         /* unshift */
