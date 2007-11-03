@@ -9,7 +9,8 @@ bin_PROGRAMS = \
 	test-mfft \
 	test-hist \
 	test-scale \
-	test-sample \
+	test-cvec \
+	test-fvec \
 	test-window \
 	test-filter \
 	test-biquad \
