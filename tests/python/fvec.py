@@ -21,7 +21,7 @@ class fvec_test_case(unittest.TestCase):
     """ check new fvec elements are set to 0. """
     for index in range(buf_size):
       for channel in range(channels):
-        self.assertEqual(fvec_read_sample(self.vector,channel,index),0.)
+        self.assertEqual(0., fvec_read_sample(self.vector,channel,index))
 
   def test_fvec_write_sample(self):
     """ check new fvec elements are set with fvec_write_sample """
@@ -30,7 +30,7 @@ class fvec_test_case(unittest.TestCase):
         fvec_write_sample(self.vector,1.,channel,index)
     for index in range(buf_size):
       for channel in range(channels):
-        self.assertEqual(fvec_read_sample(self.vector,channel,index),1.)
+        self.assertEqual(1., fvec_read_sample(self.vector,channel,index))
 
 if __name__ == '__main__':
   unittest.main()
