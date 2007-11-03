@@ -82,7 +82,6 @@ void aubio_pvoc_rdo(aubio_pvoc_t *pv,cvec_t * fftgrain, fvec_t * synthnew) {
         /* unshift */
         vec_shift(pv->synth);
 	for (i=0; i<pv->channels; i++) {
-		for (j=0; j<pv->win_s; j++) pv->synth->data[i][j] *= pv->w[j];
 		aubio_pvoc_addsynth(pv->synth->data[i],pv->synthold->data[i],
 				synthnew->data[i],pv->win_s,pv->hop_s);
 	}
