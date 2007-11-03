@@ -120,9 +120,9 @@ void aubio_fft_getspectrum(fft_data_t * spectrum, smpl_t *norm, smpl_t * phas, u
 
 void aubio_fft_getnorm(smpl_t * norm, fft_data_t * spectrum, uint_t size) {
   uint_t i;
-  norm[0] = SQR(spectrum[0]);
-  for (i=1;i<size/2;i++) norm[i] = (SQR(spectrum[i]) + SQR(spectrum[size-i]));
-  norm[size/2] = SQR(spectrum[size/2]);
+  norm[0] = spectrum[0];
+  for (i=1;i<size/2;i++) norm[i] = SQRT((SQR(spectrum[i]) + SQR(spectrum[size-i])));
+  norm[size/2] = spectrum[size/2];
 }
 
 void aubio_fft_getphas(smpl_t * phas, fft_data_t * spectrum, uint_t size) {
