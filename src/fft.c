@@ -54,12 +54,15 @@ aubio_fft_t * new_aubio_fft(uint_t size) {
 	/* allocate memory */
 	s->in       = AUBIO_ARRAY(real_t,size);
 	s->out      = AUBIO_ARRAY(real_t,size);
-	s->specdata = (fft_data_t*)fftw_malloc(sizeof(fft_data_t)*size);
 	/* create plans */
 #ifdef HAVE_COMPLEX_H
+  s->fft_size = size/2+1;
+	s->specdata = (fft_data_t*)fftw_malloc(sizeof(fft_data_t)*s->fft_size);
 	s->pfw = fftw_plan_dft_r2c_1d(size, s->in,  s->specdata, FFTW_ESTIMATE);
 	s->pbw = fftw_plan_dft_c2r_1d(size, s->specdata, s->out, FFTW_ESTIMATE);
 #else
+  s->fft_size = size;
+	s->specdata = (fft_data_t*)fftw_malloc(sizeof(fft_data_t)*s->fft_size);
 	s->pfw = fftw_plan_r2r_1d(size, s->in,  s->specdata, FFTW_R2HC, FFTW_ESTIMATE);
 	s->pbw = fftw_plan_r2r_1d(size, s->specdata, s->out, FFTW_HC2R, FFTW_ESTIMATE);
 #endif
@@ -82,7 +85,7 @@ void aubio_fft_do(const aubio_fft_t * s,
 	uint_t i;
 	for (i=0;i<size;i++) s->in[i] = data[i];
 	fftw_execute(s->pfw);
-	for (i=0;i<size;i++) spectrum[i] = s->specdata[i];
+	for (i=0; i < s->fft_size; i++) spectrum[i] = s->specdata[i];
 }
 
 void aubio_fft_rdo(const aubio_fft_t * s, 
@@ -91,7 +94,7 @@ void aubio_fft_rdo(const aubio_fft_t * s,
 		const uint_t size) {
 	uint_t i;
 	const smpl_t renorm = 1./(smpl_t)size;
-	for (i=0;i<size;i++) s->specdata[i] = spectrum[i];
+	for (i=0; i < s->fft_size; i++) s->specdata[i] = spectrum[i];
 	fftw_execute(s->pbw);
 	for (i=0;i<size;i++) data[i] = s->out[i]*renorm;
 }
@@ -122,15 +125,17 @@ void aubio_fft_getspectrum(fft_data_t * spectrum, smpl_t *norm, smpl_t * phas, u
 
 void aubio_fft_getnorm(smpl_t * norm, fft_data_t * spectrum, uint_t size) {
 	uint_t i;
-  norm[0] = -spectrum[0];
-	for (i=1;i<size/2+1;i++) norm[i] = SQRT(SQR(spectrum[i]) + SQR(spectrum[size-i]));
+  norm[0] = SQR(spectrum[0]);
+	for (i=1;i<size/2;i++) norm[i] = (SQR(spectrum[i]) + SQR(spectrum[size-i]));
+	norm[size/2] = SQR(spectrum[size/2]);
 	//for (i=0;i<size/2+1;i++) AUBIO_DBG("%f\n", norm[i]);
 }
 
 void aubio_fft_getphas(smpl_t * phas, fft_data_t * spectrum, uint_t size) {
 	uint_t i;
-  phas[0] = PI;
+  phas[0] = 0;
 	for (i=1;i<size/2+1;i++) phas[i] = atan2f(spectrum[size-i] , spectrum[i]);
+  phas[size/2] = 0;
 	//for (i=0;i<size/2+1;i++) AUBIO_DBG("%f\n", phas[i]);
 }
 
