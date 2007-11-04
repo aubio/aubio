@@ -49,7 +49,7 @@ void aubio_hist_do_notnull(aubio_hist_t *s, fvec_t * input);
 /** compute the mean of the histogram */
 smpl_t aubio_hist_mean(aubio_hist_t *s); 
 /** weight the histogram */
-void aubio_hist_weigth(aubio_hist_t *s); 
+void aubio_hist_weight(aubio_hist_t *s); 
 /** compute dynamic histogram for non-null elements */
 void aubio_hist_dyn_notnull (aubio_hist_t *s, fvec_t *input);
 

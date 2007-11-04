@@ -27,8 +27,7 @@
  */
 
 struct _aubio_hist_t {
-	/*bug: move to a fvec */
-	smpl_t ** hist;
+	fvec_t * hist;
 	uint_t nelems;
 	uint_t channels;
 	smpl_t * cent;
@@ -45,10 +44,7 @@ aubio_hist_t * new_aubio_hist (smpl_t ilow, smpl_t ihig, uint_t nelems, uint_t c
 	uint_t i;
 	s->channels = channels;
 	s->nelems = nelems;
-	s->hist = AUBIO_ARRAY(smpl_t*, channels);
-	for (i=0; i< s->channels; i++) {
-		s->hist[i] = AUBIO_ARRAY(smpl_t, nelems);
-	}
+  s->hist = new_fvec(nelems, channels);
 	s->cent = AUBIO_ARRAY(smpl_t, nelems);
 	
 	/* use scale to map ilow/ihig -> 0/nelems */
@@ -62,11 +58,7 @@ aubio_hist_t * new_aubio_hist (smpl_t ilow, smpl_t ihig, uint_t nelems, uint_t c
 }
 
 void del_aubio_hist(aubio_hist_t *s) {
-	uint_t i;
-	for (i=0; i< s->channels; i++) {
-		AUBIO_FREE(s->hist[i]);
-	}
-	AUBIO_FREE(s->hist);
+  del_fvec(s->hist);
 	AUBIO_FREE(s->cent);
 	del_aubio_scale(s->scaler);
 	AUBIO_FREE(s);
@@ -83,14 +75,14 @@ void aubio_hist_do (aubio_hist_t *s, fvec_t *input)
 	/* reset data */
 	for (i=0; i < s->channels; i++)
 		for (j=0; j < s->nelems; j++) 
-			s->hist[i][j] = 0;
+			s->hist->data[i][j] = 0;
 	/* run accum */
 	for (i=0; i < input->channels; i++)
 		for (j=0;  j < input->length; j++)
 		{
 			tmp = (sint_t)FLOOR(input->data[i][j]);
 			if ((tmp >= 0) && (tmp < (sint_t)s->nelems))
-				s->hist[i][tmp] += 1;
+				s->hist->data[i][tmp] += 1;
 		}
 }
 
@@ -102,7 +94,7 @@ void aubio_hist_do_notnull (aubio_hist_t *s, fvec_t *input)
 	/* reset data */
 	for (i=0; i < s->channels; i++)
 		for (j=0; j < s->nelems; j++) 
-			s->hist[i][j] = 0;
+			s->hist->data[i][j] = 0;
 	/* run accum */
 	for (i=0; i < input->channels; i++)
 		for (j=0;  j < input->length; j++) 
@@ -110,7 +102,7 @@ void aubio_hist_do_notnull (aubio_hist_t *s, fvec_t *input)
 			if (input->data[i][j] != 0) {
 				tmp = (sint_t)FLOOR(input->data[i][j]);
 				if ((tmp >= 0) && (tmp < (sint_t)s->nelems))
-					s->hist[i][tmp] += 1;
+					s->hist->data[i][tmp] += 1;
 			}
 		}
 }
@@ -138,7 +130,7 @@ void aubio_hist_dyn_notnull (aubio_hist_t *s, fvec_t *input)
 	/* reset data */
 	for (i=0; i < s->channels; i++)
 		for (j=0; j < s->nelems; j++) 
-			s->hist[i][j] = 0;
+			s->hist->data[i][j] = 0;
 	/* run accum */
 	for (i=0; i < input->channels; i++)
 		for (j=0;  j < input->length; j++) 
@@ -146,17 +138,17 @@ void aubio_hist_dyn_notnull (aubio_hist_t *s, fvec_t *input)
 			if (input->data[i][j] != 0) {
 				tmp = (sint_t)FLOOR(input->data[i][j]);
 				if ((tmp >= 0) && (tmp < (sint_t)s->nelems))
-					s->hist[i][tmp] += 1;
+					s->hist->data[i][tmp] += 1;
 			}
 		}
 }
 
-void aubio_hist_weigth (aubio_hist_t *s) 
+void aubio_hist_weight (aubio_hist_t *s) 
 {
 	uint_t i,j;
 	for (i=0; i < s->channels; i++)
 		for (j=0; j < s->nelems; j++) {
-			s->hist[i][j] *= s->cent[j];
+			s->hist->data[i][j] *= s->cent[j];
 		}
 }
 
@@ -166,7 +158,7 @@ smpl_t aubio_hist_mean (aubio_hist_t *s)
 	smpl_t tmp = 0.0f;
 	for (i=0; i < s->channels; i++)
 		for (j=0; j < s->nelems; j++)
-			tmp += s->hist[i][j];
+			tmp += s->hist->data[i][j];
 	return tmp/(smpl_t)(s->nelems);
 }
 
