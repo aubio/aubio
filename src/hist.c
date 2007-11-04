@@ -30,7 +30,7 @@ struct _aubio_hist_t {
 	fvec_t * hist;
 	uint_t nelems;
 	uint_t channels;
-	smpl_t * cent;
+	fvec_t * cent;
 	aubio_scale_t *scaler;
 };
 
@@ -45,21 +45,21 @@ aubio_hist_t * new_aubio_hist (smpl_t ilow, smpl_t ihig, uint_t nelems, uint_t c
 	s->channels = channels;
 	s->nelems = nelems;
   s->hist = new_fvec(nelems, channels);
-	s->cent = AUBIO_ARRAY(smpl_t, nelems);
+	s->cent = new_fvec(nelems, 1);
 	
 	/* use scale to map ilow/ihig -> 0/nelems */
 	s->scaler = new_aubio_scale(ilow,ihig,0,nelems);
 	/* calculate centers now once */
-	s->cent[0] = ilow + 0.5 * step;
+	s->cent->data[0][0] = ilow + 0.5 * step;
 	for (i=1; i < s->nelems; i++, accum+=step )
-		s->cent[i] = s->cent[0] + accum;
+		s->cent->data[0][i] = s->cent->data[0][0] + accum;
 	
 	return s;	
 }
 
 void del_aubio_hist(aubio_hist_t *s) {
   del_fvec(s->hist);
-	AUBIO_FREE(s->cent);
+	del_fvec(s->cent);
 	del_aubio_scale(s->scaler);
 	AUBIO_FREE(s);
 }
@@ -120,9 +120,9 @@ void aubio_hist_dyn_notnull (aubio_hist_t *s, fvec_t *input)
 	aubio_scale_set(s->scaler, ilow, ihig, 0, s->nelems);
 
 	/* recalculate centers */
-	s->cent[0] = ilow + 0.5f * step;
+	s->cent->data[0][0] = ilow + 0.5f * step;
 	for (i=1; i < s->nelems; i++)
-		s->cent[i] = s->cent[0] + i * step;
+		s->cent->data[0][i] = s->cent->data[0][0] + i * step;
 
 	/* scale */	
 	aubio_scale_do(s->scaler, input);
@@ -148,7 +148,7 @@ void aubio_hist_weight (aubio_hist_t *s)
 	uint_t i,j;
 	for (i=0; i < s->channels; i++)
 		for (j=0; j < s->nelems; j++) {
-			s->hist->data[i][j] *= s->cent[j];
+			s->hist->data[i][j] *= s->cent->data[0][j];
 		}
 }
 
