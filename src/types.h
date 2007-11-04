@@ -39,8 +39,8 @@ extern "C" {
 #endif
 
 /** short sample format (32 or 64 bits) */
-//typedef float        smpl_t;
-typedef double       smpl_t;
+typedef float        smpl_t;
+//typedef double       smpl_t;
 /** long sample format (64 bits or more) */
 typedef double       lsmp_t;
 //typedef long        lsmp_t;
