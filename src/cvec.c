@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003 Paul Brossier
+   Copyright (C) 2003-2007 Paul Brossier <piem@piem.org>
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -18,48 +18,7 @@
 */
 
 #include "aubio_priv.h"
-#include "sample.h"
-
-fvec_t * new_fvec( uint_t length, uint_t channels) {
-  fvec_t * s = AUBIO_NEW(fvec_t);
-  uint_t i,j;
-  s->channels = channels;
-  s->length = length;
-  s->data = AUBIO_ARRAY(smpl_t*,s->channels);
-  for (i=0; i< s->channels; i++) {
-    s->data[i] = AUBIO_ARRAY(smpl_t, s->length);
-    for (j=0; j< s->length; j++) {
-      s->data[i][j]=0.;
-    }
-  }
-  return s;
-}
-
-void del_fvec(fvec_t *s) {
-  uint_t i;
-  for (i=0; i<s->channels; i++) {
-    AUBIO_FREE(s->data[i]);
-  }
-  AUBIO_FREE(s->data);
-  AUBIO_FREE(s);
-}
-
-void fvec_write_sample(fvec_t *s, smpl_t data, uint_t channel, uint_t position) {
-  s->data[channel][position] = data;
-}
-smpl_t fvec_read_sample(fvec_t *s, uint_t channel, uint_t position) {
-  return s->data[channel][position];
-}
-void fvec_put_channel(fvec_t *s, smpl_t * data, uint_t channel) {
-  s->data[channel] = data;
-}
-smpl_t * fvec_get_channel(fvec_t *s, uint_t channel) {
-  return s->data[channel];
-}
-
-smpl_t ** fvec_get_data(fvec_t *s) {
-  return s->data;
-}
+#include "cvec.h"
 
 cvec_t * new_cvec( uint_t length, uint_t channels) {
   cvec_t * s = AUBIO_NEW(cvec_t);
@@ -120,3 +79,4 @@ smpl_t ** cvec_get_norm(cvec_t *s) {
 smpl_t ** cvec_get_phas(cvec_t *s) {
   return s->phas;
 }
+

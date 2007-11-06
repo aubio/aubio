@@ -11,10 +11,14 @@ sys.path.append(os.path.join(cur_dir,'..','..','python','aubio','.libs'))
 import unittest
 
 from glob import glob
-modules_to_test = [i.split('.')[0] for i in glob('*.py')]
+def list_of_test_files(path):
+  return [i.split('.')[0].replace('/','.') for i in glob(path)]
+
+modules_to_test  = list_of_test_files('*.py')
+modules_to_test += list_of_test_files('examples/aubio*.py')
 
 if __name__ == '__main__':
   for module in modules_to_test: 
-    if module != 'all_tests': # (not actually needed)
+    if module != 'run_all_tests': # (not actually needed)
       exec('from %s import *' % module)
   unittest.main()

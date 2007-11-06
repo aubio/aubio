@@ -1,25 +1,44 @@
-*/Makefile.in
-*/*/Makefile.in
-*/*/*/Makefile.in
-*/Makefile
-*/*/Makefile
-*/*/*/Makefile
-*/.deps
-*/*/.deps
-*/*/*/.deps
-*/.libs
-*/*/.libs
-*/*/*/.libs
-*/*.lo
-*/*/*.lo
-*/*/*/*.lo
-*/*.la
+**/Makefile.in
+**/Makefile
+**/.deps
+**/.libs
+**/*.lo
+**/*.la
+
+# ignore compiled examples
+RE:examples/[a-z]*
+
+# ignore compiled test programs
+RE:tests/src/test-[a-z-]*$
+
+# ignore aubio
 plugins/puredata/aubio.pd_linux
-doc/aubiocut.1
-doc/aubionotes.1
-doc/aubioonset.1
-doc/aubiopitch.1
-doc/aubiotrack.1
+
+# only sgml manpages count
+doc/*.1
+
+# cachegrind/callgrind stuff
+**/cachegrind.out.[0-9]*
+**/callgrind.out.[0-9]*
+
+# autoreconf -f -i will create these
+INSTALL
+aclocal.m4
+aubio.pc
+autom4te.cache/
+compile
+config.guess
+config.log
+config.status
+config.sub
+configure
+depcomp
+install-sh
+libtool
+ltmain.sh
+missing
+py-compile
 src/config.h
 src/config.h.in
 src/stamp-h1
+

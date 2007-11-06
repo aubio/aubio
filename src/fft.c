@@ -23,14 +23,14 @@
 #include "fft.h"
 
 #if FFTW3F_SUPPORT
-#define fftw_malloc 		fftwf_malloc
-#define fftw_free 		fftwf_free
-#define fftw_execute 		fftwf_execute
-#define fftw_plan_dft_r2c_1d 	fftwf_plan_dft_r2c_1d
-#define fftw_plan_dft_c2r_1d 	fftwf_plan_dft_c2r_1d
-#define fftw_plan_r2r_1d      fftwf_plan_r2r_1d
-#define fftw_plan		fftwf_plan
-#define fftw_destroy_plan	fftwf_destroy_plan
+#define fftw_malloc            fftwf_malloc
+#define fftw_free              fftwf_free
+#define fftw_execute           fftwf_execute
+#define fftw_plan_dft_r2c_1d   fftwf_plan_dft_r2c_1d
+#define fftw_plan_dft_c2r_1d   fftwf_plan_dft_c2r_1d
+#define fftw_plan_r2r_1d       fftwf_plan_r2r_1d
+#define fftw_plan              fftwf_plan
+#define fftw_destroy_plan      fftwf_destroy_plan
 #endif
 
 #if FFTW3F_SUPPORT
@@ -40,74 +40,72 @@
 #endif
 
 struct _aubio_fft_t {
-	uint_t fft_size;
-	uint_t channels;
-	real_t  	*in, *out;
-	fft_data_t 	*specdata;
-	fftw_plan 	pfw, pbw;
+  uint_t fft_size;
+  uint_t channels;
+  real_t    *in, *out;
+  fft_data_t   *specdata;
+  fftw_plan   pfw, pbw;
 };
 
 static void aubio_fft_getspectrum(fft_data_t * spectrum, smpl_t *norm, smpl_t * phas, uint_t size);
 
 aubio_fft_t * new_aubio_fft(uint_t size) {
-	aubio_fft_t * s = AUBIO_NEW(aubio_fft_t);
-	/* allocate memory */
-	s->in       = AUBIO_ARRAY(real_t,size);
-	s->out      = AUBIO_ARRAY(real_t,size);
-	s->specdata = (fft_data_t*)fftw_malloc(sizeof(fft_data_t)*size);
-	/* create plans */
+  aubio_fft_t * s = AUBIO_NEW(aubio_fft_t);
+  /* allocate memory */
+  s->in       = AUBIO_ARRAY(real_t,size);
+  s->out      = AUBIO_ARRAY(real_t,size);
+  /* create plans */
 #ifdef HAVE_COMPLEX_H
-	s->pfw = fftw_plan_dft_r2c_1d(size, s->in,  s->specdata, FFTW_ESTIMATE);
-	s->pbw = fftw_plan_dft_c2r_1d(size, s->specdata, s->out, FFTW_ESTIMATE);
+  s->fft_size = size/2+1;
+  s->specdata = (fft_data_t*)fftw_malloc(sizeof(fft_data_t)*s->fft_size);
+  s->pfw = fftw_plan_dft_r2c_1d(size, s->in,  s->specdata, FFTW_ESTIMATE);
+  s->pbw = fftw_plan_dft_c2r_1d(size, s->specdata, s->out, FFTW_ESTIMATE);
 #else
-	s->pfw = fftw_plan_r2r_1d(size, s->in,  s->specdata, FFTW_R2HC, FFTW_ESTIMATE);
-	s->pbw = fftw_plan_r2r_1d(size, s->specdata, s->out, FFTW_HC2R, FFTW_ESTIMATE);
+  s->fft_size = size;
+  s->specdata = (fft_data_t*)fftw_malloc(sizeof(fft_data_t)*s->fft_size);
+  s->pfw = fftw_plan_r2r_1d(size, s->in,  s->specdata, FFTW_R2HC, FFTW_ESTIMATE);
+  s->pbw = fftw_plan_r2r_1d(size, s->specdata, s->out, FFTW_HC2R, FFTW_ESTIMATE);
 #endif
-	return s;
+  return s;
 }
 
 void del_aubio_fft(aubio_fft_t * s) {
-	/* destroy data */
-	fftw_destroy_plan(s->pfw);
-	fftw_destroy_plan(s->pbw);
-	fftw_free(s->specdata);
-	AUBIO_FREE(s->out);
-	AUBIO_FREE(s->in );
-	AUBIO_FREE(s);
+  /* destroy data */
+  fftw_destroy_plan(s->pfw);
+  fftw_destroy_plan(s->pbw);
+  fftw_free(s->specdata);
+  AUBIO_FREE(s->out);
+  AUBIO_FREE(s->in );
+  AUBIO_FREE(s);
 }
 
 void aubio_fft_do(const aubio_fft_t * s, 
-		const smpl_t * data, fft_data_t * spectrum, 
-		const uint_t size) {
-	uint_t i;
-	for (i=0;i<size;i++) s->in[i] = data[i];
-	fftw_execute(s->pfw);
-	for (i=0;i<size;i++) spectrum[i] = s->specdata[i];
+    const smpl_t * data, fft_data_t * spectrum, const uint_t size) {
+  uint_t i;
+  for (i=0;i<size;i++) s->in[i] = data[i];
+  fftw_execute(s->pfw);
+  for (i=0; i < s->fft_size; i++) spectrum[i] = s->specdata[i];
 }
 
 void aubio_fft_rdo(const aubio_fft_t * s, 
-		const fft_data_t * spectrum, 
-		smpl_t * data, 
-		const uint_t size) {
-	uint_t i;
-	const smpl_t renorm = 1./(smpl_t)size;
-	for (i=0;i<size;i++) s->specdata[i] = spectrum[i];
-	fftw_execute(s->pbw);
-	for (i=0;i<size;i++) data[i] = s->out[i]*renorm;
+    const fft_data_t * spectrum, smpl_t * data, const uint_t size) {
+  uint_t i;
+  const smpl_t renorm = 1./(smpl_t)size;
+  for (i=0; i < s->fft_size; i++) s->specdata[i] = spectrum[i];
+  fftw_execute(s->pbw);
+  for (i=0;i<size;i++) data[i] = s->out[i]*renorm;
 }
 
 #ifdef HAVE_COMPLEX_H
 
 void aubio_fft_getnorm(smpl_t * norm, fft_data_t * spectrum, uint_t size) {
-	uint_t i;
-	for (i=0;i<size/2+1;i++) norm[i] = ABSC(spectrum[i]);
-	//for (i=0;i<size/2+1;i++) AUBIO_DBG("%f\n", norm[i]);
+  uint_t i;
+  for (i=0;i<size/2+1;i++) norm[i] = ABSC(spectrum[i]);
 }
 
 void aubio_fft_getphas(smpl_t * phas, fft_data_t * spectrum, uint_t size) {
-	uint_t i;
-	for (i=0;i<size/2+1;i++) phas[i] = ARGC(spectrum[i]);
-	//for (i=0;i<size/2+1;i++) AUBIO_DBG("%f\n", phas[i]);
+  uint_t i;
+  for (i=0;i<size/2+1;i++) phas[i] = ARGC(spectrum[i]);
 }
 
 void aubio_fft_getspectrum(fft_data_t * spectrum, smpl_t *norm, smpl_t * phas, uint_t size) {
@@ -121,17 +119,17 @@ void aubio_fft_getspectrum(fft_data_t * spectrum, smpl_t *norm, smpl_t * phas, u
 #else
 
 void aubio_fft_getnorm(smpl_t * norm, fft_data_t * spectrum, uint_t size) {
-	uint_t i;
-  norm[0] = -spectrum[0];
-	for (i=1;i<size/2+1;i++) norm[i] = SQRT(SQR(spectrum[i]) + SQR(spectrum[size-i]));
-	//for (i=0;i<size/2+1;i++) AUBIO_DBG("%f\n", norm[i]);
+  uint_t i;
+  norm[0] = spectrum[0];
+  for (i=1;i<size/2;i++) norm[i] = SQRT((SQR(spectrum[i]) + SQR(spectrum[size-i])));
+  norm[size/2] = spectrum[size/2];
 }
 
 void aubio_fft_getphas(smpl_t * phas, fft_data_t * spectrum, uint_t size) {
-	uint_t i;
-  phas[0] = PI;
-	for (i=1;i<size/2+1;i++) phas[i] = atan2f(spectrum[size-i] , spectrum[i]);
-	//for (i=0;i<size/2+1;i++) AUBIO_DBG("%f\n", phas[i]);
+  uint_t i;
+  phas[0] = 0;
+  for (i=1;i<size/2+1;i++) phas[i] = atan2f(spectrum[size-i] , spectrum[i]);
+  phas[size/2] = 0;
 }
 
 void aubio_fft_getspectrum(fft_data_t * spectrum, smpl_t *norm, smpl_t * phas, uint_t size) {
@@ -155,43 +153,43 @@ struct _aubio_mfft_t {
 };
 
 aubio_mfft_t * new_aubio_mfft(uint_t winsize, uint_t channels){
-        uint_t i;
-	aubio_mfft_t * fft = AUBIO_NEW(aubio_mfft_t);
-	fft->winsize       = winsize;
-	fft->channels      = channels;
-	fft->fft           = new_aubio_fft(winsize);
-	fft->spec          = AUBIO_ARRAY(fft_data_t*,channels);
-        for (i=0; i < channels; i++)
-                fft->spec[i] = AUBIO_ARRAY(fft_data_t,winsize);
-        return fft;
+  uint_t i;
+  aubio_mfft_t * fft = AUBIO_NEW(aubio_mfft_t);
+  fft->winsize       = winsize;
+  fft->channels      = channels;
+  fft->fft           = new_aubio_fft(winsize);
+  fft->spec          = AUBIO_ARRAY(fft_data_t*,channels);
+  for (i=0; i < channels; i++)
+    fft->spec[i] = AUBIO_ARRAY(fft_data_t,winsize);
+  return fft;
 }
 
 /* execute stft */
 void aubio_mfft_do (aubio_mfft_t * fft,fvec_t * in,cvec_t * fftgrain){
-        uint_t i=0;
-        /* execute stft */
-        for (i=0; i < fft->channels; i++) {
-                aubio_fft_do (fft->fft,in->data[i],fft->spec[i],fft->winsize);
-                /* put norm and phase into fftgrain */
-                aubio_fft_getnorm(fftgrain->norm[i], fft->spec[i], fft->winsize);
-                aubio_fft_getphas(fftgrain->phas[i], fft->spec[i], fft->winsize);
-        }
+  uint_t i=0;
+  /* execute stft */
+  for (i=0; i < fft->channels; i++) {
+    aubio_fft_do (fft->fft,in->data[i],fft->spec[i],fft->winsize);
+    /* put norm and phase into fftgrain */
+    aubio_fft_getnorm(fftgrain->norm[i], fft->spec[i], fft->winsize);
+    aubio_fft_getphas(fftgrain->phas[i], fft->spec[i], fft->winsize);
+  }
 }
 
 /* execute inverse fourier transform */
 void aubio_mfft_rdo(aubio_mfft_t * fft,cvec_t * fftgrain, fvec_t * out){
-        uint_t i=0;
-        for (i=0; i < fft->channels; i++) {
-                aubio_fft_getspectrum(fft->spec[i],fftgrain->norm[i],fftgrain->phas[i],fft->winsize);
-                aubio_fft_rdo(fft->fft,fft->spec[i],out->data[i],fft->winsize);
-        }
+  uint_t i=0;
+  for (i=0; i < fft->channels; i++) {
+    aubio_fft_getspectrum(fft->spec[i],fftgrain->norm[i],fftgrain->phas[i],fft->winsize);
+    aubio_fft_rdo(fft->fft,fft->spec[i],out->data[i],fft->winsize);
+  }
 }
 
 void del_aubio_mfft(aubio_mfft_t * fft) {
-        uint_t i;
-        for (i=0; i < fft->channels; i++)
-                AUBIO_FREE(fft->spec[i]);
-        AUBIO_FREE(fft->spec);
-        del_aubio_fft(fft->fft);
-        AUBIO_FREE(fft);        
+  uint_t i;
+  for (i=0; i < fft->channels; i++)
+    AUBIO_FREE(fft->spec[i]);
+  AUBIO_FREE(fft->spec);
+  del_aubio_fft(fft->fft);
+  AUBIO_FREE(fft);        
 }
