@@ -128,7 +128,7 @@ void aubio_onsetdetection_phase(aubio_onsetdetection_t *o,
 		/* apply o->histogram */
 		aubio_hist_dyn_notnull(o->histog,o->dev1);
 		/* weight it */
-		aubio_hist_weigth(o->histog);
+		aubio_hist_weight(o->histog);
 		/* its mean is the result */
 		onset->data[i][0] = aubio_hist_mean(o->histog);	
 		//onset->data[i][0] = vec_mean(o->dev1);
@@ -157,7 +157,7 @@ void aubio_onsetdetection_specdiff(aubio_onsetdetection_t *o,
 		 * overall function)*/
 		aubio_hist_dyn_notnull(o->histog,o->dev1);
 		/* weight it */
-		aubio_hist_weigth(o->histog);
+		aubio_hist_weight(o->histog);
 		/* its mean is the result */
 		onset->data[i][0] = aubio_hist_mean(o->histog);	
 

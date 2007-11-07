@@ -18,7 +18,8 @@
 */
 
 #include "aubio_priv.h"
-#include "sample.h"
+#include "fvec.h"
+#include "cvec.h"
 #include "fft.h"
 #include "mathutils.h"
 #include "phasevoc.h"
@@ -28,12 +29,12 @@ struct _aubio_pvoc_t {
   uint_t win_s;       /** grain length */
   uint_t hop_s;       /** overlap step */
   uint_t channels;    /** number of channels */
-  aubio_mfft_t * fft; /** spectral data */
-  fvec_t * synth;     /**cur output grain [win_s] */
-  fvec_t * synthold;  /**last input frame [win_s-hop_s] */
-  fvec_t * data;      /**current input grain [win_s] */
-  fvec_t * dataold;   /**last input frame [win_s-hop_s] */
-  smpl_t * w;          /** grain window [win_s] */
+  aubio_fft_t * fft;  /** fft object */
+  fvec_t * synth;     /** cur output grain [win_s] */
+  fvec_t * synthold;  /** last input frame [win_s-hop_s] */
+  fvec_t * data;      /** current input grain [win_s] */
+  fvec_t * dataold;   /** last input frame [win_s-hop_s] */
+  smpl_t * w;         /** grain window [win_s] */
 };
 
 
@@ -57,13 +58,13 @@ void aubio_pvoc_do(aubio_pvoc_t *pv, fvec_t * datanew, cvec_t *fftgrain) {
   /* shift */
   vec_shift(pv->data);
   /* calculate fft */
-  aubio_mfft_do (pv->fft,pv->data,fftgrain);
+  aubio_fft_do (pv->fft,pv->data,fftgrain);
 }
 
 void aubio_pvoc_rdo(aubio_pvoc_t *pv,cvec_t * fftgrain, fvec_t * synthnew) {
   uint_t i;
   /* calculate rfft */
-  aubio_mfft_rdo(pv->fft,fftgrain,pv->synth);
+  aubio_fft_rdo(pv->fft,fftgrain,pv->synth);
   /* unshift */
   vec_shift(pv->synth);
   for (i=0; i<pv->channels; i++) {
@@ -87,7 +88,7 @@ aubio_pvoc_t * new_aubio_pvoc (uint_t win_s, uint_t hop_s, uint_t channels) {
     hop_s = win_s / 2;
   }
 
-  pv->fft      = new_aubio_mfft(win_s,channels);
+  pv->fft      = new_aubio_fft(win_s,channels);
 
   /* remember old */
   pv->data     = new_fvec (win_s, channels);
@@ -111,7 +112,7 @@ void del_aubio_pvoc(aubio_pvoc_t *pv) {
   del_fvec(pv->synth);
   del_fvec(pv->dataold);
   del_fvec(pv->synthold);
-  del_aubio_mfft(pv->fft);
+  del_aubio_fft(pv->fft);
   AUBIO_FREE(pv->w);
   AUBIO_FREE(pv);
 }

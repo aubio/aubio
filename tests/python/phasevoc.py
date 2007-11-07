@@ -8,7 +8,7 @@ channels = 2
 
 precision = 6
 
-class aubio_phasevoc_test(unittest.TestCase):
+class phasevoc_unit(unittest.TestCase):
 
   def setUp(self):
     self.o = new_aubio_pvoc(buf_size, hop_size, channels)

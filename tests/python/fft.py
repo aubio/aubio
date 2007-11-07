@@ -1,47 +1,46 @@
-import unittest
 import math
+
+from template import aubio_unit_template
 
 from aubio.aubiowrapper import *
 
-buf_size = 8092 
+buf_size = 1024
 channels = 4
 
-precision = 6
-
-class aubio_mfft_test_case(unittest.TestCase):
+class fft_unit(aubio_unit_template):
 
   def setUp(self):
-    self.o = new_aubio_mfft(buf_size, channels)
+    self.o = new_aubio_fft(buf_size, channels)
 
   def tearDown(self):
-    del_aubio_mfft(self.o)
+    del_aubio_fft(self.o)
 
   def test_create(self):
     """ test creation and deletion of fft object """
     pass
 
-  def test_aubio_mfft_do_zeroes(self):
-    """ test aubio_mfft_do on zeroes """
+  def test_do_zeroes(self):
+    """ test aubio_fft_do on zeroes """
     input    = new_fvec(buf_size, channels)
     fftgrain = new_cvec(buf_size, channels)
     for index in range(buf_size):
       for channel in range(channels):
-        self.assertEqual(0., fvec_read_sample(input, channel, index))
-    aubio_mfft_do(self.o, input, fftgrain)
+        self.assertCloseEnough(0., fvec_read_sample(input, channel, index))
+    aubio_fft_do(self.o, input, fftgrain)
     for index in range(buf_size/2+1):
       for channel in range(channels):
-        self.assertEqual(0., cvec_read_norm(fftgrain, channel, index))
+        self.assertCloseEnough(0., cvec_read_norm(fftgrain, channel, index))
     for index in range(buf_size/2+1):
       for channel in range(channels):
-        self.assertEqual(0., cvec_read_phas(fftgrain, channel, index))
+        self.assertCloseEnough(0., cvec_read_phas(fftgrain, channel, index))
     del fftgrain
     del input
 
-  def test_aubio_mfft_rdo_zeroes(self):
-    """ test aubio_mfft_rdo on zeroes """
+  def test_rdo_zeroes(self):
+    """ test aubio_fft_rdo on zeroes """
     fftgrain = new_cvec(buf_size, channels)
     output    = new_fvec(buf_size, channels)
-    aubio_mfft_rdo(self.o, fftgrain, output)
+    aubio_fft_rdo(self.o, fftgrain, output)
     # check output
     for index in range(buf_size):
       for channel in range(channels):
@@ -49,17 +48,17 @@ class aubio_mfft_test_case(unittest.TestCase):
     del fftgrain
     del output
 
-  def test_aubio_mfft_do_impulse(self):
-    """ test aubio_mfft_do with an impulse on one channel """
+  def test_do_impulse(self):
+    """ test aubio_fft_do with an impulse on one channel """
     input    = new_fvec(buf_size, channels)
     fftgrain = new_cvec(buf_size, channels)
     # write impulse in channel 0, sample 0.
     some_constant = 0.3412432456
     fvec_write_sample(input, some_constant, 0, 0)
-    aubio_mfft_do(self.o, input, fftgrain)
+    aubio_fft_do(self.o, input, fftgrain)
     # check norm
     for index in range(buf_size/2+1):
-      self.assertAlmostEqual(some_constant, cvec_read_norm(fftgrain, 0, index), precision)
+      self.assertCloseEnough(some_constant, cvec_read_norm(fftgrain, 0, index))
     for index in range(buf_size/2+1):
       for channel in range(1, channels):
         self.assertEqual(0., cvec_read_norm(fftgrain, channel, index))
@@ -70,39 +69,45 @@ class aubio_mfft_test_case(unittest.TestCase):
     del fftgrain
     del input
 
-  def test_aubio_mfft_do_constant(self):
-    """ test aubio_mfft_do with a constant on one channel """
+  def test_do_constant(self):
+    """ test aubio_fft_do with a constant on one channel """
     input    = new_fvec(buf_size, channels)
     fftgrain = new_cvec(buf_size, channels)
     # write impulse in channel 0, sample 0.
     some_constant = 0.003412432456
     for index in range(1,buf_size):
       fvec_write_sample(input, some_constant, 0, index)
-    aubio_mfft_do(self.o, input, fftgrain)
+    aubio_fft_do(self.o, input, fftgrain)
     # check norm and phase == 0 in all other channels 
     for index in range(buf_size/2+1):
       for channel in range(1, channels):
         self.assertEqual(0., cvec_read_norm(fftgrain, channel, index))
+        self.assertEqual(0., cvec_read_phas(fftgrain, channel, index))
+
     # check norm and phase == 0 in first first and last bin of first channel
-    self.assertAlmostEqual((buf_size-1)*some_constant, cvec_read_norm(fftgrain, 0, 0), precision)
-    self.assertEqual(0., cvec_read_phas(fftgrain, 0, 0))
-    self.assertEqual(0., cvec_read_norm(fftgrain, 0, buf_size/2+1))
-    self.assertEqual(0., cvec_read_phas(fftgrain, 0, buf_size/2+1))
-    # check unwrap2pi(phas) ~= pi everywhere but in first bin
+    # check unwrap2pi(phas) ~= pi everywhere but in first and last bin
+    self.assertCloseEnough(0., cvec_read_phas(fftgrain, 0, 0))
+    for index in range(1,buf_size/2):
+       self.assertCloseEnough(math.pi, aubio_unwrap2pi(cvec_read_phas(fftgrain, 0, index)))
+    self.assertCloseEnough(0., cvec_read_phas(fftgrain, 0, buf_size/2))
+    self.assertCloseEnough(0., cvec_read_phas(fftgrain, 0, buf_size/2+1))
+
+    self.assertCloseEnough((buf_size-1)*some_constant, cvec_read_norm(fftgrain, 0, 0))
     for index in range(1,buf_size/2+1):
-       self.assertAlmostEqual ( math.pi, aubio_unwrap2pi(cvec_read_phas(fftgrain, 0, index)), precision)
-       self.assertAlmostEqual(some_constant, cvec_read_norm(fftgrain, 0, index), precision)
+       self.assertCloseEnough(some_constant, abs(cvec_read_norm(fftgrain, 0, index)))
+    self.assertCloseEnough(0., cvec_read_norm(fftgrain, 0, buf_size/2+1))
+
     del fftgrain
     del input
 
-  def test_aubio_mfft_do_impulse_multichannel(self):
-    " test aubio_mfft_do on impulse two channels "
+  def test_do_impulse_multichannel(self):
+    " test aubio_fft_do on impulse two channels "
     input    = new_fvec(buf_size, channels)
     fftgrain = new_cvec(buf_size, channels)
     # put an impulse in first an last channel, at first and last index
     fvec_write_sample(input, 1., 0, 0)
     fvec_write_sample(input, 1., channels-1, 0)
-    aubio_mfft_do(self.o, input, fftgrain)
+    aubio_fft_do(self.o, input, fftgrain)
     # check the norm
     for index in range(buf_size/2+1):
       self.assertEqual(1., cvec_read_norm(fftgrain, 0, index))
@@ -118,32 +123,32 @@ class aubio_mfft_test_case(unittest.TestCase):
     del fftgrain
     del input
 
-  def test_aubio_mfft_rdo_impulse(self):
-    """ test aubio_mfft_rdo on impulse """
+  def test_rdo_impulse(self):
+    """ test aubio_fft_rdo on impulse """
     fftgrain  = new_cvec(buf_size, channels)
     for channel in range(channels):
       cvec_write_norm(fftgrain, 1., channel, 0)
     output    = new_fvec(buf_size, channels)
-    aubio_mfft_rdo(self.o, fftgrain, output)
+    aubio_fft_rdo(self.o, fftgrain, output)
     for index in range(buf_size/2+1):
       for channel in range(channels):
-        self.assertAlmostEqual(fvec_read_sample(output, channel, index), 1./buf_size, precision)
+        self.assertCloseEnough(fvec_read_sample(output, channel, index), 1./buf_size)
     del fftgrain
     del output
 
-  def test_aubio_mfft_do_back_and_forth(self):
-    """ test aubio_mfft_rdo on a constant """
+  def test_do_back_and_forth(self):
+    """ test aubio_fft_rdo on a constant """
     input    = new_fvec(buf_size, channels)
     output   = new_fvec(buf_size, channels)
     fftgrain = new_cvec(buf_size, channels)
     for index in range(buf_size/2+1):
       for channel in range(channels):
         fvec_write_sample(input, 0.67, channel, index)
-    aubio_mfft_do(self.o, input, fftgrain)
-    aubio_mfft_rdo(self.o, fftgrain, output)
+    aubio_fft_do(self.o, input, fftgrain)
+    aubio_fft_rdo(self.o, fftgrain, output)
     for index in range(buf_size/2+1):
       for channel in range(channels):
-        self.assertAlmostEqual(fvec_read_sample(output, channel, index), 0.67, precision)
+        self.assertCloseEnough(0.67, fvec_read_sample(output, channel, index))
     del fftgrain
     del output
 
