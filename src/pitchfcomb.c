@@ -31,15 +31,15 @@ typedef struct {
 } aubio_fpeak_t;
 
 struct _aubio_pitchfcomb_t {
-        uint_t fftSize;
-        uint_t stepSize;
-        uint_t rate;
-	fvec_t * winput;
-	fvec_t * win;
-        cvec_t * fftOut;
-        fvec_t * fftLastPhase;
-	aubio_fft_t * fft;
-        //aubio_pvoc_t * pvoc;
+  uint_t fftSize;
+  uint_t stepSize;
+  uint_t rate;
+  fvec_t * winput;
+  fvec_t * win;
+  cvec_t * fftOut;
+  fvec_t * fftLastPhase;
+  aubio_fft_t * fft;
+  //aubio_pvoc_t * pvoc;
 };
 
 aubio_pitchfcomb_t * new_aubio_pitchfcomb (uint_t bufsize, uint_t hopsize, uint_t samplerate)
@@ -47,7 +47,7 @@ aubio_pitchfcomb_t * new_aubio_pitchfcomb (uint_t bufsize, uint_t hopsize, uint_
   aubio_pitchfcomb_t * p = AUBIO_NEW(aubio_pitchfcomb_t);
   p->rate         = samplerate;
   p->fftSize      = bufsize;
-  p->stepSize     = hopsize; 
+  p->stepSize     = hopsize;
   p->winput       = new_fvec(bufsize,1);
   p->fftOut       = new_cvec(bufsize,1);
   p->fftLastPhase = new_fvec(bufsize,1);
@@ -71,7 +71,7 @@ smpl_t aubio_pitchfcomb_detect (aubio_pitchfcomb_t * p, fvec_t * input)
   }
 
   for (k=0; k < input->length; k++){
-	  p->winput->data[0][k] = p->win->data[0][k] * input->data[0][k];
+    p->winput->data[0][k] = p->win->data[0][k] * input->data[0][k];
   }
   aubio_fft_do(p->fft,p->winput,p->fftOut);
 
@@ -103,17 +103,17 @@ smpl_t aubio_pitchfcomb_detect (aubio_pitchfcomb_t * p, fvec_t * input)
       peaks[0].db = magnitude;
     }
   }
-  
+
   k = 0;
   for (l=1; l<MAX_PEAKS && peaks[l].freq > 0.0; l++) {
     sint_t harmonic;
     for (harmonic=5; harmonic>1; harmonic--) {
       if (peaks[0].freq / peaks[l].freq < harmonic+.02 &&
-  	peaks[0].freq / peaks[l].freq > harmonic-.02) {
+          peaks[0].freq / peaks[l].freq > harmonic-.02) {
         if (harmonic > (sint_t)maxharm &&
-  	  peaks[0].db < peaks[l].db/2) {
+            peaks[0].db < peaks[l].db/2) {
           maxharm = harmonic;
-  	  k = l;
+          k = l;
         }
       }
     }
