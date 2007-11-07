@@ -38,7 +38,7 @@ struct _aubio_pitchfcomb_t {
 	fvec_t * win;
         cvec_t * fftOut;
         fvec_t * fftLastPhase;
-	aubio_mfft_t * fft;
+	aubio_fft_t * fft;
         //aubio_pvoc_t * pvoc;
 };
 
@@ -51,7 +51,7 @@ aubio_pitchfcomb_t * new_aubio_pitchfcomb (uint_t bufsize, uint_t hopsize, uint_
   p->winput       = new_fvec(bufsize,1);
   p->fftOut       = new_cvec(bufsize,1);
   p->fftLastPhase = new_fvec(bufsize,1);
-  p->fft = new_aubio_mfft(bufsize, 1);
+  p->fft = new_aubio_fft(bufsize, 1);
   p->win = new_fvec(bufsize,1);
   aubio_window(p->win->data[0], bufsize, aubio_win_hanning);
   return p;
@@ -73,7 +73,7 @@ smpl_t aubio_pitchfcomb_detect (aubio_pitchfcomb_t * p, fvec_t * input)
   for (k=0; k < input->length; k++){
 	  p->winput->data[0][k] = p->win->data[0][k] * input->data[0][k];
   }
-  aubio_mfft_do(p->fft,p->winput,p->fftOut);
+  aubio_fft_do(p->fft,p->winput,p->fftOut);
 
   for (k=0; k<=p->fftSize/2; k++) {
     smpl_t
@@ -129,7 +129,7 @@ void del_aubio_pitchfcomb (aubio_pitchfcomb_t * p)
   del_fvec(p->fftLastPhase);
   del_fvec(p->win);
   del_fvec(p->winput);
-  del_aubio_mfft(p->fft);
+  del_aubio_fft(p->fft);
   AUBIO_FREE(p);
 }
 

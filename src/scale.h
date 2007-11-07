@@ -1,19 +1,19 @@
 /*
-	 Copyright (C) 2003 Paul Brossier
+   Copyright (C) 2003 Paul Brossier
 
-	 This program is free software; you can redistribute it and/or modify
-	 it under the terms of the GNU General Public License as published by
-	 the Free Software Foundation; either version 2 of the License, or
-	 (at your option) any later version.
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
 
-	 This program is distributed in the hope that it will be useful,
-	 but WITHOUT ANY WARRANTY; without even the implied warranty of
-	 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	 GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-	 You should have received a copy of the GNU General Public License
-	 along with this program; if not, write to the Free Software
-	 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
 /** \file
@@ -44,7 +44,8 @@ typedef struct _aubio_scale_t aubio_scale_t;
   \param ihig higher value of output function
 
 */
-aubio_scale_t * new_aubio_scale(smpl_t flow, smpl_t fhig, smpl_t ilow, smpl_t ihig	);
+aubio_scale_t * new_aubio_scale(smpl_t flow, smpl_t fhig,
+    smpl_t ilow, smpl_t ihig);
 /** delete a scale object 
 
   \param s scale object as returned by new_aubio_scale
@@ -67,7 +68,8 @@ void aubio_scale_do(aubio_scale_t *s, fvec_t * input);
   \param ihig higher value of output function
 
 */
-void aubio_scale_set (aubio_scale_t *s, smpl_t ilow, smpl_t ihig, smpl_t olow, smpl_t ohig);
+void aubio_scale_set (aubio_scale_t *s, smpl_t ilow, smpl_t ihig,
+    smpl_t olow, smpl_t ohig);
 
 #ifdef __cplusplus
 }

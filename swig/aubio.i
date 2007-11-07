@@ -71,14 +71,18 @@ extern uint_t aubio_sndfile_channels(aubio_sndfile_t * file);
 extern uint_t aubio_sndfile_samplerate(aubio_sndfile_t * file);
 
 /* fft */
-extern void aubio_fft_getnorm(smpl_t * norm, fft_data_t * spectrum, uint_t size);
-extern void aubio_fft_getphas(smpl_t * phase, fft_data_t * spectrum, uint_t size);
-
-extern aubio_mfft_t * new_aubio_mfft(uint_t winsize, uint_t channels);
-extern void aubio_mfft_do (aubio_mfft_t * fft,fvec_t * in,cvec_t * fftgrain);
-extern void aubio_mfft_rdo(aubio_mfft_t * fft,cvec_t * fftgrain, fvec_t * out);
-extern void del_aubio_mfft(aubio_mfft_t * fft);
-
+extern aubio_fft_t * new_aubio_fft(uint_t size, uint_t channels);
+extern void del_aubio_fft(aubio_fft_t * s);
+extern void aubio_fft_do (aubio_fft_t *s, fvec_t * input, cvec_t * spectrum);
+extern void aubio_fft_rdo (aubio_fft_t *s, cvec_t * spectrum, fvec_t * output);
+extern void aubio_fft_do_complex (aubio_fft_t *s, fvec_t * input, fvec_t * compspec);
+extern void aubio_fft_rdo_complex (aubio_fft_t *s, fvec_t * compspec, fvec_t * output);
+extern void aubio_fft_get_spectrum(fvec_t * compspec, cvec_t * spectrum);
+extern void aubio_fft_get_realimag(cvec_t * spectrum, fvec_t * compspec);
+extern void aubio_fft_get_phas(fvec_t * compspec, cvec_t * spectrum);
+extern void aubio_fft_get_imag(cvec_t * spectrum, fvec_t * compspec);
+extern void aubio_fft_get_norm(fvec_t * compspec, cvec_t * spectrum);
+extern void aubio_fft_get_real(cvec_t * spectrum, fvec_t * compspec);
 
 /* filter */
 extern aubio_filter_t * new_aubio_filter(uint_t samplerate, uint_t order);
@@ -100,7 +104,9 @@ extern aubio_hist_t * new_aubio_hist(smpl_t flow, smpl_t fhig, uint_t nelems, ui
 extern void del_aubio_hist(aubio_hist_t *s);
 extern void aubio_hist_do(aubio_hist_t *s, fvec_t * input);
 extern void aubio_hist_do_notnull(aubio_hist_t *s, fvec_t * input);
-extern void aubio_hist_dyn_notnull (aubio_hist_t *s, fvec_t *input);
+extern void aubio_hist_dyn_notnull(aubio_hist_t *s, fvec_t *input);
+extern void aubio_hist_weight(aubio_hist_t *s);
+extern smpl_t aubio_hist_mean(aubio_hist_t *s);
 
 /* mathutils */
 typedef enum {
