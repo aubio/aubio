@@ -82,15 +82,21 @@ class fft_unit(aubio_unit_template):
     for index in range(buf_size/2+1):
       for channel in range(1, channels):
         self.assertEqual(0., cvec_read_norm(fftgrain, channel, index))
+        self.assertEqual(0., cvec_read_phas(fftgrain, channel, index))
+
     # check norm and phase == 0 in first first and last bin of first channel
-    self.assertCloseEnough((buf_size-1)*some_constant, cvec_read_norm(fftgrain, 0, 0))
+    # check unwrap2pi(phas) ~= pi everywhere but in first and last bin
     self.assertCloseEnough(0., cvec_read_phas(fftgrain, 0, 0))
-    self.assertCloseEnough(0., cvec_read_norm(fftgrain, 0, buf_size/2+1))
-    self.assertCloseEnough(0., cvec_read_phas(fftgrain, 0, buf_size/2+1))
-    # check unwrap2pi(phas) ~= pi everywhere but in first bin
-    for index in range(1,buf_size/2+1):
+    for index in range(1,buf_size/2):
        self.assertCloseEnough(math.pi, aubio_unwrap2pi(cvec_read_phas(fftgrain, 0, index)))
-       self.assertCloseEnough(some_constant, cvec_read_norm(fftgrain, 0, index))
+    self.assertCloseEnough(0., cvec_read_phas(fftgrain, 0, buf_size/2))
+    self.assertCloseEnough(0., cvec_read_phas(fftgrain, 0, buf_size/2+1))
+
+    self.assertCloseEnough((buf_size-1)*some_constant, cvec_read_norm(fftgrain, 0, 0))
+    for index in range(1,buf_size/2+1):
+       self.assertCloseEnough(some_constant, abs(cvec_read_norm(fftgrain, 0, index)))
+    self.assertCloseEnough(0., cvec_read_norm(fftgrain, 0, buf_size/2+1))
+
     del fftgrain
     del input
 
