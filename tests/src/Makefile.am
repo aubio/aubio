@@ -6,7 +6,6 @@ test_phasevoc_jack_LDADD  = $(AM_LDFLAGS) -laubioext -L$(top_builddir)/ext @JACK
 
 bin_PROGRAMS = \
 	test-fft \
-	test-mfft \
 	test-hist \
 	test-scale \
 	test-cvec \
