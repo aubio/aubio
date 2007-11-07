@@ -30,7 +30,7 @@ struct _aubio_pitchyinfft_t {
   fvec_t * sqrmag;    /**< square difference function */
   fvec_t * weight;    /**< spectral weighting window (psychoacoustic model) */
   cvec_t * fftout;    /**< Fourier transform output */
-  aubio_mfft_t * fft; /**< fft object to compute square difference function */
+  aubio_fft_t * fft; /**< fft object to compute square difference function */
   fvec_t * yinfft;    /**< Yin function */
 };
 
@@ -48,7 +48,7 @@ aubio_pitchyinfft_t * new_aubio_pitchyinfft (uint_t bufsize)
 {
   aubio_pitchyinfft_t * p = AUBIO_NEW(aubio_pitchyinfft_t);
   p->winput       = new_fvec(bufsize,1);
-  p->fft          = new_aubio_mfft(bufsize, 1);
+  p->fft          = new_aubio_fft(bufsize, 1);
   p->fftout       = new_cvec(bufsize,1);
   p->sqrmag       = new_fvec(bufsize,1);
   p->res          = new_cvec(bufsize,1);
@@ -96,7 +96,7 @@ smpl_t aubio_pitchyinfft_detect(aubio_pitchyinfft_t * p, fvec_t * input, smpl_t 
   for (l=0; l < input->length; l++){
 	  p->winput->data[0][l] = p->win->data[0][l] * input->data[0][l];
   }
-  aubio_mfft_do(p->fft,p->winput,p->fftout);
+  aubio_fft_do(p->fft,p->winput,p->fftout);
   for (l=0; l < p->fftout->length; l++){
 	  p->sqrmag->data[0][l] = SQR(p->fftout->norm[0][l]);
 	  p->sqrmag->data[0][l] *= p->weight->data[0][l]; 
@@ -111,7 +111,7 @@ smpl_t aubio_pitchyinfft_detect(aubio_pitchyinfft_t * p, fvec_t * input, smpl_t 
 	  sum += p->sqrmag->data[0][l];
   }
   sum *= 2.;
-  aubio_mfft_do(p->fft,p->sqrmag,res);
+  aubio_fft_do(p->fft,p->sqrmag,res);
   yin->data[0][0] = 1.; 
   for (tau=1; tau < yin->length; tau++) {
 	  yin->data[0][tau] = sum -
@@ -142,7 +142,7 @@ smpl_t aubio_pitchyinfft_detect(aubio_pitchyinfft_t * p, fvec_t * input, smpl_t 
 
 void del_aubio_pitchyinfft(aubio_pitchyinfft_t *p){
 	del_fvec(p->win);
-	del_aubio_mfft(p->fft);
+	del_aubio_fft(p->fft);
 	del_fvec(p->yinfft);
 	del_fvec(p->sqrmag);
 	del_cvec(p->res);
