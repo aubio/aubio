@@ -96,7 +96,7 @@ smpl_t aubio_pitchmcomb_detect(aubio_pitchmcomb_t * p, cvec_t * fftgrain) {
   /* copy incoming grain to newmag */
   for (j=0; j< newmag->length; j++)
     newmag->data[i][j]=fftgrain->norm[i][j];
-  /* detect only if local energy > 10. */ 
+  /* detect only if local energy > 10. */
   //if (vec_local_energy(newmag)>10.) {
     //hfc = vec_local_hfc(newmag); //not used
     aubio_pitchmcomb_spectral_pp(p, newmag);
@@ -105,7 +105,7 @@ smpl_t aubio_pitchmcomb_detect(aubio_pitchmcomb_t * p, cvec_t * fftgrain) {
     //return p->candidates[p->goodcandidate]->ebin;
   j = (uint_t)FLOOR(p->candidates[p->goodcandidate]->ebin+.5);
   instfreq  = aubio_unwrap2pi(fftgrain->phas[0][j]
-		  - p->theta->data[0][j] - j*p->phasediff);
+      - p->theta->data[0][j] - j*p->phasediff);
   instfreq *= p->phasefreq;
   /* store phase for next run */
   for (j=0; j< p->theta->length; j++) {
@@ -118,27 +118,27 @@ smpl_t aubio_pitchmcomb_detect(aubio_pitchmcomb_t * p, cvec_t * fftgrain) {
   }*/
 }
 
-uint_t aubio_pitch_cands(aubio_pitchmcomb_t * p, cvec_t * fftgrain, 
+uint_t aubio_pitch_cands(aubio_pitchmcomb_t * p, cvec_t * fftgrain,
     smpl_t * cands) {
   uint_t i=0,j;
   uint_t k;
   fvec_t * newmag = (fvec_t *)p->newmag;
-  aubio_spectralcandidate_t ** scands = 
+  aubio_spectralcandidate_t ** scands =
     (aubio_spectralcandidate_t **)(p->candidates);
   //smpl_t hfc; //fe=instfreq(theta1,theta,ops); //theta1=theta;
   /* copy incoming grain to newmag */
   for (j=0; j< newmag->length; j++)
     newmag->data[i][j]=fftgrain->norm[i][j];
-  /* detect only if local energy > 10. */ 
-  if (vec_local_energy(newmag)>10.)	{
+  /* detect only if local energy > 10. */
+  if (vec_local_energy(newmag)>10.) {
     /* hfc = vec_local_hfc(newmag); do not use */
     aubio_pitchmcomb_spectral_pp(p, newmag);
     aubio_pitchmcomb_combdet(p,newmag);
     aubio_pitchmcomb_sort_cand_freq(scands,p->ncand);
-    /* store ncand comb energies in cands[1:ncand] */ 
-    for (k = 0; k<p->ncand; k++) 
+    /* store ncand comb energies in cands[1:ncand] */
+    for (k = 0; k<p->ncand; k++)
       cands[k] = p->candidates[k]->ene;
-    /* store ncand[end] freq in cands[end] */ 
+    /* store ncand[end] freq in cands[end] */
     cands[p->ncand] = p->candidates[p->ncand-1]->ebin;
     return 1;
   } else {
@@ -155,7 +155,7 @@ void aubio_pitchmcomb_spectral_pp(aubio_pitchmcomb_t * p, fvec_t * newmag) {
   uint_t length = mag->length;
   /* copy newmag to mag (scracth) */
   for (j=0;j<length;j++) {
-    mag->data[i][j] = newmag->data[i][j]; 
+    mag->data[i][j] = newmag->data[i][j];
   }
   vec_dc_removal(mag);               /* dc removal           */
   vec_alpha_normalise(mag,p->alpha); /* alpha normalisation  */
@@ -168,7 +168,7 @@ void aubio_pitchmcomb_spectral_pp(aubio_pitchmcomb_t * p, fvec_t * newmag) {
     uint_t count;
     /*  return bin and ebin */
     count = aubio_pitchmcomb_quadpick(peaks,mag);
-    for (j=0;j<count;j++) 
+    for (j=0;j<count;j++)
       peaks[j].mag = newmag->data[i][peaks[j].bin];
     /* reset non peaks */
     for (j=count;j<length;j++)
@@ -180,7 +180,7 @@ void aubio_pitchmcomb_spectral_pp(aubio_pitchmcomb_t * p, fvec_t * newmag) {
 
 void aubio_pitchmcomb_combdet(aubio_pitchmcomb_t * p, fvec_t * newmag) {
   aubio_spectralpeak_t * peaks = (aubio_spectralpeak_t *)p->peaks;
-  aubio_spectralcandidate_t ** candidate = 
+  aubio_spectralcandidate_t ** candidate =
     (aubio_spectralcandidate_t **)p->candidates;
 
   /* parms */
@@ -223,16 +223,16 @@ void aubio_pitchmcomb_combdet(aubio_pitchmcomb_t * p, fvec_t * newmag) {
     /* for each in candidate[l]->ecomb[k] */
     for (k=0;k<curlen;k++) {
       xx = 100000.;
-      /** get the candidate->ecomb the closer to peaks.ebin 
+      /** get the candidate->ecomb the closer to peaks.ebin
        * (to cope with the inharmonicity)*/
-      for (d=0;d<count;d++) { 
+      for (d=0;d<count;d++) {
         delta2 = ABS(candidate[l]->ecomb[k]-peaks[d].ebin);
         if (delta2 <= xx) {
           position = d;
           xx = delta2;
         }
       }
-      /* for a Q factor of 17, maintaining "constant Q filtering", 
+      /* for a Q factor of 17, maintaining "constant Q filtering",
        * and sum energy and length over non null combs */
       if ( 17. * xx < candidate[l]->ecomb[k] ) {
         candidate[l]->ecomb[k]=peaks[position].ebin;
@@ -260,12 +260,12 @@ void aubio_pitchmcomb_combdet(aubio_pitchmcomb_t * p, fvec_t * newmag) {
 /** T=quadpick(X): return indices of elements of X which are peaks and positive
  * exact peak positions are retrieved by quadratic interpolation
  *
- * \bug peak-picking too picky, sometimes counts too many peaks ? 
+ * \bug peak-picking too picky, sometimes counts too many peaks ?
  */
 uint_t aubio_pitchmcomb_quadpick(aubio_spectralpeak_t * spectral_peaks, fvec_t * X){
   uint_t i, j, ispeak, count = 0;
   for (i=0;i<X->channels;i++)
-    for (j=1;j<X->length-1;j++)	{
+    for (j=1;j<X->length-1;j++) {
       ispeak = vec_peakpick(X,j);
       if (ispeak) {
         count += ispeak;
@@ -289,7 +289,7 @@ uint_t aubio_pitchmcomb_get_root_peak(aubio_spectralpeak_t * peaks, uint_t lengt
 }
 
 void aubio_pitchmcomb_sort_peak(aubio_spectralpeak_t * peaks, uint_t nbins) {
-  qsort(peaks, nbins, sizeof(aubio_spectralpeak_t), 
+  qsort(peaks, nbins, sizeof(aubio_spectralpeak_t),
       aubio_pitchmcomb_sort_peak_comp);
 }
 static sint_t aubio_pitchmcomb_sort_peak_comp(const void *x, const void *y) {
