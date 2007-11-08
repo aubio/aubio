@@ -33,6 +33,7 @@ config.status
 config.sub
 configure
 depcomp
+mkinstalldirs
 install-sh
 libtool
 ltmain.sh
