@@ -413,7 +413,7 @@ void flush_process(aubio_process_func_t process_func, aubio_print_func_t print){
       fvec_write_sample(obuf,0.,i,j);
     }
   }
-  for (i = 0; i < frames_delay; i++) {
+  for (i = 0; (signed)i < frames_delay; i++) {
     process_func(ibuf->data, obuf->data, overlap_size);
     print(); 
   }
