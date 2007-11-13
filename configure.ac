@@ -34,7 +34,7 @@ AUBIO_CFLAGS=
 
 dnl Enable debugging (no)
 AC_ARG_ENABLE(debug,
-  [  --enable-debug[[=value]]  compile with debug [[default=no]]],
+  AC_HELP_STRING([--enable-debug],[compile in debug mode [[default=no]]]),
   with_debug="yes",
   with_debug="no")
 if test "$with_debug" = "yes"
@@ -45,7 +45,7 @@ fi
 
 dnl Enable full warnings (yes)
 AC_ARG_ENABLE(warnings,
-  [  --enable-warnings[[=value]] compile with all gcc warnings [[default=yes]]],
+  AC_HELP_STRING([--enable-warnings],[compile with all gcc warnings [[default=yes]]]),
   with_warnme="no",
   with_warnme="yes")
 if test "$with_warnme" = "yes"
@@ -66,10 +66,17 @@ then
   fi
 fi
 
+dnl fail on compilation warnings 
 AC_ARG_ENABLE(errorfail,
-  [  --enable-errorfail[[=value]]  fail on compilation warnings [[default=no]]],
+  AC_HELP_STRING([--enable-errorfail],[fail on compilation warnings [[default=no]]]),
   AUBIO_CFLAGS="$AUBIO_CFLAGS -Werror -Wmissing-prototypes -Wmissing-declarations -Wno-unused-parameter",
-  with_warnme="no")
+  with_errorfail="no")
+
+dnl add gcov/lcov profiling and coverage flags
+AC_ARG_ENABLE(lcov,
+  AC_HELP_STRING([--enable-lcov],[compile with gcov/lcov profiling flags [[default=no]]]),
+  AUBIO_CFLAGS="$AUBIO_CFLAGS -fprofile-arcs -ftest-coverage",
+  with_lcov="no")
 
 dnl Check for libtool
 AC_LIBTOOL_DLOPEN
