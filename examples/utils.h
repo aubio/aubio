@@ -41,6 +41,7 @@ extern int frames;
 extern int verbose;
 extern int usejack;
 extern int usedoubled;
+extern int frames_delay;
 extern unsigned int median;
 extern const char * output_filename;
 extern const char * input_filename;
