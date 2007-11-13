@@ -35,3 +35,9 @@ uninstall-pkgconfig:
 install-data-hook: install-pkgconfig
 uninstall-hook: uninstall-pkgconfig
 
+lcov: all
+	mkdir -p $(top_builddir)/lcov
+	lcov --directory $(top_builddir) --output-file $(top_builddir)/lcov/aubio.info --compat-libtool --zerocounters
+	cd tests/python && ./run_all_tests -v || echo "some tests failed"
+	lcov --directory $(top_builddir) --output-file $(top_builddir)/lcov/aubio.info --compat-libtool --capture
+	genhtml --output-directory $(top_builddir)/lcov $(top_builddir)/lcov/aubio.info 
