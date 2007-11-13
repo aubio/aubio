@@ -5,6 +5,10 @@
 **/*.lo
 **/*.la
 
+# gcov generated files
+**/*.gcno
+**/*.gcda
+
 # ignore compiled examples
 RE:examples/[a-z]*
 
