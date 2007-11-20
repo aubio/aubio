@@ -137,7 +137,7 @@ smpl_t aubio_pitchyinfft_detect(aubio_pitchyinfft_t * p, fvec_t * input, smpl_t 
         return vec_quadint_min(yin,tau,1);
     }
   } else
-    return 0;
+    return 0.;
 }
 
 void del_aubio_pitchyinfft(aubio_pitchyinfft_t *p){
