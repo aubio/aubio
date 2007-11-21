@@ -46,7 +46,7 @@ typedef enum {
         aubio_onset_complex,        /**< complex domain */        
         aubio_onset_phase,          /**< phase fast */            
         aubio_onset_kl,             /**< Kullback Liebler */
-        aubio_onset_mkl             /**< modified Kullback Liebler */
+        aubio_onset_mkl,            /**< modified Kullback Liebler */
 } aubio_onsetdetection_type;
 
 /** onsetdetection structure */
