@@ -173,6 +173,8 @@ int parse_args (int argc, char **argv) {
                                         type_onset = aubio_onset_mkl;
                                 else if (strcmp(optarg,"kl") == 0) 
                                         type_onset = aubio_onset_kl;
+                                else if (strcmp(optarg,"specflux") == 0) 
+                                        type_onset = aubio_onset_specflux;
                                 else {
                                         errmsg("unknown onset type.\n");
                                         abort();
