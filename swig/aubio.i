@@ -173,7 +173,8 @@ typedef enum {
         aubio_onset_complex, 
         aubio_onset_phase, 
         aubio_onset_kl, 
-        aubio_onset_mkl 
+        aubio_onset_mkl, 
+        aubio_onset_specflux,
 } aubio_onsetdetection_type;
 aubio_onsetdetection_t * new_aubio_onsetdetection(aubio_onsetdetection_type type, uint_t size, uint_t channels);
 void aubio_onsetdetection(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
