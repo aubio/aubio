@@ -73,7 +73,7 @@ class onsetdetection:
     def do(self,tc,tf):
         aubio_onsetdetection(self.od,tc(),tf())
     def __del__(self):
-        aubio_onsetdetection_free(self.od)
+        del_aubio_onsetdetection(self.od)
 
 class peakpick:
     """ class for aubio_peakpicker """

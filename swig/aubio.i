@@ -177,6 +177,7 @@ typedef enum {
 } aubio_onsetdetection_type;
 aubio_onsetdetection_t * new_aubio_onsetdetection(aubio_onsetdetection_type type, uint_t size, uint_t channels);
 void aubio_onsetdetection(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
+void del_aubio_onsetdetection(aubio_onsetdetection_t *o);
 
 /* should these still be exposed ? */
 void aubio_onsetdetection_energy  (aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
