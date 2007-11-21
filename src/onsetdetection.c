@@ -195,6 +195,19 @@ void aubio_onsetdetection_mkl(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec
   }
 }
 
+/* Spectral flux */
+void aubio_onsetdetection_specflux(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset){ 
+  uint_t i, j;
+  for (i=0;i<fftgrain->channels;i++) {
+    onset->data[i][0] = 0.;
+    for (j=0;j<fftgrain->length;j++) {
+      if (fftgrain->norm[i][j] > o->oldmag->data[i][j])
+        onset->data[i][0] += fftgrain->norm[i][j] - o->oldmag->data[i][j];
+      o->oldmag->data[i][j] = fftgrain->norm[i][j];
+    }
+  }
+}
+
 /* Generic function pointing to the choosen one */
 void 
 aubio_onsetdetection(aubio_onsetdetection_t *o, cvec_t * fftgrain, 
@@ -242,6 +255,7 @@ new_aubio_onsetdetection (aubio_onsetdetection_type type,
       break;
     case aubio_onset_kl:
     case aubio_onset_mkl:
+    case aubio_onset_specflux:
       o->oldmag = new_fvec(rsize,channels);
       break;
     default:
@@ -273,6 +287,9 @@ new_aubio_onsetdetection (aubio_onsetdetection_type type,
       break;
     case aubio_onset_mkl:
       o->funcpointer = aubio_onsetdetection_mkl;
+      break;
+    case aubio_onset_specflux:
+      o->funcpointer = aubio_onsetdetection_specflux;
       break;
     default:
       break;
