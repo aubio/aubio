@@ -283,10 +283,6 @@ new_aubio_onsetdetection (aubio_onsetdetection_type type,
 	return o;
 }
 
-void aubio_onsetdetection_free (aubio_onsetdetection_t *o){
-  del_aubio_onsetdetection(o);
-}
-
 void del_aubio_onsetdetection (aubio_onsetdetection_t *o){
 
 	switch(o->type) {

@@ -21,6 +21,7 @@ void * lash_thread_main (void * data);
 int lash_main (void);
 void save_data (void);
 void restore_data(lash_config_t * lash_config);
+void flush_process(aubio_process_func_t process_func, aubio_print_func_t print);
 pthread_t lash_thread;
 #endif /* LASH_SUPPORT */
 
@@ -32,6 +33,7 @@ int frames = 0;
 int verbose = 0;
 int usejack = 0;
 int usedoubled = 1;
+int frames_delay = 0;
 
 
 /* energy,specdiff,hfc,complexdomain,phase */
@@ -394,6 +396,8 @@ void examples_common_process(aubio_process_func_t process_func, aubio_print_func
     }
 
     debug("Processed %d frames of %d samples.\n", frames, buffer_size);
+
+    flush_process(process_func, print);
     del_aubio_sndfile(file);
 
     if (output_filename != NULL)
@@ -402,6 +406,18 @@ void examples_common_process(aubio_process_func_t process_func, aubio_print_func
   }
 }
 
+void flush_process(aubio_process_func_t process_func, aubio_print_func_t print){
+  uint i,j;
+  for (i = 0; i < channels; i++) {
+    for (j = 0; j < obuf->length; j++) {
+      fvec_write_sample(obuf,0.,i,j);
+    }
+  }
+  for (i = 0; (signed)i < frames_delay; i++) {
+    process_func(ibuf->data, obuf->data, overlap_size);
+    print(); 
+  }
+}
 
 
 void send_noteon(int pitch, int velo)

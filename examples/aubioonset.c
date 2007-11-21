@@ -71,14 +71,15 @@ void process_print (void) {
        * actual onset */
       if (isonset && output_filename == NULL) {
         if(frames >= 4) {
-          outmsg("%f\n",(frames-4)*overlap_size/(float)samplerate);
-        } else if (frames < 4) {
+          outmsg("%f\n",(frames-frames_delay)*overlap_size/(float)samplerate);
+        } else if (frames < frames_delay) {
           outmsg("%f\n",0.);
         }
       }
 }
 
 int main(int argc, char **argv) {
+  frames_delay = 4;
   examples_common_init(argc,argv);
   examples_common_process(aubio_process,process_print);
   examples_common_del();

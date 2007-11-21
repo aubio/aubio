@@ -45,7 +45,7 @@ struct _aubio_fft_t {
   uint_t channels;
   uint_t fft_size;
   real_t *in, *out;
-  fftw_plan   pfw, pbw;
+  fftw_plan pfw, pbw;
   fft_data_t * specdata;     /* complex spectral data */
   fvec_t * compspec;
 };
@@ -60,7 +60,7 @@ aubio_fft_t * new_aubio_fft(uint_t winsize, uint_t channels) {
   s->compspec = new_fvec(winsize,channels);
   /* create plans */
 #ifdef HAVE_COMPLEX_H
-  s->fft_size = winsize/2+1;
+  s->fft_size = winsize/2 + 1;
   s->specdata = (fft_data_t*)fftw_malloc(sizeof(fft_data_t)*s->fft_size);
   s->pfw = fftw_plan_dft_r2c_1d(winsize, s->in,  s->specdata, FFTW_ESTIMATE);
   s->pbw = fftw_plan_dft_c2r_1d(winsize, s->specdata, s->out, FFTW_ESTIMATE);
@@ -101,7 +101,7 @@ void aubio_fft_do_complex(aubio_fft_t * s, fvec_t * input, fvec_t * compspec) {
       s->in[j] = input->data[i][j];
     }
     fftw_execute(s->pfw);
-#if HAVE_COMPLEX_H
+#ifdef HAVE_COMPLEX_H
     compspec->data[i][0] = REAL(s->specdata[0]);
     for (j = 1; j < s->fft_size -1 ; j++) {
       compspec->data[i][j] = REAL(s->specdata[j]);
@@ -120,7 +120,7 @@ void aubio_fft_rdo_complex(aubio_fft_t * s, fvec_t * compspec, fvec_t * output) 
   uint_t i, j;
   const smpl_t renorm = 1./(smpl_t)s->winsize;
   for (i = 0; i < compspec->channels; i++) {
-#if HAVE_COMPLEX_H
+#ifdef HAVE_COMPLEX_H
     s->specdata[0] = compspec->data[i][0];
     for (j=1; j < s->fft_size - 1; j++) {
       s->specdata[j] = compspec->data[i][j] + 
