@@ -59,8 +59,6 @@ extern "C" {
 /* in this order */
 #include "types.h"
 #include "sample.h"
-#include "spectral/fft.h"
-#include "spectral/phasevoc.h"
 #include "mathutils.h"
 #include "utils/scale.h"
 #include "utils/hist.h"
@@ -68,6 +66,11 @@ extern "C" {
 #include "temporal/resample.h"
 #include "temporal/biquad.h"
 #include "temporal/filter.h"
+#include "spectral/filterbank.h"
+#include "spectral/mfcc.h"
+#include "spectral/fft.h"
+#include "spectral/phasevoc.h"
+#include "spectral/spectral_centroid.h"
 #include "pitch/pitchdetection.h"
 #include "pitch/pitchmcomb.h"
 #include "pitch/pitchyin.h"
@@ -79,8 +82,6 @@ extern "C" {
 #include "onset/peakpick.h"
 #include "tempo/beattracking.h"
 #include "tempo/tempo.h"
-#include "spectral/filterbank.h"
-#include "spectral/mfcc.h"
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -14,6 +14,7 @@ pkginclude_HEADERS = aubio.h \
 	spectral/phasevoc.h \
 	spectral/fft.h \
 	spectral/tss.h \
+	spectral/spectral_centroid.h \
 	pitch/pitchdetection.h \
 	pitch/pitchmcomb.h \
 	pitch/pitchyin.h \
@@ -57,6 +58,8 @@ libaubio_la_SOURCES = aubio.h \
 	spectral/fft.h \
 	spectral/tss.c \
 	spectral/tss.h \
+	spectral/spectral_centroid.c \
+	spectral/spectral_centroid.h \
 	pitch/pitchdetection.c \
 	pitch/pitchdetection.h \
 	pitch/pitchmcomb.c \

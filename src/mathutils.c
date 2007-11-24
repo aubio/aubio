@@ -432,19 +432,6 @@ smpl_t aubio_zero_crossing_rate(fvec_t * input) {
   return zcr/(smpl_t)input->length;
 }
 
-smpl_t aubio_spectral_centroid(cvec_t * spectrum, smpl_t samplerate) {
-  uint_t i=0, j;
-  smpl_t sum = 0., sc = 0.;
-  for ( j = 0; j < spectrum->length; j++ ) {
-    sum += spectrum->norm[i][j];
-  }
-  if (sum == 0.) return 0.;
-  for ( j = 0; j < spectrum->length; j++ ) {
-    sc += (smpl_t)j * spectrum->norm[i][j];
-  }
-  return sc / sum * samplerate / (smpl_t)(spectrum->length);
-}
-
 void aubio_autocorr(fvec_t * input, fvec_t * output) {
   uint_t i = 0, j = 0, length = input->length;
   smpl_t * data = input->data[0];
