@@ -366,6 +366,7 @@ void del_aubio_pitchmcomb (aubio_pitchmcomb_t *p) {
   uint_t i;
   del_fvec(p->newmag);
   del_fvec(p->scratch);
+  del_fvec(p->theta);
   del_fvec(p->scratch2);
   AUBIO_FREE(p->peaks);
   for (i=0;i<p->ncand;i++) {
