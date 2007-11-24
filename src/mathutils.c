@@ -226,9 +226,9 @@ smpl_t vec_moving_thres(fvec_t * vec, fvec_t * tmpvec,
       medar[k] = vec->data[0][k+pos-post];
   /* pre part of the buffer does not exist */
   } else {
-    for (k=0;k<length-pos+post+1;k++)
+    for (k=0;k<length-pos+post;k++)
       medar[k] = vec->data[0][k+pos-post];
-    for (k=length-pos+post+1;k<win_length;k++)
+    for (k=length-pos+post;k<win_length;k++)
       medar[k] = 0.; /* 0-padding at the end */
   }
   return vec_median(tmpvec);
