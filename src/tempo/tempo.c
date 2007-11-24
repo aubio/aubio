@@ -21,10 +21,10 @@
 #include "sample.h"
 #include "onset/onsetdetection.h"
 #include "tempo/beattracking.h"
-#include "phasevoc.h"
+#include "spectral/phasevoc.h"
 #include "onset/peakpick.h"
 #include "mathutils.h"
-#include "tempo.h"
+#include "tempo/tempo.h"
 
 /* structure to store object state */
 struct _aubio_tempo_t {

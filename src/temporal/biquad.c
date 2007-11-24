@@ -20,7 +20,7 @@
 #include "aubio_priv.h"
 #include "sample.h"
 #include "mathutils.h"
-#include "biquad.h"
+#include "temporal/biquad.h"
 
 /** \note this file needs to be in double or more less precision would lead to large
  * errors in the output 

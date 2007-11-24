@@ -24,7 +24,7 @@
 #include "aubio_priv.h"
 #include "sample.h"
 #include "mathutils.h"
-#include "filter.h"
+#include "temporal/filter.h"
 
 struct _aubio_filter_t {
   uint_t order;

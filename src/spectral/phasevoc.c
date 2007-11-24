@@ -20,9 +20,9 @@
 #include "aubio_priv.h"
 #include "fvec.h"
 #include "cvec.h"
-#include "fft.h"
 #include "mathutils.h"
-#include "phasevoc.h"
+#include "spectral/fft.h"
+#include "spectral/phasevoc.h"
 
 /** phasevocoder internal object */
 struct _aubio_pvoc_t {

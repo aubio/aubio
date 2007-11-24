@@ -22,7 +22,7 @@
 #include "aubio_priv.h"
 #include "sample.h"
 #include "mathutils.h"
-#include "tss.h"
+#include "spectral/tss.h"
 
 struct _aubio_tss_t 
 {

@@ -20,7 +20,7 @@
 #include "aubio_priv.h"
 #include "sample.h"
 #include "mathutils.h"
-#include "fft.h"
+#include "spectral/fft.h"
 #include "pitch/pitchfcomb.h"
 
 #define MAX_PEAKS 8

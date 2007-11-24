@@ -22,10 +22,9 @@
 
 #include "aubio_priv.h"
 #include "sample.h"
-#include "fft.h"
-#include "filterbank.h"
-#include "mfcc.h"
-#include "math.h"
+#include "spectral/fft.h"
+#include "spectral/filterbank.h"
+#include "spectral/mfcc.h"
 
 /** Internal structure for mfcc object **/
 

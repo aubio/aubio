@@ -21,7 +21,7 @@
 
 #include "aubio_priv.h"
 #include "sample.h"
-#include "filterbank.h"
+#include "spectral/filterbank.h"
 #include "mathutils.h"
 
 #define VERY_SMALL_NUMBER 2e-42

@@ -18,15 +18,15 @@
 
 #include "aubio_priv.h"
 #include "sample.h"
-#include "phasevoc.h"
+#include "spectral/phasevoc.h"
 #include "mathutils.h"
-#include "filter.h"
+#include "temporal/filter.h"
 #include "pitch/pitchmcomb.h"
 #include "pitch/pitchyin.h"
 #include "pitch/pitchfcomb.h"
 #include "pitch/pitchschmitt.h"
 #include "pitch/pitchyinfft.h"
-#include "pitchdetection.h"
+#include "pitch/pitchdetection.h"
 
 typedef smpl_t (*aubio_pitchdetection_func_t)
   (aubio_pitchdetection_t *p, fvec_t * ibuf);

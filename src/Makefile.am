@@ -1,17 +1,19 @@
 noinst_HEADERS = aubio_priv.h
 pkginclude_HEADERS = aubio.h \
 	types.h \
-	phasevoc.h \
-	mathutils.h \
-	fft.h \
-	sample.h \
 	fvec.h \
 	cvec.h \
-	hist.h \
-	scale.h \
-	resample.h \
-	tss.h \
-	biquad.h \
+	mathutils.h \
+	utils/hist.h \
+	utils/scale.h \
+	temporal/resample.h \
+	temporal/biquad.h \
+	temporal/filter.h \
+	spectral/filterbank.h \
+	spectral/mfcc.c \
+	spectral/phasevoc.h \
+	spectral/fft.h \
+	spectral/tss.h \
 	pitch/pitchdetection.h \
 	pitch/pitchmcomb.h \
 	pitch/pitchyin.h \
@@ -22,36 +24,39 @@ pkginclude_HEADERS = aubio.h \
 	onset/onsetdetection.h \
 	onset/peakpick.h \
 	tempo/tempo.h \
-	tempo/beattracking.h \
-	filter.h \
-	filterbank.h \
-	mfcc.h
+	tempo/beattracking.h
 
 nodist_pkginclude_HEADERS = config.h
 
 lib_LTLIBRARIES = libaubio.la 
 libaubio_la_SOURCES = aubio.h \
 	types.h \
-	phasevoc.c \
-	phasevoc.h \
-	mathutils.c \
-	mathutils.h \
-	fft.c \
-	fft.h \
 	fvec.c \
 	fvec.h \
 	cvec.c \
 	cvec.h \
-	hist.c \
-	hist.h \
-	scale.c \
-	scale.h \
-	resample.c \
-	resample.h \
-	tss.c \
-	tss.h \
-	biquad.c \
-	biquad.h \
+	mathutils.c \
+	mathutils.h \
+	utils/hist.c \
+	utils/hist.h \
+	utils/scale.c \
+	utils/scale.h \
+	temporal/resample.c \
+	temporal/resample.h \
+	temporal/biquad.c \
+	temporal/biquad.h \
+	temporal/filter.c \
+	temporal/filter.h \
+	spectral/filterbank.c \
+	spectral/filterbank.h \
+	spectral/mfcc.h \
+	spectral/mfcc.c \
+	spectral/phasevoc.c \
+	spectral/phasevoc.h \
+	spectral/fft.c \
+	spectral/fft.h \
+	spectral/tss.c \
+	spectral/tss.h \
 	pitch/pitchdetection.c \
 	pitch/pitchdetection.h \
 	pitch/pitchmcomb.c \
@@ -73,13 +78,7 @@ libaubio_la_SOURCES = aubio.h \
 	tempo/tempo.c \
 	tempo/tempo.h \
 	tempo/beattracking.c \
-	tempo/beattracking.h \
-	filter.c \
-	filter.h \
-	filterbank.c \
-	filterbank.h \
-	mfcc.h \
-	mfcc.c 
+	tempo/beattracking.h
 
 AM_CFLAGS = @AUBIO_CFLAGS@ @FFTWLIB_CFLAGS@ @SAMPLERATE_CFLAGS@
 libaubio_la_LIBADD = @FFTWLIB_LIBS@ @SAMPLERATE_LIBS@ @LTLIBOBJS@

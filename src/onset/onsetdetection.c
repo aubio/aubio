@@ -19,9 +19,9 @@
 
 #include "aubio_priv.h"
 #include "sample.h"
-#include "fft.h"
+#include "spectral/fft.h"
 #include "mathutils.h"
-#include "hist.h"
+#include "utils/hist.h"
 #include "onset/onsetdetection.h"
 
 

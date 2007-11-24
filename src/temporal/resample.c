@@ -22,7 +22,7 @@
 
 #include "aubio_priv.h"
 #include "sample.h"
-#include "resample.h"
+#include "temporal/resample.h"
 
 struct _aubio_resampler_t {
 	SRC_DATA  *proc;

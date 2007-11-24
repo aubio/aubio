@@ -20,8 +20,8 @@
 #include "aubio_priv.h"
 #include "sample.h"
 #include "mathutils.h"
-#include "biquad.h"
-#include "peakpick.h"
+#include "temporal/biquad.h"
+#include "onset/peakpick.h"
 
 /* peak picking parameters, default values in brackets
  *

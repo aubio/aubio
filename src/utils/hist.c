@@ -18,9 +18,9 @@
 
 #include "aubio_priv.h"
 #include "sample.h"
-#include "scale.h"
+#include "utils/scale.h"
 #include "mathutils.h" //vec_min vec_max
-#include "hist.h"
+#include "utils/hist.h"
 
 /********
  * Object Structure

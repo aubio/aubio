@@ -19,7 +19,7 @@
 #include "aubio_priv.h"
 #include "sample.h"
 #include "mathutils.h"
-#include "fft.h"
+#include "spectral/fft.h"
 #include "pitch/pitchyinfft.h"
 
 /** pitch yinfft structure */
