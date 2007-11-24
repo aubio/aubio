@@ -24,8 +24,6 @@
 #include "filterbank.h"
 #include "mathutils.h"
 
-#include "stdio.h"
-
 #define VERY_SMALL_NUMBER 2e-42
 
 /** \brief A structure to store a set of n_filters filters of lenghts win_s */
@@ -215,6 +213,6 @@ void aubio_filterbank_do(aubio_filterbank_t * f, cvec_t * in, fvec_t *out) {
 }
 
 fvec_t * aubio_filterbank_getchannel(aubio_filterbank_t * f, uint_t channel) {
-  if ( (channel >= 0) && (channel < f->n_filters) ) { return f->filters[channel]; }
+  if ( (channel < f->n_filters) ) { return f->filters[channel]; }
   else { return NULL; }
 }
