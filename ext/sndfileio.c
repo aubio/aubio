@@ -22,7 +22,7 @@
 #include <sndfile.h>
 
 #include "aubio_priv.h"
-#include "sample.h"
+#include "fvec.h"
 #include "sndfileio.h"
 #include "mathutils.h"
 

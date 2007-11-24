@@ -58,7 +58,8 @@ extern "C" {
  
 /* in this order */
 #include "types.h"
-#include "sample.h"
+#include "fvec.h"
+#include "cvec.h"
 #include "mathutils.h"
 #include "utils/scale.h"
 #include "utils/hist.h"

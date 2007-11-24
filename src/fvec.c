@@ -18,7 +18,7 @@
 */
 
 #include "aubio_priv.h"
-#include "sample.h"
+#include "fvec.h"
 
 fvec_t * new_fvec( uint_t length, uint_t channels) {
   fvec_t * s = AUBIO_NEW(fvec_t);

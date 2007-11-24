@@ -21,7 +21,7 @@
 #include <samplerate.h> /* from libsamplerate */
 
 #include "aubio_priv.h"
-#include "sample.h"
+#include "fvec.h"
 #include "temporal/resample.h"
 
 struct _aubio_resampler_t {

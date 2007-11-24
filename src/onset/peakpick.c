@@ -18,7 +18,7 @@
 */
 
 #include "aubio_priv.h"
-#include "sample.h"
+#include "fvec.h"
 #include "mathutils.h"
 #include "temporal/biquad.h"
 #include "onset/peakpick.h"

@@ -17,7 +17,7 @@
 */
 
 #include "aubio_priv.h"
-#include "sample.h"
+#include "fvec.h"
 #include "utils/scale.h"
 #include "mathutils.h" //vec_min vec_max
 #include "utils/hist.h"

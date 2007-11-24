@@ -21,7 +21,8 @@
 */
 
 #include "aubio_priv.h"
-#include "sample.h"
+#include "fvec.h"
+#include "cvec.h"
 #include "spectral/fft.h"
 #include "spectral/filterbank.h"
 #include "spectral/mfcc.h"

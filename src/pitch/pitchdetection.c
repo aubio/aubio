@@ -17,7 +17,8 @@
    */
 
 #include "aubio_priv.h"
-#include "sample.h"
+#include "fvec.h"
+#include "cvec.h"
 #include "spectral/phasevoc.h"
 #include "mathutils.h"
 #include "temporal/filter.h"

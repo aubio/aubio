@@ -26,7 +26,7 @@
  */
 
 #include "aubio_priv.h"
-#include "sample.h"
+#include "fvec.h"
 #include "mathutils.h"
 #include "pitch/pitchyin.h"
 

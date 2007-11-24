@@ -18,7 +18,8 @@
 */
 
 #include "aubio_priv.h"
-#include "sample.h"
+#include "fvec.h"
+#include "cvec.h"
 #include "mathutils.h"
 #include "pitch/pitchmcomb.h"
 

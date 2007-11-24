@@ -18,7 +18,7 @@
 */
 
 #include "aubio_priv.h"
-#include "sample.h"
+#include "fvec.h"
 #include "utils/scale.h"
 
 struct _aubio_scale_t {

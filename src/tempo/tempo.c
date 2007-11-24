@@ -18,7 +18,8 @@
 */
 
 #include "aubio_priv.h"
-#include "sample.h"
+#include "fvec.h"
+#include "cvec.h"
 #include "onset/onsetdetection.h"
 #include "tempo/beattracking.h"
 #include "spectral/phasevoc.h"
