@@ -152,6 +152,7 @@ void del_aubio_pitchdetection(aubio_pitchdetection_t * p) {
     case aubio_pitch_mcomb:
       del_aubio_pvoc(p->pv);
       del_cvec(p->fftgrain);
+      del_aubio_filter(p->filter);
       del_aubio_pitchmcomb(p->mcomb);
       break;
     case aubio_pitch_schmitt:
