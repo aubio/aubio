@@ -325,9 +325,8 @@ void del_aubio_onsetdetection (aubio_onsetdetection_t *o){
       del_aubio_hist(o->histog);
       break;
     case aubio_onset_kl:
-      del_fvec(o->oldmag);
-      break;
     case aubio_onset_mkl:
+    case aubio_onset_specflux:
       del_fvec(o->oldmag);
       break;
     default:
