@@ -79,6 +79,8 @@ extern "C" {
 #include "beattracking.h"
 #include "onset.h"
 #include "tempo.h"
+#include "filterbank.h"
+#include "mfcc.h"
 
 #ifdef __cplusplus
 } /* extern "C" */
