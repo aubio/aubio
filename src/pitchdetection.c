@@ -21,11 +21,11 @@
 #include "phasevoc.h"
 #include "mathutils.h"
 #include "filter.h"
-#include "pitchmcomb.h"
-#include "pitchyin.h"
-#include "pitchfcomb.h"
-#include "pitchschmitt.h"
-#include "pitchyinfft.h"
+#include "pitch/pitchmcomb.h"
+#include "pitch/pitchyin.h"
+#include "pitch/pitchfcomb.h"
+#include "pitch/pitchschmitt.h"
+#include "pitch/pitchyinfft.h"
 #include "pitchdetection.h"
 
 typedef smpl_t (*aubio_pitchdetection_func_t)

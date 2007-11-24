@@ -19,7 +19,7 @@
 
 #include "aubio_priv.h"
 #include "sample.h"
-#include "onsetdetection.h"
+#include "onset/detection.h"
 #include "phasevoc.h"
 #include "peakpick.h"
 #include "mathutils.h"

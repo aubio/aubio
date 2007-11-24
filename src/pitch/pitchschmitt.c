@@ -19,7 +19,7 @@
 
 #include "aubio_priv.h"
 #include "sample.h"
-#include "pitchschmitt.h"
+#include "pitch/pitchschmitt.h"
 
 smpl_t aubio_schmittS16LE (aubio_pitchschmitt_t *p, uint_t nframes, signed short int *indata);
 

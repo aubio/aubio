@@ -22,7 +22,7 @@
 #include "fft.h"
 #include "mathutils.h"
 #include "hist.h"
-#include "onsetdetection.h"
+#include "onset/onsetdetection.h"
 
 
 /** structure to store object state */

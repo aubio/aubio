@@ -20,7 +20,7 @@
 #include "sample.h"
 #include "mathutils.h"
 #include "fft.h"
-#include "pitchyinfft.h"
+#include "pitch/pitchyinfft.h"
 
 /** pitch yinfft structure */
 struct _aubio_pitchyinfft_t {

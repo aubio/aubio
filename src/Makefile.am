@@ -10,16 +10,16 @@ pkginclude_HEADERS = aubio.h \
 	hist.h \
 	scale.h \
 	resample.h \
-	onsetdetection.h \
+	onset/onsetdetection.h \
 	tss.h \
 	peakpick.h \
 	biquad.h \
 	pitchdetection.h \
-	pitchmcomb.h \
-	pitchyin.h \
-	pitchschmitt.h \
-	pitchfcomb.h \
-	pitchyinfft.h \
+	pitch/pitchmcomb.h \
+	pitch/pitchyin.h \
+	pitch/pitchschmitt.h \
+	pitch/pitchfcomb.h \
+	pitch/pitchyinfft.h \
 	beattracking.h \
 	onset.h \
 	tempo.h \
@@ -48,8 +48,8 @@ libaubio_la_SOURCES = aubio.h \
 	scale.h \
 	resample.c \
 	resample.h \
-	onsetdetection.c \
-	onsetdetection.h \
+	onset/onsetdetection.c \
+	onset/onsetdetection.h \
 	tss.c \
 	tss.h \
 	peakpick.c \
@@ -58,16 +58,16 @@ libaubio_la_SOURCES = aubio.h \
 	biquad.h \
 	pitchdetection.c \
 	pitchdetection.h \
-	pitchmcomb.c \
-	pitchmcomb.h \
-	pitchyin.c \
-	pitchyin.h \
-	pitchschmitt.c \
-	pitchschmitt.h \
-	pitchfcomb.c \
-	pitchfcomb.h \
-	pitchyinfft.c \
-	pitchyinfft.h \
+	pitch/pitchmcomb.c \
+	pitch/pitchmcomb.h \
+	pitch/pitchyin.c \
+	pitch/pitchyin.h \
+	pitch/pitchschmitt.c \
+	pitch/pitchschmitt.h \
+	pitch/pitchfcomb.c \
+	pitch/pitchfcomb.h \
+	pitch/pitchyinfft.c \
+	pitch/pitchyinfft.h \
 	beattracking.c \
 	beattracking.h \
 	onset.c \

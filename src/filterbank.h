@@ -32,6 +32,7 @@
 extern "C" {
 #endif
 
+/** filterbank object */
 typedef struct aubio_filterbank_t_ aubio_filterbank_t;
 
 /** create filterbank object

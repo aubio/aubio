@@ -21,7 +21,7 @@
 #include "sample.h"
 #include "mathutils.h"
 #include "fft.h"
-#include "pitchfcomb.h"
+#include "pitch/pitchfcomb.h"
 
 #define MAX_PEAKS 8
 

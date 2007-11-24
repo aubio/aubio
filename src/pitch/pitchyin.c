@@ -28,7 +28,7 @@
 #include "aubio_priv.h"
 #include "sample.h"
 #include "mathutils.h"
-#include "pitchyin.h"
+#include "pitch/pitchyin.h"
 
 /* outputs the difference function */
 void aubio_pitchyin_diff(fvec_t * input, fvec_t * yin){
