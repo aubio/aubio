@@ -19,10 +19,10 @@
 
 #include "aubio_priv.h"
 #include "sample.h"
-#include "onset/detection.h"
-#include "beattracking.h"
+#include "onset/onsetdetection.h"
+#include "tempo/beattracking.h"
 #include "phasevoc.h"
-#include "peakpick.h"
+#include "onset/peakpick.h"
 #include "mathutils.h"
 #include "tempo.h"
 

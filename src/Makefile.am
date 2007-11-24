@@ -10,19 +10,19 @@ pkginclude_HEADERS = aubio.h \
 	hist.h \
 	scale.h \
 	resample.h \
-	onset/onsetdetection.h \
 	tss.h \
-	peakpick.h \
 	biquad.h \
-	pitchdetection.h \
+	pitch/pitchdetection.h \
 	pitch/pitchmcomb.h \
 	pitch/pitchyin.h \
 	pitch/pitchschmitt.h \
 	pitch/pitchfcomb.h \
 	pitch/pitchyinfft.h \
-	beattracking.h \
-	onset.h \
-	tempo.h \
+	onset/onset.h \
+	onset/onsetdetection.h \
+	onset/peakpick.h \
+	tempo/tempo.h \
+	tempo/beattracking.h \
 	filter.h \
 	filterbank.h \
 	mfcc.h
@@ -48,16 +48,12 @@ libaubio_la_SOURCES = aubio.h \
 	scale.h \
 	resample.c \
 	resample.h \
-	onset/onsetdetection.c \
-	onset/onsetdetection.h \
 	tss.c \
 	tss.h \
-	peakpick.c \
-	peakpick.h \
 	biquad.c \
 	biquad.h \
-	pitchdetection.c \
-	pitchdetection.h \
+	pitch/pitchdetection.c \
+	pitch/pitchdetection.h \
 	pitch/pitchmcomb.c \
 	pitch/pitchmcomb.h \
 	pitch/pitchyin.c \
@@ -68,12 +64,16 @@ libaubio_la_SOURCES = aubio.h \
 	pitch/pitchfcomb.h \
 	pitch/pitchyinfft.c \
 	pitch/pitchyinfft.h \
-	beattracking.c \
-	beattracking.h \
-	onset.c \
-	onset.h \
-	tempo.c \
-	tempo.h \
+	onset/onset.c \
+	onset/onset.h \
+	onset/onsetdetection.c \
+	onset/onsetdetection.h \
+	onset/peakpick.c \
+	onset/peakpick.h \
+	tempo/tempo.c \
+	tempo/tempo.h \
+	tempo/beattracking.c \
+	tempo/beattracking.h \
 	filter.c \
 	filter.h \
 	filterbank.c \
