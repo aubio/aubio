@@ -18,9 +18,10 @@
 */
 
 #include "aubio_priv.h"
-#include "sample.h"
+#include "fvec.h"
+#include "cvec.h"
 #include "mathutils.h"
-#include "pitchmcomb.h"
+#include "pitch/pitchmcomb.h"
 
 #define CAND_SWAP(a,b) { register aubio_spectralcandidate_t *t=(a);(a)=(b);(b)=t; }
 
@@ -191,7 +192,7 @@ void aubio_pitchmcomb_combdet(aubio_pitchmcomb_t * p, fvec_t * newmag) {
   uint_t k;
   uint_t l;
   uint_t d;
-  uint_t curlen;
+  uint_t curlen = 0;
 
   smpl_t delta2;
   smpl_t xx;
@@ -213,7 +214,8 @@ void aubio_pitchmcomb_combdet(aubio_pitchmcomb_t * p, fvec_t * newmag) {
     candidate[l]->len = 0.;
     candidate[l]->ebin=scaler*peaks[root_peak].ebin;
     /* if less than N peaks available, curlen < N */
-    curlen = (uint_t)FLOOR(length/(candidate[l]->ebin));
+    if (candidate[l]->ebin != 0.)
+      curlen = (uint_t)FLOOR(length/(candidate[l]->ebin));
     curlen = (N < curlen )? N : curlen;
     /* fill candidate[l]->ecomb[k] with (k+1)*candidate[l]->ebin */
     for (k=0;k<curlen;k++)
@@ -325,7 +327,7 @@ void aubio_pitchmcomb_sort_cand_freq(aubio_spectralcandidate_t ** candidates, ui
 aubio_pitchmcomb_t * new_aubio_pitchmcomb(uint_t bufsize, uint_t hopsize, uint_t channels, uint_t samplerate) {
   aubio_pitchmcomb_t * p = AUBIO_NEW(aubio_pitchmcomb_t);
   /* bug: should check if size / 8 > post+pre+1 */
-  uint_t i;
+  uint_t i, j;
   uint_t spec_size;
   p->spec_partition   = 4;
   p->ncand            = 5;
@@ -352,11 +354,22 @@ aubio_pitchmcomb_t * new_aubio_pitchmcomb(uint_t bufsize, uint_t hopsize, uint_t
   p->scratch2   = new_fvec(p->win_post+p->win_pre+1,channels);
   /* array of spectral peaks */
   p->peaks      = AUBIO_ARRAY(aubio_spectralpeak_t,spec_size);
+  for (i = 0; i < spec_size; i++) {
+    p->peaks[i].bin = 0.;
+    p->peaks[i].ebin = 0.;
+    p->peaks[i].mag = 0.;
+  }
   /* array of pointers to spectral candidates */
   p->candidates = AUBIO_ARRAY(aubio_spectralcandidate_t *,p->ncand);
   for (i=0;i<p->ncand;i++) {
     p->candidates[i] = AUBIO_NEW(aubio_spectralcandidate_t);
     p->candidates[i]->ecomb = AUBIO_ARRAY(smpl_t, spec_size);
+    for (j=0; j < spec_size; j++) {
+      p->candidates[i]->ecomb[j] = 0.;
+    }
+    p->candidates[i]->ene = 0.;
+    p->candidates[i]->ebin = 0.;
+    p->candidates[i]->len = 0.;
   }
   return p;
 }
@@ -366,9 +379,11 @@ void del_aubio_pitchmcomb (aubio_pitchmcomb_t *p) {
   uint_t i;
   del_fvec(p->newmag);
   del_fvec(p->scratch);
+  del_fvec(p->theta);
   del_fvec(p->scratch2);
   AUBIO_FREE(p->peaks);
   for (i=0;i<p->ncand;i++) {
+    AUBIO_FREE(p->candidates[i]->ecomb);
     AUBIO_FREE(p->candidates[i]);
   }
   AUBIO_FREE(p->candidates);

@@ -52,7 +52,13 @@ class aubiopitch_test_yinfft(program_test_case):
     """ test aubiopitch with default parameters """
     self.getOutput()
     expected_output = open(os.path.join('examples','aubiopitch','yinfft'+'.'+os.path.basename(self.filename)+'.txt')).read()
+    lines = 0
     for line_out, line_exp in zip(self.output.split('\n'), expected_output.split('\n')):
-      assert line_out == line_exp, line_exp + " vs. " + line_out
+      try:
+        assert line_exp == line_out, line_exp + " vs. " + line_out + " at line " + str(lines)
+      except:
+        open(os.path.join('examples','aubiopitch','yinfft'+'.'+os.path.basename(self.filename)+'.txt.out'),'w').write(self.output)
+        raise
+      lines += 1
 
 if __name__ == '__main__': unittest.main()

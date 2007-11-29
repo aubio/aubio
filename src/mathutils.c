@@ -20,7 +20,7 @@
 /* see in mathutils.h for doc */
 
 #include "aubio_priv.h"
-#include "sample.h"
+#include "fvec.h"
 #include "mathutils.h"
 #include "config.h"
 
@@ -226,9 +226,9 @@ smpl_t vec_moving_thres(fvec_t * vec, fvec_t * tmpvec,
       medar[k] = vec->data[0][k+pos-post];
   /* pre part of the buffer does not exist */
   } else {
-    for (k=0;k<length-pos+post+1;k++)
+    for (k=0;k<length-pos+post;k++)
       medar[k] = vec->data[0][k+pos-post];
-    for (k=length-pos+post+1;k<win_length;k++)
+    for (k=length-pos+post;k<win_length;k++)
       medar[k] = 0.; /* 0-padding at the end */
   }
   return vec_median(tmpvec);
@@ -430,19 +430,6 @@ smpl_t aubio_zero_crossing_rate(fvec_t * input) {
     }
   }
   return zcr/(smpl_t)input->length;
-}
-
-smpl_t aubio_spectral_centroid(cvec_t * spectrum, smpl_t samplerate) {
-  uint_t i=0, j;
-  smpl_t sum = 0., sc = 0.;
-  for ( j = 0; j < spectrum->length; j++ ) {
-    sum += spectrum->norm[i][j];
-  }
-  if (sum == 0.) return 0.;
-  for ( j = 0; j < spectrum->length; j++ ) {
-    sc += (smpl_t)j * spectrum->norm[i][j];
-  }
-  return sc / sum * samplerate / (smpl_t)(spectrum->length);
 }
 
 void aubio_autocorr(fvec_t * input, fvec_t * output) {

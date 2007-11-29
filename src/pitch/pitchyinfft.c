@@ -17,10 +17,11 @@
 */
 
 #include "aubio_priv.h"
-#include "sample.h"
+#include "fvec.h"
+#include "cvec.h"
 #include "mathutils.h"
-#include "fft.h"
-#include "pitchyinfft.h"
+#include "spectral/fft.h"
+#include "pitch/pitchyinfft.h"
 
 /** pitch yinfft structure */
 struct _aubio_pitchyinfft_t {

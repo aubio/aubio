@@ -46,7 +46,8 @@ typedef enum {
         aubio_onset_complex,        /**< complex domain */        
         aubio_onset_phase,          /**< phase fast */            
         aubio_onset_kl,             /**< Kullback Liebler */
-        aubio_onset_mkl             /**< modified Kullback Liebler */
+        aubio_onset_mkl,            /**< modified Kullback Liebler */
+        aubio_onset_specflux,       /**< spectral flux */
 } aubio_onsetdetection_type;
 
 /** onsetdetection structure */
@@ -136,6 +137,18 @@ void aubio_onsetdetection_kl(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_
 
 */
 void aubio_onsetdetection_mkl(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
+/** Spectral Flux 
+
+  Simon Dixon, Onset Detection Revisited, in ``Proceedings of the 9th
+  International Conference on Digital Audio Effects'' (DAFx-06), Montreal,
+  Canada, 2006. 
+
+  \param o onset detection object as returned by new_aubio_onsetdetection()
+  \param fftgrain input spectral frame
+  \param onset output onset detection function
+
+*/
+void aubio_onsetdetection_specflux(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
 /** execute onset detection function on a spectral frame 
 
   Generic function to compute onset detection.

@@ -18,12 +18,13 @@
 */
 
 #include "aubio_priv.h"
-#include "sample.h"
-#include "onsetdetection.h"
-#include "phasevoc.h"
-#include "peakpick.h"
+#include "fvec.h"
+#include "cvec.h"
+#include "onset/onsetdetection.h"
+#include "spectral/phasevoc.h"
+#include "onset/peakpick.h"
 #include "mathutils.h"
-#include "onset.h"
+#include "onset/onset.h"
 
 /** structure to store object state */
 struct _aubio_onset_t {

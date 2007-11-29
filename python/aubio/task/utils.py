@@ -16,11 +16,13 @@ def get_onset_mode(nvalue):
 		 return aubio_onset_kl
 	elif nvalue == 'mkl'           :
 		 return aubio_onset_mkl
+	elif nvalue == 'specflux'      :
+		 return aubio_onset_specflux
 	elif nvalue == 'dual'          :
 		 return 'dual'
 	else:
 		 import sys
-		 print "unknown onset detection function selected"
+		 print "unknown onset detection function selected: %s" % nvalue
 		 sys.exit(1)
 
 def get_pitch_mode(nvalue):

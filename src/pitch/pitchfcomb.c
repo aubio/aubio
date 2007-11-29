@@ -18,10 +18,11 @@
 */
 
 #include "aubio_priv.h"
-#include "sample.h"
+#include "fvec.h"
+#include "cvec.h"
 #include "mathutils.h"
-#include "fft.h"
-#include "pitchfcomb.h"
+#include "spectral/fft.h"
+#include "pitch/pitchfcomb.h"
 
 #define MAX_PEAKS 8
 

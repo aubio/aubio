@@ -27,12 +27,10 @@ doc-user:
 doc-examples: 
 	(echo PROJECT_NUMBER = $(PROJECT_NUMBER) ; cat $(srcdir)/examples.cfg)	| doxygen -
 
-%.sgml: 
-
-%.1:	%.sgml
+.sgml.1:
 	docbook-to-man $< > $*.1
 
-%.html: %.sgml
+.sgml.html:
 	docbook2html $< && mv index.html $*.html
 
 clean:

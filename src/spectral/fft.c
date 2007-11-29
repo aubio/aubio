@@ -21,7 +21,7 @@
 #include "fvec.h"
 #include "cvec.h"
 #include "mathutils.h"
-#include "fft.h"
+#include "spectral/fft.h"
 
 #if FFTW3F_SUPPORT
 #define fftw_malloc            fftwf_malloc

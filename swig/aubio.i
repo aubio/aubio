@@ -154,6 +154,18 @@ void aubio_autocorr(fvec_t * in, fvec_t * acf);
 smpl_t aubio_zero_crossing_rate(fvec_t * input);
 smpl_t aubio_spectral_centroid(cvec_t * spectrum, smpl_t samplerate);
 
+/* filterbank */
+aubio_filterbank_t * new_aubio_filterbank(uint_t win_s, uint_t channels);
+aubio_filterbank_t * new_aubio_filterbank_mfcc(uint_t n_filters, uint_t win_s, uint_t samplerate, smpl_t freq_min, smpl_t freq_max);
+void del_aubio_filterbank(aubio_filterbank_t * fb);
+void aubio_filterbank_do(aubio_filterbank_t * fb, cvec_t * in, fvec_t *out);
+fvec_t * aubio_filterbank_getchannel(aubio_filterbank_t * fb, uint_t channel);
+
+/* mfcc */
+aubio_mfcc_t * new_aubio_mfcc (uint_t win_s, uint_t samplerate, uint_t n_filters, uint_t n_coefs, smpl_t lowfreq, smpl_t highfreq, uint_t channels);
+void del_aubio_mfcc(aubio_mfcc_t *mf);
+void aubio_mfcc_do(aubio_mfcc_t *mf, cvec_t *in, fvec_t *out);
+
 /* scale */
 extern aubio_scale_t * new_aubio_scale(smpl_t flow, smpl_t fhig, smpl_t ilow, smpl_t ihig	);
 extern void aubio_scale_set (aubio_scale_t *s, smpl_t ilow, smpl_t ihig, smpl_t olow, smpl_t ohig);
@@ -173,10 +185,12 @@ typedef enum {
         aubio_onset_complex, 
         aubio_onset_phase, 
         aubio_onset_kl, 
-        aubio_onset_mkl 
+        aubio_onset_mkl, 
+        aubio_onset_specflux,
 } aubio_onsetdetection_type;
 aubio_onsetdetection_t * new_aubio_onsetdetection(aubio_onsetdetection_type type, uint_t size, uint_t channels);
 void aubio_onsetdetection(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
+void del_aubio_onsetdetection(aubio_onsetdetection_t *o);
 
 /* should these still be exposed ? */
 void aubio_onsetdetection_energy  (aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);

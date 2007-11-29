@@ -1,78 +1,87 @@
 noinst_HEADERS = aubio_priv.h
 pkginclude_HEADERS = aubio.h \
 	types.h \
-	phasevoc.h \
-	mathutils.h \
-	fft.h \
-	sample.h \
 	fvec.h \
 	cvec.h \
-	hist.h \
-	scale.h \
-	resample.h \
-	onsetdetection.h \
-	tss.h \
-	peakpick.h \
-	biquad.h \
-	pitchdetection.h \
-	pitchmcomb.h \
-	pitchyin.h \
-	pitchschmitt.h \
-	pitchfcomb.h \
-	pitchyinfft.h \
-	beattracking.h \
-	onset.h \
-	tempo.h \
-	filter.h
+	mathutils.h \
+	utils/hist.h \
+	utils/scale.h \
+	temporal/resample.h \
+	temporal/biquad.h \
+	temporal/filter.h \
+	spectral/filterbank.h \
+	spectral/mfcc.c \
+	spectral/phasevoc.h \
+	spectral/fft.h \
+	spectral/tss.h \
+	spectral/spectral_centroid.h \
+	pitch/pitchdetection.h \
+	pitch/pitchmcomb.h \
+	pitch/pitchyin.h \
+	pitch/pitchschmitt.h \
+	pitch/pitchfcomb.h \
+	pitch/pitchyinfft.h \
+	onset/onset.h \
+	onset/onsetdetection.h \
+	onset/peakpick.h \
+	tempo/tempo.h \
+	tempo/beattracking.h
+
 nodist_pkginclude_HEADERS = config.h
 
 lib_LTLIBRARIES = libaubio.la 
 libaubio_la_SOURCES = aubio.h \
 	types.h \
-	phasevoc.c \
-	phasevoc.h \
-	mathutils.c \
-	mathutils.h \
-	fft.c \
-	fft.h \
 	fvec.c \
 	fvec.h \
 	cvec.c \
 	cvec.h \
-	hist.c \
-	hist.h \
-	scale.c \
-	scale.h \
-	resample.c \
-	resample.h \
-	onsetdetection.c \
-	onsetdetection.h \
-	tss.c \
-	tss.h \
-	peakpick.c \
-	peakpick.h \
-	biquad.c \
-	biquad.h \
-	pitchdetection.c \
-	pitchdetection.h \
-	pitchmcomb.c \
-	pitchmcomb.h \
-	pitchyin.c \
-	pitchyin.h \
-	pitchschmitt.c \
-	pitchschmitt.h \
-	pitchfcomb.c \
-	pitchfcomb.h \
-	pitchyinfft.c \
-	pitchyinfft.h \
-	beattracking.c \
-	beattracking.h \
-	onset.c \
-	onset.h \
-	tempo.c \
-	tempo.h \
-	filter.c \
-	filter.h
+	mathutils.c \
+	mathutils.h \
+	utils/hist.c \
+	utils/hist.h \
+	utils/scale.c \
+	utils/scale.h \
+	temporal/resample.c \
+	temporal/resample.h \
+	temporal/biquad.c \
+	temporal/biquad.h \
+	temporal/filter.c \
+	temporal/filter.h \
+	spectral/filterbank.c \
+	spectral/filterbank.h \
+	spectral/mfcc.h \
+	spectral/mfcc.c \
+	spectral/phasevoc.c \
+	spectral/phasevoc.h \
+	spectral/fft.c \
+	spectral/fft.h \
+	spectral/tss.c \
+	spectral/tss.h \
+	spectral/spectral_centroid.c \
+	spectral/spectral_centroid.h \
+	pitch/pitchdetection.c \
+	pitch/pitchdetection.h \
+	pitch/pitchmcomb.c \
+	pitch/pitchmcomb.h \
+	pitch/pitchyin.c \
+	pitch/pitchyin.h \
+	pitch/pitchschmitt.c \
+	pitch/pitchschmitt.h \
+	pitch/pitchfcomb.c \
+	pitch/pitchfcomb.h \
+	pitch/pitchyinfft.c \
+	pitch/pitchyinfft.h \
+	onset/onset.c \
+	onset/onset.h \
+	onset/onsetdetection.c \
+	onset/onsetdetection.h \
+	onset/peakpick.c \
+	onset/peakpick.h \
+	tempo/tempo.c \
+	tempo/tempo.h \
+	tempo/beattracking.c \
+	tempo/beattracking.h
 
 AM_CFLAGS = @AUBIO_CFLAGS@ @FFTWLIB_CFLAGS@ @SAMPLERATE_CFLAGS@
 libaubio_la_LIBADD = @FFTWLIB_LIBS@ @SAMPLERATE_LIBS@ @LTLIBOBJS@

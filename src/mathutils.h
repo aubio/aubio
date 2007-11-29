@@ -208,10 +208,6 @@ void aubio_autocorr(fvec_t * input, fvec_t * output);
  */
 smpl_t aubio_zero_crossing_rate(fvec_t * input);
 /**
- * spectrum centroid computed on a cvec
- */
-smpl_t aubio_spectral_centroid(cvec_t * input, smpl_t samplerate);
-/**
  * clean up cached memory at the end of program
  *
  * use this function at the end of programs to purge all

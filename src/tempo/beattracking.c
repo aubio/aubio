@@ -18,9 +18,9 @@
 */
 
 #include "aubio_priv.h"
-#include "sample.h"
+#include "fvec.h"
 #include "mathutils.h"
-#include "beattracking.h"
+#include "tempo/beattracking.h"
 
 uint_t fvec_gettimesig(smpl_t * acf, uint_t acflen, uint_t gp);
 void aubio_beattracking_checkstate(aubio_beattracking_t * bt);

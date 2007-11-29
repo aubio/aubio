@@ -18,7 +18,7 @@ int main(){
             fprintf(stdout,"%f\n",curtempo);
             return 1;
           }
-          curtempoconf = aubio_beattracking_get_confidence(o);
+          curtempoconf = aubio_tempo_get_confidence(o);
           if (curtempoconf != 0.) {
             fprintf(stdout,"%f\n",curtempo);
             return 1;

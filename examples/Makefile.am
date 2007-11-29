@@ -6,7 +6,8 @@ AM_LDFLAGS = -L$(top_builddir)/src -L$(top_builddir)/ext -laubioext -laubio @LAS
 bin_PROGRAMS = \
 	aubioonset \
 	aubiotrack \
-	aubionotes
+	aubionotes \
+	aubiomfcc
 
 noinst_PROGRAMS = \
 	aubioquiet
@@ -18,8 +19,10 @@ aubioonset_SOURCES = aubioonset.c utils.c
 aubionotes_SOURCES = aubionotes.c utils.c
 aubiotrack_SOURCES = aubiotrack.c utils.c
 aubioquiet_SOURCES = aubioquiet.c utils.c
+aubiomfcc_SOURCES = aubiomfcc.c utils.c
 
 aubioonset_LDADD = @JACK_LIBS@
 aubionotes_LDADD = @JACK_LIBS@
 aubiotrack_LDADD = @JACK_LIBS@
 aubioquiet_LDADD = @JACK_LIBS@
+aubiomfcc_LDADD = @JACK_LIBS@

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003-2007 Paul Brossier <piem@piem.org>
+   Copyright (C) 2007 Paul Brossier
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -17,10 +17,11 @@
 
 */
 
-#ifndef _SAMPLE_H
-#define _SAMPLE_H
+/** @file
+ * compute spectrum centroid of a cvec object
+ */
 
-#include "fvec.h"
-#include "cvec.h"
-
-#endif /* _SAMPLE_H */
+/**
+ * spectrum centroid computed on a cvec
+ */
+smpl_t aubio_spectral_centroid(cvec_t * input, smpl_t samplerate);
