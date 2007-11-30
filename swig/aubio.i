@@ -262,9 +262,11 @@ void del_aubio_pitchfcomb (aubio_pitchfcomb_t *p);
 /* peakpicker */
 aubio_pickpeak_t * new_aubio_peakpicker(smpl_t threshold);
 uint_t aubio_peakpick_pimrt(fvec_t * DF, aubio_pickpeak_t * p);
-smpl_t aubio_peakpick_pimrt_getval(aubio_pickpeak_t* p);
 uint_t aubio_peakpick_pimrt_wt( fvec_t* DF, aubio_pickpeak_t* p, smpl_t* peakval );
+smpl_t aubio_peakpick_pimrt_getval(aubio_pickpeak_t* p);
 void del_aubio_peakpicker(aubio_pickpeak_t * p);
+void aubio_peakpicker_set_threshold(aubio_pickpeak_t * p, smpl_t threshold);
+smpl_t aubio_peakpicker_get_threshold(aubio_pickpeak_t * p);
 
 /* transient/steady state separation */
 aubio_tss_t * new_aubio_tss(smpl_t thrs, smpl_t alfa, smpl_t beta,
