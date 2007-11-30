@@ -56,6 +56,7 @@ typedef int (*aubio_process_func_t)
         (smpl_t **input, smpl_t **output, int nframes);
 #endif
 void examples_common_process(aubio_process_func_t process_func, aubio_print_func_t print);
+void flush_process(aubio_process_func_t process_func, aubio_print_func_t print);
 
 
 void send_noteon(int pitch, int velo);
