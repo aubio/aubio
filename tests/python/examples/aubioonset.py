@@ -1,6 +1,6 @@
 from template import *
 
-class aubioonset_test_case(program_test_case):
+class aubioonset_unit(program_test_case):
   
   import os.path
   filename = os.path.join('..','..','sounds','woodblock.aiff')
@@ -23,14 +23,17 @@ class aubioonset_test_case(program_test_case):
     self.command += " -s -100 " 
     self.getOutput()
     # only one onset in woodblock.aiff
-    assert len(str(self.output)) != 0, "no output produced with command:\n" \
-      + self.command
-    assert len(self.output.split('\n')) == 1
+    self.assertNotEqual(0, len(str(self.output)), \
+      "no output produced with command:\n" + self.command)
+    self.assertEqual(1, len(self.output.split('\n')) )
     # onset should be at 0.00000
-    assert float(self.output.strip()) == 0.
+    self.assertEqual(0, float(self.output.strip()))
 
-for name in ["energy", "specdiff", "hfc", "complex", "phase", "kl", "mkl"]:
-  exec("class aubioonset_test_case_"+name+"(aubioonset_test_case):\n\
+list_of_onset_modes = ["energy", "specdiff", "hfc", "complex", "phase", \
+                      "kl", "mkl", "specflux"]
+
+for name in list_of_onset_modes:
+  exec("class aubioonset_"+name+"_unit(aubioonset_unit):\n\
   options = \" -O "+name+" \"")
 
 if __name__ == '__main__': unittest.main()
