@@ -71,18 +71,6 @@ void aubio_filter_do_filtfilt(aubio_filter_t * b, fvec_t * in, fvec_t * tmp);
 
 */
 aubio_filter_t * new_aubio_filter(uint_t samplerate, uint_t order);
-/** create a new A-design filter 
-
-  \param samplerate sampling-rate of the signal to filter 
-
-*/
-aubio_filter_t * new_aubio_adsgn_filter(uint_t samplerate);
-/** create a new C-design filter 
-
-  \param samplerate sampling-rate of the signal to filter 
-
-*/
-aubio_filter_t * new_aubio_cdsgn_filter(uint_t samplerate);
 /** delete a filter object
  
   \param f filter object to delete

@@ -1,4 +1,7 @@
-noinst_HEADERS = aubio_priv.h
+noinst_HEADERS = \
+	aubio_priv.h \
+	temporal/filter_priv.h
+
 pkginclude_HEADERS = aubio.h \
 	types.h \
 	fvec.h \
@@ -19,7 +22,9 @@ pkgincludeutils_HEADERS = \
 pkgincludetemporal_HEADERS = \
 	temporal/resample.h \
 	temporal/biquad.h \
-	temporal/filter.h
+	temporal/filter.h \
+	temporal/adesign.h \
+	temporal/cdesign.h
 
 pkgincludespectral_HEADERS = \
 	spectral/filterbank.h \
@@ -56,6 +61,8 @@ libaubio_la_SOURCES = \
 	temporal/resample.c \
 	temporal/biquad.c \
 	temporal/filter.c \
+	temporal/adesign.c \
+	temporal/cdesign.c \
 	spectral/filterbank.c \
 	spectral/mfcc.c \
 	spectral/phasevoc.c \
