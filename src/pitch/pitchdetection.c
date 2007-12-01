@@ -21,7 +21,7 @@
 #include "cvec.h"
 #include "spectral/phasevoc.h"
 #include "mathutils.h"
-#include "temporal/filter.h"
+#include "temporal/cdesign.h"
 #include "pitch/pitchmcomb.h"
 #include "pitch/pitchyin.h"
 #include "pitch/pitchfcomb.h"
@@ -102,7 +102,7 @@ aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize,
       p->pv       = new_aubio_pvoc(bufsize, hopsize, channels);
       p->fftgrain = new_cvec(bufsize, channels);
       p->mcomb    = new_aubio_pitchmcomb(bufsize,hopsize,channels,samplerate);
-      p->filter   = new_aubio_cdsgn_filter(samplerate);
+      p->filter   = new_aubio_cdsgn_filter(samplerate, channels);
       p->callback = aubio_pitchdetection_mcomb;
       break;
     case aubio_pitch_fcomb:

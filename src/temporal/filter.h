@@ -68,9 +68,10 @@ void aubio_filter_do_filtfilt(aubio_filter_t * b, fvec_t * in, fvec_t * tmp);
 
   \param samplerate signal sampling rate
   \param order order of the filter (number of coefficients)
+  \param channels number of channels to allocate
 
 */
-aubio_filter_t * new_aubio_filter(uint_t samplerate, uint_t order);
+aubio_filter_t * new_aubio_filter(uint_t samplerate, uint_t order, uint_t channels);
 /** delete a filter object
  
   \param f filter object to delete

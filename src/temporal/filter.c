@@ -23,72 +23,49 @@
 
 #include "aubio_priv.h"
 #include "fvec.h"
+#include "lvec.h"
 #include "mathutils.h"
 #include "temporal/filter.h"
 #include "temporal/filter_priv.h"
 
-/* bug: mono only */
 void aubio_filter_do(aubio_filter_t * f, fvec_t * in) {
-  uint_t i,j,l, order = f->order;
-  lsmp_t *x = f->x;
-  lsmp_t *y = f->y;
-  lsmp_t *a = f->a;
-  lsmp_t *b = f->b;
-  i=0;//for (i=0;i<in->channels;i++) {
-  for (j = 0; j < in->length; j++) {
-    /* new input */
-    //AUBIO_DBG("befor %f\t", in->data[i][j]);
-    x[0] = in->data[i][j];
-    y[0] = b[0] * x[0];
-    for (l=1;l<order; l++) {
-      y[0] += b[l] * x[l];
-      y[0] -= a[l] * y[l];
-    } /* + 1e-37; for denormal ? */
-    /* new output */
-    in->data[i][j] = y[0];
-    //AUBIO_DBG("after %f\n", in->data[i][j]);
-    /* store states for next sample */
-    for (l=order-1; l>0; l--){
-      x[l] = x[l-1];
-      y[l] = y[l-1];
-    }
-  }
-  /* store states for next buffer */
-  f->x = x;
-  f->y = y;
-  //}	
+  aubio_filter_do_outplace(f, in, in);
 }
 
 void aubio_filter_do_outplace(aubio_filter_t * f, fvec_t * in, fvec_t * out) {
   uint_t i,j,l, order = f->order;
-  lsmp_t *x = f->x;
-  lsmp_t *y = f->y;
-  lsmp_t *a = f->a;
-  lsmp_t *b = f->b;
+  lsmp_t *x;
+  lsmp_t *y;
+  lsmp_t *a = f->a->data[0];
+  lsmp_t *b = f->b->data[0];
 
-  i=0; // works in mono only !!!
-  //for (i=0;i<in->channels;i++) {
-  for (j = 0; j < in->length; j++) {
-    /* new input */
-    x[0] = in->data[i][j];
-    y[0] = b[0] * x[0];
-    for (l=1;l<order; l++) {
-      y[0] += b[l] * x[l];
-      y[0] -= a[l] * y[l];
+  for (i = 0; i < in->channels; i++) {
+    x = f->x->data[i];
+    y = f->y->data[i];
+    for (j = 0; j < in->length; j++) {
+      /* new input */
+      if (ISDENORMAL(in->data[i][j])) {
+        x[0] = y[0] = 0.;
+      } else {
+        x[0] = in->data[i][j];
+        y[0] = b[0] * x[0];
+        for (l=1;l<order; l++) {
+          y[0] += b[l] * x[l];
+          y[0] -= a[l] * y[l];
+        }
+      }
+      /* new output */
+      out->data[i][j] = y[0];
+      /* store for next sample */
+      for (l=order-1; l>0; l--){
+        x[l] = x[l-1];
+        y[l] = y[l-1];
+      }
     }
-    // + 1e-37;
-    /* new output */
-    out->data[i][j] = y[0];
-    /* store for next sample */
-    for (l=order-1; l>0; l--){
-      x[l] = x[l-1];
-      y[l] = y[l-1];
-    }
+    /* store for next run */
+    f->x->data[i] = x;
+    f->y->data[i] = y;
   }
-  /* store for next run */
-  f->x = x;
-  f->y = y;
-  //}
 }
 
 /*  
@@ -125,27 +102,14 @@ void aubio_filter_do_filtfilt(aubio_filter_t * f, fvec_t * in, fvec_t * tmp) {
     in->data[i][j] = tmp->data[i][length-j-1];
 }
 
-aubio_filter_t * new_aubio_filter(uint_t samplerate UNUSED, uint_t order) {
+aubio_filter_t * new_aubio_filter(uint_t samplerate UNUSED, uint_t order, uint_t channels) {
   aubio_filter_t * f = AUBIO_NEW(aubio_filter_t);
-  lsmp_t * x = f->x;
-  lsmp_t * y = f->y;
-  lsmp_t * a = f->a;
-  lsmp_t * b = f->b;
-  uint_t l;
+  f->x = new_lvec(order, channels);
+  f->y = new_lvec(order, channels);
+  f->a = new_lvec(order, 1);
+  f->b = new_lvec(order, 1);
+  f->a->data[0][1] = 1.;
   f->order = order;
-  a = AUBIO_ARRAY(lsmp_t,f->order);
-  b = AUBIO_ARRAY(lsmp_t,f->order);
-  x = AUBIO_ARRAY(lsmp_t,f->order);
-  y = AUBIO_ARRAY(lsmp_t,f->order);
-  /* initial states to zeros */
-  for (l=0; l<f->order; l++){
-    x[l] = 0.;
-    y[l] = 0.;
-  }
-  f->x = x;
-  f->y = y;
-  f->a = a;
-  f->b = b;
   return f;
 }
 

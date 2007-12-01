@@ -24,7 +24,7 @@
   \param samplerate sampling-rate of the signal to filter 
 
 */
-aubio_filter_t * new_aubio_cdsgn_filter(uint_t samplerate);
+aubio_filter_t * new_aubio_cdsgn_filter(uint_t samplerate, uint_t channels);
 
 #define aubio_cdsgn_filter_do aubio_filter_do
 #define del_aubio_cdsgn_filter del_aubio_filter

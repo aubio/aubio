@@ -25,10 +25,10 @@
 #include "temporal/filter_priv.h"
 #include "temporal/adesign.h"
 
-aubio_filter_t * new_aubio_adsgn_filter(uint_t samplerate) {
-  aubio_filter_t * f = new_aubio_filter(samplerate, 7);
-  lsmp_t * a = f->a;
-  lsmp_t * b = f->b;
+aubio_filter_t * new_aubio_adsgn_filter(uint_t samplerate, uint_t channels) {
+  aubio_filter_t * f = new_aubio_filter(samplerate, 7, channels);
+  lsmp_t * a = f->a->data[0];
+  lsmp_t * b = f->b->data[0];
   /* uint_t l; */
   /* for now, 44100, adsgn */
   a[0] =  1.00000000000000000000000000000000000000000000000000000; 
@@ -51,8 +51,8 @@ aubio_filter_t * new_aubio_adsgn_filter(uint_t samplerate) {
     AUBIO_DBG("a[%d]=\t%1.16f\tb[%d]=\t%1.16f\n",l,a[l],l,b[l]);
   }
   */
-  f->a = a;
-  f->b = b;
+  f->a->data[0] = a;
+  f->b->data[0] = b;
   return f;
 }
 

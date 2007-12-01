@@ -17,12 +17,13 @@
 
 */
 
+#include "lvec.h"
 struct _aubio_filter_t {
   uint_t order;
-  lsmp_t * a;
-  lsmp_t * b;
-  lsmp_t * y;
-  lsmp_t * x;
+  lvec_t * a;
+  lvec_t * b;
+  lvec_t * y;
+  lvec_t * x;
 };
 
 
