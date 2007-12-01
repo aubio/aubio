@@ -1,11 +1,10 @@
-import unittest
-
-from aubio.aubiowrapper import *
+from template import aubio_unit_template
+from localaubio import *
 
 buf_size = 2048
 channels = 3
 
-class fvec_test_case(unittest.TestCase):
+class fvec_unit(aubio_unit_template):
 
   def setUp(self):
     self.vector = new_fvec(buf_size, channels)

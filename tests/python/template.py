@@ -1,4 +1,3 @@
-
 import unittest
 
 class aubio_unit_template(unittest.TestCase):

@@ -1,6 +1,5 @@
 from template import aubio_unit_template
-
-from aubio.aubiowrapper import *
+from localaubio import *
 
 buf_size = 7 
 channels = 1
