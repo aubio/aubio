@@ -174,7 +174,7 @@ void del_aubio_mfcc(aubio_mfcc_t *mf);
 void aubio_mfcc_do(aubio_mfcc_t *mf, cvec_t *in, fvec_t *out);
 
 /* scale */
-extern aubio_scale_t * new_aubio_scale(smpl_t flow, smpl_t fhig, smpl_t ilow, smpl_t ihig	);
+extern aubio_scale_t * new_aubio_scale(smpl_t flow, smpl_t fhig, smpl_t ilow, smpl_t ihig);
 extern void aubio_scale_set (aubio_scale_t *s, smpl_t ilow, smpl_t ihig, smpl_t olow, smpl_t ohig);
 extern void aubio_scale_do(aubio_scale_t *s, fvec_t * input);
 extern void del_aubio_scale(aubio_scale_t *s);
@@ -220,7 +220,7 @@ typedef enum {
         aubio_pitch_mcomb,
         aubio_pitch_schmitt,
         aubio_pitch_fcomb,
-	aubio_pitch_yinfft
+        aubio_pitch_yinfft
 } aubio_pitchdetection_type;
 
 typedef enum {
@@ -237,11 +237,11 @@ void aubio_pitchdetection_set_yinthresh(aubio_pitchdetection_t *p, smpl_t thres)
 void del_aubio_pitchdetection(aubio_pitchdetection_t * p);
 
 aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize, 
-		uint_t hopsize, 
-		uint_t channels,
-		uint_t samplerate,
-		aubio_pitchdetection_type type,
-		aubio_pitchdetection_mode mode);
+    uint_t hopsize, 
+    uint_t channels,
+    uint_t samplerate,
+    aubio_pitchdetection_type type,
+    aubio_pitchdetection_mode mode);
 
 
 /* pitch mcomb */
@@ -483,9 +483,9 @@ sint_t aubio_midi_player_set_midi_tempo(aubio_midi_player_t* player, sint_t temp
 sint_t aubio_midi_player_set_bpm(aubio_midi_player_t* player, sint_t bpm);
 sint_t aubio_midi_player_join(aubio_midi_player_t* player);
 sint_t aubio_track_send_events(aubio_track_t* track, 
-/*  aubio_synth_t* synth, */
-			   aubio_midi_player_t* player,
-			   uint_t ticks);
+    /*  aubio_synth_t* synth, */
+    aubio_midi_player_t* player,
+    uint_t ticks);
 sint_t aubio_midi_send_event(aubio_midi_player_t* player, aubio_midi_event_t* event);
 
 /* midi parser */
