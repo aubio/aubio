@@ -91,10 +91,11 @@ class filterbank_test_case(unittest.TestCase):
 
   def testmfcc_channels(self):
       """ check the values of each filters in the mfcc filterbank """
+      import os.path
       self.filterbank = new_aubio_filterbank_mfcc(n_filters, win_size, samplerate, 
         0., samplerate) 
       filterbank_mfcc = [ [float(f) for f in line.strip().split()]
-        for line in open('filterbank_mfcc.txt').readlines()]
+        for line in open(os.path.join('src','spectral','filterbank_mfcc.txt')).readlines()]
       for channel in range(n_filters):
         vec = aubio_filterbank_getchannel(self.filterbank,channel)
         for index in range(win_size): 

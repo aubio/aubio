@@ -90,7 +90,7 @@ AC_CONFIG_FILES(aubio.pc)
 
 AM_CONDITIONAL(MINGW, false)
 AM_CONDITIONAL(DARWIN, false)
-case "${build_os}" in
+case "${host_os}" in
 *mingw* | *cygwin*)
   mingw32_support="yes"
   AC_CHECK_HEADER(windows.h)
