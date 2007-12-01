@@ -5,6 +5,7 @@ noinst_HEADERS = \
 pkginclude_HEADERS = aubio.h \
 	types.h \
 	fvec.h \
+	lvec.h \
 	cvec.h \
 	mathutils.h
 
@@ -53,7 +54,8 @@ pkgincludetempo_HEADERS =	\
 
 lib_LTLIBRARIES = libaubio.la 
 libaubio_la_SOURCES = \
-  fvec.c \
+	fvec.c \
+	lvec.c \
 	cvec.c \
 	mathutils.c \
 	utils/hist.c \
