@@ -81,6 +81,8 @@ AC_ARG_ENABLE(lcov,
 dnl Check for libtool
 AC_LIBTOOL_DLOPEN
 dnl AC_DISABLE_STATIC
+dnl allow cross compiling
+AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
 
 AC_CONFIG_HEADERS(src/config.h)
@@ -88,7 +90,7 @@ AC_CONFIG_FILES(aubio.pc)
 
 AM_CONDITIONAL(MINGW, false)
 AM_CONDITIONAL(DARWIN, false)
-case "${build_os}" in
+case "${host_os}" in
 *mingw* | *cygwin*)
   mingw32_support="yes"
   AC_CHECK_HEADER(windows.h)

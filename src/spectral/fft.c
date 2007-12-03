@@ -154,6 +154,8 @@ void aubio_fft_get_phas(fvec_t * compspec, cvec_t * spectrum) {
   for (i = 0; i < spectrum->channels; i++) {
     spectrum->phas[i][0] = 0.;
     for (j=1; j < spectrum->length - 1; j++) {
+      if (compspec->data[i][j] == 0.) spectrum->phas[i][j] = 0;
+      else
       spectrum->phas[i][j] = atan2f(compspec->data[i][compspec->length-j],
           compspec->data[i][j]);
     }

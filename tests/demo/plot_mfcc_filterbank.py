@@ -4,7 +4,7 @@ import pylab
 import numpy
 import sys
 
-from aubio.aubiowrapper import * 
+from localaubio import *
 
 win_size = 2048 
 channels = 1
@@ -13,7 +13,6 @@ samplerate = 44100
 
 filterbank = new_aubio_filterbank_mfcc(n_filters, win_size, samplerate, 
         0., samplerate) 
-
 
 mfcc_filters = []
 for channel in range(n_filters):

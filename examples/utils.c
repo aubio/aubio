@@ -21,7 +21,6 @@ void * lash_thread_main (void * data);
 int lash_main (void);
 void save_data (void);
 void restore_data(lash_config_t * lash_config);
-void flush_process(aubio_process_func_t process_func, aubio_print_func_t print);
 pthread_t lash_thread;
 #endif /* LASH_SUPPORT */
 
@@ -409,7 +408,7 @@ void examples_common_process(aubio_process_func_t process_func, aubio_print_func
 }
 
 void flush_process(aubio_process_func_t process_func, aubio_print_func_t print){
-  uint i,j;
+  uint_t i,j;
   for (i = 0; i < channels; i++) {
     for (j = 0; j < obuf->length; j++) {
       fvec_write_sample(obuf,0.,i,j);

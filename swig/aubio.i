@@ -85,13 +85,19 @@ extern void aubio_fft_get_norm(fvec_t * compspec, cvec_t * spectrum);
 extern void aubio_fft_get_real(cvec_t * spectrum, fvec_t * compspec);
 
 /* filter */
-extern aubio_filter_t * new_aubio_filter(uint_t samplerate, uint_t order);
-extern aubio_filter_t * new_aubio_adsgn_filter(uint_t samplerate);
-extern aubio_filter_t * new_aubio_cdsgn_filter(uint_t samplerate);
+extern aubio_filter_t * new_aubio_filter(uint_t samplerate, uint_t order, uint_t channels);
 extern void aubio_filter_do(aubio_filter_t * b, fvec_t * in);
 extern void aubio_filter_do_outplace(aubio_filter_t * b, fvec_t * in, fvec_t * out);
 extern void aubio_filter_do_filtfilt(aubio_filter_t * b, fvec_t * in, fvec_t * tmp);
-/*extern int del_aubio_filter(aubio_filter_t * b);*/
+extern void del_aubio_filter(aubio_filter_t * b);
+
+extern aubio_filter_t * new_aubio_adsgn_filter(uint_t samplerate, uint_t channels);
+extern void aubio_adsgn_filter_do(aubio_filter_t * b, fvec_t * in);
+extern void del_aubio_adsgn_filter(aubio_filter_t * b);
+
+extern aubio_filter_t * new_aubio_cdsgn_filter(uint_t samplerate, uint_t channels);
+extern void aubio_cdsgn_filter_do(aubio_filter_t * b, fvec_t * in);
+extern void del_aubio_cdsgn_filter(aubio_filter_t * b);
 
 /* biquad */
 extern aubio_biquad_t * new_aubio_biquad(lsmp_t b1, lsmp_t b2, lsmp_t b3, lsmp_t a2, lsmp_t a3);
@@ -167,7 +173,7 @@ void del_aubio_mfcc(aubio_mfcc_t *mf);
 void aubio_mfcc_do(aubio_mfcc_t *mf, cvec_t *in, fvec_t *out);
 
 /* scale */
-extern aubio_scale_t * new_aubio_scale(smpl_t flow, smpl_t fhig, smpl_t ilow, smpl_t ihig	);
+extern aubio_scale_t * new_aubio_scale(smpl_t flow, smpl_t fhig, smpl_t ilow, smpl_t ihig);
 extern void aubio_scale_set (aubio_scale_t *s, smpl_t ilow, smpl_t ihig, smpl_t olow, smpl_t ohig);
 extern void aubio_scale_do(aubio_scale_t *s, fvec_t * input);
 extern void del_aubio_scale(aubio_scale_t *s);
@@ -213,7 +219,7 @@ typedef enum {
         aubio_pitch_mcomb,
         aubio_pitch_schmitt,
         aubio_pitch_fcomb,
-	aubio_pitch_yinfft
+        aubio_pitch_yinfft
 } aubio_pitchdetection_type;
 
 typedef enum {
@@ -230,11 +236,11 @@ void aubio_pitchdetection_set_yinthresh(aubio_pitchdetection_t *p, smpl_t thres)
 void del_aubio_pitchdetection(aubio_pitchdetection_t * p);
 
 aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize, 
-		uint_t hopsize, 
-		uint_t channels,
-		uint_t samplerate,
-		aubio_pitchdetection_type type,
-		aubio_pitchdetection_mode mode);
+    uint_t hopsize, 
+    uint_t channels,
+    uint_t samplerate,
+    aubio_pitchdetection_type type,
+    aubio_pitchdetection_mode mode);
 
 
 /* pitch mcomb */
@@ -262,9 +268,11 @@ void del_aubio_pitchfcomb (aubio_pitchfcomb_t *p);
 /* peakpicker */
 aubio_pickpeak_t * new_aubio_peakpicker(smpl_t threshold);
 uint_t aubio_peakpick_pimrt(fvec_t * DF, aubio_pickpeak_t * p);
-smpl_t aubio_peakpick_pimrt_getval(aubio_pickpeak_t* p);
 uint_t aubio_peakpick_pimrt_wt( fvec_t* DF, aubio_pickpeak_t* p, smpl_t* peakval );
+smpl_t aubio_peakpick_pimrt_getval(aubio_pickpeak_t* p);
 void del_aubio_peakpicker(aubio_pickpeak_t * p);
+void aubio_peakpicker_set_threshold(aubio_pickpeak_t * p, smpl_t threshold);
+smpl_t aubio_peakpicker_get_threshold(aubio_pickpeak_t * p);
 
 /* transient/steady state separation */
 aubio_tss_t * new_aubio_tss(smpl_t thrs, smpl_t alfa, smpl_t beta,
@@ -474,9 +482,9 @@ sint_t aubio_midi_player_set_midi_tempo(aubio_midi_player_t* player, sint_t temp
 sint_t aubio_midi_player_set_bpm(aubio_midi_player_t* player, sint_t bpm);
 sint_t aubio_midi_player_join(aubio_midi_player_t* player);
 sint_t aubio_track_send_events(aubio_track_t* track, 
-/*  aubio_synth_t* synth, */
-			   aubio_midi_player_t* player,
-			   uint_t ticks);
+    /*  aubio_synth_t* synth, */
+    aubio_midi_player_t* player,
+    uint_t ticks);
 sint_t aubio_midi_send_event(aubio_midi_player_t* player, aubio_midi_event_t* event);
 
 /* midi parser */

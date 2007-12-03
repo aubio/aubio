@@ -1,21 +1,16 @@
 #! /usr/bin/python
 
-# add ${src}/python and ${src}/python/aubio/.libs to python path
-# so the script is runnable from a compiled source tree.
-import sys, os
-
-cur_dir = os.path.dirname(sys.argv[0])
-sys.path.append(os.path.join(cur_dir,'..','..','python'))
-sys.path.append(os.path.join(cur_dir,'..','..','python','aubio','.libs'))
-
 import unittest
 
 from glob import glob
 def list_of_test_files(path):
   return [i.split('.')[0].replace('/','.') for i in glob(path)]
 
-modules_to_test  = list_of_test_files('*.py')
+modules_to_test  = []
+modules_to_test += list_of_test_files('src/*.py')
+modules_to_test += list_of_test_files('src/*/*.py')
 modules_to_test += list_of_test_files('examples/aubio*.py')
+modules_to_test += list_of_test_files('*.py')
 
 if __name__ == '__main__':
   for module in modules_to_test: 
