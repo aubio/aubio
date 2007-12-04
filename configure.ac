@@ -252,6 +252,7 @@ AC_OUTPUT([
     examples/Makefile
     tests/Makefile
     tests/src/Makefile
+    tests/cpp/Makefile
     sounds/Makefile
     swig/Makefile
     python/Makefile
