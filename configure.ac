@@ -248,6 +248,7 @@ AC_OUTPUT([
     Makefile
     src/Makefile
     ext/Makefile
+    cpp/Makefile
     examples/Makefile
     tests/Makefile
     tests/src/Makefile

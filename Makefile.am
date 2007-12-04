@@ -9,7 +9,7 @@ PYTHONDIR = python
 endif
 endif
 
-SUBDIRS = src ext examples sounds plugins $(PYTHONDIR) $(SWIGDIR) $(DOC)
+SUBDIRS = src ext cpp examples sounds plugins $(PYTHONDIR) $(SWIGDIR) $(DOC)
 EXTRA_DIST = bootstrap VERSION
 
 docs:
