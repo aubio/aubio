@@ -103,7 +103,7 @@ extern void del_aubio_cdsgn_filter(aubio_filter_t * b);
 extern aubio_biquad_t * new_aubio_biquad(lsmp_t b1, lsmp_t b2, lsmp_t b3, lsmp_t a2, lsmp_t a3);
 extern void aubio_biquad_do(aubio_biquad_t * b, fvec_t * in);
 extern void aubio_biquad_do_filtfilt(aubio_biquad_t * b, fvec_t * in, fvec_t * tmp);
-/*extern int del_aubio_biquad(aubio_biquad_t * b);*/
+extern void del_aubio_biquad(aubio_biquad_t * b);
 
 /* hist */
 extern aubio_hist_t * new_aubio_hist(smpl_t flow, smpl_t fhig, uint_t nelems, uint_t channels);
