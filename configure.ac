@@ -257,6 +257,8 @@ AC_OUTPUT([
     swig/Makefile
     python/Makefile
     python/aubio/Makefile
+    java/Makefile
+    java/aubio/Makefile
     plugins/Makefile
     plugins/audacity/Makefile
     plugins/audacity/plug-ins/Makefile

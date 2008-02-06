@@ -26,6 +26,12 @@ doc/*.1
 **/cachegrind.out.[0-9]*
 **/callgrind.out.[0-9]*
 
+# swig and java stuff
+**/*.class
+java/**/SWIG*.java
+java/**/aubio*.java
+java/**/midi_*.java
+
 # autoreconf -f -i will create these
 INSTALL
 aclocal.m4
