@@ -68,7 +68,7 @@ AUBIO_LDFLAGS = $(SWLDFLAGS) \
 	-L$(top_builddir)/ext -laubioext \
 	-L$(top_builddir)/src -laubio
 
-pkgpython_LTLIBRARIES = _aubiowrapper.la
+pkgpyexec_LTLIBRARIES = _aubiowrapper.la
 
 _aubiowrapper_la_LDFLAGS = -module -avoid-version $(AUBIO_LDFLAGS) 
 _aubiowrapper_la_SOURCES = aubio_wrap.c
