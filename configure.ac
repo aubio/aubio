@@ -116,7 +116,6 @@ dnl Check for required libraries
 AC_CHECK_LIB(pthread, pthread_create)
 
 dnl Check for header files
-AC_HEADER_STDC
 AC_CHECK_HEADERS([string.h stdlib.h stdio.h math.h errno.h stdarg.h unistd.h signal.h],,)
 AC_CHECK_HEADERS(fftw3.h,,AC_MSG_ERROR([Ouch! missing fftw3.h header]))
 AC_ARG_ENABLE(complex,
