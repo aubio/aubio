@@ -90,12 +90,15 @@ AC_CONFIG_FILES(aubio.pc)
 
 AM_CONDITIONAL(MINGW, false)
 AM_CONDITIONAL(DARWIN, false)
-case "${host_os}" in
+case "${host}" in
 *mingw* | *cygwin*)
   mingw32_support="yes"
   AC_CHECK_HEADER(windows.h)
   AM_CONDITIONAL(MINGW, true)
   LDFLAGS="$LDFLAGS -no-undefined"
+  ;;
+arm-apple-darwin)
+  dnl nothing to do here 
   ;;
 *darwin* | *rhapsody* | *macosx*)
   dnl on macosx, cosf went to -lmx
