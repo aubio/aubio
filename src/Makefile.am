@@ -2,53 +2,35 @@ noinst_HEADERS = \
 	aubio_priv.h \
 	temporal/filter_priv.h
 
-pkginclude_HEADERS = aubio.h \
+nobase_pkginclude_HEADERS = \
+	aubio.h \
 	types.h \
 	fvec.h \
 	lvec.h \
 	cvec.h \
-	mathutils.h
-
-pkgincludeutilsdir = $(pkgincludedir)/utils
-pkgincludetemporaldir = $(pkgincludedir)/temporal
-pkgincludespectraldir = $(pkgincludedir)/spectral
-pkgincludepitchdir = $(pkgincludedir)/pitch
-pkgincludeonsetdir = $(pkgincludedir)/onset
-pkgincludetempodir = $(pkgincludedir)/tempo
-
-pkgincludeutils_HEADERS = \
+	mathutils.h \
 	utils/hist.h \
-	utils/scale.h
-
-pkgincludetemporal_HEADERS = \
+	utils/scale.h \
 	temporal/resample.h \
 	temporal/biquad.h \
 	temporal/filter.h \
 	temporal/adesign.h \
-	temporal/cdesign.h
-
-pkgincludespectral_HEADERS = \
+	temporal/cdesign.h \
 	spectral/filterbank.h \
 	spectral/mfcc.h \
 	spectral/phasevoc.h \
 	spectral/fft.h \
 	spectral/tss.h \
-	spectral/spectral_centroid.h
-
-pkgincludepitch_HEADERS = \
+	spectral/spectral_centroid.h \
 	pitch/pitchdetection.h \
 	pitch/pitchmcomb.h \
 	pitch/pitchyin.h \
 	pitch/pitchschmitt.h \
 	pitch/pitchfcomb.h \
-	pitch/pitchyinfft.h
-
-pkgincludeonset_HEADERS =	\
+	pitch/pitchyinfft.h \
 	onset/onset.h \
 	onset/onsetdetection.h \
-	onset/peakpick.h
-
-pkgincludetempo_HEADERS =	\
+	onset/peakpick.h \
 	tempo/tempo.h \
 	tempo/beattracking.h
 
