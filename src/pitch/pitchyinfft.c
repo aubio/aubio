@@ -31,7 +31,7 @@ struct _aubio_pitchyinfft_t {
   fvec_t * sqrmag;    /**< square difference function */
   fvec_t * weight;    /**< spectral weighting window (psychoacoustic model) */
   cvec_t * fftout;    /**< Fourier transform output */
-  aubio_fft_t * fft; /**< fft object to compute square difference function */
+  aubio_fft_t * fft;  /**< fft object to compute square difference function */
   fvec_t * yinfft;    /**< Yin function */
 };
 
