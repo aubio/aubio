@@ -4,7 +4,7 @@
 namespace aubio {
 
   fvec::fvec(uint_t length, uint_t channels) {
-        self = new_fvec(length, channels);
+    self = new_fvec(length, channels);
   }
 
   fvec::~fvec() {
