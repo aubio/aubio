@@ -245,6 +245,10 @@ dnl Check for Puredata
 AC_CHECK_HEADER(m_pd.h,PUREDATA=y,AC_MSG_WARN([Puredata header not found.]))
 AM_CONDITIONAL(PUREDATAFOUND, test "${PUREDATA}" = "y")
 
+dnl Check for Java
+AC_CHECK_HEADER(jni.h,JAVAHEADERS=y,AC_MSG_WARN([Java header jni.h not found.]))
+AM_CONDITIONAL(JAVAFOUND, test "${JAVAHEADERS}" = "y")
+
 dnl Create Makefiles
 AC_OUTPUT([
     Makefile
