@@ -3,7 +3,7 @@
 
 void print_array(fvec_t *f);
 void print_array(fvec_t *f){
-  uint i,j;
+  uint_t i,j;
   for (i=0;i<f->channels;i++){
     for (j=0;j<f->length;j++){
       printf("%f, ", f->data[i][j]); 
