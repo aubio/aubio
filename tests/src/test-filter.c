@@ -8,7 +8,7 @@ int main(){
         fvec_t * out      = new_fvec (win_s, channels);     /* input buffer */
   
         /* allocate fft and other memory space */
-        aubio_filter_t * o = new_aubio_cdsgn_filter(44100);
+        aubio_filter_t * o = new_aubio_cdsgn_filter(44100, channels);
 
         aubio_filter_do(o,in);
         aubio_filter_do_outplace(o,in,out);
