@@ -97,16 +97,7 @@ case "${host}" in
   AM_CONDITIONAL(MINGW, true)
   LDFLAGS="$LDFLAGS -no-undefined"
   ;;
-arm-apple-darwin)
-  dnl nothing to do here 
-  ;;
 *darwin* | *rhapsody* | *macosx*)
-  dnl on macosx, cosf went to -lmx
-  LDFLAGS="$LDFLAGS -lmx"
-  dnl as long double doesn't sit well with -Wall -Werror
-  AUBIO_CFLAGS="$AUBIO_CFLAGS -Wno-long-double"
-  dnl Workaround darwin autoconf bug
-  CPPFLAGS="$CPPFLAGS -I${prefix}/include"
   AC_ISC_POSIX
   AM_CONDITIONAL(DARWIN, true)
   ;;
