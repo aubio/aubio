@@ -419,14 +419,18 @@ smpl_t aubio_zero_crossing_rate(fvec_t * input) {
   uint_t i=0,j;
   uint_t zcr = 0;
   for ( j = 1; j < input->length; j++ ) {
-    // previous was negative
-    if( input->data[i][j-1] <= 0. ) {
-      if ( input->data[i][j] > 0. ) {
+    // previous was strictly negative
+    if( input->data[i][j-1] < 0. ) {
+      // current is positive or null
+      if ( input->data[i][j] >= 0. ) {
         zcr += 1;
       }
-    //previous was positive
-    } else if ( input->data[i][j] <= 0. ) {
-      zcr += 1;
+    // previous was positive or null
+    } else {
+      // current is strictly negative
+      if ( input->data[i][j] < 0. ) {
+        zcr += 1;
+      }
     }
   }
   return zcr/(smpl_t)input->length;
