@@ -15,4 +15,9 @@ except ImportError:
   except ImportError:
     raise
 else:
-  raise ImportError, "Note: the aubio module could be imported without adding the source directory to your path."
+  raise ImportError, \
+    """
+    The aubio module could be imported BEFORE adding the source directory to
+    your path. Make sure you NO other version of the python aubio module is
+    installed on your system.
+    """
