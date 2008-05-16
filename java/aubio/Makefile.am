@@ -15,7 +15,7 @@ AUBIO_LDFLAGS = $(SWLDFLAGS) \
 	-L$(top_builddir)/ext -laubioext \
 	-L$(top_builddir)/src -laubio
 
-pkgjavadir = /usr/local/lib/java/aubio 
+pkgjavadir = ${datadir}/java/aubio 
 
 pkgjava_LTLIBRARIES = libaubiowrapper.la
 
