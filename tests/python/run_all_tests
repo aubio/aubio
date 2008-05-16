@@ -4,9 +4,12 @@ import unittest
 
 from glob import glob
 def list_of_test_files(path):
-  return [i.split('.')[0].replace('/','.') for i in glob(path)]
+  matches = glob(path)
+  if not matches: print "WARNING: no matches for %s" % path
+  return [i.split('.')[0].replace('/','.') for i in matches]
 
 modules_to_test  = []
+modules_to_test += ['localaubio']
 modules_to_test += list_of_test_files('src/*.py')
 modules_to_test += list_of_test_files('src/*/*.py')
 modules_to_test += list_of_test_files('examples/aubio*.py')
