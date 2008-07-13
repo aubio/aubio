@@ -50,12 +50,13 @@
  */
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 /* first the generated config file */
 #include "config.h"
- 
+
 /* in this order */
 #include "types.h"
 #include "fvec.h"
@@ -92,4 +93,3 @@ extern "C" {
 #endif
 
 #endif
-
