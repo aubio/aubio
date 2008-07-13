@@ -28,6 +28,7 @@ struct _aubio_pitchschmitt_t {
         uint_t rate;
         signed short int *schmittBuffer;
         signed short int *schmittPointer;
+        signed short int *buf;
 };
 
 aubio_pitchschmitt_t * new_aubio_pitchschmitt (uint_t size, uint_t samplerate)
@@ -35,6 +36,7 @@ aubio_pitchschmitt_t * new_aubio_pitchschmitt (uint_t size, uint_t samplerate)
   aubio_pitchschmitt_t * p = AUBIO_NEW(aubio_pitchschmitt_t);
   p->blockSize = size;
   p->schmittBuffer = AUBIO_ARRAY(signed short int,p->blockSize);
+  p->buf = AUBIO_ARRAY(signed short int,p->blockSize);
   p->schmittPointer = p->schmittBuffer;
   p->rate = samplerate;
   return p;
@@ -42,12 +44,11 @@ aubio_pitchschmitt_t * new_aubio_pitchschmitt (uint_t size, uint_t samplerate)
 
 smpl_t aubio_pitchschmitt_detect (aubio_pitchschmitt_t *p, fvec_t * input)
 {
-  signed short int buf[input->length];
   uint_t i;
   for (i=0; i<input->length; i++) {
-    buf[i] = input->data[0][i]*32768.;
+    p->buf[i] = input->data[0][i]*32768.;
   }
-  return aubio_schmittS16LE(p, input->length, buf);
+  return aubio_schmittS16LE(p, input->length, p->buf);
 }
 
 smpl_t aubio_schmittS16LE (aubio_pitchschmitt_t *p, uint_t nframes, signed short int *indata)
