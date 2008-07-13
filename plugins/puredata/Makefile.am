@@ -27,7 +27,8 @@ ALLSOURCES = \
 	aubiotempo~.c \
 	aubiotss~.c \
 	aubioquiet~.c \
-	aubiopitch~.c
+	aubiopitch~.c \
+	aubiozcr~.c
 
 aubio_pd_linux_SOURCES = $(ALLSOURCES)
 aubio_pd_darwin_SOURCES = $(ALLSOURCES)

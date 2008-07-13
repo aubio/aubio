@@ -1,0 +1,11 @@
+#N canvas 0 22 580 309 10;
+#X obj 37 71 aubiozcr~;
+#X obj 37 43 osc~ 441;
+#X floatatom 36 98 5 0 0 0 - - -;
+#X text 153 36 aubiozcr~ computes the zero-crossing rate;
+#X text 152 95 For a sine tone at 441Hz sampled at 44100Hz signal \,
+the ZCR is 0.02.;
+#X text 153 59 This value represents the number of times where the
+signal changes sign.;
+#X connect 0 0 2 0;
+#X connect 1 0 0 0;

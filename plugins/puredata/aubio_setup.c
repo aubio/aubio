@@ -17,6 +17,7 @@ extern void aubiotempo_tilde_setup (void);
 extern void aubiotss_tilde_setup (void);
 extern void aubioquiet_tilde_setup (void);
 extern void aubiopitch_tilde_setup (void);
+extern void aubiozcr_tilde_setup (void);
 
 void *aubio_new (void)
 {
@@ -32,6 +33,7 @@ void aubio_setup (void)
     aubiotss_tilde_setup();
     aubioquiet_tilde_setup();
     aubiopitch_tilde_setup();
+    aubiozcr_tilde_setup();
     aubio_class = class_new(gensym("aubio"), (t_newmethod)aubio_new, 0,
             sizeof(t_aubio), 0, 0);
 }
