@@ -17,7 +17,7 @@
 
 */
 
-#include "temporal/filter.h"
+#include "filter.h"
 
 /** create a new C-design filter 
 
