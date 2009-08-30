@@ -7,9 +7,9 @@ SWIGDIR = swig
 if PYTHONFOUND
 PYTHONDIR = python
 endif
-endif
 if JAVAFOUND
 JAVADIR = java
+endif
 endif
 
 
