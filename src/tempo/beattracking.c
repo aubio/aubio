@@ -24,7 +24,6 @@
 
 uint_t fvec_gettimesig(smpl_t * acf, uint_t acflen, uint_t gp);
 void aubio_beattracking_checkstate(aubio_beattracking_t * bt);
-smpl_t fvec_getperiod(aubio_beattracking_t * bt);
 
 struct _aubio_beattracking_t {
         fvec_t * rwv;    /** rayleigh weight vector - rayleigh distribution function */                    
@@ -37,8 +36,6 @@ struct _aubio_beattracking_t {
         fvec_t * phout;
         uint_t timesig;  /** time signature of input, set to zero until context dependent model activated */
         uint_t step;
-        fvec_t * locacf; /** vector to store harmonics of filterbank of acf */
-        fvec_t * inds;   /** vector for max index outputs for each harmonic */
         uint_t rayparam; /** Rayleigh parameter */
         uint_t lastbeat;
         sint_t counter;
@@ -66,7 +63,6 @@ aubio_beattracking_t * new_aubio_beattracking(uint_t winlen,
 	 * 1 onset frame [128] */
 	uint_t step     = winlen/4; /* 1.5 seconds */
 
-        uint_t maxnumelem = 4; /* max number of index output */
         p->lastbeat = 0;
         p->counter = 0;
         p->flagstep = 0;
@@ -86,9 +82,6 @@ aubio_beattracking_t * new_aubio_beattracking(uint_t winlen,
         p->phout   = new_fvec(winlen,channels);
 
         p->timesig = 0;
-
-        p->inds    = new_fvec(maxnumelem,channels);
-        p->locacf  = new_fvec(winlen,channels); 
 
         /* exponential weighting, dfwv = 0.5 when i =  43 */
         for (i=0;i<winlen;i++) {
@@ -114,8 +107,6 @@ void del_aubio_beattracking(aubio_beattracking_t * p) {
         del_fvec(p->acfout);
         del_fvec(p->phwv);
         del_fvec(p->phout);
-        del_fvec(p->locacf);
-        del_fvec(p->inds);
         AUBIO_FREE(p);
 }
 
@@ -137,9 +128,6 @@ void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframe, fvec_t *
         uint_t maxindex = 0;
         //number of harmonics in shift invariant comb filterbank
         uint_t numelem  = 4;
-
-        //smpl_t myperiod   = 0.;
-        //smpl_t * out    = output->data[0];
 
         //parameters for making s.i.c.f.b.
         uint_t a,b; 
@@ -190,11 +178,6 @@ void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframe, fvec_t *
         bt->rp = maxindex ? maxindex : 1;
         //rp = (maxindex==127) ? 43 : maxindex; //rayparam
         bt->rp = (maxindex==bt->acfout->length-1) ? bt->rayparam : maxindex; //rayparam
-
-        // get float period
-        //myperiod = fvec_getperiod(bt);
-        //AUBIO_DBG("\nrp =  %d myperiod = %f\n",bt->rp,myperiod);
-        //AUBIO_DBG("accurate tempo is %f bpm\n",5168./myperiod);
 
         /* activate biased filterbank */
         aubio_beattracking_checkstate(bt);
@@ -265,64 +248,6 @@ uint_t fvec_gettimesig(smpl_t * acf, uint_t acflen, uint_t gp){
         }
         return (three_energy > four_energy) ? 3 : 4;
 }
-
-smpl_t fvec_getperiod(aubio_beattracking_t * bt){
-      	/*function to make a more accurate beat period measurement.*/
-
-	smpl_t period = 0.;
-	smpl_t maxval = 0.;
-	uint_t numelem    = 4;
-	
-	sint_t a,b;
-	uint_t i,j;	
-	uint_t acfmi = bt->rp; //acfout max index
-	uint_t maxind = 0;
-
-	if(!bt->timesig)
-		numelem = 4;
-	else
-		numelem = bt->timesig;
-
-	for (i=0;i<numelem;i++) // initialize
-	bt->inds->data[0][i] = 0.;
-
-	for (i=0;i<bt->locacf->length;i++) // initialize
-                bt->locacf->data[0][i] = 0.;
-	
-	// get appropriate acf elements from acf and store in locacf
-        for (a=1;a<=4;a++){
-                for(b=(1-a);b<a;b++){		
-                        bt->locacf->data[0][a*(acfmi)+b-1] = 
-                                bt->acf->data[0][a*(acfmi)+b-1];		               	           	      
-                }
-        }
-
-	for(i=0;i<numelem;i++){
-
-		maxind = 0;
-		maxval = 0.0;
-	
-		for (j=0;j<(acfmi*(i+1)+(i)); j++){
-                        if(bt->locacf->data[0][j]>maxval){
-                                maxval = bt->locacf->data[0][j];
-                                maxind = j;
-                        }
-                        //bt->locacf->data[0][maxind] = 0.;
-                        bt->locacf->data[0][j] = 0.;
-		}
-		//AUBIO_DBG("\n maxind is  %d\n",maxind);
-		bt->inds->data[0][i] = maxind;
-
-	}
-
-	for (i=0;i<numelem;i++){
-		period += bt->inds->data[0][i]/(i+1.);}
-
-	period = period/numelem;
-
-	return (period);
-}
-
 
 void aubio_beattracking_checkstate(aubio_beattracking_t * bt) {
         uint_t i,j,a,b;
