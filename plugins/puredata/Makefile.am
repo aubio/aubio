@@ -49,7 +49,7 @@ else
 if DARWIN
 AM_LDFLAGS += -bundle -undefined suppress -flat_namespace
 else
-AM_LDFLAGS += -export_dynamic -shared 
+AM_LDFLAGS += --export_dynamic --shared
 endif
 endif
 
