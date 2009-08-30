@@ -46,8 +46,8 @@ aubio_sndfile_t * new_aubio_sndfile_ro(const char* outputname) {
         f->handle = sf_open (outputname, SFM_READ, &sfinfo);
 
         if (f->handle == NULL) {
-                AUBIO_ERR("Unable to open input file %s.\n", outputname);
-                AUBIO_ERR("%s\n",sf_strerror (NULL)); /* libsndfile err msg */
+                AUBIO_ERR("Failed opening %s: %s\n", outputname,
+                        sf_strerror (NULL)); /* libsndfile err msg */
                 return NULL;
         }	
 
