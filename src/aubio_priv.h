@@ -132,7 +132,7 @@ typedef enum {
 #define LOG        logf
 #define FLOOR      floorf
 #define CEIL       ceilf
-#define ROUND(x)   FLOOR(x_.5)
+#define ROUND(x)   FLOOR(x+.5)
 
 /* aliases to complex.h functions */
 #if !defined(HAVE_COMPLEX_H) || defined(WIN32)
