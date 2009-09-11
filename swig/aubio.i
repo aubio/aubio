@@ -145,7 +145,7 @@ void vec_add(fvec_t * mag, smpl_t threshold);
 void vec_adapt_thres(fvec_t * vec, fvec_t * tmp, uint_t post, uint_t pre);
 smpl_t vec_moving_thres(fvec_t * vec, fvec_t * tmp, uint_t post, uint_t pre, uint_t pos);
 smpl_t vec_median(fvec_t * input);
-smpl_t vec_quadint(fvec_t * x,uint_t pos);
+smpl_t vec_quadint(fvec_t * x,uint_t pos, uint_t span);
 smpl_t aubio_quadfrac(smpl_t s0, smpl_t s1, smpl_t s2, smpl_t pf);
 uint_t vec_peakpick(fvec_t * input, uint_t pos);
 smpl_t aubio_bintomidi(smpl_t bin, smpl_t samplerate, smpl_t fftsize);
