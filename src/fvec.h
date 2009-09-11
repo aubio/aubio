@@ -113,6 +113,13 @@ void fvec_put_channel(fvec_t *s, smpl_t * data, uint_t channel);
 */
 smpl_t ** fvec_get_data(fvec_t *s);
 
+/** print out fvec data 
+
+  \param s vector to print out 
+
+*/
+void fvec_print(fvec_t *s);
+
 #ifdef __cplusplus
 }
 #endif

@@ -61,3 +61,12 @@ smpl_t ** fvec_get_data(fvec_t *s) {
   return s->data;
 }
 
+void fvec_print(fvec_t *s) {
+  uint_t i,j;
+  for (i=0; i< s->channels; i++) {
+    for (j=0; j< s->length; j++) {
+      AUBIO_MSG("%f ", s->data[i][j]);
+    }
+    AUBIO_MSG("\n");
+  }
+}
