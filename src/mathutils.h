@@ -161,11 +161,8 @@ smpl_t vec_moving_thres(fvec_t * vec, fvec_t * tmp,
  */
 smpl_t vec_median(fvec_t * input);
 
-/** finds exact maximum position by quadratic interpolation*/
-smpl_t vec_quadint(fvec_t * x,uint_t pos);
-
-/** finds exact minimum position by quadratic interpolation*/
-smpl_t vec_quadint_min(fvec_t * x,uint_t pos, uint_t span);
+/** finds exact peak index by quadratic interpolation*/
+smpl_t vec_quadint(fvec_t * x, uint_t pos, uint_t span);
 
 /** Quadratic interpolation using Lagrange polynomial.
  *

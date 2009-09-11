@@ -285,49 +285,16 @@ smpl_t vec_median(fvec_t * input) {
   }
 }
 
-smpl_t vec_quadint(fvec_t * x,uint_t pos) {
-  uint_t span = 2;
-  smpl_t step = 1./200.;
-  /* hack : init resold to - something (in case x[pos+-span]<0)) */
-  smpl_t res, frac, s0, s1, s2, exactpos = (smpl_t)pos, resold = -1000.;
-  if ((pos > span) && (pos < x->length-span)) {
-    s0 = x->data[0][pos-span];
-    s1 = x->data[0][pos]     ;
-    s2 = x->data[0][pos+span];
-    /* increase frac */
-    for (frac = 0.; frac < 2.; frac = frac + step) {
-      res = aubio_quadfrac(s0, s1, s2, frac);
-      if (res > resold)
-        resold = res;
-      else {
-        exactpos += (frac-step)*2. - 1.;
-        break;
-      }
-    }
-  }
-  return exactpos;
-}
-
-smpl_t vec_quadint_min(fvec_t * x,uint_t pos, uint_t span) {
-  smpl_t step = 1./200.;
-  /* init resold to - something (in case x[pos+-span]<0)) */
-  smpl_t res, frac, s0, s1, s2, exactpos = (smpl_t)pos, resold = 100000.;
-  if ((pos > span) && (pos < x->length-span)) {
-    s0 = x->data[0][pos-span];
-    s1 = x->data[0][pos]     ;
-    s2 = x->data[0][pos+span];
-    /* increase frac */
-    for (frac = 0.; frac < 2.; frac = frac + step) {
-      res = aubio_quadfrac(s0, s1, s2, frac);
-      if (res < resold) {
-        resold = res;
-      } else {
-        exactpos += (frac-step)*span - span/2.;
-        break;
-      }
-    }
-  }
-  return exactpos;
+smpl_t vec_quadint(fvec_t * x,uint_t pos, uint_t span) {
+  smpl_t s0, s1, s2;
+  uint_t x0 = (pos < span) ? pos : pos - span;
+  uint_t x2 = (pos + span < x->length) ? pos + span : pos;
+  if (x0 == pos) return (x->data[0][pos] <= x->data[0][x2]) ? pos : x2;
+  if (x2 == pos) return (x->data[0][pos] <= x->data[0][x0]) ? pos : x0;
+  s0 = x->data[0][x0];
+  s1 = x->data[0][pos]     ;
+  s2 = x->data[0][x2];
+  return pos + 0.5 * (s2 - s0 ) / (s2 - 2.* s1 + s0);
 }
 
 smpl_t aubio_quadfrac(smpl_t s0, smpl_t s1, smpl_t s2, smpl_t pf) {
