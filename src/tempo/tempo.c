@@ -75,13 +75,11 @@ void aubio_tempo(aubio_tempo_t *o, fvec_t * input, fvec_t * tempo)
   i=0;
   for (i = 1; i < o->out->data[0][0]; i++ ) {
     /* if current frame is a predicted tactus */
-    if (o->blockpos == o->out->data[0][i]) {
+    if (o->blockpos == FLOOR(o->out->data[0][i])) {
+      tempo->data[0][0] = 1. + o->out->data[0][i] - FLOOR(o->out->data[0][i]); /* set tactus */
       /* test for silence */
       if (aubio_silence_detection(input, o->silence)==1) {
         tempo->data[0][1] = 0; /* unset onset */
-        tempo->data[0][0] = 0; /* unset tactus */
-      } else {
-        tempo->data[0][0] = 1; /* set tactus */
       }
     }
   }
