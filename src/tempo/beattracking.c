@@ -37,15 +37,15 @@ struct _aubio_beattracking_t {
         uint_t timesig;  /** time signature of input, set to zero until context dependent model activated */
         uint_t step;
         uint_t rayparam; /** Rayleigh parameter */
-        uint_t lastbeat;
+        smpl_t lastbeat;
         sint_t counter;
         uint_t flagstep;
         smpl_t g_var;
-        uint_t gp;
-        uint_t bp;
-        uint_t rp;
-        uint_t rp1;
-        uint_t rp2;
+        smpl_t gp;
+        smpl_t bp;
+        smpl_t rp;
+        smpl_t rp1;
+        smpl_t rp2;
 };
 
 aubio_beattracking_t * new_aubio_beattracking(uint_t winlen,
@@ -114,7 +114,6 @@ void del_aubio_beattracking(aubio_beattracking_t * p) {
 void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframe, fvec_t * output) {
 
         uint_t i,k;
-        /* current beat period value found using gaussian weighting (from context dependent model) */
         uint_t step     = bt->step;
         uint_t laglen   = bt->rwv->length;
         uint_t winlen   = bt->dfwv->length;
@@ -129,13 +128,11 @@ void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframe, fvec_t *
         //number of harmonics in shift invariant comb filterbank
         uint_t numelem  = 4;
 
-        //parameters for making s.i.c.f.b.
-        uint_t a,b; 
-        //beat alignment
-        uint_t phase; 
-        uint_t kmax;
-        sint_t beat; 
-        uint_t bp;
+        smpl_t phase; // beat alignment (step - lastbeat) 
+        smpl_t beat;  // beat position 
+        smpl_t bp;    // beat period
+        uint_t a,b;   // used to build shift invariant comb filterbank
+        uint_t kmax;  // number of elements used to find beat phase
 
         for (i = 0; i < winlen; i++){
                 dfrev[winlen-1-i] = 0.;
@@ -144,26 +141,19 @@ void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframe, fvec_t *
 
         /* find autocorrelation function */
         aubio_autocorr(dfframe,bt->acf); 
-        /*
-        for (i = 0; i < winlen; i++){
-                AUBIO_DBG("%f,",acf[i]);
-        }
-        AUBIO_DBG("\n");
-        */
 
-        /* get acfout - assume Rayleigh weightvector only */
         /* if timesig is unknown, use metrically unbiased version of filterbank */
-        if(!bt->timesig)  
+        if(!bt->timesig) { 
                 numelem = 4;
-        //        AUBIO_DBG("using unbiased filterbank, timesig: %d\n", timesig);
-        else
+        } else {
                 numelem = bt->timesig;
-        //        AUBIO_DBG("using biased filterbank, timesig: %d\n", timesig);
+        }
 
         /* first and last output values are left intentionally as zero */
         for (i=0; i < bt->acfout->length; i++)
                 acfout[i] = 0.;
 
+        /* get acfout - assume Rayleigh weightvector only */
         for(i=1;i<laglen-1;i++){ 
                 for (a=1; a<=numelem; a++){
                         for(b=(1-a); b<a; b++){
@@ -175,12 +165,15 @@ void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframe, fvec_t *
 
         /* find non-zero Rayleigh period */
         maxindex = vec_max_elem(bt->acfout);
-        bt->rp = maxindex ? maxindex : 1;
+        bt->rp = maxindex ? vec_quadint(bt->acfout, maxindex, 1) : 1;
         //rp = (maxindex==127) ? 43 : maxindex; //rayparam
         bt->rp = (maxindex==bt->acfout->length-1) ? bt->rayparam : maxindex; //rayparam
 
         /* activate biased filterbank */
         aubio_beattracking_checkstate(bt);
+#if 0 // debug metronome mode
+        bt->bp = 36.9142;
+#endif
         bp = bt->bp;
         /* end of biased filterbank */
 
@@ -188,41 +181,40 @@ void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframe, fvec_t *
         for(i=0;i<bt->phout->length;i++)     {phout[i] = 0.;} 
 
         /* deliberate integer operation, could be set to 3 max eventually */
-        kmax = winlen/bp;
+        kmax = FLOOR(winlen/bp);
 
         for(i=0;i<bp;i++){
                 phout[i] = 0.;
                 for(k=0;k<kmax;k++){
-                        phout[i] += dfrev[i+bp*k] * phwv[i];
+                        phout[i] += dfrev[i+(uint_t)ROUND(bp*k)] * phwv[i];
                 }
         }
 
         /* find Rayleigh period */
         maxindex = vec_max_elem(bt->phout);
-        if (maxindex == winlen-1) maxindex = 0;
-        phase =  1 + maxindex;
-
-        /* debug */
-        //AUBIO_DBG("beat period = %d, rp1 = %d, rp2 = %d\n", bp, rp1, rp2);
-        //AUBIO_DBG("rp = %d, gp = %d, phase = %d\n", bt->rp, bt->gp, phase);
+        if (maxindex == winlen) maxindex = 0;
+        phase =  1. + vec_quadint(bt->phout, maxindex, 1);
+#if 0 // debug metronome mode
+        phase = step - bt->lastbeat;
+#endif
 
         /* reset output */
         for (i = 0; i < laglen; i++)
                 output->data[0][i] = 0.;
 
         i = 1;
-        beat =  bp - phase;
+        beat = bp - phase;
         /* start counting the beats */
         if(beat >= 0)
         {
-                output->data[0][i] = (smpl_t)beat;
+                output->data[0][i] = beat;
                 i++;
         }
 
-        while( beat+bp < step )
+        while( beat + bp <= step)
         {
                 beat += bp;
-                output->data[0][i] = (smpl_t)beat;
+                output->data[0][i] = beat;
                 i++;
         }
 
@@ -254,11 +246,11 @@ void aubio_beattracking_checkstate(aubio_beattracking_t * bt) {
         uint_t flagconst  = 0;
         sint_t counter  = bt->counter;
         uint_t flagstep = bt->flagstep;
-        uint_t gp       = bt->gp;
-        uint_t bp       = bt->bp;
-        uint_t rp       = bt->rp;
-        uint_t rp1      = bt->rp1;
-        uint_t rp2      = bt->rp2;
+        smpl_t gp       = bt->gp;
+        smpl_t bp       = bt->bp;
+        smpl_t rp       = bt->rp;
+        smpl_t rp1      = bt->rp1;
+        smpl_t rp2      = bt->rp2;
         uint_t laglen   = bt->rwv->length;
         uint_t acflen   = bt->acf->length;
         uint_t step     = bt->step;
@@ -283,7 +275,7 @@ void aubio_beattracking_checkstate(aubio_beattracking_t * bt) {
                                 }
                         }
                 }
-                gp = vec_max_elem(bt->acfout);
+                gp = vec_quadint(bt->acfout, vec_max_elem(bt->acfout), 1);
                 /*
 	        while(gp<32) gp =gp*2;
 	        while(gp>64) gp = gp/2;
@@ -380,7 +372,7 @@ void aubio_beattracking_checkstate(aubio_beattracking_t * bt) {
 
 smpl_t aubio_beattracking_get_bpm(aubio_beattracking_t * bt) {
         if (bt->timesig != 0 && bt->counter == 0 && bt->flagstep == 0) {
-          return 5168. / (smpl_t)bt->gp;
+          return 5168. / vec_quadint(bt->acfout, bt->bp, 1);
         } else {
           return 0.;
         }
