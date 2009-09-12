@@ -168,6 +168,9 @@ typedef enum {
 #define LIN2DB(v) (20.0f*LOG10(v))
 #define SQR(_a)   (_a*_a)
 
+#define MAX(a,b)  ( a > b ? a : b)
+#define MIN(a,b)  ( a < b ? a : b)
+
 #define ELEM_SWAP(a,b) { register smpl_t t=(a);(a)=(b);(b)=t; }
 
 #define ISDENORMAL(f) f < 1.e-37
