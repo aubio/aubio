@@ -61,6 +61,8 @@ smpl_t ** fvec_get_data(fvec_t *s) {
   return s->data;
 }
 
+/* helper functions */
+
 void fvec_print(fvec_t *s) {
   uint_t i,j;
   for (i=0; i< s->channels; i++) {
@@ -70,3 +72,59 @@ void fvec_print(fvec_t *s) {
     AUBIO_MSG("\n");
   }
 }
+
+void fvec_set(fvec_t *s, smpl_t val) {
+  uint_t i,j;
+  for (i=0; i< s->channels; i++) {
+    for (j=0; j< s->length; j++) {
+      s->data[i][j] = val;
+    }
+  }
+}
+
+void fvec_zeros(fvec_t *s) {
+  fvec_set(s, 0.);
+}
+
+void fvec_ones(fvec_t *s) {
+  fvec_set(s, 1.);
+}
+
+void fvec_rev(fvec_t *s) {
+  uint_t i,j;
+  for (i=0; i< s->channels; i++) {
+    for (j=0; j< FLOOR(s->length/2); j++) {
+      ELEM_SWAP(s->data[i][j], s->data[i][s->length-1-j]);
+    }
+  }
+}
+
+void fvec_weight(fvec_t *s, fvec_t *weight) {
+  uint_t i,j;
+  uint_t length = MIN(s->length, weight->length);
+  for (i=0; i< s->channels; i++) {
+    for (j=0; j< length; j++) {
+      s->data[i][j] *= weight->data[0][j];
+    }
+  }
+}
+
+void fvec_copy(fvec_t *s, fvec_t *t) {
+  uint_t i,j;
+  uint_t channels = MIN(s->channels, t->channels);
+  uint_t length = MIN(s->length, t->length);
+  if (s->channels != t->channels) {
+    AUBIO_ERR("warning, trying to copy %d channels to %d channels\n", 
+            s->channels, t->channels);
+  }
+  if (s->length != t->length) {
+    AUBIO_ERR("warning, trying to copy %d elements to %d elements \n", 
+            s->length, t->length);
+  }
+  for (i=0; i< channels; i++) {
+    for (j=0; j< length; j++) {
+      t->data[i][j] = s->data[i][j];
+    }
+  }
+}
+

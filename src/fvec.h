@@ -120,6 +120,54 @@ smpl_t ** fvec_get_data(fvec_t *s);
 */
 void fvec_print(fvec_t *s);
 
+/** set all elements to a given value
+
+  \param s vector to modify
+  \param val value to set elements to
+
+*/
+void fvec_set(fvec_t *s, smpl_t val);
+
+/** set all elements to zero 
+
+  \param s vector to modify
+
+*/
+void fvec_zeros(fvec_t *s);
+
+/** set all elements to ones 
+
+  \param s vector to modify
+
+*/
+void fvec_ones(fvec_t *s);
+
+/** revert order of vector elements
+
+  \param s vector to revert
+
+*/
+void fvec_rev(fvec_t *s);
+
+/** apply weight to vector
+
+  If the weight vector is longer than s, only the first elements are used. If
+  the weight vector is shorter than s, the last elements of s are not weighted.
+
+  \param s vector to weight
+  \param weight weighting coefficients
+
+*/
+void fvec_weight(fvec_t *s, fvec_t *weight);
+
+/** make a copy of a vector
+
+  \param s source vector
+  \param t vector to copy to
+
+*/
+void fvec_copy(fvec_t *s, fvec_t *t);
+
 #ifdef __cplusplus
 }
 #endif
