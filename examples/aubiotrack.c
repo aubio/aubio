@@ -23,7 +23,7 @@ unsigned int pos          = 0;    /* frames%dspblocksize */
 uint_t usepitch           = 0;
 fvec_t * out              = NULL;
 aubio_tempo_t * bt        = NULL;
-uint_t istactus           = 0;
+smpl_t istactus           = 0;
 
 int aubio_process(float **input, float **output, int nframes);
 int aubio_process(float **input, float **output, int nframes) {
@@ -42,8 +42,8 @@ int aubio_process(float **input, float **output, int nframes) {
     if (pos == overlap_size-1) {         
       /* block loop */
       aubio_tempo(bt,ibuf,out);
-      if (out->data[0][0]==1) 
-        istactus = 1;
+      if (out->data[0][0]>=1) 
+        istactus = out->data[0][0];
       else 
         istactus = 0;
       if (istactus) {
@@ -64,8 +64,9 @@ int aubio_process(float **input, float **output, int nframes) {
 void process_print (void);
 void process_print (void) {
         if (output_filename == NULL) {
-                if (istactus)
-                        outmsg("%f\n",(frames)*overlap_size/(float)samplerate); 
+                if (istactus) {
+                        outmsg("%f\n",((smpl_t)(frames*overlap_size)+(istactus-1.)*overlap_size)/(smpl_t)samplerate); 
+                }
                 if (isonset && verbose)
                         outmsg(" \t \t%f\n",(frames)*overlap_size/(float)samplerate);
         }
