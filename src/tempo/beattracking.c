@@ -22,17 +22,17 @@
 #include "mathutils.h"
 #include "tempo/beattracking.h"
 
-uint_t fvec_gettimesig(smpl_t * acf, uint_t acflen, uint_t gp);
+uint_t fvec_gettimesig(fvec_t * acf, uint_t acflen, uint_t gp);
 void aubio_beattracking_checkstate(aubio_beattracking_t * bt);
 
 struct _aubio_beattracking_t {
-        fvec_t * rwv;    /** rayleigh weight vector - rayleigh distribution function */                    
-        fvec_t * gwv;    /** rayleigh weight vector - rayleigh distribution function */                    
-        fvec_t * dfwv;   /** detection function weighting - exponential curve */
+        fvec_t * rwv;    /** rayleigh weighting for beat period in general model */
+        fvec_t * dfwv;   /** exponential weighting for beat alignment in general model */
+        fvec_t * gwv;    /** gaussian weighting for beat period in context dependant model */
+        fvec_t * phwv;   /** gaussian weighting for beat alignment in context dependant model */
         fvec_t * dfrev;  /** reversed onset detection function */
         fvec_t * acf;    /** vector for autocorrelation function (of current detection function frame) */
         fvec_t * acfout; /** store result of passing acf through s.i.c.f.b. */
-        fvec_t * phwv;   /** beat expectation alignment weighting */
         fvec_t * phout;
         uint_t timesig;  /** time signature of input, set to zero until context dependent model activated */
         uint_t step;
@@ -72,13 +72,13 @@ aubio_beattracking_t * new_aubio_beattracking(uint_t winlen,
 
         p->rayparam = rayparam;
         p->step    = step;
-        p->rwv     = new_fvec(laglen,channels);
-        p->gwv     = new_fvec(laglen,channels);
-        p->dfwv    = new_fvec(winlen,channels);
+        p->rwv     = new_fvec(laglen,1);
+        p->gwv     = new_fvec(laglen,1);
+        p->dfwv    = new_fvec(winlen,1);
         p->dfrev   = new_fvec(winlen,channels);
         p->acf     = new_fvec(winlen,channels);
         p->acfout  = new_fvec(laglen,channels);
-        p->phwv    = new_fvec(2*laglen,channels);
+        p->phwv    = new_fvec(2*laglen,1);
         p->phout   = new_fvec(winlen,channels);
 
         p->timesig = 0;
@@ -117,13 +117,6 @@ void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframe, fvec_t *
         uint_t step     = bt->step;
         uint_t laglen   = bt->rwv->length;
         uint_t winlen   = bt->dfwv->length;
-        smpl_t * phout  = bt->phout->data[0];
-        smpl_t * phwv   = bt->phwv->data[0];
-        smpl_t * dfrev  = bt->dfrev->data[0];
-        smpl_t * dfwv   = bt->dfwv->data[0];
-        smpl_t * rwv    = bt->rwv->data[0];
-        smpl_t * acfout = bt->acfout->data[0];
-        smpl_t * acf    = bt->acf->data[0];
         uint_t maxindex = 0;
         //number of harmonics in shift invariant comb filterbank
         uint_t numelem  = 4;
@@ -134,12 +127,12 @@ void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframe, fvec_t *
         uint_t a,b;   // used to build shift invariant comb filterbank
         uint_t kmax;  // number of elements used to find beat phase
 
-        for (i = 0; i < winlen; i++){
-                dfrev[winlen-1-i] = 0.;
-                dfrev[winlen-1-i] = dfframe->data[0][i]*dfwv[i];
-        }
+        /* copy dfframe, apply detection function weighting, and revert */
+        fvec_copy(dfframe, bt->dfrev);
+        fvec_weight(bt->dfrev, bt->dfwv);
+        fvec_rev(bt->dfrev);
 
-        /* find autocorrelation function */
+        /* compute autocorrelation function */
         aubio_autocorr(dfframe,bt->acf); 
 
         /* if timesig is unknown, use metrically unbiased version of filterbank */
@@ -150,18 +143,19 @@ void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframe, fvec_t *
         }
 
         /* first and last output values are left intentionally as zero */
-        for (i=0; i < bt->acfout->length; i++)
-                acfout[i] = 0.;
+        fvec_zeros(bt->acfout);
 
-        /* get acfout - assume Rayleigh weightvector only */
+        /* compute shift invariant comb filterbank */ 
         for(i=1;i<laglen-1;i++){ 
                 for (a=1; a<=numelem; a++){
                         for(b=(1-a); b<a; b++){
-                                acfout[i] += acf[a*(i+1)+b-1] 
-                                        * 1./(2.*a-1.)*rwv[i];
+                                bt->acfout->data[0][i] += bt->acf->data[0][a*(i+1)+b-1] 
+                                        * 1./(2.*a-1.);
                         }
                 }
         }
+        /* apply Rayleigh weight */
+        fvec_weight(bt->acfout, bt->rwv);
 
         /* find non-zero Rayleigh period */
         maxindex = vec_max_elem(bt->acfout);
@@ -177,18 +171,18 @@ void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframe, fvec_t *
         bp = bt->bp;
         /* end of biased filterbank */
 
-        /* initialize output */
-        for(i=0;i<bt->phout->length;i++)     {phout[i] = 0.;} 
 
         /* deliberate integer operation, could be set to 3 max eventually */
         kmax = FLOOR(winlen/bp);
 
+        /* initialize output */
+        fvec_zeros(bt->phout);
         for(i=0;i<bp;i++){
-                phout[i] = 0.;
                 for(k=0;k<kmax;k++){
-                        phout[i] += dfrev[i+(uint_t)ROUND(bp*k)] * phwv[i];
+                        bt->phout->data[0][i] += bt->dfrev->data[0][i+(uint_t)ROUND(bp*k)];
                 }
         }
+        fvec_weight(bt->phout, bt->phwv);
 
         /* find Rayleigh period */
         maxindex = vec_max_elem(bt->phout);
@@ -199,20 +193,17 @@ void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframe, fvec_t *
 #endif
 
         /* reset output */
-        for (i = 0; i < laglen; i++)
-                output->data[0][i] = 0.;
+        fvec_zeros(output);
 
         i = 1;
         beat = bp - phase;
         /* start counting the beats */
-        if(beat >= 0)
-        {
+        if(beat >= 0) {
                 output->data[0][i] = beat;
                 i++;
         }
 
-        while( beat + bp <= step)
-        {
+        while( beat + bp <= step) {
                 beat += bp;
                 output->data[0][i] = beat;
                 i++;
@@ -223,19 +214,19 @@ void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframe, fvec_t *
         output->data[0][0] = i;
 }
 
-uint_t fvec_gettimesig(smpl_t * acf, uint_t acflen, uint_t gp){
+uint_t fvec_gettimesig(fvec_t * acf, uint_t acflen, uint_t gp){
         sint_t k = 0;
         smpl_t three_energy = 0., four_energy = 0.;
         if( acflen > 6 * gp + 2 ){
                 for(k=-2;k<2;k++){
-                        three_energy += acf[3*gp+k];
-                        four_energy += acf[4*gp+k];
+                        three_energy += acf->data[0][3*gp+k];
+                        four_energy += acf->data[0][4*gp+k];
                 }
         }
         else{ /*Expanded to be more accurate in time sig estimation*/
                 for(k=-2;k<2;k++){
-                        three_energy += acf[3*gp+k]+acf[6*gp+k];
-                        four_energy += acf[4*gp+k]+acf[2*gp+k];
+                        three_energy += acf->data[0][3*gp+k]+acf->data[0][6*gp+k];
+                        four_energy += acf->data[0][4*gp+k]+acf->data[0][2*gp+k];
                 }
         }
         return (three_energy > four_energy) ? 3 : 4;
@@ -254,10 +245,8 @@ void aubio_beattracking_checkstate(aubio_beattracking_t * bt) {
         uint_t laglen   = bt->rwv->length;
         uint_t acflen   = bt->acf->length;
         uint_t step     = bt->step;
-        smpl_t * acf    = bt->acf->data[0];
-        smpl_t * acfout = bt->acfout->data[0];
-        smpl_t * gwv    = bt->gwv->data[0];
-        smpl_t * phwv   = bt->phwv->data[0];
+        fvec_t * acf    = bt->acf;
+        fvec_t * acfout = bt->acfout;
 
         if (gp) {
                 // doshiftfbank again only if context dependent model is in operation
@@ -265,17 +254,16 @@ void aubio_beattracking_checkstate(aubio_beattracking_t * bt) {
                 //don't need acfout now, so can reuse vector
                 // gwv is, in first loop, definitely all zeros, but will have
                 // proper values when context dependent model is activated
-                for (i=0; i < bt->acfout->length; i++)
-                       acfout[i] = 0.;
+                fvec_zeros(acfout);
                 for(i=1;i<laglen-1;i++){ 
                         for (a=1;a<=bt->timesig;a++){
                                 for(b=(1-a);b<a;b++){
-                                        acfout[i] += acf[a*(i+1)+b-1] 
-                                                * 1. * gwv[i];
+                                        acfout->data[0][i] += acf->data[0][a*(i+1)+b-1];
                                 }
                         }
                 }
-                gp = vec_quadint(bt->acfout, vec_max_elem(bt->acfout), 1);
+                fvec_weight(acfout, bt->gwv); 
+                gp = vec_quadint(acfout, vec_max_elem(acfout), 1);
                 /*
 	        while(gp<32) gp =gp*2;
 	        while(gp>64) gp = gp/2;
@@ -320,29 +308,29 @@ void aubio_beattracking_checkstate(aubio_beattracking_t * bt) {
                 gp = rp;
                 bt->timesig = fvec_gettimesig(acf,acflen, gp);
                 for(j=0;j<laglen;j++)
-                        gwv[j] = EXP(-.5*SQR((smpl_t)(j+1.-gp))/SQR(bt->g_var));
+                        bt->gwv->data[0][j] = EXP(-.5*SQR((smpl_t)(j+1.-gp))/SQR(bt->g_var));
                 flagconst = 0;
                 bp = gp;
                 /* flat phase weighting */
-                for(j=0;j<2*laglen;j++)  {phwv[j] = 1.;} 
+                fvec_ones(bt->phwv);
         } else if (bt->timesig) {
                 /* context dependant model */
                 bp = gp;
                 /* gaussian phase weighting */
                 if (step > bt->lastbeat) {
                         for(j=0;j<2*laglen;j++)  {
-                                phwv[j] = EXP(-.5*SQR((smpl_t)(1.+j-step+bt->lastbeat))/(bp/8.));
+                                bt->phwv->data[0][j] = EXP(-.5*SQR((smpl_t)(1.+j-step+bt->lastbeat))/(bp/8.));
                         }
                 } else { 
                         //AUBIO_DBG("NOT using phase weighting as step is %d and lastbeat %d \n",
                         //                step,bt->lastbeat);
-                        for(j=0;j<2*laglen;j++)  {phwv[j] = 1.;} 
+                        fvec_ones(bt->phwv); 
                 }
         } else {
                 /* initial state */ 
                 bp = rp;
                 /* flat phase weighting */
-                for(j=0;j<2*laglen;j++)  {phwv[j] = 1.;} 
+                fvec_ones(bt->phwv); 
         }
 
         /* do some further checks on the final bp value */
