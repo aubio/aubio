@@ -28,61 +28,70 @@
 #define VERY_SMALL_NUMBER 2e-42
 
 /** \brief A structure to store a set of n_filters filters of lenghts win_s */
-struct aubio_filterbank_t_ {
-    uint_t win_s;
-    uint_t n_filters;
-    fvec_t *filters;
+struct aubio_filterbank_t_
+{
+  uint_t win_s;
+  uint_t n_filters;
+  fvec_t *filters;
 };
 
-aubio_filterbank_t * new_aubio_filterbank(uint_t n_filters, uint_t win_s){
+aubio_filterbank_t *
+new_aubio_filterbank (uint_t n_filters, uint_t win_s)
+{
   /* allocate space for filterbank object */
-  aubio_filterbank_t * fb = AUBIO_NEW(aubio_filterbank_t);
-  fb->win_s=win_s;
-  fb->n_filters=n_filters;
+  aubio_filterbank_t *fb = AUBIO_NEW (aubio_filterbank_t);
+  fb->win_s = win_s;
+  fb->n_filters = n_filters;
 
   /* allocate filter tables, an fvec of length win_s and of filter_cnt channel */
-  fb->filters = new_fvec(win_s, n_filters);
+  fb->filters = new_fvec (win_s, n_filters);
 
   return fb;
 }
 
-void del_aubio_filterbank(aubio_filterbank_t * fb){
-  del_fvec(fb->filters);
-  AUBIO_FREE(fb);
+void
+del_aubio_filterbank (aubio_filterbank_t * fb)
+{
+  del_fvec (fb->filters);
+  AUBIO_FREE (fb);
 }
 
-void aubio_filterbank_do(aubio_filterbank_t * f, cvec_t * in, fvec_t *out) {
+void
+aubio_filterbank_do (aubio_filterbank_t * f, cvec_t * in, fvec_t * out)
+{
   uint_t i, j, fn;
 
   /* apply filter to all input channel, provided out has enough channels */
-  uint_t max_channels = MIN(in->channels, out->channels);
-  uint_t max_filters  = MIN(f->n_filters, out->length);
+  uint_t max_channels = MIN (in->channels, out->channels);
+  uint_t max_filters = MIN (f->n_filters, out->length);
 
   /* reset all values in output vector */
-  fvec_zeros(out);
+  fvec_zeros (out);
 
   /* apply filters on all channels */
   for (i = 0; i < max_channels; i++) {
 
     /* for each filter */
-    for(fn = 0; fn < max_filters; fn++) {
+    for (fn = 0; fn < max_filters; fn++) {
 
       /* for each sample */
-      for(j = 0; j < in->length; j++) {
-          out->data[i][fn] += in->norm[i][j] * f->filters->data[fn][j];
+      for (j = 0; j < in->length; j++) {
+        out->data[i][fn] += in->norm[i][j] * f->filters->data[fn][j];
       }
 
       /* threshold to VERY_SMALL_NUMBER to avoid log oveflow */
-      out->data[i][fn] = MAX(VERY_SMALL_NUMBER, out->data[i][fn]);
+      out->data[i][fn] = MAX (VERY_SMALL_NUMBER, out->data[i][fn]);
 
       /* compute logarithm */
-      out->data[i][fn] = LOG(out->data[i][fn]);
+      out->data[i][fn] = LOG (out->data[i][fn]);
     }
   }
 
   return;
 }
 
-fvec_t * aubio_filterbank_get_coeffs(aubio_filterbank_t * f) {
+fvec_t *
+aubio_filterbank_get_coeffs (aubio_filterbank_t * f)
+{
   return f->filters;
 }

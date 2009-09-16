@@ -31,7 +31,8 @@
 #define FILTERBANK_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 /** filterbank object */
@@ -44,14 +45,14 @@ typedef struct aubio_filterbank_t_ aubio_filterbank_t;
 
 */
 
-aubio_filterbank_t * new_aubio_filterbank(uint_t n_filters, uint_t win_s);
+aubio_filterbank_t *new_aubio_filterbank (uint_t n_filters, uint_t win_s);
 
 /** destroy filterbank object
 
   \param fb filterbank, as returned by new_aubio_filterbank method
 
 */
-void del_aubio_filterbank(aubio_filterbank_t * fb);
+void del_aubio_filterbank (aubio_filterbank_t * fb);
 
 /** compute filterbank
 
@@ -60,17 +61,17 @@ void del_aubio_filterbank(aubio_filterbank_t * fb);
   \param out output vector containing chans x nfilt output values
 
 */
-void aubio_filterbank_do(aubio_filterbank_t * fb, cvec_t * in, fvec_t *out);
+void aubio_filterbank_do (aubio_filterbank_t * fb, cvec_t * in, fvec_t * out);
 
 /** return a pointer to the fvec object containing all filter coefficients 
 
   \param f filterbank object to get coefficients from
 
  */
-fvec_t * aubio_filterbank_get_coeffs(aubio_filterbank_t * f);
+fvec_t *aubio_filterbank_get_coeffs (aubio_filterbank_t * f);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // FILTERBANK_H
+#endif                          // FILTERBANK_H
