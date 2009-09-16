@@ -16,6 +16,7 @@ bin_PROGRAMS = \
 	test-resample \
 	test-peakpick \
 	test-phasevoc \
+  test-filterbank \
 	test-phasevoc-jack \
 	test-onsetdetection \
 	test-pitchyin \
