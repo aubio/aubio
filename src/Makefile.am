@@ -17,6 +17,7 @@ nobase_pkginclude_HEADERS = \
 	temporal/adesign.h \
 	temporal/cdesign.h \
 	spectral/filterbank.h \
+	spectral/filterbank_mel.h \
 	spectral/mfcc.h \
 	spectral/phasevoc.h \
 	spectral/fft.h \
@@ -48,6 +49,7 @@ libaubio_la_SOURCES = \
 	temporal/adesign.c \
 	temporal/cdesign.c \
 	spectral/filterbank.c \
+	spectral/filterbank_mel.c \
 	spectral/mfcc.c \
 	spectral/phasevoc.c \
 	spectral/fft.c \

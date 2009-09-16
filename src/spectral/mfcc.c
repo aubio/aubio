@@ -24,7 +24,7 @@
 #include "fvec.h"
 #include "cvec.h"
 #include "spectral/fft.h"
-#include "spectral/filterbank.h"
+#include "spectral/filterbank_mel.h"
 #include "spectral/mfcc.h"
 
 /** Internal structure for mfcc object **/
@@ -61,7 +61,8 @@ aubio_mfcc_t * new_aubio_mfcc (uint_t win_s, uint_t samplerate, uint_t n_filters
 
   
   /** filterbank allocation */
-  mfcc->fb = new_aubio_filterbank_mfcc(n_filters, mfcc->win_s, samplerate, lowfreq, highfreq);
+  mfcc->fb = new_aubio_filterbank(n_filters, mfcc->win_s);
+  aubio_filterbank_set_mel_coeffs(mfcc->fb, samplerate, lowfreq, highfreq);
 
   /** allocating space for fft object (used for dct) */
   mfcc->fft_dct=new_aubio_fft(n_filters, 1);
