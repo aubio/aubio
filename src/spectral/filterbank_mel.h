@@ -35,7 +35,8 @@
 #define FILTERBANK_MEL_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include "filterbank.h"
@@ -49,10 +50,11 @@ extern "C" {
   \param freq_max highest filter frequency
 
 */
-void aubio_filterbank_set_mel_coeffs(aubio_filterbank_t *fb, uint_t samplerate, smpl_t freq_min, smpl_t freq_max);
+void aubio_filterbank_set_mel_coeffs (aubio_filterbank_t * fb,
+    uint_t samplerate, smpl_t freq_min, smpl_t freq_max);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // FILTERBANK_MEL_H
+#endif                          // FILTERBANK_MEL_H
