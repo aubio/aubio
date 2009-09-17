@@ -24,19 +24,13 @@
  
   Definition of data types used in aubio
  
-  \todo replace all known types with their alias (in midi*.[ch])
-  
-  \todo add unknown types aliases (char, FILE)
- 
-  \todo add OS switches
- 
-  \todo add long/float switches
-
 */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define AUBIO_SINGLE_PRECISION 1
 
 /** short sample format (32 or 64 bits) */
 #if AUBIO_SINGLE_PRECISION
