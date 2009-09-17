@@ -45,13 +45,13 @@ extern "C"
 
   \param n_filters number of filters
   \param win_s window size
-  \param samplerate
+  \param samplerate audio sampling rate
   \param freq_min lowest filter frequency
   \param freq_max highest filter frequency
 
 */
 void aubio_filterbank_set_mel_coeffs (aubio_filterbank_t * fb,
-    uint_t samplerate, smpl_t freq_min, smpl_t freq_max);
+    smpl_t samplerate, smpl_t freq_min, smpl_t freq_max);
 
 #ifdef __cplusplus
 }
