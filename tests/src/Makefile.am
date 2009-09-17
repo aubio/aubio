@@ -18,6 +18,7 @@ bin_PROGRAMS = \
 	test-phasevoc \
 	test-filterbank \
 	test-filterbank_mel \
+	test-mfcc \
 	test-phasevoc-jack \
 	test-onsetdetection \
 	test-pitchyin \
