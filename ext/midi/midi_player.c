@@ -349,9 +349,9 @@ sint_t aubio_midi_player_set_midi_tempo(aubio_midi_player_t* player, sint_t temp
   //player->deltatime = (lsmp_t) tempo / player->division * 1.e-3; /* in milliseconds */
   player->deltatime = (lsmp_t) tempo / player->division; /* in microseconds */
 
-  AUBIO_DBG("Tempo Change: %d tempo=%f tick time=%f msec\n",
+  AUBIO_DBG("Tempo Change: %d tempo=%f tick time=" AUBIO_LSMP_FMT " msec\n",
   //    player->usec_passed, 60.*1.e6/tempo, player->deltatime);
-      player->usec_passed, 60.*1.e6/tempo, 1e-3*player->deltatime);
+      player->usec_passed, 60.*1.e6/tempo, 1.e-3*player->deltatime);
   
   return AUBIO_OK;
 }
