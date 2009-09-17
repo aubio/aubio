@@ -148,7 +148,7 @@ int aubio_sndfile_read(aubio_sndfile_t * f, int frames, fvec_t * read) {
 
         /* de-interleaving data  */
         for (i=0; i<channels; i++) {
-                pread = fvec_get_channel(read,i);
+                pread = (float *)fvec_get_channel(read,i);
                 for (j=0; j<aread; j++) {
                         pread[j] = f->tmpdata[channels*j+i];
                 }
@@ -178,7 +178,7 @@ int aubio_sndfile_write(aubio_sndfile_t * f, int frames, fvec_t * write) {
 
         /* interleaving data  */
         for (i=0; i<channels; i++) {
-                pwrite = fvec_get_channel(write,i);
+                pwrite = (float *)fvec_get_channel(write,i);
                 for (j=0; j<frames; j++) {
                         f->tmpdata[channels*j+i] = pwrite[j];
                 }
