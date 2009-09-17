@@ -36,12 +36,9 @@ typedef struct aubio_mfcc_t_ aubio_mfcc_t;
   \param win_s size of analysis buffer (and length the FFT transform)
   \param samplerate 
   \param n_coefs: number of desired coefs
-  \param lowfreq: lowest frequency to use in filterbank
-  \param highfreq highest frequency to use in filterbank
-  \param channels number of channels
 
 */
-aubio_mfcc_t * new_aubio_mfcc (uint_t win_s, uint_t samplerate, uint_t n_filters, uint_t n_coefs, smpl_t lowfreq, smpl_t highfreq, uint_t channels);
+aubio_mfcc_t * new_aubio_mfcc (uint_t win_s, uint_t samplerate, uint_t n_filters, uint_t n_coefs);
 /** delete mfcc object
 
   \param mf mfcc object as returned by new_aubio_mfcc
