@@ -39,11 +39,21 @@ extern "C" {
 #endif
 
 /** short sample format (32 or 64 bits) */
+#if AUBIO_SINGLE_PRECISION
 typedef float        smpl_t;
-//typedef double       smpl_t;
+#define AUBIO_SMPL_FMT "%f"
+#else
+typedef double       smpl_t;
+#define AUBIO_SMPL_FMT "%lf"
+#endif
 /** long sample format (64 bits or more) */
+#if AUBIO_SINGLE_PRECISION 
 typedef double       lsmp_t;
-//typedef long        lsmp_t;
+#define AUBIO_LSMP_FMT "%lf"
+#else
+typedef long double  lsmp_t;
+#define AUBIO_LSMP_FMT "%Lf"
+#endif
 /** unsigned integer */
 typedef unsigned int uint_t;
 /** signed integer */
