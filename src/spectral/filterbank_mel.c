@@ -143,7 +143,6 @@ aubio_filterbank_set_mel_coeffs_slaney (aubio_filterbank_t * fb,
   uint_t n_filters = linearFilters + logFilters;
 
   uint_t fn;                    /* filter counter */
-  uint_t bin;                   /* bin counter */
 
   /* buffers to compute filter frequencies */
   fvec_t *freqs = new_fvec (n_filters + 2, 1);
