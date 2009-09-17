@@ -105,13 +105,15 @@ typedef enum {
 } aubio_status;
 
 #ifdef HAVE_C99_VARARGS_MACROS
-#define AUBIO_ERR(...)               fprintf(stderr,__VA_ARGS__)
-#define AUBIO_MSG(...)               fprintf(stdout,__VA_ARGS__)
-#define AUBIO_DBG(...)               fprintf(stderr,__VA_ARGS__)
+#define AUBIO_ERR(...)               fprintf(stderr, "AUBIO ERROR: " __VA_ARGS__)
+#define AUBIO_MSG(...)               fprintf(stdout, __VA_ARGS__)
+#define AUBIO_DBG(...)               fprintf(stderr, __VA_ARGS__)
+#define AUBIO_WRN(...)               fprintf(stderr, "AUBIO WARNING: " __VA_ARGS__)
 #else
-#define AUBIO_ERR(format, args...)   fprintf(stderr, format , ##args)
+#define AUBIO_ERR(format, args...)   fprintf(stderr, "AUBIO ERROR: " format , ##args)
 #define AUBIO_MSG(format, args...)   fprintf(stdout, format , ##args)
 #define AUBIO_DBG(format, args...)   fprintf(stderr, format , ##args)
+#define AUBIO_WRN(...)               fprintf(stderr, "AUBIO WARNING: " format, ##args)
 #endif
 
 #define AUBIO_QUIT(_s)               exit(_s)
@@ -122,6 +124,7 @@ typedef enum {
 #define TWO_PI     (PI*2.)
 
 /* aliases to math.h functions */
+#if AUBIO_SINGLE_PRECISION
 #define EXP        expf
 #define COS        cosf
 #define SIN        sinf
@@ -132,10 +135,22 @@ typedef enum {
 #define LOG        logf
 #define FLOOR      floorf
 #define CEIL       ceilf
+#else
+#define EXP        exp
+#define COS        cos
+#define SIN        sin
+#define ABS        fabs
+#define POW        pow
+#define SQRT       sqrt
+#define LOG10      log10
+#define LOG        log
+#define FLOOR      floor
+#define CEIL       ceil
+#endif
 #define ROUND(x)   FLOOR(x+.5)
 
 /* aliases to complex.h functions */
-#if !defined(HAVE_COMPLEX_H) || defined(WIN32)
+#if !defined(AUBIO_SINGLE_PRECISION) || !defined(HAVE_COMPLEX_H) || defined(WIN32)
 /* mingw32 does not know about c*f functions */
 #define EXPC      cexp
 /** complex = CEXPC(complex) */
