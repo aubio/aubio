@@ -56,8 +56,8 @@ uint_t aubio_resampler_process(aubio_resampler_t *s,
 	for (i = 0 ; i< input->channels; i++) 
 	{
 		/* make SRC_PROC data point to input outputs */
-		s->proc->data_in = input->data[i];
-		s->proc->data_out= output->data[i];
+		s->proc->data_in = (float *)input->data[i];
+		s->proc->data_out= (float *)output->data[i];
 		/* do resampling */
 		src_process (s->stat, s->proc) ;
 	}
