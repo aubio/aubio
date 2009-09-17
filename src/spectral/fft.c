@@ -35,9 +35,12 @@
 #endif
 
 #if FFTW3F_SUPPORT
-#define real_t smpl_t
+#if !AUBIO_SINGLE_PRECISION 
+#warning "Using aubio in double precision with fftw3 in single precision"
+#endif
+#define real_t float 
 #else
-#define real_t lsmp_t
+#define real_t double 
 #endif
 
 struct _aubio_fft_t {
