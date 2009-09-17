@@ -67,7 +67,7 @@ void fvec_print(fvec_t *s) {
   uint_t i,j;
   for (i=0; i< s->channels; i++) {
     for (j=0; j< s->length; j++) {
-      AUBIO_MSG("%f ", s->data[i][j]);
+      AUBIO_MSG(AUBIO_SMPL_FMT " ", s->data[i][j]);
     }
     AUBIO_MSG("\n");
   }
