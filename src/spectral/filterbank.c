@@ -83,7 +83,7 @@ aubio_filterbank_do (aubio_filterbank_t * f, cvec_t * in, fvec_t * out)
       out->data[i][fn] = MAX (VERY_SMALL_NUMBER, out->data[i][fn]);
 
       /* compute logarithm */
-      out->data[i][fn] = LOG (out->data[i][fn]);
+      out->data[i][fn] = LOG10 (out->data[i][fn]);
     }
   }
 
