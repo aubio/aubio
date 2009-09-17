@@ -43,15 +43,27 @@ extern "C"
 
 /** filterbank initialization for mel filters
 
-  \param n_filters number of filters
-  \param win_s window size
+  \param fb filterbank object
+  \param freqs arbitrary array of boundary frequencies
   \param samplerate audio sampling rate
-  \param freq_min lowest filter frequency
-  \param freq_max highest filter frequency
+
+  This function computes the coefficients of the filterbank based on the
+  boundaries found in freqs, in Hz, and using triangular overlapping windows.
 
 */
 void aubio_filterbank_set_mel_coeffs (aubio_filterbank_t * fb,
-    smpl_t samplerate, smpl_t freq_min, smpl_t freq_max);
+    fvec_t * freqs, smpl_t samplerate);
+
+/** filterbank initialization for Mel filters using Slaney's coefficients
+
+  \param fb filterbank object
+  \param samplerate audio sampling rate
+
+  This function fills the filterbank coefficients according to Malcolm Slaney.
+
+*/
+void aubio_filterbank_set_mel_coeffs_slaney (aubio_filterbank_t * fb,
+    smpl_t samplerate);
 
 #ifdef __cplusplus
 }

@@ -62,7 +62,7 @@ aubio_mfcc_t * new_aubio_mfcc (uint_t win_s, uint_t samplerate, uint_t n_filters
   
   /** filterbank allocation */
   mfcc->fb = new_aubio_filterbank(n_filters, mfcc->win_s);
-  aubio_filterbank_set_mel_coeffs(mfcc->fb, samplerate, lowfreq, highfreq);
+  aubio_filterbank_set_mel_coeffs_slaney(mfcc->fb, samplerate);
 
   /** allocating space for fft object (used for dct) */
   mfcc->fft_dct=new_aubio_fft(n_filters, 1);
