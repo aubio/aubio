@@ -61,3 +61,15 @@ lsmp_t ** lvec_get_data(lvec_t *s) {
   return s->data;
 }
 
+/* helper functions */
+
+void lvec_print(lvec_t *s) {
+  uint_t i,j;
+  for (i=0; i< s->channels; i++) {
+    for (j=0; j< s->length; j++) {
+      AUBIO_MSG(AUBIO_LSMP_FMT " ", s->data[i][j]);
+    }
+    AUBIO_MSG("\n");
+  }
+}
+

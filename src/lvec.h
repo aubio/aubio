@@ -113,6 +113,13 @@ void lvec_put_channel(lvec_t *s, lsmp_t * data, uint_t channel);
 */
 lsmp_t ** lvec_get_data(lvec_t *s);
 
+/** print out lvec data 
+
+  \param s vector to print out 
+
+*/
+void lvec_print(lvec_t *s);
+
 #ifdef __cplusplus
 }
 #endif
