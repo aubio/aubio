@@ -97,10 +97,14 @@ void
 aubio_mfcc_do (aubio_mfcc_t * mf, cvec_t * in, fvec_t * out)
 {
   uint_t i, j;
+
   /* compute filterbank */
   aubio_filterbank_do (mf->fb, in, mf->in_dct);
 
-  /* extract real part of fft grain */
+  /* zeros output */
+  fvec_zeros(out);
+
+  /* compute discrete cosine transform */
   for (i = 0; i < mf->n_filters; i++) {
     for (j = 0; j < mf->n_coefs; j++) {
       out->data[0][j] += mf->in_dct->data[0][i]
