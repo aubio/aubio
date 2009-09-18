@@ -169,7 +169,7 @@ void aubio_filterbank_do(aubio_filterbank_t * fb, cvec_t * in, fvec_t *out);
 fvec_t * aubio_filterbank_get_coeffs(aubio_filterbank_t * fb);
 
 /* mfcc */
-aubio_mfcc_t * new_aubio_mfcc (uint_t win_s, uint_t samplerate, uint_t n_filters, uint_t n_coefs, smpl_t lowfreq, smpl_t highfreq, uint_t channels);
+aubio_mfcc_t * new_aubio_mfcc (uint_t win_s, uint_t samplerate, uint_t n_filters, uint_t n_coefs);
 void del_aubio_mfcc(aubio_mfcc_t *mf);
 void aubio_mfcc_do(aubio_mfcc_t *mf, cvec_t *in, fvec_t *out);
 
