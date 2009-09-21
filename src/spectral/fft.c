@@ -169,12 +169,13 @@ void aubio_fft_get_phas(fvec_t * compspec, cvec_t * spectrum) {
 void aubio_fft_get_norm(fvec_t * compspec, cvec_t * spectrum) {
   uint_t i, j = 0;
   for (i = 0; i < spectrum->channels; i++) {
-    spectrum->norm[i][0] = compspec->data[i][0];
+    spectrum->norm[i][0] = ABS(compspec->data[i][0]);
     for (j=1; j < spectrum->length - 1; j++) {
       spectrum->norm[i][j] = SQRT(SQR(compspec->data[i][j]) 
           + SQR(compspec->data[i][compspec->length - j]) );
     }
-    spectrum->norm[i][spectrum->length-1] = compspec->data[i][compspec->length/2];
+    spectrum->norm[i][spectrum->length-1] = 
+      ABS(compspec->data[i][compspec->length/2]);
   }
 }
 
