@@ -180,6 +180,13 @@ smpl_t ** cvec_get_norm(cvec_t *s);
 */
 smpl_t ** cvec_get_phas(cvec_t *s);
 
+/** print out cvec data 
+
+  \param s vector to print out 
+
+*/
+void cvec_print(cvec_t *s);
+
 #ifdef __cplusplus
 }
 #endif

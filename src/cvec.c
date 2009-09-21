@@ -80,3 +80,21 @@ smpl_t ** cvec_get_phas(cvec_t *s) {
   return s->phas;
 }
 
+/* helper functions */
+
+void cvec_print(cvec_t *s) {
+  uint_t i,j;
+  for (i=0; i< s->channels; i++) {
+    AUBIO_MSG("norm: ");
+    for (j=0; j< s->length; j++) {
+      AUBIO_MSG(AUBIO_SMPL_FMT " ", s->norm[i][j]);
+    }
+    AUBIO_MSG("\n");
+    AUBIO_MSG("phas: ");
+    for (j=0; j< s->length; j++) {
+      AUBIO_MSG(AUBIO_SMPL_FMT " ", s->phas[i][j]);
+    }
+    AUBIO_MSG("\n");
+  }
+}
+
