@@ -104,6 +104,7 @@ void usage (FILE * stream, int exit_code)
                         "       -t      --threshold     Set onset detection threshold.\n"
                         "       -s      --silence       Select silence threshold.\n"
                         "       -p      --pitch         Select pitch detection algorithm.\n"
+                        "       -B      --bufsize       Set buffer size.\n"
                         "       -H      --hopsize       Set hopsize.\n"
                         "       -a      --averaging     Use averaging.\n"
                );
@@ -111,7 +112,7 @@ void usage (FILE * stream, int exit_code)
 }
 
 int parse_args (int argc, char **argv) {
-        const char *options = "hvjo:i:O:t:s:p:H:a";
+        const char *options = "hvjo:i:O:t:s:p:B:H:a";
         int next_option;
         struct option long_options[] =
         {
@@ -125,6 +126,7 @@ int parse_args (int argc, char **argv) {
                 {"silence"  , 1, NULL, 's'},
                 {"pitch"    , 1, NULL, 'p'},
                 {"averaging", 0, NULL, 'a'},
+                {"bufsize",   1, NULL, 'B'},
                 {"hopsize",   1, NULL, 'H'},
                 {NULL       , 0, NULL, 0}
         };
@@ -211,6 +213,9 @@ int parse_args (int argc, char **argv) {
                         case 'a':
                                 averaging = 1;
                                 break; 
+                        case 'B':
+                                buffer_size = atoi(optarg);
+                                break;
                         case 'H':
                                 overlap_size = atoi(optarg);
                                 break;
@@ -220,6 +225,7 @@ int parse_args (int argc, char **argv) {
                         case -1: /* done with options */
                                 break;
                         default: /*something else unexpected */
+                                fprintf(stderr, "Error parsing option '%c'\n", next_option);
                                 abort ();
                 }
         }
