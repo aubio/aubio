@@ -18,7 +18,7 @@
 */
 
 #include "config.h"
-#ifdef JACK_SUPPORT
+#ifdef HAVE_JACK
 #include <jack/jack.h>
 #include "aubio_priv.h"
 #include "jackio.h"
@@ -172,4 +172,4 @@ static int aubio_jack_process(jack_nframes_t nframes, void *arg) {
 }
 
 
-#endif /* JACK_SUPPORT */
+#endif /* HAVE_JACK */

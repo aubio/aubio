@@ -49,9 +49,9 @@ aubio_midi_driver_t* new_aubio_midi_driver(char * name,
 void del_aubio_midi_driver(aubio_midi_driver_t* driver);
 void aubio_midi_driver_settings(aubio_settings_t* settings);
 
-#include "config.h"
-#if JACK_SUPPORT
+#include "aubioext.h"
+#if HAVE_JACK 
 void aubio_midi_direct_output(aubio_midi_driver_t * dev, aubio_midi_event_t * event); 
-#endif
+#endif /* HAVE_JACK */
 
 #endif  /* _AUBIO_AUDRIVER_H */

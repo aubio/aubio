@@ -142,11 +142,11 @@ fi
 dnl Check for pkg-config
 AC_PATH_PROG(PKG_CONFIG,pkg-config,no)
 
-PKG_CHECK_MODULES(SNDLIB,     sndfile >= 1.0.4,       SNDLIB_SUPPORT=1)
-PKG_CHECK_MODULES(SAMPLERATE, samplerate  >= 0.0.15,  SAMPLERATE_SUPPORT=1)
+PKG_CHECK_MODULES(SNDLIB,     sndfile >= 1.0.4,       HAVE_SNDLIB=1)
+PKG_CHECK_MODULES(SAMPLERATE, samplerate  >= 0.0.15,  HAVE_SAMPLERATE=1)
 
-if test "${SNDLIB_SUPPORT}" = "1"; then
-  AC_DEFINE(SNDLIB_SUPPORT,1,[Define to enable libsndfile support])
+if test "${HAVE_SNDLIB}" = "1"; then
+  AC_DEFINE(HAVE_SNDLIB,1,[Define to enable libsndfile support])
 fi
 
 dnl Check for fftw3 (required)
@@ -155,18 +155,18 @@ AC_ARG_ENABLE(fftw3f,
   [with_fftw3f=$enableval],
   with_fftw3f="yes")
 if test "$with_fftw3f" = "yes"; then
-  PKG_CHECK_MODULES(FFTWLIB,    fftw3f >= 3.0.0,     FFTW3F_SUPPORT=1, FFTW3F_SUPPORT=0)
+  PKG_CHECK_MODULES(FFTWLIB,    fftw3f >= 3.0.0,     HAVE_FFTW3F=1, HAVE_FFTW3F=0)
 else
-  PKG_CHECK_MODULES(FFTWLIB,    fftw3  >= 3.0.0,     FFTW3_SUPPORT=1)
+  PKG_CHECK_MODULES(FFTWLIB,    fftw3  >= 3.0.0,     HAVE_FFTW3=1)
 fi
-if test "${FFTW3F_SUPPORT}" = "0"; then
-  PKG_CHECK_MODULES(FFTWLIB,    fftw3  >= 3.0.0,     FFTW3_SUPPORT=1)
+if test "${HAVE_FFTW3F}" = "0"; then
+  PKG_CHECK_MODULES(FFTWLIB,    fftw3  >= 3.0.0,     HAVE_FFTW3=1)
 fi
-if test "${FFTW3_SUPPORT}" = "1"; then
-  AC_DEFINE(FFTW3_SUPPORT,1,[Define to enable fftw3 support])
+if test "${HAVE_FFTW3}" = "1"; then
+  AC_DEFINE(HAVE_FFTW3,1,[Define to enable fftw3 support])
 fi
-if test "${FFTW3F_SUPPORT}" = "1"; then
-  AC_DEFINE(FFTW3F_SUPPORT,1,[Define to enable fftw3f support])
+if test "${HAVE_FFTW3F}" = "1"; then
+  AC_DEFINE(HAVE_FFTW3F,1,[Define to enable fftw3f support])
 fi
 
 dnl Enable jack support (auto)
@@ -176,9 +176,9 @@ AC_ARG_ENABLE(jack,
   with_jack="yes")
 if test "$with_jack" = "yes"
 then
-  PKG_CHECK_MODULES(JACK,       jack  >= 0.15.0,     JACK_SUPPORT=1, JACK_SUPPORT=0)
-  if test "${JACK_SUPPORT}" = "1"; then
-    AC_DEFINE(JACK_SUPPORT,1,[Define to enable jack support])
+  PKG_CHECK_MODULES(JACK,       jack  >= 0.15.0,     HAVE_JACK=1, HAVE_JACK=0)
+  if test "${HAVE_JACK}" = "1"; then
+    AC_DEFINE(HAVE_JACK,1,[Define to enable jack support])
   fi
 fi
 
@@ -191,9 +191,9 @@ if test "$with_alsa" = "yes"
 then
   if test "$with_jack" = "yes"
   then
-    PKG_CHECK_MODULES(ALSA,      alsa >= 0.0.9,      ALSA_SUPPORT=1, ALSA_SUPPORT=0)
-    if test "${ALSA_SUPPORT}" = "1"; then
-      AC_DEFINE(ALSA_SUPPORT,1,[Define to enable alsa support])
+    PKG_CHECK_MODULES(ALSA,      alsa >= 0.0.9,      HAVE_ALSA=1, HAVE_ALSA=0)
+    if test "${HAVE_ALSA}" = "1"; then
+      AC_DEFINE(HAVE_ALSA,1,[Define to enable alsa support])
     fi
   else
     AC_MSG_WARN([Disabling alsa as jack was not found])
@@ -207,9 +207,9 @@ AC_ARG_ENABLE(lash,
   with_lash="yes")
 if test "$with_lash" = "yes"
 then
-  PKG_CHECK_MODULES(LASH,   lash-1.0 >= 0.5.0,   LASH_SUPPORT=1, LASH_SUPPORT=0)
-  if test "${LASH_SUPPORT}" = "1"; then
-    LASH_CFLAGS+="-DLASH_SUPPORT"
+  PKG_CHECK_MODULES(LASH,   lash-1.0 >= 0.5.0,   HAVE_LASH=1, HAVE_LASH=0)
+  if test "${HAVE_LASH}" = "1"; then
+    LASH_CFLAGS+="-DHAVE_LASH"
   fi
 fi
   
@@ -269,36 +269,36 @@ dnl Print summary
 echo
 echo "**************************************************************"
 echo "Summary:"
-if test "${FFTW3F_SUPPORT}" = "1"; then
+if test "${HAVE_FFTW3F}" = "1"; then
   echo "Fftw3:                   yes (using fftw3f)"
 else
-if test "${FFTW3_SUPPORT}" = "1"; then
+if test "${HAVE_FFTW3}" = "1"; then
   echo "Fftw3:                   yes (not using fftw3f)"
 else
   echo "Fftw3:                   no (that should not happen)"
 fi
 fi
-if test "${SNDLIB_SUPPORT}" = "1"; then
+if test "${HAVE_SNDLIB}" = "1"; then
   echo "Libsndfile:              yes"
 else
   echo "Libsndfile:              no"
 fi
-if test "${SAMPLERATE_SUPPORT}" = "1"; then
+if test "${HAVE_SAMPLERATE}" = "1"; then
   echo "Libsamplerate:           yes"
 else
   echo "Libsamplerate:           no"
 fi
-if test "${JACK_SUPPORT}" = "1"; then
+if test "${HAVE_JACK}" = "1"; then
   echo "JACK:                    yes"
 else
   echo "JACK:                    no"
 fi
-if test "${ALSA_SUPPORT}" = "1"; then
+if test "${HAVE_ALSA}" = "1"; then
   echo "ALSA midi:               yes"
 else
   echo "ALSA midi:               no"
 fi
-if test "${LASH_SUPPORT}" = "1"; then
+if test "${HAVE_LASH}" = "1"; then
   echo "Lash:                    yes"
 else
   echo "Lash:                    no"

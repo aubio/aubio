@@ -31,13 +31,13 @@
 #include <fftw3.h>
 
 #ifdef HAVE_COMPLEX_H
-#if FFTW3F_SUPPORT
+#if HAVE_FFTW3F
 #define FFTW_TYPE fftwf_complex
 #else
 #define FFTW_TYPE fftw_complex
 #endif
 #else
-#if FFTW3F_SUPPORT
+#if HAVE_FFTW3F
 /** fft data type */
 #define FFTW_TYPE float
 #else

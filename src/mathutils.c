@@ -418,10 +418,10 @@ void aubio_autocorr(fvec_t * input, fvec_t * output) {
 }
 
 void aubio_cleanup(void) {
-#if FFTW3_SUPPORT
+#if HAVE_FFTW3
   fftw_cleanup();
 #else
-#if FFTW3F_SUPPORT
+#if HAVE_FFTW3F
   fftwf_cleanup();
 #endif
 #endif

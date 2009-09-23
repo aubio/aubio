@@ -1,8 +1,8 @@
 
 #include "aubio.h"
 
-#ifndef JACK_SUPPORT
-#define JACK_SUPPORT 0
+#ifndef HAVE_JACK
+#define HAVE_JACK 0
 #endif
 
 #include <getopt.h>
@@ -12,7 +12,7 @@
 #include <math.h> /* for isfinite */
 #include "utils.h"
 
-#ifdef LASH_SUPPORT
+#ifdef HAVE_LASH
 #include <lash/lash.h>
 #include <pthread.h>
 lash_client_t * aubio_lash_client;
@@ -22,7 +22,7 @@ int lash_main (void);
 void save_data (void);
 void restore_data(lash_config_t * lash_config);
 pthread_t lash_thread;
-#endif /* LASH_SUPPORT */
+#endif /* HAVE_LASH */
 
 /* settings */
 const char * output_filename = NULL;
@@ -130,9 +130,9 @@ int parse_args (int argc, char **argv) {
                 {"hopsize",   1, NULL, 'H'},
                 {NULL       , 0, NULL, 0}
         };
-#ifdef LASH_SUPPORT
+#ifdef HAVE_LASH
         lash_args = lash_extract_args(&argc, &argv);
-#endif /* LASH_SUPPORT */
+#endif /* HAVE_LASH */
         prog_name = argv[0];
         if( argc < 1 ) {
                 usage (stderr, 1);
@@ -237,7 +237,7 @@ int parse_args (int argc, char **argv) {
                 debug ("Input file : %s\n", input_filename );
                 debug ("Output file : %s\n", output_filename );
         } else {
-                if (JACK_SUPPORT)
+                if (HAVE_JACK)
                 {
                         debug ("Jack input output\n");
                         usejack = 1;
@@ -287,7 +287,7 @@ void examples_common_init(int argc,char ** argv) {
     if (output_filename != NULL)
       fileout = new_aubio_sndfile_wo(file, output_filename);
   }
-#ifdef LASH_SUPPORT
+#ifdef HAVE_LASH
   else {
     aubio_lash_client = lash_init(lash_args, argv[0],
         LASH_Config_Data_Set | LASH_Terminal,
@@ -303,7 +303,7 @@ void examples_common_init(int argc,char ** argv) {
       pthread_create(&lash_thread, NULL, lash_thread_main, NULL);
     }
   }
-#endif /* LASH_SUPPORT */
+#endif /* HAVE_LASH */
 
   ibuf      = new_fvec(overlap_size, channels);
   obuf      = new_fvec(overlap_size, channels);
@@ -359,7 +359,7 @@ void examples_common_del(void){
 
 void examples_common_process(aubio_process_func_t process_func, aubio_print_func_t print ){
   if(usejack) {
-#if JACK_SUPPORT
+#if HAVE_JACK
     aubio_jack_t * jack_setup;
     debug("Jack init ...\n");
     jack_setup = new_aubio_jack(channels, channels,
@@ -431,7 +431,7 @@ void send_noteon(int pitch, int velo)
 {
     smpl_t mpitch = floor(aubio_freqtomidi(pitch)+.5);
     /* we should check if we use midi here, not jack */
-#if ALSA_SUPPORT
+#if HAVE_ALSA
     if (usejack) {
         if (velo==0) {
             aubio_midi_event_set_type(event,NOTE_OFF);
@@ -473,7 +473,7 @@ uint_t get_note(fvec_t *note_buffer, fvec_t *note_buffer2){
   return vec_median(note_buffer2);
 }
 
-#if LASH_SUPPORT
+#if HAVE_LASH
 
 void * lash_thread_main(void *data __attribute__((unused)))
 {
@@ -542,5 +542,5 @@ void restore_data(lash_config_t * lash_config) {
 
 }
 
-#endif /* LASH_SUPPORT */
+#endif /* HAVE_LASH */
 

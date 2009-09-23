@@ -20,7 +20,7 @@ fvec_t * out;
 
 aubio_pvoc_t * pv;
 
-#ifdef JACK_SUPPORT
+#ifdef HAVE_JACK
 aubio_jack_t * jack_setup;
 #endif
 
@@ -42,7 +42,7 @@ int main(){
         aubio_pvoc_rdo(pv,fftgrain,out);
         printf("computed backard\n");
 
-#ifdef JACK_SUPPORT
+#ifdef HAVE_JACK
         jack_setup  = new_aubio_jack(channels, channels,
                         (aubio_process_func_t)aubio_process);
         aubio_jack_activate(jack_setup);

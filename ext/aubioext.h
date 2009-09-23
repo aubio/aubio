@@ -27,9 +27,13 @@ extern "C" {
 
 #include <aubio.h>
  
-#ifdef JACK_SUPPORT
+#ifdef HAVE_JACK
 #include "jackio.h"
 #endif 
+
+#if HAVE_ALSA
+#define ALSA_SUPPORT 1
+#endif
 
 #include "sndfileio.h"
 

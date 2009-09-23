@@ -23,7 +23,7 @@
 #include "mathutils.h"
 #include "spectral/fft.h"
 
-#if FFTW3F_SUPPORT
+#if HAVE_FFTW3F
 #define fftw_malloc            fftwf_malloc
 #define fftw_free              fftwf_free
 #define fftw_execute           fftwf_execute
@@ -34,7 +34,7 @@
 #define fftw_destroy_plan      fftwf_destroy_plan
 #endif
 
-#if FFTW3F_SUPPORT
+#if HAVE_FFTW3F
 #if !AUBIO_SINGLE_PRECISION 
 #warning "Using aubio in double precision with fftw3 in single precision"
 #endif
