@@ -13,8 +13,8 @@
 RE:examples/[a-z]*
 
 # ignore compiled test programs
-RE:tests/src/test-[a-z-]*$
-RE:tests/cpp/test-[a-z-]*$
+RE:tests/src/test-[a-z-_]*$
+RE:tests/cpp/test-[a-z-_]*$
 
 # ignore aubio
 plugins/puredata/aubio.pd_linux
