@@ -32,6 +32,10 @@ java/**/SWIG*.java
 java/**/aubio*.java
 java/**/midi_*.java
 
+# waf stuff
+.lock-wscript
+build/
+
 # autoreconf -f -i will create these
 INSTALL
 aclocal.m4
