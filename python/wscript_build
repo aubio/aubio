@@ -1,0 +1,3 @@
+# install headers
+for file in ['aubiocut', 'aubiopitch']:
+  bld.install_as('${PREFIX}/bin/' + file, file, chmod = 0755)

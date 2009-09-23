@@ -1,0 +1,13 @@
+# build libaubio
+libaubio = bld.new_task_gen(
+    features = 'cc cshlib',
+    includes = ['.'],
+    source = bld.path.ant_glob('*.c **/*.c'),
+    target = 'aubio',
+    uselib = ['FFTW3', 'FFTW3F', 'SAMPLERATE'],
+    vnum = bld.env['LIB_VERSION'])
+
+# install headers, except _priv.h ones
+for file in bld.path.ant_glob('**/*.h').split():
+  if '_priv.h' in file: continue
+  bld.install_as('${PREFIX}/include/aubio/' + file, file)

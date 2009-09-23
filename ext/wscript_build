@@ -1,0 +1,13 @@
+# build libaubioext
+libaubioext = bld.new_task_gen(
+    features = 'cc cshlib',
+    includes = ['.', '../src'],
+    source = bld.path.ant_glob('*.c **/*.c'),
+    target = 'aubioext',
+    uselib = ['ALSA', 'SNDFILE', 'JACK'],
+    uselib_local = ['aubio'],
+    vnum = bld.env['LIB_VERSION'])
+
+# install headers
+for file in bld.path.ant_glob('**/*.h').split():
+  bld.install_as('${PREFIX}/include/aubio/' + file, file)

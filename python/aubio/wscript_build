@@ -1,0 +1,14 @@
+pyaubio = bld.new_task_gen(name = 'python-aubio', 
+  features = 'cc cshlib pyext', 
+  source = '../../swig/aubio.i',
+  target = '_aubiowrapper',
+  uselib_local = ['aubio', 'aubioext'],
+  swig_flags = '-python -Wall',
+  includes = '. ../../src ../../ext')
+pyaubio.install_path = '${PYTHONDIR}/${PACKAGE}'
+
+# install python files 
+for file in bld.path.ant_glob('**/*.py').split():
+  bld.install_as('${PYTHONDIR}/${PACKAGE}/' + file, file)
+# install swig generated python file
+bld.install_files('${PYTHONDIR}/${PACKAGE}/', '../../swig/aubiowrapper.py')
