@@ -69,7 +69,7 @@ aubio_filterbank_set_mel_coeffs (aubio_filterbank_t * fb, fvec_t * freqs,
 
   /* fill fft_freqs lookup table, which assigns the frequency in hz to each bin */
   for (bin = 0; bin < win_s; bin++) {
-    fft_freqs->data[0][bin] = aubio_bintofreq (bin, samplerate, win_s);
+    fft_freqs->data[0][bin] = aubio_bintofreq (bin, samplerate, (win_s - 1) * 2);
   }
 
   /* zeroing of all filters */

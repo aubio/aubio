@@ -44,7 +44,7 @@ new_aubio_filterbank (uint_t n_filters, uint_t win_s)
   fb->n_filters = n_filters;
 
   /* allocate filter tables, an fvec of length win_s and of filter_cnt channel */
-  fb->filters = new_fvec (win_s, n_filters);
+  fb->filters = new_fvec (win_s / 2 + 1, n_filters);
 
   return fb;
 }
