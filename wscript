@@ -1,3 +1,5 @@
+#! /usr/bin/python
+# 
 # TODO
 #  - plugins/puredata: add pd compilation
 #  - java: add swig compilation
@@ -28,6 +30,8 @@ def set_options(opt):
       help='compile without lash support')
   opt.add_option('--enable-java', action='store_true', default=False,
       help='compile with java support')
+  opt.add_option('--with-target-platform', type='string',
+      help='set target platform for cross-compilation', dest='target_platform')
   opt.tool_options('compiler_cc')
   opt.tool_options('compiler_cxx')
   opt.tool_options('gnu_dirs')
@@ -39,6 +43,12 @@ def configure(conf):
   conf.check_tool('compiler_cxx')
   conf.check_tool('gnu_dirs') # helpful for autotools transition and .pc generation
   conf.check_tool('misc') # needed for subst
+
+  if Options.options.target_platform:
+    Options.platform = Options.options.target_platform
+
+  if Options.platform == 'win32':
+    conf.env['shlib_PATTERN'] = 'lib%s.dll'
 
   # check for required headers
   conf.check(header_name='stdlib.h')
