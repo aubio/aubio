@@ -76,11 +76,9 @@ void aubio_pvoc_rdo(aubio_pvoc_t *pv,cvec_t * fftgrain, fvec_t * synthnew) {
 aubio_pvoc_t * new_aubio_pvoc (uint_t win_s, uint_t hop_s, uint_t channels) {
   aubio_pvoc_t * pv = AUBIO_NEW(aubio_pvoc_t);
 
-  if (win_s < 2*hop_s) {
-    AUBIO_ERR("Hop size bigger than half the window size!\n");
-    AUBIO_ERR("Resetting hop size to half the window size.\n");
-    hop_s = win_s / 2;
-  }
+  /* if (win_s < 2*hop_s) {
+    AUBIO_WRN("Hop size bigger than half the window size!\n");
+  } */
 
   if (hop_s < 1) {
     AUBIO_ERR("Hop size is smaller than 1!\n");
