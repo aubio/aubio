@@ -33,6 +33,10 @@ extern "C"
 {
 #endif
 
+#include <jack/jack.h>
+#include <jack/midiport.h>
+#include <jack/ringbuffer.h>
+
 /** jack object */
 typedef struct _aubio_jack_t aubio_jack_t;
 /** jack process function */
@@ -47,6 +51,10 @@ aubio_jack_t *new_aubio_jack (uint_t inchannels, uint_t outchannels,
 uint_t aubio_jack_activate (aubio_jack_t * jack_setup);
 /** close and delete jack client */
 void aubio_jack_close (aubio_jack_t * jack_setup);
+
+/** write a jack_midi_event_t to the midi output ringbuffer */
+void aubio_jack_midi_event_write (aubio_jack_t * jack_setup,
+    jack_midi_event_t * event);
 
 #ifdef __cplusplus
 }

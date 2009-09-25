@@ -21,7 +21,6 @@
 #include <aubio.h>
 
 #if HAVE_JACK
-#include <jack/jack.h>
 #include "aubio_priv.h"
 #include "jackio.h"
 
@@ -31,6 +30,8 @@ typedef jack_default_audio_sample_t jack_sample_t;
 #define AUBIO_JACK_MAX_FRAMES 4096
 #define AUBIO_JACK_NEEDS_CONVERSION
 #endif
+
+#define RINGBUFFER_SIZE 1024*sizeof(jack_midi_event_t)
 
 /**
  * jack device structure 
@@ -61,6 +62,8 @@ struct _aubio_jack_t
   uint_t imidichan;
   /** jack output midi channels */
   uint_t omidichan;
+  /** midi output ringbuffer */
+  jack_ringbuffer_t *midi_out_ring;
   /** jack samplerate (Hz) */
   uint_t samplerate;
   /** jack processing function */
@@ -77,8 +80,7 @@ static void aubio_jack_shutdown (void *arg);
 
 aubio_jack_t *
 new_aubio_jack (uint_t ichan, uint_t ochan,
-    uint_t imidichan, uint_t omidichan, 
-    aubio_process_func_t callback)
+    uint_t imidichan, uint_t omidichan, aubio_process_func_t callback)
 {
   aubio_jack_t *jack_setup = aubio_jack_alloc (ichan, ochan,
       imidichan, omidichan);
@@ -90,6 +92,17 @@ new_aubio_jack (uint_t ichan, uint_t ochan,
   if ((jack_setup->client = jack_client_new (client_name)) == 0) {
     AUBIO_ERR ("jack server not running?\n");
     AUBIO_QUIT (AUBIO_FAIL);
+  }
+
+  if (jack_setup->omidichan) {
+    jack_setup->midi_out_ring = jack_ringbuffer_create (RINGBUFFER_SIZE);
+
+    if (jack_setup->midi_out_ring == NULL) {
+      AUBIO_ERR ("Failed creating jack midi output ringbuffer.");
+      AUBIO_QUIT (AUBIO_FAIL);
+    }
+
+    jack_ringbuffer_mlock (jack_setup->midi_out_ring);
   }
 
   /* set callbacks */
@@ -137,8 +150,7 @@ new_aubio_jack (uint_t ichan, uint_t ochan,
   return jack_setup;
 
 beach:
-  AUBIO_ERR ("failed registering port \"%s:%s\"!\n", 
-      client_name, name);
+  AUBIO_ERR ("failed registering port \"%s:%s\"!\n", client_name, name);
   jack_client_close (jack_setup->client);
   AUBIO_QUIT (AUBIO_FAIL);
 }
@@ -172,6 +184,8 @@ aubio_jack_alloc (uint_t ichan, uint_t ochan,
   aubio_jack_t *jack_setup = AUBIO_NEW (aubio_jack_t);
   jack_setup->ichan = ichan;
   jack_setup->ochan = ochan;
+  jack_setup->imidichan = imidichan;
+  jack_setup->omidichan = omidichan;
   jack_setup->oports = AUBIO_ARRAY (jack_port_t *, ichan + imidichan);
   jack_setup->iports = AUBIO_ARRAY (jack_port_t *, ochan + omidichan);
   jack_setup->ibufs = AUBIO_ARRAY (jack_sample_t *, ichan);
@@ -194,6 +208,9 @@ aubio_jack_alloc (uint_t ichan, uint_t ochan,
 static uint_t
 aubio_jack_free (aubio_jack_t * jack_setup)
 {
+  if (jack_setup->omidichan && jack_setup->midi_out_ring) {
+    jack_ringbuffer_free (jack_setup->midi_out_ring);
+  }
   AUBIO_FREE (jack_setup->oports);
   AUBIO_FREE (jack_setup->iports);
   AUBIO_FREE (jack_setup->ibufs);
@@ -209,6 +226,8 @@ aubio_jack_shutdown (void *arg UNUSED)
   AUBIO_ERR ("jack shutdown\n");
   AUBIO_QUIT (AUBIO_OK);
 }
+
+static void process_midi_output (aubio_jack_t * dev, jack_nframes_t nframes);
 
 static int
 aubio_jack_process (jack_nframes_t nframes, void *arg)
@@ -241,8 +260,83 @@ aubio_jack_process (jack_nframes_t nframes, void *arg)
     }
   }
 #endif
+
+  /* now process midi stuff */
+  if (dev->omidichan) {
+    process_midi_output (dev, nframes);
+  }
+
   return 0;
 }
 
+void
+aubio_jack_midi_event_write (aubio_jack_t * dev, jack_midi_event_t * event)
+{
+  int written;
+
+  if (jack_ringbuffer_write_space (dev->midi_out_ring) < sizeof (*event)) {
+    AUBIO_ERR ("Not enough space to write midi output, midi event lost!\n");
+    return;
+  }
+
+  written = jack_ringbuffer_write (dev->midi_out_ring,
+      (char *) event, sizeof (*event));
+
+  if (written != sizeof (*event)) {
+    AUBIO_WRN ("Call to jack_ringbuffer_write failed, midi event lost! \n");
+  }
+}
+
+static void
+process_midi_output (aubio_jack_t * dev, jack_nframes_t nframes)
+{
+  int read, sendtime;
+  jack_midi_event_t ev;
+  unsigned char *buffer;
+  jack_nframes_t last_frame_time = jack_last_frame_time (dev->client);
+  // TODO for each omidichan
+  void *port_buffer = jack_port_get_buffer (dev->oports[dev->ochan], nframes);
+
+  if (port_buffer == NULL) {
+    AUBIO_WRN ("Failed to get jack midi output port, will not send anything\n");
+    return;
+  }
+
+  jack_midi_clear_buffer (port_buffer);
+
+  // TODO add rate_limit
+
+  while (jack_ringbuffer_read_space (dev->midi_out_ring)) {
+    read = jack_ringbuffer_peek (dev->midi_out_ring, (char *) &ev, sizeof (ev));
+
+    if (read != sizeof (ev)) {
+      AUBIO_WRN ("Short read from the ringbuffer, possible note loss.\n");
+      jack_ringbuffer_read_advance (dev->midi_out_ring, read);
+      continue;
+    }
+
+    sendtime = ev.time + nframes - last_frame_time;
+
+    /* send time is after current period, will do this one later */
+    if (sendtime >= (int) nframes) {
+      break;
+    }
+
+    if (sendtime < 0) {
+      sendtime = 0;
+    }
+
+    jack_ringbuffer_read_advance (dev->midi_out_ring, sizeof (ev));
+
+    buffer = jack_midi_event_reserve (port_buffer, sendtime, ev.size);
+
+    if (buffer == NULL) {
+      AUBIO_WRN ("Call to jack_midi_event_reserve failed, note lost.\n");
+      break;
+    }
+
+    AUBIO_MEMCPY (buffer, ev.buffer, ev.size);
+  }
+}
 
 #endif /* HAVE_JACK */
