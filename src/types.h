@@ -31,8 +31,6 @@
 extern "C" {
 #endif
 
-#include "config.h"
-
 #ifndef HAVE_AUBIO_DOUBLE
 /** defined to 1 if aubio is compiled in double precision */
 #define HAVE_AUBIO_DOUBLE 0
@@ -62,8 +60,6 @@ typedef long double  lsmp_t;
 typedef unsigned int uint_t;
 /** signed integer */
 typedef int          sint_t;
-/** files */
-//typedef FILE         audio_file_t;
 
 #ifdef __cplusplus
 }
