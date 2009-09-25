@@ -24,7 +24,10 @@
 #include "mathutils.h"
 #include "config.h"
 
-void aubio_window(smpl_t *w, uint_t size, aubio_window_type wintype) {
+fvec_t * new_aubio_window(uint_t size, aubio_window_type wintype) {
+  // create fvec of size x 1 channel
+  fvec_t * win = new_fvec( size, 1);
+  smpl_t * w = win->data[0];
   uint_t i;
   switch(wintype) {
     case aubio_win_rectangle:
@@ -71,6 +74,7 @@ void aubio_window(smpl_t *w, uint_t size, aubio_window_type wintype) {
     default:
       break;
   }
+  return win;
 }
 
 smpl_t aubio_unwrap2pi(smpl_t phase) {

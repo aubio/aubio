@@ -34,7 +34,7 @@ struct _aubio_pvoc_t {
   fvec_t * synthold;  /** last input frame [win_s-hop_s] */
   fvec_t * data;      /** current input grain [win_s] */
   fvec_t * dataold;   /** last input frame [win_s-hop_s] */
-  smpl_t * w;         /** grain window [win_s] */
+  fvec_t * w;         /** grain window [win_s] */
 };
 
 
@@ -53,7 +53,7 @@ void aubio_pvoc_do(aubio_pvoc_t *pv, fvec_t * datanew, cvec_t *fftgrain) {
     aubio_pvoc_swapbuffers(pv->data->data[i],pv->dataold->data[i],
         datanew->data[i],pv->win_s,pv->hop_s);
     /* windowing */
-    for (j=0; j<pv->win_s; j++) pv->data->data[i][j] *= pv->w[j];
+    fvec_weight(pv->data, pv->w);
   }
   /* shift */
   vec_shift(pv->data);
@@ -95,8 +95,7 @@ aubio_pvoc_t * new_aubio_pvoc (uint_t win_s, uint_t hop_s, uint_t channels) {
   /* new input output */
   pv->dataold  = new_fvec  (win_s-hop_s, channels);
   pv->synthold = new_fvec (win_s-hop_s, channels);
-  pv->w        = AUBIO_ARRAY(smpl_t,win_s);
-  aubio_window(pv->w,win_s,aubio_win_hanningz);
+  pv->w        = new_aubio_window (win_s, aubio_win_hanningz);
 
   pv->channels = channels;
   pv->hop_s    = hop_s;
@@ -110,8 +109,8 @@ void del_aubio_pvoc(aubio_pvoc_t *pv) {
   del_fvec(pv->synth);
   del_fvec(pv->dataold);
   del_fvec(pv->synthold);
+  del_fvec(pv->w);
   del_aubio_fft(pv->fft);
-  AUBIO_FREE(pv->w);
   AUBIO_FREE(pv);
 }
 

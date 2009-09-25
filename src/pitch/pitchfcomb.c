@@ -53,8 +53,7 @@ aubio_pitchfcomb_t * new_aubio_pitchfcomb (uint_t bufsize, uint_t hopsize, uint_
   p->fftOut       = new_cvec(bufsize,1);
   p->fftLastPhase = new_fvec(bufsize,1);
   p->fft = new_aubio_fft(bufsize, 1);
-  p->win = new_fvec(bufsize,1);
-  aubio_window(p->win->data[0], bufsize, aubio_win_hanning);
+  p->win = new_aubio_window(bufsize, aubio_win_hanning);
   return p;
 }
 

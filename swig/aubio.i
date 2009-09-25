@@ -127,7 +127,7 @@ typedef enum {
         aubio_win_parzen
 } aubio_window_type;
 
-void aubio_window(smpl_t *w, uint_t size, aubio_window_type wintype);
+fvec_t * new_aubio_window(uint_t size, aubio_window_type wintype);
 smpl_t aubio_unwrap2pi (smpl_t phase);
 smpl_t vec_mean(fvec_t *s);
 smpl_t vec_max(fvec_t *s);

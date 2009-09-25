@@ -55,7 +55,7 @@ typedef enum {
 } aubio_window_type;
 
 /** create window */
-void aubio_window(smpl_t *w, uint_t size, aubio_window_type wintype);
+fvec_t * new_aubio_window(uint_t size, aubio_window_type wintype);
 
 /** principal argument
  *
