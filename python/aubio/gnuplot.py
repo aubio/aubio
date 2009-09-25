@@ -23,7 +23,7 @@ __LICENSE__ = """\
 
 def audio_to_array(filename):
 	import aubio.aubioclass
-        import numarray
+	from numpy import arange
 	hopsize  = 2048
 	filei    = aubio.aubioclass.sndfile(filename)
 	framestep = 1/(filei.samplerate()+0.)
@@ -39,7 +39,7 @@ def audio_to_array(filename):
 		while (curpos < readsize):
 			data.append(myvec.get(curpos,i))
 			curpos+=1
-	time = numarray.arange(len(data))*framestep
+	time = arange(len(data))*framestep
 	return time,data
 
 def plot_audio(filenames, g, options):
@@ -143,29 +143,29 @@ def plot_spec(filename, g, options):
 
 def downsample_audio(time,data,maxpoints=10000):
   """ resample audio data to last only maxpoints """
-  import numarray
+  from numpy import array, resize
   length = len(time)
   downsample = length/maxpoints
   if downsample == 0: downsample = 1
-  x = numarray.array(time).resize(length)[0:-1:downsample]
-  y = numarray.array(data).resize(length)[0:-1:downsample]
+  x = resize(array(time),length)[0:-1:downsample]
+  y = resize(array(data),length)[0:-1:downsample]
   return x,y
 
 def make_audio_plot(time,data,maxpoints=10000):
   """ create gnuplot plot from an audio file """
   import Gnuplot, Gnuplot.funcutils
   x,y = downsample_audio(time,data,maxpoints=maxpoints)
-  return Gnuplot.Data(x,y,with='lines')
+  return Gnuplot.Data(x,y,with_='lines')
 
 def make_audio_envelope(time,data,maxpoints=10000):
   """ create gnuplot plot from an audio file """
-  import numarray
+  from numpy import array
   import Gnuplot, Gnuplot.funcutils
   bufsize = 500
-  x = [i.mean() for i in numarray.array(time).resize(len(time)/bufsize,bufsize)] 
-  y = [i.mean() for i in numarray.array(data).resize(len(time)/bufsize,bufsize)] 
+  x = [i.mean() for i in resize(array(time), (len(time)/bufsize,bufsize))] 
+  y = [i.mean() for i in resize(array(data), (len(time)/bufsize,bufsize))] 
   x,y = downsample_audio(x,y,maxpoints=maxpoints)
-  return Gnuplot.Data(x,y,with='lines')
+  return Gnuplot.Data(x,y,with_='lines')
 
 def gnuplot_addargs(parser):
   """ add common gnuplot argument to OptParser object """
