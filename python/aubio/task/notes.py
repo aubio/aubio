@@ -94,15 +94,15 @@ class tasknotes(task):
 	def plot(self,now,onset,freq,ifreq,oplots):
 		import Gnuplot
 
-		oplots.append(Gnuplot.Data(now,freq,with='lines',
+		oplots.append(Gnuplot.Data(now,freq,with_='lines',
 			title=self.params.pitchmode))
-		oplots.append(Gnuplot.Data(now,ifreq,with='lines',
+		oplots.append(Gnuplot.Data(now,ifreq,with_='lines',
 			title=self.params.pitchmode))
 
 		temponsets = []
 		for i in onset:
 			temponsets.append(i*1000)
-		oplots.append(Gnuplot.Data(now,temponsets,with='impulses',
+		oplots.append(Gnuplot.Data(now,temponsets,with_='impulses',
 			title=self.params.pitchmode))
 
 	def plotplot(self,wplot,oplots,outplot=None,multiplot = 0):
@@ -116,10 +116,10 @@ class tasknotes(task):
 		# check if ground truth exists
 		#timet,pitcht = self.gettruth()
 		#if timet and pitcht:
-		#	oplots = [Gnuplot.Data(timet,pitcht,with='lines',
+		#	oplots = [Gnuplot.Data(timet,pitcht,with_='lines',
 		#		title='ground truth')] + oplots
 
-		t = Gnuplot.Data(0,0,with='impulses') 
+		t = Gnuplot.Data(0,0,with_='impulses') 
 
 		g = gnuplot_init(outplot)
 		g('set title \'%s\'' % (re.sub('.*/','',self.input)))

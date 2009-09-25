@@ -73,10 +73,10 @@ while (taskfile.readsize == params.hopsize):
   y = [yin.get(i,0) for i in range(params.bufsize/2)]
   thresh = [0.1 for i in range(params.bufsize/2)]
   #t.append((i/float(params.hopsize)+taskfile.frameread)*params.step),t.pop(0)
-  d = [plotdata(n,a,plottitle="signal", with='lines'),
-    plotdata(n,c,plottitle="d[t]",axes='x1y2', with='lines lt 1'),
-    plotdata(n,y,plottitle="d'[t]",axes='x1y1', with='lines lt 2'),
-    plotdata(n,thresh,plottitle="threshold",axes='x1y1', with='lines lt 3')]
+  d = [plotdata(n,a,plottitle="signal", with_='lines'),
+    plotdata(n,c,plottitle="d[t]",axes='x1y2', with_='lines lt 1'),
+    plotdata(n,y,plottitle="d'[t]",axes='x1y1', with_='lines lt 2'),
+    plotdata(n,thresh,plottitle="threshold",axes='x1y1', with_='lines lt 3')]
   #g('set xrange [%f:%f]' % (t[0],t[-1]))
   #time.sleep(.2)
   g.reset()

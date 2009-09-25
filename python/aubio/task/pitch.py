@@ -156,7 +156,7 @@ class taskpitch(task):
 
 		time = [ (i+self.params.pitchdelay)*self.params.step for i in range(len(pitch)) ]
 		pitch = [aubio_freqtomidi(i) for i in pitch]
-		oplots.append(Gnuplot.Data(time,pitch,with='lines',
+		oplots.append(Gnuplot.Data(time,pitch,with_='lines',
 			title=self.params.pitchmode))
 		titles.append(self.params.pitchmode)
 
@@ -170,7 +170,7 @@ class taskpitch(task):
 		if truth:
 			timet,pitcht = self.gettruth()
 			if timet and pitcht:
-				oplots = [Gnuplot.Data(timet,pitcht,with='lines',
+				oplots = [Gnuplot.Data(timet,pitcht,with_='lines',
 					title='ground truth')] + oplots
 
 		g = gnuplot_create(outplot=outplot, extension=extension)

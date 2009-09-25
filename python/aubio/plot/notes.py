@@ -51,7 +51,7 @@ def plotnote_withends(la,plot_title=None) :
 	        la[:,2],                        # y centers
 	        x_widths,                       # x errors
 	        __notesheight*ones(len(la)),    # y errors
-	        title=plot_title,with=('boxxyerrorbars fs 3')))
+	        title=plot_title,with_=('boxxyerrorbars fs 3')))
 	return d
 
 
@@ -66,7 +66,7 @@ def plotnote_withoutends(la,plot_title=None) :
                 la[:-1,1],                      # y centers
                 x_widths,                       # x errors
                 __notesheight*ones(len(la)-1),  # y errors
-                title=plot_title,with=('boxxyerrorbars fs 3')))
+                title=plot_title,with_=('boxxyerrorbars fs 3')))
         return d
 
 def plotnote_do(d,fileout=None):
