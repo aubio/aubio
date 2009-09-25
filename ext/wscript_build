@@ -4,7 +4,7 @@ libaubioext = bld.new_task_gen(
     includes = ['.', '../src'],
     source = bld.path.ant_glob('*.c **/*.c'),
     target = 'aubioext',
-    uselib = ['ALSA', 'SNDFILE', 'JACK'],
+    uselib = ['SNDFILE', 'JACK'],
     uselib_local = ['aubio'],
     vnum = bld.env['LIB_VERSION'])
 

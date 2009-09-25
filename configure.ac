@@ -182,24 +182,6 @@ then
   fi
 fi
 
-dnl Enable alsa support (auto)
-AC_ARG_ENABLE(alsa,
-  AC_HELP_STRING([--enable-alsa],[compile with alsa [[default=auto]]]),
-  [with_alsa=$enableval],
-  with_alsa="yes")
-if test "$with_alsa" = "yes"
-then
-  if test "$with_jack" = "yes"
-  then
-    PKG_CHECK_MODULES(ALSA,      alsa >= 0.0.9,      HAVE_ALSA=1, HAVE_ALSA=0)
-    if test "${HAVE_ALSA}" = "1"; then
-      AC_DEFINE(HAVE_ALSA,1,[Define to enable alsa support])
-    fi
-  else
-    AC_MSG_WARN([Disabling alsa as jack was not found])
-  fi
-fi
-
 dnl Enable lash support
 AC_ARG_ENABLE(lash,
   AC_HELP_STRING([--enable-lash],[compile with lash [[default=auto]]]),
@@ -292,11 +274,6 @@ if test "${HAVE_JACK}" = "1"; then
   echo "JACK:                    yes"
 else
   echo "JACK:                    no"
-fi
-if test "${HAVE_ALSA}" = "1"; then
-  echo "ALSA midi:               yes"
-else
-  echo "ALSA midi:               no"
 fi
 if test "${HAVE_LASH}" = "1"; then
   echo "Lash:                    yes"

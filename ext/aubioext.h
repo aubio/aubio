@@ -31,19 +31,7 @@ extern "C" {
 #include "jackio.h"
 #endif 
 
-#if HAVE_ALSA
-#define ALSA_SUPPORT 1
-#endif
-
 #include "sndfileio.h"
-
-#include "midi/midi.h"
-#include "midi/midi_event.h"
-#include "midi/midi_track.h"
-#include "midi/midi_player.h"
-#include "midi/midi_parser.h"
-#include "midi/midi_file.h"
-#include "midi/midi_driver.h"
 
 #ifdef __cplusplus
 } /* extern "C" */

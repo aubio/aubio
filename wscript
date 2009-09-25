@@ -26,8 +26,6 @@ def set_options(opt):
       help='compile without C99 complex')
   opt.add_option('--disable-jack', action='store_true', default=False,
       help='compile without jack support')
-  opt.add_option('--disable-alsa', action='store_true', default=False,
-      help='compile without alsa support')
   opt.add_option('--disable-lash', action='store_true', default=False,
       help='compile without lash support')
   opt.add_option('--enable-java', action='store_true', default=False,
@@ -90,9 +88,6 @@ def configure(conf):
   # optional dependancies
   if (Options.options.disable_jack == False):
     conf.check_cfg(package = 'jack', atleast_version = '0.15.0',
-    args = '--cflags --libs')
-  if (Options.options.disable_alsa == False):
-    conf.check_cfg(package = 'alsa', atleast_version = '0.0.9',
     args = '--cflags --libs')
   if (Options.options.disable_lash == False):
     conf.check_cfg(package = 'lash-1.0', atleast_version = '0.5.0',
