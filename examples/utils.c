@@ -363,6 +363,7 @@ void examples_common_process(aubio_process_func_t process_func, aubio_print_func
     aubio_jack_t * jack_setup;
     debug("Jack init ...\n");
     jack_setup = new_aubio_jack(channels, channels,
+          1, 1,
           (aubio_process_func_t)process_func);
     if (usepitch) {
             debug("Midi init ...\n");

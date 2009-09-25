@@ -53,10 +53,14 @@ struct _aubio_jack_t
   /** converted jack output buffer */
   smpl_t **sobufs;
 #endif
-  /** jack input channels */
+  /** jack input audio channels */
   uint_t ichan;
-  /** jack output channels */
+  /** jack output audio channels */
   uint_t ochan;
+  /** jack input midi channels */
+  uint_t imidichan;
+  /** jack output midi channels */
+  uint_t omidichan;
   /** jack samplerate (Hz) */
   uint_t samplerate;
   /** jack processing function */
@@ -64,18 +68,23 @@ struct _aubio_jack_t
 };
 
 /* static memory management */
-static aubio_jack_t *aubio_jack_alloc (uint_t ichan, uint_t ochan);
+static aubio_jack_t *aubio_jack_alloc (uint_t ichan, uint_t ochan,
+    uint_t imidichan, uint_t omidichan);
 static uint_t aubio_jack_free (aubio_jack_t * jack_setup);
 /* jack callback functions */
 static int aubio_jack_process (jack_nframes_t nframes, void *arg);
 static void aubio_jack_shutdown (void *arg);
 
 aubio_jack_t *
-new_aubio_jack (uint_t ichan, uint_t ochan, aubio_process_func_t callback)
+new_aubio_jack (uint_t ichan, uint_t ochan,
+    uint_t imidichan, uint_t omidichan, 
+    aubio_process_func_t callback)
 {
-  aubio_jack_t *jack_setup = aubio_jack_alloc (ichan, ochan);
+  aubio_jack_t *jack_setup = aubio_jack_alloc (ichan, ochan,
+      imidichan, omidichan);
   uint_t i;
   char *client_name = "aubio";
+  char *jack_port_type;
   char name[64];
   /* initial jack client setup */
   if ((jack_setup->client = jack_client_new (client_name)) == 0) {
@@ -89,35 +98,49 @@ new_aubio_jack (uint_t ichan, uint_t ochan, aubio_process_func_t callback)
   jack_on_shutdown (jack_setup->client, aubio_jack_shutdown,
       (void *) jack_setup);
 
-  /* register jack output ports */
-  for (i = 0; i < ochan; i++) {
-    AUBIO_SPRINTF (name, "out_%d", i + 1);
-    AUBIO_MSG ("%s\n", name);
+  /* register jack output audio and midi ports */
+  for (i = 0; i < ochan + omidichan; i++) {
+    if (i < ochan) {
+      jack_port_type = JACK_DEFAULT_AUDIO_TYPE;
+      AUBIO_SPRINTF (name, "out_%d", i + 1);
+    } else {
+      jack_port_type = JACK_DEFAULT_MIDI_TYPE;
+      AUBIO_SPRINTF (name, "midi_out_%d", i - ochan + 1);
+    }
     if ((jack_setup->oports[i] =
             jack_port_register (jack_setup->client, name,
-                JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0)) == 0) {
-      AUBIO_ERR ("failed registering output port \"%s\"!\n", name);
-      jack_client_close (jack_setup->client);
-      AUBIO_QUIT (AUBIO_FAIL);
+                jack_port_type, JackPortIsOutput, 0)) == 0) {
+      goto beach;
     }
+    AUBIO_DBG ("%s:%s\n", client_name, name);
   }
 
-  /* register jack input ports */
-  for (i = 0; i < ichan; i++) {
-    AUBIO_SPRINTF (name, "in_%d", i + 1);
-    AUBIO_MSG ("%s\n", name);
+  /* register jack input audio ports */
+  for (i = 0; i < ichan + imidichan; i++) {
+    if (i < ichan) {
+      jack_port_type = JACK_DEFAULT_AUDIO_TYPE;
+      AUBIO_SPRINTF (name, "in_%d", i + 1);
+    } else {
+      jack_port_type = JACK_DEFAULT_MIDI_TYPE;
+      AUBIO_SPRINTF (name, "midi_in_%d", i - ichan + 1);
+    }
     if ((jack_setup->iports[i] =
             jack_port_register (jack_setup->client, name,
-                JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0)) == 0) {
-      AUBIO_ERR ("failed registering input port \"%s\"!\n", name);
-      jack_client_close (jack_setup->client);
-      AUBIO_QUIT (AUBIO_FAIL);
+                jack_port_type, JackPortIsInput, 0)) == 0) {
+      goto beach;
     }
+    AUBIO_DBG ("%s:%s\n", client_name, name);
   }
 
   /* set processing callback */
   jack_setup->callback = callback;
   return jack_setup;
+
+beach:
+  AUBIO_ERR ("failed registering port \"%s:%s\"!\n", 
+      client_name, name);
+  jack_client_close (jack_setup->client);
+  AUBIO_QUIT (AUBIO_FAIL);
 }
 
 uint_t
@@ -143,16 +166,18 @@ aubio_jack_close (aubio_jack_t * jack_setup)
 
 /* memory management */
 static aubio_jack_t *
-aubio_jack_alloc (uint_t ichan, uint_t ochan)
+aubio_jack_alloc (uint_t ichan, uint_t ochan,
+    uint_t imidichan, uint_t omidichan)
 {
   aubio_jack_t *jack_setup = AUBIO_NEW (aubio_jack_t);
   jack_setup->ichan = ichan;
   jack_setup->ochan = ochan;
-  jack_setup->oports = AUBIO_ARRAY (jack_port_t *, ichan);
-  jack_setup->iports = AUBIO_ARRAY (jack_port_t *, ochan);
+  jack_setup->oports = AUBIO_ARRAY (jack_port_t *, ichan + imidichan);
+  jack_setup->iports = AUBIO_ARRAY (jack_port_t *, ochan + omidichan);
   jack_setup->ibufs = AUBIO_ARRAY (jack_sample_t *, ichan);
   jack_setup->obufs = AUBIO_ARRAY (jack_sample_t *, ochan);
 #ifdef AUBIO_JACK_NEEDS_CONVERSION
+  /* allocate arrays for data conversion */
   jack_setup->sibufs = AUBIO_ARRAY (smpl_t *, ichan);
   uint_t i;
   for (i = 0; i < ichan; i++) {
