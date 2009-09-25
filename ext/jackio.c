@@ -194,6 +194,8 @@ aubio_jack_process (jack_nframes_t nframes, void *arg)
     /* get readable input */
     dev->ibufs[i] =
         (jack_sample_t *) jack_port_get_buffer (dev->iports[i], nframes);
+  }
+  for (i = 0; i < dev->ochan; i++) {
     /* get writable output */
     dev->obufs[i] =
         (jack_sample_t *) jack_port_get_buffer (dev->oports[i], nframes);
