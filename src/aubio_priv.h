@@ -49,7 +49,7 @@
 #include <complex.h>
 #endif
 
-#if HAVE_FFTW3_H
+#if HAVE_FFTW3 || HAVE_FFTW3F
 #include <fftw3.h>
 #endif
 
