@@ -28,7 +28,7 @@
 
 /** Internal structure for mfcc object */
 
-struct aubio_mfcc_t_
+struct _aubio_mfcc_t
 {
   uint_t win_s;             /** grain length */
   uint_t samplerate;        /** sample rate (needed?) */

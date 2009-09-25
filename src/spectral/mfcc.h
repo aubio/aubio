@@ -19,6 +19,12 @@
 
 */
 
+/** \file
+
+  Mel-frequency cepstrum coefficients object
+
+*/
+
 #ifndef MFCC_H
 #define MFCC_H
 
@@ -27,13 +33,15 @@ extern "C"
 {
 #endif
 
-typedef struct aubio_mfcc_t_ aubio_mfcc_t;
+/** mfcc object */
+typedef struct _aubio_mfcc_t aubio_mfcc_t;
 
 /** create mfcc object
 
   \param win_s size of analysis buffer (and length the FFT transform)
   \param samplerate audio sampling rate
-  \param n_coefs number of desired coefficientss
+  \param n_coefs number of desired coefficients
+  \param n_filters number of desired filters
 
 */
 aubio_mfcc_t *new_aubio_mfcc (uint_t win_s, uint_t samplerate,
