@@ -47,14 +47,14 @@ static void aubio_pvoc_addsynth(const smpl_t * synth, smpl_t * synthold,
     smpl_t * synthnew, uint_t win_s, uint_t hop_s);
 
 void aubio_pvoc_do(aubio_pvoc_t *pv, fvec_t * datanew, cvec_t *fftgrain) {
-  uint_t i,j;
+  uint_t i;
   for (i=0; i<pv->channels; i++) {
     /* slide  */
     aubio_pvoc_swapbuffers(pv->data->data[i],pv->dataold->data[i],
         datanew->data[i],pv->win_s,pv->hop_s);
-    /* windowing */
-    fvec_weight(pv->data, pv->w);
   }
+  /* windowing */
+  fvec_weight(pv->data, pv->w);
   /* shift */
   vec_shift(pv->data);
   /* calculate fft */
