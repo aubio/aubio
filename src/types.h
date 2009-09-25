@@ -30,7 +30,17 @@
 extern "C" {
 #endif
 
+#include "config.h"
+
+#ifndef HAVE_AUBIO_DOUBLE
+#define HAVE_AUBIO_DOUBLE 0
+#endif
+
+#if HAVE_AUBIO_DOUBLE
+#define AUBIO_SINGLE_PRECISION 0
+#else
 #define AUBIO_SINGLE_PRECISION 1
+#endif
 
 /** short sample format (32 or 64 bits) */
 #if AUBIO_SINGLE_PRECISION
