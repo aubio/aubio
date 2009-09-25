@@ -32,16 +32,18 @@
 
 #ifdef HAVE_COMPLEX_H
 #if HAVE_FFTW3F
+/** fft data type with complex.h and fftw3f */
 #define FFTW_TYPE fftwf_complex
 #else
+/** fft data type with complex.h and fftw3 */
 #define FFTW_TYPE fftw_complex
 #endif
 #else
 #if HAVE_FFTW3F
-/** fft data type */
+/** fft data type without complex.h and with fftw3f */
 #define FFTW_TYPE float
 #else
-/** fft data type */
+/** fft data type without complex.h and with fftw */
 #define FFTW_TYPE double
 #endif
 #endif
