@@ -1,17 +1,23 @@
-/* test sample for phase vocoder 
+/** Test for phase vocoder in jack
  *
- * this program should start correctly using JACK_START_SERVER=true and
- * reconstruct each audio input frame perfectly on the corresponding input with
- * a delay equal to the window size, hop_s.
+ * This program should start correctly, when jackd is started or when
+ * using JACK_START_SERVER=true and reconstruct each audio input channel
+ * on the corresponding output channel with some strange effects and a
+ * delay equal to the hop size (hop_s).
+ *
  */
 
-#include <unistd.h>  /* pause() or sleep() */
+#include <unistd.h>  /* sleep() */
 #include <aubio.h>
 #include <aubioext.h>
 
-uint_t win_s    = 32; /* window size                       */
-uint_t hop_s    = 8;  /* hop size                          */
-uint_t channels = 4;  /* number of channels                */
+uint_t testing  = 1;  /* change this to 1 to listen        */
+
+uint_t win_s    = 512;/* window size                       */
+uint_t hop_s    = 128;/* hop size                          */
+uint_t channels = 2;  /* number of audio channels          */
+uint_t midiin   = 4;  /* number of midi input channels     */
+uint_t midiout  = 2;  /* number of midi output channels    */
 uint_t pos      = 0;  /* frames%dspblocksize for jack loop */
 
 fvec_t * in;
@@ -19,10 +25,6 @@ cvec_t * fftgrain;
 fvec_t * out;
 
 aubio_pvoc_t * pv;
-
-#ifdef HAVE_JACK
-aubio_jack_t * jack_setup;
-#endif
 
 int aubio_process(float **input, float **output, int nframes);
 
@@ -33,20 +35,17 @@ int main(){
         out      = new_fvec (hop_s, channels); /* output buffer      */
         /* allocate fft and other memory space */
         pv = new_aubio_pvoc(win_s,hop_s,channels);
-        /* fill input with some data */
-        printf("initialised\n");
-        /* execute stft */
-        aubio_pvoc_do (pv,in,fftgrain);
-        printf("computed forward\n");
-        /* execute inverse fourier transform */
-        aubio_pvoc_rdo(pv,fftgrain,out);
-        printf("computed backard\n");
 
 #ifdef HAVE_JACK
-        jack_setup  = new_aubio_jack(channels, channels,
-                        (aubio_process_func_t)aubio_process);
+        aubio_jack_t * jack_setup;
+        jack_setup  = new_aubio_jack(channels, channels, 
+            midiin, midiout,
+            (aubio_process_func_t)aubio_process);
         aubio_jack_activate(jack_setup);
-        sleep(10); //pause(); /* enter main jack loop */
+        /* stay in main jack loop for 1 seconds only */
+        do {
+          sleep(1);
+        } while(testing);
         aubio_jack_close(jack_setup);
 #endif
         
@@ -55,7 +54,6 @@ int main(){
         del_fvec(in);
         del_fvec(out);
         aubio_cleanup();
-        printf("memory freed\n");
         return 0;
 }
 
@@ -73,8 +71,14 @@ int aubio_process(float **input, float **output, int nframes) {
     if (pos == hop_s-1) {
       /* block loop */
       aubio_pvoc_do (pv,in, fftgrain);
-      //for (i=0;i<fftgrain->length;i++) fftgrain->phas[0][i] *= 2.; 
-      //for (i=0;i<fftgrain->length;i++) fftgrain->phas[0][i] = 0.; 
+      // zero phases of first channel
+      for (i=0;i<fftgrain->length;i++) fftgrain->phas[0][i] = 0.; 
+      // double phases of second channel
+      for (i=0;i<fftgrain->length;i++) {
+        fftgrain->phas[1][i] = 
+          aubio_unwrap2pi (fftgrain->phas[1][i] * 2.); 
+      }
+      // copy second channel to third one
       aubio_pvoc_rdo(pv,fftgrain,out);
       pos = -1;
     }
