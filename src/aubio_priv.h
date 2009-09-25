@@ -124,7 +124,7 @@ typedef enum {
 #define TWO_PI     (PI*2.)
 
 /* aliases to math.h functions */
-#if AUBIO_SINGLE_PRECISION
+#if !HAVE_AUBIO_DOUBLE
 #define EXP        expf
 #define COS        cosf
 #define SIN        sinf
@@ -150,7 +150,7 @@ typedef enum {
 #define ROUND(x)   FLOOR(x+.5)
 
 /* aliases to complex.h functions */
-#if !defined(AUBIO_SINGLE_PRECISION) || !defined(HAVE_COMPLEX_H) || defined(WIN32)
+#if HAVE_AUBIO_DOUBLE || !defined(HAVE_COMPLEX_H) || defined(WIN32)
 /* mingw32 does not know about c*f functions */
 #define EXPC      cexp
 /** complex = CEXPC(complex) */
