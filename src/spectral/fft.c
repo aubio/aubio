@@ -35,7 +35,7 @@
 #endif
 
 #if HAVE_FFTW3F
-#if !AUBIO_SINGLE_PRECISION 
+#if HAVE_AUBIO_DOUBLE
 #warning "Using aubio in double precision with fftw3 in single precision"
 #endif
 #define real_t float 
