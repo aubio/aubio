@@ -19,12 +19,23 @@
 
 #include "filter.h"
 
-/** create a new C-design filter 
+/** \file
+
+  Create a new C-design filter 
+
+  This file creates an IIR filter object with A-design coefficients.
+
+*/
+
+/** create new C-design filter
 
   \param samplerate sampling-rate of the signal to filter 
+  \param channels number of channels to allocate
 
 */
 aubio_filter_t * new_aubio_cdsgn_filter(uint_t samplerate, uint_t channels);
 
+/** filter input vector (in-place) */
 #define aubio_cdsgn_filter_do aubio_filter_do
+/** delete c-design filter object */
 #define del_aubio_cdsgn_filter del_aubio_filter

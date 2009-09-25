@@ -17,12 +17,23 @@
 
 */
 
-/** create a new A-design filter 
+/** \file
+
+  Create a new A-design filter 
+
+  This file creates an IIR filter object with A-design coefficients.
+
+*/
+
+/** create new A-design filter
 
   \param samplerate sampling-rate of the signal to filter 
+  \param channels number of channels to allocate
 
 */
 aubio_filter_t * new_aubio_adsgn_filter(uint_t samplerate, uint_t channels);
 
+/** filter input vector (in-place) */
 #define aubio_adsgn_filter_do aubio_filter_do
+/** delete a-design filter object */
 #define del_aubio_adsgn_filter del_aubio_filter
