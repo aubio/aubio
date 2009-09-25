@@ -26,7 +26,7 @@ extern "C" {
 
 /** \file
 
-  Real and complex buffers
+  Complex buffers
 
   This file specifies the cvec_t buffer type, which is used throughout aubio to
   store complex data. Complex values are stored in terms of phase and

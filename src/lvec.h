@@ -28,8 +28,9 @@ extern "C" {
 
   Real buffers
 
-  This file specifies the lvec_t buffer type, which is used in aubio to
-  store double precision real data.
+  This file specifies the lvec_t buffer type, which is used in aubio to store
+  double precision real data. Note that the lvec_t data type is mostly used for
+  IIR filters (see temporal/filter.h).
 
 */
 
