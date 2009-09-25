@@ -17,15 +17,19 @@
 
 */
 
-#include "config.h"
-#ifdef HAVE_JACK
+#include <aubio.h>
+
+#if HAVE_JACK
 #include <jack/jack.h>
 #include "aubio_priv.h"
 #include "jackio.h"
 
-/*typedef jack_default_audio_sample_t jack_sample_t; */
-/* work with float, never tried in double */
-typedef smpl_t jack_sample_t;
+typedef jack_default_audio_sample_t jack_sample_t;
+
+#if !AUBIO_SINGLE_PRECISION
+#define AUBIO_JACK_MAX_FRAMES 4096
+#define AUBIO_JACK_NEEDS_CONVERSION
+#endif
 
 /**
  * jack device structure 
@@ -41,6 +45,12 @@ struct _aubio_jack_t {
   jack_sample_t **ibufs;
   /** jack output buffer */
   jack_sample_t **obufs;
+#ifdef AUBIO_JACK_NEEDS_CONVERSION 
+  /** converted jack input buffer */
+  smpl_t **sibufs;
+  /** converted jack output buffer */
+  smpl_t **sobufs;
+#endif
   /** jack input channels */
   uint_t ichan;
   /** jack output channels */
@@ -138,6 +148,17 @@ static aubio_jack_t * aubio_jack_alloc(uint_t ichan, uint_t ochan) {
   jack_setup->iports = AUBIO_ARRAY(jack_port_t*, ochan); 
   jack_setup->ibufs  = AUBIO_ARRAY(jack_sample_t*, ichan); 
   jack_setup->obufs  = AUBIO_ARRAY(jack_sample_t*, ochan); 
+#ifdef AUBIO_JACK_NEEDS_CONVERSION 
+  jack_setup->sibufs = AUBIO_ARRAY(smpl_t*, ichan); 
+  uint_t i;
+  for (i = 0; i < ichan; i++) {
+    jack_setup->sibufs[i] = AUBIO_ARRAY(smpl_t, AUBIO_JACK_MAX_FRAMES);
+  }
+  jack_setup->sobufs = AUBIO_ARRAY(smpl_t*, ochan); 
+  for (i = 0; i < ochan; i++) {
+    jack_setup->sobufs[i] = AUBIO_ARRAY(smpl_t, AUBIO_JACK_MAX_FRAMES);
+  }
+#endif
   return jack_setup;
 }
 
@@ -167,7 +188,22 @@ static int aubio_jack_process(jack_nframes_t nframes, void *arg) {
     dev->obufs[i] = 
       (jack_sample_t *) jack_port_get_buffer (dev->oports[i], nframes);
   }
+#ifndef AUBIO_JACK_NEEDS_CONVERSION
   dev->callback(dev->ibufs,dev->obufs,nframes);
+#else
+  uint_t j;
+  for (j = 0; j < MIN(nframes, AUBIO_JACK_MAX_FRAMES); j++) {
+    for (i = 0; i < dev->ichan; i++) { 
+      dev->sibufs[i][j] = (smpl_t)dev->ibufs[i][j];
+    }
+  }
+  dev->callback(dev->sibufs, dev->sobufs, nframes);
+  for (j = 0; j < MIN(nframes, AUBIO_JACK_MAX_FRAMES); j++) {
+    for (i = 0; i < dev->ichan; i++) { 
+      dev->obufs[i][j] = (jack_sample_t)dev->sobufs[i][j];
+    }
+  }
+#endif
   return 0;
 }
 
