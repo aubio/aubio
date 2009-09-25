@@ -211,7 +211,7 @@ aubio_jack_process (jack_nframes_t nframes, void *arg)
   }
   dev->callback (dev->sibufs, dev->sobufs, nframes);
   for (j = 0; j < MIN (nframes, AUBIO_JACK_MAX_FRAMES); j++) {
-    for (i = 0; i < dev->ichan; i++) {
+    for (i = 0; i < dev->ochan; i++) {
       dev->obufs[i][j] = (jack_sample_t) dev->sobufs[i][j];
     }
   }
