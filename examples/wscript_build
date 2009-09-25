@@ -1,16 +1,25 @@
 # build examples
 
+defines = ['AUBIO_PREFIX="' + bld.env['AUBIO_PREFIX'] + '"']
+defines += ['PACKAGE="' + bld.env['PACKAGE'] + '"']
+
+bld.new_task_gen(features = 'cc',
+    includes = '../src ../ext',
+    source = 'utils.c',
+    uselib = ['LASH'],
+    defines = defines, 
+    target = 'utils')
+
 # loop over all *.c filenames in examples to build them all
 for target_name in bld.path.ant_glob('*.c').split():
-  # ignore aubioonset.c and utils.c
+  # ignore utils.c
   if target_name in ['utils.c']: continue 
-  this_target = bld.new_task_gen(features = 'cc cprogram')
-  this_target.includes = '. ../src ../ext'
-  this_target.uselib = ['LASH']
-  this_target.uselib_local = ['aubio', 'aubioext']
-  this_target.defines = ['AUBIO_PREFIX="' + bld.env['AUBIO_PREFIX'] + '"']
-  this_target.defines += ['PACKAGE="' + bld.env['PACKAGE'] + '"']
-  # add utils.c as source file
-  this_target.source = [target_name, 'utils.c']
-  # program name is filename.c without the .c
-  this_target.target = target_name.split('.')[0]
+  bld.new_task_gen(features = 'cc cprogram', 
+      add_objects = 'utils',
+      includes = '../src ../ext',
+      defines = defines, 
+      uselib = ['LASH'],
+      uselib_local = ['aubio', 'aubioext'],
+      source = target_name,
+      # program name is filename.c without the .c
+      target = target_name.split('.')[0])
