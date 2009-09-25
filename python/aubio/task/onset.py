@@ -92,7 +92,7 @@ class taskonset(task):
 		import Gnuplot, Gnuplot.funcutils
 		import aubio.txtfile
 		import os.path
-		import numarray
+    from numpy import arange, array, ones
 		from aubio.onsetcompare import onset_roc
 
 		x1,y1,y1p = [],[],[]
@@ -102,7 +102,7 @@ class taskonset(task):
 		self.lenofunc = len(ofunc) 
 		self.maxofunc = max(ofunc)
 		# onset detection function 
-		downtime = numarray.arange(len(ofunc))*self.params.step
+		downtime = arange(len(ofunc))*self.params.step
 		oplot.append(Gnuplot.Data(downtime,ofunc,with='lines',title=self.params.onsetmode))
 
 		# detected onsets
@@ -111,8 +111,8 @@ class taskonset(task):
 				x1.append(i[0]*self.params.step)
 				y1.append(self.maxofunc)
 				y1p.append(-self.maxofunc)
-			#x1 = numarray.array(onsets)*self.params.step
-			#y1 = self.maxofunc*numarray.ones(len(onsets))
+			#x1 = array(onsets)*self.params.step
+			#y1 = self.maxofunc*ones(len(onsets))
 			if x1:
 				oplot.append(Gnuplot.Data(x1,y1,with='impulses'))
 				wplot.append(Gnuplot.Data(x1,y1p,with='impulses'))
@@ -126,8 +126,8 @@ class taskonset(task):
 			self.title = "" #"(no ground truth)"
 		else:
 			t_onsets = aubio.txtfile.read_datafile(datafile)
-			x2 = numarray.array(t_onsets).resize(len(t_onsets))
-			y2 = self.maxofunc*numarray.ones(len(t_onsets))
+			x2 = array(t_onsets).resize(len(t_onsets))
+			y2 = self.maxofunc*ones(len(t_onsets))
 			wplot.append(Gnuplot.Data(x2,y2,with='impulses'))
 			
 			tol = 0.050 
