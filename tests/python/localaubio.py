@@ -8,10 +8,17 @@ except ImportError:
   try: 
     import os
     import sys
-    cur_dir = os.path.dirname(sys.argv[0])
+    cur_dir = os.path.dirname(__file__)
     sys.path.append(os.path.join(cur_dir,'..','..','python'))
+    # waf places
     sys.path.append(os.path.join(cur_dir,'..','..','python','aubio','.libs'))
-    from aubio.aubiowrapper import * 
+    sys.path.append(os.path.join(cur_dir,'..','..','build', 'default', 'swig'))
+    # autotools places
+    sys.path.append(os.path.join(cur_dir,'..','..','build', 'default', 'python','aubio'))
+    try:
+      from aubiowrapper import * 
+    except ImportError:
+      from aubio.aubiowrapper import *
   except ImportError:
     raise
 else:
