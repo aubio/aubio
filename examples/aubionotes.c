@@ -21,8 +21,8 @@
 unsigned int pos = 0; /*frames%dspblocksize*/
 uint_t usepitch = 1;
 
-int aubio_process(float **input, float **output, int nframes);
-int aubio_process(float **input, float **output, int nframes) {
+int aubio_process(smpl_t **input, smpl_t **output, int nframes);
+int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
   unsigned int i;       /*channels*/
   unsigned int j;       /*frames*/
   for (j=0;j<(unsigned)nframes;j++) {

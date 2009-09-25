@@ -25,8 +25,8 @@ fvec_t * out              = NULL;
 aubio_tempo_t * bt        = NULL;
 smpl_t istactus           = 0;
 
-int aubio_process(float **input, float **output, int nframes);
-int aubio_process(float **input, float **output, int nframes) {
+int aubio_process(smpl_t **input, smpl_t **output, int nframes);
+int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
   unsigned int i;       /*channels*/
   unsigned int j;       /*frames*/
   for (j=0;j<(unsigned)nframes;j++) {

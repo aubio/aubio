@@ -53,7 +53,7 @@ void examples_common_del(void);
 typedef void (aubio_print_func_t)(void);
 #ifndef HAVE_JACK
 typedef int (*aubio_process_func_t)
-        (float **input, float **output, int nframes);
+        (smpl_t **input, smpl_t **output, int nframes);
 #endif
 void examples_common_process(aubio_process_func_t process_func, aubio_print_func_t print);
 void flush_process(aubio_process_func_t process_func, aubio_print_func_t print);
