@@ -24,6 +24,7 @@
 #include <getopt.h>
 #include <unistd.h>
 #include <math.h>               /* for isfinite */
+#include <string.h>             /* for strcmp */
 #include <aubio.h>
 #include <aubioext.h>
 
@@ -113,11 +114,6 @@ extern fvec_t *note_buffer;
 extern fvec_t *note_buffer2;
 extern smpl_t curlevel;
 extern smpl_t maxonset;
-
-/* midi objects */
-extern aubio_midi_player_t *mplay;
-extern aubio_midi_driver_t *mdriver;
-extern aubio_midi_event_t *event;
 
 extern smpl_t curnote;
 extern smpl_t newnote;

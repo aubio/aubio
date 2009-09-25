@@ -83,11 +83,6 @@ fvec_t *note_buffer2 = NULL;
 smpl_t curlevel = 0.;
 smpl_t maxonset = 0.;
 
-/* midi objects */
-aubio_midi_player_t *mplay;
-aubio_midi_driver_t *mdriver;
-aubio_midi_event_t *event;
-
 smpl_t curnote = 0.;
 smpl_t newnote = 0.;
 uint_t isready = 0;
@@ -246,14 +241,14 @@ parse_args (int argc, char **argv)
     debug ("Input file : %s\n", input_filename);
     debug ("Output file : %s\n", output_filename);
   } else {
-    if (HAVE_JACK) {
-      debug ("Jack input output\n");
-      usejack = 1;
-    } else {
-      debug
-          ("Error: Could not switch to jack mode\n   aubio was compiled without jack support\n");
-      exit (1);
-    }
+#if HAVE_JACK
+    debug ("Jack input output\n");
+    usejack = 1;
+#else
+    debug
+        ("Error: Could not switch to jack mode\n   aubio was compiled without jack support\n");
+    exit (1);
+#endif
   }
 
   return 0;
@@ -370,32 +365,25 @@ examples_common_del (void)
   aubio_cleanup ();
 }
 
+#if HAVE_JACK
+aubio_jack_t *jack_setup;
+#endif
+
 void
 examples_common_process (aubio_process_func_t process_func,
     aubio_print_func_t print)
 {
   if (usejack) {
+
 #if HAVE_JACK
-    aubio_jack_t *jack_setup;
     debug ("Jack init ...\n");
     jack_setup = new_aubio_jack (channels, channels,
-        1, 1, (aubio_process_func_t) process_func);
-    if (usepitch) {
-      debug ("Midi init ...\n");
-      mplay = new_aubio_midi_player ();
-      mdriver = new_aubio_midi_driver ("alsa_seq",
-          (handle_midi_event_func_t) aubio_midi_send_event, mplay);
-      event = new_aubio_midi_event ();
-    }
+        0, 1, (aubio_process_func_t) process_func);
     debug ("Jack activation ...\n");
     aubio_jack_activate (jack_setup);
     debug ("Processing (Ctrl+C to quit) ...\n");
     pause ();
     aubio_jack_close (jack_setup);
-    if (usepitch) {
-      send_noteon (curnote, 0);
-      del_aubio_midi_driver (mdriver);
-    }
 #else
     usage (stderr, 1);
     outmsg ("Compiled without jack output, exiting.\n");
@@ -444,23 +432,24 @@ flush_process (aubio_process_func_t process_func, aubio_print_func_t print)
   }
 }
 
-
 void
 send_noteon (int pitch, int velo)
 {
   smpl_t mpitch = floor (aubio_freqtomidi (pitch) + .5);
-  /* we should check if we use midi here, not jack */
-#if HAVE_ALSA
+#if HAVE_JACK
+  jack_midi_event_t ev;
+  ev.size = 3;
+  ev.buffer = malloc (3 * sizeof (jack_midi_data_t)); // FIXME
+  ev.time = 0;
   if (usejack) {
+    ev.buffer[2] = velo;
+    ev.buffer[1] = mpitch;
     if (velo == 0) {
-      aubio_midi_event_set_type (event, NOTE_OFF);
+      ev.buffer[0] = 0x80;      /* note off */
     } else {
-      aubio_midi_event_set_type (event, NOTE_ON);
+      ev.buffer[0] = 0x90;      /* note on */
     }
-    aubio_midi_event_set_channel (event, 0);
-    aubio_midi_event_set_pitch (event, mpitch);
-    aubio_midi_event_set_velocity (event, velo);
-    aubio_midi_direct_output (mdriver, event);
+    aubio_jack_midi_event_write (jack_setup, (jack_midi_event_t *) & ev);
   } else
 #endif
   if (!verbose) {
