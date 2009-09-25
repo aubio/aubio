@@ -18,6 +18,8 @@ def init(opt):
   pass
 
 def set_options(opt):
+  opt.add_option('--enable-double', action='store_true', default=False,
+      help='compile aubio in double precision mode')
   opt.add_option('--disable-fftw3f', action='store_true', default=False,
       help='compile with fftw3 instead of fftw3f')
   opt.add_option('--disable-complex', action='store_true', default=False,
@@ -66,13 +68,24 @@ def configure(conf):
   conf.check_cfg(package = 'samplerate', atleast_version = '0.0.15',
     args = '--cflags --libs')
 
+  # double precision mode
+  if (Options.options.enable_double == True):
+    conf.define('HAVE_AUBIO_DOUBLE', 1)
+  else:
+    conf.define('HAVE_AUBIO_DOUBLE', 0)
+
   # one of fftwf or fftw3f
   if (Options.options.disable_fftw3f == True):
     conf.check_cfg(package = 'fftw3', atleast_version = '3.0.0',
-    args = '--cflags --libs')
+        args = '--cflags --libs')
   else:
-    conf.check_cfg(package = 'fftw3f', atleast_version = '3.0.0',
-    args = '--cflags --libs')
+    # fftw3f not disabled, take most sensible one according to enable_double
+    if (Options.options.enable_double == True):
+      conf.check_cfg(package = 'fftw3', atleast_version = '3.0.0',
+          args = '--cflags --libs')
+    else:
+      conf.check_cfg(package = 'fftw3f', atleast_version = '3.0.0',
+          args = '--cflags --libs')
 
   # optional dependancies
   if (Options.options.disable_jack == False):
