@@ -128,7 +128,7 @@ int aubio_sndfile_read(aubio_sndfile_t * f, int frames, fvec_t * read) {
         int i,j, channels = f->channels;
         int nsamples = frames*channels;
         int aread;
-        float *pread;	
+        smpl_t *pread;	
 
         /* allocate data for de/interleaving reallocated when needed. */
         if (nsamples >= f->size) {
@@ -148,9 +148,9 @@ int aubio_sndfile_read(aubio_sndfile_t * f, int frames, fvec_t * read) {
 
         /* de-interleaving data  */
         for (i=0; i<channels; i++) {
-                pread = (float *)fvec_get_channel(read,i);
+                pread = (smpl_t *)fvec_get_channel(read,i);
                 for (j=0; j<aread; j++) {
-                        pread[j] = f->tmpdata[channels*j+i];
+                        pread[j] = (smpl_t)f->tmpdata[channels*j+i];
                 }
         }
         return aread;
@@ -163,7 +163,7 @@ int aubio_sndfile_write(aubio_sndfile_t * f, int frames, fvec_t * write) {
         sf_count_t written_frames = 0;
         int i, j,	channels = f->channels;
         int nsamples = channels*frames;
-        float *pwrite;
+        smpl_t *pwrite;
 
         /* allocate data for de/interleaving reallocated when needed. */
         if (nsamples >= f->size) {
@@ -178,9 +178,9 @@ int aubio_sndfile_write(aubio_sndfile_t * f, int frames, fvec_t * write) {
 
         /* interleaving data  */
         for (i=0; i<channels; i++) {
-                pwrite = (float *)fvec_get_channel(write,i);
+                pwrite = (smpl_t *)fvec_get_channel(write,i);
                 for (j=0; j<frames; j++) {
-                        f->tmpdata[channels*j+i] = pwrite[j];
+                        f->tmpdata[channels*j+i] = (float)pwrite[j];
                 }
         }
         written_frames = sf_write_float (f->handle, f->tmpdata, nsamples);
