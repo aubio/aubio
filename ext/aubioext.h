@@ -27,7 +27,7 @@ extern "C" {
 
 #include <aubio.h>
  
-#ifdef HAVE_JACK
+#if HAVE_JACK
 #include "jackio.h"
 #endif 
 
