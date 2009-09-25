@@ -42,7 +42,8 @@ class sndfile:
             self.file = new_aubio_sndfile_wo(model.file,filename)
         else:
             self.file = new_aubio_sndfile_ro(filename)
-        if self.file == None: raise(ValueError, "failed opening file")
+        if self.file == None:
+            raise(ValueError, "failed opening file %s" % filename)
     def __del__(self):
         if self.file != None: del_aubio_sndfile(self.file)
     def info(self):
