@@ -92,7 +92,6 @@ class tasknotes(task):
     		return now, onset, freq, ifreq 
 
 	def plot(self,now,onset,freq,ifreq,oplots):
-		import numarray
 		import Gnuplot
 
 		oplots.append(Gnuplot.Data(now,freq,with='lines',
