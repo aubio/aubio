@@ -11,7 +11,7 @@ libapache-mod-python (apache2 prefered)
 sndfile-programs (sndfile-info)
 vorbis-tools (oggenc)
 python-gnuplot
-python-numarray
+python-numpy
 
 Try the command line tools in aubio/python to test your installation.
 

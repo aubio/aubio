@@ -18,7 +18,7 @@ def parse_args (sysargs):
 def main (sysargs) :
     from aubio.txtfile import read_datafile
     from aubio.gnuplot import plotnote,plotnote_do 
-    from numarray import array
+    from numpy import array
     filein,fileout = parse_args(sysargs)
     #print 'checking', fileerr, 'against', fileorg
     """ load midi and raw data """

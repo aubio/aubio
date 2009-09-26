@@ -42,10 +42,10 @@ def plotnote_multi(lalist,title=None,fileout=None) :
        
 
 def plotnote_withends(la,plot_title=None) :
-	import numarray
+	from numpy import array
 	import Gnuplot, Gnuplot.funcutils
 	d=[]
-	x_widths = numarray.array(la[:,1]-la[:,0])/2.
+	x_widths = array(la[:,1]-la[:,0])/2.
 	d.append(Gnuplot.Data(
 	        la[:,0]+x_widths,               # x centers
 	        la[:,2],                        # y centers
@@ -57,10 +57,10 @@ def plotnote_withends(la,plot_title=None) :
 
 def plotnote_withoutends(la,plot_title=None) :
         """ bug: fails drawing last note """
-	import numarray
+	from numpy import array
 	import Gnuplot, Gnuplot.funcutils
         d=[]
-        x_widths = numarray.array(la[1:,0]-la[:-1,0])/2;
+        x_widths = array(la[1:,0]-la[:-1,0])/2;
         d.append(Gnuplot.Data(
                 la[:-1,0]+x_widths,             # x centers
                 la[:-1,1],                      # y centers

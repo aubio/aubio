@@ -3,8 +3,6 @@
 """Copyright (C) 2004 Paul Brossier <piem@altern.org>
 
 print aubio.__LICENSE__ for the terms of use
-
-or see LICENSE.txt in the numarray installation directory.
 """
 __LICENSE__ = """\
 	 Copyright (C) 2004 Paul Brossier <piem@altern.org>

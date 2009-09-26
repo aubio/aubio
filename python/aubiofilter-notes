@@ -78,7 +78,7 @@ def main():
 
         from aubio import notefilter,txtfile,gnuplot
         """ load midi and raw data """
-        from numarray import array
+        from numpy import array
         notelist = array(txtfile.read_datafile(input))
         """ filter it out """
         notelist_filtered = notefilter.segraw_onsets4(notelist,winlength,eps)

@@ -106,7 +106,7 @@ def onset_rocloc(ltru, lexp, eps):
     return orig, missed, merged, expc, bad, doubled, l, labs
 
 def notes_roc (la, lb, eps):
-    from numarray import transpose, add, resize 
+    from numpy import transpose, add, resize 
     """ creates a matrix of size len(la)*len(lb) then look for hit and miss
     in it within eps tolerance windows """
     gdn,fpw,fpg,fpa,fdo,fdp = 0,0,0,0,0,0

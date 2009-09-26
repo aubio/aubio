@@ -4,7 +4,6 @@ def do(filein,threshold):
 
     import aubio.aubioclass
     import aubio.median
-    #from numarray import around
     from math import floor
     hopsize   = 512
     bufsize   = 4096
