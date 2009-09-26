@@ -142,11 +142,21 @@ fi
 dnl Check for pkg-config
 AC_PATH_PROG(PKG_CONFIG,pkg-config,no)
 
-PKG_CHECK_MODULES(SNDLIB,     sndfile >= 1.0.4,       HAVE_SNDLIB=1)
-PKG_CHECK_MODULES(SAMPLERATE, samplerate  >= 0.0.15,  HAVE_SAMPLERATE=1)
+PKG_CHECK_MODULES(SNDFILE,     sndfile >= 1.0.4,       HAVE_SNDFILE=1)
+if test "${HAVE_SNDFILE}" = "1"; then
+  AC_DEFINE(HAVE_SNDFILE,1,[Define to enable libsndfile support])
+fi
 
-if test "${HAVE_SNDLIB}" = "1"; then
-  AC_DEFINE(HAVE_SNDLIB,1,[Define to enable libsndfile support])
+dnl Enable samplerate support (auto)
+AC_ARG_ENABLE(samplerate,
+  AC_HELP_STRING([--enable-samplerate],[compile with samplerate [[default=auto]]]),
+  [with_samplerate=$enableval],
+  with_samplerate="yes")
+if test "$with_samplerate" = "yes"; then
+  PKG_CHECK_MODULES(SAMPLERATE, samplerate  >= 0.0.15,  HAVE_SAMPLERATE=1)
+  if test "${HAVE_SAMPLERATE}" = "1"; then
+    AC_DEFINE(HAVE_SAMPLERATE,1,[Define to enable libsamplerate support])
+  fi
 fi
 
 dnl Check for fftw3 (required)
@@ -260,7 +270,7 @@ else
   echo "Fftw3:                   no (that should not happen)"
 fi
 fi
-if test "${HAVE_SNDLIB}" = "1"; then
+if test "${HAVE_SNDFILE}" = "1"; then
   echo "Libsndfile:              yes"
 else
   echo "Libsndfile:              no"
