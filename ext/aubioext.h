@@ -29,9 +29,11 @@ extern "C" {
  
 #if HAVE_JACK
 #include "jackio.h"
-#endif 
+#endif /* HAVE_JACK */
 
+#if HAVE_SNDFILE
 #include "sndfileio.h"
+#endif /* HAVE_SNDFILE */
 
 #ifdef __cplusplus
 } /* extern "C" */
