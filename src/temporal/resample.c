@@ -17,6 +17,7 @@
 	 
 */
 
+#if HAVE_SAMPLERATE
 
 #include <samplerate.h> /* from libsamplerate */
 
@@ -63,3 +64,5 @@ uint_t aubio_resampler_process(aubio_resampler_t *s,
 	}
 	return AUBIO_OK;
 }	
+
+#endif /* HAVE_SAMPLERATE */
