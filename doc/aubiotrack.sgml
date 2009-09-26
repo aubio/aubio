@@ -122,19 +122,6 @@ manpage.1: manpage.sgml
   </listitem>
   </varlistentry>
   <varlistentry>
-  <term><option>-t</option>
-  <option>--threshold value</option></term>
-  <listitem>
-
-  <para>Set the threshold value for the onset peak picking. Typical values are
-  within <literal>0.001</literal> and <literal>0.900</literal>. Default is
-  <literal>0.1</literal>. <emphasis>Lower</emphasis> threshold values imply 
-  <emphasis>more</emphasis> onsets detected. Try <literal>0.3</literal> in
-  case of over-detections.</para>
-
-  </listitem>
-  </varlistentry>
-  <varlistentry>
   <term><option>-j</option>
   <option>--jack</option></term>
   <listitem>
