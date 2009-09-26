@@ -61,6 +61,7 @@ extern smpl_t ** cvec_get_phas(cvec_t *s);
 
 
 /* sndfile */
+#if HAVE_SNDFILE
 extern aubio_sndfile_t * new_aubio_sndfile_ro (const char * inputfile);
 extern aubio_sndfile_t * new_aubio_sndfile_wo(aubio_sndfile_t * existingfile, const char * outputname);
 extern void aubio_sndfile_info(aubio_sndfile_t * file);
@@ -69,6 +70,7 @@ extern int aubio_sndfile_read(aubio_sndfile_t * file, int frames, fvec_t * read)
 extern int del_aubio_sndfile(aubio_sndfile_t * file);
 extern uint_t aubio_sndfile_channels(aubio_sndfile_t * file);
 extern uint_t aubio_sndfile_samplerate(aubio_sndfile_t * file);
+#endif /* HAVE_SNDFILE */
 
 /* fft */
 extern aubio_fft_t * new_aubio_fft(uint_t size, uint_t channels);
@@ -180,9 +182,11 @@ extern void aubio_scale_do(aubio_scale_t *s, fvec_t * input);
 extern void del_aubio_scale(aubio_scale_t *s);
 
 /* resampling */
+#if HAVE_LIBSAMPLERATE
 extern aubio_resampler_t * new_aubio_resampler(float ratio, uint_t type);
 extern uint_t aubio_resampler_process(aubio_resampler_t *s, fvec_t * input,  fvec_t * output);
 extern void del_aubio_resampler(aubio_resampler_t *s);
+#endif /* HAVE_LIBSAMPLERATE */
 
 /* onset detection */
 typedef enum { 
