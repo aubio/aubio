@@ -16,6 +16,9 @@ AC_SUBST(SHARED_VERSION_INFO)
 dnl Init automake
 AM_INIT_AUTOMAKE(${PACKAGE}, ${VERSION})
 
+dnl Enable silent rules, use with make V=0 
+AM_SILENT_RULES
+
 dnl Maintainer mode
 AM_MAINTAINER_MODE
 
