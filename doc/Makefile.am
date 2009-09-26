@@ -1,8 +1,11 @@
-EXTRA_DIST = devel.cfg examples.cfg user.cfg aubio.css \
-	aubionotes.sgml aubioonset.sgml \
-	aubiocut.sgml aubiopitch.sgml aubiotrack.sgml \
-	aubioonset.1 aubionotes.1 \
-	aubiocut.1 aubiopitch.1 aubiotrack.1
+EXTRA_DIST = devel.cfg examples.cfg user.cfg \
+	aubionotes.sgml aubionotes.1 \
+	aubioonset.sgml aubioonset.1 \
+	aubiotrack.sgml aubiotrack.1 \
+	aubiomfcc.sgml  aubiomfcc.1  \
+	aubiopitch.sgml aubiopitch.1 \
+	aubiocut.sgml   aubiocut.1   \
+	aubio.css
 
 man_MANS = aubionotes.1 aubioonset.1 \
 	aubiocut.1 aubiopitch.1 aubiotrack.1
