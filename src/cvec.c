@@ -99,3 +99,20 @@ void cvec_print(cvec_t *s) {
   }
 }
 
+void cvec_set(cvec_t *s, smpl_t val) {
+  uint_t i,j;
+  for (i=0; i< s->channels; i++) {
+    for (j=0; j< s->length; j++) {
+      s->norm[i][j] = val;
+    }
+  }
+}
+
+void cvec_zeros(cvec_t *s) {
+  cvec_set(s, 0.);
+}
+
+void cvec_ones(cvec_t *s) {
+  cvec_set(s, 1.);
+}
+

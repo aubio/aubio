@@ -188,6 +188,28 @@ smpl_t ** cvec_get_phas(cvec_t *s);
 */
 void cvec_print(cvec_t *s);
 
+/** set all elements to a given value
+
+  \param s vector to modify
+  \param val value to set elements to
+
+*/
+void cvec_set(cvec_t *s, smpl_t val);
+
+/** set all elements to zero 
+
+  \param s vector to modify
+
+*/
+void cvec_zeros(cvec_t *s);
+
+/** set all elements to ones 
+
+  \param s vector to modify
+
+*/
+void cvec_ones(cvec_t *s);
+
 #ifdef __cplusplus
 }
 #endif
