@@ -193,9 +193,12 @@ aubio_beattracking_do (aubio_beattracking_t * bt, fvec_t * dfframe,
 
   /* find Rayleigh period */
   maxindex = vec_max_elem (bt->phout);
-  if (maxindex == winlen)
-    maxindex = 0;
-  phase = 1. + vec_quadint (bt->phout, maxindex, 1);
+  if (maxindex >= winlen - 1) {
+    // AUBIO_WRN ("damned, no idea what this groove is\n");
+    phase = step - bt->lastbeat;
+  } else {
+    phase = vec_quadint (bt->phout, maxindex, 1);
+  }
 #if 0                           // debug metronome mode
   phase = step - bt->lastbeat;
 #endif
@@ -205,14 +208,22 @@ aubio_beattracking_do (aubio_beattracking_t * bt, fvec_t * dfframe,
 
   i = 1;
   beat = bp - phase;
+  //AUBIO_DBG ("beat: %f, bp: %f, phase: %f, lastbeat: %f, step: %d, winlen: %d\n", 
+  //    beat, bp, phase, bt->lastbeat, step, winlen);
   /* start counting the beats */
+  while (beat + bp < 0) {
+    beat += bp;
+  }
+
   if (beat >= 0) {
+    //AUBIO_DBG ("beat: %d, %f, %f\n", i, bp, beat);
     output->data[0][i] = beat;
     i++;
   }
 
   while (beat + bp <= step) {
     beat += bp;
+    //AUBIO_DBG ("beat: %d, %f, %f\n", i, bp, beat);
     output->data[0][i] = beat;
     i++;
   }
