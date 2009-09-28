@@ -21,7 +21,20 @@
  * compute spectrum centroid of a cvec object
  */
 
+#ifndef _SPECTRAL_CENTROID_H
+#define _SPECTRAL_CENTROID_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * spectrum centroid computed on a cvec
  */
 smpl_t aubio_spectral_centroid(cvec_t * input, smpl_t samplerate);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* _SPECTRAL_CENTROID_H */
