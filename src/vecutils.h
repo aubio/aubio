@@ -30,24 +30,75 @@
 extern "C" {
 #endif
 
-#define AUBIO_OP_PROTO(OPNAME, TYPE) \
-void TYPE ## _ ## OPNAME (TYPE ## _t *o);
+/** compute \f$e^x\f$ of each vector elements
 
-#define AUBIO_OP_C_AND_F_PROTO(OPNAME) \
-  AUBIO_OP_PROTO(OPNAME, fvec) \
-  AUBIO_OP_PROTO(OPNAME, cvec)
+  \param s vector to modify
 
-AUBIO_OP_C_AND_F_PROTO(exp)
-AUBIO_OP_C_AND_F_PROTO(cos)
-AUBIO_OP_C_AND_F_PROTO(sin)
-AUBIO_OP_C_AND_F_PROTO(abs)
-//AUBIO_OP_C_AND_F_PROTO(pow)
-AUBIO_OP_C_AND_F_PROTO(sqrt)
-AUBIO_OP_C_AND_F_PROTO(log10)
-AUBIO_OP_C_AND_F_PROTO(log)
-AUBIO_OP_C_AND_F_PROTO(floor)
-AUBIO_OP_C_AND_F_PROTO(ceil)
-AUBIO_OP_C_AND_F_PROTO(round)
+*/
+void fvec_exp (fvec_t *s);
+
+/** compute \f$cos(x)\f$ of each vector elements
+
+  \param s vector to modify
+
+*/
+void fvec_cos (fvec_t *s);
+
+/** compute \f$sin(x)\f$ of each vector elements
+
+  \param s vector to modify
+
+*/
+void fvec_sin (fvec_t *s);
+
+/** compute the \f$abs(x)\f$ of each vector elements
+
+  \param s vector to modify
+
+*/
+void fvec_abs (fvec_t *s);
+
+/** compute the \f$sqrt(x)\f$ of each vector elements
+
+  \param s vector to modify
+
+*/
+void fvec_sqrt (fvec_t *s);
+
+/** compute the \f$log10(x)\f$ of each vector elements
+
+  \param s vector to modify
+
+*/
+void fvec_log10 (fvec_t *s);
+
+/** compute the \f$log(x)\f$ of each vector elements
+
+  \param s vector to modify
+
+*/
+void fvec_log (fvec_t *s);
+
+/** compute the \f$floor(x)\f$ of each vector elements
+
+  \param s vector to modify
+
+*/
+void fvec_floor (fvec_t *s);
+
+/** compute the \f$ceil(x)\f$ of each vector elements
+
+  \param s vector to modify
+
+*/
+void fvec_ceil (fvec_t *s);
+
+/** compute the \f$round(x)\f$ of each vector elements
+
+  \param s vector to modify
+
+*/
+void fvec_round (fvec_t *s);
 
 /** raise each vector elements to the power pow
 
@@ -57,7 +108,83 @@ AUBIO_OP_C_AND_F_PROTO(round)
 */
 void fvec_pow (fvec_t *s, smpl_t pow);
 
-//void fvec_log10 (fvec_t *s);
+/** compute \f$e^x\f$ of each vector norm elements
+
+  \param s vector to modify
+
+*/
+void cvec_exp (cvec_t *s);
+
+/** compute \f$cos(x)\f$ of each vector norm elements
+
+  \param s vector to modify
+
+*/
+void cvec_cos (cvec_t *s);
+
+/** compute \f$sin(x)\f$ of each vector norm elements
+
+  \param s vector to modify
+
+*/
+void cvec_sin (cvec_t *s);
+
+/** compute the \f$abs(x)\f$ of each vector norm elements
+
+  \param s vector to modify
+
+*/
+void cvec_abs (cvec_t *s);
+
+/** compute the \f$sqrt(x)\f$ of each vector norm elements
+
+  \param s vector to modify
+
+*/
+void cvec_sqrt (cvec_t *s);
+
+/** compute the \f$log10(x)\f$ of each vector norm elements
+
+  \param s vector to modify
+
+*/
+void cvec_log10 (cvec_t *s);
+
+/** compute the \f$log(x)\f$ of each vector norm elements
+
+  \param s vector to modify
+
+*/
+void cvec_log (cvec_t *s);
+
+/** compute the \f$floor(x)\f$ of each vector norm elements
+
+  \param s vector to modify
+
+*/
+void cvec_floor (cvec_t *s);
+
+/** compute the \f$ceil(x)\f$ of each vector norm elements
+
+  \param s vector to modify
+
+*/
+void cvec_ceil (cvec_t *s);
+
+/** compute the \f$round(x)\f$ of each vector norm elements
+
+  \param s vector to modify
+
+*/
+void cvec_round (cvec_t *s);
+
+/** raise each vector norm elements to the power pow
+
+  \param s vector to modify
+  \param pow power to raise to
+
+*/
+void cvec_pow (cvec_t *s, smpl_t pow);
 
 #ifdef __cplusplus
 }

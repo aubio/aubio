@@ -25,8 +25,8 @@ AUBIO_OP_C_AND_F(cos, COS)
 AUBIO_OP_C_AND_F(sin, SIN)
 AUBIO_OP_C_AND_F(abs, ABS)
 AUBIO_OP_C_AND_F(sqrt, SQRT)
-AUBIO_OP_C_AND_F(log10, SAFELOG10)
-AUBIO_OP_C_AND_F(log, SAFELOG)
+AUBIO_OP_C_AND_F(log10, SAFE_LOG10)
+AUBIO_OP_C_AND_F(log, SAFE_LOG)
 AUBIO_OP_C_AND_F(floor, FLOOR)
 AUBIO_OP_C_AND_F(ceil, CEIL)
 AUBIO_OP_C_AND_F(round, ROUND)
@@ -38,6 +38,16 @@ void fvec_pow (fvec_t *s, smpl_t power)
   for (i = 0; i < s->channels; i++) {
     for (j = 0; j < s->length; j++) {
       s->data[i][j] = POW(s->data[i][j], power);
+    }
+  }
+}
+
+void cvec_pow (cvec_t *s, smpl_t power)
+{
+  uint_t i,j;
+  for (i = 0; i < s->channels; i++) {
+    for (j = 0; j < s->length; j++) {
+      s->norm[i][j] = POW(s->norm[i][j], power);
     }
   }
 }
