@@ -17,7 +17,8 @@
 
 */
 
-#include "filter.h"
+#ifndef _CDESIGN_H
+#define _CDESIGN_H
 
 /** \file
 
@@ -26,6 +27,10 @@
   This file creates an IIR filter object with A-design coefficients.
 
 */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /** create new C-design filter
 
@@ -39,3 +44,9 @@ aubio_filter_t * new_aubio_cdsgn_filter(uint_t samplerate, uint_t channels);
 #define aubio_cdsgn_filter_do aubio_filter_do
 /** delete c-design filter object */
 #define del_aubio_cdsgn_filter del_aubio_filter
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* _CDESIGN_H */

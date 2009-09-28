@@ -17,6 +17,9 @@
 
 */
 
+#ifndef _ADESIGN_H
+#define _ADESIGN_H
+
 /** \file
 
   Create a new A-design filter 
@@ -24,6 +27,10 @@
   This file creates an IIR filter object with A-design coefficients.
 
 */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /** create new A-design filter
 
@@ -37,3 +44,9 @@ aubio_filter_t * new_aubio_adsgn_filter(uint_t samplerate, uint_t channels);
 #define aubio_adsgn_filter_do aubio_filter_do
 /** delete a-design filter object */
 #define del_aubio_adsgn_filter del_aubio_filter
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* _ADESIGN_H */
