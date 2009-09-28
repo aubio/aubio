@@ -37,11 +37,14 @@
 #if HAVE_FFTW3F
 #if HAVE_AUBIO_DOUBLE
 #warning "Using aubio in double precision with fftw3 in single precision"
-#endif
+#endif /* HAVE_AUBIO_DOUBLE */
 #define real_t float 
-#else
+#else /* HAVE_FFTW3F */
+#if !HAVE_AUBIO_DOUBLE
+#warning "Using aubio in single precision with fftw3 in double precision"
+#endif /* HAVE_AUBIO_DOUBLE */
 #define real_t double 
-#endif
+#endif /* HAVE_FFTW3F */
 
 struct _aubio_fft_t {
   uint_t winsize;
