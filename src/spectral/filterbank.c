@@ -25,8 +25,6 @@
 #include "spectral/filterbank.h"
 #include "mathutils.h"
 
-#define VERY_SMALL_NUMBER 2e-42
-
 /** \brief A structure to store a set of n_filters filters of lenghts win_s */
 struct aubio_filterbank_t_
 {
@@ -78,12 +76,6 @@ aubio_filterbank_do (aubio_filterbank_t * f, cvec_t * in, fvec_t * out)
       for (j = 0; j < in->length; j++) {
         out->data[i][fn] += in->norm[i][j] * f->filters->data[fn][j];
       }
-
-      /* threshold to VERY_SMALL_NUMBER to avoid log oveflow */
-      out->data[i][fn] = MAX (VERY_SMALL_NUMBER, out->data[i][fn]);
-
-      /* compute logarithm */
-      out->data[i][fn] = LOG10 (out->data[i][fn]);
     }
   }
 

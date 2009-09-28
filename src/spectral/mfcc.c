@@ -22,6 +22,7 @@
 #include "aubio_priv.h"
 #include "fvec.h"
 #include "cvec.h"
+#include "mathutils.h"
 #include "spectral/fft.h"
 #include "spectral/filterbank_mel.h"
 #include "spectral/mfcc.h"
@@ -100,6 +101,12 @@ aubio_mfcc_do (aubio_mfcc_t * mf, cvec_t * in, fvec_t * out)
 
   /* compute filterbank */
   aubio_filterbank_do (mf->fb, in, mf->in_dct);
+
+  /* compute log10 */
+  fvec_log10 (mf->in_dct);
+
+  /* raise power */
+  //vec_pow (mf->in_dct, 3.);
 
   /* zeros output */
   fvec_zeros(out);
