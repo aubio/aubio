@@ -24,6 +24,7 @@
 #include "cvec.h"
 #include "mathutils.h"
 #include "spectral/fft.h"
+#include "spectral/filterbank.h"
 #include "spectral/filterbank_mel.h"
 #include "spectral/mfcc.h"
 

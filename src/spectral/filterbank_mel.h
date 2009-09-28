@@ -39,8 +39,6 @@ extern "C"
 {
 #endif
 
-#include "filterbank.h"
-
 /** filterbank initialization for mel filters
 
   \param fb filterbank object
