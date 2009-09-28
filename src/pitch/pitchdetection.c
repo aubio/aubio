@@ -21,6 +21,7 @@
 #include "cvec.h"
 #include "spectral/phasevoc.h"
 #include "mathutils.h"
+#include "temporal/filter.h"
 #include "temporal/cdesign.h"
 #include "pitch/pitchmcomb.h"
 #include "pitch/pitchyin.h"
