@@ -30,6 +30,10 @@
 #ifndef MATHUTILS_H
 #define MATHUTILS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** Window types 
  * 
  * inspired from 
@@ -38,11 +42,6 @@
  *  - freqtweak : http://freqtweak.sf.net/
  *  - extace : http://extace.sf.net/
  */
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 typedef enum {
 	aubio_win_rectangle,          
 	aubio_win_hamming,
@@ -100,6 +99,7 @@ uint_t vec_max_elem(fvec_t *s);
 void vec_shift(fvec_t *s);
 /** returns sum */
 smpl_t vec_sum(fvec_t *s);
+
 /** returns energy 
  *
  * \bug mono 
