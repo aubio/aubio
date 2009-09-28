@@ -9,6 +9,7 @@ nobase_pkginclude_HEADERS = \
 	lvec.h \
 	cvec.h \
 	mathutils.h \
+	vecutils.h \
 	utils/hist.h \
 	utils/scale.h \
 	temporal/resample.h \
@@ -43,6 +44,7 @@ libaubio_la_SOURCES = \
 	lvec.c \
 	cvec.c \
 	mathutils.c \
+	vecutils.c \
 	utils/hist.c \
 	utils/scale.c \
 	temporal/resample.c \
