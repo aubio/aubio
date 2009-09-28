@@ -44,7 +44,7 @@ void aubio_filter_do_outplace(aubio_filter_t * f, fvec_t * in, fvec_t * out) {
     y = f->y->data[i];
     for (j = 0; j < in->length; j++) {
       /* new input */
-      if (ISDENORMAL(in->data[i][j])) {
+      if (IS_DENORMAL(in->data[i][j])) {
         x[0] = y[0] = 0.;
       } else {
         x[0] = in->data[i][j];

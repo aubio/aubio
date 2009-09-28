@@ -189,7 +189,15 @@ typedef enum {
 
 #define ELEM_SWAP(a,b) { register smpl_t t=(a);(a)=(b);(b)=t; }
 
-#define ISDENORMAL(f) f < 1.e-37
+#define VERY_SMALL_NUMBER 2.e-42 //1.e-37
+
+#define IS_DENORMAL(f) f < VERY_SMALL_NUMBER
+
+#define KILL_DENORMAL(f)  IS_DENORMAL(f) ? 0. : f
+#define CEIL_DENORMAL(f)  IS_DENORMAL(f) ? VERY_SMALL_NUMBER : f
+
+#define SAFE_LOG10(f) LOG10(CEIL_DENORMAL(f))
+#define SAFE_LOG(f)   LOG(CEIL_DENORMAL(f))
 
 #define UNUSED __attribute__((unused))
 
