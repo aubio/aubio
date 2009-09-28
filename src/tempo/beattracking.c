@@ -22,6 +22,9 @@
 #include "mathutils.h"
 #include "tempo/beattracking.h"
 
+/** define to 1 to print out tracking difficulties */
+#define AUBIO_BEAT_WARNINGS 1
+
 uint_t fvec_gettimesig (fvec_t * acf, uint_t acflen, uint_t gp);
 void aubio_beattracking_checkstate (aubio_beattracking_t * bt);
 
@@ -194,11 +197,15 @@ aubio_beattracking_do (aubio_beattracking_t * bt, fvec_t * dfframe,
   /* find Rayleigh period */
   maxindex = vec_max_elem (bt->phout);
   if (maxindex >= winlen - 1) {
-    // AUBIO_WRN ("damned, no idea what this groove is\n");
+#if AUBIO_BEAT_WARNINGS
+    AUBIO_WRN ("no idea what this groove's phase is\n");
+#endif /* AUBIO_BEAT_WARNINGS */
     phase = step - bt->lastbeat;
   } else {
     phase = vec_quadint (bt->phout, maxindex, 1);
   }
+  /* take back one frame delay */
+  phase += 1.;
 #if 0                           // debug metronome mode
   phase = step - bt->lastbeat;
 #endif
@@ -208,8 +215,19 @@ aubio_beattracking_do (aubio_beattracking_t * bt, fvec_t * dfframe,
 
   i = 1;
   beat = bp - phase;
-  //AUBIO_DBG ("beat: %f, bp: %f, phase: %f, lastbeat: %f, step: %d, winlen: %d\n", 
-  //    beat, bp, phase, bt->lastbeat, step, winlen);
+
+  // AUBIO_DBG ("bp: %f, phase: %f, lastbeat: %f, step: %d, winlen: %d\n", 
+  //    bp, phase, bt->lastbeat, step, winlen);
+
+  /* the next beat will be earlier than 60% of the tempo period
+    skip this one */
+  if ( ( step - bt->lastbeat - phase ) < -0.40 * bp ) {
+#if AUBIO_BEAT_WARNINGS
+    AUBIO_WRN ("back off-beat error, skipping this beat\n");
+#endif /* AUBIO_BEAT_WARNINGS */
+    beat += bp;
+  }
+
   /* start counting the beats */
   while (beat + bp < 0) {
     beat += bp;
@@ -229,7 +247,7 @@ aubio_beattracking_do (aubio_beattracking_t * bt, fvec_t * dfframe,
   }
 
   bt->lastbeat = beat;
-  /* store the number of beat found in this frame as the first element */
+  /* store the number of beats in this frame as the first element */
   output->data[0][0] = i;
 }
 
@@ -363,8 +381,11 @@ aubio_beattracking_checkstate (aubio_beattracking_t * bt)
 
   /* if tempo is > 206 bpm, half it */
   while (bp < 25) {
-    //AUBIO_DBG("warning, doubling the beat period from %d\n", bp);
+#if AUBIO_BEAT_WARNINGS
+    AUBIO_WRN ("doubling from %f (%f bpm) to %f (%f bpm)\n",
+        bp, 60.*44100./512./bp, bp/2., 60.*44100./512./bp/2. );
     //AUBIO_DBG("warning, halving the tempo from %f\n", 60.*samplerate/hopsize/bp);
+#endif /* AUBIO_BEAT_WARNINGS */
     bp = bp * 2;
   }
 
