@@ -1,6 +1,5 @@
 noinst_HEADERS = \
-	aubio_priv.h \
-	temporal/filter_priv.h
+	aubio_priv.h
 
 nobase_pkginclude_HEADERS = \
 	aubio.h \

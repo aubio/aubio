@@ -26,7 +26,15 @@
 #include "lvec.h"
 #include "mathutils.h"
 #include "temporal/filter.h"
-#include "temporal/filter_priv.h"
+
+struct _aubio_filter_t {
+  uint_t order;
+  uint_t samplerate;
+  lvec_t * a;
+  lvec_t * b;
+  lvec_t * y;
+  lvec_t * x;
+};
 
 void aubio_filter_do(aubio_filter_t * f, fvec_t * in) {
   aubio_filter_do_outplace(f, in, in);
@@ -102,22 +110,41 @@ void aubio_filter_do_filtfilt(aubio_filter_t * f, fvec_t * in, fvec_t * tmp) {
     in->data[i][j] = tmp->data[i][length-j-1];
 }
 
-aubio_filter_t * new_aubio_filter(uint_t samplerate UNUSED, uint_t order, uint_t channels) {
+lvec_t * aubio_filter_get_feedback ( aubio_filter_t *f ) {
+  return f->a;
+}
+
+lvec_t * aubio_filter_get_feedforward ( aubio_filter_t *f ) {
+  return f->b;
+}
+
+uint_t aubio_filter_get_order ( aubio_filter_t *f ) {
+  return f->order;
+}
+
+uint_t aubio_filter_get_samplerate ( aubio_filter_t *f ) {
+  return f->samplerate;
+}
+
+aubio_filter_t * new_aubio_filter(uint_t samplerate, 
+    uint_t order, uint_t channels) {
   aubio_filter_t * f = AUBIO_NEW(aubio_filter_t);
   f->x = new_lvec(order, channels);
   f->y = new_lvec(order, channels);
   f->a = new_lvec(order, 1);
   f->b = new_lvec(order, 1);
-  f->a->data[0][1] = 1.;
+  f->samplerate = samplerate; 
   f->order = order;
+  /* set default to identity */
+  f->a->data[0][1] = 1.;
   return f;
 }
 
 void del_aubio_filter(aubio_filter_t * f) {
-  AUBIO_FREE(f->a);
-  AUBIO_FREE(f->b);
-  AUBIO_FREE(f->x);
-  AUBIO_FREE(f->y);
+  del_lvec(f->a);
+  del_lvec(f->b);
+  del_lvec(f->x);
+  del_lvec(f->y);
   AUBIO_FREE(f);
   return;
 }
