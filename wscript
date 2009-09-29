@@ -12,8 +12,6 @@ LIB_VERSION = '2.1.1'
 srcdir = '.'
 blddir = 'build'
 
-import UnitTest
-
 def init(opt):
   pass
 
@@ -35,7 +33,9 @@ def set_options(opt):
   opt.tool_options('compiler_cc')
   opt.tool_options('compiler_cxx')
   opt.tool_options('gnu_dirs')
-  #opt.tool_options('UnitTest')
+  # include locally patched version of UnitTest until upstream incorporates patch
+  # see http://code.google.com/p/waf/issues/detail?id=542
+  opt.tool_options('UnitTest', tooldir='.')
 
 def configure(conf):
   import Options
@@ -137,7 +137,7 @@ def build(bld):
   bld.env['LIB_VERSION'] = LIB_VERSION 
 
   # add sub directories
-  bld.add_subdirs('src ext examples cpp tests/src')
+  bld.add_subdirs('src ext examples cpp')
   if bld.env['SWIG']:
     if bld.env['PYTHON']:
       bld.add_subdirs('python/aubio python')
@@ -171,11 +171,26 @@ def build(bld):
   bld.install_files('${PREFIX}/share/sounds/aubio/', 
       'sounds/woodblock.aiff')
 
+  # build and run the unit tests
+  build_tests(bld)
+  import UnitTest
+  bld.add_post_fun(UnitTest.summary)
+
 def shutdown(bld):
   pass
 
-def check(bld):
-  ut = UnitTest.unit_test()
-  ut.change_to_testfile_dir = True
-  ut.run()
-  ut.print_results()
+# loop over all *.c filenames in tests/src to build them all
+# target name is filename.c without the .c
+def build_tests(bld):
+  for target_name in bld.path.ant_glob('tests/src/**/*.c').split():
+    this_target = bld.new_task_gen(
+        features = 'cprogram cc test',
+        source = target_name,
+        target = target_name.split('.')[0],
+        includes = 'src',
+        install_path = None,
+        uselib_local = 'aubio')
+    # phasevoc-jack also needs aubioext
+    if target_name.endswith('test-phasevoc-jack.c'):
+      this_target.includes = ['src', 'ext']
+      this_target.uselib_local = ['aubio', 'aubioext']
