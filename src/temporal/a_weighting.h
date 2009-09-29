@@ -18,14 +18,14 @@
 
 */
 
-#ifndef _CDESIGN_H
-#define _CDESIGN_H
+#ifndef _ADESIGN_H
+#define _ADESIGN_H
 
 /** \file
 
-  Create a C-weighting filter
+  Create an A-weighting filter
   
-  This file creates a C-weighting digital filter, which reduces low and high
+  This file creates an A-weighting digital filter, which reduces low and high
   frequencies and enhance the middle ones to reflect the ability of the human
   hearing.
   
@@ -45,7 +45,7 @@
   
   The coefficients in this file have been computed using Christophe Couvreur's
   scripts in octave 3.0 (debian package 1:3.0.5-6+b2 with octave-signal
-  1.0.9-1+b1 on i386), with <pre> [b, a] = cdsign(1/Fs) </pre> for various
+  1.0.9-1+b1 on i386), with <pre> [b, a] = adsign(1/Fs) </pre> for various
   sampling frequencies.
 
 */
@@ -54,7 +54,7 @@
 extern "C" {
 #endif
 
-/** create new C-design filter
+/** create new A-design filter
 
   \param samplerate sampling frequency of the signal to filter. Should be one of 
   8000, 16000, 22050, 44100, 96000, 192000.
@@ -63,17 +63,17 @@ extern "C" {
   \return a new filter object
 
 */
-aubio_filter_t * new_aubio_filter_cdsgn (uint_t samplerate, uint_t channels);
+aubio_filter_t * new_aubio_filter_a_weighting (uint_t samplerate, uint_t channels);
 
-/** set feedback and feedforward coefficients of a C-weighting filter
+/** set feedback and feedforward coefficients of a A-weighting filter
 
   \param f filter object to get coefficients from
 
 */
-void aubio_filter_set_cdsgn (aubio_filter_t *f);
+void aubio_filter_set_a_weighting (aubio_filter_t *f);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* _CDESIGN_H */
+#endif /* _ADESIGN_H */

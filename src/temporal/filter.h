@@ -52,8 +52,8 @@
   operation.
 
   Some convenience functions are provided: 
-    - new_aubio_filter_adsgn() and aubio_filter_set_adsgn(),
-    - new_aubio_filter_cdsgn() and aubio_filter_set_cdsgn().
+    - new_aubio_filter_a_weighting() and aubio_filter_set_a_weighting(),
+    - new_aubio_filter_c_weighting() and aubio_filter_set_c_weighting().
  
 */
 

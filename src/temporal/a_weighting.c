@@ -24,9 +24,9 @@
 #include "fvec.h"
 #include "lvec.h"
 #include "temporal/filter.h"
-#include "temporal/adesign.h"
+#include "temporal/a_weighting.h"
 
-void aubio_filter_set_adsgn (aubio_filter_t * f) {
+void aubio_filter_set_a_weighting (aubio_filter_t * f) {
 
   uint_t samplerate = aubio_filter_get_samplerate (f);
   lvec_t *bs = aubio_filter_get_feedforward (f);
@@ -152,9 +152,9 @@ void aubio_filter_set_adsgn (aubio_filter_t * f) {
 
 }
 
-aubio_filter_t * new_aubio_filter_adsgn (uint_t samplerate, uint_t channels) {
+aubio_filter_t * new_aubio_filter_a_weighting (uint_t samplerate, uint_t channels) {
   aubio_filter_t * f = new_aubio_filter (samplerate, 7, channels);
-  aubio_filter_set_adsgn (f);
+  aubio_filter_set_a_weighting (f);
   return f;
 }
 

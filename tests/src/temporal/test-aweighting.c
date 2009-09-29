@@ -10,26 +10,26 @@ int main(){
   uint_t channels = 2;
 
   for ( samplerate = rates[i]; i < nrates ; i++ ) {
-    f = new_aubio_filter_adsgn (samplerate, channels);
+    f = new_aubio_filter_a_weighting (samplerate, channels);
     del_aubio_filter (f);
 
     f = new_aubio_filter (samplerate, 7, channels*2);
-    aubio_filter_set_adsgn (f);
+    aubio_filter_set_a_weighting (f);
     del_aubio_filter (f);
   }
 
   // samplerate unknown
-  f = new_aubio_filter_adsgn (12089, channels);
+  f = new_aubio_filter_a_weighting (12089, channels);
   del_aubio_filter (f);
 
   // order to small
   f = new_aubio_filter (samplerate, 2, channels*2);
-  aubio_filter_set_adsgn (f);
+  aubio_filter_set_a_weighting (f);
   del_aubio_filter (f);
 
   // order to big
   f = new_aubio_filter (samplerate, 12, channels*2);
-  aubio_filter_set_adsgn (f);
+  aubio_filter_set_a_weighting (f);
   del_aubio_filter (f);
 
   return 0;
