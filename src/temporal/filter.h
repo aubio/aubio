@@ -1,19 +1,20 @@
 /*
-	 Copyright (C) 2003 Paul Brossier
+  Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
 
-	 This program is free software; you can redistribute it and/or modify
-	 it under the terms of the GNU General Public License as published by
-	 the Free Software Foundation; either version 2 of the License, or
-	 (at your option) any later version.
+  This file is part of aubio.
 
-	 This program is distributed in the hope that it will be useful,
-	 but WITHOUT ANY WARRANTY; without even the implied warranty of
-	 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	 GNU General Public License for more details.
+  aubio is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-	 You should have received a copy of the GNU General Public License
-	 along with this program; if not, write to the Free Software
-	 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  aubio is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with aubio.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
@@ -72,7 +73,7 @@ typedef struct _aubio_filter_t aubio_filter_t;
   \param in input vector to filter
 
 */
-void aubio_filter_do(aubio_filter_t * f, fvec_t * in);
+void aubio_filter_do (aubio_filter_t * f, fvec_t * in);
 
 /** filter input vector (out-of-place)
 
@@ -81,7 +82,7 @@ void aubio_filter_do(aubio_filter_t * f, fvec_t * in);
   \param out output vector to store filtered input
 
 */
-void aubio_filter_do_outplace(aubio_filter_t * f, fvec_t * in, fvec_t * out);
+void aubio_filter_do_outplace (aubio_filter_t * f, fvec_t * in, fvec_t * out);
 
 /** filter input vector forward and backward
 
@@ -90,7 +91,7 @@ void aubio_filter_do_outplace(aubio_filter_t * f, fvec_t * in, fvec_t * out);
   \param tmp memory space to use for computation
 
 */
-void aubio_filter_do_filtfilt(aubio_filter_t * f, fvec_t * in, fvec_t * tmp);
+void aubio_filter_do_filtfilt (aubio_filter_t * f, fvec_t * in, fvec_t * tmp);
 
 /** returns a pointer to feedback coefficients \f$ a_i \f$
 
@@ -99,7 +100,7 @@ void aubio_filter_do_filtfilt(aubio_filter_t * f, fvec_t * in, fvec_t * tmp);
   \return a pointer to the \f$ a_0 ... a_i ... a_P \f$ coefficients
 
 */
-lvec_t * aubio_filter_get_feedback ( aubio_filter_t *f );
+lvec_t *aubio_filter_get_feedback (aubio_filter_t * f);
 
 /** returns a pointer to feedforward coefficients \f$ b_i \f$
 
@@ -108,7 +109,7 @@ lvec_t * aubio_filter_get_feedback ( aubio_filter_t *f );
   \return a pointer to the \f$ b_0 ... b_i ... b_P \f$ coefficients
 
 */
-lvec_t * aubio_filter_get_feedforward ( aubio_filter_t *f );
+lvec_t *aubio_filter_get_feedforward (aubio_filter_t * f);
 
 /** get order of the filter
 
@@ -117,7 +118,7 @@ lvec_t * aubio_filter_get_feedforward ( aubio_filter_t *f );
   \return the order of the filter
 
 */
-uint_t aubio_filter_get_order ( aubio_filter_t *f );
+uint_t aubio_filter_get_order (aubio_filter_t * f);
 
 /** get sampling rate of the filter
 
@@ -126,7 +127,7 @@ uint_t aubio_filter_get_order ( aubio_filter_t *f );
   \return the sampling rate of the filter, in Hz
 
 */
-uint_t aubio_filter_get_samplerate ( aubio_filter_t *f );
+uint_t aubio_filter_get_samplerate (aubio_filter_t * f);
 
 /** create new filter object
 
@@ -140,14 +141,15 @@ uint_t aubio_filter_get_samplerate ( aubio_filter_t *f );
   \return the newly created filter object
 
 */
-aubio_filter_t * new_aubio_filter(uint_t samplerate, uint_t order, uint_t channels);
+aubio_filter_t *new_aubio_filter (uint_t samplerate, uint_t order,
+    uint_t channels);
 
 /** delete a filter object
  
   \param f filter object to delete
 
 */
-void del_aubio_filter(aubio_filter_t * f);
+void del_aubio_filter (aubio_filter_t * f);
 
 #ifdef __cplusplus
 }
