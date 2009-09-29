@@ -32,7 +32,8 @@
     - \f$ n*c x_i \f$ input signal
     - \f$ n*c y_i \f$ output signal
 
-  For convenience, the samplerate of the input signal is also stored in the object.
+  For convenience, the samplerate of the input signal is also stored in the
+  object.
 
   Feedforward and feedback parameters can be modified using
   aubio_filter_get_feedback() and aubio_filter_get_feedforward().
