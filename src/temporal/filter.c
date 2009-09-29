@@ -36,11 +36,12 @@ struct _aubio_filter_t {
   lvec_t * x;
 };
 
-void aubio_filter_do(aubio_filter_t * f, fvec_t * in) {
-  aubio_filter_do_outplace(f, in, in);
+void aubio_filter_do_outplace(aubio_filter_t * f, fvec_t * in, fvec_t * out) {
+  fvec_copy(in, out);
+  aubio_filter_do (f, out);
 }
 
-void aubio_filter_do_outplace(aubio_filter_t * f, fvec_t * in, fvec_t * out) {
+void aubio_filter_do(aubio_filter_t * f, fvec_t * in) {
   uint_t i,j,l, order = f->order;
   lsmp_t *x;
   lsmp_t *y;
@@ -52,18 +53,14 @@ void aubio_filter_do_outplace(aubio_filter_t * f, fvec_t * in, fvec_t * out) {
     y = f->y->data[i];
     for (j = 0; j < in->length; j++) {
       /* new input */
-      if (IS_DENORMAL(in->data[i][j])) {
-        x[0] = y[0] = 0.;
-      } else {
-        x[0] = in->data[i][j];
-        y[0] = b[0] * x[0];
-        for (l=1;l<order; l++) {
-          y[0] += b[l] * x[l];
-          y[0] -= a[l] * y[l];
-        }
+      x[0] = KILL_DENORMAL(in->data[i][j]);
+      y[0] = b[0] * x[0];
+      for (l=1;l<order; l++) {
+        y[0] += b[l] * x[l];
+        y[0] -= a[l] * y[l];
       }
       /* new output */
-      out->data[i][j] = y[0];
+      in->data[i][j] = y[0];
       /* store for next sample */
       for (l=order-1; l>0; l--){
         x[l] = x[l-1];
