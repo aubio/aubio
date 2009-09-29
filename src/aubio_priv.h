@@ -117,6 +117,8 @@ typedef enum {
 #define AUBIO_WRN(...)               fprintf(stderr, "AUBIO WARNING: " format, ##args)
 #endif
 
+#define AUBIO_ERROR   AUBIO_ERR
+
 #define AUBIO_QUIT(_s)               exit(_s)
 #define AUBIO_SPRINTF                sprintf
 
