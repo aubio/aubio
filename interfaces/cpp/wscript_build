@@ -1,7 +1,7 @@
 # build libaubiocpp
 libaubiocpp = bld.new_task_gen(
     features = 'cxx cshlib',
-    includes = ['.', '../src'],
+    includes = ['.', '../../src'],
     source = bld.path.ant_glob('*.cpp'),
     target = 'aubiocpp',
     uselib_local = ['aubio'],

@@ -241,7 +241,6 @@ AC_OUTPUT([
     Makefile
     src/Makefile
     ext/Makefile
-    cpp/Makefile
     examples/Makefile
     tests/Makefile
     tests/src/Makefile
@@ -252,6 +251,7 @@ AC_OUTPUT([
     python/aubio/Makefile
     interfaces/java/Makefile
     interfaces/java/aubio/Makefile
+    interfaces/cpp/Makefile
     plugins/Makefile
     plugins/audacity/Makefile
     plugins/audacity/plug-ins/Makefile
