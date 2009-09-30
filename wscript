@@ -33,9 +33,7 @@ def set_options(opt):
   opt.tool_options('compiler_cc')
   opt.tool_options('compiler_cxx')
   opt.tool_options('gnu_dirs')
-  # include locally patched version of UnitTest until upstream incorporates patch
-  # see http://code.google.com/p/waf/issues/detail?id=542
-  opt.tool_options('UnitTest', tooldir='.')
+  opt.tool_options('UnitTest')
 
 def configure(conf):
   import Options
@@ -184,11 +182,10 @@ def shutdown(bld):
 def build_tests(bld):
   for target_name in bld.path.ant_glob('tests/src/**/*.c').split():
     this_target = bld.new_task_gen(
-        features = 'cprogram cc test',
+        features = 'cc cprogram test',
         source = target_name,
         target = target_name.split('.')[0],
         includes = 'src',
-        install_path = None,
         uselib_local = 'aubio')
     # phasevoc-jack also needs aubioext
     if target_name.endswith('test-phasevoc-jack.c'):
