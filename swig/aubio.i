@@ -93,13 +93,11 @@ extern void aubio_filter_do_outplace(aubio_filter_t * b, fvec_t * in, fvec_t * o
 extern void aubio_filter_do_filtfilt(aubio_filter_t * b, fvec_t * in, fvec_t * tmp);
 extern void del_aubio_filter(aubio_filter_t * b);
 
-extern aubio_filter_t * new_aubio_adsgn_filter(uint_t samplerate, uint_t channels);
-extern void aubio_adsgn_filter_do(aubio_filter_t * b, fvec_t * in);
-extern void del_aubio_adsgn_filter(aubio_filter_t * b);
+extern aubio_filter_t * new_aubio_filter_a_weighting (uint_t samplerate, uint_t channels);
+extern void aubio_filter_set_a_weighting (aubio_filter_t * b);
 
-extern aubio_filter_t * new_aubio_cdsgn_filter(uint_t samplerate, uint_t channels);
-extern void aubio_cdsgn_filter_do(aubio_filter_t * b, fvec_t * in);
-extern void del_aubio_cdsgn_filter(aubio_filter_t * b);
+extern aubio_filter_t * new_aubio_filter_c_weighting (uint_t samplerate, uint_t channels);
+extern void aubio_filter_set_c_weighting (aubio_filter_t * b);
 
 /* biquad */
 extern aubio_biquad_t * new_aubio_biquad(lsmp_t b1, lsmp_t b2, lsmp_t b3, lsmp_t a2, lsmp_t a3);
