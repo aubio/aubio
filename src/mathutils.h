@@ -67,7 +67,7 @@ smpl_t aubio_unwrap2pi (smpl_t phase);
  *
  * \bug mono 
  */
-smpl_t vec_mean(fvec_t *s);
+smpl_t fvec_mean(fvec_t *s);
 /** returns the max of a vector
  *
  * \bug mono 

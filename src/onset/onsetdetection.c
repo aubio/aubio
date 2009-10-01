@@ -119,7 +119,7 @@ void aubio_onsetdetection_phase(aubio_onsetdetection_t *o,
     aubio_hist_weight(o->histog);
     /* its mean is the result */
     onset->data[i][0] = aubio_hist_mean(o->histog);  
-    //onset->data[i][0] = vec_mean(o->dev1);
+    //onset->data[i][0] = fvec_mean(o->dev1);
   }
 }
 

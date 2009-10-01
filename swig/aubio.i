@@ -129,7 +129,7 @@ typedef enum {
 
 fvec_t * new_aubio_window(uint_t size, aubio_window_type wintype);
 smpl_t aubio_unwrap2pi (smpl_t phase);
-smpl_t vec_mean(fvec_t *s);
+smpl_t fvec_mean(fvec_t *s);
 smpl_t vec_max(fvec_t *s);
 smpl_t vec_min(fvec_t *s);
 uint_t vec_min_elem(fvec_t *s);

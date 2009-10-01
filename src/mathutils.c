@@ -83,7 +83,7 @@ smpl_t aubio_unwrap2pi(smpl_t phase) {
   return phase + TWO_PI * (1. + FLOOR(-(phase+PI)/TWO_PI));
 }
 
-smpl_t vec_mean(fvec_t *s) {
+smpl_t fvec_mean(fvec_t *s) {
   uint_t i,j;
   smpl_t tmp = 0.0f;
   for (i=0; i < s->channels; i++)

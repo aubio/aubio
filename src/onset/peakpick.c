@@ -93,7 +93,7 @@ uint_t aubio_peakpick_pimrt(fvec_t * onset,  aubio_pickpeak_t * p) {
 
 	/* calculate mean and median for onset_proc */
 	/* for (i=0;i<onset_proc->channels;i++) { */
-	mean = vec_mean(onset_proc);
+	mean = fvec_mean(onset_proc);
 	/* copy to scratch */
 	for (j = 0; j < length; j++)
 		scratch->data[i][j] = onset_proc->data[i][j];
@@ -160,7 +160,7 @@ aubio_pickpeak_t * new_aubio_peakpicker(smpl_t threshold) {
 	t->win_post  = 5;
 	t->win_pre   = 1;
 
-	t->thresholdfn = (aubio_thresholdfn_t)(vec_median); /* (vec_mean); */
+	t->thresholdfn = (aubio_thresholdfn_t)(vec_median); /* (fvec_mean); */
 	t->pickerfn = (aubio_pickerfn_t)(vec_peakpick);
 
 	t->scratch = new_fvec(t->win_post+t->win_pre+1,1);
