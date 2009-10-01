@@ -20,7 +20,7 @@ main (void)
     return -1;
   }
 
-  if (vec_max (coeffs) != 0.) {
+  if (fvec_max (coeffs) != 0.) {
     return -1;
   }
 

@@ -168,7 +168,7 @@ aubio_beattracking_do (aubio_beattracking_t * bt, fvec_t * dfframe,
   fvec_weight (bt->acfout, bt->rwv);
 
   /* find non-zero Rayleigh period */
-  maxindex = vec_max_elem (bt->acfout);
+  maxindex = fvec_max_elem (bt->acfout);
   bt->rp = maxindex ? vec_quadint (bt->acfout, maxindex, 1) : 1;
   //rp = (maxindex==127) ? 43 : maxindex; //rayparam
   bt->rp = (maxindex == bt->acfout->length - 1) ? bt->rayparam : maxindex;      //rayparam
@@ -195,7 +195,7 @@ aubio_beattracking_do (aubio_beattracking_t * bt, fvec_t * dfframe,
   fvec_weight (bt->phout, bt->phwv);
 
   /* find Rayleigh period */
-  maxindex = vec_max_elem (bt->phout);
+  maxindex = fvec_max_elem (bt->phout);
   if (maxindex >= winlen - 1) {
 #if AUBIO_BEAT_WARNINGS
     AUBIO_WRN ("no idea what this groove's phase is\n");
@@ -304,7 +304,7 @@ aubio_beattracking_checkstate (aubio_beattracking_t * bt)
       }
     }
     fvec_weight (acfout, bt->gwv);
-    gp = vec_quadint (acfout, vec_max_elem (acfout), 1);
+    gp = vec_quadint (acfout, fvec_max_elem (acfout), 1);
     /*
        while(gp<32) gp =gp*2;
        while(gp>64) gp = gp/2;
@@ -418,7 +418,7 @@ smpl_t
 aubio_beattracking_get_confidence (aubio_beattracking_t * bt)
 {
   if (bt->gp) {
-    return vec_max (bt->acfout);
+    return fvec_max (bt->acfout);
   } else {
     return 0.;
   }

@@ -19,7 +19,7 @@
 #include "aubio_priv.h"
 #include "fvec.h"
 #include "utils/scale.h"
-#include "mathutils.h" //vec_min vec_max
+#include "mathutils.h" //vec_min fvec_max
 #include "utils/hist.h"
 
 /********
@@ -109,7 +109,7 @@ void aubio_hist_dyn_notnull (aubio_hist_t *s, fvec_t *input) {
   uint_t i,j;
   sint_t tmp = 0;
   smpl_t ilow = vec_min(input);
-  smpl_t ihig = vec_max(input);
+  smpl_t ihig = fvec_max(input);
   smpl_t step = (ihig-ilow)/(smpl_t)(s->nelems);
 
   /* readapt */

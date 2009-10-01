@@ -101,7 +101,7 @@ smpl_t vec_sum(fvec_t *s) {
   return tmp;
 }
 
-smpl_t vec_max(fvec_t *s) {
+smpl_t fvec_max(fvec_t *s) {
   uint_t i,j;
   smpl_t tmp = 0.0f;
   for (i=0; i < s->channels; i++)
@@ -130,7 +130,7 @@ uint_t vec_min_elem(fvec_t *s) {
   return pos;
 }
 
-uint_t vec_max_elem(fvec_t *s) {
+uint_t fvec_max_elem(fvec_t *s) {
   uint_t i,j=0, pos=0.;
   smpl_t tmp = 0.0f;
   for (i=0; i < s->channels; i++)

@@ -72,7 +72,7 @@ smpl_t fvec_mean(fvec_t *s);
  *
  * \bug mono 
  */
-smpl_t vec_max(fvec_t *s);
+smpl_t fvec_max(fvec_t *s);
 /** returns the min of a vector
  *
  * \bug mono 
@@ -87,7 +87,7 @@ uint_t vec_min_elem(fvec_t *s);
  *
  * \bug mono 
  */
-uint_t vec_max_elem(fvec_t *s);
+uint_t fvec_max_elem(fvec_t *s);
 /** implement 'fftshift' like function
  * 
  * a[0]...,a[n/2],a[n/2+1],...a[n]
