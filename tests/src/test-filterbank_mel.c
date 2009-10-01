@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <aubio.h>
 
 int
@@ -25,7 +26,7 @@ main (void)
 
   //fvec_print (coeffs);
 
-  fprintf(stderr, "%f\n", vec_sum(coeffs));
+  //fprintf(stderr, "%f\n", fvec_sum(coeffs));
 
   aubio_filterbank_do (o, in, out);
 

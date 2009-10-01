@@ -21,7 +21,8 @@ main (void)
   }
 
   aubio_mfcc_do (o, in, out);
-
+  fvec_print (out);
+  aubio_mfcc_do (o, in, out);
   fvec_print (out);
 
   del_aubio_mfcc (o);
