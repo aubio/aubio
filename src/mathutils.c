@@ -110,7 +110,7 @@ smpl_t fvec_max(fvec_t *s) {
   return tmp;
 }
 
-smpl_t vec_min(fvec_t *s) {
+smpl_t fvec_min(fvec_t *s) {
   uint_t i,j;
   smpl_t tmp = s->data[0][0];
   for (i=0; i < s->channels; i++)
@@ -119,7 +119,7 @@ smpl_t vec_min(fvec_t *s) {
   return tmp;
 }
 
-uint_t vec_min_elem(fvec_t *s) {
+uint_t fvec_min_elem(fvec_t *s) {
   uint_t i,j=0, pos=0.;
   smpl_t tmp = s->data[0][0];
   for (i=0; i < s->channels; i++)
@@ -183,7 +183,7 @@ smpl_t vec_alpha_norm(fvec_t * DF, smpl_t alpha) {
 void vec_dc_removal(fvec_t * mag) {
     smpl_t mini = 0.;
     uint_t length = mag->length, i=0, j;
-    mini = vec_min(mag);
+    mini = fvec_min(mag);
     for (j=0;j<length;j++) {
       mag->data[i][j] -= mini;
     }

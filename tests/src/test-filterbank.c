@@ -24,7 +24,7 @@ main (void)
     return -1;
   }
 
-  if (vec_min (coeffs) != 0.) {
+  if (fvec_min (coeffs) != 0.) {
     return -1;
   }
 

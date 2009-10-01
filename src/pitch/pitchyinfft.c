@@ -119,7 +119,7 @@ smpl_t aubio_pitchyinfft_detect(aubio_pitchyinfft_t * p, fvec_t * input, smpl_t 
     tmp += yin->data[0][tau];
     yin->data[0][tau] *= tau/tmp;
   }
-  tau = vec_min_elem(yin);
+  tau = fvec_min_elem(yin);
   if (yin->data[0][tau] < tol) {
     /* no interpolation */
     //return tau;

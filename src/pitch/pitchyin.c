@@ -109,7 +109,7 @@ smpl_t aubio_pitchyin_getpitchfast(fvec_t * input, fvec_t * yin, smpl_t tol){
       return vec_quadint(yin,period,1);
     }
   }
-  return vec_quadint(yin,vec_min_elem(yin),1);
+  return vec_quadint(yin,fvec_min_elem(yin),1);
   //return 0;
 }
 

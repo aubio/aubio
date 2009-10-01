@@ -77,12 +77,12 @@ smpl_t fvec_max(fvec_t *s);
  *
  * \bug mono 
  */
-smpl_t vec_min(fvec_t *s);
+smpl_t fvec_min(fvec_t *s);
 /** returns the index of the min of a vector
  *
  * \bug mono 
  */
-uint_t vec_min_elem(fvec_t *s);
+uint_t fvec_min_elem(fvec_t *s);
 /** returns the index of the max of a vector
  *
  * \bug mono 
