@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <aubio.h>
 
 int
@@ -27,7 +28,7 @@ main (void)
     return -1;
   }
 
-  // fvec_print (coeffs);
+  fvec_print (coeffs);
 
   aubio_filterbank_do (o, in, out);
 
