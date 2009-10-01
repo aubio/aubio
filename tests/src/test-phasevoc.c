@@ -1,5 +1,6 @@
 /* test sample for phase vocoder */
 
+#include <stdio.h>
 #include <aubio.h>
 
 int main(){
