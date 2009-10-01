@@ -23,6 +23,31 @@
 #include "mathutils.h"
 #include "spectral/fft.h"
 
+/* note that <complex.h> is not included here but only in aubio_priv.h, so that
+ * c++ projects can still use their own complex definition. */
+#include <fftw3.h>
+
+#ifdef HAVE_COMPLEX_H
+#if HAVE_FFTW3F
+/** fft data type with complex.h and fftw3f */
+#define FFTW_TYPE fftwf_complex
+#else
+/** fft data type with complex.h and fftw3 */
+#define FFTW_TYPE fftw_complex
+#endif
+#else
+#if HAVE_FFTW3F
+/** fft data type without complex.h and with fftw3f */
+#define FFTW_TYPE float
+#else
+/** fft data type without complex.h and with fftw */
+#define FFTW_TYPE double
+#endif
+#endif
+
+/** fft data type */
+typedef FFTW_TYPE fft_data_t;
+
 #if HAVE_FFTW3F
 #define fftw_malloc            fftwf_malloc
 #define fftw_free              fftwf_free
