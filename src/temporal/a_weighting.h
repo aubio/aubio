@@ -46,7 +46,11 @@
   The coefficients in this file have been computed using Christophe Couvreur's
   scripts in octave 3.0 (debian package 1:3.0.5-6+b2 with octave-signal
   1.0.9-1+b1 on i386), with <pre> [b, a] = adsign(1/Fs) </pre> for various
-  sampling frequencies.
+  sampling frequencies (8000, 16000, 22050, 24000, 32000, 44100, 48000, 88200,
+  96000, and 192000 Hz).
+
+  The sampling frequency should normally be higher than 20kHz, but most common
+  file sampling rates have been included for completeness.
 
 */
 
@@ -57,7 +61,7 @@ extern "C" {
 /** create new A-design filter
 
   \param samplerate sampling frequency of the signal to filter. Should be one of 
-  8000, 16000, 22050, 44100, 96000, 192000.
+  8000, 16000, 22050, 24000, 32000, 44100, 48000, 88200, 96000, and 192000 Hz
   \param channels number of channels to allocate
 
   \return a new filter object
