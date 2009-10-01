@@ -8,12 +8,12 @@ if PYTHONFOUND
 PYTHONDIR = python
 endif
 if JAVAFOUND
-JAVADIR = java
+JAVADIR = interfaces/java
 endif
 endif
 
 
-SUBDIRS = src ext cpp examples sounds plugins $(PYTHONDIR) $(SWIGDIR) $(JAVADIR) $(DOC) tests
+SUBDIRS = src ext interfaces/cpp examples sounds plugins $(PYTHONDIR) $(SWIGDIR) $(JAVADIR) $(DOC) tests
 EXTRA_DIST = bootstrap VERSION
 
 docs:
