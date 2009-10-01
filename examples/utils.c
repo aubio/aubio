@@ -421,11 +421,7 @@ void
 flush_process (aubio_process_func_t process_func, aubio_print_func_t print)
 {
   uint_t i, j;
-  for (i = 0; i < channels; i++) {
-    for (j = 0; j < obuf->length; j++) {
-      fvec_write_sample (obuf, 0., i, j);
-    }
-  }
+  fvec_zeros(obuf);
   for (i = 0; (signed) i < frames_delay; i++) {
     process_func (ibuf->data, obuf->data, overlap_size);
     print ();
