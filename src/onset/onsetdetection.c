@@ -87,11 +87,11 @@ void aubio_onsetdetection_complex (aubio_onsetdetection_t *o, cvec_t * fftgrain,
             );
 #else
       o->meas[j]             = (fftgrain->norm[i][j])*COS(o->dev1->data[i][j]);
-      o->meas[(nbins-1)*2-j] = (fftgrain->norm[i][j])*SIN(o->dev1->data[i][j]);
+      o->meas[(nbins-1)*2-1-j] = (fftgrain->norm[i][j])*SIN(o->dev1->data[i][j]);
       /* sum on all bins */
       onset->data[i][0]     += //(fftgrain->norm[i][j]);
           SQRT(SQR( (o->oldmag->data[i][j]-o->meas[j]) )
-            +  SQR( (-o->meas[(nbins-1)*2-j]) )
+            +  SQR( (-o->meas[(nbins-1)*2-1-j]) )
             );
 #endif
       /* swap old phase data (need to remember 2 frames behind)*/
