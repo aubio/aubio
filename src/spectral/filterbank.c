@@ -26,7 +26,7 @@
 #include "mathutils.h"
 
 /** \brief A structure to store a set of n_filters filters of lenghts win_s */
-struct aubio_filterbank_t_
+struct _aubio_filterbank_t
 {
   uint_t win_s;
   uint_t n_filters;
