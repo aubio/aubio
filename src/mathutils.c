@@ -92,7 +92,7 @@ smpl_t fvec_mean(fvec_t *s) {
   return tmp/(smpl_t)(s->length);
 }
 
-smpl_t vec_sum(fvec_t *s) {
+smpl_t fvec_sum(fvec_t *s) {
   uint_t i,j;
   smpl_t tmp = 0.0f;
   for (i=0; i < s->channels; i++)
@@ -141,7 +141,7 @@ uint_t fvec_max_elem(fvec_t *s) {
   return pos;
 }
 
-void vec_shift(fvec_t *s) {
+void fvec_shift(fvec_t *s) {
   uint_t i,j;
   //smpl_t tmp = 0.0f;
   for (i=0; i < s->channels; i++)
@@ -153,7 +153,7 @@ void vec_shift(fvec_t *s) {
     }
 }
 
-smpl_t vec_local_energy(fvec_t * f) {
+smpl_t fvec_local_energy(fvec_t * f) {
   smpl_t locE = 0.;
   uint_t i,j;
   for (i=0;i<f->channels;i++)
@@ -162,7 +162,7 @@ smpl_t vec_local_energy(fvec_t * f) {
   return locE;
 }
 
-smpl_t vec_local_hfc(fvec_t * f) {
+smpl_t fvec_local_hfc(fvec_t * f) {
   smpl_t locE = 0.;
   uint_t i,j;
   for (i=0;i<f->channels;i++)
@@ -171,7 +171,7 @@ smpl_t vec_local_hfc(fvec_t * f) {
   return locE;
 }
 
-smpl_t vec_alpha_norm(fvec_t * DF, smpl_t alpha) {
+smpl_t fvec_alpha_norm(fvec_t * DF, smpl_t alpha) {
   smpl_t tmp = 0.;
   uint_t i,j;
   for (i=0;i<DF->channels;i++)
@@ -180,7 +180,7 @@ smpl_t vec_alpha_norm(fvec_t * DF, smpl_t alpha) {
   return POW(tmp/DF->length,1./alpha);
 }
 
-void vec_dc_removal(fvec_t * mag) {
+void fvec_dc_removal(fvec_t * mag) {
     smpl_t mini = 0.;
     uint_t length = mag->length, i=0, j;
     mini = fvec_min(mag);
@@ -189,31 +189,31 @@ void vec_dc_removal(fvec_t * mag) {
     }
 }
 
-void vec_alpha_normalise(fvec_t * mag, uint_t alpha) {
+void fvec_alpha_normalise(fvec_t * mag, uint_t alpha) {
   smpl_t alphan = 1.;
   uint_t length = mag->length, i=0, j;
-  alphan = vec_alpha_norm(mag,alpha);
+  alphan = fvec_alpha_norm(mag,alpha);
   for (j=0;j<length;j++){
     mag->data[i][j] /= alphan;
   }
 }
 
-void vec_add(fvec_t * mag, smpl_t threshold) {
+void fvec_add(fvec_t * mag, smpl_t threshold) {
   uint_t length = mag->length, i=0, j;
   for (j=0;j<length;j++) {
     mag->data[i][j] += threshold;
   }
 }
 
-void vec_adapt_thres(fvec_t * vec, fvec_t * tmp,
+void fvec_adapt_thres(fvec_t * vec, fvec_t * tmp,
     uint_t post, uint_t pre) {
   uint_t length = vec->length, i=0, j;
   for (j=0;j<length;j++) {
-    vec->data[i][j] -= vec_moving_thres(vec, tmp, post, pre, j);
+    vec->data[i][j] -= fvec_moving_thres(vec, tmp, post, pre, j);
   }
 }
 
-smpl_t vec_moving_thres(fvec_t * vec, fvec_t * tmpvec,
+smpl_t fvec_moving_thres(fvec_t * vec, fvec_t * tmpvec,
     uint_t post, uint_t pre, uint_t pos) {
   smpl_t * medar = (smpl_t *)tmpvec->data[0];
   uint_t k;
@@ -236,10 +236,10 @@ smpl_t vec_moving_thres(fvec_t * vec, fvec_t * tmpvec,
     for (k=length-pos+post;k<win_length;k++)
       medar[k] = 0.; /* 0-padding at the end */
   }
-  return vec_median(tmpvec);
+  return fvec_median(tmpvec);
 }
 
-smpl_t vec_median(fvec_t * input) {
+smpl_t fvec_median(fvec_t * input) {
   uint_t n = input->length;
   smpl_t * arr = (smpl_t *) input->data[0];
   uint_t low, high ;
@@ -290,7 +290,7 @@ smpl_t vec_median(fvec_t * input) {
   }
 }
 
-smpl_t vec_quadint(fvec_t * x,uint_t pos, uint_t span) {
+smpl_t fvec_quadint(fvec_t * x,uint_t pos, uint_t span) {
   smpl_t s0, s1, s2;
   uint_t x0 = (pos < span) ? pos : pos - span;
   uint_t x2 = (pos + span < x->length) ? pos + span : pos;
@@ -307,7 +307,7 @@ smpl_t aubio_quadfrac(smpl_t s0, smpl_t s1, smpl_t s2, smpl_t pf) {
   return tmp;
 }
 
-uint_t vec_peakpick(fvec_t * onset, uint_t pos) {
+uint_t fvec_peakpick(fvec_t * onset, uint_t pos) {
   uint_t i=0, tmp=0;
   /*for (i=0;i<onset->channels;i++)*/
   tmp = (onset->data[i][pos] > onset->data[i][pos-1]

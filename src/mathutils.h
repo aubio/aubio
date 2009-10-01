@@ -96,19 +96,19 @@ uint_t fvec_max_elem(fvec_t *s);
  * 
  * a[n/2+1],...a[n],a[0]...,a[n/2]
  */
-void vec_shift(fvec_t *s);
+void fvec_shift(fvec_t *s);
 /** returns sum */
-smpl_t vec_sum(fvec_t *s);
+smpl_t fvec_sum(fvec_t *s);
 
 /** returns energy 
  *
  * \bug mono 
  */
-smpl_t vec_local_energy(fvec_t * f);
+smpl_t fvec_local_energy(fvec_t * f);
 /** returns High Frequency Energy Content
  *
  * \bug mono */
-smpl_t vec_local_hfc(fvec_t * f);
+smpl_t fvec_local_hfc(fvec_t * f);
 /** return alpha norm.
  *
  * alpha=2 means normalise variance. 
@@ -118,16 +118,16 @@ smpl_t vec_local_hfc(fvec_t * f);
  *
  * \bug should not use POW :(
  */
-smpl_t vec_alpha_norm(fvec_t * DF, smpl_t alpha);
+smpl_t fvec_alpha_norm(fvec_t * DF, smpl_t alpha);
 /**  dc(min) removal */
-void vec_dc_removal(fvec_t * mag);
+void fvec_dc_removal(fvec_t * mag);
 /**  alpha normalisation */
-void vec_alpha_normalise(fvec_t * mag, uint_t alpha);
+void fvec_alpha_normalise(fvec_t * mag, uint_t alpha);
 /** add a constant to all members of a vector */
-void vec_add(fvec_t * mag, smpl_t threshold);
+void fvec_add(fvec_t * mag, smpl_t threshold);
 
 /** compute adaptive threshold of input vector */ 
-void vec_adapt_thres(fvec_t * vec, fvec_t * tmp, 
+void fvec_adapt_thres(fvec_t * vec, fvec_t * tmp, 
     uint_t win_post, uint_t win_pre);
 /**  adaptative thresholding 
  *
@@ -148,7 +148,7 @@ void vec_adapt_thres(fvec_t * vec, fvec_t * tmp,
  *    minima=fn_thresh(min,x,8,8)  
  * see SPARMS for explanation of post and pre
  */
-smpl_t vec_moving_thres(fvec_t * vec, fvec_t * tmp, 
+smpl_t fvec_moving_thres(fvec_t * vec, fvec_t * tmp, 
     uint_t win_post, uint_t win_pre, uint_t win_pos);
 
 /** returns the median of the vector 
@@ -160,10 +160,10 @@ smpl_t vec_moving_thres(fvec_t * vec, fvec_t * tmp,
  *  This code by Nicolas Devillard - 1998. Public domain,
  *  available at http://ndevilla.free.fr/median/median/
  */
-smpl_t vec_median(fvec_t * input);
+smpl_t fvec_median(fvec_t * input);
 
 /** finds exact peak index by quadratic interpolation*/
-smpl_t vec_quadint(fvec_t * x, uint_t pos, uint_t span);
+smpl_t fvec_quadint(fvec_t * x, uint_t pos, uint_t span);
 
 /** Quadratic interpolation using Lagrange polynomial.
  *
@@ -178,7 +178,7 @@ smpl_t vec_quadint(fvec_t * x, uint_t pos, uint_t span);
 smpl_t aubio_quadfrac(smpl_t s0, smpl_t s1, smpl_t s2, smpl_t pf);
 
 /** returns 1 if X1 is a peak and positive */
-uint_t vec_peakpick(fvec_t * input, uint_t pos);
+uint_t fvec_peakpick(fvec_t * input, uint_t pos);
 
 /** convert frequency bin to midi value */
 smpl_t aubio_bintomidi(smpl_t bin, smpl_t samplerate, smpl_t fftsize);

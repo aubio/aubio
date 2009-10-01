@@ -98,8 +98,8 @@ smpl_t aubio_pitchmcomb_detect(aubio_pitchmcomb_t * p, cvec_t * fftgrain) {
   for (j=0; j< newmag->length; j++)
     newmag->data[i][j]=fftgrain->norm[i][j];
   /* detect only if local energy > 10. */
-  //if (vec_local_energy(newmag)>10.) {
-    //hfc = vec_local_hfc(newmag); //not used
+  //if (fvec_local_energy(newmag)>10.) {
+    //hfc = fvec_local_hfc(newmag); //not used
     aubio_pitchmcomb_spectral_pp(p, newmag);
     aubio_pitchmcomb_combdet(p,newmag);
     //aubio_pitchmcomb_sort_cand_freq(p->candidates,p->ncand);
@@ -131,8 +131,8 @@ uint_t aubio_pitch_cands(aubio_pitchmcomb_t * p, cvec_t * fftgrain,
   for (j=0; j< newmag->length; j++)
     newmag->data[i][j]=fftgrain->norm[i][j];
   /* detect only if local energy > 10. */
-  if (vec_local_energy(newmag)>10.) {
-    /* hfc = vec_local_hfc(newmag); do not use */
+  if (fvec_local_energy(newmag)>10.) {
+    /* hfc = fvec_local_hfc(newmag); do not use */
     aubio_pitchmcomb_spectral_pp(p, newmag);
     aubio_pitchmcomb_combdet(p,newmag);
     aubio_pitchmcomb_sort_cand_freq(scands,p->ncand);
@@ -158,12 +158,12 @@ void aubio_pitchmcomb_spectral_pp(aubio_pitchmcomb_t * p, fvec_t * newmag) {
   for (j=0;j<length;j++) {
     mag->data[i][j] = newmag->data[i][j];
   }
-  vec_dc_removal(mag);               /* dc removal           */
-  vec_alpha_normalise(mag,p->alpha); /* alpha normalisation  */
+  fvec_dc_removal(mag);               /* dc removal           */
+  fvec_alpha_normalise(mag,p->alpha); /* alpha normalisation  */
   /* skipped */                      /* low pass filtering   */
-  /** \bug vec_moving_thres may write out of bounds */
-  vec_adapt_thres(mag,tmp,p->win_post,p->win_pre); /* adaptative threshold */
-  vec_add(mag,-p->threshold);        /* fixed threshold      */
+  /** \bug fvec_moving_thres may write out of bounds */
+  fvec_adapt_thres(mag,tmp,p->win_post,p->win_pre); /* adaptative threshold */
+  fvec_add(mag,-p->threshold);        /* fixed threshold      */
   {
     aubio_spectralpeak_t * peaks = (aubio_spectralpeak_t *)p->peaks;
     uint_t count;
@@ -268,11 +268,11 @@ uint_t aubio_pitchmcomb_quadpick(aubio_spectralpeak_t * spectral_peaks, fvec_t *
   uint_t i, j, ispeak, count = 0;
   for (i=0;i<X->channels;i++)
     for (j=1;j<X->length-1;j++) {
-      ispeak = vec_peakpick(X,j);
+      ispeak = fvec_peakpick(X,j);
       if (ispeak) {
         count += ispeak;
         spectral_peaks[count-1].bin = j;
-        spectral_peaks[count-1].ebin = vec_quadint(X, j, 1) - 1.;
+        spectral_peaks[count-1].ebin = fvec_quadint(X, j, 1) - 1.;
       }
     }
   return count;

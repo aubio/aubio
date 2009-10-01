@@ -160,8 +160,8 @@ aubio_pickpeak_t * new_aubio_peakpicker(smpl_t threshold) {
 	t->win_post  = 5;
 	t->win_pre   = 1;
 
-	t->thresholdfn = (aubio_thresholdfn_t)(vec_median); /* (fvec_mean); */
-	t->pickerfn = (aubio_pickerfn_t)(vec_peakpick);
+	t->thresholdfn = (aubio_thresholdfn_t)(fvec_median); /* (fvec_mean); */
+	t->pickerfn = (aubio_pickerfn_t)(fvec_peakpick);
 
 	t->scratch = new_fvec(t->win_post+t->win_pre+1,1);
 	t->onset_keep = new_fvec(t->win_post+t->win_pre+1,1);

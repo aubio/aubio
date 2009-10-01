@@ -107,7 +107,7 @@ aubio_mfcc_do (aubio_mfcc_t * mf, cvec_t * in, fvec_t * out)
   fvec_log10 (mf->in_dct);
 
   /* raise power */
-  //vec_pow (mf->in_dct, 3.);
+  //fvec_pow (mf->in_dct, 3.);
 
   /* zeros output */
   fvec_zeros(out);

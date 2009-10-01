@@ -476,7 +476,7 @@ get_note (fvec_t * note_buffer, fvec_t * note_buffer2)
   for (i = 0; i < note_buffer->length; i++) {
     note_buffer2->data[0][i] = note_buffer->data[0][i];
   }
-  return vec_median (note_buffer2);
+  return fvec_median (note_buffer2);
 }
 
 #if HAVE_LASH

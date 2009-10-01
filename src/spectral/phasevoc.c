@@ -56,7 +56,7 @@ void aubio_pvoc_do(aubio_pvoc_t *pv, fvec_t * datanew, cvec_t *fftgrain) {
   /* windowing */
   fvec_weight(pv->data, pv->w);
   /* shift */
-  vec_shift(pv->data);
+  fvec_shift(pv->data);
   /* calculate fft */
   aubio_fft_do (pv->fft,pv->data,fftgrain);
 }
@@ -66,7 +66,7 @@ void aubio_pvoc_rdo(aubio_pvoc_t *pv,cvec_t * fftgrain, fvec_t * synthnew) {
   /* calculate rfft */
   aubio_fft_rdo(pv->fft,fftgrain,pv->synth);
   /* unshift */
-  vec_shift(pv->synth);
+  fvec_shift(pv->synth);
   for (i=0; i<pv->channels; i++) {
     aubio_pvoc_addsynth(pv->synth->data[i],pv->synthold->data[i],
         synthnew->data[i],pv->win_s,pv->hop_s);

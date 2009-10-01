@@ -65,7 +65,7 @@ void flush_process (aubio_process_func_t process_func,
 
 void send_noteon (int pitch, int velo);
 /** append new note candidate to the note_buffer and return filtered value. we
- * need to copy the input array as vec_median destroy its input data.*/
+ * need to copy the input array as fvec_median destroy its input data.*/
 void note_append (fvec_t * note_buffer, smpl_t curnote);
 uint_t get_note (fvec_t * note_buffer, fvec_t * note_buffer2);
 
