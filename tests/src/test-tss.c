@@ -5,6 +5,7 @@
  * a delay equal to the window size, hop_s.
  */
 
+#include <stdio.h>
 #include <aubio.h>
 
 int main(){

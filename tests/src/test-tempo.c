@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <aubio.h>
 
 int main(){

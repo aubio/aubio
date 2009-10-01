@@ -1,6 +1,7 @@
 #include <aubio.h>
 
 int main(){
+#if HAVE_LIBSAMPLERATE
         /* allocate some memory */
         uint_t win_s      = 1024;                       /* window size */
         uint_t channels   = 1;                          /* number of channel */
@@ -19,5 +20,6 @@ int main(){
         del_fvec(in);
         del_fvec(out);
 
+#endif /* HAVE_LIBSAMPLERATE */
         return 0;
 }
