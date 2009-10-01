@@ -34,7 +34,6 @@ struct _aubio_onsetdetection_t {
       cvec_t * fftgrain, fvec_t * onset);
   smpl_t threshold;      /**< minimum norm threshold for phase and specdiff */
   fvec_t *oldmag;        /**< previous norm vector */
-  fft_data_t *meas;      /**< current onset detection measure complex vector */
   fvec_t *dev1 ;         /**< current onset detection measure vector */
   fvec_t *theta1;        /**< previous phase vector, one frame behind */
   fvec_t *theta2;        /**< previous phase vector, two frames behind */
@@ -74,26 +73,14 @@ void aubio_onsetdetection_complex (aubio_onsetdetection_t *o, cvec_t * fftgrain,
   for (i=0;i<fftgrain->channels; i++)  {
     onset->data[i][0] = 0.;
     for (j=0;j<nbins; j++)  {
-      o->dev1->data[i][j]    = aubio_unwrap2pi(
-          fftgrain->phas[i][j]
-          -2.0*o->theta1->data[i][j]+
-          o->theta2->data[i][j]);
-#ifdef HAVE_COMPLEX_H
-      o->meas[j] = fftgrain->norm[i][j]*CEXPC(I*o->dev1->data[i][j]);
-      /* sum on all bins */
-      onset->data[i][0]     += //(fftgrain->norm[i][j]);
-          SQRT(SQR( REAL(o->oldmag->data[i][j]-o->meas[j]) )
-            +  SQR( IMAG(o->oldmag->data[i][j]-o->meas[j]) )
-            );
-#else
-      o->meas[j]             = (fftgrain->norm[i][j])*COS(o->dev1->data[i][j]);
-      o->meas[(nbins-1)*2-1-j] = (fftgrain->norm[i][j])*SIN(o->dev1->data[i][j]);
-      /* sum on all bins */
-      onset->data[i][0]     += //(fftgrain->norm[i][j]);
-          SQRT(SQR( (o->oldmag->data[i][j]-o->meas[j]) )
-            +  SQR( (-o->meas[(nbins-1)*2-1-j]) )
-            );
-#endif
+      // compute the predicted phase
+      o->dev1->data[i][j] = 2. * o->theta1->data[i][j] - o->theta2->data[i][j];
+      // compute the euclidean distance in the complex domain
+      // sqrt ( r_1^2 + r_2^2 - 2 * r_1 * r_2 * \cos ( \phi_1 - \phi_2 ) )
+      onset->data[i][0] +=
+        SQRT (ABS (SQR (o->oldmag->data[i][j]) + SQR (fftgrain->norm[i][j])
+              - 2. * o->oldmag->data[i][j] * fftgrain->norm[i][j]
+              * COS (o->dev1->data[i][j] - fftgrain->phas[i][j])));
       /* swap old phase data (need to remember 2 frames behind)*/
       o->theta2->data[i][j] = o->theta1->data[i][j];
       o->theta1->data[i][j] = fftgrain->phas[i][j];
@@ -234,9 +221,6 @@ new_aubio_onsetdetection (aubio_onsetdetection_type type,
       /* the other approaches will need some more memory spaces */
     case aubio_onset_complex:
       o->oldmag = new_fvec(rsize,channels);
-      /** bug: must be complex array */
-      o->meas = AUBIO_ARRAY(fft_data_t,size+1);
-      for (i=0; i<size+1; i++) o->meas[i] = 0;
       o->dev1   = new_fvec(rsize,channels);
       o->theta1 = new_fvec(rsize,channels);
       o->theta2 = new_fvec(rsize,channels);
@@ -308,7 +292,6 @@ void del_aubio_onsetdetection (aubio_onsetdetection_t *o){
       break;
       /* the other approaches will need some more memory spaces */
     case aubio_onset_complex:
-      AUBIO_FREE(o->meas);
       del_fvec(o->oldmag);
       del_fvec(o->dev1);
       del_fvec(o->theta1);
