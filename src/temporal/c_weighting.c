@@ -183,7 +183,8 @@ void aubio_filter_set_c_weighting (aubio_filter_t * f) {
 
     default:
       AUBIO_ERROR ( "sampling rate of C-weighting filter is %d, should be one of\
- 8000, 16000, 22050, 44100, 96000, 192000.\n",  samplerate );
+ 8000, 16000, 22050, 24000, 32000, 44100, 48000, 88200, 96000, 192000.\n", 
+ samplerate );
       break;
 
   }
