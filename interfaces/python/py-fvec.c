@@ -10,9 +10,6 @@ class fvec():
 
 */
 
-#define Py_fvec_default_length   1024
-#define Py_fvec_default_channels 1
-
 static char Py_fvec_doc[] = "fvec object";
 
 static PyObject *
@@ -108,8 +105,8 @@ Py_fvec_print (Py_fvec * self, PyObject * unused)
   return Py_None;
 }
 
-static PyObject *
-Py_fvec_array (Py_fvec * self)
+PyObject *
+PyAubio_FvecToArray (Py_fvec * self)
 {
   PyObject *array = NULL;
   if (self->channels == 1) {
@@ -198,7 +195,7 @@ static PyMemberDef Py_fvec_members[] = {
 static PyMethodDef Py_fvec_methods[] = {
   {"dump", (PyCFunction) Py_fvec_print, METH_NOARGS,
       "Dumps the contents of the vector to stdout."},
-  {"__array__", (PyCFunction) Py_fvec_array, METH_NOARGS,
+  {"__array__", (PyCFunction) PyAubio_FvecToArray, METH_NOARGS,
       "Returns the first channel as a numpy array."},
   {NULL}
 };
@@ -220,7 +217,7 @@ static PySequenceMethods Py_fvec_tp_as_sequence = {
 PyTypeObject Py_fvecType = {
   PyObject_HEAD_INIT (NULL)
   0,                            /* ob_size           */
-  "fvec",                       /* tp_name           */
+  "aubio.fvec",                 /* tp_name           */
   sizeof (Py_fvec),             /* tp_basicsize      */
   0,                            /* tp_itemsize       */
   (destructor) Py_fvec_del,     /* tp_dealloc        */
