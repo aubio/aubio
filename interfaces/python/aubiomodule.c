@@ -4,81 +4,6 @@
 
 #include "aubio-types.h"
 
-Py_fvec *
-PyAubio_ArrayToFvec (PyObject *input) {
-  PyObject *array;
-  Py_fvec *vec;
-  uint_t i;
-  // parsing input object into a Py_fvec
-  if (PyObject_TypeCheck (input, &Py_fvecType)) {
-    // input is an fvec, nothing else to do
-    vec = (Py_fvec *) input;
-  } else if (PyArray_Check(input)) {
-
-    // we got an array, convert it to an fvec 
-    if (PyArray_NDIM (input) == 0) {
-      PyErr_SetString (PyExc_ValueError, "input array is a scalar");
-      goto fail;
-    } else if (PyArray_NDIM (input) > 2) {
-      PyErr_SetString (PyExc_ValueError,
-          "input array has more than two dimensions");
-      goto fail;
-    }
-
-    if (!PyArray_ISFLOAT (input)) {
-      PyErr_SetString (PyExc_ValueError, "input array should be float");
-      goto fail;
-#if AUBIO_DO_CASTING
-    } else if (PyArray_TYPE (input) != AUBIO_FLOAT) {
-      // input data type is not float32, casting 
-      array = PyArray_Cast ( (PyArrayObject*) input, AUBIO_FLOAT);
-      if (array == NULL) {
-        PyErr_SetString (PyExc_IndexError, "failed converting to NPY_FLOAT");
-        goto fail;
-      }
-#else
-    } else if (PyArray_TYPE (input) != AUBIO_FLOAT) {
-      PyErr_SetString (PyExc_ValueError, "input array should be float32");
-      goto fail;
-#endif
-    } else {
-      // input data type is float32, nothing else to do
-      array = input;
-    }
-
-    // create a new fvec object
-    vec = (Py_fvec*) PyObject_New (Py_fvec, &Py_fvecType); 
-    if (PyArray_NDIM (array) == 1) {
-      vec->channels = 1;
-      vec->length = PyArray_SIZE (array);
-    } else {
-      vec->channels = PyArray_DIM (array, 0);
-      vec->length = PyArray_DIM (array, 1);
-    }
-
-    // no need to really allocate fvec, just its struct member 
-    // vec->o = new_fvec (vec->length, vec->channels);
-    vec->o = (fvec_t *)malloc(sizeof(fvec_t));
-    vec->o->length = vec->length; vec->o->channels = vec->channels;
-    vec->o->data = (smpl_t**)malloc(vec->o->channels * sizeof(smpl_t*));
-    // hat data[i] point to array line
-    for (i = 0; i < vec->channels; i++) {
-      vec->o->data[i] = (smpl_t *) PyArray_GETPTR1 (array, i);
-    }
-
-  } else {
-    PyErr_SetString (PyExc_ValueError, "can only accept array or fvec as input");
-    return NULL;
-  }
-
-  return vec;
-
-fail:
-  return NULL;
-}
-
-
-
 static char Py_alpha_norm_doc[] = "compute alpha normalisation factor";
 
 static PyObject *
@@ -152,7 +77,7 @@ Py_min_removal(PyObject * self, PyObject * args)
   PyObject *input;
   Py_fvec *vec;
 
-  if (!PyArg_ParseTuple (args, "O:zero_crossing_rate", &input)) {
+  if (!PyArg_ParseTuple (args, "O:min_removal", &input)) {
     return NULL;
   }
 
@@ -185,7 +110,7 @@ static PyMethodDef aubio_methods[] = {
   {"zero_crossing_rate", Py_zero_crossing_rate, METH_VARARGS, 
     Py_zero_crossing_rate_doc},
   {"min_removal", Py_min_removal, METH_VARARGS, Py_min_removal_doc},
-  {NULL, NULL}                  /* Sentinel */
+  {NULL, NULL} /* Sentinel */
 };
 
 static char aubio_module_doc[] = "Python module for the aubio library";
