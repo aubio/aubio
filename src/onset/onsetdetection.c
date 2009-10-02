@@ -97,7 +97,7 @@ void aubio_onsetdetection_phase(aubio_onsetdetection_t *o,
   uint_t i, j;
   uint_t nbins = fftgrain->length;
   for (i=0;i<fftgrain->channels; i++)  {
-    onset->data[i][0] = 0.0f;
+    onset->data[i][0] = 0.0;
     o->dev1->data[i][0]=0.;
     for ( j=0;j<nbins; j++ )  {
       o->dev1->data[i][j] = 
@@ -108,7 +108,7 @@ void aubio_onsetdetection_phase(aubio_onsetdetection_t *o,
       if ( o->threshold < fftgrain->norm[i][j] )
         o->dev1->data[i][j] = ABS(o->dev1->data[i][j]);
       else 
-        o->dev1->data[i][j] = 0.0f;
+        o->dev1->data[i][j] = 0.0;
       /* keep a track of the past frames */
       o->theta2->data[i][j] = o->theta1->data[i][j];
       o->theta1->data[i][j] = fftgrain->phas[i][j];
@@ -129,7 +129,7 @@ void aubio_onsetdetection_specdiff(aubio_onsetdetection_t *o,
   uint_t i, j;
   uint_t nbins = fftgrain->length;
   for (i=0;i<fftgrain->channels; i++)  {
-    onset->data[i][0] = 0.0f;
+    onset->data[i][0] = 0.0;
     for (j=0;j<nbins; j++)  {
       o->dev1->data[i][j] = SQRT(
           ABS(SQR( fftgrain->norm[i][j])
@@ -137,7 +137,7 @@ void aubio_onsetdetection_specdiff(aubio_onsetdetection_t *o,
       if (o->threshold < fftgrain->norm[i][j] )
         o->dev1->data[i][j] = ABS(o->dev1->data[i][j]);
       else 
-        o->dev1->data[i][j] = 0.0f;
+        o->dev1->data[i][j] = 0.0;
       o->oldmag->data[i][j] = fftgrain->norm[i][j];
     }
 
@@ -229,13 +229,13 @@ new_aubio_onsetdetection (aubio_onsetdetection_type type,
       o->dev1   = new_fvec(rsize,channels);
       o->theta1 = new_fvec(rsize,channels);
       o->theta2 = new_fvec(rsize,channels);
-      o->histog = new_aubio_hist(0.0f, PI, 10, channels);
+      o->histog = new_aubio_hist(0.0, PI, 10, channels);
       o->threshold = 0.1;
       break;
     case aubio_onset_specdiff:
       o->oldmag = new_fvec(rsize,channels);
       o->dev1   = new_fvec(rsize,channels);
-      o->histog = new_aubio_hist(0.0f, PI, 10, channels);
+      o->histog = new_aubio_hist(0.0, PI, 10, channels);
       o->threshold = 0.1;
       break;
     case aubio_onset_kl:

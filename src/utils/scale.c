@@ -56,7 +56,7 @@ void aubio_scale_set (aubio_scale_t *s, smpl_t ilow, smpl_t ihig,
   s->olow = olow;
   s->ohig = ohig;
   if (inputrange == 0) {
-    s->scaler = 0.0f;
+    s->scaler = 0.0;
   } else {
     s->scaler = outputrange/inputrange;
     if (inputrange < 0) {

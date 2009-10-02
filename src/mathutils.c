@@ -85,7 +85,7 @@ smpl_t aubio_unwrap2pi(smpl_t phase) {
 
 smpl_t fvec_mean(fvec_t *s) {
   uint_t i,j;
-  smpl_t tmp = 0.0f;
+  smpl_t tmp = 0.0;
   for (i=0; i < s->channels; i++)
     for (j=0; j < s->length; j++)
       tmp += s->data[i][j];
@@ -94,7 +94,7 @@ smpl_t fvec_mean(fvec_t *s) {
 
 smpl_t fvec_sum(fvec_t *s) {
   uint_t i,j;
-  smpl_t tmp = 0.0f;
+  smpl_t tmp = 0.0;
   for (i=0; i < s->channels; i++)
     for (j=0; j < s->length; j++)
       tmp += s->data[i][j];
@@ -103,7 +103,7 @@ smpl_t fvec_sum(fvec_t *s) {
 
 smpl_t fvec_max(fvec_t *s) {
   uint_t i,j;
-  smpl_t tmp = 0.0f;
+  smpl_t tmp = 0.0;
   for (i=0; i < s->channels; i++)
     for (j=0; j < s->length; j++)
       tmp = (tmp > s->data[i][j])? tmp : s->data[i][j];
@@ -132,7 +132,7 @@ uint_t fvec_min_elem(fvec_t *s) {
 
 uint_t fvec_max_elem(fvec_t *s) {
   uint_t i,j=0, pos=0.;
-  smpl_t tmp = 0.0f;
+  smpl_t tmp = 0.0;
   for (i=0; i < s->channels; i++)
     for (j=0; j < s->length; j++) {
       pos = (tmp > s->data[i][j])? pos : j;
@@ -143,7 +143,7 @@ uint_t fvec_max_elem(fvec_t *s) {
 
 void fvec_shift(fvec_t *s) {
   uint_t i,j;
-  //smpl_t tmp = 0.0f;
+  //smpl_t tmp = 0.0;
   for (i=0; i < s->channels; i++)
     for (j=0; j < s->length / 2 ; j++) {
       //tmp = s->data[i][j];
