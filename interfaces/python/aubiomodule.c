@@ -4,26 +4,11 @@
 
 #include "aubio-types.h"
 
-static char Py_alpha_norm_doc[] = "compute alpha normalisation factor";
-
-static PyObject *
-Py_alpha_norm (PyObject * self, PyObject * args)
-{
-  PyObject *input;
-  Py_fvec *vec;
-  smpl_t alpha;
-  PyObject *result;
+Py_fvec *
+PyAubio_ArrayToFvec (PyObject *input) {
   PyObject *array;
+  Py_fvec *vec;
   uint_t i;
-
-  if (!PyArg_ParseTuple (args, "Of:alpha_norm", &input, &alpha)) {
-    return NULL;
-  }
-
-  if (input == NULL) {
-    return NULL;
-  }
-
   // parsing input object into a Py_fvec
   if (PyObject_TypeCheck (input, &Py_fvecType)) {
     // input is an fvec, nothing else to do
@@ -35,20 +20,27 @@ Py_alpha_norm (PyObject * self, PyObject * args)
       PyErr_SetString (PyExc_ValueError, "input array is a scalar");
       goto fail;
     } else if (PyArray_NDIM (input) > 2) {
-      PyErr_SetString (PyExc_ValueError, "input array has more than two dimensions");
+      PyErr_SetString (PyExc_ValueError,
+          "input array has more than two dimensions");
       goto fail;
     }
 
     if (!PyArray_ISFLOAT (input)) {
       PyErr_SetString (PyExc_ValueError, "input array should be float");
       goto fail;
-    } else if (PyArray_TYPE (input) != NPY_FLOAT) {
+#if AUBIO_DO_CASTING
+    } else if (PyArray_TYPE (input) != AUBIO_FLOAT) {
       // input data type is not float32, casting 
-      array = PyArray_Cast ( (PyArrayObject*) input, NPY_FLOAT);
+      array = PyArray_Cast ( (PyArrayObject*) input, AUBIO_FLOAT);
       if (array == NULL) {
         PyErr_SetString (PyExc_IndexError, "failed converting to NPY_FLOAT");
         goto fail;
       }
+#else
+    } else if (PyArray_TYPE (input) != AUBIO_FLOAT) {
+      PyErr_SetString (PyExc_ValueError, "input array should be float32");
+      goto fail;
+#endif
     } else {
       // input data type is float32, nothing else to do
       array = input;
@@ -64,8 +56,12 @@ Py_alpha_norm (PyObject * self, PyObject * args)
       vec->length = PyArray_DIM (array, 1);
     }
 
-    // FIXME should not need to allocate fvec
-    vec->o = new_fvec (vec->length, vec->channels);
+    // no need to really allocate fvec, just its struct member 
+    // vec->o = new_fvec (vec->length, vec->channels);
+    vec->o = (fvec_t *)malloc(sizeof(fvec_t));
+    vec->o->length = vec->length; vec->o->channels = vec->channels;
+    vec->o->data = (smpl_t**)malloc(vec->o->channels * sizeof(smpl_t*));
+    // hat data[i] point to array line
     for (i = 0; i < vec->channels; i++) {
       vec->o->data[i] = (smpl_t *) PyArray_GETPTR1 (array, i);
     }
@@ -75,16 +71,45 @@ Py_alpha_norm (PyObject * self, PyObject * args)
     return NULL;
   }
 
+  return vec;
+
+fail:
+  return NULL;
+}
+
+
+
+static char Py_alpha_norm_doc[] = "compute alpha normalisation factor";
+
+static PyObject *
+Py_alpha_norm (PyObject * self, PyObject * args)
+{
+  PyObject *input;
+  Py_fvec *vec;
+  smpl_t alpha;
+  PyObject *result;
+
+  if (!PyArg_ParseTuple (args, "Of:alpha_norm", &input, &alpha)) {
+    return NULL;
+  }
+
+  if (input == NULL) {
+    return NULL;
+  }
+
+  vec = PyAubio_ArrayToFvec (input);
+
+  if (vec == NULL) {
+    return NULL;
+  }
+
   // compute the function
-  result = Py_BuildValue ("f", vec_alpha_norm (vec->o, alpha));
+  result = Py_BuildValue ("f", fvec_alpha_norm (vec->o, alpha));
   if (result == NULL) {
     return NULL;
   }
 
   return result;
-
-fail:
-    return NULL;
 }
 
 static PyMethodDef aubio_methods[] = {
