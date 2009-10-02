@@ -180,13 +180,16 @@ smpl_t fvec_alpha_norm(fvec_t * DF, smpl_t alpha) {
   return POW(tmp/DF->length,1./alpha);
 }
 
-void fvec_dc_removal(fvec_t * mag) {
-    smpl_t mini = 0.;
-    uint_t length = mag->length, i=0, j;
-    mini = fvec_min(mag);
-    for (j=0;j<length;j++) {
+void
+fvec_min_removal (fvec_t * o)
+{
+  uint_t i, j;
+  smpl_t mini = fvec_min (mag);
+  for (i = 0; i < o->channels; i++) {
+    for (j = 0; j < o->length; j++) {
       mag->data[i][j] -= mini;
     }
+  }
 }
 
 void fvec_alpha_normalise(fvec_t * mag, uint_t alpha) {

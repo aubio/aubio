@@ -139,7 +139,7 @@ smpl_t fvec_sum(fvec_t *s);
 smpl_t fvec_local_energy(fvec_t * f);
 smpl_t fvec_local_hfc(fvec_t * f);
 smpl_t fvec_alpha_norm(fvec_t * DF, smpl_t alpha);
-void fvec_dc_removal(fvec_t * mag);
+void fvec_min_removal(fvec_t * mag);
 void fvec_alpha_normalise(fvec_t * mag, uint_t alpha);
 void fvec_add(fvec_t * mag, smpl_t threshold);
 void fvec_adapt_thres(fvec_t * vec, fvec_t * tmp, uint_t post, uint_t pre);

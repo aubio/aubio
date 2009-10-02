@@ -158,9 +158,9 @@ void aubio_pitchmcomb_spectral_pp(aubio_pitchmcomb_t * p, fvec_t * newmag) {
   for (j=0;j<length;j++) {
     mag->data[i][j] = newmag->data[i][j];
   }
-  fvec_dc_removal(mag);               /* dc removal           */
+  fvec_min_removal(mag);              /* min removal          */
   fvec_alpha_normalise(mag,p->alpha); /* alpha normalisation  */
-  /* skipped */                      /* low pass filtering   */
+  /* skipped */                       /* low pass filtering   */
   /** \bug fvec_moving_thres may write out of bounds */
   fvec_adapt_thres(mag,tmp,p->win_post,p->win_pre); /* adaptative threshold */
   fvec_add(mag,-p->threshold);        /* fixed threshold      */

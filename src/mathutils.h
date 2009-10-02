@@ -119,8 +119,8 @@ smpl_t fvec_local_hfc(fvec_t * f);
  * \bug should not use POW :(
  */
 smpl_t fvec_alpha_norm(fvec_t * DF, smpl_t alpha);
-/**  dc(min) removal */
-void fvec_dc_removal(fvec_t * mag);
+/**  min removal */
+void fvec_min_removal(fvec_t * mag);
 /**  alpha normalisation */
 void fvec_alpha_normalise(fvec_t * mag, uint_t alpha);
 /** add a constant to all members of a vector */
