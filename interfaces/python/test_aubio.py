@@ -1,8 +1,14 @@
-import unittest
+from numpy.testing import TestCase, run_module_suite
+from numpy.testing import assert_equal as numpy_assert_equal
 from _aubio import *
 from numpy import array
 
-class aubiomodule_test_case(unittest.TestCase):
+AUBIO_DO_CASTING = 0
+
+def assert_equal(a, b):
+  numpy_assert_equal(array(a),array(b))
+
+class aubiomodule_test_case(TestCase):
 
   def setUp(self):
     """ try importing aubio """
@@ -37,23 +43,17 @@ class aubiomodule_test_case(unittest.TestCase):
     self.assertEquals (alpha_norm(a, 2), 1)
 
   def test_alpha_norm_of_array_of_float32(self):
+    # check scalar fails
     a = array(1, dtype = 'float32')
     self.assertRaises (ValueError, alpha_norm, a, 1)
+    # check 3d array fails
     a = array([[[1,2],[3,4]]], dtype = 'float32')
     self.assertRaises (ValueError, alpha_norm, a, 1)
+    # check 1d array
     a = array(range(10), dtype = 'float32')
     self.assertEquals (alpha_norm(a, 1), 4.5)
+    # check 2d array
     a = array([range(10), range(10)], dtype = 'float32')
-    self.assertEquals (alpha_norm(a, 1), 9)
-
-  def test_alpha_norm_of_array_of_float64(self):
-    a = array(1, dtype = 'float64')
-    self.assertRaises (ValueError, alpha_norm, a, 1)
-    a = array([[[1,2],[3,4]]], dtype = 'float64')
-    self.assertRaises (ValueError, alpha_norm, a, 1)
-    a = array(range(10), dtype = 'float64')
-    self.assertEquals (alpha_norm(a, 1), 4.5)
-    a = array([range(10), range(10)], dtype = 'float64')
     self.assertEquals (alpha_norm(a, 1), 9)
 
   def test_alpha_norm_of_array_of_int(self):
@@ -68,5 +68,66 @@ class aubiomodule_test_case(unittest.TestCase):
     a = "hello"
     self.assertRaises (ValueError, alpha_norm, a, 1)
 
+  def test_zero_crossing_rate(self):
+    a = array([0,1,-1], dtype='float32')
+    self.assertEquals (zero_crossing_rate(a), 1./3 )
+    a = array([0.]*100, dtype='float32')
+    self.assertEquals (zero_crossing_rate(a), 0 )
+    a = array([-1.]*100, dtype='float32')
+    self.assertEquals (zero_crossing_rate(a), 0 )
+    a = array([1.]*100, dtype='float32')
+    self.assertEquals (zero_crossing_rate(a), 0 )
+
+  def test_alpha_norm_of_array_of_float64(self):
+    # check scalar fail
+    a = array(1, dtype = 'float64')
+    self.assertRaises (ValueError, alpha_norm, a, 1)
+    # check 3d array fail
+    a = array([[[1,2],[3,4]]], dtype = 'float64')
+    self.assertRaises (ValueError, alpha_norm, a, 1)
+    if AUBIO_DO_CASTING:
+      # check float64 1d array fail
+      a = array(range(10), dtype = 'float64')
+      self.assertEquals (alpha_norm(a, 1), 4.5)
+      # check float64 2d array fail
+      a = array([range(10), range(10)], dtype = 'float64')
+      self.assertEquals (alpha_norm(a, 1), 9)
+    else:
+      # check float64 1d array fail
+      a = array(range(10), dtype = 'float64')
+      self.assertRaises (ValueError, alpha_norm, a, 1)
+      # check float64 2d array fail
+      a = array([range(10), range(10)], dtype = 'float64')
+      self.assertRaises (ValueError, alpha_norm, a, 1)
+
+  def test_fvec_min_removal_of_array(self):
+    a = array([20,1,19], dtype='float32')
+    b = min_removal(a)
+    assert_equal (array(b), [19, 0, 18])
+    assert_equal (b, [19, 0, 18])
+    assert_equal (a, b)
+    a[0] = 0
+    assert_equal (a, b)
+
+  def test_fvec_min_removal_of_array_float64(self):
+    a = array([20,1,19], dtype='float64')
+    if AUBIO_DO_CASTING:
+      b = min_removal(a)
+      assert_equal (array(b), [19, 0, 18])
+      assert_equal (b, [19, 0, 18])
+      #assert_equal (a, b)
+    else:
+      self.assertRaises (ValueError, min_removal, a)
+      
+  def test_fvec_min_removal_of_fvec(self):
+    a = fvec(3, 1)
+    a[0] = [20, 1, 19]
+    b = min_removal(a)
+    assert_equal (array(b), [19, 0, 18])
+    assert_equal (b, [19, 0, 18])
+    assert_equal (a, b)
+
 if __name__ == '__main__':
-  unittest.main()
+  from unittest import main
+  main()
+
