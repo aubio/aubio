@@ -184,10 +184,10 @@ void
 fvec_min_removal (fvec_t * o)
 {
   uint_t i, j;
-  smpl_t mini = fvec_min (mag);
+  smpl_t mini = fvec_min (o);
   for (i = 0; i < o->channels; i++) {
     for (j = 0; j < o->length; j++) {
-      mag->data[i][j] -= mini;
+      o->data[i][j] -= mini;
     }
   }
 }
