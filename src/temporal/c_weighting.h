@@ -75,7 +75,7 @@ aubio_filter_t * new_aubio_filter_c_weighting (uint_t samplerate, uint_t channel
   \param f filter object to get coefficients from
 
 */
-void aubio_filter_set_c_weighting (aubio_filter_t *f);
+uint_t aubio_filter_set_c_weighting (aubio_filter_t *f);
 
 #ifdef __cplusplus
 }

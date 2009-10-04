@@ -26,7 +26,7 @@
 #include "temporal/filter.h"
 #include "temporal/a_weighting.h"
 
-void aubio_filter_set_a_weighting (aubio_filter_t * f) {
+uint_t aubio_filter_set_a_weighting (aubio_filter_t * f) {
 
   uint_t samplerate = aubio_filter_get_samplerate (f);
   lvec_t *bs = aubio_filter_get_feedforward (f);
@@ -36,7 +36,7 @@ void aubio_filter_set_a_weighting (aubio_filter_t * f) {
 
   if ( order != 7 ) {
     AUBIO_ERROR ( "order of A-weighting filter must be 7, not %d\n", order );
-    return;
+    return 1;
   }
 
   /* select coefficients according to sampling frequency */
@@ -244,10 +244,11 @@ void aubio_filter_set_a_weighting (aubio_filter_t * f) {
       AUBIO_ERROR ( "sampling rate of A-weighting filter is %d, should be one of\
  8000, 11025, 16000, 22050, 24000, 32000, 44100, 48000, 88200, 96000, 192000.\n", 
  samplerate );
-      break;
+      return 1;
 
   }
 
+  return 0;
 }
 
 aubio_filter_t * new_aubio_filter_a_weighting (uint_t samplerate, uint_t channels) {
