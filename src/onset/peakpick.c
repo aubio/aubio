@@ -67,12 +67,13 @@ struct _aubio_pickpeak_t {
 /** modified version for real time, moving mean adaptive threshold this method
  * is slightly more permissive than the offline one, and yelds to an increase
  * of false positives. best  */
-uint_t aubio_peakpick_pimrt(fvec_t * onset,  aubio_pickpeak_t * p) {
+smpl_t aubio_peakpick_pimrt(fvec_t * onset,  aubio_pickpeak_t * p) {
 	fvec_t * onset_keep = (fvec_t *)p->onset_keep;
 	fvec_t * onset_proc = (fvec_t *)p->onset_proc;
 	fvec_t * onset_peek = (fvec_t *)p->onset_peek;
 	fvec_t * scratch    = (fvec_t *)p->scratch;
 	smpl_t mean = 0., median = 0.;
+  smpl_t isonset = 0.;
 	uint_t length = p->win_post + p->win_pre + 1;
 	uint_t i = 0, j;
 
@@ -109,7 +110,11 @@ uint_t aubio_peakpick_pimrt(fvec_t * onset,  aubio_pickpeak_t * p) {
 		onset_proc->data[i][p->win_post] - median - mean * p->threshold;
 	/* } */
 	//AUBIO_DBG("%f\n", onset_peek->data[0][2]);
-	return (p->pickerfn)(onset_peek,1);
+  isonset = (p->pickerfn)(onset_peek,1);
+  if (isonset) { //(isonset) {
+    isonset = fvec_quadint(onset_peek, 1, 1);
+  }
+	return isonset;
 }
 
 /** this method returns the current value in the pick peaking buffer
