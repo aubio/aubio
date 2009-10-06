@@ -67,7 +67,7 @@ struct _aubio_pickpeak_t {
 /** modified version for real time, moving mean adaptive threshold this method
  * is slightly more permissive than the offline one, and yelds to an increase
  * of false positives. best  */
-smpl_t aubio_peakpick_pimrt(fvec_t * onset,  aubio_pickpeak_t * p) {
+smpl_t aubio_peakpicker_do(aubio_pickpeak_t * p, fvec_t * onset) {
 	fvec_t * onset_keep = (fvec_t *)p->onset_keep;
 	fvec_t * onset_proc = (fvec_t *)p->onset_proc;
 	fvec_t * onset_peek = (fvec_t *)p->onset_peek;
@@ -120,25 +120,12 @@ smpl_t aubio_peakpick_pimrt(fvec_t * onset,  aubio_pickpeak_t * p) {
 /** this method returns the current value in the pick peaking buffer
  * after smoothing
  */
-smpl_t aubio_peakpick_pimrt_getval(aubio_pickpeak_t * p) 
+smpl_t aubio_peakpicker_get_thresholded_input(aubio_pickpeak_t * p) 
 {
-	uint_t i = 0;
-	return p->onset_peek->data[i][1];
+	return p->onset_peek->data[0][1];
 }
 
 /** function added by Miguel Ramirez to return the onset detection amplitude in peakval */
-uint_t aubio_peakpick_pimrt_wt(fvec_t * onset,  aubio_pickpeak_t * p, smpl_t* peakval) 
-{
-	uint_t isonset = 0;
-	isonset = aubio_peakpick_pimrt(onset,p);
-
-	//if ( isonset && peakval != NULL )
-	if ( peakval != NULL )
-		*peakval = aubio_peakpick_pimrt_getval(p); 
-
-	return isonset;
-}
-
 void aubio_peakpicker_set_threshold(aubio_pickpeak_t * p, smpl_t threshold) {
 	p->threshold = threshold;
 	return;

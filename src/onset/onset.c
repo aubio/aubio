@@ -50,7 +50,7 @@ void aubio_onset(aubio_onset_t *o, fvec_t * input, fvec_t * onset)
     aubio_onsetdetection(o2,fftgrain, onset2);
     onset->data[0][0] *= onset2->data[0][0];
   }*/
-  isonset = aubio_peakpick_pimrt(o->of,o->pp);
+  isonset = aubio_peakpicker_do(o->pp, o->of);
   if (isonset > 0.) {
     if (aubio_silence_detection(input, o->silence)==1) {
       isonset  = 0;

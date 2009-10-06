@@ -40,11 +40,9 @@ typedef struct _aubio_pickpeak_t aubio_pickpeak_t;
 /** peak-picker creation function */
 aubio_pickpeak_t * new_aubio_peakpicker(smpl_t threshold);
 /** real time peak picking function */
-smpl_t aubio_peakpick_pimrt(fvec_t * DF, aubio_pickpeak_t * p);
-/** function added by Miguel Ramirez to return the onset detection amplitude in peakval */
-uint_t aubio_peakpick_pimrt_wt( fvec_t* DF, aubio_pickpeak_t* p, smpl_t* peakval );
+smpl_t aubio_peakpicker_do(aubio_pickpeak_t * p, fvec_t * DF);
 /** get current peak value */
-smpl_t aubio_peakpick_pimrt_getval(aubio_pickpeak_t * p);
+smpl_t aubio_peakpicker_get_thresholded_input(aubio_pickpeak_t * p);
 /** destroy peak picker structure */
 void del_aubio_peakpicker(aubio_pickpeak_t * p);
 

@@ -68,8 +68,9 @@ void aubio_tempo(aubio_tempo_t *o, fvec_t * input, fvec_t * tempo)
     o->blockpos = -1;
   }
   o->blockpos++;
-  tempo->data[0][1] = aubio_peakpick_pimrt_wt(o->of,o->pp,
-    &(o->dfframe->data[0][winlen - step + o->blockpos]));
+  tempo->data[0][1] = aubio_peakpicker_do (o->pp, o->of);
+  o->dfframe->data[0][winlen - step + o->blockpos] = 
+    aubio_peakpicker_get_thresholded_input(o->pp);
   /* end of second level loop */
   tempo->data[0][0] = 0; /* reset tactus */
   i=0;
