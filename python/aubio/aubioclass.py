@@ -43,7 +43,7 @@ class sndfile:
         else:
             self.file = new_aubio_sndfile_ro(filename)
         if self.file == None:
-            raise(ValueError, "failed opening file %s" % filename)
+            raise IOError, "failed opening file %s" % filename
     def __del__(self):
         if self.file != None: del_aubio_sndfile(self.file)
     def info(self):
@@ -81,9 +81,9 @@ class peakpick:
     def __init__(self,threshold=0.1):
         self.pp = new_aubio_peakpicker(threshold)
     def do(self,fv):
-        return aubio_peakpick_pimrt(fv(),self.pp)
+        return aubio_peakpicker_do(self.pp, fv())
     def getval(self):
-        return aubio_peakpick_pimrt_getval(self.pp)
+        return aubio_peakpicker_get_adaptive_threshold(self.pp)
     def __del__(self):
         del_aubio_peakpicker(self.pp)
 
