@@ -17,6 +17,8 @@
 	 
 */
 
+#include "config.h"
+
 #if HAVE_SAMPLERATE
 
 #include <samplerate.h> /* from libsamplerate */
