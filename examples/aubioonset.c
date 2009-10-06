@@ -43,11 +43,11 @@ int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
         aubio_onsetdetection(o2,fftgrain, onset2);
         onset->data[0][0] *= onset2->data[0][0];
       }
-      isonset = aubio_peakpick_pimrt(onset,parms);
+      isonset = aubio_peakpicker_do(parms, onset);
       if (isonset) {
         /* test for silence */
         if (aubio_silence_detection(ibuf, silence)==1)
-          isonset=0;
+          isonset=0.;
         else
           for (pos = 0; pos < overlap_size; pos++){
             obuf->data[0][pos] = woodblock->data[0][pos];
@@ -71,7 +71,7 @@ void process_print (void) {
        * actual onset */
       if (isonset && output_filename == NULL) {
         if(frames >= 4) {
-          outmsg("%f\n",(frames-frames_delay)*overlap_size/(float)samplerate);
+          outmsg("%f\n",(frames - frames_delay + isonset)*overlap_size/(float)samplerate);
         } else if (frames < frames_delay) {
           outmsg("%f\n",0.);
         }
@@ -79,7 +79,7 @@ void process_print (void) {
 }
 
 int main(int argc, char **argv) {
-  frames_delay = 4;
+  frames_delay = 3;
   examples_common_init(argc,argv);
   examples_common_process(aubio_process,process_print);
   examples_common_del();

@@ -67,7 +67,7 @@ aubio_onsetdetection_t *o;
 aubio_onsetdetection_t *o2;
 fvec_t *onset;
 fvec_t *onset2;
-int isonset = 0;
+smpl_t isonset = 0;
 aubio_pickpeak_t *parms;
 
 

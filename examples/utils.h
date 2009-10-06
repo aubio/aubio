@@ -100,7 +100,7 @@ extern aubio_onsetdetection_t *o;
 extern aubio_onsetdetection_t *o2;
 extern fvec_t *onset;
 extern fvec_t *onset2;
-extern int isonset;
+extern smpl_t isonset;
 extern aubio_pickpeak_t *parms;
 
 
