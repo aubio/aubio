@@ -4,8 +4,10 @@
 #include <numpy/arrayobject.h>
 #include <aubio.h>
 
-#define Py_fvec_default_length   1024
-#define Py_fvec_default_channels 1
+#define Py_default_vector_length   1024
+#define Py_default_vector_channels 1
+
+#define Py_aubio_default_samplerate 44100
 
 #ifdef HAVE_AUBIO_DOUBLE
 #define AUBIO_FLOAT NPY_FLOAT
@@ -24,11 +26,16 @@ it.
 
 typedef struct
 {
-  PyObject_HEAD fvec_t * o;
+  PyObject_HEAD
+  fvec_t * o;
   uint_t length;
   uint_t channels;
 } Py_fvec;
 extern PyTypeObject Py_fvecType;
+
+extern PyTypeObject Py_cvecType;
+
+extern PyTypeObject Py_filterType;
 
 extern PyObject *PyAubio_FvecToArray (Py_fvec * self);
 

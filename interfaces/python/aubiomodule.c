@@ -96,14 +96,11 @@ Py_min_removal(PyObject * self, PyObject * args)
   // since this function does not return, we could return None
   //return Py_None;
   // however it is convenient to return the modified vector 
-  //return (PyObject *) PyAubio_FvecToArray(vec);
+  return (PyObject *) PyAubio_FvecToArray(vec);
   // or even without converting it back to an array
-  Py_INCREF(vec);
-  return (PyObject *)vec;
+  //Py_INCREF(vec);
+  //return (PyObject *)vec;
 }
-
-  
-
 
 static PyMethodDef aubio_methods[] = {
   {"alpha_norm", Py_alpha_norm, METH_VARARGS, Py_alpha_norm_doc},
@@ -121,7 +118,9 @@ init_aubio (void)
   PyObject *m;
   int err;
 
-  if (PyType_Ready (&Py_fvecType) < 0) {
+  if ((PyType_Ready (&Py_fvecType) < 0) ||
+      (PyType_Ready (&Py_cvecType) < 0) ||
+      (PyType_Ready (&Py_filterType) < 0)) {
     return;
   }
 
@@ -140,4 +139,8 @@ init_aubio (void)
 
   Py_INCREF (&Py_fvecType);
   PyModule_AddObject (m, "fvec", (PyObject *) & Py_fvecType);
+  Py_INCREF (&Py_cvecType);
+  PyModule_AddObject (m, "cvec", (PyObject *) & Py_cvecType);
+  Py_INCREF (&Py_filterType);
+  PyModule_AddObject (m, "digital_filter", (PyObject *) & Py_filterType);
 }

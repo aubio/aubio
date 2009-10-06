@@ -27,8 +27,8 @@ Py_fvec_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
 
   self = (Py_fvec *) type->tp_alloc (type, 0);
 
-  self->length = Py_fvec_default_length;
-  self->channels = Py_fvec_default_channels;
+  self->length = Py_default_vector_length;
+  self->channels = Py_default_vector_channels;
 
   if (self == NULL) {
     return NULL;
@@ -49,7 +49,6 @@ Py_fvec_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
         "can not use negative number of channels");
     return NULL;
   }
-
 
   return (PyObject *) self;
 }
@@ -88,6 +87,7 @@ Py_fvec_repr (Py_fvec * self, PyObject * unused)
   if (args == NULL) {
     goto fail;
   }
+  fvec_print ( self->o );
 
   result = PyString_Format (format, args);
 
@@ -98,18 +98,15 @@ fail:
   return result;
 }
 
-static PyObject *
-Py_fvec_print (Py_fvec * self, PyObject * unused)
-{
-  fvec_print (self->o);
-  return Py_None;
-}
-
 Py_fvec *
 PyAubio_ArrayToFvec (PyObject *input) {
   PyObject *array;
   Py_fvec *vec;
   uint_t i;
+  if (input == NULL) {
+    PyErr_SetString (PyExc_ValueError, "input array is not a python object");
+    goto fail;
+  }
   // parsing input object into a Py_fvec
   if (PyObject_TypeCheck (input, &Py_fvecType)) {
     // input is an fvec, nothing else to do
@@ -266,8 +263,6 @@ static PyMemberDef Py_fvec_members[] = {
 };
 
 static PyMethodDef Py_fvec_methods[] = {
-  {"dump", (PyCFunction) Py_fvec_print, METH_NOARGS,
-      "Dumps the contents of the vector to stdout."},
   {"__array__", (PyCFunction) PyAubio_FvecToArray, METH_NOARGS,
       "Returns the first channel as a numpy array."},
   {NULL}

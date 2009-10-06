@@ -1,12 +1,9 @@
 from numpy.testing import TestCase, run_module_suite
-from numpy.testing import assert_equal as numpy_assert_equal
+from numpy.testing import assert_equal
 from _aubio import *
 from numpy import array
 
 AUBIO_DO_CASTING = 0
-
-def assert_equal(a, b):
-  numpy_assert_equal(array(a),array(b))
 
 class aubiomodule_test_case(TestCase):
 
