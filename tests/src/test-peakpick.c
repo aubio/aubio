@@ -7,10 +7,10 @@ int main(){
         fvec_t * in       = new_fvec (win_s, channels); /* input buffer */
         aubio_pickpeak_t * o = new_aubio_peakpicker(0.3);
 
-        aubio_peakpick_pimrt(in,o);
-        aubio_peakpick_pimrt(in,o);
-        aubio_peakpick_pimrt(in,o);
-        aubio_peakpick_pimrt(in,o);
+        aubio_peakpicker_do(o, in);
+        aubio_peakpicker_do(o, in);
+        aubio_peakpicker_do(o, in);
+        aubio_peakpicker_do(o, in);
 
         del_aubio_peakpicker(o);
         del_fvec(in);
