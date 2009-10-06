@@ -34,7 +34,7 @@ class taskonset(task):
 			if val > 0: self.ovalist.append(val)
 			else: self.ovalist.append(0)
 			self.ovalist.pop(0)
-		if (isonset == 1):
+		if (isonset > 0.):
 			if self.params.localmin:
 				# find local minima before peak 
 				i=len(self.ovalist)-1
