@@ -41,7 +41,7 @@ int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
     /*time for fft*/
     if (pos == overlap_size-1) {         
       /* block loop */
-      aubio_tempo(bt,ibuf,out);
+      aubio_tempo_do (bt,ibuf,out);
       if (out->data[0][0]>=1) 
         istactus = out->data[0][0];
       else 

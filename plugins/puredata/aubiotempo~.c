@@ -43,7 +43,7 @@ static t_int *aubiotempo_tilde_perform(t_int *w)
     /*time for fft*/
     if (x->pos == x->hopsize-1) {         
       /* block loop */
-      aubio_tempo (x->t, x->vec, x->output);
+      aubio_tempo_do (x->t, x->vec, x->output);
       if (x->output->data[0][0]) {
         outlet_bang(x->tempobang);
       }

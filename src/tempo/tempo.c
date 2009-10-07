@@ -45,7 +45,7 @@ struct _aubio_tempo_t {
 };
 
 /* execute tempo detection function on iput buffer */
-void aubio_tempo(aubio_tempo_t *o, fvec_t * input, fvec_t * tempo)
+void aubio_tempo_do(aubio_tempo_t *o, fvec_t * input, fvec_t * tempo)
 {
   uint_t i;
   uint_t winlen = o->winlen;

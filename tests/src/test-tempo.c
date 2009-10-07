@@ -13,7 +13,7 @@ int main(){
         smpl_t curtempo, curtempoconf;
 
         while (i < 1000) {
-          aubio_tempo(o,in,out);
+          aubio_tempo_do(o,in,out);
           curtempo = aubio_tempo_get_bpm(o);
           if (curtempo != 0.) {
             fprintf(stdout,"%f\n",curtempo);

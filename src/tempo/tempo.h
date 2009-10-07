@@ -41,7 +41,7 @@ aubio_tempo_t * new_aubio_tempo (aubio_onsetdetection_type type_onset,
     uint_t buf_size, uint_t hop_size, uint_t channels);
 
 /** execute tempo detection */
-void aubio_tempo(aubio_tempo_t *o, fvec_t * input, fvec_t * tempo);
+void aubio_tempo_do (aubio_tempo_t *o, fvec_t * input, fvec_t * tempo);
 
 /** set tempo detection silence threshold  */
 void aubio_tempo_set_silence(aubio_tempo_t * o, smpl_t silence);
