@@ -15,7 +15,7 @@ int main(){
         uint_t i = 0;
 
         while (i < 1000) {
-          aubio_pitchdetection(o,in);
+          aubio_pitchdetection_do (o,in);
           i++;
         };
 

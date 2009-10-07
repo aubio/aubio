@@ -13,7 +13,7 @@ int main(){
         uint_t i = 0;
 
         while (i < 1000) {
-          aubio_pitchfcomb_detect(o,in);
+          aubio_pitchfcomb_do (o,in);
           i++;
         };
 

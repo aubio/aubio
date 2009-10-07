@@ -9,7 +9,7 @@ int main(){
         uint_t i = 0;
 
         while (i < 10) {
-          aubio_pitchyinfft_detect (o,in,0.2);
+          aubio_pitchyinfft_do (o,in,0.2);
           i++;
         };
 
