@@ -308,7 +308,6 @@ new_aubio_onsetdetection (aubio_onsetdetection_type type,
     uint_t size, uint_t channels){
   aubio_onsetdetection_t * o = AUBIO_NEW(aubio_onsetdetection_t);
   uint_t rsize = size/2+1;
-  uint_t i;
   switch(type) {
     /* for both energy and hfc, only fftgrain->norm is required */
     case aubio_onset_energy: 
