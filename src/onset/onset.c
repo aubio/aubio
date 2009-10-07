@@ -40,7 +40,7 @@ struct _aubio_onset_t {
 };
 
 /* execute onset detection function on iput buffer */
-void aubio_onset(aubio_onset_t *o, fvec_t * input, fvec_t * onset)
+void aubio_onset_do (aubio_onset_t *o, fvec_t * input, fvec_t * onset)
 {
   uint_t isonset = 0;
   uint_t wasonset = o->wasonset;

@@ -10,7 +10,7 @@ int main(){
         uint_t i = 0;
 
         while (i < 10) {
-          aubio_onset(onset,in,out);
+          aubio_onset_do (onset,in,out);
           i++;
         };
 
