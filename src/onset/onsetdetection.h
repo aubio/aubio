@@ -61,7 +61,7 @@ typedef struct _aubio_onsetdetection_t aubio_onsetdetection_t;
   \param onset output vector (one sample long, to send to the peak picking)
 
 */
-void aubio_onsetdetection(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
+void aubio_onsetdetection_do (aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
 /** creation of an onset detection object 
 
   \param type onset detection mode

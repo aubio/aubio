@@ -38,9 +38,9 @@ int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
     if (pos == overlap_size-1) {         
       /* block loop */
       aubio_pvoc_do (pv,ibuf, fftgrain);
-      aubio_onsetdetection(o,fftgrain, onset);
+      aubio_onsetdetection_do(o,fftgrain, onset);
       if (usedoubled) {
-        aubio_onsetdetection(o2,fftgrain, onset2);
+        aubio_onsetdetection_do(o2,fftgrain, onset2);
         onset->data[0][0] *= onset2->data[0][0];
       }
       isonset = aubio_peakpicker_do(parms, onset);

@@ -295,7 +295,7 @@ void aubio_onsetdetection_specflux(aubio_onsetdetection_t *o, cvec_t * fftgrain,
 
 /* Generic function pointing to the choosen one */
 void 
-aubio_onsetdetection(aubio_onsetdetection_t *o, cvec_t * fftgrain, 
+aubio_onsetdetection_do (aubio_onsetdetection_t *o, cvec_t * fftgrain, 
     fvec_t * onset) {
   o->funcpointer(o,fftgrain,onset);
 }

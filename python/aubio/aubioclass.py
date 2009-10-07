@@ -72,7 +72,7 @@ class onsetdetection:
     def __init__(self,type,buf,chan):
         self.od = new_aubio_onsetdetection(type,buf,chan)
     def do(self,tc,tf):
-        aubio_onsetdetection(self.od,tc(),tf())
+        aubio_onsetdetection_do(self.od,tc(),tf())
     def __del__(self):
         del_aubio_onsetdetection(self.od)
 

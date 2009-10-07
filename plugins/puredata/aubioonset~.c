@@ -46,7 +46,7 @@ static t_int *aubioonset_tilde_perform(t_int *w)
 		if (x->pos == x->hopsize-1) {         
 			/* block loop */
 			aubio_pvoc_do (x->pv,x->vec, x->fftgrain);
-			aubio_onsetdetection(x->o,x->fftgrain, x->onset);
+			aubio_onsetdetection_do (x->o,x->fftgrain, x->onset);
 			isonset = aubio_peakpick_pimrt(x->onset,x->parms);
 			if (isonset) {
 				/* test for silence */

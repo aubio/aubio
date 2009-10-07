@@ -51,9 +51,9 @@ void aubio_tempo_do(aubio_tempo_t *o, fvec_t * input, fvec_t * tempo)
   uint_t winlen = o->winlen;
   uint_t step   = o->step;
   aubio_pvoc_do (o->pv, input, o->fftgrain);
-  aubio_onsetdetection(o->od, o->fftgrain, o->of);
+  aubio_onsetdetection_do (o->od, o->fftgrain, o->of);
   /*if (usedoubled) {
-    aubio_onsetdetection(o2,fftgrain, onset2);
+    aubio_onsetdetection_do(o2,fftgrain, onset2);
     onset->data[0][0] *= onset2->data[0][0];
   }*/
   /* execute every overlap_size*step */
