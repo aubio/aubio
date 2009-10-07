@@ -51,7 +51,7 @@ void del_aubio_resampler(aubio_resampler_t *s);
   \param output output buffer of size N*ratio
 
 */
-uint_t aubio_resampler_process(aubio_resampler_t *s, fvec_t * input,  fvec_t * output);
+uint_t aubio_resampler_do (aubio_resampler_t *s, fvec_t * input,  fvec_t * output);
 
 #ifdef __cplusplus
 }
