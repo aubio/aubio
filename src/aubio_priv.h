@@ -62,6 +62,10 @@
 #include <string.h>
 #endif
 
+#if HAVE_LIMITS_H
+#include <limits.h> // for CHAR_BIT, in C99 standard
+#endif
+
 #include "types.h"
 
 /****

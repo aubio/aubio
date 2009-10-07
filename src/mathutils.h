@@ -316,6 +316,12 @@ smpl_t aubio_freqtomidi (smpl_t freq);
 /** convert midi value (0-128) to frequency (Hz) */
 smpl_t aubio_miditofreq (smpl_t midi);
 
+/** return 1 if a is a power of 2, 0 otherwise */
+uint_t aubio_is_power_of_two(uint_t a);
+
+/** return the next power of power of 2 greater than a */
+uint_t aubio_next_power_of_two(uint_t a);
+
 /** compute sound pressure level (SPL) in dB
 
   This quantity is often wrongly called 'loudness'.

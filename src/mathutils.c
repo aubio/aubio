@@ -409,6 +409,25 @@ aubio_miditobin (smpl_t midi, smpl_t samplerate, smpl_t fftsize)
   return aubio_freqtobin (freq, samplerate, fftsize);
 }
 
+uint_t
+aubio_is_power_of_two(uint_t a) {
+  if ((a & a-1) == 0) {
+    return 1;
+  } else {
+    return 0; 
+  }
+}
+
+uint_t
+aubio_next_power_of_two(uint_t a) {
+  uint_t i;
+  a--;
+  for (i = 0; i < sizeof(uint_t) * CHAR_BIT; i++ ) {
+    a = a | a >> 1;
+  }
+  return a+1;
+}
+
 smpl_t
 aubio_db_spl (fvec_t * o)
 {

@@ -53,6 +53,7 @@ def configure(conf):
   conf.check(header_name='stdio.h')
   conf.check(header_name='math.h')
   conf.check(header_name='string.h')
+  conf.check(header_name='limits.h')
 
   # optionally use complex.h
   if (Options.options.disable_complex == False):
