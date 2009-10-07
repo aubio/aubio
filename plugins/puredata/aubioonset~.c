@@ -26,7 +26,7 @@ typedef struct _aubioonset_tilde
 	t_int hopsize;
 	aubio_onsetdetection_t *o;
 	aubio_pvoc_t * pv;
-	aubio_pickpeak_t * parms;
+	aubio_peakpicker_t * parms;
 	fvec_t *vec;
 	fvec_t *onset;
 	cvec_t *fftgrain;
