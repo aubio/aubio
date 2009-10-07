@@ -1,8 +1,6 @@
-import math
-
 from template import aubio_unit_template
-
-from aubio.aubiowrapper import *
+from localaubio import *
+import math
 
 buf_size = 1024
 channels = 4

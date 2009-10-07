@@ -1,8 +1,6 @@
-import unittest
-import random
-
 from template import aubio_unit_template
-from aubio.aubiowrapper import *
+from localaubio import *
+import random
 
 buf_size = 2048
 channels = 1

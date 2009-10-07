@@ -1,6 +1,5 @@
-import unittest
-
-from aubio.aubiowrapper import *
+from template import aubio_unit_template
+from localaubio import *
 
 buf_size = 1024
 hop_size = 256
