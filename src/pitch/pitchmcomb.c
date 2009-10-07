@@ -38,6 +38,8 @@ void aubio_pitchmcomb_combdet(aubio_pitchmcomb_t * p, fvec_t * newmag);
 static sint_t aubio_pitchmcomb_sort_peak_comp(const void *x, const void *y);
 /** sort spectral_peak against their mag */
 void aubio_pitchmcomb_sort_peak(aubio_spectralpeak_t * peaks, uint_t nbins);
+/** select the best candidates */
+uint_t aubio_pitch_cands(aubio_pitchmcomb_t * p, cvec_t * fftgrain, smpl_t * cands);
 
 /** sort spectral_candidate against their comb ene */
 void aubio_pitchmcomb_sort_cand_ene(aubio_spectralcandidate_t ** candidates, uint_t nbins);
