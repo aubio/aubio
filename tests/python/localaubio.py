@@ -11,14 +11,12 @@ except ImportError:
     cur_dir = os.path.dirname(__file__)
     sys.path.append(os.path.join(cur_dir,'..','..','python'))
     # waf places
+    sys.path.append(os.path.join(cur_dir,'..','..','python','aubio'))
     sys.path.append(os.path.join(cur_dir,'..','..','python','aubio','.libs'))
-    sys.path.append(os.path.join(cur_dir,'..','..','build', 'default', 'swig'))
     # autotools places
+    sys.path.append(os.path.join(cur_dir,'..','..','build', 'default', 'swig'))
     sys.path.append(os.path.join(cur_dir,'..','..','build', 'default', 'python','aubio'))
-    try:
-      from aubiowrapper import * 
-    except ImportError:
-      from aubio.aubiowrapper import *
+    from aubiowrapper import * 
   except ImportError:
     raise
 else:
@@ -28,3 +26,5 @@ else:
     your path. Make sure you NO other version of the python aubio module is
     installed on your system.
     """
+
+from template import * 
