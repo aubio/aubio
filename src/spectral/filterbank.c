@@ -87,3 +87,10 @@ aubio_filterbank_get_coeffs (aubio_filterbank_t * f)
 {
   return f->filters;
 }
+
+uint_t
+aubio_filterbank_set_coeffs (aubio_filterbank_t * f, fvec_t * filters)
+{
+  fvec_copy(filters, f->filters);
+  return 0;
+}

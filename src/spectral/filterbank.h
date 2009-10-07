@@ -70,6 +70,13 @@ void aubio_filterbank_do (aubio_filterbank_t * fb, cvec_t * in, fvec_t * out);
  */
 fvec_t *aubio_filterbank_get_coeffs (aubio_filterbank_t * f);
 
+/** copy filter coefficients to the filterbank
+
+  \param f filterbank object to get coefficients from
+
+ */
+uint_t aubio_filterbank_set_coeffs (aubio_filterbank_t * f, fvec_t * filters);
+
 #ifdef __cplusplus
 }
 #endif
