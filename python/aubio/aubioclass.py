@@ -134,7 +134,7 @@ class pitchdetection:
         del_aubio_pitchdetection(self.pitchp)
     def __call__(self,myvec): 
         #self.filt(myvec)
-        return aubio_pitchdetection(self.pitchp,myvec())
+        return aubio_pitchdetection_do(self.pitchp,myvec())
 
 class filter:
     def __init__(self,srate,type=None):

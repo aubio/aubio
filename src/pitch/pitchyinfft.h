@@ -48,7 +48,7 @@ typedef struct _aubio_pitchyinfft_t aubio_pitchyinfft_t;
   \param tol tolerance parameter for minima selection [default 0.85] 
  
 */
-smpl_t aubio_pitchyinfft_detect (aubio_pitchyinfft_t *p, fvec_t * input, smpl_t tol);
+smpl_t aubio_pitchyinfft_do (aubio_pitchyinfft_t *p, fvec_t * input, smpl_t tol);
 /** creation of the pitch detection object
  
   \param bufsize size of the input buffer to analyse 

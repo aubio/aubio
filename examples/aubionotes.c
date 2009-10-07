@@ -45,7 +45,7 @@ int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
       }
       isonset = aubio_peakpicker_do(parms, onset);
       
-      pitch = aubio_pitchdetection(pitchdet,ibuf);
+      pitch = aubio_pitchdetection_do (pitchdet,ibuf);
       if(median){
               note_append(note_buffer, pitch);
       }

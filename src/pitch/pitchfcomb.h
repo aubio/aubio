@@ -47,7 +47,7 @@ typedef struct _aubio_pitchfcomb_t aubio_pitchfcomb_t;
   \param input input signal window (length as specified at creation time) 
  
 */
-smpl_t aubio_pitchfcomb_detect (aubio_pitchfcomb_t *p, fvec_t * input);
+smpl_t aubio_pitchfcomb_do (aubio_pitchfcomb_t *p, fvec_t * input);
 /** creation of the pitch detection object
  
   \param bufsize size of the input buffer to analyse 

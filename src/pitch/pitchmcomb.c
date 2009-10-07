@@ -89,7 +89,7 @@ struct _aubio_spectralcandidate_t {
 };
 
 
-smpl_t aubio_pitchmcomb_detect(aubio_pitchmcomb_t * p, cvec_t * fftgrain) {
+smpl_t aubio_pitchmcomb_do (aubio_pitchmcomb_t * p, cvec_t * fftgrain) {
   uint_t i=0,j;
   smpl_t instfreq;
   fvec_t * newmag = (fvec_t *)p->newmag;

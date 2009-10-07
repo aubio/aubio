@@ -42,7 +42,7 @@ aubio_pitchschmitt_t * new_aubio_pitchschmitt (uint_t size, uint_t samplerate)
   return p;
 }
 
-smpl_t aubio_pitchschmitt_detect (aubio_pitchschmitt_t *p, fvec_t * input)
+smpl_t aubio_pitchschmitt_do (aubio_pitchschmitt_t *p, fvec_t * input)
 {
   uint_t i;
   for (i=0; i<input->length; i++) {

@@ -47,7 +47,7 @@ typedef struct _aubio_pitchschmitt_t aubio_pitchschmitt_t;
   \param input input signal window (length as specified at creation time) 
  
 */
-smpl_t aubio_pitchschmitt_detect (aubio_pitchschmitt_t *p, fvec_t * input);
+smpl_t aubio_pitchschmitt_do (aubio_pitchschmitt_t *p, fvec_t * input);
 /** creation of the pitch detection object
  
   \param size size of the input buffer to analyse 

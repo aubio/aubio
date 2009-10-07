@@ -58,7 +58,7 @@ aubio_pitchfcomb_t * new_aubio_pitchfcomb (uint_t bufsize, uint_t hopsize, uint_
 }
 
 /* input must be stepsize long */
-smpl_t aubio_pitchfcomb_detect (aubio_pitchfcomb_t * p, fvec_t * input)
+smpl_t aubio_pitchfcomb_do (aubio_pitchfcomb_t * p, fvec_t * input)
 {
   uint_t k, l, maxharm = 0;
   smpl_t freqPerBin = p->rate/(smpl_t)p->fftSize,

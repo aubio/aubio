@@ -87,7 +87,7 @@ aubio_pitchyinfft_t * new_aubio_pitchyinfft (uint_t bufsize)
   return p;
 }
 
-smpl_t aubio_pitchyinfft_detect(aubio_pitchyinfft_t * p, fvec_t * input, smpl_t tol) {
+smpl_t aubio_pitchyinfft_do (aubio_pitchyinfft_t * p, fvec_t * input, smpl_t tol) {
   uint_t tau, l = 0;
   uint_t halfperiod;
   smpl_t tmp = 0, sum = 0;

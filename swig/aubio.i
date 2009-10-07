@@ -162,7 +162,7 @@ smpl_t aubio_spectral_centroid(cvec_t * spectrum, smpl_t samplerate);
 
 /* filterbank */
 aubio_filterbank_t * new_aubio_filterbank(uint_t win_s, uint_t channels);
-void aubio_filterbank_set_mel_coeffs(aubio_filterbank_t *fb, fvec_t *freqs, uint_t samplerate);
+void aubio_filterbank_set_mel_coeffs(aubio_filterbank_t *fb, uint_t samplerate, fvec_t *freqs);
 void aubio_filterbank_set_mel_coeffs_slaney(aubio_filterbank_t *fb, uint_t samplerate);
 void del_aubio_filterbank(aubio_filterbank_t * fb);
 void aubio_filterbank_do(aubio_filterbank_t * fb, cvec_t * in, fvec_t *out);
@@ -232,7 +232,7 @@ typedef enum {
         aubio_pitchm_bin
 } aubio_pitchdetection_mode;
 
-smpl_t aubio_pitchdetection(aubio_pitchdetection_t * p, fvec_t * ibuf);
+smpl_t aubio_pitchdetection_do (aubio_pitchdetection_t * p, fvec_t * ibuf);
 
 void aubio_pitchdetection_set_yinthresh(aubio_pitchdetection_t *p, smpl_t thres);
 
@@ -248,7 +248,7 @@ aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize,
 
 /* pitch mcomb */
 aubio_pitchmcomb_t * new_aubio_pitchmcomb(uint_t bufsize, uint_t hopsize, uint_t channels, uint_t samplerate);
-smpl_t aubio_pitchmcomb_detect(aubio_pitchmcomb_t * p, cvec_t * fftgrain);
+smpl_t aubio_pitchmcomb_do (aubio_pitchmcomb_t * p, cvec_t * fftgrain);
 uint_t aubio_pitch_cands(aubio_pitchmcomb_t * p, cvec_t * fftgrain, smpl_t * cands);
 void del_aubio_pitchmcomb (aubio_pitchmcomb_t *p);
 
@@ -260,12 +260,12 @@ smpl_t aubio_pitchyin_getpitchfast(fvec_t * input, fvec_t *yin, smpl_t tol);
 
 /* pitch schmitt */
 aubio_pitchschmitt_t * new_aubio_pitchschmitt (uint_t size, uint_t samplerate);
-smpl_t aubio_pitchschmitt_detect (aubio_pitchschmitt_t *p, fvec_t * input);
+smpl_t aubio_pitchschmitt_do (aubio_pitchschmitt_t *p, fvec_t * input);
 void del_aubio_pitchschmitt (aubio_pitchschmitt_t *p);
 
 /* pitch fcomb */
 aubio_pitchfcomb_t * new_aubio_pitchfcomb (uint_t size, uint_t hopsize, uint_t samplerate);
-smpl_t aubio_pitchfcomb_detect (aubio_pitchfcomb_t *p, fvec_t * input);
+smpl_t aubio_pitchfcomb_do (aubio_pitchfcomb_t *p, fvec_t * input);
 void del_aubio_pitchfcomb (aubio_pitchfcomb_t *p);
 
 /* peakpicker */
