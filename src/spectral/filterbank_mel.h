@@ -39,18 +39,18 @@ extern "C"
 {
 #endif
 
-/** filterbank initialization for mel filters
+/** filterbank initialization with triangular and overlapping bands
 
   \param fb filterbank object
   \param freqs arbitrary array of boundary frequencies
   \param samplerate audio sampling rate
 
   This function computes the coefficients of the filterbank based on the
-  boundaries found in freqs, in Hz, and using triangular overlapping windows.
+  boundaries found in freqs, in Hz, and using triangular overlapping bands.
 
 */
-void aubio_filterbank_set_mel_coeffs (aubio_filterbank_t * fb,
-    fvec_t * freqs, smpl_t samplerate);
+uint_t aubio_filterbank_set_triangle_bands (aubio_filterbank_t * fb,
+    smpl_t samplerate, fvec_t * freqs);
 
 /** filterbank initialization for Mel filters using Slaney's coefficients
 
@@ -60,7 +60,7 @@ void aubio_filterbank_set_mel_coeffs (aubio_filterbank_t * fb,
   This function fills the filterbank coefficients according to Malcolm Slaney.
 
 */
-void aubio_filterbank_set_mel_coeffs_slaney (aubio_filterbank_t * fb,
+uint_t aubio_filterbank_set_mel_coeffs_slaney (aubio_filterbank_t * fb,
     smpl_t samplerate);
 
 #ifdef __cplusplus

@@ -25,9 +25,9 @@
 #include "spectral/filterbank.h"
 #include "mathutils.h"
 
-void
-aubio_filterbank_set_mel_coeffs (aubio_filterbank_t * fb, fvec_t * freqs,
-    smpl_t samplerate)
+uint_t
+aubio_filterbank_set_triangle_bands (aubio_filterbank_t * fb,
+    smpl_t samplerate, fvec_t * freqs)
 {
 
   fvec_t *filters = aubio_filterbank_get_coeffs (fb);
@@ -41,6 +41,16 @@ aubio_filterbank_set_mel_coeffs (aubio_filterbank_t * fb, fvec_t * freqs,
   if (freqs->length - 2 > n_filters) {
     AUBIO_WRN ("not enough filters, %d allocated but %d requested\n",
         n_filters, freqs->length - 2);
+  }
+
+  if (freqs->length - 2 < n_filters) {
+    AUBIO_WRN ("too many filters, %d allocated but %d requested\n",
+        n_filters, freqs->length - 2);
+  }
+
+  if (freqs->data[0][freqs->length - 1] > samplerate / 2) {
+    AUBIO_WRN ("Nyquist frequency is %fHz, but highest frequency band ends at \
+%fHz\n", samplerate / 2, freqs->data[0][freqs->length - 1]);
   }
 
   /* convenience reference to lower/center/upper frequency for each triangle */
@@ -69,11 +79,23 @@ aubio_filterbank_set_mel_coeffs (aubio_filterbank_t * fb, fvec_t * freqs,
 
   /* fill fft_freqs lookup table, which assigns the frequency in hz to each bin */
   for (bin = 0; bin < win_s; bin++) {
-    fft_freqs->data[0][bin] = aubio_bintofreq (bin, samplerate, (win_s - 1) * 2);
+    fft_freqs->data[0][bin] =
+        aubio_bintofreq (bin, samplerate, (win_s - 1) * 2);
   }
 
   /* zeroing of all filters */
   fvec_zeros (filters);
+
+  if (fft_freqs->data[0][1] >= lower_freqs->data[0][0]) {
+    /* - 1 to make sure we don't miss the smallest power of two */
+    uint_t min_win_s =
+        (uint_t) FLOOR (samplerate / lower_freqs->data[0][0]) - 1;
+    AUBIO_WRN ("Lowest frequency bin (%.2fHz) is higher than lowest frequency \
+band (%.2f-%.2fHz). Consider increasing the window size from %d to %d.\n",
+        fft_freqs->data[0][1], lower_freqs->data[0][0],
+        upper_freqs->data[0][0], (win_s - 1) * 2,
+        aubio_next_power_of_two (min_win_s));
+  }
 
   /* building each filter table */
   for (fn = 0; fn < n_filters; fn++) {
@@ -82,10 +104,10 @@ aubio_filterbank_set_mel_coeffs (aubio_filterbank_t * fb, fvec_t * freqs,
     for (bin = 0; bin < win_s - 1; bin++) {
       if (fft_freqs->data[0][bin] <= lower_freqs->data[0][fn] &&
           fft_freqs->data[0][bin + 1] > lower_freqs->data[0][fn]) {
+        bin++;
         break;
       }
     }
-    bin++;
 
     /* compute positive slope step size */
     smpl_t riseInc =
@@ -97,10 +119,11 @@ aubio_filterbank_set_mel_coeffs (aubio_filterbank_t * fb, fvec_t * freqs,
       filters->data[fn][bin] =
           (fft_freqs->data[0][bin] - lower_freqs->data[0][fn]) * riseInc;
 
-      if (fft_freqs->data[0][bin + 1] > center_freqs->data[0][fn])
+      if (fft_freqs->data[0][bin + 1] >= center_freqs->data[0][fn]) {
+        bin++;
         break;
+      }
     }
-    bin++;
 
     /* compute negative slope step size */
     smpl_t downInc =
@@ -112,7 +135,11 @@ aubio_filterbank_set_mel_coeffs (aubio_filterbank_t * fb, fvec_t * freqs,
       filters->data[fn][bin] +=
           (upper_freqs->data[0][fn] - fft_freqs->data[0][bin]) * downInc;
 
-      if (fft_freqs->data[0][bin + 1] > upper_freqs->data[0][fn])
+      if (filters->data[fn][bin] < 0.) {
+        filters->data[fn][bin] = 0.;
+      }
+
+      if (fft_freqs->data[0][bin + 1] >= upper_freqs->data[0][fn])
         break;
     }
     /* nothing else to do */
@@ -127,12 +154,15 @@ aubio_filterbank_set_mel_coeffs (aubio_filterbank_t * fb, fvec_t * freqs,
   del_fvec (triangle_heights);
   del_fvec (fft_freqs);
 
+  return 0;
 }
 
-void
+uint_t
 aubio_filterbank_set_mel_coeffs_slaney (aubio_filterbank_t * fb,
     smpl_t samplerate)
 {
+  uint_t retval;
+
   /* Malcolm Slaney parameters */
   smpl_t lowestFrequency = 133.3333;
   smpl_t linearSpacing = 66.66666666;
@@ -160,9 +190,10 @@ aubio_filterbank_set_mel_coeffs_slaney (aubio_filterbank_t * fb,
   }
 
   /* now compute the actual coefficients */
-  aubio_filterbank_set_mel_coeffs (fb, freqs, samplerate);
+  retval = aubio_filterbank_set_triangle_bands (fb, samplerate, freqs);
 
   /* destroy vector used to store frequency limits */
   del_fvec (freqs);
 
+  return retval;
 }
