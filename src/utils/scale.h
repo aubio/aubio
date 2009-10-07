@@ -68,7 +68,7 @@ void aubio_scale_do(aubio_scale_t *s, fvec_t * input);
   \param ihig higher value of output function
 
 */
-void aubio_scale_set (aubio_scale_t *s, smpl_t ilow, smpl_t ihig,
+void aubio_scale_set_limits (aubio_scale_t *s, smpl_t ilow, smpl_t ihig,
     smpl_t olow, smpl_t ohig);
 
 #ifdef __cplusplus

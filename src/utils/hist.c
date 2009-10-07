@@ -113,7 +113,7 @@ void aubio_hist_dyn_notnull (aubio_hist_t *s, fvec_t *input) {
   smpl_t step = (ihig-ilow)/(smpl_t)(s->nelems);
 
   /* readapt */
-  aubio_scale_set(s->scaler, ilow, ihig, 0, s->nelems);
+  aubio_scale_set_limits (s->scaler, ilow, ihig, 0, s->nelems);
 
   /* recalculate centers */
   s->cent->data[0][0] = ilow + 0.5f * step;

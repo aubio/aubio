@@ -175,7 +175,7 @@ void aubio_mfcc_do(aubio_mfcc_t *mf, cvec_t *in, fvec_t *out);
 
 /* scale */
 extern aubio_scale_t * new_aubio_scale(smpl_t flow, smpl_t fhig, smpl_t ilow, smpl_t ihig);
-extern void aubio_scale_set (aubio_scale_t *s, smpl_t ilow, smpl_t ihig, smpl_t olow, smpl_t ohig);
+extern void aubio_scale_set_limits (aubio_scale_t *s, smpl_t ilow, smpl_t ihig, smpl_t olow, smpl_t ohig);
 extern void aubio_scale_do(aubio_scale_t *s, fvec_t * input);
 extern void del_aubio_scale(aubio_scale_t *s);
 
@@ -240,7 +240,6 @@ aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize,
 /* pitch mcomb */
 aubio_pitchmcomb_t * new_aubio_pitchmcomb(uint_t bufsize, uint_t hopsize, uint_t channels, uint_t samplerate);
 smpl_t aubio_pitchmcomb_do (aubio_pitchmcomb_t * p, cvec_t * fftgrain);
-uint_t aubio_pitch_cands(aubio_pitchmcomb_t * p, cvec_t * fftgrain, smpl_t * cands);
 void del_aubio_pitchmcomb (aubio_pitchmcomb_t *p);
 
 /* pitch yin */
