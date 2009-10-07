@@ -23,6 +23,7 @@
 #include "fvec.h"
 #include "cvec.h"
 #include "mathutils.h"
+#include "vecutils.h"
 #include "spectral/fft.h"
 #include "spectral/filterbank.h"
 #include "spectral/filterbank_mel.h"
