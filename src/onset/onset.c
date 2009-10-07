@@ -30,7 +30,7 @@
 struct _aubio_onset_t {
   aubio_pvoc_t * pv;            /**< phase vocoder */
   aubio_onsetdetection_t * od;  /**< onset detection */ 
-  aubio_pickpeak_t * pp;        /**< peak picker */
+  aubio_peakpicker_t * pp;      /**< peak picker */
   cvec_t * fftgrain;            /**< phase vocoder output */
   fvec_t * of;                  /**< onset detection function */
   smpl_t threshold;             /**< onset peak picking threshold */

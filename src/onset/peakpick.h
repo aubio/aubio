@@ -35,25 +35,25 @@ typedef smpl_t (*aubio_thresholdfn_t)(fvec_t *input);
 /** function pointer to peak-picking function */
 typedef uint_t (*aubio_pickerfn_t)(fvec_t *input, uint_t pos);
 /** peak-picker structure */
-typedef struct _aubio_pickpeak_t aubio_pickpeak_t;
+typedef struct _aubio_peakpicker_t aubio_peakpicker_t;
 
 /** peak-picker creation function */
-aubio_pickpeak_t * new_aubio_peakpicker(smpl_t threshold);
+aubio_peakpicker_t * new_aubio_peakpicker(smpl_t threshold);
 /** real time peak picking function */
-smpl_t aubio_peakpicker_do(aubio_pickpeak_t * p, fvec_t * DF);
+smpl_t aubio_peakpicker_do(aubio_peakpicker_t * p, fvec_t * DF);
 /** get current peak value */
-smpl_t aubio_peakpicker_get_thresholded_input(aubio_pickpeak_t * p);
+smpl_t aubio_peakpicker_get_thresholded_input(aubio_peakpicker_t * p);
 /** destroy peak picker structure */
-void del_aubio_peakpicker(aubio_pickpeak_t * p);
+void del_aubio_peakpicker(aubio_peakpicker_t * p);
 
 /** set peak picking threshold */
-void aubio_peakpicker_set_threshold(aubio_pickpeak_t * p, smpl_t threshold);
+void aubio_peakpicker_set_threshold(aubio_peakpicker_t * p, smpl_t threshold);
 /** get peak picking threshold */
-smpl_t aubio_peakpicker_get_threshold(aubio_pickpeak_t * p);
+smpl_t aubio_peakpicker_get_threshold(aubio_peakpicker_t * p);
 /** set peak picker thresholding function */
-void aubio_peakpicker_set_thresholdfn(aubio_pickpeak_t * p, aubio_thresholdfn_t thresholdfn);
+void aubio_peakpicker_set_thresholdfn(aubio_peakpicker_t * p, aubio_thresholdfn_t thresholdfn);
 /** get peak picker thresholding function */
-aubio_thresholdfn_t aubio_peakpicker_get_thresholdfn(aubio_pickpeak_t * p);
+aubio_thresholdfn_t aubio_peakpicker_get_thresholdfn(aubio_peakpicker_t * p);
 
 #ifdef __cplusplus
 }

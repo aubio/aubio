@@ -31,7 +31,7 @@
 struct _aubio_tempo_t {
   aubio_onsetdetection_t * od;   /** onset detection */
   aubio_pvoc_t * pv;             /** phase vocoder */
-  aubio_pickpeak_t * pp;         /** peak picker */
+  aubio_peakpicker_t * pp;       /** peak picker */
   aubio_beattracking_t * bt;     /** beat tracking */
   cvec_t * fftgrain;             /** spectral frame */
   fvec_t * of;                   /** onset detection function value */

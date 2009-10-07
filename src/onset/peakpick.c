@@ -29,7 +29,7 @@
  *	.................|.............
  *	time->           ^now
  */
-struct _aubio_pickpeak_t {
+struct _aubio_peakpicker_t {
 	/** thresh: offset threshold [0.033 or 0.01] */
 	smpl_t threshold; 	
 	/** win_post: median filter window length (causal part) [8] */
@@ -67,7 +67,7 @@ struct _aubio_pickpeak_t {
 /** modified version for real time, moving mean adaptive threshold this method
  * is slightly more permissive than the offline one, and yelds to an increase
  * of false positives. best  */
-smpl_t aubio_peakpicker_do(aubio_pickpeak_t * p, fvec_t * onset) {
+smpl_t aubio_peakpicker_do(aubio_peakpicker_t * p, fvec_t * onset) {
 	fvec_t * onset_keep = (fvec_t *)p->onset_keep;
 	fvec_t * onset_proc = (fvec_t *)p->onset_proc;
 	fvec_t * onset_peek = (fvec_t *)p->onset_peek;
@@ -120,32 +120,32 @@ smpl_t aubio_peakpicker_do(aubio_pickpeak_t * p, fvec_t * onset) {
 /** this method returns the current value in the pick peaking buffer
  * after smoothing
  */
-smpl_t aubio_peakpicker_get_thresholded_input(aubio_pickpeak_t * p) 
+smpl_t aubio_peakpicker_get_thresholded_input(aubio_peakpicker_t * p) 
 {
 	return p->onset_peek->data[0][1];
 }
 
 /** function added by Miguel Ramirez to return the onset detection amplitude in peakval */
-void aubio_peakpicker_set_threshold(aubio_pickpeak_t * p, smpl_t threshold) {
+void aubio_peakpicker_set_threshold(aubio_peakpicker_t * p, smpl_t threshold) {
 	p->threshold = threshold;
 	return;
 }
 
-smpl_t aubio_peakpicker_get_threshold(aubio_pickpeak_t * p) {
+smpl_t aubio_peakpicker_get_threshold(aubio_peakpicker_t * p) {
 	return p->threshold;
 }
 
-void aubio_peakpicker_set_thresholdfn(aubio_pickpeak_t * p, aubio_thresholdfn_t thresholdfn) {
+void aubio_peakpicker_set_thresholdfn(aubio_peakpicker_t * p, aubio_thresholdfn_t thresholdfn) {
 	p->thresholdfn = thresholdfn;
 	return;
 }
 
-aubio_thresholdfn_t aubio_peakpicker_get_thresholdfn(aubio_pickpeak_t * p) {
+aubio_thresholdfn_t aubio_peakpicker_get_thresholdfn(aubio_peakpicker_t * p) {
 	return (aubio_thresholdfn_t) (p->thresholdfn);
 }
 
-aubio_pickpeak_t * new_aubio_peakpicker(smpl_t threshold) {
-	aubio_pickpeak_t * t = AUBIO_NEW(aubio_pickpeak_t);
+aubio_peakpicker_t * new_aubio_peakpicker(smpl_t threshold) {
+	aubio_peakpicker_t * t = AUBIO_NEW(aubio_peakpicker_t);
 	t->threshold = 0.1; /* 0.0668; 0.33; 0.082; 0.033; */
 	if (threshold > 0. && threshold < 10.)
 		t->threshold = threshold;
@@ -166,7 +166,7 @@ aubio_pickpeak_t * new_aubio_peakpicker(smpl_t threshold) {
 	return t;
 }
 
-void del_aubio_peakpicker(aubio_pickpeak_t * p) {
+void del_aubio_peakpicker(aubio_peakpicker_t * p) {
 	del_aubio_biquad(p->biquad);
 	del_fvec(p->onset_keep);
 	del_fvec(p->onset_proc);

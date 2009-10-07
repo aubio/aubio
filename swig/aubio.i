@@ -162,7 +162,7 @@ smpl_t aubio_spectral_centroid(cvec_t * spectrum, smpl_t samplerate);
 
 /* filterbank */
 aubio_filterbank_t * new_aubio_filterbank(uint_t win_s, uint_t channels);
-void aubio_filterbank_set_mel_coeffs(aubio_filterbank_t *fb, uint_t samplerate, fvec_t *freqs);
+void aubio_filterbank_set_triangle_bands (aubio_filterbank_t *fb, uint_t samplerate, fvec_t *freqs);
 void aubio_filterbank_set_mel_coeffs_slaney(aubio_filterbank_t *fb, uint_t samplerate);
 void del_aubio_filterbank(aubio_filterbank_t * fb);
 void aubio_filterbank_do(aubio_filterbank_t * fb, cvec_t * in, fvec_t *out);
@@ -269,12 +269,12 @@ smpl_t aubio_pitchfcomb_do (aubio_pitchfcomb_t *p, fvec_t * input);
 void del_aubio_pitchfcomb (aubio_pitchfcomb_t *p);
 
 /* peakpicker */
-aubio_pickpeak_t * new_aubio_peakpicker(smpl_t threshold);
-smpl_t aubio_peakpicker_do(aubio_pickpeak_t * p, fvec_t * df);
-smpl_t aubio_peakpicker_get_thresholded_input(aubio_pickpeak_t* p);
-void del_aubio_peakpicker(aubio_pickpeak_t * p);
-void aubio_peakpicker_set_threshold(aubio_pickpeak_t * p, smpl_t threshold);
-smpl_t aubio_peakpicker_get_threshold(aubio_pickpeak_t * p);
+aubio_peakpicker_t * new_aubio_peakpicker(smpl_t threshold);
+smpl_t aubio_peakpicker_do(aubio_peakpicker_t * p, fvec_t * df);
+smpl_t aubio_peakpicker_get_thresholded_input(aubio_peakpicker_t* p);
+void del_aubio_peakpicker(aubio_peakpicker_t * p);
+void aubio_peakpicker_set_threshold(aubio_peakpicker_t * p, smpl_t threshold);
+smpl_t aubio_peakpicker_get_threshold(aubio_peakpicker_t * p);
 
 /* transient/steady state separation */
 aubio_tss_t * new_aubio_tss(smpl_t thrs, smpl_t alfa, smpl_t beta,

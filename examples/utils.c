@@ -68,7 +68,7 @@ aubio_onsetdetection_t *o2;
 fvec_t *onset;
 fvec_t *onset2;
 smpl_t isonset = 0;
-aubio_pickpeak_t *parms;
+aubio_peakpicker_t *parms;
 
 
 /* pitch objects */
