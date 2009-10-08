@@ -62,6 +62,7 @@ aubio_filterbank_do (aubio_filterbank_t * f, cvec_t * in, fvec_t * out)
   /* apply filter to all input channel, provided out has enough channels */
   uint_t max_channels = MIN (in->channels, out->channels);
   uint_t max_filters = MIN (f->n_filters, out->length);
+  uint_t max_length = MIN (in->length, f->filters->length);
 
   /* reset all values in output vector */
   fvec_zeros (out);
@@ -73,7 +74,7 @@ aubio_filterbank_do (aubio_filterbank_t * f, cvec_t * in, fvec_t * out)
     for (fn = 0; fn < max_filters; fn++) {
 
       /* for each sample */
-      for (j = 0; j < in->length; j++) {
+      for (j = 0; j < max_length; j++) {
         out->data[i][fn] += in->norm[i][j] * f->filters->data[fn][j];
       }
     }
