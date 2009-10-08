@@ -36,6 +36,16 @@ AC_PROG_INSTALL
 
 AUBIO_CFLAGS=
 
+dnl Enable double precision (no)
+AC_ARG_ENABLE(double,
+  AC_HELP_STRING([--enable-double],[compile in double precision [[default=no]]]),
+  with_double_precision="yes",
+  with_double_precision="no")
+if test "$with_double_precision" = "yes"
+then
+  AC_DEFINE(HAVE_AUBIO_DOUBLE,1,[Define to enable double precision])
+fi
+
 dnl Enable debugging (no)
 AC_ARG_ENABLE(debug,
   AC_HELP_STRING([--enable-debug],[compile in debug mode [[default=no]]]),
