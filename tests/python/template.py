@@ -32,8 +32,8 @@ class program_test_case(unittest.TestCase):
     [self.status, self.output] = getstatusoutput(self.command)
     if expected_status != -1:
       assert self.status == expected_status, \
-        "expected status was %s, got %s\nOutput was:\n%s" % \
-        (expected_status, self.status, self.output)
+        "expected status was %s, got %s\nOutput was:\n%s\n command was %s" % \
+        (expected_status, self.status, self.output, self.command)
 
 def array_from_text_file(filename, dtype = 'float'):
   return array([line.split() for line in open(filename).readlines()], 
