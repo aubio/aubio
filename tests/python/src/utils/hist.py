@@ -12,7 +12,6 @@ nelems = 1000
 class hist_unit(aubio_unit_template):
 
   def setUp(self):
-    print flow, fhig
     self.o = new_aubio_hist(flow, fhig, nelems, channels)
 
   def tearDown(self):
