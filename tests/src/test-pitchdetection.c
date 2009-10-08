@@ -9,13 +9,14 @@ int main(){
         aubio_pitchdetection_mode mode = aubio_pitchm_freq;
         aubio_pitchdetection_type type = aubio_pitch_yinfft;
         fvec_t * in       = new_fvec (hop_s, channels); /* input buffer */
+        fvec_t * out       = new_fvec (1, channels); /* input buffer */
         aubio_pitchdetection_t * o  = new_aubio_pitchdetection(
           win_s, hop_s, channels, samplerate, type, mode
           );
         uint_t i = 0;
 
-        while (i < 1000) {
-          aubio_pitchdetection_do (o,in);
+        while (i < 100) {
+          aubio_pitchdetection_do (o,in, out);
           i++;
         };
 

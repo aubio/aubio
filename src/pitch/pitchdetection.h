@@ -58,14 +58,14 @@ typedef struct _aubio_pitchdetection_t aubio_pitchdetection_t;
   \param ibuf input signal of length hopsize
 
 */
-smpl_t aubio_pitchdetection_do (aubio_pitchdetection_t * p, fvec_t * ibuf);
+void aubio_pitchdetection_do (aubio_pitchdetection_t * p, fvec_t * ibuf, fvec_t * obuf);
 
 /** change yin or yinfft tolerance threshold
 
   default is 0.15 for yin and 0.85 for yinfft
 
 */
-void aubio_pitchdetection_set_yinthresh(aubio_pitchdetection_t *p, smpl_t thres);
+void aubio_pitchdetection_set_tolerance(aubio_pitchdetection_t *p, smpl_t tol);
 
 /** deletion of the pitch detection object
 
