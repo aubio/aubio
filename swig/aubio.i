@@ -182,7 +182,7 @@ extern void del_aubio_scale(aubio_scale_t *s);
 /* resampling */
 %#if HAVE_SAMPLERATE
 extern aubio_resampler_t * new_aubio_resampler(float ratio, uint_t type);
-extern uint_t aubio_resampler_do (aubio_resampler_t *s, fvec_t * input,  fvec_t * output);
+extern void aubio_resampler_do (aubio_resampler_t *s, fvec_t * input,  fvec_t * output);
 extern void del_aubio_resampler(aubio_resampler_t *s);
 %#endif /* HAVE_SAMPLERATE */
 
