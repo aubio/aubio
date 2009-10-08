@@ -43,13 +43,18 @@ for name in mode_names:
 
 class aubiopitch_test_yinfft(program_test_case):
 
-  filename = os.path.join('..','..','sounds','16568_acclivity_TwoCows.wav')
+  filename = os.path.join('..','..','sounds','16568__acclivity__TwoCows.wav')
+  url = "http://www.freesound.org/samplesViewSingle.php?id=16568"
   progname = "PYTHONPATH=../../python:../../python/aubio/.libs " + \
               os.path.join('..','..','python','aubiopitch')
   options  = " -m yinfft -t 0.75 "
 
   def test_aubiopitch(self):
     """ test aubiopitch with default parameters """
+    if not os.path.isfile(self.filename):
+      print "Warning: file 16568_acclivity_TwoCows.wav was not found in %s" % os.path.dirname(self.filename) 
+      print "download it from %s to actually run test" % url
+      return
     self.getOutput()
     expected_output = open(os.path.join('examples','aubiopitch','yinfft'+'.'+os.path.basename(self.filename)+'.txt')).read()
     lines = 0
