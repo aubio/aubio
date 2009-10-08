@@ -1,5 +1,5 @@
 from template import aubio_unit_template
-from aubio.aubiowrapper import *
+from localaubio import *
 
 samplerate = 44100
 buf_size = 1024
