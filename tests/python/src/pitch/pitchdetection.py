@@ -28,7 +28,7 @@ class pitchdetection_test_case(unittest.TestCase):
     """ run pitchdetection on an empty buffer """
     vec = new_fvec(buf_size, channels)
     for i in range(100):
-      self.assertEqual(aubio_pitchdetection(self.o,vec),0.)
+      self.assertEqual(aubio_pitchdetection_do(self.o,vec),0.)
     del vec
 
   def test_pitchdetection_run_4_impulses(self):
@@ -40,7 +40,7 @@ class pitchdetection_test_case(unittest.TestCase):
     fvec_write_sample(vec, 1.,0,3*buf_size/4)
     frequency = samplerate/2*4/buf_size
     for i in range(100):
-      self.assertEqual(aubio_pitchdetection(self.o,vec),frequency)
+      self.assertEqual(aubio_pitchdetection_do(self.o,vec),frequency)
     del vec
 
   def test_pitchdetection_run_4_positive_impulses(self):
@@ -52,7 +52,7 @@ class pitchdetection_test_case(unittest.TestCase):
       fvec_write_sample(vec, 2.-.01*i,0,  buf_size/4)
       fvec_write_sample(vec, 2.-.01*i,0,  buf_size/2)
       fvec_write_sample(vec, 2.-.01*i,0,3*buf_size/4)
-      self.assertAlmostEqual(aubio_pitchdetection(self.o,vec),frequency,1)
+      self.assertAlmostEqual(aubio_pitchdetection_do(self.o,vec),frequency,1)
     del vec
 
   def test_pitchdetection_run_4_negative_impulses(self):
@@ -64,7 +64,7 @@ class pitchdetection_test_case(unittest.TestCase):
       fvec_write_sample(vec,-.01*i,0,  buf_size/4)
       fvec_write_sample(vec,-.01*i,0,  buf_size/2)
       fvec_write_sample(vec,-.01*i,0,3*buf_size/4)
-      self.assertAlmostEqual(aubio_pitchdetection(self.o,vec),frequency,1)
+      self.assertAlmostEqual(aubio_pitchdetection_do(self.o,vec),frequency,1)
     del vec
 
   def test_pitchdetection_run_8_impulses(self):
@@ -79,7 +79,7 @@ class pitchdetection_test_case(unittest.TestCase):
     fvec_write_sample(vec, 1.,0,3*buf_size/4)
     fvec_write_sample(vec,-1.,0,7*buf_size/8)
     for i in range(100):
-      self.assertAlmostEqual(aubio_pitchdetection(self.o,vec),
+      self.assertAlmostEqual(aubio_pitchdetection_do(self.o,vec),
         samplerate/2/buf_size*8, 1) 
     del vec
 
