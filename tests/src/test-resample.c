@@ -1,7 +1,8 @@
+#include <stdio.h>
 #include <aubio.h>
 
 int main(){
-#if HAVE_LIBSAMPLERATE
+#if HAVE_SAMPLERATE
         /* allocate some memory */
         uint_t win_s      = 1024;                       /* window size */
         uint_t channels   = 1;                          /* number of channel */
@@ -11,8 +12,8 @@ int main(){
         aubio_resampler_t * o  = new_aubio_resampler(0.5, 0);
         uint_t i = 0;
 
-        while (i < 100) {
-          aubio_resampler_process(o,in,out);
+        while (i < 10) {
+          aubio_resampler_do(o,in,out);
           i++;
         };
 
@@ -20,6 +21,8 @@ int main(){
         del_fvec(in);
         del_fvec(out);
 
-#endif /* HAVE_LIBSAMPLERATE */
+#else
+        fprintf(stderr, "aubio_resampler_t not compiled in\n");
+#endif /* HAVE_SAMPLERATE */
         return 0;
 }
