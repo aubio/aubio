@@ -7,19 +7,19 @@ class taskpitch(task):
 	def __init__(self,input,params=None):
 		task.__init__(self,input,params=params)
 		self.shortlist = [0. for i in range(self.params.pitchsmooth)]
-		if self.params.pitchmode == 'yinfft':
-			yinthresh = self.params.yinfftthresh
-		elif self.params.pitchmode == 'yin':
-			yinthresh = self.params.yinthresh
+		if self.params.pitchmode == 'yin':
+			tolerance = self.params.yinthresh
+		elif self.params.pitchmode == 'yinfft':
+			tolerance = self.params.yinfftthresh
 		else:
-			yinthresh = 0.
-		self.pitchdet  = pitchdetection(mode=get_pitch_mode(self.params.pitchmode),
+			tolerance = 0.
+		self.pitchdet	= pitchdetection(mode=get_pitch_mode(self.params.pitchmode),
 			bufsize=self.params.bufsize,
 			hopsize=self.params.hopsize,
 			channels=self.channels,
 			samplerate=self.srate,
 			omode=self.params.omode,
-			yinthresh=yinthresh)
+			tolerance = tolerance)
 
 	def __call__(self):
 		from aubio.median import short_find
