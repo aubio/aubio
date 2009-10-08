@@ -47,7 +47,7 @@ static t_int *aubioonset_tilde_perform(t_int *w)
 			/* block loop */
 			aubio_pvoc_do (x->pv,x->vec, x->fftgrain);
 			aubio_onsetdetection_do (x->o,x->fftgrain, x->onset);
-			isonset = aubio_peakpicker_do (x->onset,x->parms);
+			isonset = aubio_peakpicker_do (x->parms, x->onset);
 			if (isonset) {
 				/* test for silence */
 				if (aubio_silence_detection(x->vec, x->threshold2)==1)
