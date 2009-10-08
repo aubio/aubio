@@ -2,9 +2,9 @@ from localaubio import *
 
 samplerate = 44100
 buf_size = 1024
-channels = 2
+channels = 1
 
-class adsgn_filter_unit(aubio_unit_template):
+class a_weighting_unit (aubio_unit_template):
 
   def setUp(self):
     self.o = new_aubio_filter_a_weighting (samplerate, channels)
@@ -45,6 +45,22 @@ class adsgn_filter_unit(aubio_unit_template):
       for channel in range(channels):
         self.assertEqual(0., fvec_read_sample(vec,channel,index))
     del_fvec(vec)
+
+  def test_simple(self):
+    buf_size = 32
+    input = new_fvec (buf_size, 1)
+    output = new_fvec (buf_size, 1)
+    expected = array_from_text_file('src/temporal/a_weighting_test_simple.expected')
+    fvec_write_sample (input, 0.5, 0, 12)
+    for i in range(buf_size):
+      for c in range(channels):
+        self.assertEqual(expected[0][i], fvec_read_sample(input, c, i))
+    f = new_aubio_filter_a_weighting (samplerate, channels)
+    aubio_filter_do_outplace (f, input, output)
+    del_aubio_filter (f)
+    for i in range(buf_size):
+      for c in range(channels):
+        self.assertCloseEnough(expected[1][i], fvec_read_sample(output, c, i))
 
 if __name__ == '__main__':
   import unittest
