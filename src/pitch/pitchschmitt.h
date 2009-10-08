@@ -45,16 +45,16 @@ typedef struct _aubio_pitchschmitt_t aubio_pitchschmitt_t;
  
   \param p pitch detection object as returned by new_aubio_pitchschmitt 
   \param input input signal window (length as specified at creation time) 
+  \param output pitch period estimates, in samples
  
 */
-smpl_t aubio_pitchschmitt_do (aubio_pitchschmitt_t *p, fvec_t * input);
+void aubio_pitchschmitt_do (aubio_pitchschmitt_t *p, fvec_t * input, fvec_t * output);
 /** creation of the pitch detection object
  
   \param size size of the input buffer to analyse 
-  \param samplerate sampling rate of the signal 
  
 */
-aubio_pitchschmitt_t * new_aubio_pitchschmitt (uint_t size, uint_t samplerate);
+aubio_pitchschmitt_t * new_aubio_pitchschmitt (uint_t size);
 /** deletion of the pitch detection object
  
   \param p pitch detection object as returned by new_aubio_pitchschmitt 

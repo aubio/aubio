@@ -31,24 +31,27 @@ struct _aubio_pitchschmitt_t {
         signed short int *buf;
 };
 
-aubio_pitchschmitt_t * new_aubio_pitchschmitt (uint_t size, uint_t samplerate)
+aubio_pitchschmitt_t * new_aubio_pitchschmitt (uint_t size)
 {
   aubio_pitchschmitt_t * p = AUBIO_NEW(aubio_pitchschmitt_t);
   p->blockSize = size;
   p->schmittBuffer = AUBIO_ARRAY(signed short int,p->blockSize);
   p->buf = AUBIO_ARRAY(signed short int,p->blockSize);
   p->schmittPointer = p->schmittBuffer;
-  p->rate = samplerate;
   return p;
 }
 
-smpl_t aubio_pitchschmitt_do (aubio_pitchschmitt_t *p, fvec_t * input)
+void
+aubio_pitchschmitt_do (aubio_pitchschmitt_t * p, fvec_t * input,
+    fvec_t * output)
 {
-  uint_t i;
-  for (i=0; i<input->length; i++) {
-    p->buf[i] = input->data[0][i]*32768.;
+  uint_t i, j;
+  for (i = 0; i < input->channels; i++) {
+    for (j = 0; j < input->length; j++) {
+      p->buf[j] = input->data[i][j] * 32768.;
+    }
+    output->data[i][0] = aubio_schmittS16LE (p, input->length, p->buf);
   }
-  return aubio_schmittS16LE(p, input->length, p->buf);
 }
 
 smpl_t aubio_schmittS16LE (aubio_pitchschmitt_t *p, uint_t nframes, signed short int *indata)
@@ -58,7 +61,7 @@ smpl_t aubio_schmittS16LE (aubio_pitchschmitt_t *p, uint_t nframes, signed short
   signed short int *schmittBuffer = p->schmittBuffer;
   signed short int *schmittPointer = p->schmittPointer;
 
-  smpl_t freq = 0., trigfact = 0.6;
+  smpl_t period = 0., trigfact = 0.6;
 
   for (i=0; i<nframes; i++) {
     *schmittPointer++ = indata[i];
@@ -89,15 +92,15 @@ smpl_t aubio_schmittS16LE (aubio_pitchschmitt_t *p, uint_t nframes, signed short
 	  schmittTriggered = 0;
 	}
       }
-      if (endpoint > startpoint) {
-	freq = ((smpl_t)p->rate*(tc/(smpl_t)(endpoint-startpoint)));
+      if ((endpoint > startpoint) && (tc > 0)) {
+	period = (smpl_t)(endpoint-startpoint)/tc;
       }
     }
   }
 
   p->schmittBuffer  = schmittBuffer;
   p->schmittPointer = schmittPointer;
-  return freq;
+  return period;
 }
 
 void del_aubio_pitchschmitt (aubio_pitchschmitt_t *p)
