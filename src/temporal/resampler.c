@@ -25,7 +25,7 @@
 
 #include "aubio_priv.h"
 #include "fvec.h"
-#include "temporal/resample.h"
+#include "temporal/resampler.h"
 
 struct _aubio_resampler_t {
 	SRC_DATA  *proc;

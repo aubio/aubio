@@ -69,7 +69,7 @@ extern "C"
 #include "utils/hist.h"
 #include "spectral/tss.h"
 #if HAVE_SAMPLERATE
-#include "temporal/resample.h"
+#include "temporal/resampler.h"
 #endif /* HAVE_SAMPLERATE */
 #include "temporal/biquad.h"
 #include "temporal/filter.h"
