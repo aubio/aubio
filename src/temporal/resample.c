@@ -50,7 +50,7 @@ void del_aubio_resampler(aubio_resampler_t *s) {
 	AUBIO_FREE(s);
 }
 
-uint_t aubio_resampler_do (aubio_resampler_t *s, 
+void aubio_resampler_do (aubio_resampler_t *s, 
     fvec_t * input,  fvec_t * output) {
 	uint_t i ;
 	s->proc->input_frames = input->length;
@@ -64,7 +64,6 @@ uint_t aubio_resampler_do (aubio_resampler_t *s,
 		/* do resampling */
 		src_process (s->stat, s->proc) ;
 	}
-	return AUBIO_OK;
 }	
 
 #endif /* HAVE_SAMPLERATE */

@@ -35,6 +35,7 @@ extern "C" {
 
 /** resampler object */
 typedef struct _aubio_resampler_t aubio_resampler_t;
+
 /** create resampler object 
 
   \param ratio output_sample_rate / input_sample_rate 
@@ -42,8 +43,10 @@ typedef struct _aubio_resampler_t aubio_resampler_t;
 
 */
 aubio_resampler_t * new_aubio_resampler(float ratio, uint_t type);
+
 /** delete resampler object */
 void del_aubio_resampler(aubio_resampler_t *s);
+
 /** resample input in output
 
   \param s resampler object
@@ -51,7 +54,7 @@ void del_aubio_resampler(aubio_resampler_t *s);
   \param output output buffer of size N*ratio
 
 */
-uint_t aubio_resampler_do (aubio_resampler_t *s, fvec_t * input,  fvec_t * output);
+void aubio_resampler_do (aubio_resampler_t *s, fvec_t * input,  fvec_t * output);
 
 #ifdef __cplusplus
 }
