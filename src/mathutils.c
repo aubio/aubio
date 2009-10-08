@@ -140,7 +140,7 @@ fvec_min (fvec_t * s)
 uint_t
 fvec_min_elem (fvec_t * s)
 {
-  uint_t i, j = 0, pos = 0.;
+  uint_t i, j, pos = 0.;
   smpl_t tmp = s->data[0][0];
   for (i = 0; i < s->channels; i++) {
     for (j = 0; j < s->length; j++) {
@@ -154,7 +154,7 @@ fvec_min_elem (fvec_t * s)
 uint_t
 fvec_max_elem (fvec_t * s)
 {
-  uint_t i, j, pos;
+  uint_t i, j, pos = 0;
   smpl_t tmp = 0.0;
   for (i = 0; i < s->channels; i++) {
     for (j = 0; j < s->length; j++) {
@@ -410,22 +410,24 @@ aubio_miditobin (smpl_t midi, smpl_t samplerate, smpl_t fftsize)
 }
 
 uint_t
-aubio_is_power_of_two(uint_t a) {
-  if ((a & a-1) == 0) {
+aubio_is_power_of_two (uint_t a)
+{
+  if ((a & (a - 1)) == 0) {
     return 1;
   } else {
-    return 0; 
+    return 0;
   }
 }
 
 uint_t
-aubio_next_power_of_two(uint_t a) {
+aubio_next_power_of_two (uint_t a)
+{
   uint_t i;
   a--;
-  for (i = 0; i < sizeof(uint_t) * CHAR_BIT; i++ ) {
+  for (i = 0; i < sizeof (uint_t) * CHAR_BIT; i++) {
     a = a | a >> 1;
   }
-  return a+1;
+  return a + 1;
 }
 
 smpl_t
