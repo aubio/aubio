@@ -33,6 +33,7 @@ struct _aubio_pitchyinfft_t {
   cvec_t * fftout;    /**< Fourier transform output */
   aubio_fft_t * fft;  /**< fft object to compute square difference function */
   fvec_t * yinfft;    /**< Yin function */
+  smpl_t tol;         /**< Yin tolerance */
 };
 
 static const smpl_t freqs[] = {0., 20., 25., 31.5, 40., 50., 63., 80., 100.,
@@ -54,6 +55,7 @@ aubio_pitchyinfft_t * new_aubio_pitchyinfft (uint_t bufsize)
   p->sqrmag = new_fvec(bufsize,1);
   p->res    = new_cvec(bufsize,1);
   p->yinfft = new_fvec(bufsize/2+1,1);
+  p->tol    = 0.85;
   p->win    = new_aubio_window(bufsize, aubio_win_hanningz);
   p->weight      = new_fvec(bufsize/2+1,1);
   {
@@ -87,14 +89,16 @@ aubio_pitchyinfft_t * new_aubio_pitchyinfft (uint_t bufsize)
   return p;
 }
 
-smpl_t aubio_pitchyinfft_do (aubio_pitchyinfft_t * p, fvec_t * input, smpl_t tol) {
-  uint_t tau, l = 0;
+void aubio_pitchyinfft_do (aubio_pitchyinfft_t * p, fvec_t * input, fvec_t * output) {
+  uint_t i, tau, l;
   uint_t halfperiod;
-  smpl_t tmp = 0, sum = 0;
+  smpl_t tmp, sum;
   cvec_t * res = (cvec_t *)p->res;
   fvec_t * yin = (fvec_t *)p->yinfft;
+  for (i=0; i < input->channels; i++){
+  l = 0; tmp = 0.; sum = 0.;
   for (l=0; l < input->length; l++){
-    p->winput->data[0][l] = p->win->data[0][l] * input->data[0][l];
+    p->winput->data[0][l] = p->win->data[0][l] * input->data[i][l];
   }
   aubio_fft_do(p->fft,p->winput,p->fftout);
   for (l=0; l < p->fftout->length; l++){
@@ -120,24 +124,26 @@ smpl_t aubio_pitchyinfft_do (aubio_pitchyinfft_t * p, fvec_t * input, smpl_t tol
     yin->data[0][tau] *= tau/tmp;
   }
   tau = fvec_min_elem(yin);
-  if (yin->data[0][tau] < tol) {
+  if (yin->data[0][tau] < p->tol) {
     /* no interpolation */
     //return tau;
     /* 3 point quadratic interpolation */
     //return fvec_quadint_min(yin,tau,1);
     /* additional check for (unlikely) octave doubling in higher frequencies */
     if (tau>35) {
-      return fvec_quadint(yin,tau,1);
+      output->data[i][0] = fvec_quadint(yin,tau,1);
     } else {
       /* should compare the minimum value of each interpolated peaks */
       halfperiod = FLOOR(tau/2+.5);
-      if (yin->data[0][halfperiod] < tol)
-        return fvec_quadint(yin,halfperiod,1);
+      if (yin->data[0][halfperiod] < p->tol)
+        output->data[i][0] = fvec_quadint(yin,halfperiod,1);
       else
-        return fvec_quadint(yin,tau,1);
+        output->data[i][0] = fvec_quadint(yin,tau,1);
     }
-  } else
-    return 0.;
+  } else {
+    output->data[i][0] = 0.;
+  }
+  }
 }
 
 void del_aubio_pitchyinfft(aubio_pitchyinfft_t *p){
@@ -150,4 +156,13 @@ void del_aubio_pitchyinfft(aubio_pitchyinfft_t *p){
   del_fvec(p->winput);
   del_fvec(p->weight);
   AUBIO_FREE(p);
+}
+
+uint_t aubio_pitchyinfft_set_tolerance (aubio_pitchyinfft_t * p, smpl_t tol) {
+  p->tol = tol;
+  return 0;
+}
+
+smpl_t aubio_pitchyinfft_get_tolerance (aubio_pitchyinfft_t * p) {
+  return p->tol;
 }
