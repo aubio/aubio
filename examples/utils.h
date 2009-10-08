@@ -94,6 +94,7 @@ extern aubio_sndfile_t *fileout;
 extern aubio_pvoc_t *pv;
 extern fvec_t *ibuf;
 extern fvec_t *obuf;
+extern fvec_t *pitch_obuf;
 extern cvec_t *fftgrain;
 extern fvec_t *woodblock;
 extern aubio_onsetdetection_t *o;

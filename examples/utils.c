@@ -61,6 +61,7 @@ aubio_sndfile_t *fileout = NULL;
 aubio_pvoc_t *pv;
 fvec_t *ibuf;
 fvec_t *obuf;
+fvec_t *pitch_obuf;
 cvec_t *fftgrain;
 fvec_t *woodblock;
 aubio_onsetdetection_t *o;
@@ -318,7 +319,8 @@ examples_common_init (int argc, char **argv)
   if (usepitch) {
     pitchdet = new_aubio_pitchdetection (buffer_size * 4,
         overlap_size, channels, samplerate, type_pitch, mode_pitch);
-    aubio_pitchdetection_set_yinthresh (pitchdet, 0.7);
+    aubio_pitchdetection_set_tolerance (pitchdet, 0.7);
+    pitch_obuf = new_fvec (1, channels);
 
     if (median) {
       note_buffer = new_fvec (median, 1);
@@ -349,6 +351,7 @@ examples_common_del (void)
       del_fvec (note_buffer);
       del_fvec (note_buffer2);
     }
+    del_fvec (pitch_obuf);
   }
   if (usedoubled) {
     del_aubio_onsetdetection (o2);

@@ -30,6 +30,7 @@ typedef struct _aubiopitch_tilde
 	t_int hopsize;
 	aubio_pitchdetection_t *o;
 	fvec_t *vec;
+	fvec_t *pitchvec;
 	t_outlet *pitch;
 } t_aubiopitch_tilde;
 
@@ -39,15 +40,14 @@ static t_int *aubiopitch_tilde_perform(t_int *w)
 	t_sample *in          = (t_sample *)(w[2]);
 	int n                 = (int)(w[3]);
 	int j;
-	smpl_t pitch;
 	for (j=0;j<n;j++) {
 		/* write input to datanew */
 		fvec_write_sample(x->vec, in[j], 0, x->pos);
 		/*time for fft*/
 		if (x->pos == x->hopsize-1) {         
 			/* block loop */
-			pitch = aubio_pitchdetection(x->o,x->vec);
-			outlet_float(x->pitch, pitch);
+			aubio_pitchdetection_do(x->o,x->vec, x->pitchvec);
+			outlet_float(x->pitch, x->pitchvec->data[0][0]);
 			/* end of block loop */
 			x->pos = -1; /* so it will be zero next j loop */
 		}
@@ -95,8 +95,9 @@ static void *aubiopitch_tilde_new (t_symbol * s)
 	//FIXME: get the real samplerate
     	x->o = new_aubio_pitchdetection(x->bufsize, 
                     x->hopsize, 1, 44100., type_pitch, mode_pitch);
-	aubio_pitchdetection_set_yinthresh(x->o, 0.7);
+	aubio_pitchdetection_set_tolerance (x->o, 0.7);
 	x->vec = (fvec_t *)new_fvec(x->hopsize,1);
+	x->pitchvec = (fvec_t *)new_fvec(1,1);
 
   	//floatinlet_new (&x->x_obj, &x->threshold);
 	x->pitch = outlet_new (&x->x_obj, &s_float);
@@ -109,6 +110,7 @@ static void *aubiopitch_tilde_del(t_aubiopitch_tilde *x)
 {
     	del_aubio_pitchdetection(x->o);
 	del_fvec(x->vec);
+	del_fvec(x->pitchvec);
 	return 0;
 }
 
