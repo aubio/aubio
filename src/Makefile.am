@@ -11,7 +11,7 @@ nobase_pkginclude_HEADERS = \
 	vecutils.h \
 	utils/hist.h \
 	utils/scale.h \
-	temporal/resample.h \
+	temporal/resampler.h \
 	temporal/biquad.h \
 	temporal/filter.h \
 	temporal/a_weighting.h \
@@ -46,7 +46,7 @@ libaubio_la_SOURCES = \
 	vecutils.c \
 	utils/hist.c \
 	utils/scale.c \
-	temporal/resample.c \
+	temporal/resampler.c \
 	temporal/biquad.c \
 	temporal/filter.c \
 	temporal/a_weighting.c \
