@@ -420,7 +420,7 @@ examples_common_process (aubio_process_func_t process_func,
 void
 flush_process (aubio_process_func_t process_func, aubio_print_func_t print)
 {
-  uint_t i, j;
+  uint_t i;
   fvec_zeros(obuf);
   for (i = 0; (signed) i < frames_delay; i++) {
     process_func (ibuf->data, obuf->data, overlap_size);
