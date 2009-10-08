@@ -28,10 +28,9 @@ class aubionotes_test_case(program_test_case):
     # and there should be an error message
     assert len(self.output) > 0
     # that looks like this 
-    output_lines = self.output.split('\n')
-    assert output_lines[0] == "Unable to open input file /dev/null."
-    #assert output_lines[1] == "Supported file format but file is malformed."
-    assert output_lines[2] == "Could not open input file /dev/null."
+    #output_lines = self.output.split('\n')
+    #for line in output_lines:
+    #  print line
 
 mode_names = ["yinfft", "yin", "fcomb", "mcomb", "schmitt"]
 for name in mode_names:
