@@ -27,7 +27,7 @@
 #define MAX_PEAKS 8
 
 typedef struct {
-  smpl_t freq;
+  smpl_t bin;
   smpl_t db;
 } aubio_fpeak_t;
 
@@ -40,38 +40,37 @@ struct _aubio_pitchfcomb_t {
   cvec_t * fftOut;
   fvec_t * fftLastPhase;
   aubio_fft_t * fft;
-  //aubio_pvoc_t * pvoc;
 };
 
-aubio_pitchfcomb_t * new_aubio_pitchfcomb (uint_t bufsize, uint_t hopsize, uint_t samplerate)
+aubio_pitchfcomb_t * new_aubio_pitchfcomb (uint_t bufsize, uint_t hopsize, uint_t channels)
 {
   aubio_pitchfcomb_t * p = AUBIO_NEW(aubio_pitchfcomb_t);
-  p->rate         = samplerate;
   p->fftSize      = bufsize;
   p->stepSize     = hopsize;
   p->winput       = new_fvec(bufsize,1);
   p->fftOut       = new_cvec(bufsize,1);
-  p->fftLastPhase = new_fvec(bufsize,1);
+  p->fftLastPhase = new_fvec(bufsize, channels);
   p->fft = new_aubio_fft(bufsize, 1);
   p->win = new_aubio_window(bufsize, aubio_win_hanning);
   return p;
 }
 
 /* input must be stepsize long */
-smpl_t aubio_pitchfcomb_do (aubio_pitchfcomb_t * p, fvec_t * input)
+void aubio_pitchfcomb_do (aubio_pitchfcomb_t * p, fvec_t * input, fvec_t * output)
 {
-  uint_t k, l, maxharm = 0;
-  smpl_t freqPerBin = p->rate/(smpl_t)p->fftSize,
-    phaseDifference = TWO_PI*(smpl_t)p->stepSize/(smpl_t)p->fftSize;
+  uint_t i, k, l, maxharm = 0;
+  smpl_t phaseDifference = TWO_PI*(smpl_t)p->stepSize/(smpl_t)p->fftSize;
   aubio_fpeak_t peaks[MAX_PEAKS];
+
+  for (i = 0; i < input->channels; i++) {
 
   for (k=0; k<MAX_PEAKS; k++) {
     peaks[k].db = -200.;
-    peaks[k].freq = 0.;
+    peaks[k].bin = 0.;
   }
 
   for (k=0; k < input->length; k++){
-    p->winput->data[0][k] = p->win->data[0][k] * input->data[0][k];
+    p->winput->data[0][k] = p->win->data[0][k] * input->data[i][k];
   }
   aubio_fft_do(p->fft,p->winput,p->fftOut);
 
@@ -79,11 +78,11 @@ smpl_t aubio_pitchfcomb_do (aubio_pitchfcomb_t * p, fvec_t * input)
     smpl_t
       magnitude = 20.*LOG10(2.*p->fftOut->norm[0][k]/(smpl_t)p->fftSize),
       phase     = p->fftOut->phas[0][k],
-      tmp, freq;
+      tmp, bin;
 
     /* compute phase difference */
-    tmp = phase - p->fftLastPhase->data[0][k];
-    p->fftLastPhase->data[0][k] = phase;
+    tmp = phase - p->fftLastPhase->data[i][k];
+    p->fftLastPhase->data[i][k] = phase;
 
     /* subtract expected phase difference */
     tmp -= (smpl_t)k*phaseDifference;
@@ -94,22 +93,22 @@ smpl_t aubio_pitchfcomb_do (aubio_pitchfcomb_t * p, fvec_t * input)
     /* get deviation from bin frequency from the +/- Pi interval */
     tmp = p->fftSize/(smpl_t)p->stepSize*tmp/(TWO_PI);
 
-    /* compute the k-th partials' true frequency */
-    freq = (smpl_t)k*freqPerBin + tmp*freqPerBin;
+    /* compute the k-th partials' true bin */
+    bin = (smpl_t)k + tmp;
 
-    if (freq > 0.0 && magnitude > peaks[0].db) { // && magnitude < 0) {
+    if (bin > 0.0 && magnitude > peaks[0].db) { // && magnitude < 0) {
       memmove(peaks+1, peaks, sizeof(aubio_fpeak_t)*(MAX_PEAKS-1));
-      peaks[0].freq = freq;
+      peaks[0].bin = bin;
       peaks[0].db = magnitude;
     }
   }
 
   k = 0;
-  for (l=1; l<MAX_PEAKS && peaks[l].freq > 0.0; l++) {
+  for (l=1; l<MAX_PEAKS && peaks[l].bin > 0.0; l++) {
     sint_t harmonic;
     for (harmonic=5; harmonic>1; harmonic--) {
-      if (peaks[0].freq / peaks[l].freq < harmonic+.02 &&
-          peaks[0].freq / peaks[l].freq > harmonic-.02) {
+      if (peaks[0].bin / peaks[l].bin < harmonic+.02 &&
+          peaks[0].bin / peaks[l].bin > harmonic-.02) {
         if (harmonic > (sint_t)maxharm &&
             peaks[0].db < peaks[l].db/2) {
           maxharm = harmonic;
@@ -118,9 +117,10 @@ smpl_t aubio_pitchfcomb_do (aubio_pitchfcomb_t * p, fvec_t * input)
       }
     }
   }
+  output->data[i][0] = peaks[k].bin;
   /* quick hack to clean output a bit */
-  if (peaks[k].freq > 5000.) return 0.;
-  return peaks[k].freq;
+  if (peaks[k].bin > 5000.) output->data[i][0] = 0.;
+  }
 }
 
 void del_aubio_pitchfcomb (aubio_pitchfcomb_t * p)

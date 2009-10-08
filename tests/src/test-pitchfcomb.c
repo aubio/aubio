@@ -4,16 +4,15 @@ int main(){
         /* allocate some memory */
         uint_t win_s      = 1024;                       /* window size */
         uint_t hop_s      = win_s/4;                    /* hop size */
-        uint_t samplerate = 44100;                      /* samplerate */
-        uint_t channels   = 1;                          /* number of channel */
+        uint_t channels   = 3;                          /* number of channel */
         fvec_t * in       = new_fvec (hop_s, channels); /* input buffer */
+        fvec_t * out      = new_fvec (1, channels);
         aubio_pitchfcomb_t * o  = new_aubio_pitchfcomb (
-          win_s, hop_s, samplerate
-          );
+          win_s, hop_s, channels);
         uint_t i = 0;
 
-        while (i < 1000) {
-          aubio_pitchfcomb_do (o,in);
+        while (i < 2) {
+          aubio_pitchfcomb_do (o,in, out);
           i++;
         };
 
