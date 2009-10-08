@@ -92,7 +92,7 @@ class fft_unit(aubio_unit_template):
 
     self.assertCloseEnough((buf_size-1)*some_constant, cvec_read_norm(fftgrain, 0, 0))
     for index in range(1,buf_size/2+1):
-       self.assertCloseEnough(some_constant, abs(cvec_read_norm(fftgrain, 0, index)))
+       self.assertCloseEnough(some_constant, cvec_read_norm(fftgrain, 0, index))
     self.assertCloseEnough(0., cvec_read_norm(fftgrain, 0, buf_size/2+1))
 
     del fftgrain
