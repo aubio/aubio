@@ -6,13 +6,11 @@ int main(){
         uint_t channels   = 1;                          /* number of channel */
         fvec_t * in       = new_fvec (win_s, channels); /* input buffer */
         fvec_t * out      = new_fvec (win_s/2, channels); /* input buffer */
+        aubio_pitchyin_t *p = new_aubio_pitchyin (win_s);
         uint_t i = 0;
 
         while (i < 10) {
-          aubio_pitchyin_diff   (in,out);
-          aubio_pitchyin_getcum (out);
-          aubio_pitchyin_getpitch (out);
-          aubio_pitchyin_getpitchfast (in,out,0.2);
+          aubio_pitchyin_do (p, in,out);
           i++;
         };
 

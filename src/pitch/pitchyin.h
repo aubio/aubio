@@ -37,36 +37,48 @@
 extern "C" {
 #endif
 
-/** compute difference function
-  
-  \param input input signal 
-  \param yinbuf output buffer to store difference function (half shorter than input)
+/** pitch detection object */
+typedef struct _aubio_pitchyin_t aubio_pitchyin_t;
 
+/** creation of the pitch detection object
+ 
+  \param bufsize size of the input buffer to analyse 
+ 
 */
-void aubio_pitchyin_diff(fvec_t * input, fvec_t * yinbuf);
+aubio_pitchyin_t * new_aubio_pitchyin (uint_t bufsize);
 
-/** in place computation of the YIN cumulative normalised function 
-  
-  \param yinbuf input signal (a square difference function), also used to store function 
-
+/** deletion of the pitch detection object
+ 
+  \param p pitch detection object as returned by new_aubio_pitchyin()
+ 
 */
-void aubio_pitchyin_getcum(fvec_t * yinbuf);
+void del_aubio_pitchyin (aubio_pitchyin_t * o);
 
-/** detect pitch in a YIN function
-  
-  \param yinbuf input buffer as computed by aubio_pitchyin_getcum
-
+/** execute pitch detection on an input buffer 
+ 
+  \param p pitch detection object as returned by new_aubio_pitchyin()
+  \param input input signal window (length as specified at creation time) 
+  \param tol tolerance parameter for minima selection [default 0.85] 
+ 
 */
-uint_t aubio_pitchyin_getpitch(fvec_t *yinbuf);
+void aubio_pitchyin_do (aubio_pitchyin_t * o, fvec_t *in, fvec_t *out);
 
-/** fast implementation of the YIN algorithm 
+
+/** set tolerance parameter for YIN algorithm 
   
-  \param input input signal 
-  \param yinbuf input buffer used to compute the YIN function
+  \param o YIN pitch detection object 
   \param tol tolerance parameter for minima selection [default 0.15]
 
 */
-smpl_t aubio_pitchyin_getpitchfast(fvec_t * input, fvec_t *yinbuf, smpl_t tol);
+uint_t aubio_pitchyin_set_tolerance (aubio_pitchyin_t *o, smpl_t tol);
+
+/** get tolerance parameter for YIN algorithm 
+  
+  \param o YIN pitch detection object 
+  \return tolerance parameter for minima selection [default 0.15]
+
+*/
+smpl_t aubio_pitchyin_get_tolerance (aubio_pitchyin_t *o);
 
 #ifdef __cplusplus
 }
