@@ -83,6 +83,7 @@ struct _aubio_fft_t {
 
 aubio_fft_t * new_aubio_fft(uint_t winsize, uint_t channels) {
   aubio_fft_t * s = AUBIO_NEW(aubio_fft_t);
+  uint_t i;
   s->winsize  = winsize;
   s->channels = channels;
   /* allocate memory */
@@ -101,6 +102,13 @@ aubio_fft_t * new_aubio_fft(uint_t winsize, uint_t channels) {
   s->pfw = fftw_plan_r2r_1d(winsize, s->in,  s->specdata, FFTW_R2HC, FFTW_ESTIMATE);
   s->pbw = fftw_plan_r2r_1d(winsize, s->specdata, s->out, FFTW_HC2R, FFTW_ESTIMATE);
 #endif
+  for (i = 0; i < s->winsize; i++) {
+    s->in[i] = 0.;
+    s->out[i] = 0.;
+  }
+  for (i = 0; i < s->fft_size; i++) {
+    s->specdata[i] = 0.;
+  }
   return s;
 }
 
