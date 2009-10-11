@@ -183,12 +183,20 @@ void aubio_fft_get_realimag(cvec_t * spectrum, fvec_t * compspec) {
 void aubio_fft_get_phas(fvec_t * compspec, cvec_t * spectrum) {
   uint_t i, j;
   for (i = 0; i < spectrum->channels; i++) {
-    spectrum->phas[i][0] = 0.;
+    if (compspec->data[i][0] < 0) {
+      spectrum->phas[i][0] = PI;
+    } else {
+      spectrum->phas[i][0] = 0.;
+    }
     for (j=1; j < spectrum->length - 1; j++) {
       spectrum->phas[i][j] = ATAN2(compspec->data[i][compspec->length-j],
           compspec->data[i][j]);
     }
-    spectrum->phas[i][spectrum->length-1] = 0.;
+    if (compspec->data[i][compspec->length/2] < 0) {
+      spectrum->phas[i][spectrum->length - 1] = PI;
+    } else {
+      spectrum->phas[i][spectrum->length - 1] = 0.;
+    }
   }
 }
 
