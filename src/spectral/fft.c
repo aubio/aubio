@@ -224,7 +224,7 @@ void aubio_fft_get_norm(fvec_t * compspec, cvec_t * spectrum) {
 void aubio_fft_get_imag(cvec_t * spectrum, fvec_t * compspec) {
   uint_t i, j;
   for (i = 0; i < compspec->channels; i++) {
-    for (j = 1; j < compspec->length / 2 + 1; j++) {
+    for (j = 1; j < ( compspec->length + 1 ) / 2 /*- 1 + 1*/; j++) {
       compspec->data[i][compspec->length - j] =
         spectrum->norm[i][j]*SIN(spectrum->phas[i][j]);
     }
@@ -234,7 +234,7 @@ void aubio_fft_get_imag(cvec_t * spectrum, fvec_t * compspec) {
 void aubio_fft_get_real(cvec_t * spectrum, fvec_t * compspec) {
   uint_t i, j;
   for (i = 0; i < compspec->channels; i++) {
-    for (j = 0; j< compspec->length / 2 + 1; j++) {
+    for (j = 0; j < compspec->length / 2 + 1; j++) {
       compspec->data[i][j] = 
         spectrum->norm[i][j]*COS(spectrum->phas[i][j]);
     }
