@@ -197,10 +197,14 @@ typedef enum {
 
 #define VERY_SMALL_NUMBER 2.e-42 //1.e-37
 
-#define IS_DENORMAL(f) f < VERY_SMALL_NUMBER
+/** if ABS(f) < VERY_SMALL_NUMBER, returns 1, else 0 */
+#define IS_DENORMAL(f) ABS(f) < VERY_SMALL_NUMBER
 
+/** if ABS(f) < VERY_SMALL_NUMBER, returns 0., else f */
 #define KILL_DENORMAL(f)  IS_DENORMAL(f) ? 0. : f
-#define CEIL_DENORMAL(f)  IS_DENORMAL(f) ? VERY_SMALL_NUMBER : f
+
+/** if f > VERY_SMALL_NUMBER, returns f, else returns VERY_SMALL_NUMBER */
+#define CEIL_DENORMAL(f)  f < VERY_SMALL_NUMBER ? VERY_SMALL_NUMBER : f
 
 #define SAFE_LOG10(f) LOG10(CEIL_DENORMAL(f))
 #define SAFE_LOG(f)   LOG(CEIL_DENORMAL(f))
