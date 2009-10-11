@@ -142,6 +142,7 @@ typedef enum {
 #define LOG        logf
 #define FLOOR      floorf
 #define CEIL       ceilf
+#define ATAN2      atan2f
 #else
 #define EXP        exp
 #define COS        cos
@@ -153,6 +154,7 @@ typedef enum {
 #define LOG        log
 #define FLOOR      floor
 #define CEIL       ceil
+#define ATAN2      atan2
 #endif
 #define ROUND(x)   FLOOR(x+.5)
 
