@@ -99,7 +99,7 @@ del_aubio_mfcc (aubio_mfcc_t * mf)
 void
 aubio_mfcc_do (aubio_mfcc_t * mf, cvec_t * in, fvec_t * out)
 {
-  uint_t i, j;
+  uint_t i, j, k;
 
   /* compute filterbank */
   aubio_filterbank_do (mf->fb, in, mf->in_dct);
@@ -114,10 +114,12 @@ aubio_mfcc_do (aubio_mfcc_t * mf, cvec_t * in, fvec_t * out)
   fvec_zeros(out);
 
   /* compute discrete cosine transform */
-  for (i = 0; i < mf->n_filters; i++) {
-    for (j = 0; j < mf->n_coefs; j++) {
-      out->data[0][j] += mf->in_dct->data[0][i]
-          * mf->dct_coeffs->data[i][j];
+  for (i = 0; i < out->channels; i++) {
+    for (j = 0; j < mf->n_filters; j++) {
+      for (k = 0; k < mf->n_coefs; k++) {
+        out->data[i][k] += mf->in_dct->data[i][j]
+            * mf->dct_coeffs->data[j][k];
+      }
     }
   }
 
