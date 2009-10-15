@@ -60,6 +60,8 @@ typedef long double  lsmp_t;
 typedef unsigned int uint_t;
 /** signed integer */
 typedef int          sint_t;
+/** character */
+typedef char         char_t;
 
 #ifdef __cplusplus
 }
