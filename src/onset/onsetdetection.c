@@ -133,6 +133,7 @@ typedef enum {
         aubio_onset_kl,             /**< Kullback Liebler */
         aubio_onset_mkl,            /**< modified Kullback Liebler */
         aubio_onset_specflux,       /**< spectral flux */
+        aubio_onset_default = aubio_onset_hfc, /**< default mode, set to hfc */
 } aubio_onsetdetection_type;
 
 /** structure to store object state */
@@ -339,9 +340,11 @@ new_aubio_onsetdetection (char_t * onset_mode,
       onset_type = aubio_onset_kl;
   else if (strcmp (onset_mode, "specflux") == 0)
       onset_type = aubio_onset_specflux;
+  else if (strcmp (onset_mode, "default") == 0)
+      onset_type = aubio_onset_default;
   else {
       AUBIO_ERR("unknown onset type.\n");
-      return NULL;
+      onset_type = aubio_onset_default;
   }
   switch(onset_type) {
     /* for both energy and hfc, only fftgrain->norm is required */
