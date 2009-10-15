@@ -47,7 +47,7 @@ void del_aubio_scale(aubio_scale_t *s) {
   AUBIO_FREE(s);
 }
 
-void aubio_scale_set_limits (aubio_scale_t *s, smpl_t ilow, smpl_t ihig,
+uint_t aubio_scale_set_limits (aubio_scale_t *s, smpl_t ilow, smpl_t ihig,
     smpl_t olow, smpl_t ohig) {
   smpl_t inputrange = ihig - ilow;
   smpl_t outputrange= ohig - olow;
@@ -63,6 +63,7 @@ void aubio_scale_set_limits (aubio_scale_t *s, smpl_t ilow, smpl_t ihig,
       inputrange = inputrange * -1.0f;
     }
   }
+  return AUBIO_OK;
 }
 
 void aubio_scale_do (aubio_scale_t *s, fvec_t *input) 
