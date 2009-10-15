@@ -1,5 +1,4 @@
 from aubio.task.task import task
-from aubio.task.utils import * 
 from aubio.aubioclass import *
 
 class taskonset(task):
@@ -13,7 +12,7 @@ class taskonset(task):
 			self.channels,
 			self.myvec,
 			self.params.threshold,
-			mode=get_onset_mode(self.params.onsetmode),
+			mode=self.params.onsetmode,
 			dcthreshold=self.params.dcthreshold,
 			derivate=self.params.derivate)
 		self.olist = [] 

@@ -1,6 +1,5 @@
 from aubio.task.task import task
 from aubio.task.silence import tasksilence
-from aubio.task.utils import * 
 from aubio.aubioclass import *
 
 class taskpitch(task):

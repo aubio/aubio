@@ -1,6 +1,5 @@
 
 from aubio.task import task
-from aubio.task.utils import *
 from aubio.aubioclass import *
 
 class tasknotes(task):
@@ -11,10 +10,10 @@ class tasknotes(task):
 			self.channels,
 			self.myvec,
 			self.params.threshold,
-			mode=get_onset_mode(self.params.onsetmode),
+			mode=self.params.onsetmode,
 			dcthreshold=self.params.dcthreshold,
 			derivate=self.params.derivate)
-		self.pitchdet  = pitchdetection(mode=get_pitch_mode(self.params.pitchmode),
+		self.pitchdet  = pitchdetection(mode=self.params.pitchmode,
 			bufsize=self.params.pbufsize,
 			hopsize=self.params.phopsize,
 			channels=self.channels,

@@ -1,6 +1,5 @@
 from aubio.aubioclass import *
 from aubio.task.task import task
-from aubio.task.utils import *
 from aubio.task.params import taskparams
 from aubio.task.silence import tasksilence
 from aubio.task.onset import taskonset
