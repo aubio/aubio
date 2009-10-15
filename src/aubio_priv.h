@@ -106,7 +106,7 @@
 /* Error reporting */
 typedef enum {
   AUBIO_OK = 0,
-  AUBIO_FAIL = -1
+  AUBIO_FAIL = 1
 } aubio_status;
 
 #ifdef HAVE_C99_VARARGS_MACROS
