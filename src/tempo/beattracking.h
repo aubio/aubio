@@ -21,7 +21,7 @@
 
   Beat tracking using a context dependant model
 
-  This file implement the causal beat tracking algorithm designed by Matthew
+  This file implements the causal beat tracking algorithm designed by Matthew
   Davies and described in the following articles:
 
   Matthew E. P. Davies and Mark D. Plumbley. Causal tempo tracking of audio.
