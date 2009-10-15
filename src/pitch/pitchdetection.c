@@ -241,10 +241,10 @@ uint_t aubio_pitchdetection_set_unit (aubio_pitchdetection_t *p, char_t * pitch_
     default:
       break;
   }
-  return 0;
+  return AUBIO_OK;
 }
 
-void aubio_pitchdetection_set_tolerance(aubio_pitchdetection_t *p, smpl_t tol) {
+uint_t aubio_pitchdetection_set_tolerance(aubio_pitchdetection_t *p, smpl_t tol) {
   switch(p->type) {
     case aubio_pitch_yin:
       aubio_pitchyin_set_tolerance (p->yin, tol);
@@ -255,6 +255,7 @@ void aubio_pitchdetection_set_tolerance(aubio_pitchdetection_t *p, smpl_t tol) {
     default:
       break;
   }
+  return AUBIO_OK;
 }
 
 void aubio_pitchdetection_do (aubio_pitchdetection_t *p, fvec_t * ibuf, fvec_t *obuf) {
