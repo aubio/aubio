@@ -52,7 +52,7 @@ typedef struct _aubio_tss_t aubio_tss_t;
 
 */
 aubio_tss_t * new_aubio_tss(smpl_t thrs, smpl_t alfa, smpl_t beta, 
-    uint_t size, uint_t overlap,uint_t channels);
+    uint_t win_s, uint_t hop_s, uint_t channels);
 /** delete tss object
 
   \param s tss object as returned by new_aubio_tss
