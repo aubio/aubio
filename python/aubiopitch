@@ -17,12 +17,11 @@ def parse_args():
       action="store", dest="filename", 
       help="input sound file")
   parser.add_option("-m","--mode", 
-      action="store", dest="mode", default='mcomb',
+      action="store", dest="mode", default='yinfft',
       help="pitch detection mode [default=mcomb] \
       mcomb|yin|fcomb|schmitt")
-  parser.add_option("-u","--units", action="callback", 
-      callback=check_pitchm_mode, dest="omode",
-      default=aubio_pitchm_freq,
+  parser.add_option("-u","--units",
+      action="store", dest="omode", default="freq",
       help="output pitch in units [default=Hz] \
       freq|midi|cent|bin")
   parser.add_option("-B","--bufsize",
@@ -77,10 +76,10 @@ def parse_args():
       help="be quiet")
   (options, args) = parser.parse_args()
   if not options.bufsize:
-    if options.mode == aubio_pitch_yin:     options.bufsize = 1024
-    if options.mode == aubio_pitch_schmitt: options.bufsize = 2048
-    if options.mode == aubio_pitch_mcomb:   options.bufsize = 4096
-    if options.mode == aubio_pitch_fcomb:   options.bufsize = 4096 
+    if options.mode == "yin":     options.bufsize = 1024
+    if options.mode == "schmitt": options.bufsize = 2048
+    if options.mode == "mcomb":   options.bufsize = 4096
+    if options.mode == "fcomb":   options.bufsize = 4096 
     else: options.bufsize = 2048
   if not options.hopsize:
     options.hopsize = float(options.bufsize) / 2
@@ -105,7 +104,6 @@ params.verbose    = options.verbose
 if options.smoothing: params.pitchsmooth = int(options.smoothing)
 if options.pitchmax:  params.pitchmax    = int(options.pitchmax)
 if options.pitchmin:  params.pitchmin    = int(options.pitchmin)
-if options.omode:     params.omode       = int(options.omode)
 #mintol     = float(options.mintol)*step
 # default take back system delay
 if options.delay: params.pitchdelay = float(options.delay)

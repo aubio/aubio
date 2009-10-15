@@ -31,6 +31,25 @@
 #include "pitch/pitchyinfft.h"
 #include "pitch/pitchdetection.h"
 
+/** pitch detection algorithm */
+typedef enum {
+  aubio_pitch_yin,     /**< YIN algorithm */
+  aubio_pitch_mcomb,   /**< Multi-comb filter */
+  aubio_pitch_schmitt, /**< Schmitt trigger */
+  aubio_pitch_fcomb,   /**< Fast comb filter */
+  aubio_pitch_yinfft,   /**< Spectral YIN */
+  aubio_pitch_default = aubio_pitch_yinfft, /**< the one used when "default" is asked */
+} aubio_pitchdetection_type;
+
+/** pitch detection output mode */
+typedef enum {
+  aubio_pitchm_freq,   /**< Frequency (Hz) */
+  aubio_pitchm_midi,   /**< MIDI note (0.,127) */
+  aubio_pitchm_cent,   /**< Cent */
+  aubio_pitchm_bin,    /**< Frequency bin (0,bufsize) */
+  aubio_pitchm_default = aubio_pitchm_freq, /**< the one used when "default" is asked */
+} aubio_pitchdetection_mode;
+
 typedef void (*aubio_pitchdetection_func_t)
   (aubio_pitchdetection_t *p, fvec_t * ibuf, fvec_t *obuf);
 typedef smpl_t (*aubio_pitchdetection_conv_t)
@@ -80,17 +99,32 @@ smpl_t freqconvpass(smpl_t f,uint_t srate UNUSED,uint_t bufsize UNUSED){
   return f;
 }
 
-aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize, 
-    uint_t hopsize, 
-    uint_t channels,
-    uint_t samplerate,
-    aubio_pitchdetection_type type,
-    aubio_pitchdetection_mode mode)
+aubio_pitchdetection_t *
+new_aubio_pitchdetection (char_t * pitch_mode,
+    uint_t bufsize, uint_t hopsize, uint_t channels, uint_t samplerate)
 {
   aubio_pitchdetection_t *p = AUBIO_NEW(aubio_pitchdetection_t);
+  aubio_pitchdetection_type pitch_type;
+  if (strcmp (pitch_mode, "mcomb") == 0)
+      pitch_type = aubio_pitch_mcomb;
+  else if (strcmp (pitch_mode, "yinfft") == 0)
+      pitch_type = aubio_pitch_yin;
+  else if (strcmp (pitch_mode, "yin") == 0)
+      pitch_type = aubio_pitch_yin;
+  else if (strcmp (pitch_mode, "schmitt") == 0)
+      pitch_type = aubio_pitch_schmitt;
+  else if (strcmp (pitch_mode, "fcomb") == 0)
+      pitch_type = aubio_pitch_fcomb;
+  else if (strcmp (pitch_mode, "default") == 0)
+      pitch_type = aubio_pitch_default;
+  else {
+      AUBIO_ERR ("unknown pitch detection method %s, using default.\n", pitch_mode);
+      pitch_type = aubio_pitch_default;
+      return NULL;
+  }
   p->srate = samplerate;
-  p->type = type;
-  p->mode = mode;
+  p->type = pitch_type;
+  aubio_pitchdetection_set_unit (p, "default");
   p->bufsize = bufsize;
   switch(p->type) {
     case aubio_pitch_yin:
@@ -121,23 +155,6 @@ aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize,
       p->yinfft   = new_aubio_pitchyinfft(bufsize);
       p->callback = aubio_pitchdetection_yinfft;
       aubio_pitchyinfft_set_tolerance (p->yinfft, 0.85);
-      break;
-    default:
-      break;
-  }
-  switch(p->mode) {
-    case aubio_pitchm_freq:
-      p->freqconv = freqconvpass;
-      break;
-    case aubio_pitchm_midi:
-      p->freqconv = freqconvmidi;
-      break;
-    case aubio_pitchm_cent:
-      /* bug: not implemented */
-      p->freqconv = freqconvmidi;
-      break;
-    case aubio_pitchm_bin:
-      p->freqconv = freqconvbin;
       break;
     default:
       break;
@@ -188,6 +205,43 @@ void aubio_pitchdetection_slideblock(aubio_pitchdetection_t *p, fvec_t *ibuf){
       p->buf->data[i][j+overlap_size] = ibuf->data[i][j];
     }
   }
+}
+
+uint_t aubio_pitchdetection_set_unit (aubio_pitchdetection_t *p, char_t * pitch_unit) {
+  aubio_pitchdetection_mode pitch_mode;
+  if (strcmp (pitch_unit, "freq") == 0)
+      pitch_mode = aubio_pitchm_freq;
+  else if (strcmp (pitch_unit, "midi") == 0)
+      pitch_mode = aubio_pitchm_midi;
+  else if (strcmp (pitch_unit, "cent") == 0)
+      pitch_mode = aubio_pitchm_cent;
+  else if (strcmp (pitch_unit, "bin") == 0)
+      pitch_mode = aubio_pitchm_bin;
+  else if (strcmp (pitch_unit, "default") == 0)
+      pitch_mode = aubio_pitchm_default;
+  else {
+      AUBIO_ERR ("unknown pitch detection unit %s, using default\n", pitch_unit);
+      pitch_mode = aubio_pitchm_default;
+  }
+  p->mode = pitch_mode;
+  switch(p->mode) {
+    case aubio_pitchm_freq:
+      p->freqconv = freqconvpass;
+      break;
+    case aubio_pitchm_midi:
+      p->freqconv = freqconvmidi;
+      break;
+    case aubio_pitchm_cent:
+      /* bug: not implemented */
+      p->freqconv = freqconvmidi;
+      break;
+    case aubio_pitchm_bin:
+      p->freqconv = freqconvbin;
+      break;
+    default:
+      break;
+  }
+  return 0;
 }
 
 void aubio_pitchdetection_set_tolerance(aubio_pitchdetection_t *p, smpl_t tol) {

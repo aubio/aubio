@@ -13,9 +13,6 @@
 
 char aubiopitch_version[] = "aubiopitch~ version 0.1";
 
-aubio_pitchdetection_type type_pitch = aubio_pitch_yinfft;
-aubio_pitchdetection_mode mode_pitch = aubio_pitchm_freq;
-
 static t_class *aubiopitch_tilde_class;
 
 void aubiopitch_tilde_setup (void);
@@ -78,23 +75,9 @@ static void *aubiopitch_tilde_new (t_symbol * s)
 	x->bufsize   = 2048;
 	x->hopsize   = x->bufsize / 2;
 
-        if (strcmp(s->s_name,"mcomb") == 0) 
-                type_pitch = aubio_pitch_mcomb;
-        else if (strcmp(s->s_name,"yinfft") == 0) 
-                type_pitch = aubio_pitch_yin;
-        else if (strcmp(s->s_name,"yin") == 0) 
-                type_pitch = aubio_pitch_yin;
-        else if (strcmp(s->s_name,"schmitt") == 0) 
-                type_pitch = aubio_pitch_schmitt;
-        else if (strcmp(s->s_name,"fcomb") == 0) 
-                type_pitch = aubio_pitch_fcomb;
-        else {
-                post("unknown pitch type, using default.\n");
-        }
-
 	//FIXME: get the real samplerate
-    	x->o = new_aubio_pitchdetection(x->bufsize, 
-                    x->hopsize, 1, 44100., type_pitch, mode_pitch);
+    x->o = new_aubio_pitchdetection(s->s_name, x->bufsize, 
+            x->hopsize, 1, 44100.);
 	aubio_pitchdetection_set_tolerance (x->o, 0.7);
 	x->vec = (fvec_t *)new_fvec(x->hopsize,1);
 	x->pitchvec = (fvec_t *)new_fvec(1,1);

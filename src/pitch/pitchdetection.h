@@ -32,23 +32,6 @@ extern "C" {
 
 */
 
-/** pitch detection algorithm */
-typedef enum {
-  aubio_pitch_yin,     /**< YIN algorithm */
-  aubio_pitch_mcomb,   /**< Multi-comb filter */
-  aubio_pitch_schmitt, /**< Schmitt trigger */
-  aubio_pitch_fcomb,   /**< Fast comb filter */
-  aubio_pitch_yinfft   /**< Spectral YIN */
-} aubio_pitchdetection_type;
-
-/** pitch detection output mode */
-typedef enum {
-  aubio_pitchm_freq,   /**< Frequency (Hz) */
-  aubio_pitchm_midi,   /**< MIDI note (0.,127) */
-  aubio_pitchm_cent,   /**< Cent */
-  aubio_pitchm_bin     /**< Frequency bin (0,bufsize) */
-} aubio_pitchdetection_mode;
-
 /** pitch detection object */
 typedef struct _aubio_pitchdetection_t aubio_pitchdetection_t;
 
@@ -84,12 +67,11 @@ void del_aubio_pitchdetection(aubio_pitchdetection_t * p);
   \param mode set pitch units for output
 
 */
-aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize,
-    uint_t hopsize,
-    uint_t channels,
-    uint_t samplerate,
-    aubio_pitchdetection_type pitch_type,
-    aubio_pitchdetection_mode pitch_mode);
+aubio_pitchdetection_t *new_aubio_pitchdetection (char_t * pitch_mode,
+    uint_t bufsize, uint_t hopsize, uint_t channels, uint_t samplerate);
+
+/** set the output unit of the pitch detection object */
+uint_t aubio_pitchdetection_set_unit (aubio_pitchdetection_t *p, char_t * pitch_unit);
 
 #ifdef __cplusplus
 }

@@ -198,33 +198,12 @@ void aubio_pvoc_do(aubio_pvoc_t *pv, fvec_t *in, cvec_t * fftgrain);
 void aubio_pvoc_rdo(aubio_pvoc_t *pv, cvec_t * fftgrain, fvec_t *out);
 
 /* pitch detection */
-typedef enum {
-        aubio_pitch_yin,
-        aubio_pitch_mcomb,
-        aubio_pitch_schmitt,
-        aubio_pitch_fcomb,
-        aubio_pitch_yinfft
-} aubio_pitchdetection_type;
-
-typedef enum {
-        aubio_pitchm_freq,
-        aubio_pitchm_midi,
-        aubio_pitchm_cent,
-        aubio_pitchm_bin
-} aubio_pitchdetection_mode;
-
+aubio_pitchdetection_t *new_aubio_pitchdetection (char *pitch_mode,
+    uint_t bufsize, uint_t hopsize, uint_t channels, uint_t samplerate);
 void aubio_pitchdetection_do (aubio_pitchdetection_t * p, fvec_t * ibuf, fvec_t * obuf);
-
 void aubio_pitchdetection_set_tolerance(aubio_pitchdetection_t *p, smpl_t thres);
-
+void aubio_pitchdetection_set_unit(aubio_pitchdetection_t *p, char * pitch_unit);
 void del_aubio_pitchdetection(aubio_pitchdetection_t * p);
-
-aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize, 
-    uint_t hopsize, 
-    uint_t channels,
-    uint_t samplerate,
-    aubio_pitchdetection_type type,
-    aubio_pitchdetection_mode mode);
 
 
 /* pitch mcomb */

@@ -1,4 +1,3 @@
-from aubio.aubioclass import aubio_pitchm_freq
 
 class taskparams(object):
 	""" default parameters for task classes """
@@ -29,6 +28,6 @@ class taskparams(object):
 		self.pitchmax=20000.
 		self.pitchdelay = -0.5
 		self.dcthreshold = -1.
-		self.omode = aubio_pitchm_freq
+		self.omode = "freq"
 		self.verbose   = False
 

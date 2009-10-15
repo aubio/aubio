@@ -25,23 +25,6 @@ def get_onset_mode(nvalue):
 		 print "unknown onset detection function selected: %s" % nvalue
 		 sys.exit(1)
 
-def get_pitch_mode(nvalue):
-	""" utility function to convert a string to aubio_pitchdetection_type """
-	if   nvalue == 'mcomb'  :
-		 return aubio_pitch_mcomb
-	elif nvalue == 'yin'    :
-		 return aubio_pitch_yin
-	elif nvalue == 'fcomb'  :
-		 return aubio_pitch_fcomb
-	elif nvalue == 'schmitt':
-		 return aubio_pitch_schmitt
-	elif nvalue == 'yinfft':
-		 return aubio_pitch_yinfft
-	else:
-		 import sys
-		 print "error: unknown pitch detection function selected"
-		 sys.exit(1)
-
 def check_onset_mode(option, opt, value, parser):
 	""" wrapper function to convert a list of modes to 
 		aubio_onsetdetection_type """
@@ -58,21 +41,3 @@ def check_pitch_mode(option, opt, value, parser):
 	for nvalue in nvalues:
 		val.append(get_pitch_mode(nvalue))
 		setattr(parser.values, option.dest, val)
-
-def check_pitchm_mode(option, opt, value, parser):
-	""" utility function to convert a string to aubio_pitchdetection_mode """
-	nvalue = parser.rargs[0]
-	if   nvalue == 'freq'  :
-		 setattr(parser.values, option.dest, aubio_pitchm_freq)
-	elif nvalue == 'midi'  :
-		 setattr(parser.values, option.dest, aubio_pitchm_midi)
-	elif nvalue == 'cent'  :
-		 setattr(parser.values, option.dest, aubio_pitchm_cent)
-	elif nvalue == 'bin'   :
-		 setattr(parser.values, option.dest, aubio_pitchm_bin)
-	else:
-		 import sys
-		 print "error: unknown pitch detection output selected"
-		 sys.exit(1)
-
-

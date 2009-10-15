@@ -124,11 +124,12 @@ class onsetpick:
         return isonset, dval
 
 class pitchdetection:
-    def __init__(self,mode=aubio_pitch_mcomb,bufsize=2048,hopsize=1024,
-        channels=1,samplerate=44100.,omode=aubio_pitchm_freq,tolerance=0.1):
-        self.pitchp = new_aubio_pitchdetection(bufsize,hopsize,channels,
-                samplerate,mode,omode)
+    def __init__(self,mode="mcomb",bufsize=2048,hopsize=1024,
+        channels=1,samplerate=44100.,omode="freq",tolerance=0.1):
+        self.pitchp = new_aubio_pitchdetection(mode,bufsize,hopsize,channels,
+            samplerate)
         self.mypitch = fvec(1, channels)
+        aubio_pitchdetection_set_unit(self.pitchp,omode)
         aubio_pitchdetection_set_tolerance(self.pitchp,tolerance)
         #self.filt     = filter(srate,"adsgn")
     def __del__(self):

@@ -13,7 +13,7 @@ class taskpitch(task):
 			tolerance = self.params.yinfftthresh
 		else:
 			tolerance = 0.
-		self.pitchdet	= pitchdetection(mode=get_pitch_mode(self.params.pitchmode),
+		self.pitchdet	= pitchdetection(mode=self.params.pitchmode,
 			bufsize=self.params.bufsize,
 			hopsize=self.params.hopsize,
 			channels=self.channels,

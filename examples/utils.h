@@ -107,7 +107,6 @@ extern aubio_peakpicker_t *parms;
 /* pitch objects */
 extern smpl_t pitch;
 extern aubio_pitchdetection_t *pitchdet;
-extern aubio_pitchdetection_type mode;
 extern uint_t median;
 
 extern fvec_t *note_buffer;

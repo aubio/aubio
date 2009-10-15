@@ -64,7 +64,6 @@ fvec_t *pitch_obuf;
 cvec_t *fftgrain;
 fvec_t *woodblock;
 aubio_onsetdetection_t *o;
-aubio_onsetdetection_t *o2;
 fvec_t *onset;
 fvec_t *onset2;
 smpl_t isonset = 0;
@@ -74,8 +73,8 @@ aubio_peakpicker_t *parms;
 /* pitch objects */
 smpl_t pitch = 0.;
 aubio_pitchdetection_t *pitchdet;
-aubio_pitchdetection_type type_pitch = aubio_pitch_yinfft;      // aubio_pitch_mcomb
-aubio_pitchdetection_mode mode_pitch = aubio_pitchm_freq;
+char_t * pitch_unit = "default";
+char_t * pitch_mode = "default";
 uint_t median = 6;
 
 fvec_t *note_buffer = NULL;
@@ -176,20 +175,7 @@ parse_args (int argc, char **argv)
          */
         break;
       case 'p':
-        if (strcmp (optarg, "mcomb") == 0)
-          type_pitch = aubio_pitch_mcomb;
-        else if (strcmp (optarg, "yinfft") == 0)
-          type_pitch = aubio_pitch_yin;
-        else if (strcmp (optarg, "yin") == 0)
-          type_pitch = aubio_pitch_yin;
-        else if (strcmp (optarg, "schmitt") == 0)
-          type_pitch = aubio_pitch_schmitt;
-        else if (strcmp (optarg, "fcomb") == 0)
-          type_pitch = aubio_pitch_fcomb;
-        else {
-          errmsg ("unknown pitch type.\n");
-          abort ();
-        }
+        pitch_mode = optarg;
         break;
       case 'a':
         averaging = 1;
@@ -293,8 +279,8 @@ examples_common_init (int argc, char **argv)
   fftgrain = new_cvec (buffer_size, channels);
 
   if (usepitch) {
-    pitchdet = new_aubio_pitchdetection (buffer_size * 4,
-        overlap_size, channels, samplerate, type_pitch, mode_pitch);
+    pitchdet = new_aubio_pitchdetection (pitch_mode, buffer_size * 4,
+        overlap_size, channels, samplerate);
     aubio_pitchdetection_set_tolerance (pitchdet, 0.7);
     pitch_obuf = new_fvec (1, channels);
 
@@ -324,10 +310,6 @@ examples_common_del (void)
       del_fvec (note_buffer2);
     }
     del_fvec (pitch_obuf);
-  }
-  if (usedoubled) {
-    del_aubio_onsetdetection (o2);
-    del_fvec (onset2);
   }
   del_aubio_onsetdetection (o);
   del_aubio_peakpicker (parms);
