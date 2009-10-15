@@ -30,11 +30,11 @@
 struct _aubio_resampler_t {
 	SRC_DATA  *proc;
 	SRC_STATE *stat;
-	float ratio;
+	smpl_t ratio;
 	uint_t type;
 };
 
-aubio_resampler_t * new_aubio_resampler(float ratio, uint_t type) {
+aubio_resampler_t * new_aubio_resampler(smpl_t ratio, uint_t type) {
 	aubio_resampler_t * s  = AUBIO_NEW(aubio_resampler_t);
 	int error = 0;
 	s->stat = src_new (type, 1, &error) ; /* only one channel */
@@ -55,7 +55,7 @@ void aubio_resampler_do (aubio_resampler_t *s,
 	uint_t i ;
 	s->proc->input_frames = input->length;
 	s->proc->output_frames = output->length;
-	s->proc->src_ratio = s->ratio;
+	s->proc->src_ratio = (double)s->ratio;
 	for (i = 0 ; i< input->channels; i++) 
 	{
 		/* make SRC_PROC data point to input outputs */

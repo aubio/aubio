@@ -42,7 +42,7 @@ typedef struct _aubio_resampler_t aubio_resampler_t;
   \param type libsamplerate resampling type
 
 */
-aubio_resampler_t * new_aubio_resampler(float ratio, uint_t type);
+aubio_resampler_t * new_aubio_resampler(smpl_t ratio, uint_t type);
 
 /** delete resampler object */
 void del_aubio_resampler(aubio_resampler_t *s);
