@@ -61,7 +61,7 @@ void del_aubio_pitchyin (aubio_pitchyin_t * o);
   \param tol tolerance parameter for minima selection [default 0.85] 
  
 */
-void aubio_pitchyin_do (aubio_pitchyin_t * o, fvec_t *in, fvec_t *out);
+void aubio_pitchyin_do (aubio_pitchyin_t * o, fvec_t * in, fvec_t * out);
 
 
 /** set tolerance parameter for YIN algorithm 
@@ -78,7 +78,7 @@ uint_t aubio_pitchyin_set_tolerance (aubio_pitchyin_t *o, smpl_t tol);
   \return tolerance parameter for minima selection [default 0.15]
 
 */
-smpl_t aubio_pitchyin_get_tolerance (aubio_pitchyin_t *o);
+smpl_t aubio_pitchyin_get_tolerance (aubio_pitchyin_t * o);
 
 #ifdef __cplusplus
 }

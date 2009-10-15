@@ -48,7 +48,7 @@ typedef struct _aubio_pitchyinfft_t aubio_pitchyinfft_t;
   \param output pitch period candidates, in samples
  
 */
-void aubio_pitchyinfft_do (aubio_pitchyinfft_t *p, fvec_t * input, fvec_t * output);
+void aubio_pitchyinfft_do (aubio_pitchyinfft_t *p, fvec_t * in, fvec_t * out);
 /** creation of the pitch detection object
  
   \param bufsize size of the input buffer to analyse 

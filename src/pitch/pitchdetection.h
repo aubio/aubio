@@ -88,8 +88,8 @@ aubio_pitchdetection_t * new_aubio_pitchdetection(uint_t bufsize,
     uint_t hopsize,
     uint_t channels,
     uint_t samplerate,
-    aubio_pitchdetection_type type,
-    aubio_pitchdetection_mode mode);
+    aubio_pitchdetection_type pitch_type,
+    aubio_pitchdetection_mode pitch_mode);
 
 #ifdef __cplusplus
 }
