@@ -123,9 +123,21 @@ void aubio_onsetdetection_mkl(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec
 */
 void aubio_onsetdetection_specflux(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
 
+/** onsetdetection types */
+typedef enum {
+        aubio_onset_energy,         /**< energy based */          
+        aubio_onset_specdiff,       /**< spectral diff */         
+        aubio_onset_hfc,            /**< high frequency content */
+        aubio_onset_complex,        /**< complex domain */        
+        aubio_onset_phase,          /**< phase fast */            
+        aubio_onset_kl,             /**< Kullback Liebler */
+        aubio_onset_mkl,            /**< modified Kullback Liebler */
+        aubio_onset_specflux,       /**< spectral flux */
+} aubio_onsetdetection_type;
+
 /** structure to store object state */
 struct _aubio_onsetdetection_t {
-  aubio_onsetdetection_type type; /**< onset detection type */
+  aubio_onsetdetection_type onset_type; /**< onset detection type */
   /** Pointer to aubio_onsetdetection_<type> function */
   void (*funcpointer)(aubio_onsetdetection_t *o,
       cvec_t * fftgrain, fvec_t * onset);
@@ -304,11 +316,34 @@ aubio_onsetdetection_do (aubio_onsetdetection_t *o, cvec_t * fftgrain,
  * depending on the choosen type, allocate memory as needed
  */
 aubio_onsetdetection_t * 
-new_aubio_onsetdetection (aubio_onsetdetection_type type, 
+new_aubio_onsetdetection (char_t * onset_mode, 
     uint_t size, uint_t channels){
   aubio_onsetdetection_t * o = AUBIO_NEW(aubio_onsetdetection_t);
   uint_t rsize = size/2+1;
-  switch(type) {
+  aubio_onsetdetection_type onset_type;
+  if (strcmp (onset_mode, "energy") == 0)
+      onset_type = aubio_onset_energy;
+  else if (strcmp (onset_mode, "specdiff") == 0)
+      onset_type = aubio_onset_specdiff;
+  else if (strcmp (onset_mode, "hfc") == 0)
+      onset_type = aubio_onset_hfc;
+  else if (strcmp (onset_mode, "complexdomain") == 0)
+      onset_type = aubio_onset_complex;
+  else if (strcmp (onset_mode, "complex") == 0)
+      onset_type = aubio_onset_complex;
+  else if (strcmp (onset_mode, "phase") == 0)
+      onset_type = aubio_onset_phase;
+  else if (strcmp (onset_mode, "mkl") == 0)
+      onset_type = aubio_onset_mkl;
+  else if (strcmp (onset_mode, "kl") == 0)
+      onset_type = aubio_onset_kl;
+  else if (strcmp (onset_mode, "specflux") == 0)
+      onset_type = aubio_onset_specflux;
+  else {
+      AUBIO_ERR("unknown onset type.\n");
+      return NULL;
+  }
+  switch(onset_type) {
     /* for both energy and hfc, only fftgrain->norm is required */
     case aubio_onset_energy: 
       break;
@@ -347,7 +382,7 @@ new_aubio_onsetdetection (aubio_onsetdetection_type type,
    * detections on the fly. this would need getting rid of the switch
    * above and always allocate all the structure */
 
-  switch(type) {
+  switch(onset_type) {
     case aubio_onset_energy:
       o->funcpointer = aubio_onsetdetection_energy;
       break;
@@ -375,12 +410,12 @@ new_aubio_onsetdetection (aubio_onsetdetection_type type,
     default:
       break;
   }
-  o->type = type;
+  o->onset_type = onset_type;
   return o;
 }
 
 void del_aubio_onsetdetection (aubio_onsetdetection_t *o){
-  switch(o->type) {
+  switch(o->onset_type) {
     /* for both energy and hfc, only fftgrain->norm is required */
     case aubio_onset_energy: 
       break;

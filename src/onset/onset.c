@@ -88,7 +88,7 @@ void aubio_onset_set_minioi(aubio_onset_t * o, uint_t minioi) {
 }
 
 /* Allocate memory for an onset detection */
-aubio_onset_t * new_aubio_onset (aubio_onsetdetection_type type_onset, 
+aubio_onset_t * new_aubio_onset (char_t * onset_mode, 
     uint_t buf_size, uint_t hop_size, uint_t channels)
 {
   aubio_onset_t * o = AUBIO_NEW(aubio_onset_t);
@@ -99,11 +99,11 @@ aubio_onset_t * new_aubio_onset (aubio_onsetdetection_type type_onset,
   o->wasonset  = 0;
   o->pv = new_aubio_pvoc(buf_size, hop_size, channels);
   o->pp = new_aubio_peakpicker(o->threshold);
-  o->od = new_aubio_onsetdetection(type_onset,buf_size,channels);
+  o->od = new_aubio_onsetdetection(onset_mode,buf_size,channels);
   o->fftgrain = new_cvec(buf_size,channels);
   o->of = new_fvec(1, channels);
   /*if (usedoubled)    {
-    o2 = new_aubio_onsetdetection(type_onset2,buffer_size,channels);
+    o2 = new_aubio_onsetdetection(onset_type2,buffer_size,channels);
     onset2 = new_fvec(1 , channels);
   }*/
   return o;

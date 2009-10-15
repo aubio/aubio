@@ -11,31 +11,31 @@ main ()
 
   aubio_onsetdetection_t *o;
   
-  o = new_aubio_onsetdetection (aubio_onset_energy, win_s, channels);
+  o = new_aubio_onsetdetection ("energy", win_s, channels);
   aubio_onsetdetection_do (o, in, out);
   del_aubio_onsetdetection (o);
 
-  o = new_aubio_onsetdetection (aubio_onset_specdiff, win_s, channels);
+  o = new_aubio_onsetdetection ("energy", win_s, channels);
   aubio_onsetdetection_do (o, in, out);
   del_aubio_onsetdetection (o);
 
-  o = new_aubio_onsetdetection (aubio_onset_hfc, win_s, channels);
+  o = new_aubio_onsetdetection ("hfc", win_s, channels);
   aubio_onsetdetection_do (o, in, out);
   del_aubio_onsetdetection (o);
 
-  o = new_aubio_onsetdetection (aubio_onset_complex, win_s, channels);
+  o = new_aubio_onsetdetection ("complex", win_s, channels);
   aubio_onsetdetection_do (o, in, out);
   del_aubio_onsetdetection (o);
 
-  o = new_aubio_onsetdetection (aubio_onset_phase, win_s, channels);
+  o = new_aubio_onsetdetection ("phase", win_s, channels);
   aubio_onsetdetection_do (o, in, out);
   del_aubio_onsetdetection (o);
 
-  o = new_aubio_onsetdetection (aubio_onset_kl, win_s, channels);
+  o = new_aubio_onsetdetection ("kl", win_s, channels);
   aubio_onsetdetection_do (o, in, out);
   del_aubio_onsetdetection (o);
 
-  o = new_aubio_onsetdetection (aubio_onset_mkl, win_s, channels);
+  o = new_aubio_onsetdetection ("mkl", win_s, channels);
   aubio_onsetdetection_do (o, in, out);
   del_aubio_onsetdetection (o);
 

@@ -78,8 +78,7 @@ extern int usedoubled;
 
 
 /* energy,specdiff,hfc,complexdomain,phase */
-extern aubio_onsetdetection_type type_onset;
-extern aubio_onsetdetection_type type_onset2;
+extern char_t * onset_mode;
 extern smpl_t threshold;
 extern smpl_t silence;
 extern uint_t buffer_size;

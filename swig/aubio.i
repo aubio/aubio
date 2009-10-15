@@ -187,17 +187,7 @@ extern void del_aubio_resampler(aubio_resampler_t *s);
 %#endif /* HAVE_SAMPLERATE */
 
 /* onset detection */
-typedef enum { 
-        aubio_onset_energy, 
-        aubio_onset_specdiff, 
-        aubio_onset_hfc, 
-        aubio_onset_complex, 
-        aubio_onset_phase, 
-        aubio_onset_kl, 
-        aubio_onset_mkl, 
-        aubio_onset_specflux,
-} aubio_onsetdetection_type;
-aubio_onsetdetection_t * new_aubio_onsetdetection(aubio_onsetdetection_type type, uint_t size, uint_t channels);
+aubio_onsetdetection_t * new_aubio_onsetdetection(char * onset_mode, uint_t size, uint_t channels);
 void aubio_onsetdetection_do (aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
 void del_aubio_onsetdetection(aubio_onsetdetection_t *o);
 

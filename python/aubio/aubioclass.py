@@ -69,8 +69,8 @@ class pvoc:
 
 class onsetdetection:
     """ class for aubio_onsetdetection """
-    def __init__(self,type,buf,chan):
-        self.od = new_aubio_onsetdetection(type,buf,chan)
+    def __init__(self,mode,buf,chan):
+        self.od = new_aubio_onsetdetection(mode,buf,chan)
     def do(self,tc,tf):
         aubio_onsetdetection_do(self.od,tc(),tf())
     def __del__(self):
@@ -93,8 +93,8 @@ class onsetpick:
         self.myfft    = cvec(bufsize,channels)
         self.pv       = pvoc(bufsize,hopsize,channels)
         if mode in ['dual'] :
-                self.myod     = onsetdetection(aubio_onset_hfc,bufsize,channels)
-                self.myod2    = onsetdetection(aubio_onset_mkl,bufsize,channels)
+                self.myod     = onsetdetection("hfc",bufsize,channels)
+                self.myod2    = onsetdetection("mkl",bufsize,channels)
                 self.myonset  = fvec(1,channels)
                 self.myonset2 = fvec(1,channels)
         else: 

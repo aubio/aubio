@@ -38,18 +38,6 @@
 extern "C" {
 #endif
 
-/** onsetdetection types */
-typedef enum {
-        aubio_onset_energy,         /**< energy based */          
-        aubio_onset_specdiff,       /**< spectral diff */         
-        aubio_onset_hfc,            /**< high frequency content */
-        aubio_onset_complex,        /**< complex domain */        
-        aubio_onset_phase,          /**< phase fast */            
-        aubio_onset_kl,             /**< Kullback Liebler */
-        aubio_onset_mkl,            /**< modified Kullback Liebler */
-        aubio_onset_specflux,       /**< spectral flux */
-} aubio_onsetdetection_type;
-
 /** onsetdetection structure */
 typedef struct _aubio_onsetdetection_t aubio_onsetdetection_t;
 /** execute onset detection function on a spectral frame 
@@ -69,7 +57,7 @@ void aubio_onsetdetection_do (aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec
   \param channels number of input channels
 
 */
-aubio_onsetdetection_t * new_aubio_onsetdetection(aubio_onsetdetection_type type, uint_t size, uint_t channels);
+aubio_onsetdetection_t * new_aubio_onsetdetection(char_t * onset_mode, uint_t buf_size, uint_t channels);
 /** deletion of an onset detection object
 
   \param o onset detection object as returned by new_aubio_onsetdetection()

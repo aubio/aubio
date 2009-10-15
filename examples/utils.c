@@ -45,8 +45,7 @@ int frames_delay = 0;
 
 
 /* energy,specdiff,hfc,complexdomain,phase */
-aubio_onsetdetection_type type_onset = aubio_onset_kl;
-aubio_onsetdetection_type type_onset2 = aubio_onset_complex;
+char_t * onset_mode = "default";
 smpl_t threshold = 0.3;
 smpl_t silence = -90.;
 uint_t buffer_size = 512;       //1024;
@@ -91,7 +90,6 @@ uint_t isready = 0;
 
 
 /* badly redeclare some things */
-aubio_onsetdetection_type type_onset;
 smpl_t threshold;
 smpl_t averaging;
 const char *prog_name;
@@ -163,29 +161,7 @@ parse_args (int argc, char **argv)
         usejack = 1;
         break;
       case 'O':                /*onset type */
-        if (strcmp (optarg, "energy") == 0)
-          type_onset = aubio_onset_energy;
-        else if (strcmp (optarg, "specdiff") == 0)
-          type_onset = aubio_onset_specdiff;
-        else if (strcmp (optarg, "hfc") == 0)
-          type_onset = aubio_onset_hfc;
-        else if (strcmp (optarg, "complexdomain") == 0)
-          type_onset = aubio_onset_complex;
-        else if (strcmp (optarg, "complex") == 0)
-          type_onset = aubio_onset_complex;
-        else if (strcmp (optarg, "phase") == 0)
-          type_onset = aubio_onset_phase;
-        else if (strcmp (optarg, "mkl") == 0)
-          type_onset = aubio_onset_mkl;
-        else if (strcmp (optarg, "kl") == 0)
-          type_onset = aubio_onset_kl;
-        else if (strcmp (optarg, "specflux") == 0)
-          type_onset = aubio_onset_specflux;
-        else {
-          errmsg ("unknown onset type.\n");
-          abort ();
-        }
-        usedoubled = 0;
+        onset_mode = optarg;
         break;
       case 's':                /* threshold value for onset */
         silence = (smpl_t) atof (optarg);
@@ -331,12 +307,8 @@ examples_common_init (int argc, char **argv)
   pv = new_aubio_pvoc (buffer_size, overlap_size, channels);
   /* onsets */
   parms = new_aubio_peakpicker (threshold);
-  o = new_aubio_onsetdetection (type_onset, buffer_size, channels);
+  o = new_aubio_onsetdetection (onset_mode, buffer_size, channels);
   onset = new_fvec (1, channels);
-  if (usedoubled) {
-    o2 = new_aubio_onsetdetection (type_onset2, buffer_size, channels);
-    onset2 = new_fvec (1, channels);
-  }
 
 }
 

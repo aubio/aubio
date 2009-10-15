@@ -98,7 +98,7 @@ void aubio_tempo_set_threshold(aubio_tempo_t * o, smpl_t threshold) {
 }
 
 /* Allocate memory for an tempo detection */
-aubio_tempo_t * new_aubio_tempo (aubio_onsetdetection_type type_onset, 
+aubio_tempo_t * new_aubio_tempo (char_t * onset_mode, 
     uint_t buf_size, uint_t hop_size, uint_t channels)
 {
   aubio_tempo_t * o = AUBIO_NEW(aubio_tempo_t);
@@ -113,7 +113,7 @@ aubio_tempo_t * new_aubio_tempo (aubio_onsetdetection_type type_onset,
   o->out      = new_fvec(o->step,channels);
   o->pv       = new_aubio_pvoc(buf_size, hop_size, channels);
   o->pp       = new_aubio_peakpicker(o->threshold);
-  o->od       = new_aubio_onsetdetection(type_onset,buf_size,channels);
+  o->od       = new_aubio_onsetdetection(onset_mode,buf_size,channels);
   o->of       = new_fvec(1, channels);
   o->bt       = new_aubio_beattracking(o->winlen,channels);
   /*if (usedoubled)    {

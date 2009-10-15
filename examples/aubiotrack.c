@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
   examples_common_init(argc,argv);
 
   out = new_fvec(2,channels);
-  bt  = new_aubio_tempo(type_onset,buffer_size,overlap_size,channels);
+  bt  = new_aubio_tempo(onset_mode,buffer_size,overlap_size,channels);
 
   examples_common_process(aubio_process,process_print);
 

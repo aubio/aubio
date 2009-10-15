@@ -51,7 +51,7 @@ typedef struct _aubio_onset_t aubio_onset_t;
   \param channels number of channels 
 
 */
-aubio_onset_t * new_aubio_onset (aubio_onsetdetection_type type_onset, 
+aubio_onset_t * new_aubio_onset (char_t * onset_mode, 
     uint_t buf_size, uint_t hop_size, uint_t channels);
 
 /** execute onset detection
