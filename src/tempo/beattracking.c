@@ -23,7 +23,7 @@
 #include "tempo/beattracking.h"
 
 /** define to 1 to print out tracking difficulties */
-#define AUBIO_BEAT_WARNINGS 1
+#define AUBIO_BEAT_WARNINGS 0
 
 uint_t fvec_gettimesig (fvec_t * acf, uint_t acflen, uint_t gp);
 void aubio_beattracking_checkstate (aubio_beattracking_t * bt);
