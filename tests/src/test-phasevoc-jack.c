@@ -9,7 +9,7 @@
 
 #include <unistd.h>  /* sleep() */
 #include <aubio.h>
-#include <aubioext.h>
+#include "jackio.h"
 
 uint_t testing  = 1;  /* change this to 1 to listen        */
 

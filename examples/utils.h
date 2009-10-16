@@ -26,7 +26,10 @@
 #include <math.h>               /* for isfinite */
 #include <string.h>             /* for strcmp */
 #include <aubio.h>
-#include <aubioext.h>
+#include "sndfileio.h"
+#ifdef HAVE_JACK
+#include "jackio.h"
+#endif /* HAVE_JACK */
 
 #ifdef HAVE_C99_VARARGS_MACROS
 #define debug(...)              if (verbose) fprintf (stderr, __VA_ARGS__)

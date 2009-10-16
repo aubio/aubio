@@ -1,12 +1,8 @@
 %module aubiowrapper
 
 %{
-        #include "aubio.h"
-        #include "aubioext.h"
-%}
-
 #include "aubio.h"
-#include "aubioext.h"
+%}
 
 /* type aliases */
 typedef unsigned int uint_t;
@@ -59,18 +55,6 @@ extern smpl_t * cvec_get_phas_channel(cvec_t *s, uint_t channel);
 extern smpl_t ** cvec_get_norm(cvec_t *s);
 extern smpl_t ** cvec_get_phas(cvec_t *s);
 
-
-/* sndfile */
-%#if HAVE_SNDFILE
-extern aubio_sndfile_t * new_aubio_sndfile_ro (const char * inputfile);
-extern aubio_sndfile_t * new_aubio_sndfile_wo(aubio_sndfile_t * existingfile, const char * outputname);
-extern void aubio_sndfile_info(aubio_sndfile_t * file);
-extern int aubio_sndfile_write(aubio_sndfile_t * file, int frames, fvec_t * write);
-extern int aubio_sndfile_read(aubio_sndfile_t * file, int frames, fvec_t * read);
-extern int del_aubio_sndfile(aubio_sndfile_t * file);
-extern uint_t aubio_sndfile_channels(aubio_sndfile_t * file);
-extern uint_t aubio_sndfile_samplerate(aubio_sndfile_t * file);
-%#endif /* HAVE_SNDFILE */
 
 /* fft */
 extern aubio_fft_t * new_aubio_fft(uint_t size, uint_t channels);
@@ -175,16 +159,16 @@ void aubio_mfcc_do(aubio_mfcc_t *mf, cvec_t *in, fvec_t *out);
 
 /* scale */
 extern aubio_scale_t * new_aubio_scale(smpl_t flow, smpl_t fhig, smpl_t ilow, smpl_t ihig);
-extern void aubio_scale_set_limits (aubio_scale_t *s, smpl_t ilow, smpl_t ihig, smpl_t olow, smpl_t ohig);
+extern uint_t aubio_scale_set_limits (aubio_scale_t *s, smpl_t ilow, smpl_t ihig, smpl_t olow, smpl_t ohig);
 extern void aubio_scale_do(aubio_scale_t *s, fvec_t * input);
 extern void del_aubio_scale(aubio_scale_t *s);
 
 /* resampling */
-%#if HAVE_SAMPLERATE
+#if HAVE_SAMPLERATE
 extern aubio_resampler_t * new_aubio_resampler(float ratio, uint_t type);
 extern void aubio_resampler_do (aubio_resampler_t *s, fvec_t * input,  fvec_t * output);
 extern void del_aubio_resampler(aubio_resampler_t *s);
-%#endif /* HAVE_SAMPLERATE */
+#endif /* HAVE_SAMPLERATE */
 
 /* onset detection */
 aubio_onsetdetection_t * new_aubio_onsetdetection(char * onset_mode, uint_t size, uint_t channels);
@@ -201,10 +185,9 @@ void aubio_pvoc_rdo(aubio_pvoc_t *pv, cvec_t * fftgrain, fvec_t *out);
 aubio_pitchdetection_t *new_aubio_pitchdetection (char *pitch_mode,
     uint_t bufsize, uint_t hopsize, uint_t channels, uint_t samplerate);
 void aubio_pitchdetection_do (aubio_pitchdetection_t * p, fvec_t * ibuf, fvec_t * obuf);
-void aubio_pitchdetection_set_tolerance(aubio_pitchdetection_t *p, smpl_t thres);
-void aubio_pitchdetection_set_unit(aubio_pitchdetection_t *p, char * pitch_unit);
+uint_t aubio_pitchdetection_set_tolerance(aubio_pitchdetection_t *p, smpl_t thres);
+uint_t aubio_pitchdetection_set_unit(aubio_pitchdetection_t *p, char * pitch_unit);
 void del_aubio_pitchdetection(aubio_pitchdetection_t * p);
-
 
 /* pitch mcomb */
 aubio_pitchmcomb_t * new_aubio_pitchmcomb(uint_t bufsize, uint_t hopsize, uint_t channels);
@@ -231,14 +214,17 @@ aubio_peakpicker_t * new_aubio_peakpicker(smpl_t threshold);
 smpl_t aubio_peakpicker_do(aubio_peakpicker_t * p, fvec_t * df);
 smpl_t aubio_peakpicker_get_thresholded_input(aubio_peakpicker_t* p);
 void del_aubio_peakpicker(aubio_peakpicker_t * p);
-void aubio_peakpicker_set_threshold(aubio_peakpicker_t * p, smpl_t threshold);
+uint_t aubio_peakpicker_set_threshold(aubio_peakpicker_t * p, smpl_t threshold);
 smpl_t aubio_peakpicker_get_threshold(aubio_peakpicker_t * p);
 
 /* transient/steady state separation */
-aubio_tss_t * new_aubio_tss(smpl_t thrs, smpl_t alfa, smpl_t beta,
-    uint_t size, uint_t overlap,uint_t channels);
-void del_aubio_tss(aubio_tss_t *s);
-void aubio_tss_do(aubio_tss_t *s, cvec_t * input, cvec_t * trans, cvec_t * stead);
+aubio_tss_t *new_aubio_tss (uint_t win_s, uint_t hop_s, uint_t channels);
+void del_aubio_tss (aubio_tss_t * s);
+void aubio_tss_do (aubio_tss_t * s, cvec_t * input, cvec_t * trans,
+    cvec_t * stead);
+uint_t aubio_tss_set_threshold (aubio_tss_t * o, smpl_t thrs);
+uint_t aubio_tss_set_alpha (aubio_tss_t * o, smpl_t alpha);
+uint_t aubio_tss_set_beta (aubio_tss_t * o, smpl_t beta);
 
 /* beattracking */
 aubio_beattracking_t * new_aubio_beattracking(uint_t winlen, uint_t channels);
@@ -247,3 +233,30 @@ void del_aubio_beattracking(aubio_beattracking_t * p);
 smpl_t aubio_beattracking_get_bpm(aubio_beattracking_t * p);
 smpl_t aubio_beattracking_get_confidence(aubio_beattracking_t * p);
 
+/* tempo */
+typedef struct _aubio_tempo_t aubio_tempo_t;
+aubio_tempo_t * new_aubio_tempo (char_t * mode,
+    uint_t buf_size, uint_t hop_size, uint_t channels, uint_t samplerate);
+void aubio_tempo_do (aubio_tempo_t *o, fvec_t * input, fvec_t * tempo);
+uint_t aubio_tempo_set_silence(aubio_tempo_t * o, smpl_t silence);
+uint_t aubio_tempo_set_threshold(aubio_tempo_t * o, smpl_t threshold);
+smpl_t aubio_tempo_get_bpm(aubio_tempo_t * bt);
+smpl_t aubio_tempo_get_confidence(aubio_tempo_t * bt);
+void del_aubio_tempo(aubio_tempo_t * o);
+
+/* sndfile */
+%{
+#if HAVE_SNDFILE
+#include "sndfileio.h"
+%}
+extern aubio_sndfile_t * new_aubio_sndfile_ro (const char * inputfile);
+extern aubio_sndfile_t * new_aubio_sndfile_wo(aubio_sndfile_t * existingfile, const char * outputname);
+extern void aubio_sndfile_info(aubio_sndfile_t * file);
+extern int aubio_sndfile_write(aubio_sndfile_t * file, int frames, fvec_t * write);
+extern int aubio_sndfile_read(aubio_sndfile_t * file, int frames, fvec_t * read);
+extern int del_aubio_sndfile(aubio_sndfile_t * file);
+extern uint_t aubio_sndfile_channels(aubio_sndfile_t * file);
+extern uint_t aubio_sndfile_samplerate(aubio_sndfile_t * file);
+%{
+#endif /* HAVE_SNDFILE */
+%}

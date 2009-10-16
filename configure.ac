@@ -166,7 +166,8 @@ AC_ARG_ENABLE(samplerate,
   [with_samplerate=$enableval],
   with_samplerate="yes")
 if test "$with_samplerate" = "yes"; then
-  PKG_CHECK_MODULES(SAMPLERATE, samplerate  >= 0.0.15,  HAVE_SAMPLERATE=1)
+  PKG_CHECK_MODULES(SAMPLERATE, samplerate  >= 0.0.15,  HAVE_SAMPLERATE=1,
+                    HAVE_SAMPLERATE=0)
   if test "${HAVE_SAMPLERATE}" = "1"; then
     AC_DEFINE(HAVE_SAMPLERATE,1,[Define to enable libsamplerate support])
   fi
@@ -256,7 +257,6 @@ dnl Create Makefiles
 AC_OUTPUT([
     Makefile
     src/Makefile
-    ext/Makefile
     examples/Makefile
     tests/Makefile
     tests/src/Makefile

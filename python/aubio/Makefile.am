@@ -44,21 +44,23 @@ CLEANFILES = *.pyc *.so *.o aubio_wrap.c aubiowrapper.py
 NOWARN_CFLAGS = -Wno-missing-prototypes -Wno-missing-declarations \
 	-Wno-strict-aliasing
 
-AM_CFLAGS = @AUBIO_CFLAGS@ $(NOWARN_CFLAGS) $(SWCFLAGS) \
-	-I$(top_builddir)/src -I$(top_srcdir)/src -I$(top_srcdir)/ext \
+AM_CFLAGS = @AUBIO_CFLAGS@ @SNDFILE_CFLAGS@ \
+	$(NOWARN_CFLAGS) $(SWCFLAGS) \
+	-I$(top_builddir)/src -I$(top_srcdir)/src \
+	-I$(top_srcdir)/examples \
 	-I/usr/include/python${PYTHON_VERSION} \
 	-I${prefix}/include/python${PYTHON_VERSION} \
 	-I/usr/include \
 	-I${prefix}/include
 
 AUBIO_LDFLAGS = $(SWLDFLAGS) \
-	-L$(top_builddir)/ext -laubioext \
+	@SNDFILE_LIBS@ \
 	-L$(top_builddir)/src -laubio
 
 pkgpyexec_LTLIBRARIES = _aubiowrapper.la
 
 _aubiowrapper_la_LDFLAGS = -module -avoid-version $(AUBIO_LDFLAGS) 
-_aubiowrapper_la_SOURCES = aubio_wrap.c
+_aubiowrapper_la_SOURCES = aubio_wrap.c $(top_srcdir)/examples/sndfileio.c
 
 aubio_wrap.c aubiowrapper.py:
 	$(SWIG) -outdir . -o aubio_wrap.c -python $(top_srcdir)/swig/aubio.i

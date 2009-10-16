@@ -1,10 +1,18 @@
+bld.new_task_gen(features = 'cc',
+    includes = '../../examples ../../src',
+    source = ['../../examples/sndfileio.c'], 
+    uselib = ['JACK'],
+    target = 'sndfileio')
+
 pyaubio = bld.new_task_gen(name = 'python-aubio', 
   features = 'cc cshlib pyext', 
   source = '../../swig/aubio.i',
+  add_objects = 'sndfileio',
   target = '_aubiowrapper',
-  uselib_local = ['aubio', 'aubioext'],
+  uselib_local = ['aubio'],
+  uselib = ['SNDFILE'],
   swig_flags = '-python -Wall',
-  includes = '. ../../src ../../ext')
+  includes = '. ../../src ../../examples')
 pyaubio.install_path = '${PYTHONDIR}/${PACKAGE}'
 
 # install python files 

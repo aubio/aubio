@@ -136,7 +136,7 @@ def build(bld):
   bld.env['LIB_VERSION'] = LIB_VERSION 
 
   # add sub directories
-  bld.add_subdirs('src ext examples interfaces/cpp')
+  bld.add_subdirs('src examples interfaces/cpp')
   if bld.env['SWIG']:
     if bld.env['PYTHON']:
       bld.add_subdirs('python/aubio python')
@@ -187,8 +187,11 @@ def build_tests(bld):
         source = target_name,
         target = target_name.split('.')[0],
         includes = 'src',
+        defines = 'AUBIO_UNSTABLE_API=1',
         uselib_local = 'aubio')
-    # phasevoc-jack also needs aubioext
+    # phasevoc-jack also needs jack 
     if target_name.endswith('test-phasevoc-jack.c'):
-      this_target.includes = ['src', 'ext']
-      this_target.uselib_local = ['aubio', 'aubioext']
+      this_target.includes = ['src', 'examples']
+      this_target.uselib_local = ['aubio']
+      this_target.uselib = ['JACK']
+      this_target.source += ' examples/jackio.c'

@@ -13,7 +13,7 @@ endif
 endif
 
 
-SUBDIRS = src ext interfaces/cpp examples sounds plugins $(PYTHONDIR) $(SWIGDIR) $(JAVADIR) $(DOC) tests
+SUBDIRS = src interfaces/cpp examples sounds plugins $(PYTHONDIR) $(SWIGDIR) $(JAVADIR) $(DOC) tests
 EXTRA_DIST = bootstrap VERSION
 
 docs:
