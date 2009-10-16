@@ -1,7 +1,7 @@
 #include <aubio.h>
 #include <stdlib.h>
 
-int main( int argc, char** argv )
+int main( )
 {
   uint_t length;
   for (length = 2; length <= 5; length++)
