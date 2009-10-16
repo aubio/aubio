@@ -42,11 +42,7 @@
 extern int frames;
 extern int verbose;
 extern int usejack;
-extern int usedoubled;
 extern int frames_delay;
-extern unsigned int median;
-extern const char *output_filename;
-extern const char *input_filename;
 /* defined in utils.c */
 void usage (FILE * stream, int exit_code);
 int parse_args (int argc, char **argv);
@@ -59,64 +55,23 @@ typedef int (*aubio_process_func_t)
 #endif
 void examples_common_process (aubio_process_func_t process_func,
     aubio_print_func_t print);
-void flush_process (aubio_process_func_t process_func,
-    aubio_print_func_t print);
 
+extern char_t * pitch_unit;
+extern char_t * pitch_mode;
 
 void send_noteon (int pitch, int velo);
-/** append new note candidate to the note_buffer and return filtered value. we
- * need to copy the input array as fvec_median destroy its input data.*/
-void note_append (fvec_t * note_buffer, smpl_t curnote);
-uint_t get_note (fvec_t * note_buffer, fvec_t * note_buffer2);
 
 extern const char *output_filename;
-extern const char *input_filename;
-extern const char *onset_filename;
-extern int verbose;
-extern int usejack;
-extern int usedoubled;
-
-
-/* energy,specdiff,hfc,complexdomain,phase */
 extern char_t * onset_mode;
 extern smpl_t threshold;
 extern smpl_t silence;
+extern int verbose;
+extern int usejack;
 extern uint_t buffer_size;
 extern uint_t overlap_size;
 extern uint_t channels;
 extern uint_t samplerate;
 
-
-extern aubio_sndfile_t *file;
-extern aubio_sndfile_t *fileout;
-
-extern aubio_pvoc_t *pv;
 extern fvec_t *ibuf;
 extern fvec_t *obuf;
-extern fvec_t *pitch_obuf;
-extern cvec_t *fftgrain;
 extern fvec_t *woodblock;
-extern aubio_onsetdetection_t *o;
-extern aubio_onsetdetection_t *o2;
-extern fvec_t *onset;
-extern fvec_t *onset2;
-extern smpl_t isonset;
-extern aubio_peakpicker_t *parms;
-
-
-/* pitch objects */
-extern smpl_t pitch;
-extern aubio_pitchdetection_t *pitchdet;
-extern uint_t median;
-
-extern fvec_t *note_buffer;
-extern fvec_t *note_buffer2;
-extern smpl_t curlevel;
-extern smpl_t maxonset;
-
-extern smpl_t curnote;
-extern smpl_t newnote;
-extern uint_t isready;
-
-/* per example param */
-extern uint_t usepitch;

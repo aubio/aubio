@@ -20,7 +20,6 @@
 
 unsigned int pos = 0; /*frames%dspblocksize*/
 sint_t wassilence = 1, issilence;
-uint_t usepitch = 0;
 
 int aubio_process(smpl_t **input, smpl_t **output, int nframes);
 int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
@@ -55,8 +54,7 @@ int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
   return 1;
 }
 
-void process_print (void);
-void process_print (void) {
+static void process_print (void) {
       int curframes = (frames - 4) > 0 ? frames -4 : 0;
       if (issilence == -1) {
           outmsg("NOISY: %f\n",curframes*overlap_size/(float)samplerate);

@@ -19,14 +19,13 @@
 #include <aubio.h>
 #include "utils.h"
 
-unsigned int pos          = 0;    /* frames%dspblocksize */
-uint_t usepitch           = 0;
-fvec_t * out              = NULL;
-aubio_tempo_t * bt        = NULL;
-smpl_t istactus           = 0;
+uint_t pos = 0;    /* frames%dspblocksize */
+fvec_t * tempo_out = NULL;
+aubio_tempo_t * bt = NULL;
+smpl_t istactus = 0;
+smpl_t isonset = 0;
 
-int aubio_process(smpl_t **input, smpl_t **output, int nframes);
-int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
+static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
   unsigned int i;       /*channels*/
   unsigned int j;       /*frames*/
   for (j=0;j<(unsigned)nframes;j++) {
@@ -41,11 +40,15 @@ int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
     /*time for fft*/
     if (pos == overlap_size-1) {         
       /* block loop */
-      aubio_tempo_do (bt,ibuf,out);
-      if (out->data[0][0]>=1) 
-        istactus = out->data[0][0];
+      aubio_tempo_do (bt,ibuf,tempo_out);
+      if (tempo_out->data[0][0]>0) 
+        istactus = tempo_out->data[0][0];
       else 
         istactus = 0;
+      if (tempo_out->data[0][1]>0) 
+        isonset = tempo_out->data[0][0];
+      else 
+        isonset = 0;
       if (istactus) {
               for (pos = 0; pos < overlap_size; pos++)
                       obuf->data[0][pos] = woodblock->data[0][pos];
@@ -61,8 +64,7 @@ int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
   return 1;
 }
 
-void process_print (void);
-void process_print (void) {
+static void process_print (void) {
         if (output_filename == NULL) {
                 if (istactus) {
                         outmsg("%f\n",((smpl_t)(frames*overlap_size)+(istactus-1.)*overlap_size)/(smpl_t)samplerate); 
@@ -79,13 +81,13 @@ int main(int argc, char **argv) {
   /* override default settings */
   examples_common_init(argc,argv);
 
-  out = new_fvec(2,channels);
-  bt  = new_aubio_tempo(onset_mode,buffer_size,overlap_size,channels);
+  tempo_out = new_fvec(2,channels);
+  bt = new_aubio_tempo(onset_mode,buffer_size,overlap_size,channels, samplerate);
 
   examples_common_process(aubio_process,process_print);
 
   del_aubio_tempo(bt);
-  del_fvec(out);
+  del_fvec(tempo_out);
 
   examples_common_del();
 

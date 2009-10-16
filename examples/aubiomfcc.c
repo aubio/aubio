@@ -22,15 +22,15 @@
 /* mfcc objects */
 fvec_t * mfcc_out;
 aubio_mfcc_t * mfcc;
+aubio_pvoc_t *pv;
+cvec_t *fftgrain;
 
 uint_t n_filters = 40;
 uint_t n_coefs = 13;
 
 unsigned int pos = 0; /*frames%dspblocksize*/
-uint_t usepitch = 0;
 
-int aubio_process(smpl_t **input, smpl_t **output, int nframes);
-int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
+static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
   unsigned int i;       /*channels*/
   unsigned int j;       /*frames*/
   
@@ -61,8 +61,7 @@ int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
   return 1;
 }
 
-void process_print (void);
-void process_print (void) {
+static void process_print (void) {
       /* output times in seconds
          write extracted mfccs
       */
@@ -83,16 +82,23 @@ int main(int argc, char **argv) {
   overlap_size = 256;
   
   examples_common_init(argc,argv);
-  mfcc_out = new_fvec(n_coefs,channels);
-  
-  
+
+  /* phase vocoder */
+  pv = new_aubio_pvoc (buffer_size, overlap_size, channels);
+
+  fftgrain = new_cvec (buffer_size, channels);
+
   //populating the filter
-  mfcc = new_aubio_mfcc(buffer_size, samplerate, n_filters, n_coefs);
+  mfcc = new_aubio_mfcc(buffer_size, n_filters, n_coefs, samplerate);
+  
+  mfcc_out = new_fvec(n_coefs,channels);
   
   //process
   examples_common_process(aubio_process,process_print);
   
   //destroying mfcc 
+  del_aubio_pvoc (pv);
+  del_cvec (fftgrain);
   del_aubio_mfcc(mfcc);
   del_fvec(mfcc_out);
 

@@ -18,6 +18,14 @@
 
 */
 
+/** 
+
+  This file includes some tools common to all examples. Code specific to the
+  algorithm performed by each program should go in the source file of that
+  program instead.
+
+*/
+
 #include "utils.h"
 
 #ifdef HAVE_LASH
@@ -40,9 +48,11 @@ const char *onset_filename =
 int frames = 0;
 int verbose = 0;
 int usejack = 0;
-int usedoubled = 1;
 int frames_delay = 0;
 
+
+char_t * pitch_unit = "default";
+char_t * pitch_mode = "default";
 
 /* energy,specdiff,hfc,complexdomain,phase */
 char_t * onset_mode = "default";
@@ -57,41 +67,17 @@ uint_t samplerate = 44100;
 aubio_sndfile_t *file = NULL;
 aubio_sndfile_t *fileout = NULL;
 
-aubio_pvoc_t *pv;
 fvec_t *ibuf;
 fvec_t *obuf;
-fvec_t *pitch_obuf;
-cvec_t *fftgrain;
 fvec_t *woodblock;
-aubio_onsetdetection_t *o;
-fvec_t *onset;
-fvec_t *onset2;
-smpl_t isonset = 0;
-aubio_peakpicker_t *parms;
-
-
-/* pitch objects */
-smpl_t pitch = 0.;
-aubio_pitchdetection_t *pitchdet;
-char_t * pitch_unit = "default";
-char_t * pitch_mode = "default";
-uint_t median = 6;
-
-fvec_t *note_buffer = NULL;
-fvec_t *note_buffer2 = NULL;
-smpl_t curlevel = 0.;
-smpl_t maxonset = 0.;
-
-smpl_t curnote = 0.;
-smpl_t newnote = 0.;
-uint_t isready = 0;
-
-
 
 /* badly redeclare some things */
 smpl_t threshold;
 smpl_t averaging;
 const char *prog_name;
+
+void flush_process (aubio_process_func_t process_func,
+    aubio_print_func_t print);
 
 void
 usage (FILE * stream, int exit_code)
@@ -221,6 +207,7 @@ void
 examples_common_init (int argc, char **argv)
 {
 
+  uint_t found_wood = 0;
 
   aubio_sndfile_t *onsetfile = NULL;
   /* parse command line arguments */
@@ -229,7 +216,7 @@ examples_common_init (int argc, char **argv)
   woodblock = new_fvec (buffer_size, 1);
   if (output_filename || usejack) {
     /* dummy assignement to keep egcs happy */
-    isonset = (onsetfile = new_aubio_sndfile_ro (onset_filename)) ||
+    found_wood = (onsetfile = new_aubio_sndfile_ro (onset_filename)) ||
         (onsetfile = new_aubio_sndfile_ro ("sounds/woodblock.aiff")) ||
         (onsetfile = new_aubio_sndfile_ro ("../sounds/woodblock.aiff"));
     if (onsetfile == NULL) {
@@ -276,25 +263,6 @@ examples_common_init (int argc, char **argv)
 
   ibuf = new_fvec (overlap_size, channels);
   obuf = new_fvec (overlap_size, channels);
-  fftgrain = new_cvec (buffer_size, channels);
-
-  if (usepitch) {
-    pitchdet = new_aubio_pitchdetection (pitch_mode, buffer_size * 4,
-        overlap_size, channels, samplerate);
-    aubio_pitchdetection_set_tolerance (pitchdet, 0.7);
-    pitch_obuf = new_fvec (1, channels);
-
-    if (median) {
-      note_buffer = new_fvec (median, 1);
-      note_buffer2 = new_fvec (median, 1);
-    }
-  }
-  /* phase vocoder */
-  pv = new_aubio_pvoc (buffer_size, overlap_size, channels);
-  /* onsets */
-  parms = new_aubio_peakpicker (threshold);
-  o = new_aubio_onsetdetection (onset_mode, buffer_size, channels);
-  onset = new_fvec (1, channels);
 
 }
 
@@ -302,22 +270,8 @@ examples_common_init (int argc, char **argv)
 void
 examples_common_del (void)
 {
-  if (usepitch) {
-    send_noteon (curnote, 0);
-    del_aubio_pitchdetection (pitchdet);
-    if (median) {
-      del_fvec (note_buffer);
-      del_fvec (note_buffer2);
-    }
-    del_fvec (pitch_obuf);
-  }
-  del_aubio_onsetdetection (o);
-  del_aubio_peakpicker (parms);
-  del_aubio_pvoc (pv);
-  del_fvec (obuf);
   del_fvec (ibuf);
-  del_cvec (fftgrain);
-  del_fvec (onset);
+  del_fvec (obuf);
   del_fvec (woodblock);
   aubio_cleanup ();
 }
@@ -354,7 +308,6 @@ examples_common_process (aubio_process_func_t process_func,
 
     while ((signed) overlap_size == aubio_sndfile_read (file, overlap_size,
             ibuf)) {
-      isonset = 0;
       process_func (ibuf->data, obuf->data, overlap_size);
       print ();
       if (output_filename != NULL) {
@@ -414,27 +367,6 @@ send_noteon (int pitch, int velo)
   }
 }
 
-
-void
-note_append (fvec_t * note_buffer, smpl_t curnote)
-{
-  uint_t i = 0;
-  for (i = 0; i < note_buffer->length - 1; i++) {
-    note_buffer->data[0][i] = note_buffer->data[0][i + 1];
-  }
-  note_buffer->data[0][note_buffer->length - 1] = curnote;
-  return;
-}
-
-uint_t
-get_note (fvec_t * note_buffer, fvec_t * note_buffer2)
-{
-  uint_t i = 0;
-  for (i = 0; i < note_buffer->length; i++) {
-    note_buffer2->data[0][i] = note_buffer->data[0][i];
-  }
-  return fvec_median (note_buffer2);
-}
 
 #if HAVE_LASH
 

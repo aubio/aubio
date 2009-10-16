@@ -19,10 +19,11 @@
 #include "utils.h"
 
 unsigned int pos = 0; /*frames%dspblocksize*/
-uint_t usepitch = 0;
 
-int aubio_process(smpl_t **input, smpl_t **output, int nframes);
-int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
+aubio_onset_t *o;
+fvec_t *onset;
+
+static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
   unsigned int i;       /*channels*/
   unsigned int j;       /*frames*/
   for (j=0;j<(unsigned)nframes;j++) {
@@ -37,20 +38,15 @@ int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
     /*time for fft*/
     if (pos == overlap_size-1) {         
       /* block loop */
-      aubio_pvoc_do (pv,ibuf, fftgrain);
-      aubio_onsetdetection_do (o,fftgrain, onset);
-      isonset = aubio_peakpicker_do(parms, onset);
-      if (isonset) {
-        /* test for silence */
-        if (aubio_silence_detection(ibuf, silence)==1)
-          isonset=0.;
-        else
-          for (pos = 0; pos < overlap_size; pos++){
-            obuf->data[0][pos] = woodblock->data[0][pos];
-          }
+      aubio_onset_do (o, ibuf, onset);
+      if (fvec_read_sample(onset, 0, 0)) {
+        for (pos = 0; pos < overlap_size; pos++){
+          obuf->data[0][pos] = woodblock->data[0][pos];
+        }
       } else {
-        for (pos = 0; pos < overlap_size; pos++)
+        for (pos = 0; pos < overlap_size; pos++) {
           obuf->data[0][pos] = 0.;
+        }
       }
       /* end of block loop */
       pos = -1; /* so it will be zero next j loop */
@@ -60,14 +56,16 @@ int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
   return 1;
 }
 
-void process_print (void);
-void process_print (void) {
+static void process_print (void) {
       /* output times in seconds, taking back some 
        * delay to ensure the label is _before_ the
        * actual onset */
-      if (isonset && output_filename == NULL) {
+      if (!verbose && usejack) return;
+      smpl_t onset_found = fvec_read_sample(onset, 0, 0);
+      if (onset_found) {
         if(frames >= 4) {
-          outmsg("%f\n",(frames - frames_delay + isonset)*overlap_size/(float)samplerate);
+          outmsg("%f\n",(frames - frames_delay + onset_found) 
+                  *overlap_size/(float)samplerate);
         } else if (frames < frames_delay) {
           outmsg("%f\n",0.);
         }
@@ -77,7 +75,16 @@ void process_print (void) {
 int main(int argc, char **argv) {
   frames_delay = 3;
   examples_common_init(argc,argv);
+
+  o = new_aubio_onset (onset_mode, buffer_size, overlap_size, channels,
+          samplerate);
+  onset = new_fvec (1, channels);
+
   examples_common_process(aubio_process,process_print);
+
+  del_aubio_onset (o);
+  del_fvec (onset);
+
   examples_common_del();
   debug("End of program.\n");
   fflush(stderr);
