@@ -14,7 +14,7 @@ main (void)
   uint_t i = 0;
 
   /* allocate fft and other memory space */
-  aubio_mfcc_t *o = new_aubio_mfcc (win_s, samplerate, n_filters, n_coefs);
+  aubio_mfcc_t *o = new_aubio_mfcc (win_s, n_filters, n_coefs, samplerate);
 
   for (i = 0; i < in->length; i ++) {
     in->norm[0][i] = 1.;
