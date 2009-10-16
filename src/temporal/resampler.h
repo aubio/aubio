@@ -29,6 +29,8 @@
  
 */
 
+#if HAVE_SAMPLERATE
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -59,5 +61,7 @@ void aubio_resampler_do (aubio_resampler_t *s, fvec_t * input,  fvec_t * output)
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* HAVE_SAMPLERATE */
 
 #endif /* _RESAMPLE_H */
