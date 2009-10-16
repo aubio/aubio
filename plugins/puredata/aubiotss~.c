@@ -20,8 +20,6 @@ typedef struct _aubiotss_tilde
 {
 	t_object x_obj;
 	t_float thres;	
-	t_float alpha;	
-	t_float beta;	
 	t_int pos; /*frames%dspblocksize*/
 	t_int bufsize;
 	t_int hopsize;
@@ -54,7 +52,7 @@ static t_int *aubiotss_tilde_perform(t_int *w)
 			/* test for silence */
 			//if (!aubio_silence_detection(x->vec, x->threshold2))
 			aubio_pvoc_do  (x->pv,  x->vec, x->fftgrain);
-			aubio_tss_set_thres( x->tss, x->thres);
+			aubio_tss_set_threshold ( x->tss, x->thres);
 			aubio_tss_do   (x->tss, x->fftgrain, x->ctrans, x->cstead);
 			aubio_pvoc_rdo (x->pvt, x->ctrans, x->trans);
 			aubio_pvoc_rdo (x->pvs, x->cstead, x->stead);
@@ -93,8 +91,6 @@ static void *aubiotss_tilde_new (t_floatarg f)
 	x->thres    = (f < 1e-5) ? 0.01 : (f > 1.) ? 1. : f;
 	x->bufsize  = 1024; //(bufsize < 64) ? 1024: (bufsize > 16385) ? 16385: bufsize;
 	x->hopsize  = x->bufsize / 4;
-	x->alpha    = 3.;
-	x->beta     = 4.;
 
 	x->vec = (fvec_t *)new_fvec(x->hopsize,1);
 
@@ -109,8 +105,7 @@ static void *aubiotss_tilde_new (t_floatarg f)
 	x->pvt = (aubio_pvoc_t *)new_aubio_pvoc(x->bufsize, x->hopsize, 1);
 	x->pvs = (aubio_pvoc_t *)new_aubio_pvoc(x->bufsize, x->hopsize, 1);
 
-	x->tss = (aubio_tss_t *)new_aubio_tss(x->thres, x->alpha, x->beta, 
-			x->bufsize, x->hopsize, 1);
+	x->tss = (aubio_tss_t *)new_aubio_tss(x->bufsize, x->hopsize, 1);
 
   	floatinlet_new (&x->x_obj, &x->thres);
 	outlet_new(&x->x_obj, gensym("signal"));

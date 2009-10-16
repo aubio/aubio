@@ -17,7 +17,7 @@
 
 */
 
-/* default values : alfa=4, beta=3, threshold=0.25 */
+/* default values : alpha=4, beta=3, threshold=0.25 */
 
 #include "aubio_priv.h"
 #include "fvec.h"
@@ -25,10 +25,10 @@
 #include "mathutils.h"
 #include "spectral/tss.h"
 
-struct _aubio_tss_t 
+struct _aubio_tss_t
 {
-  smpl_t thrs;
-  smpl_t alfa;
+  smpl_t threshold;
+  smpl_t alpha;
   smpl_t beta;
   smpl_t parm;
   smpl_t thrsfact;
@@ -43,10 +43,10 @@ void aubio_tss_do(aubio_tss_t *o, cvec_t * input,
     cvec_t * trans, cvec_t * stead)
 {
   uint_t i,j;
-  uint_t test;	
+  uint_t test;
   uint_t nbins     = input->length;
   uint_t channels  = input->channels;
-  smpl_t alfa      = o->alfa;
+  smpl_t alpha     = o->alpha;
   smpl_t beta      = o->beta;
   smpl_t parm      = o->parm;
   smpl_t ** dev    = (smpl_t **)o->dev->data;
@@ -82,9 +82,9 @@ void aubio_tss_do(aubio_tss_t *o, cvec_t * input,
       test = (stead->norm[i][j]==0.);
       oft2[i][j]  = test;
       test = (trans->norm[i][j]>0.);
-      oft1[i][j] += alfa*test;
+      oft1[i][j] += alpha*test;
       test = (stead->norm[i][j]>0.);
-      oft2[i][j] += alfa*test;
+      oft2[i][j] += alpha*test;
       test = (oft1[i][j]>1. && trans->norm[i][j]>0.);
       oft1[i][j] += beta*test;
       test = (oft2[i][j]>1. && stead->norm[i][j]>0.);
@@ -93,21 +93,21 @@ void aubio_tss_do(aubio_tss_t *o, cvec_t * input,
   }
 }
 
-void aubio_tss_set_thres(aubio_tss_t *o, smpl_t thrs){
-	o->thrs = thrs;
-  	o->parm = thrs*o->thrsfact;
+uint_t aubio_tss_set_threshold(aubio_tss_t *o, smpl_t threshold){
+  o->threshold = threshold;
+  o->parm = o->threshold * o->thrsfact;
+  return AUBIO_OK;
 }
 
-aubio_tss_t * new_aubio_tss(smpl_t thrs, smpl_t alfa, smpl_t beta, 
-    uint_t size, uint_t overlap,uint_t channels)
+aubio_tss_t * new_aubio_tss(uint_t buf_size, uint_t hop_size, uint_t channels)
 {
   aubio_tss_t * o = AUBIO_NEW(aubio_tss_t);
-  uint_t rsize = size/2+1;
-  o->thrs = thrs;
-  o->thrsfact = TWO_PI*overlap/rsize;
-  o->alfa = alfa;	
-  o->beta = beta;	
-  o->parm = thrs*o->thrsfact;
+  uint_t rsize = buf_size/2+1;
+  o->threshold = 0.25;
+  o->thrsfact = TWO_PI*hop_size/rsize;
+  o->alpha = 3.;
+  o->beta = 4.;
+  o->parm = o->threshold*o->thrsfact;
   o->theta1 = new_fvec(rsize,channels);
   o->theta2 = new_fvec(rsize,channels);
   o->oft1 = new_fvec(rsize,channels);
@@ -124,5 +124,15 @@ void del_aubio_tss(aubio_tss_t *s)
   free(s->oft2);
   free(s->dev);
   free(s);
+}
+
+uint_t aubio_tss_set_alpha(aubio_tss_t *o, smpl_t alpha){
+  o->alpha = alpha;
+  return AUBIO_OK;
+}
+
+uint_t aubio_tss_set_beta(aubio_tss_t *o, smpl_t beta){
+  o->beta = beta;
+  return AUBIO_OK;
 }
 

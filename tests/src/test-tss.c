@@ -25,7 +25,7 @@ int main(){
         aubio_pvoc_t * pvt = new_aubio_pvoc(win_s,hop_s,channels);
         aubio_pvoc_t * pvs = new_aubio_pvoc(win_s,hop_s,channels);
 
-	aubio_tss_t *  tss = new_aubio_tss(0.01,3.,4.,win_s,hop_s,channels);
+	aubio_tss_t *  tss = new_aubio_tss(win_s,hop_s,channels);
         /* fill input with some data */
         printf("initialised\n");
         /* execute stft */

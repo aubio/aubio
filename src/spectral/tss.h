@@ -27,7 +27,9 @@
   Christopher Duxbury, Mike E. Davies, and Mark B. Sandler. Separation of
   transient information in musical audio using multiresolution analysis
   techniques. In Proceedings of the Digital Audio Effects Conference, DAFx-01,
-  pages 1­5, Limerick, Ireland, 2001.
+  pages 1--5, Limerick, Ireland, 2001.
+
+  Available at http://www.csis.ul.ie/dafx01/proceedings/papers/duxbury.pdf
 
 */
 
@@ -38,44 +40,59 @@
 extern "C" {
 #endif
 
-/** TSS object */
+/** Transient / Steady-state Separation object */
 typedef struct _aubio_tss_t aubio_tss_t;
 
 /** create tss object
 
-  \param thrs separation threshold
-  \param alfa alfa parameter
-  \param beta beta parameter
-  \param size buffer size
-  \param overlap step size
+  \param win_s buffer size
+  \param hop_s step size
   \param channels number of input channels
 
 */
-aubio_tss_t * new_aubio_tss(smpl_t thrs, smpl_t alfa, smpl_t beta, 
-    uint_t win_s, uint_t hop_s, uint_t channels);
+aubio_tss_t *new_aubio_tss (uint_t win_s, uint_t hop_s, uint_t channels);
+
 /** delete tss object
 
-  \param s tss object as returned by new_aubio_tss
+  \param o tss object as returned by new_aubio_tss()
 
 */
-void del_aubio_tss(aubio_tss_t *s);
+void del_aubio_tss (aubio_tss_t * o);
 
-/** set transient / steady state separation threshold 
- 
-  \param tss tss object as returned by new_aubio_tss
-  \param thrs new threshold value
-
-*/
-void aubio_tss_set_thres(aubio_tss_t *tss, smpl_t thrs);
 /** split input into transient and steady states components
  
-  \param s tss object as returned by new_aubio_tss
+  \param o tss object as returned by new_aubio_tss()
   \param input input spectral frame
   \param trans output transient components
   \param stead output steady state components
 
 */
-void aubio_tss_do(aubio_tss_t *s, cvec_t * input, cvec_t * trans, cvec_t * stead);
+void aubio_tss_do (aubio_tss_t * o, cvec_t * input, cvec_t * trans,
+    cvec_t * stead);
+
+/** set transient / steady state separation threshold 
+ 
+  \param o tss object as returned by new_aubio_tss()
+  \param thrs new threshold value
+
+*/
+uint_t aubio_tss_set_threshold (aubio_tss_t * o, smpl_t thrs);
+
+/** set parameter a, defaults to 3
+ 
+  \param o tss object as returned by new_aubio_tss()
+  \param alpha new value for alpha parameter
+
+*/
+uint_t aubio_tss_set_alpha (aubio_tss_t * o, smpl_t alpha);
+
+/** set parameter b, defaults to 3
+ 
+  \param o tss object as returned by new_aubio_tss()
+  \param beta new value for beta parameter
+
+*/
+uint_t aubio_tss_set_beta (aubio_tss_t * o, smpl_t beta);
 
 #ifdef __cplusplus
 }
