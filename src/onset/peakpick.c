@@ -126,18 +126,18 @@ smpl_t aubio_peakpicker_get_thresholded_input(aubio_peakpicker_t * p)
 }
 
 /** function added by Miguel Ramirez to return the onset detection amplitude in peakval */
-void aubio_peakpicker_set_threshold(aubio_peakpicker_t * p, smpl_t threshold) {
+uint_t aubio_peakpicker_set_threshold(aubio_peakpicker_t * p, smpl_t threshold) {
 	p->threshold = threshold;
-	return;
+	return AUBIO_OK;
 }
 
 smpl_t aubio_peakpicker_get_threshold(aubio_peakpicker_t * p) {
 	return p->threshold;
 }
 
-void aubio_peakpicker_set_thresholdfn(aubio_peakpicker_t * p, aubio_thresholdfn_t thresholdfn) {
+uint_t aubio_peakpicker_set_thresholdfn(aubio_peakpicker_t * p, aubio_thresholdfn_t thresholdfn) {
 	p->thresholdfn = thresholdfn;
-	return;
+	return AUBIO_OK;
 }
 
 aubio_thresholdfn_t aubio_peakpicker_get_thresholdfn(aubio_peakpicker_t * p) {

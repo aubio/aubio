@@ -47,11 +47,11 @@ smpl_t aubio_peakpicker_get_thresholded_input(aubio_peakpicker_t * p);
 void del_aubio_peakpicker(aubio_peakpicker_t * p);
 
 /** set peak picking threshold */
-void aubio_peakpicker_set_threshold(aubio_peakpicker_t * p, smpl_t threshold);
+uint_t aubio_peakpicker_set_threshold(aubio_peakpicker_t * p, smpl_t threshold);
 /** get peak picking threshold */
 smpl_t aubio_peakpicker_get_threshold(aubio_peakpicker_t * p);
 /** set peak picker thresholding function */
-void aubio_peakpicker_set_thresholdfn(aubio_peakpicker_t * p, aubio_thresholdfn_t thresholdfn);
+uint_t aubio_peakpicker_set_thresholdfn(aubio_peakpicker_t * p, aubio_thresholdfn_t thresholdfn);
 /** get peak picker thresholding function */
 aubio_thresholdfn_t aubio_peakpicker_get_thresholdfn(aubio_peakpicker_t * p);
 
