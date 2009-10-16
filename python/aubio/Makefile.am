@@ -7,7 +7,6 @@ nobase_pkgpython_PYTHON = \
 	aubioclass.py \
 	task/__init__.py \
 	task/params.py \
-	task/utils.py \
 	task/onset.py \
 	task/silence.py \
 	task/cut.py \
