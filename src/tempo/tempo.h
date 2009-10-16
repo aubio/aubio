@@ -44,10 +44,10 @@ aubio_tempo_t * new_aubio_tempo (char_t * mode,
 void aubio_tempo_do (aubio_tempo_t *o, fvec_t * input, fvec_t * tempo);
 
 /** set tempo detection silence threshold  */
-void aubio_tempo_set_silence(aubio_tempo_t * o, smpl_t silence);
+uint_t aubio_tempo_set_silence(aubio_tempo_t * o, smpl_t silence);
 
 /** set tempo detection peak picking threshold  */
-void aubio_tempo_set_threshold(aubio_tempo_t * o, smpl_t threshold);
+uint_t aubio_tempo_set_threshold(aubio_tempo_t * o, smpl_t threshold);
 
 /** get current tempo
 

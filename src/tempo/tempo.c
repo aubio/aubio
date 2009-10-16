@@ -86,15 +86,15 @@ void aubio_tempo_do(aubio_tempo_t *o, fvec_t * input, fvec_t * tempo)
   }
 }
 
-void aubio_tempo_set_silence(aubio_tempo_t * o, smpl_t silence) {
+uint_t aubio_tempo_set_silence(aubio_tempo_t * o, smpl_t silence) {
   o->silence = silence;
-  return;
+  return AUBIO_OK;
 }
 
-void aubio_tempo_set_threshold(aubio_tempo_t * o, smpl_t threshold) {
+uint_t aubio_tempo_set_threshold(aubio_tempo_t * o, smpl_t threshold) {
   o->threshold = threshold;
   aubio_peakpicker_set_threshold(o->pp, o->threshold);
-  return;
+  return AUBIO_OK;
 }
 
 /* Allocate memory for an tempo detection */
