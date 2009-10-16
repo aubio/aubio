@@ -69,7 +69,7 @@ void aubio_onset_do (aubio_onset_t *o, fvec_t * input, fvec_t * onset);
   \param silence new silence detection threshold
 
 */
-void aubio_onset_set_silence(aubio_onset_t * o, smpl_t silence);
+uint_t aubio_onset_set_silence(aubio_onset_t * o, smpl_t silence);
 
 /** set onset detection peak picking threshold 
 
@@ -77,7 +77,7 @@ void aubio_onset_set_silence(aubio_onset_t * o, smpl_t silence);
   \param threshold new peak-picking threshold
 
 */
-void aubio_onset_set_threshold(aubio_onset_t * o, smpl_t threshold);
+uint_t aubio_onset_set_threshold(aubio_onset_t * o, smpl_t threshold);
 
 /** set minimum inter onset interval
 
@@ -86,7 +86,7 @@ void aubio_onset_set_threshold(aubio_onset_t * o, smpl_t threshold);
   hop_size/samplerare)
 
 */
-void aubio_onset_set_minioi(aubio_onset_t * o, uint_t minioi);
+uint_t aubio_onset_set_minioi(aubio_onset_t * o, uint_t minioi);
 
 /** delete onset detection object
 

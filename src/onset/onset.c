@@ -71,20 +71,20 @@ void aubio_onset_do (aubio_onset_t *o, fvec_t * input, fvec_t * onset)
   return;
 }
 
-void aubio_onset_set_silence(aubio_onset_t * o, smpl_t silence) {
+uint_t aubio_onset_set_silence(aubio_onset_t * o, smpl_t silence) {
   o->silence = silence;
-  return;
+  return AUBIO_OK;
 }
 
-void aubio_onset_set_threshold(aubio_onset_t * o, smpl_t threshold) {
+uint_t aubio_onset_set_threshold(aubio_onset_t * o, smpl_t threshold) {
   o->threshold = threshold;
   aubio_peakpicker_set_threshold(o->pp, o->threshold);
-  return;
+  return AUBIO_OK;
 }
 
-void aubio_onset_set_minioi(aubio_onset_t * o, uint_t minioi) {
+uint_t aubio_onset_set_minioi(aubio_onset_t * o, uint_t minioi) {
   o->minioi = minioi;
-  return;
+  return AUBIO_OK;
 }
 
 /* Allocate memory for an onset detection */
