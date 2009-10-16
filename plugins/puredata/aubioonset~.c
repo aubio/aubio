@@ -10,7 +10,7 @@
 #include <m_pd.h>
 #include <aubio.h>
 
-char aubioonset_version[] = "aubioonset~ version 0.2";
+char aubioonset_version[] = "aubioonset~ version 0.3";
 
 static t_class *aubioonset_tilde_class;
 
@@ -20,16 +20,12 @@ typedef struct _aubioonset_tilde
 {
 	t_object x_obj;
 	t_float threshold;	
-	t_float threshold2;	
 	t_int pos; /*frames%dspblocksize*/
 	t_int bufsize;
 	t_int hopsize;
-	aubio_onsetdetection_t *o;
-	aubio_pvoc_t * pv;
-	aubio_peakpicker_t * parms;
-	fvec_t *vec;
-	fvec_t *onset;
-	cvec_t *fftgrain;
+	aubio_onset_t *o;
+	fvec_t *in;
+	fvec_t *out;
 	t_outlet *onsetbang;
 } t_aubioonset_tilde;
 
@@ -38,22 +34,16 @@ static t_int *aubioonset_tilde_perform(t_int *w)
 	t_aubioonset_tilde *x = (t_aubioonset_tilde *)(w[1]);
 	t_sample *in          = (t_sample *)(w[2]);
 	int n                 = (int)(w[3]);
-	int j,isonset;
+	int j;
 	for (j=0;j<n;j++) {
 		/* write input to datanew */
-		fvec_write_sample(x->vec, in[j], 0, x->pos);
-		/*time for fft*/
+		fvec_write_sample(x->in, in[j], 0, x->pos);
+		/*time to do something */
 		if (x->pos == x->hopsize-1) {         
 			/* block loop */
-			aubio_pvoc_do (x->pv,x->vec, x->fftgrain);
-			aubio_onsetdetection_do (x->o,x->fftgrain, x->onset);
-			isonset = aubio_peakpicker_do (x->parms, x->onset);
-			if (isonset) {
-				/* test for silence */
-				if (aubio_silence_detection(x->vec, x->threshold2)==1)
-					isonset=0;
-				else
-					outlet_bang(x->onsetbang);
+			aubio_onset_do (x->o, x->in, x->out);
+			if (fvec_read_sample(x->out, 0, 0) > 0.) {
+                outlet_bang(x->onsetbang);
 			}
 			/* end of block loop */
 			x->pos = -1; /* so it will be zero next j loop */
@@ -73,8 +63,8 @@ static void aubioonset_tilde_debug(t_aubioonset_tilde *x)
 	post("aubioonset~ bufsize:\t%d", x->bufsize);
 	post("aubioonset~ hopsize:\t%d", x->hopsize);
 	post("aubioonset~ threshold:\t%f", x->threshold);
-	post("aubioonset~ audio in:\t%f", x->vec->data[0][0]);
-	post("aubioonset~ onset:\t%f", x->onset->data[0][0]);
+	post("aubioonset~ audio in:\t%f", x->in->data[0][0]);
+	post("aubioonset~ onset:\t%f", x->out->data[0][0]);
 }
 
 static void *aubioonset_tilde_new (t_floatarg f)
@@ -83,16 +73,13 @@ static void *aubioonset_tilde_new (t_floatarg f)
 		(t_aubioonset_tilde *)pd_new(aubioonset_tilde_class);
 
 	x->threshold = (f < 1e-5) ? 0.1 : (f > 10.) ? 10. : f;
-	x->threshold2 = -70.;
 	x->bufsize   = 1024;
 	x->hopsize   = x->bufsize / 2;
 
-	x->o = new_aubio_onsetdetection("complex", x->bufsize, 1);
-	x->vec = (fvec_t *)new_fvec(x->hopsize,1);
-	x->pv = (aubio_pvoc_t *)new_aubio_pvoc(x->bufsize, x->hopsize, 1);
-	x->fftgrain  = (cvec_t *)new_cvec(x->bufsize,1);
-	x->onset = (fvec_t *)new_fvec(1,1);
-  	x->parms = new_aubio_peakpicker(x->threshold);
+	x->o = new_aubio_onset ("complex",
+            x->bufsize, x->hopsize, 1, (uint_t)sys_getsr());
+	x->in = (fvec_t *)new_fvec(x->hopsize,1);
+	x->out = (fvec_t *)new_fvec(1,1);
 
   	floatinlet_new (&x->x_obj, &x->threshold);
 	x->onsetbang = outlet_new (&x->x_obj, &s_bang);
