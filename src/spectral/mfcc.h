@@ -44,8 +44,8 @@ typedef struct _aubio_mfcc_t aubio_mfcc_t;
   \param n_filters number of desired filters
 
 */
-aubio_mfcc_t *new_aubio_mfcc (uint_t win_s, uint_t samplerate,
-      uint_t n_filters, uint_t n_coeffs);
+aubio_mfcc_t *new_aubio_mfcc (uint_t win_s,
+    uint_t n_filters, uint_t n_coeffs, uint_t samplerate);
 
 /** delete mfcc object
 
