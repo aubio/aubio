@@ -173,10 +173,16 @@ if test "$with_samplerate" = "yes"; then
 fi
 
 dnl Check for fftw3 (required)
+dnl if we compile in double precsion, default to fftw3, else fftw3f
+if test "$with_double_precision" = "yes"; then
+    default_fftw3f="no"
+else
+    default_fftw3f="yes"
+fi
 AC_ARG_ENABLE(fftw3f,
   AC_HELP_STRING([--enable-fftw3f],[compile with fftw3f [[default=auto]]]),
   [with_fftw3f=$enableval],
-  with_fftw3f="yes")
+  [with_fftw3f=$default_fftw3f])
 if test "$with_fftw3f" = "yes"; then
   PKG_CHECK_MODULES(FFTWLIB,    fftw3f >= 3.0.0,     HAVE_FFTW3F=1, HAVE_FFTW3F=0)
 else
