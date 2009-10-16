@@ -42,6 +42,7 @@ struct _aubio_tempo_t {
   sint_t blockpos;               /** current position in dfframe */
   uint_t winlen;                 /** dfframe bufsize */
   uint_t step;                   /** dfframe hopsize */ 
+  uint_t samplerate;             /** sampling rate of the signal */ 
 };
 
 /* execute tempo detection function on iput buffer */
@@ -99,14 +100,15 @@ uint_t aubio_tempo_set_threshold(aubio_tempo_t * o, smpl_t threshold) {
 
 /* Allocate memory for an tempo detection */
 aubio_tempo_t * new_aubio_tempo (char_t * onset_mode, 
-    uint_t buf_size, uint_t hop_size, uint_t channels)
+    uint_t buf_size, uint_t hop_size, uint_t channels, uint_t samplerate)
 {
   aubio_tempo_t * o = AUBIO_NEW(aubio_tempo_t);
+  o->samplerate = samplerate;
   o->winlen = SQR(512)/hop_size;
   o->step = o->winlen/4;
   o->blockpos = 0;
   o->threshold = 0.3;
-  o->silence = -90;
+  o->silence = -90.;
   o->blockpos = 0;
   o->dfframe  = new_fvec(o->winlen,channels);
   o->fftgrain = new_cvec(buf_size, channels);

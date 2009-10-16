@@ -82,7 +82,8 @@ static void *aubiotempo_tilde_new (t_floatarg f)
   x->bufsize   = 1024;
   x->hopsize   = x->bufsize / 2;
 
-  x->t = new_aubio_tempo ("complex", x->bufsize, x->hopsize, 1);
+  x->t = new_aubio_tempo ("complex", x->bufsize, x->hopsize, 1,
+          (uint_t) sys_getsr ());
   aubio_tempo_set_silence(x->t,x->silence);
   aubio_tempo_set_threshold(x->t,x->threshold);
   x->output = (fvec_t *)new_fvec(2,1);
