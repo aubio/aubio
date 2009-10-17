@@ -29,7 +29,7 @@
 extern "C" {
 #endif
 
-/** Window types 
+/** create window 
  
   References:
     
@@ -43,21 +43,7 @@ Uni- versity of Verona, Italy, 2000.
   ps.gz</a>)
 
 */
-typedef enum
-{
-  aubio_win_rectangle,
-  aubio_win_hamming,
-  aubio_win_hanning,
-  aubio_win_hanningz,
-  aubio_win_blackman,
-  aubio_win_blackman_harris,
-  aubio_win_gaussian,
-  aubio_win_welch,
-  aubio_win_parzen
-} aubio_window_type;
-
-/** create window */
-fvec_t *new_aubio_window (uint_t size, aubio_window_type wintype);
+fvec_t *new_aubio_window (char_t * window_type, uint_t size);
 
 /** compute the principal argument
 

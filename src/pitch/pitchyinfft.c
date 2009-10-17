@@ -56,7 +56,7 @@ aubio_pitchyinfft_t * new_aubio_pitchyinfft (uint_t bufsize)
   p->res    = new_cvec(bufsize,1);
   p->yinfft = new_fvec(bufsize/2+1,1);
   p->tol    = 0.85;
-  p->win    = new_aubio_window(bufsize, aubio_win_hanningz);
+  p->win    = new_aubio_window("hanningz", bufsize);
   p->weight      = new_fvec(bufsize/2+1,1);
   {
     uint_t i = 0, j = 1;

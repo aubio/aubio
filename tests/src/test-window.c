@@ -6,30 +6,33 @@ int main( )
   uint_t length;
   for (length = 2; length <= 5; length++)
   {
-    fvec_t *t = new_aubio_window(length,aubio_win_rectangle);
+    fvec_t *t = new_aubio_window("rectangle", length);
     del_fvec(t);
-    t = new_aubio_window(length,aubio_win_hamming);
+    t = new_aubio_window("hamming", length);
     fvec_print(t);
     del_fvec(t);
-    t = new_aubio_window(length,aubio_win_hanning);
+    t = new_aubio_window("hanning", length);
     fvec_print(t);
     del_fvec(t);
-    t = new_aubio_window(length,aubio_win_hanningz);
+    t = new_aubio_window("hanningz", length);
     fvec_print(t);
     del_fvec(t);
-    t = new_aubio_window(length,aubio_win_blackman);
+    t = new_aubio_window("blackman", length);
     fvec_print(t);
     del_fvec(t);
-    t = new_aubio_window(length,aubio_win_blackman_harris);
+    t = new_aubio_window("blackman_harris", length);
     fvec_print(t);
     del_fvec(t);
-    t = new_aubio_window(length,aubio_win_gaussian);
+    t = new_aubio_window("gaussian", length);
     fvec_print(t);
     del_fvec(t);
-    t = new_aubio_window(length,aubio_win_welch);
+    t = new_aubio_window("welch", length);
     fvec_print(t);
     del_fvec(t);
-    t = new_aubio_window(length,aubio_win_parzen);
+    t = new_aubio_window("parzen", length);
+    fvec_print(t);
+    del_fvec(t);
+    t = new_aubio_window("default", length);
     fvec_print(t);
     del_fvec(t);
   }

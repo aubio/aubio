@@ -25,13 +25,55 @@
 #include "mathutils.h"
 #include "config.h"
 
+
+/** Window types */
+typedef enum
+{
+  aubio_win_rectangle,
+  aubio_win_hamming,
+  aubio_win_hanning,
+  aubio_win_hanningz,
+  aubio_win_blackman,
+  aubio_win_blackman_harris,
+  aubio_win_gaussian,
+  aubio_win_welch,
+  aubio_win_parzen,
+  aubio_win_default = aubio_win_hanningz,
+} aubio_window_type;
+
 fvec_t *
-new_aubio_window (uint_t size, aubio_window_type wintype)
+new_aubio_window (char_t * window_type, uint_t size)
 {
   // create fvec of size x 1 channel
   fvec_t * win = new_fvec( size, 1);
   smpl_t * w = win->data[0];
   uint_t i;
+  aubio_window_type wintype;
+  if (strcmp (window_type, "rectangle") == 0)
+      wintype = aubio_win_rectangle;
+  else if (strcmp (window_type, "hamming") == 0)
+      wintype = aubio_win_hamming;
+  else if (strcmp (window_type, "hanning") == 0)
+      wintype = aubio_win_hanning;
+  else if (strcmp (window_type, "hanningz") == 0)
+      wintype = aubio_win_hanningz;
+  else if (strcmp (window_type, "blackman") == 0)
+      wintype = aubio_win_blackman;
+  else if (strcmp (window_type, "blackman_harris") == 0)
+      wintype = aubio_win_blackman_harris;
+  else if (strcmp (window_type, "gaussian") == 0)
+      wintype = aubio_win_gaussian;
+  else if (strcmp (window_type, "welch") == 0)
+      wintype = aubio_win_welch;
+  else if (strcmp (window_type, "parzen") == 0)
+      wintype = aubio_win_parzen;
+  else if (strcmp (window_type, "default") == 0)
+      wintype = aubio_win_default;
+  else {
+      AUBIO_ERR ("unknown window type %s, using default.\n", window_type);
+      wintype = aubio_win_default;
+      return NULL;
+  }
   switch(wintype) {
     case aubio_win_rectangle:
       for (i=0;i<size;i++)
