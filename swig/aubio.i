@@ -99,19 +99,7 @@ extern void aubio_hist_weight(aubio_hist_t *s);
 extern smpl_t aubio_hist_mean(aubio_hist_t *s);
 
 /* mathutils */
-typedef enum {
-        aubio_win_rectangle,
-        aubio_win_hamming,
-        aubio_win_hanning,
-        aubio_win_hanningz,
-        aubio_win_blackman,
-        aubio_win_blackman_harris,
-        aubio_win_gaussian,
-        aubio_win_welch,
-        aubio_win_parzen
-} aubio_window_type;
-
-fvec_t * new_aubio_window(uint_t size, aubio_window_type wintype);
+fvec_t * new_aubio_window(char * wintype, uint_t size);
 smpl_t aubio_unwrap2pi (smpl_t phase);
 smpl_t fvec_mean(fvec_t *s);
 smpl_t fvec_max(fvec_t *s);
