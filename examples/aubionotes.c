@@ -135,11 +135,11 @@ note_append (fvec_t * note_buffer, smpl_t curnote)
 uint_t
 get_note (fvec_t * note_buffer, fvec_t * note_buffer2)
 {
-  uint_t i = 0;
+  uint_t i;
   for (i = 0; i < note_buffer->length; i++) {
     note_buffer2->data[0][i] = note_buffer->data[0][i];
   }
-  return fvec_median (note_buffer2);
+  return fvec_median_channel (note_buffer2, 0);
 }
 
 int main(int argc, char **argv) {
