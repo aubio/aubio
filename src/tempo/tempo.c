@@ -37,6 +37,8 @@ struct _aubio_tempo_t {
   fvec_t * of;                   /** onset detection function value */
   fvec_t * dfframe;              /** peak picked detection function buffer */
   fvec_t * out;                  /** beat tactus candidates */
+  fvec_t * onset;                /** onset results */
+  fvec_t * peek;                 /** thresholded onset function */
   smpl_t silence;                /** silence parameter */
   smpl_t threshold;              /** peak picking threshold */
   sint_t blockpos;               /** current position in dfframe */
@@ -69,7 +71,8 @@ void aubio_tempo_do(aubio_tempo_t *o, fvec_t * input, fvec_t * tempo)
     o->blockpos = -1;
   }
   o->blockpos++;
-  tempo->data[0][1] = aubio_peakpicker_do (o->pp, o->of);
+  aubio_peakpicker_do (o->pp, o->of, o->onset);
+  tempo->data[0][1] = o->onset->data[0][0];
   o->dfframe->data[0][winlen - step + o->blockpos] = 
     aubio_peakpicker_get_thresholded_input(o->pp);
   /* end of second level loop */
@@ -114,10 +117,13 @@ aubio_tempo_t * new_aubio_tempo (char_t * onset_mode,
   o->fftgrain = new_cvec(buf_size, channels);
   o->out      = new_fvec(o->step,channels);
   o->pv       = new_aubio_pvoc(buf_size, hop_size, channels);
-  o->pp       = new_aubio_peakpicker(o->threshold);
+  o->pp       = new_aubio_peakpicker(channels);
+  aubio_peakpicker_set_threshold (o->pp, o->threshold);
   o->od       = new_aubio_onsetdetection(onset_mode,buf_size,channels);
   o->of       = new_fvec(1, channels);
   o->bt       = new_aubio_beattracking(o->winlen,channels);
+  o->onset    = new_fvec(1, channels);
+  o->peek     = new_fvec(3, channels);
   /*if (usedoubled)    {
     o2 = new_aubio_onsetdetection(type_onset2,buffer_size,channels);
     onset2 = new_fvec(1 , channels);
@@ -143,6 +149,8 @@ void del_aubio_tempo (aubio_tempo_t *o)
   del_fvec(o->of);
   del_cvec(o->fftgrain);
   del_fvec(o->dfframe);
+  del_fvec(o->onset);
+  del_fvec(o->peek);
   AUBIO_FREE(o);
   return;
 }

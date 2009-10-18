@@ -166,7 +166,7 @@ void aubio_pitchmcomb_spectral_pp(aubio_pitchmcomb_t * p, fvec_t * newmag) {
   fvec_alpha_normalise(mag,p->alpha); /* alpha normalisation  */
   /* skipped */                       /* low pass filtering   */
   /** \bug fvec_moving_thres may write out of bounds */
-  fvec_adapt_thres(mag,tmp,p->win_post,p->win_pre); /* adaptative threshold */
+  fvec_adapt_thres(mag,tmp,p->win_post,p->win_pre,i); /* adaptative threshold */
   fvec_add(mag,-p->threshold);        /* fixed threshold      */
   {
     aubio_spectralpeak_t * peaks = (aubio_spectralpeak_t *)p->peaks;
@@ -276,7 +276,7 @@ uint_t aubio_pitchmcomb_quadpick(aubio_spectralpeak_t * spectral_peaks, fvec_t *
       if (ispeak) {
         count += ispeak;
         spectral_peaks[count-1].bin = j;
-        spectral_peaks[count-1].ebin = fvec_quadint(X, j, 1) - 1.;
+        spectral_peaks[count-1].ebin = fvec_quadint(X, j, i) - 1.;
       }
     }
   return count;

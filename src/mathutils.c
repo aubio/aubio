@@ -141,6 +141,16 @@ fvec_mean (fvec_t * s)
 }
 
 smpl_t
+fvec_mean_channel (fvec_t * s, uint_t i)
+{
+  uint_t j;
+  smpl_t tmp = 0.0;
+  for (j = 0; j < s->length; j++)
+      tmp += s->data[i][j];
+  return tmp / (smpl_t) (s->length);
+}
+
+smpl_t
 fvec_sum (fvec_t * s)
 {
   uint_t i, j;
@@ -288,19 +298,19 @@ fvec_add (fvec_t * o, smpl_t val)
 }
 
 void fvec_adapt_thres(fvec_t * vec, fvec_t * tmp,
-    uint_t post, uint_t pre) {
-  uint_t length = vec->length, i=0, j;
+    uint_t post, uint_t pre, uint_t channel) {
+  uint_t length = vec->length, i=channel, j;
   for (j=0;j<length;j++) {
-    vec->data[i][j] -= fvec_moving_thres(vec, tmp, post, pre, j);
+    vec->data[i][j] -= fvec_moving_thres(vec, tmp, post, pre, j, i);
   }
 }
 
 smpl_t
 fvec_moving_thres (fvec_t * vec, fvec_t * tmpvec,
-    uint_t post, uint_t pre, uint_t pos)
+    uint_t post, uint_t pre, uint_t pos, uint_t channel)
 {
-  smpl_t *medar = (smpl_t *) tmpvec->data[0];
-  uint_t k;
+  uint_t i = channel, k;
+  smpl_t *medar = (smpl_t *) tmpvec->data[i];
   uint_t win_length = post + pre + 1;
   uint_t length = vec->length;
   /* post part of the buffer does not exist */
@@ -320,12 +330,12 @@ fvec_moving_thres (fvec_t * vec, fvec_t * tmpvec,
     for (k = length - pos + post; k < win_length; k++)
       medar[k] = 0.;            /* 0-padding at the end */
   }
-  return fvec_median (tmpvec);
+  return fvec_median_channel (tmpvec, i);
 }
 
-smpl_t fvec_median(fvec_t * input) {
+smpl_t fvec_median_channel (fvec_t * input, uint_t channel) {
   uint_t n = input->length;
-  smpl_t * arr = (smpl_t *) input->data[0];
+  smpl_t * arr = (smpl_t *) input->data[channel];
   uint_t low, high ;
   uint_t median;
   uint_t middle, ll, hh;
@@ -374,15 +384,15 @@ smpl_t fvec_median(fvec_t * input) {
   }
 }
 
-smpl_t fvec_quadint(fvec_t * x,uint_t pos, uint_t span) {
+smpl_t fvec_quadint (fvec_t * x, uint_t pos, uint_t i) {
   smpl_t s0, s1, s2;
-  uint_t x0 = (pos < span) ? pos : pos - span;
-  uint_t x2 = (pos + span < x->length) ? pos + span : pos;
-  if (x0 == pos) return (x->data[0][pos] <= x->data[0][x2]) ? pos : x2;
-  if (x2 == pos) return (x->data[0][pos] <= x->data[0][x0]) ? pos : x0;
-  s0 = x->data[0][x0];
-  s1 = x->data[0][pos];
-  s2 = x->data[0][x2];
+  uint_t x0 = (pos < 1) ? pos : pos - 1;
+  uint_t x2 = (pos + 1 < x->length) ? pos + 1 : pos;
+  if (x0 == pos) return (x->data[i][pos] <= x->data[i][x2]) ? pos : x2;
+  if (x2 == pos) return (x->data[i][pos] <= x->data[i][x0]) ? pos : x0;
+  s0 = x->data[i][x0];
+  s1 = x->data[i][pos];
+  s2 = x->data[i][x2];
   return pos + 0.5 * (s2 - s0 ) / (s2 - 2.* s1 + s0);
 }
 

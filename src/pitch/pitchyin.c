@@ -148,11 +148,11 @@ void aubio_pitchyin_do(aubio_pitchyin_t *o, fvec_t * input, fvec_t * out){
       period = tau-3;
       if(tau > 4 && (yin->data[c][period] < tol) && 
           (yin->data[c][period] < yin->data[c][period+1])) {
-        out->data[c][0] = fvec_quadint(yin,period,1);
+        out->data[c][0] = fvec_quadint(yin,period,c);
         goto beach;
       }
     }
-    out->data[c][0] = fvec_quadint(yin,fvec_min_elem(yin),1);
+    out->data[c][0] = fvec_quadint(yin,fvec_min_elem(yin),c);
 beach:
     continue;
   }

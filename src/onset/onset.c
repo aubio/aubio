@@ -36,22 +36,26 @@ struct _aubio_onset_t {
   smpl_t threshold;             /**< onset peak picking threshold */
   smpl_t silence;               /**< silence threhsold */
   uint_t minioi;                /**< minimum inter onset interval */
-  uint_t wasonset;              /**< number of frames since last onset */
+  fvec_t * wasonset;            /**< number of frames since last onset */
   uint_t samplerate;            /**< sampling rate of the input signal */
 };
 
 /* execute onset detection function on iput buffer */
 void aubio_onset_do (aubio_onset_t *o, fvec_t * input, fvec_t * onset)
 {
-  uint_t isonset = 0;
-  uint_t wasonset = o->wasonset;
+  smpl_t isonset = 0;
+  smpl_t wasonset = 0;
+  uint_t i;
   aubio_pvoc_do (o->pv,input, o->fftgrain);
   aubio_onsetdetection_do (o->od,o->fftgrain, o->of);
   /*if (usedoubled) {
     aubio_onsetdetection_do (o2,fftgrain, onset2);
     onset->data[0][0] *= onset2->data[0][0];
   }*/
-  isonset = aubio_peakpicker_do(o->pp, o->of);
+  aubio_peakpicker_do(o->pp, o->of, onset);
+  for (i = 0; i < input->channels; i++) {
+  isonset = onset->data[i][0];
+  wasonset = o->wasonset->data[i][0];
   if (isonset > 0.) {
     if (aubio_silence_detection(input, o->silence)==1) {
       isonset  = 0;
@@ -67,8 +71,9 @@ void aubio_onset_do (aubio_onset_t *o, fvec_t * input, fvec_t * onset)
   } else {
     wasonset++;
   }
-  o->wasonset = wasonset;
-  onset->data[0][0] = isonset;
+  o->wasonset->data[i][0] = wasonset;
+  onset->data[i][0] = isonset;
+  }
   return;
 }
 
@@ -97,10 +102,11 @@ aubio_onset_t * new_aubio_onset (char_t * onset_mode,
   o->threshold = 0.3;
   o->minioi    = 4;
   o->silence   = -70;
-  o->wasonset  = 0;
+  o->wasonset  = new_fvec(1, channels);
   o->samplerate = samplerate;
   o->pv = new_aubio_pvoc(buf_size, hop_size, channels);
-  o->pp = new_aubio_peakpicker(o->threshold);
+  o->pp = new_aubio_peakpicker(channels);
+  aubio_peakpicker_set_threshold (o->pp, o->threshold);
   o->od = new_aubio_onsetdetection(onset_mode,buf_size,channels);
   o->fftgrain = new_cvec(buf_size,channels);
   o->of = new_fvec(1, channels);
@@ -117,6 +123,7 @@ void del_aubio_onset (aubio_onset_t *o)
   del_aubio_peakpicker(o->pp);
   del_aubio_pvoc(o->pv);
   del_fvec(o->of);
+  del_fvec(o->wasonset);
   del_cvec(o->fftgrain);
   AUBIO_FREE(o);
 }

@@ -131,14 +131,14 @@ void aubio_pitchyinfft_do (aubio_pitchyinfft_t * p, fvec_t * input, fvec_t * out
     //return fvec_quadint_min(yin,tau,1);
     /* additional check for (unlikely) octave doubling in higher frequencies */
     if (tau>35) {
-      output->data[i][0] = fvec_quadint(yin,tau,1);
+      output->data[i][0] = fvec_quadint(yin,tau,i);
     } else {
       /* should compare the minimum value of each interpolated peaks */
       halfperiod = FLOOR(tau/2+.5);
       if (yin->data[0][halfperiod] < p->tol)
-        output->data[i][0] = fvec_quadint(yin,halfperiod,1);
+        output->data[i][0] = fvec_quadint(yin,halfperiod,i);
       else
-        output->data[i][0] = fvec_quadint(yin,tau,1);
+        output->data[i][0] = fvec_quadint(yin,tau,i);
     }
   } else {
     output->data[i][0] = 0.;

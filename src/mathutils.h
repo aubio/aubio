@@ -59,12 +59,22 @@ smpl_t aubio_unwrap2pi (smpl_t phase);
 
 /** compute the mean of a vector
 
-  \param s vector to compute norm from
+  \param s vector to compute mean from
 
   \return the mean of v
 
 */
 smpl_t fvec_mean (fvec_t * s);
+
+/** compute the mean of a vector channel
+
+  \param s vector to compute mean from
+  \param i channel to compute mean from
+
+  \return the mean of v
+
+*/
+smpl_t fvec_mean_channel (fvec_t * s, uint_t i);
 
 /** find the max of a vector
 
@@ -219,7 +229,7 @@ pre elements after pos.
 
 */
 smpl_t fvec_moving_thres (fvec_t * v, fvec_t * tmp, uint_t post, uint_t pre,
-    uint_t pos);
+    uint_t pos, uint_t channel);
 
 /** apply adaptive threshold to a vector
 
@@ -232,7 +242,8 @@ moving median threshold computed at p.
   \param pre length of anti-causal part to take after pos
 
 */
-void fvec_adapt_thres (fvec_t * v, fvec_t * tmp, uint_t post, uint_t pre);
+void fvec_adapt_thres (fvec_t * v, fvec_t * tmp, uint_t post, uint_t pre, 
+    uint_t channel);
 
 /** returns the median of a vector 
 
@@ -245,14 +256,15 @@ Devillard's implementation, available at http://ndevilla.free.fr/median/median/
 and in the Public Domain.
 
   \param v vector to get median from
+  \param channel channel to get median from
 
   \return the median of v
  
 */
-smpl_t fvec_median (fvec_t * v);
+smpl_t fvec_median_channel (fvec_t * v, uint_t channel);
 
 /** finds exact peak index by quadratic interpolation*/
-smpl_t fvec_quadint (fvec_t * x, uint_t pos, uint_t span);
+smpl_t fvec_quadint (fvec_t * x, uint_t pos, uint_t channel);
 
 /** Quadratic interpolation using Lagrange polynomial.
  
