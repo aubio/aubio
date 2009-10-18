@@ -10,8 +10,8 @@ typedef int sint_t;
 typedef float smpl_t;
 
 /* fvec */
-extern fvec_t * new_fvec(uint_t length, uint_t channels);
-extern void del_fvec(fvec_t *s);
+fvec_t * new_fvec(uint_t length, uint_t channels);
+void del_fvec(fvec_t *s);
 smpl_t fvec_read_sample(fvec_t *s, uint_t channel, uint_t position);
 void fvec_write_sample(fvec_t *s, smpl_t data, uint_t channel, uint_t position);
 smpl_t * fvec_get_channel(fvec_t *s, uint_t channel);
@@ -42,61 +42,61 @@ public:
 */
 
 /* cvec */
-extern cvec_t * new_cvec(uint_t length, uint_t channels);
-extern void del_cvec(cvec_t *s);
-extern void cvec_write_norm(cvec_t *s, smpl_t data, uint_t channel, uint_t position);
-extern void cvec_write_phas(cvec_t *s, smpl_t data, uint_t channel, uint_t position);
-extern smpl_t cvec_read_norm(cvec_t *s, uint_t channel, uint_t position);
-extern smpl_t cvec_read_phas(cvec_t *s, uint_t channel, uint_t position);
-extern void cvec_put_norm_channel(cvec_t *s, smpl_t * data, uint_t channel);
-extern void cvec_put_phas_channel(cvec_t *s, smpl_t * data, uint_t channel);
-extern smpl_t * cvec_get_norm_channel(cvec_t *s, uint_t channel);
-extern smpl_t * cvec_get_phas_channel(cvec_t *s, uint_t channel);
-extern smpl_t ** cvec_get_norm(cvec_t *s);
-extern smpl_t ** cvec_get_phas(cvec_t *s);
+cvec_t * new_cvec(uint_t length, uint_t channels);
+void del_cvec(cvec_t *s);
+void cvec_write_norm(cvec_t *s, smpl_t data, uint_t channel, uint_t position);
+void cvec_write_phas(cvec_t *s, smpl_t data, uint_t channel, uint_t position);
+smpl_t cvec_read_norm(cvec_t *s, uint_t channel, uint_t position);
+smpl_t cvec_read_phas(cvec_t *s, uint_t channel, uint_t position);
+void cvec_put_norm_channel(cvec_t *s, smpl_t * data, uint_t channel);
+void cvec_put_phas_channel(cvec_t *s, smpl_t * data, uint_t channel);
+smpl_t * cvec_get_norm_channel(cvec_t *s, uint_t channel);
+smpl_t * cvec_get_phas_channel(cvec_t *s, uint_t channel);
+smpl_t ** cvec_get_norm(cvec_t *s);
+smpl_t ** cvec_get_phas(cvec_t *s);
 
 
 /* fft */
-extern aubio_fft_t * new_aubio_fft(uint_t size, uint_t channels);
-extern void del_aubio_fft(aubio_fft_t * s);
-extern void aubio_fft_do (aubio_fft_t *s, fvec_t * input, cvec_t * spectrum);
-extern void aubio_fft_rdo (aubio_fft_t *s, cvec_t * spectrum, fvec_t * output);
-extern void aubio_fft_do_complex (aubio_fft_t *s, fvec_t * input, fvec_t * compspec);
-extern void aubio_fft_rdo_complex (aubio_fft_t *s, fvec_t * compspec, fvec_t * output);
-extern void aubio_fft_get_spectrum(fvec_t * compspec, cvec_t * spectrum);
-extern void aubio_fft_get_realimag(cvec_t * spectrum, fvec_t * compspec);
-extern void aubio_fft_get_phas(fvec_t * compspec, cvec_t * spectrum);
-extern void aubio_fft_get_imag(cvec_t * spectrum, fvec_t * compspec);
-extern void aubio_fft_get_norm(fvec_t * compspec, cvec_t * spectrum);
-extern void aubio_fft_get_real(cvec_t * spectrum, fvec_t * compspec);
+aubio_fft_t * new_aubio_fft(uint_t size, uint_t channels);
+void del_aubio_fft(aubio_fft_t * s);
+void aubio_fft_do (aubio_fft_t *s, fvec_t * input, cvec_t * spectrum);
+void aubio_fft_rdo (aubio_fft_t *s, cvec_t * spectrum, fvec_t * output);
+void aubio_fft_do_complex (aubio_fft_t *s, fvec_t * input, fvec_t * compspec);
+void aubio_fft_rdo_complex (aubio_fft_t *s, fvec_t * compspec, fvec_t * output);
+void aubio_fft_get_spectrum(fvec_t * compspec, cvec_t * spectrum);
+void aubio_fft_get_realimag(cvec_t * spectrum, fvec_t * compspec);
+void aubio_fft_get_phas(fvec_t * compspec, cvec_t * spectrum);
+void aubio_fft_get_imag(cvec_t * spectrum, fvec_t * compspec);
+void aubio_fft_get_norm(fvec_t * compspec, cvec_t * spectrum);
+void aubio_fft_get_real(cvec_t * spectrum, fvec_t * compspec);
 
 /* filter */
-extern aubio_filter_t * new_aubio_filter(uint_t samplerate, uint_t order, uint_t channels);
-extern void aubio_filter_do(aubio_filter_t * b, fvec_t * in);
-extern void aubio_filter_do_outplace(aubio_filter_t * b, fvec_t * in, fvec_t * out);
-extern void aubio_filter_do_filtfilt(aubio_filter_t * b, fvec_t * in, fvec_t * tmp);
-extern void del_aubio_filter(aubio_filter_t * b);
+aubio_filter_t * new_aubio_filter(uint_t samplerate, uint_t order, uint_t channels);
+void aubio_filter_do(aubio_filter_t * b, fvec_t * in);
+void aubio_filter_do_outplace(aubio_filter_t * b, fvec_t * in, fvec_t * out);
+void aubio_filter_do_filtfilt(aubio_filter_t * b, fvec_t * in, fvec_t * tmp);
+void del_aubio_filter(aubio_filter_t * b);
 
-extern aubio_filter_t * new_aubio_filter_a_weighting (uint_t samplerate, uint_t channels);
-extern uint_t aubio_filter_set_a_weighting (aubio_filter_t * b);
+aubio_filter_t * new_aubio_filter_a_weighting (uint_t samplerate, uint_t channels);
+uint_t aubio_filter_set_a_weighting (aubio_filter_t * b);
 
-extern aubio_filter_t * new_aubio_filter_c_weighting (uint_t samplerate, uint_t channels);
-extern uint_t aubio_filter_set_c_weighting (aubio_filter_t * b);
+aubio_filter_t * new_aubio_filter_c_weighting (uint_t samplerate, uint_t channels);
+uint_t aubio_filter_set_c_weighting (aubio_filter_t * b);
 
 /* biquad */
-extern aubio_biquad_t * new_aubio_biquad(lsmp_t b1, lsmp_t b2, lsmp_t b3, lsmp_t a2, lsmp_t a3);
-extern void aubio_biquad_do(aubio_biquad_t * b, fvec_t * in);
-extern void aubio_biquad_do_filtfilt(aubio_biquad_t * b, fvec_t * in, fvec_t * tmp);
-extern void del_aubio_biquad(aubio_biquad_t * b);
+aubio_biquad_t * new_aubio_biquad(lsmp_t b1, lsmp_t b2, lsmp_t b3, lsmp_t a2, lsmp_t a3);
+void aubio_biquad_do(aubio_biquad_t * b, fvec_t * in);
+void aubio_biquad_do_filtfilt(aubio_biquad_t * b, fvec_t * in, fvec_t * tmp);
+void del_aubio_biquad(aubio_biquad_t * b);
 
 /* hist */
-extern aubio_hist_t * new_aubio_hist(smpl_t flow, smpl_t fhig, uint_t nelems, uint_t channels);
-extern void del_aubio_hist(aubio_hist_t *s);
-extern void aubio_hist_do(aubio_hist_t *s, fvec_t * input);
-extern void aubio_hist_do_notnull(aubio_hist_t *s, fvec_t * input);
-extern void aubio_hist_dyn_notnull(aubio_hist_t *s, fvec_t *input);
-extern void aubio_hist_weight(aubio_hist_t *s);
-extern smpl_t aubio_hist_mean(aubio_hist_t *s);
+aubio_hist_t * new_aubio_hist(smpl_t flow, smpl_t fhig, uint_t nelems, uint_t channels);
+void del_aubio_hist(aubio_hist_t *s);
+void aubio_hist_do(aubio_hist_t *s, fvec_t * input);
+void aubio_hist_do_notnull(aubio_hist_t *s, fvec_t * input);
+void aubio_hist_dyn_notnull(aubio_hist_t *s, fvec_t *input);
+void aubio_hist_weight(aubio_hist_t *s);
+smpl_t aubio_hist_mean(aubio_hist_t *s);
 
 /* mathutils */
 fvec_t * new_aubio_window(char * wintype, uint_t size);
@@ -114,9 +114,9 @@ smpl_t fvec_alpha_norm(fvec_t * DF, smpl_t alpha);
 void fvec_min_removal(fvec_t * mag);
 void fvec_alpha_normalise(fvec_t * mag, uint_t alpha);
 void fvec_add(fvec_t * mag, smpl_t threshold);
-void fvec_adapt_thres(fvec_t * vec, fvec_t * tmp, uint_t post, uint_t pre);
-smpl_t fvec_moving_thres(fvec_t * vec, fvec_t * tmp, uint_t post, uint_t pre, uint_t pos);
-smpl_t fvec_median(fvec_t * input);
+void fvec_adapt_thres(fvec_t * vec, fvec_t * tmp, uint_t post, uint_t pre, uint_t channel);
+smpl_t fvec_moving_thres(fvec_t * vec, fvec_t * tmp, uint_t post, uint_t pre, uint_t pos, uint_t channel);
+smpl_t fvec_median_channel (fvec_t * input, uint_t channel);
 smpl_t fvec_quadint(fvec_t * x,uint_t pos, uint_t span);
 smpl_t aubio_quadfrac(smpl_t s0, smpl_t s1, smpl_t s2, smpl_t pf);
 uint_t fvec_peakpick(fvec_t * input, uint_t pos);
@@ -146,16 +146,16 @@ void del_aubio_mfcc(aubio_mfcc_t *mf);
 void aubio_mfcc_do(aubio_mfcc_t *mf, cvec_t *in, fvec_t *out);
 
 /* scale */
-extern aubio_scale_t * new_aubio_scale(smpl_t flow, smpl_t fhig, smpl_t ilow, smpl_t ihig);
-extern uint_t aubio_scale_set_limits (aubio_scale_t *s, smpl_t ilow, smpl_t ihig, smpl_t olow, smpl_t ohig);
-extern void aubio_scale_do(aubio_scale_t *s, fvec_t * input);
-extern void del_aubio_scale(aubio_scale_t *s);
+aubio_scale_t * new_aubio_scale(smpl_t flow, smpl_t fhig, smpl_t ilow, smpl_t ihig);
+uint_t aubio_scale_set_limits (aubio_scale_t *s, smpl_t ilow, smpl_t ihig, smpl_t olow, smpl_t ohig);
+void aubio_scale_do(aubio_scale_t *s, fvec_t * input);
+void del_aubio_scale(aubio_scale_t *s);
 
 /* resampling */
 #if HAVE_SAMPLERATE
-extern aubio_resampler_t * new_aubio_resampler(float ratio, uint_t type);
-extern void aubio_resampler_do (aubio_resampler_t *s, fvec_t * input,  fvec_t * output);
-extern void del_aubio_resampler(aubio_resampler_t *s);
+aubio_resampler_t * new_aubio_resampler(float ratio, uint_t type);
+void aubio_resampler_do (aubio_resampler_t *s, fvec_t * input,  fvec_t * output);
+void del_aubio_resampler(aubio_resampler_t *s);
 #endif /* HAVE_SAMPLERATE */
 
 /* onset detection */
@@ -198,8 +198,8 @@ void aubio_pitchfcomb_do (aubio_pitchfcomb_t *p, fvec_t * input, fvec_t *out);
 void del_aubio_pitchfcomb (aubio_pitchfcomb_t *p);
 
 /* peakpicker */
-aubio_peakpicker_t * new_aubio_peakpicker(smpl_t threshold);
-smpl_t aubio_peakpicker_do(aubio_peakpicker_t * p, fvec_t * df);
+aubio_peakpicker_t * new_aubio_peakpicker(uint_t channels);
+void aubio_peakpicker_do(aubio_peakpicker_t * p, fvec_t * df, fvec_t * out);
 smpl_t aubio_peakpicker_get_thresholded_input(aubio_peakpicker_t* p);
 void del_aubio_peakpicker(aubio_peakpicker_t * p);
 uint_t aubio_peakpicker_set_threshold(aubio_peakpicker_t * p, smpl_t threshold);
@@ -237,14 +237,14 @@ void del_aubio_tempo(aubio_tempo_t * o);
 #if HAVE_SNDFILE
 #include "sndfileio.h"
 %}
-extern aubio_sndfile_t * new_aubio_sndfile_ro (const char * inputfile);
-extern aubio_sndfile_t * new_aubio_sndfile_wo(aubio_sndfile_t * existingfile, const char * outputname);
-extern void aubio_sndfile_info(aubio_sndfile_t * file);
-extern int aubio_sndfile_write(aubio_sndfile_t * file, int frames, fvec_t * write);
-extern int aubio_sndfile_read(aubio_sndfile_t * file, int frames, fvec_t * read);
-extern int del_aubio_sndfile(aubio_sndfile_t * file);
-extern uint_t aubio_sndfile_channels(aubio_sndfile_t * file);
-extern uint_t aubio_sndfile_samplerate(aubio_sndfile_t * file);
+aubio_sndfile_t * new_aubio_sndfile_ro (const char * inputfile);
+aubio_sndfile_t * new_aubio_sndfile_wo(aubio_sndfile_t * existingfile, const char * outputname);
+void aubio_sndfile_info(aubio_sndfile_t * file);
+int aubio_sndfile_write(aubio_sndfile_t * file, int frames, fvec_t * write);
+int aubio_sndfile_read(aubio_sndfile_t * file, int frames, fvec_t * read);
+int del_aubio_sndfile(aubio_sndfile_t * file);
+uint_t aubio_sndfile_channels(aubio_sndfile_t * file);
+uint_t aubio_sndfile_samplerate(aubio_sndfile_t * file);
 %{
 #endif /* HAVE_SNDFILE */
 %}
