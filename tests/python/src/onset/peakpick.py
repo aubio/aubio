@@ -7,7 +7,8 @@ channels = 1
 class peakpick_unit(aubio_unit_template):
 
   def setUp(self):
-    self.o = new_aubio_peakpicker(0.1)
+    self.o = new_aubio_peakpicker(1)
+    aubio_peakpicker_set_threshold (0.1)
     pass
 
   def tearDown(self):
