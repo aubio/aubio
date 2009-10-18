@@ -79,9 +79,12 @@ class onsetdetection:
 class peakpick:
     """ class for aubio_peakpicker """
     def __init__(self,threshold=0.1):
-        self.pp = new_aubio_peakpicker(threshold)
+        self.pp = new_aubio_peakpicker(1)
+        self.out = new_fvec(1, 1)
+        aubio_peakpicker_set_threshold (self.pp, threshold)
     def do(self,fv):
-        return aubio_peakpicker_do(self.pp, fv())
+        aubio_peakpicker_do(self.pp, fv(), self.out)
+        return fvec_read_sample(self.out, 0, 0)
     def getval(self):
         return aubio_peakpicker_get_adaptive_threshold(self.pp)
     def __del__(self):
