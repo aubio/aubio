@@ -147,9 +147,9 @@ static PyMemberDef Py_filter_members[] = {
 };
 
 static PyMethodDef Py_filter_methods[] = {
-  {"set_c_weighting", (PyCFunction) Py_filter_set_c_weighting, METH_NOARGS,
+  {"set_c_weighting", (PyCFunction) Py_filter_set_c_weighting, METH_VARARGS,
       "set filter coefficients to C-weighting"},
-  {"set_a_weighting", (PyCFunction) Py_filter_set_a_weighting, METH_NOARGS,
+  {"set_a_weighting", (PyCFunction) Py_filter_set_a_weighting, METH_VARARGS,
       "set filter coefficients to A-weighting"},
   {NULL}
 };
