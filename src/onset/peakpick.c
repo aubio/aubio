@@ -20,6 +20,8 @@
 #include "aubio_priv.h"
 #include "fvec.h"
 #include "mathutils.h"
+#include "lvec.h"
+#include "temporal/filter.h"
 #include "temporal/biquad.h"
 #include "onset/peakpick.h"
 
@@ -42,7 +44,7 @@ struct _aubio_peakpicker_t {
 	aubio_pickerfn_t pickerfn;
 
 	/** biquad lowpass filter */
-	aubio_biquad_t * biquad;
+	aubio_filter_t * biquad;
 	/** original onsets */
 	fvec_t * onset_keep;
 	/** modified onsets */
@@ -94,7 +96,7 @@ aubio_peakpicker_do (aubio_peakpicker_t * p, fvec_t * onset, fvec_t * out)
 
   /* filter onset_proc */
   /** \bug filtfilt calculated post+pre times, should be only once !? */
-  //aubio_biquad_do_filtfilt(p->biquad,onset_proc,scratch);
+  aubio_filter_do_filtfilt (p->biquad, onset_proc, scratch);
 
   for (i = 0; i < p->channels; i++) {
     /* calculate mean and median for onset_proc */
@@ -159,14 +161,17 @@ aubio_peakpicker_t * new_aubio_peakpicker(uint_t channels) {
 	t->onset_proc = new_fvec(t->win_post+t->win_pre+1, channels);
 	t->onset_peek = new_fvec(3, channels);
 
-	/* cutoff: low-pass filter cutoff [0.34, 1] */
-	/* t->cutoff=0.34; */
-	t->biquad = new_aubio_biquad(0.1600,0.3200,0.1600,-0.5949,0.2348);
+	/* cutoff: low-pass filter with cutoff reduced frequency at 0.34
+   generated with octave butter function: [b,a] = butter(2, 0.34);
+   */
+  t->biquad = new_aubio_filter_biquad (0.15998789, 0.31997577, 0.15998789,
+    -0.59488894, 0.23484048, channels);
+
 	return t;
 }
 
 void del_aubio_peakpicker(aubio_peakpicker_t * p) {
-	del_aubio_biquad(p->biquad);
+	del_aubio_filter(p->biquad);
 	del_fvec(p->onset_keep);
 	del_fvec(p->onset_proc);
 	del_fvec(p->onset_peek);

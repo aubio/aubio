@@ -84,10 +84,8 @@ aubio_filter_t * new_aubio_filter_c_weighting (uint_t channels, uint_t samplerat
 uint_t aubio_filter_set_c_weighting (aubio_filter_t * b, uint_t samplerate);
 
 /* biquad */
-aubio_biquad_t * new_aubio_biquad(lsmp_t b1, lsmp_t b2, lsmp_t b3, lsmp_t a2, lsmp_t a3);
-void aubio_biquad_do(aubio_biquad_t * b, fvec_t * in);
-void aubio_biquad_do_filtfilt(aubio_biquad_t * b, fvec_t * in, fvec_t * tmp);
-void del_aubio_biquad(aubio_biquad_t * b);
+aubio_filter_t * new_aubio_filter_biquad(lsmp_t b1, lsmp_t b2, lsmp_t b3, lsmp_t a2, lsmp_t a3, uint_t channels);
+uint_t aubio_filter_set_biquad (aubio_filter_t * b, lsmp_t b1, lsmp_t b2, lsmp_t b3, lsmp_t a2, lsmp_t a3);
 
 /* hist */
 aubio_hist_t * new_aubio_hist(smpl_t flow, smpl_t fhig, uint_t nelems, uint_t channels);
