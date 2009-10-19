@@ -25,7 +25,7 @@ typedef struct _aubiopitch_tilde
 	t_int pos; /*frames%dspblocksize*/
 	t_int bufsize;
 	t_int hopsize;
-	aubio_pitchdetection_t *o;
+	aubio_pitch_t *o;
 	fvec_t *vec;
 	fvec_t *pitchvec;
 	t_outlet *pitch;
@@ -43,7 +43,7 @@ static t_int *aubiopitch_tilde_perform(t_int *w)
 		/*time for fft*/
 		if (x->pos == x->hopsize-1) {         
 			/* block loop */
-			aubio_pitchdetection_do(x->o,x->vec, x->pitchvec);
+			aubio_pitch_do(x->o,x->vec, x->pitchvec);
 			outlet_float(x->pitch, x->pitchvec->data[0][0]);
 			/* end of block loop */
 			x->pos = -1; /* so it will be zero next j loop */
@@ -76,9 +76,9 @@ static void *aubiopitch_tilde_new (t_symbol * s)
 	x->hopsize   = x->bufsize / 2;
 
 	//FIXME: get the real samplerate
-    x->o = new_aubio_pitchdetection(s->s_name, x->bufsize, 
+    x->o = new_aubio_pitch(s->s_name, x->bufsize, 
             x->hopsize, 1, 44100.);
-	aubio_pitchdetection_set_tolerance (x->o, 0.7);
+	aubio_pitch_set_tolerance (x->o, 0.7);
 	x->vec = (fvec_t *)new_fvec(x->hopsize,1);
 	x->pitchvec = (fvec_t *)new_fvec(1,1);
 
@@ -91,7 +91,7 @@ static void *aubiopitch_tilde_new (t_symbol * s)
 
 static void *aubiopitch_tilde_del(t_aubiopitch_tilde *x)
 {
-    	del_aubio_pitchdetection(x->o);
+    	del_aubio_pitch(x->o);
 	del_fvec(x->vec);
 	del_fvec(x->pitchvec);
 	return 0;

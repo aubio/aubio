@@ -23,7 +23,7 @@ nobase_pkginclude_HEADERS = \
 	spectral/fft.h \
 	spectral/tss.h \
 	spectral/spectral_centroid.h \
-	pitch/pitchdetection.h \
+	pitch/pitch.h \
 	pitch/pitchmcomb.h \
 	pitch/pitchyin.h \
 	pitch/pitchschmitt.h \
@@ -58,7 +58,7 @@ libaubio_la_SOURCES = \
 	spectral/fft.c \
 	spectral/tss.c \
 	spectral/spectral_centroid.c \
-	pitch/pitchdetection.c \
+	pitch/pitch.c \
 	pitch/pitchmcomb.c \
 	pitch/pitchyin.c \
 	pitch/pitchschmitt.c \

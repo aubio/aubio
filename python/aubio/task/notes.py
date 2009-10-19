@@ -13,7 +13,7 @@ class tasknotes(task):
 			mode=self.params.onsetmode,
 			dcthreshold=self.params.dcthreshold,
 			derivate=self.params.derivate)
-		self.pitchdet  = pitchdetection(mode=self.params.pitchmode,
+		self.pitchdet  = pitch(mode=self.params.pitchmode,
 			bufsize=self.params.pbufsize,
 			hopsize=self.params.phopsize,
 			channels=self.channels,

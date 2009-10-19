@@ -26,7 +26,7 @@ bin_PROGRAMS = \
 	test-pitchschmitt \
 	test-pitchfcomb \
 	test-pitchmcomb \
-	test-pitchdetection \
+	test-pitch \
 	test-beattracking \
 	test-onset \
 	test-tempo \

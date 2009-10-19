@@ -10,16 +10,16 @@ main ()
   uint_t channels = 1;          /* number of channel */
   fvec_t *in = new_fvec (hop_s, channels);      /* input buffer */
   fvec_t *out = new_fvec (1, channels); /* input buffer */
-  aubio_pitchdetection_t *o =
-      new_aubio_pitchdetection ("default", win_s, hop_s, channels, samplerate);
+  aubio_pitch_t *o =
+      new_aubio_pitch ("default", win_s, hop_s, channels, samplerate);
   uint_t i = 0;
 
   while (i < 100) {
-    aubio_pitchdetection_do (o, in, out);
+    aubio_pitch_do (o, in, out);
     i++;
   };
 
-  del_aubio_pitchdetection (o);
+  del_aubio_pitch (o);
   del_fvec (in);
   aubio_cleanup ();
 
