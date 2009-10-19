@@ -1,5 +1,4 @@
 /*
-
   Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
@@ -26,23 +25,23 @@
 #include "temporal/filter.h"
 #include "temporal/a_weighting.h"
 
-uint_t aubio_filter_set_a_weighting (aubio_filter_t * f) {
-
-  uint_t samplerate = aubio_filter_get_samplerate (f);
+uint_t
+aubio_filter_set_a_weighting (aubio_filter_t * f, uint_t samplerate)
+{
+  aubio_filter_set_samplerate (f, samplerate);
   lvec_t *bs = aubio_filter_get_feedforward (f);
   lvec_t *as = aubio_filter_get_feedback (f);
   lsmp_t *b = bs->data[0], *a = as->data[0];
   uint_t order = aubio_filter_get_order (f);
 
-  if ( order != 7 ) {
-    AUBIO_ERROR ( "order of A-weighting filter must be 7, not %d\n", order );
+  if (order != 7) {
+    AUBIO_ERROR ("order of A-weighting filter must be 7, not %d\n", order);
     return 1;
   }
 
   /* select coefficients according to sampling frequency */
-  switch ( samplerate ) {
+  switch (samplerate) {
 
-    // adsgn 8000
     case 8000:
       b[0] =  6.306209468238731519207362907764036208391189575195312500e-01;
       b[1] = -1.261241893647746525886077506584115326404571533203125000e+00;
@@ -60,7 +59,6 @@ uint_t aubio_filter_set_a_weighting (aubio_filter_t * f) {
       a[6] =  2.098548546080332977137317129745497368276119232177734375e-01;
       break;
 
-    // adsgn 11025
     case 11025:
       b[0] =  6.014684165832374640459079273568931967020034790039062500e-01;
       b[1] = -1.202936833166475150136420779745094478130340576171875000e+00;
@@ -78,7 +76,6 @@ uint_t aubio_filter_set_a_weighting (aubio_filter_t * f) {
       a[6] =  1.833526393172056623281918064094497822225093841552734375e-01;
       break;
 
-    // adsgn 16000
     case 16000:
       b[0] =  5.314898298235570806014038680586963891983032226562500000e-01;
       b[1] = -1.062979659647114161202807736117392778396606445312500000e+00;
@@ -96,7 +93,6 @@ uint_t aubio_filter_set_a_weighting (aubio_filter_t * f) {
       a[6] =  1.188781038285612462468421313133148942142724990844726562e-01;
       break;
 
-    // adsgn 22050
     case 22050:
       b[0] =  4.492998504299193784916610638902056962251663208007812500e-01;
       b[1] = -8.985997008598388680056245902960654348134994506835937500e-01;
@@ -114,7 +110,6 @@ uint_t aubio_filter_set_a_weighting (aubio_filter_t * f) {
       a[6] =  5.631716697383508385410522123493137769401073455810546875e-02;
       break;
 
-    // adsgn 24000
     case 24000:
       b[0] =  4.256263892891054001488271296693710610270500183105468750e-01;
       b[1] = -8.512527785782106892753517968230880796909332275390625000e-01;
@@ -132,7 +127,6 @@ uint_t aubio_filter_set_a_weighting (aubio_filter_t * f) {
       a[6] =  4.178771337829546850262119050967157818377017974853515625e-02;
       break;
 
-    // adsgn 32000
     case 32000:
       b[0] =  3.434583386824304196416335344110848382115364074707031250e-01;
       b[1] = -6.869166773648609503055695313378237187862396240234375000e-01;
@@ -150,7 +144,6 @@ uint_t aubio_filter_set_a_weighting (aubio_filter_t * f) {
       a[6] =  6.764072168342137418572956875095769646577537059783935547e-03;
       break;
 
-    // adsgn 44100
     case 44100:
       b[0] =  2.557411252042575133813784304948057979345321655273437500e-01;
       b[1] = -5.114822504085150267627568609896115958690643310546875000e-01;
@@ -168,7 +161,6 @@ uint_t aubio_filter_set_a_weighting (aubio_filter_t * f) {
       a[6] =  4.351177233495117681327801761881346465088427066802978516e-03;
       break;
 
-    // adsgn 48000
     case 48000:
       b[0] =  2.343017922995132285013397677175817079842090606689453125e-01;
       b[1] = -4.686035845990265125138307666929904371500015258789062500e-01;
@@ -186,7 +178,6 @@ uint_t aubio_filter_set_a_weighting (aubio_filter_t * f) {
       a[6] =  1.122425003323123879339640041052916785702109336853027344e-02;
       break;
 
-    // adsgn 88200
     case 88200:
       b[0] =  1.118876366882113199130444058937428053468465805053710938e-01;
       b[1] = -2.237752733764226120705131961585721001029014587402343750e-01;
@@ -204,7 +195,6 @@ uint_t aubio_filter_set_a_weighting (aubio_filter_t * f) {
       a[6] =  1.460012549591642450064199465487035922706127166748046875e-01;
       break;
 
-    // adsgn 96000
     case 96000:
       b[0] =  9.951898975972744976203898659150581806898117065429687500e-02;
       b[1] = -1.990379795194548995240779731830116361379623413085937500e-01;
@@ -222,7 +212,6 @@ uint_t aubio_filter_set_a_weighting (aubio_filter_t * f) {
       a[6] =  1.740971994228911745583587844521389342844486236572265625e-01;
       break;
 
-    // adsgn 192000
     case 192000:
       b[0] =  3.433213424548713782469278044118254911154508590698242188e-02;
       b[1] = -6.866426849097426177159775306790834292769432067871093750e-02;
@@ -240,10 +229,9 @@ uint_t aubio_filter_set_a_weighting (aubio_filter_t * f) {
       a[6] =  4.325834301870381537469256727490574121475219726562500000e-01;
       break;
 
-    default: 
-      AUBIO_ERROR ( "sampling rate of A-weighting filter is %d, should be one of\
- 8000, 11025, 16000, 22050, 24000, 32000, 44100, 48000, 88200, 96000, 192000.\n", 
- samplerate );
+    default:
+      AUBIO_ERROR ("sampling rate of A-weighting filter is %d, should be one of\
+ 8000, 11025, 16000, 22050, 24000, 32000, 44100, 48000, 88200, 96000, 192000.\n", samplerate);
       return 1;
 
   }
@@ -251,9 +239,10 @@ uint_t aubio_filter_set_a_weighting (aubio_filter_t * f) {
   return 0;
 }
 
-aubio_filter_t * new_aubio_filter_a_weighting (uint_t samplerate, uint_t channels) {
-  aubio_filter_t * f = new_aubio_filter (samplerate, 7, channels);
-  aubio_filter_set_a_weighting (f);
+aubio_filter_t *
+new_aubio_filter_a_weighting (uint_t channels, uint_t samplerate)
+{
+  aubio_filter_t *f = new_aubio_filter (7, channels);
+  aubio_filter_set_a_weighting (f, samplerate);
   return f;
 }
-

@@ -130,6 +130,16 @@ uint_t aubio_filter_get_order (aubio_filter_t * f);
 */
 uint_t aubio_filter_get_samplerate (aubio_filter_t * f);
 
+/** get sampling rate of the filter
+
+  \param f filter to get sampling rate from
+  \param samplerate sample rate to set the filter to
+
+  \return the sampling rate of the filter, in Hz
+
+*/
+uint_t aubio_filter_set_samplerate (aubio_filter_t * f, uint_t samplerate);
+
 /** create new filter object
 
   This function creates a new ::aubio_filter_t object, given an order 
@@ -142,8 +152,7 @@ uint_t aubio_filter_get_samplerate (aubio_filter_t * f);
   \return the newly created filter object
 
 */
-aubio_filter_t *new_aubio_filter (uint_t samplerate, uint_t order,
-    uint_t channels);
+aubio_filter_t *new_aubio_filter (uint_t order, uint_t channels);
 
 /** delete a filter object
  

@@ -137,15 +137,23 @@ aubio_filter_get_samplerate (aubio_filter_t * f)
   return f->samplerate;
 }
 
+uint_t
+aubio_filter_set_samplerate (aubio_filter_t * f, uint_t samplerate)
+{
+  f->samplerate = samplerate;
+  return AUBIO_OK;
+}
+
 aubio_filter_t *
-new_aubio_filter (uint_t samplerate, uint_t order, uint_t channels)
+new_aubio_filter (uint_t order, uint_t channels)
 {
   aubio_filter_t *f = AUBIO_NEW (aubio_filter_t);
   f->x = new_lvec (order, channels);
   f->y = new_lvec (order, channels);
   f->a = new_lvec (order, 1);
   f->b = new_lvec (order, 1);
-  f->samplerate = samplerate;
+  /* by default, samplerate is not set */
+  f->samplerate = 0;
   f->order = order;
   /* set default to identity */
   f->a->data[0][1] = 1.;

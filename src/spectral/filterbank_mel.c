@@ -27,7 +27,7 @@
 
 uint_t
 aubio_filterbank_set_triangle_bands (aubio_filterbank_t * fb,
-    smpl_t samplerate, fvec_t * freqs)
+    fvec_t * freqs, smpl_t samplerate)
 {
 
   fvec_t *filters = aubio_filterbank_get_coeffs (fb);
@@ -190,7 +190,7 @@ aubio_filterbank_set_mel_coeffs_slaney (aubio_filterbank_t * fb,
   }
 
   /* now compute the actual coefficients */
-  retval = aubio_filterbank_set_triangle_bands (fb, samplerate, freqs);
+  retval = aubio_filterbank_set_triangle_bands (fb, freqs, samplerate);
 
   /* destroy vector used to store frequency limits */
   del_fvec (freqs);

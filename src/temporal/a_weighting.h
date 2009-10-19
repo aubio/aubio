@@ -68,14 +68,15 @@ extern "C" {
   \return a new filter object
 
 */
-aubio_filter_t * new_aubio_filter_a_weighting (uint_t samplerate, uint_t channels);
+aubio_filter_t *new_aubio_filter_a_weighting (uint_t channels,
+    uint_t samplerate);
 
 /** set feedback and feedforward coefficients of a A-weighting filter
 
   \param f filter object to get coefficients from
 
 */
-uint_t aubio_filter_set_a_weighting (aubio_filter_t *f);
+uint_t aubio_filter_set_a_weighting (aubio_filter_t *f, uint_t samplerate);
 
 #ifdef __cplusplus
 }

@@ -71,17 +71,17 @@ void aubio_fft_get_norm(fvec_t * compspec, cvec_t * spectrum);
 void aubio_fft_get_real(cvec_t * spectrum, fvec_t * compspec);
 
 /* filter */
-aubio_filter_t * new_aubio_filter(uint_t samplerate, uint_t order, uint_t channels);
+aubio_filter_t * new_aubio_filter(uint_t order, uint_t channels);
 void aubio_filter_do(aubio_filter_t * b, fvec_t * in);
 void aubio_filter_do_outplace(aubio_filter_t * b, fvec_t * in, fvec_t * out);
 void aubio_filter_do_filtfilt(aubio_filter_t * b, fvec_t * in, fvec_t * tmp);
 void del_aubio_filter(aubio_filter_t * b);
 
-aubio_filter_t * new_aubio_filter_a_weighting (uint_t samplerate, uint_t channels);
-uint_t aubio_filter_set_a_weighting (aubio_filter_t * b);
+aubio_filter_t * new_aubio_filter_a_weighting (uint_t channels, uint_t samplerate);
+uint_t aubio_filter_set_a_weighting (aubio_filter_t * b, uint_t samplerate);
 
-aubio_filter_t * new_aubio_filter_c_weighting (uint_t samplerate, uint_t channels);
-uint_t aubio_filter_set_c_weighting (aubio_filter_t * b);
+aubio_filter_t * new_aubio_filter_c_weighting (uint_t channels, uint_t samplerate);
+uint_t aubio_filter_set_c_weighting (aubio_filter_t * b, uint_t samplerate);
 
 /* biquad */
 aubio_biquad_t * new_aubio_biquad(lsmp_t b1, lsmp_t b2, lsmp_t b3, lsmp_t a2, lsmp_t a3);
@@ -134,7 +134,7 @@ smpl_t aubio_spectral_centroid(cvec_t * spectrum, smpl_t samplerate);
 
 /* filterbank */
 aubio_filterbank_t * new_aubio_filterbank(uint_t win_s, uint_t channels);
-void aubio_filterbank_set_triangle_bands (aubio_filterbank_t *fb, uint_t samplerate, fvec_t *freqs);
+void aubio_filterbank_set_triangle_bands (aubio_filterbank_t *fb, fvec_t *freqs, uint_t samplerate);
 void aubio_filterbank_set_mel_coeffs_slaney(aubio_filterbank_t *fb, uint_t samplerate);
 void del_aubio_filterbank(aubio_filterbank_t * fb);
 void aubio_filterbank_do(aubio_filterbank_t * fb, cvec_t * in, fvec_t *out);
