@@ -122,6 +122,28 @@ lsmp_t ** lvec_get_data(lvec_t *s);
 */
 void lvec_print(lvec_t *s);
 
+/** set all elements to a given value
+
+  \param s vector to modify
+  \param val value to set elements to
+
+*/
+void lvec_set(lvec_t *s, smpl_t val);
+
+/** set all elements to zero 
+
+  \param s vector to modify
+
+*/
+void lvec_zeros(lvec_t *s);
+
+/** set all elements to ones 
+
+  \param s vector to modify
+
+*/
+void lvec_ones(lvec_t *s);
+
 #ifdef __cplusplus
 }
 #endif

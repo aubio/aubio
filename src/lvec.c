@@ -74,3 +74,20 @@ void lvec_print(lvec_t *s) {
   }
 }
 
+void lvec_set(lvec_t *s, smpl_t val) {
+  uint_t i,j;
+  for (i=0; i< s->channels; i++) {
+    for (j=0; j< s->length; j++) {
+      s->data[i][j] = val;
+    }
+  }
+}
+
+void lvec_zeros(lvec_t *s) {
+  lvec_set(s, 0.);
+}
+
+void lvec_ones(lvec_t *s) {
+  lvec_set(s, 1.);
+}
+
