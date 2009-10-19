@@ -140,6 +140,9 @@ uint_t aubio_filter_get_samplerate (aubio_filter_t * f);
 */
 uint_t aubio_filter_set_samplerate (aubio_filter_t * f, uint_t samplerate);
 
+/** reset filter memory */
+void aubio_filter_do_reset (aubio_filter_t * f);
+
 /** create new filter object
 
   This function creates a new ::aubio_filter_t object, given an order 

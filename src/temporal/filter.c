@@ -79,35 +79,19 @@ aubio_filter_do (aubio_filter_t * f, fvec_t * in)
   }
 }
 
-/*  
- *
- * despite mirroring, end effects destroy both phse and amplitude. the longer
- * the buffer, the less affected they are.
- *
- * replacing with zeros clicks.
- *
- * seems broken for order > 4 (see biquad_do_filtfilt for audible one) 
- */
+/* The rough way: reset memory of filter between each run to avoid end effects. */
 void aubio_filter_do_filtfilt(aubio_filter_t * f, fvec_t * in, fvec_t * tmp) {
   uint_t j,i=0;
   uint_t length = in->length;
-  //uint_t order = f->order;
-  //lsmp_t mir;
-  /* mirroring */
-  //mir = 2*in->data[i][0];
-  //for (j=1;j<order;j++)
-  //f->x[j] = 0.;//mir - in->data[i][order-j];
   /* apply filtering */
   aubio_filter_do(f,in);
-  /* invert */
+  aubio_filter_do_reset(f);
+  /* mirror */
   for (j = 0; j < length; j++)
     tmp->data[i][length-j-1] = in->data[i][j];
-  /* mirror inverted */
-  //mir = 2*tmp->data[i][0];
-  //for (j=1;j<order;j++)
-  //f->x[j] = 0.;//mir - tmp->data[i][order-j];
-  /* apply filtering on inverted */
+  /* apply filtering on mirrored */
   aubio_filter_do(f,tmp);
+  aubio_filter_do_reset(f);
   /* invert back */
   for (j = 0; j < length; j++)
     in->data[i][j] = tmp->data[i][length-j-1];
@@ -142,6 +126,13 @@ aubio_filter_set_samplerate (aubio_filter_t * f, uint_t samplerate)
 {
   f->samplerate = samplerate;
   return AUBIO_OK;
+}
+
+void
+aubio_filter_do_reset (aubio_filter_t * f)
+{
+  lvec_zeros(f->x);
+  lvec_zeros(f->y);
 }
 
 aubio_filter_t *
