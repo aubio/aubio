@@ -11,9 +11,9 @@ class aubio_filter_test_case(TestCase):
 
   def test_members(self):
     f = digital_filter()
-    assert_equal ([f.channels, f.order, f.samplerate], [1, 7, 44100])
-    f = digital_filter(48000, 5, 2)
-    assert_equal ([f.channels, f.order, f.samplerate], [2, 5, 48000])
+    assert_equal ([f.channels, f.order], [1, 7])
+    f = digital_filter(5, 2)
+    assert_equal ([f.channels, f.order], [2, 5])
     f(fvec())
   
   def test_cweighting_error(self):
@@ -32,8 +32,8 @@ class aubio_filter_test_case(TestCase):
 
   def test_c_weighting(self):
     expected = array_from_text_file('c_weighting_test_simple.expected')
-    f = digital_filter(44100, 5, 1)
-    f.set_c_weighting()
+    f = digital_filter(5, 1)
+    f.set_c_weighting(44100)
     v = fvec(32)
     v[0][12] = .5
     u = f(v)
@@ -41,8 +41,8 @@ class aubio_filter_test_case(TestCase):
 
   def test_a_weighting(self):
     expected = array_from_text_file('a_weighting_test_simple.expected')
-    f = digital_filter(44100, 7, 1)
-    f.set_a_weighting()
+    f = digital_filter(7, 1)
+    f.set_a_weighting(44100)
     v = fvec(32)
     v[0][12] = .5
     u = f(v)
@@ -50,8 +50,8 @@ class aubio_filter_test_case(TestCase):
 
   def test_a_weighting_parted(self):
     expected = array_from_text_file('a_weighting_test_simple.expected')
-    f = digital_filter(44100, 7, 1)
-    f.set_a_weighting()
+    f = digital_filter(7, 1)
+    f.set_a_weighting(44100)
     v = fvec(16)
     v[0][12] = .5
     u = f(v)

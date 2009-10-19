@@ -4,7 +4,6 @@ typedef struct
 {
   PyObject_HEAD
   aubio_filter_t * o;
-  uint_t samplerate;
   uint_t order;
   uint_t channels;
 } Py_filter;
@@ -14,32 +13,23 @@ static char Py_filter_doc[] = "filter object";
 static PyObject *
 Py_filter_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
 {
-  int samplerate= 0, order= 0, channels = 0;
+  int order= 0, channels = 0;
   Py_filter *self;
-  static char *kwlist[] = { "samplerate", "order", "channels", NULL };
+  static char *kwlist[] = { "order", "channels", NULL };
 
-  if (!PyArg_ParseTupleAndKeywords (args, kwds, "|III", kwlist,
-          &samplerate, &order, &channels)) {
+  if (!PyArg_ParseTupleAndKeywords (args, kwds, "|II", kwlist,
+          &order, &channels)) {
     return NULL;
   }
 
   self = (Py_filter *) type->tp_alloc (type, 0);
 
-  self->samplerate = Py_aubio_default_samplerate;
-  self->order = 7;
-  self->channels = Py_default_vector_channels;
-
   if (self == NULL) {
     return NULL;
   }
 
-  if (samplerate > 0) {
-    self->samplerate = samplerate;
-  } else if (samplerate < 0) {
-    PyErr_SetString (PyExc_ValueError,
-        "can not use negative samplerate");
-    return NULL;
-  }
+  self->order = 7;
+  self->channels = Py_default_vector_channels;
 
   if (order > 0) {
     self->order = order;
@@ -63,7 +53,7 @@ Py_filter_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
 static int
 Py_filter_init (Py_filter * self, PyObject * args, PyObject * kwds)
 {
-  self->o = new_aubio_filter (self->samplerate, self->order, self->channels);
+  self->o = new_aubio_filter (self->order, self->channels);
   if (self->o == NULL) {
     return -1;
   }
@@ -112,21 +102,33 @@ Py_filter_do(PyObject * self, PyObject * args)
 }
 
 static PyObject * 
-Py_filter_set_c_weighting (Py_filter * self, PyObject *unused)
+Py_filter_set_c_weighting (Py_filter * self, PyObject *args)
 {
-  uint_t err = aubio_filter_set_c_weighting (((Py_filter *)self)->o);
+  uint_t err = 0;
+  uint_t samplerate;
+  if (!PyArg_ParseTuple (args, "I", &samplerate)) {
+    return NULL;
+  }
+
+  err = aubio_filter_set_c_weighting (self->o, samplerate);
   if (err > 0) {
     PyErr_SetString (PyExc_ValueError,
-        "error when setting filter to C-weighting");
+        "error when setting filter to A-weighting");
     return NULL;
   }
   return Py_None;
 }
 
 static PyObject * 
-Py_filter_set_a_weighting (Py_filter * self, PyObject *unused)
+Py_filter_set_a_weighting (Py_filter * self, PyObject *args)
 {
-  uint_t err = aubio_filter_set_a_weighting (((Py_filter *)self)->o);
+  uint_t err = 0;
+  uint_t samplerate;
+  if (!PyArg_ParseTuple (args, "I", &samplerate)) {
+    return NULL;
+  }
+
+  err = aubio_filter_set_a_weighting (self->o, samplerate);
   if (err > 0) {
     PyErr_SetString (PyExc_ValueError,
         "error when setting filter to A-weighting");
@@ -137,8 +139,6 @@ Py_filter_set_a_weighting (Py_filter * self, PyObject *unused)
 
 static PyMemberDef Py_filter_members[] = {
   // TODO remove READONLY flag and define getter/setter
-  {"samplerate", T_INT, offsetof (Py_filter, samplerate), READONLY,
-      "sampling rate"},
   {"order", T_INT, offsetof (Py_filter, order), READONLY,
       "order of the filter"},
   {"channels", T_INT, offsetof (Py_filter, channels), READONLY,
@@ -147,8 +147,6 @@ static PyMemberDef Py_filter_members[] = {
 };
 
 static PyMethodDef Py_filter_methods[] = {
-  {"do", (PyCFunction) Py_filter_do, METH_VARARGS,
-      "filter input vector"},
   {"set_c_weighting", (PyCFunction) Py_filter_set_c_weighting, METH_NOARGS,
       "set filter coefficients to C-weighting"},
   {"set_a_weighting", (PyCFunction) Py_filter_set_a_weighting, METH_NOARGS,

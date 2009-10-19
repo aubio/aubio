@@ -127,15 +127,15 @@ PyAubio_ArrayToFvec (PyObject *input) {
       PyErr_SetString (PyExc_ValueError, "input array should be float");
       goto fail;
 #if AUBIO_DO_CASTING
-    } else if (PyArray_TYPE (input) != AUBIO_FLOAT) {
+    } else if (PyArray_TYPE (input) != AUBIO_NPY_SMPL) {
       // input data type is not float32, casting 
-      array = PyArray_Cast ( (PyArrayObject*) input, AUBIO_FLOAT);
+      array = PyArray_Cast ( (PyArrayObject*) input, AUBIO_NPY_SMPL);
       if (array == NULL) {
-        PyErr_SetString (PyExc_IndexError, "failed converting to NPY_FLOAT");
+        PyErr_SetString (PyExc_IndexError, "failed converting to AUBIO_NPY_SMPL");
         goto fail;
       }
 #else
-    } else if (PyArray_TYPE (input) != AUBIO_FLOAT) {
+    } else if (PyArray_TYPE (input) != AUBIO_NPY_SMPL) {
       PyErr_SetString (PyExc_ValueError, "input array should be float32");
       goto fail;
 #endif
@@ -181,17 +181,17 @@ PyAubio_FvecToArray (Py_fvec * self)
   PyObject *array = NULL;
   if (self->channels == 1) {
     npy_intp dims[] = { self->length, 1 };
-    array = PyArray_SimpleNewFromData (1, dims, NPY_FLOAT, self->o->data[0]);
+    array = PyArray_SimpleNewFromData (1, dims, AUBIO_NPY_SMPL, self->o->data[0]);
   } else {
     uint_t i;
     npy_intp dims[] = { self->length, 1 };
     PyObject *concat = PyList_New (0), *tmp = NULL;
     for (i = 0; i < self->channels; i++) {
-      tmp = PyArray_SimpleNewFromData (1, dims, NPY_FLOAT, self->o->data[i]);
+      tmp = PyArray_SimpleNewFromData (1, dims, AUBIO_NPY_SMPL, self->o->data[i]);
       PyList_Append (concat, tmp);
       Py_DECREF (tmp);
     }
-    array = PyArray_FromObject (concat, NPY_FLOAT, 2, 2);
+    array = PyArray_FromObject (concat, AUBIO_NPY_SMPL, 2, 2);
     Py_DECREF (concat);
   }
   return array;
@@ -214,7 +214,7 @@ Py_fvec_getitem (Py_fvec * self, Py_ssize_t index)
   }
 
   npy_intp dims[] = { self->length, 1 };
-  array = PyArray_SimpleNewFromData (1, dims, NPY_FLOAT, self->o->data[index]);
+  array = PyArray_SimpleNewFromData (1, dims, AUBIO_NPY_SMPL, self->o->data[index]);
   return array;
 }
 
@@ -228,7 +228,7 @@ Py_fvec_setitem (Py_fvec * self, Py_ssize_t index, PyObject * o)
     return -1;
   }
 
-  array = PyArray_FROM_OT (o, NPY_FLOAT);
+  array = PyArray_FROM_OT (o, AUBIO_NPY_SMPL);
   if (array == NULL) {
     PyErr_SetString (PyExc_ValueError, "should be an array of float");
     goto fail;

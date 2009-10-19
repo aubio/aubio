@@ -9,10 +9,11 @@
 
 #define Py_aubio_default_samplerate 44100
 
-#ifdef HAVE_AUBIO_DOUBLE
-#define AUBIO_FLOAT NPY_FLOAT
+#if HAVE_AUBIO_DOUBLE
+#error "Ouch! Python interface for aubio has not been much tested yet."
+#define AUBIO_NPY_SMPL NPY_DOUBLE
 #else
-#define AUBIO_FLOAT NPY_LONG
+#define AUBIO_NPY_SMPL NPY_FLOAT
 #endif
 
 /**
@@ -32,11 +33,24 @@ typedef struct
   uint_t channels;
 } Py_fvec;
 extern PyTypeObject Py_fvecType;
+extern PyObject *PyAubio_FvecToArray (Py_fvec * self);
+extern Py_fvec *PyAubio_ArrayToFvec (PyObject * self);
 
+typedef struct
+{
+  PyObject_HEAD
+  cvec_t * o;
+  uint_t length;
+  uint_t channels;
+} Py_cvec;
 extern PyTypeObject Py_cvecType;
+extern PyObject *PyAubio_CvecToArray (Py_cvec * self);
+extern Py_cvec *PyAubio_ArrayToCvec (PyObject * self);
 
 extern PyTypeObject Py_filterType;
 
-extern PyObject *PyAubio_FvecToArray (Py_fvec * self);
+extern PyTypeObject Py_filterbankType;
 
-extern Py_fvec *PyAubio_ArrayToFvec (PyObject * self);
+extern PyTypeObject Py_fftType;
+
+extern PyTypeObject Py_pvocType;

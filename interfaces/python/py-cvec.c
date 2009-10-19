@@ -8,16 +8,8 @@ class cvec():
         self.channels = channels 
         self.norm = array(length, channels)
         self.phas = array(length, channels)
-
 */
 
-typedef struct
-{
-  PyObject_HEAD
-  cvec_t * o;
-  uint_t length;
-  uint_t channels;
-} Py_cvec;
 
 static char Py_cvec_doc[] = "cvec object";
 
@@ -96,7 +88,7 @@ Py_cvec_repr (Py_cvec * self, PyObject * unused)
   if (args == NULL) {
     goto fail;
   }
-  cvec_print ( self->o );
+  //cvec_print ( self->o );
 
   result = PyString_Format (format, args);
 
@@ -132,15 +124,15 @@ PyAubio_ArrayToCvec (PyObject *input) {
       PyErr_SetString (PyExc_ValueError, "input array should be float");
       goto fail;
 #if AUBIO_DO_CASTING
-    } else if (PyArray_TYPE (input) != AUBIO_FLOAT) {
+    } else if (PyArray_TYPE (input) != AUBIO_NPY_SMPL) {
       // input data type is not float32, casting 
-      array = PyArray_Cast ( (PyArrayObject*) input, AUBIO_FLOAT);
+      array = PyArray_Cast ( (PyArrayObject*) input, AUBIO_NPY_SMPL);
       if (array == NULL) {
         PyErr_SetString (PyExc_IndexError, "failed converting to NPY_FLOAT");
         goto fail;
       }
 #else
-    } else if (PyArray_TYPE (input) != AUBIO_FLOAT) {
+    } else if (PyArray_TYPE (input) != AUBIO_NPY_SMPL) {
       PyErr_SetString (PyExc_ValueError, "input array should be float32");
       goto fail;
 #endif
@@ -152,10 +144,14 @@ PyAubio_ArrayToCvec (PyObject *input) {
     // create a new cvec object
     vec = (Py_cvec*) PyObject_New (Py_cvec, &Py_cvecType); 
     if (PyArray_NDIM (array) == 1) {
+      PyErr_SetString (PyExc_ValueError,
+          "input array should be have at least two rows for norm and phas");
+      goto fail;
+    } else if (PyArray_NDIM (array) == 2) {
       vec->channels = 1;
       vec->length = PyArray_SIZE (array);
     } else {
-      vec->channels = PyArray_DIM (array, 0);
+      vec->channels = PyArray_DIM (array, 0) / 2;
       vec->length = PyArray_DIM (array, 1);
     }
 
@@ -166,8 +162,9 @@ PyAubio_ArrayToCvec (PyObject *input) {
     vec->o->norm = (smpl_t**)malloc(vec->o->channels * sizeof(smpl_t*));
     vec->o->phas = (smpl_t**)malloc(vec->o->channels * sizeof(smpl_t*));
     // hat data[i] point to array line
-    for (i = 0; i < vec->channels; i++) {
+    for (i = 0; i < vec->channels; i+=2) {
       vec->o->norm[i] = (smpl_t *) PyArray_GETPTR1 (array, i);
+      vec->o->phas[i] = (smpl_t *) PyArray_GETPTR1 (array, i+1);
     }
 
   } else {
@@ -185,22 +182,90 @@ PyObject *
 PyAubio_CvecToArray (Py_cvec * self)
 {
   PyObject *array = NULL;
-  if (self->channels == 1) {
-    npy_intp dims[] = { self->length, 1 };
-    array = PyArray_SimpleNewFromData (1, dims, NPY_FLOAT, self->o->norm[0]);
-  } else {
-    uint_t i;
-    npy_intp dims[] = { self->length, 1 };
-    PyObject *concat = PyList_New (0), *tmp = NULL;
-    for (i = 0; i < self->channels; i++) {
-      tmp = PyArray_SimpleNewFromData (1, dims, NPY_FLOAT, self->o->norm[i]);
-      PyList_Append (concat, tmp);
-      Py_DECREF (tmp);
-    }
-    array = PyArray_FromObject (concat, NPY_FLOAT, 2, 2);
-    Py_DECREF (concat);
+  uint_t i;
+  npy_intp dims[] = { self->o->length, 1 };
+  PyObject *concat = PyList_New (0), *tmp = NULL;
+  for (i = 0; i < self->channels; i++) {
+    tmp = PyArray_SimpleNewFromData (1, dims, NPY_FLOAT, self->o->norm[i]);
+    PyList_Append (concat, tmp);
+    Py_DECREF (tmp);
+    tmp = PyArray_SimpleNewFromData (1, dims, NPY_FLOAT, self->o->phas[i]);
+    PyList_Append (concat, tmp);
+    Py_DECREF (tmp);
   }
+  array = PyArray_FromObject (concat, NPY_FLOAT, 2, 2);
+  Py_DECREF (concat);
   return array;
+}
+
+PyObject *
+PyAubio_CvecNormToArray (Py_cvec * self)
+{
+  PyObject *array = NULL;
+  uint_t i;
+  npy_intp dims[] = { self->o->length, 1 };
+  PyObject *concat = PyList_New (0), *tmp = NULL;
+  for (i = 0; i < self->channels; i++) {
+    tmp = PyArray_SimpleNewFromData (1, dims, NPY_FLOAT, self->o->norm[i]);
+    PyList_Append (concat, tmp);
+    Py_DECREF (tmp);
+  }
+  array = PyArray_FromObject (concat, NPY_FLOAT, 2, 2);
+  Py_DECREF (concat);
+  return array;
+}
+
+PyObject *
+PyAubio_ArrayToCvecNorm (PyObject * self)
+{
+  return NULL;
+}
+
+PyObject *
+PyAubio_CvecPhasToArray (Py_cvec * self)
+{
+  PyObject *array = NULL;
+  uint_t i;
+  npy_intp dims[] = { self->o->length, 1 };
+  PyObject *concat = PyList_New (0), *tmp = NULL;
+  for (i = 0; i < self->channels; i++) {
+    tmp = PyArray_SimpleNewFromData (1, dims, NPY_FLOAT, self->o->phas[i]);
+    PyList_Append (concat, tmp);
+    Py_DECREF (tmp);
+  }
+  array = PyArray_FromObject (concat, NPY_FLOAT, 2, 2);
+  Py_DECREF (concat);
+  return array;
+}
+
+PyObject *
+PyAubio_ArrayToCvecPhas (PyObject * self)
+{
+  return NULL;
+}
+
+PyObject *
+Py_cvec_get_norm (Py_cvec * self, void *closure)
+{
+  return PyAubio_CvecNormToArray(self);
+}
+
+PyObject *
+Py_cvec_get_phas (Py_cvec * self, void *closure)
+{
+  return PyAubio_CvecPhasToArray(self);
+}
+
+static int
+Py_cvec_set_norm (Py_cvec * self, PyObject *value, void * closure)
+{
+  return 0;
+}
+
+static int
+Py_cvec_set_phas (Py_cvec * self, PyObject *value, void * closure)
+{
+  return 0;
 }
 
 static Py_ssize_t
@@ -269,9 +334,25 @@ static PyMemberDef Py_cvec_members[] = {
 };
 
 static PyMethodDef Py_cvec_methods[] = {
-  {"__array__", (PyCFunction) PyAubio_FvecToArray, METH_NOARGS,
-      "Returns the first channel as a numpy array."},
+  {"__array__", (PyCFunction) PyAubio_CvecToArray, METH_NOARGS,
+      "Returns the content of this cvec as a numpy array"},
+/*
+  {"norm", (PyCFunction) PyAubio_CvecNormToArray, METH_NOARGS,
+      "Returns the content of the magnitude of this cvec as a numpy array."},
+  {"phas", (PyCFunction) PyAubio_CvecPhasToArray, METH_NOARGS,
+      "Returns the content of the phase of this cvec as a numpy array."},
+*/
   {NULL}
+};
+
+static PyGetSetDef Py_cvec_getseters[] = {
+  {"norm", (getter)Py_cvec_get_norm, (setter)Py_cvec_set_norm, 
+      "Content of the magnitude of this cvec",
+      NULL},
+  {"phas", (getter)Py_cvec_get_phas, (setter)Py_cvec_set_phas, 
+      "Content of the magnitude of this cvec",
+      NULL},
+  {NULL} /* sentinel */
 };
 
 static PySequenceMethods Py_cvec_tp_as_sequence = {
@@ -319,7 +400,7 @@ PyTypeObject Py_cvecType = {
   0,                            /* tp_iternext       */
   Py_cvec_methods,              /* tp_methods        */
   Py_cvec_members,              /* tp_members        */
-  0,                            /* tp_getset         */
+  Py_cvec_getseters,            /* tp_getset         */
   0,                            /* tp_base           */
   0,                            /* tp_dict           */
   0,                            /* tp_descr_get      */

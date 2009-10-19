@@ -93,6 +93,7 @@ Py_min_removal(PyObject * self, PyObject * args)
 
   // compute the function
   fvec_min_removal (vec->o);
+
   // since this function does not return, we could return None
   //return Py_None;
   // however it is convenient to return the modified vector 
@@ -118,9 +119,13 @@ init_aubio (void)
   PyObject *m;
   int err;
 
-  if ((PyType_Ready (&Py_fvecType) < 0) ||
-      (PyType_Ready (&Py_cvecType) < 0) ||
-      (PyType_Ready (&Py_filterType) < 0)) {
+  if ((PyType_Ready (&Py_fvecType) < 0) 
+      || (PyType_Ready (&Py_cvecType) < 0) 
+      || (PyType_Ready (&Py_filterType) < 0) 
+      || (PyType_Ready (&Py_filterbankType) < 0) 
+      || (PyType_Ready (&Py_fftType) < 0) 
+      || (PyType_Ready (&Py_pvocType) < 0) 
+  ) {
     return;
   }
 
@@ -143,4 +148,10 @@ init_aubio (void)
   PyModule_AddObject (m, "cvec", (PyObject *) & Py_cvecType);
   Py_INCREF (&Py_filterType);
   PyModule_AddObject (m, "digital_filter", (PyObject *) & Py_filterType);
+  Py_INCREF (&Py_filterbankType);
+  PyModule_AddObject (m, "filterbank", (PyObject *) & Py_filterbankType);
+  Py_INCREF (&Py_fftType);
+  PyModule_AddObject (m, "fft", (PyObject *) & Py_fftType);
+  Py_INCREF (&Py_pvocType);
+  PyModule_AddObject (m, "pvoc", (PyObject *) & Py_pvocType);
 }
