@@ -94,19 +94,19 @@ class pitch_test_case(unittest.TestCase):
     del vec
 
 """
-class pitch_yin_test_case(pitchdetection_test_case):
+class pitch_yin_test_case(pitch_test_case):
   def setUp(self, type = aubio_pitch_yin):
     self.create(type=type)
 
-class pitch_fcomb_test_case(pitchdetection_test_case):
+class pitch_fcomb_test_case(pitch_test_case):
   def setUp(self, type = aubio_pitch_fcomb):
     self.create(type=type)
 
-class pitch_mcomb_test_case(pitchdetection_test_case):
+class pitch_mcomb_test_case(pitch_test_case):
   def setUp(self, type = aubio_pitch_mcomb):
     self.create(type=type)
 
-class pitch_schmitt_test_case(pitchdetection_test_case):
+class pitch_schmitt_test_case(pitch_test_case):
   def setUp(self, type = aubio_pitch_schmitt):
     self.create(type=type)
 """

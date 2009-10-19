@@ -24,7 +24,7 @@ smpl_t pitch = 0.;
 uint_t median = 6;
 smpl_t curlevel = 0.;
 
-aubio_pitchdetection_t *pitchdet;
+aubio_pitch_t *pitchdet;
 
 fvec_t *note_buffer = NULL;
 fvec_t *note_buffer2 = NULL;
@@ -34,7 +34,7 @@ smpl_t newnote = 0.;
 uint_t isready = 0;
 unsigned int pos = 0; /*frames%dspblocksize*/
 
-aubio_pitchdetection_t *pitchdet;
+aubio_pitch_t *pitchdet;
 aubio_onset_t *o;
 fvec_t *onset;
 fvec_t *pitch_obuf;
@@ -61,7 +61,7 @@ static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
       /* block loop */
       aubio_onset_do(o, ibuf, onset);
       
-      aubio_pitchdetection_do (pitchdet, ibuf, pitch_obuf);
+      aubio_pitch_do (pitchdet, ibuf, pitch_obuf);
       pitch = fvec_read_sample(pitch_obuf, 0, 0);
       if(median){
               note_append(note_buffer, pitch);
@@ -149,9 +149,9 @@ int main(int argc, char **argv) {
           samplerate);
   onset = new_fvec (1, channels);
 
-  pitchdet = new_aubio_pitchdetection (pitch_mode, buffer_size * 4,
+  pitchdet = new_aubio_pitch (pitch_mode, buffer_size * 4,
           overlap_size, channels, samplerate);
-  aubio_pitchdetection_set_tolerance (pitchdet, 0.7);
+  aubio_pitch_set_tolerance (pitchdet, 0.7);
   pitch_obuf = new_fvec (1, channels);
   if (median) {
       note_buffer = new_fvec (median, 1);
@@ -161,7 +161,7 @@ int main(int argc, char **argv) {
   examples_common_process(aubio_process, process_print);
 
   send_noteon (curnote, 0);
-  del_aubio_pitchdetection (pitchdet);
+  del_aubio_pitch (pitchdet);
   if (median) {
       del_fvec (note_buffer);
       del_fvec (note_buffer2);
