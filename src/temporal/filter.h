@@ -56,6 +56,7 @@
   Some convenience functions are provided: 
     - new_aubio_filter_a_weighting() and aubio_filter_set_a_weighting(),
     - new_aubio_filter_c_weighting() and aubio_filter_set_c_weighting().
+    - new_aubio_filter_biquad() and aubio_filter_set_biquad().
  
 */
 
@@ -140,7 +141,11 @@ uint_t aubio_filter_get_samplerate (aubio_filter_t * f);
 */
 uint_t aubio_filter_set_samplerate (aubio_filter_t * f, uint_t samplerate);
 
-/** reset filter memory */
+/** reset filter memory
+
+  \param f filter object as returned by new_aubio_filter()
+
+*/
 void aubio_filter_do_reset (aubio_filter_t * f);
 
 /** create new filter object
@@ -148,7 +153,6 @@ void aubio_filter_do_reset (aubio_filter_t * f);
   This function creates a new ::aubio_filter_t object, given an order 
   and a specific number of channels.
 
-  \param samplerate signal sampling rate
   \param order order of the filter (number of coefficients)
   \param channels number of channels to allocate
 

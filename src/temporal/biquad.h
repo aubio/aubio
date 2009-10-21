@@ -42,6 +42,7 @@ extern "C" {
 
 /** set coefficients of a biquad filter
 
+  \param f filter object as returned by new_aubio_filter()
   \param b0 forward filter coefficient
   \param b1 forward filter coefficient
   \param b2 forward filter coefficient
@@ -60,6 +61,7 @@ aubio_filter_set_biquad (aubio_filter_t * f, lsmp_t b0, lsmp_t b1, lsmp_t b2,
   \param b2 forward filter coefficient
   \param a1 feedback filter coefficient
   \param a2 feedback filter coefficient
+  \param channels number of channels to allocate
 
 */
 aubio_filter_t *

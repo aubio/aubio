@@ -60,10 +60,10 @@ extern "C" {
 
 /** create new A-design filter
 
+  \param channels number of channels to allocate
   \param samplerate sampling frequency of the signal to filter. Should be one of 
   8000, 11025, 16000, 22050, 24000, 32000, 44100, 48000, 88200, 96000, and
   192000 Hz
-  \param channels number of channels to allocate
 
   \return a new filter object
 
@@ -74,6 +74,9 @@ aubio_filter_t *new_aubio_filter_a_weighting (uint_t channels,
 /** set feedback and feedforward coefficients of a A-weighting filter
 
   \param f filter object to get coefficients from
+  \param samplerate sampling frequency of the signal to filter. Should be one of 
+  8000, 11025, 16000, 22050, 24000, 32000, 44100, 48000, 88200, 96000, and
+  192000 Hz
 
 */
 uint_t aubio_filter_set_a_weighting (aubio_filter_t *f, uint_t samplerate);
