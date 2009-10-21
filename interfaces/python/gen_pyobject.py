@@ -40,7 +40,7 @@ defaultsizes = {
     'tss':          ('self->hop_s', 'self->channels'),
     'mfcc':         ('self->n_coeffs', 'in->channels'),
     'beattracking': ('self->winlen', 'self->channels'),
-    'tempo':        ('self->buf_size', 'self->channels'),
+    'tempo':        ('1', 'self->channels'),
     'peakpicker':   ('1', 'self->channels'),
 }
 
@@ -146,10 +146,11 @@ Py_%(name)s_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
 {
 """ % locals()
     for ptype, pname in newparams:
-        defval = aubioinitvalue[ptype]
+        initval = aubioinitvalue[ptype]
         s += """\
-  %(ptype)s %(pname)s = %(defval)s;
+  %(ptype)s %(pname)s = %(initval)s;
 """ % locals()
+    # now the actual PyArg_Parse
     s += """\
   Py_%(name)s *self;
   static char *kwlist[] = { %(paramnames)s, NULL };
@@ -168,17 +169,36 @@ Py_%(name)s_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
     # TODO add parameters default values
     for ptype, pname in newparams:
         defval = aubiodefvalue[pname]
-        s += """\
+        if ptype == 'char_t*':
+            s += """\
+
+  self->%(pname)s = %(defval)s;
+  if (%(pname)s != NULL) {
+    self->%(pname)s = %(pname)s;
+  }
+""" % locals()
+        elif ptype == 'uint_t':
+            s += """\
 
   self->%(pname)s = %(defval)s;
   if (%(pname)s > 0) {
     self->%(pname)s = %(pname)s;
   } else if (%(pname)s < 0) {
     PyErr_SetString (PyExc_ValueError,
-        "can not use negative window size");
+        "can not use negative value for %(pname)s");
     return NULL;
   }
 """ % locals()
+        elif ptype == 'smpl_t':
+            s += """\
+
+  self->%(pname)s = %(defval)s;
+  if (%(pname)s != %(defval)s) {
+    self->%(pname)s = %(pname)s;
+  }
+""" % locals()
+        else:
+            print "ERROR, unknown type of parameter %s %s" % (ptype, pname)
     s += """\
 
   return (PyObject *) self;
@@ -279,9 +299,16 @@ def gen_members(new_method, name):
     s = """
 AUBIO_MEMBERS_START(%(name)s)""" % locals()
     for param in newparams:
-        s += """
+        if param[0] == 'char_t*':
+            s += """
+  {"%(pname)s", T_STRING, offsetof (Py_%(name)s, %(pname)s), READONLY, ""},""" \
+        % { 'pname': param[1], 'ptype': param[0], 'name': name}
+        elif param[0] == 'uint_t':
+            s += """
   {"%(pname)s", T_INT, offsetof (Py_%(name)s, %(pname)s), READONLY, ""},""" \
         % { 'pname': param[1], 'ptype': param[0], 'name': name}
+        else:
+            print "-- ERROR, unknown member type ", param
     s += """
 AUBIO_MEMBERS_STOP(%(name)s)
 
