@@ -56,7 +56,7 @@ char_t * pitch_mode = "default";
 
 /* energy,specdiff,hfc,complexdomain,phase */
 char_t * onset_mode = "default";
-smpl_t threshold = 0.3;
+smpl_t threshold = 0.0;         // leave unset, only set as asked 
 smpl_t silence = -90.;
 uint_t buffer_size = 512;       //1024;
 uint_t overlap_size = 256;      //512;
@@ -148,17 +148,11 @@ parse_args (int argc, char **argv)
       case 'O':                /*onset type */
         onset_mode = optarg;
         break;
-      case 's':                /* threshold value for onset */
+      case 's':                /* silence value for onset */
         silence = (smpl_t) atof (optarg);
         break;
       case 't':                /* threshold value for onset */
         threshold = (smpl_t) atof (optarg);
-        /*
-           if (!isfinite(threshold)) {
-           debug("could not get threshold.\n");
-           abort();
-           }
-         */
         break;
       case 'p':
         pitch_mode = optarg;

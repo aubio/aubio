@@ -83,6 +83,7 @@ int main(int argc, char **argv) {
 
   tempo_out = new_fvec(2,channels);
   bt = new_aubio_tempo(onset_mode,buffer_size,overlap_size,channels, samplerate);
+  if (threshold != 0.) aubio_tempo_set_threshold (bt, threshold);
 
   examples_common_process(aubio_process,process_print);
 

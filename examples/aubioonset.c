@@ -78,6 +78,7 @@ int main(int argc, char **argv) {
 
   o = new_aubio_onset (onset_mode, buffer_size, overlap_size, channels,
           samplerate);
+  if (threshold != 0.) aubio_onset_set_threshold (o, threshold);
   onset = new_fvec (1, channels);
 
   examples_common_process(aubio_process,process_print);
