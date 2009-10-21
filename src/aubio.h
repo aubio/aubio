@@ -68,9 +68,7 @@ extern "C"
 #include "utils/scale.h"
 #include "utils/hist.h"
 #include "spectral/tss.h"
-#if HAVE_SAMPLERATE
 #include "temporal/resampler.h"
-#endif /* HAVE_SAMPLERATE */
 #include "temporal/filter.h"
 #include "temporal/biquad.h"
 #include "temporal/a_weighting.h"
