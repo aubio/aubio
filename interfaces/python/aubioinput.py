@@ -57,17 +57,20 @@ class AubioSink(gst.BaseSink):
 
 gobject.type_register(AubioSink)
 
-class aubioinput:
-    def __init__(self, location, process = None, hopsize = 512,
+class aubioinput(gst.Bin):
+
+    ret = 0
+
+    def __init__(self, uri, process = None, hopsize = 512,
             caps = None):
-        from os.path import isfile
-        if not isfile(location):
-            raise ValueError, "location should be a file"
-        src = gst.element_factory_make('filesrc')
-        src.set_property('location', location)
-        dec = gst.element_factory_make('decodebin')
-        dec.connect('new-decoded-pad', self.on_new_decoded_pad)
+        if uri.startswith('/'):
+            from urllib import quote
+            uri = 'file://'+quote(uri)
+        src = gst.element_factory_make('uridecodebin')
+        src.set_property('uri', uri)
+        src.connect('pad-added', self.source_pad_added_cb)
         conv = gst.element_factory_make('audioconvert')
+        self.conv = conv
         rsmpl = gst.element_factory_make('audioresample')
         capsfilter = gst.element_factory_make('capsfilter')
         if caps:
@@ -79,31 +82,40 @@ class aubioinput:
 
         self.bus = self.pipeline.get_bus()
         self.bus.add_signal_watch()
-        self.bus.connect('message::eos', self.on_eos)
+        self.bus.connect('message', self.on_eos)
 
         self.apad = conv.get_pad('sink')
 
-        self.pipeline.add(src, dec, conv, rsmpl, capsfilter, sink)
+        self.pipeline.add(src, conv, rsmpl, capsfilter, sink)
 
-        src.link(dec)
         gst.element_link_many(conv, rsmpl, capsfilter, sink)
 
         self.mainloop = gobject.MainLoop()
         self.pipeline.set_state(gst.STATE_PLAYING)
-        self.mainloop.run()
 
-    def on_new_decoded_pad(self, element, pad, last):
-        caps = pad.get_caps()
-        name = caps[0].get_name()
-        #print 'on_new_decoded_pad:', name
+    def run(self):
+        self.mainloop.run()
+        return self.ret
+
+    def source_pad_added_cb(self, src, pad):
+        name = pad.get_caps()[0].get_name()
         if name == 'audio/x-raw-float' or name == 'audio/x-raw-int':
-            if not self.apad.is_linked(): # Only link once
-                pad.link(self.apad)
+            pad.link(self.conv.get_pad("sink"))
+
+    def source_pad_removed_cb(self, src, pad):
+        pad.unlink(self.conv.get_pad("sink"))
 
     def on_eos(self, bus, msg):
-        self.bus.remove_signal_watch()
-        self.pipeline.set_state(gst.STATE_PAUSED)
-        self.mainloop.quit()
+        if msg.type == gst.MESSAGE_EOS:
+            self.bus.remove_signal_watch()
+            self.pipeline.set_state(gst.STATE_PAUSED)
+            self.mainloop.quit()
+        elif msg.type == gst.MESSAGE_ERROR:
+            print "ERROR", msg.parse_error()
+            self.bus.remove_signal_watch()
+            self.pipeline.set_state(gst.STATE_PAUSED)
+            self.mainloop.quit()
+            self.ret = 1 # set return value to 1 in case of error
 
 if __name__ == '__main__':
     import sys
@@ -111,9 +123,9 @@ if __name__ == '__main__':
         print "Usage: %s <filename>" % sys.argv[0]
         sys.exit(1)
     for filename in sys.argv[1:]:
-        peak = [0., 0.]
+        peak = [0.] # use a mutable 
         def process(buf, hop):
             peak[0] = max( peak[0], abs(buf.max()) )
-            peak[1] = min( peak[1], abs(buf.min()) )
-        aubioinput(filename, process = process, hopsize = 512)
-        print "Finished reading %s, peak value is %f" % (filename, min(peak))
+        a = aubioinput(filename, process = process, hopsize = 512)
+        if a.run() == 0: # only display the results if no 
+            print "Finished reading %s, peak value is %f" % (filename, max(peak))
