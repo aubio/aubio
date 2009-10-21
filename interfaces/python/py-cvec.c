@@ -215,11 +215,6 @@ PyAubio_CvecNormToArray (Py_cvec * self)
   return array;
 }
 
-PyObject *
-PyAubio_ArrayToCvecNorm (PyObject * self)
-{
-  return NULL;
-}
 
 PyObject *
 PyAubio_CvecPhasToArray (Py_cvec * self)
@@ -257,15 +252,151 @@ Py_cvec_get_phas (Py_cvec * self, void *closure)
 }
 
 static int
-Py_cvec_set_norm (Py_cvec * self, PyObject *value, void * closure)
+Py_cvec_set_norm (Py_cvec * vec, PyObject *input, void * closure)
 {
+  uint_t i;
+  PyObject * array;
+  if (input == NULL) {
+    PyErr_SetString (PyExc_ValueError, "input array is not a python object");
+    goto fail;
+  }
+  if (PyArray_Check(input)) {
+
+    // we got an array, convert it to a cvec.norm 
+    if (PyArray_NDIM (input) == 0) {
+      PyErr_SetString (PyExc_ValueError, "input array is a scalar");
+      goto fail;
+    } else if (PyArray_NDIM (input) > 2) {
+      PyErr_SetString (PyExc_ValueError,
+          "input array has more than two dimensions");
+      goto fail;
+    }
+
+    if (!PyArray_ISFLOAT (input)) {
+      PyErr_SetString (PyExc_ValueError, "input array should be float");
+      goto fail;
+    } else if (PyArray_TYPE (input) != AUBIO_NPY_SMPL) {
+      PyErr_SetString (PyExc_ValueError, "input array should be float32");
+      goto fail;
+    }
+    array = input;
+
+    // check input array dimensions
+    if (PyArray_NDIM (array) == 1) {
+      if (vec->channels != 1) {
+          PyErr_SetString (PyExc_ValueError,
+                  "input array should have more than one channel");
+          goto fail;
+      }
+      if (vec->o->length != PyArray_SIZE (array)) {
+          PyErr_Format (PyExc_ValueError,
+                  "input array has length %d, but cvec has length %d",
+                  PyArray_SIZE (array), vec->o->length);
+          goto fail;
+      }
+    } else {
+      if (vec->channels != PyArray_DIM (array, 0)) {
+          PyErr_Format (PyExc_ValueError,
+                  "input array has %d channels, but vector has %d channels",
+                  PyArray_DIM (array, 0), vec->channels);
+          goto fail;
+      }
+      if (vec->o->length != PyArray_DIM (array, 1)) {
+          PyErr_Format (PyExc_ValueError,
+                  "input array has length %d, but vector has length %d",
+                  PyArray_DIM (array, 1), vec->o->length);
+          goto fail;
+      }
+    }
+
+    for (i = 0; i < vec->channels; i++) {
+      vec->o->norm[i] = (smpl_t *) PyArray_GETPTR1 (array, i);
+    }
+
+  } else {
+    PyErr_SetString (PyExc_ValueError, "can only accept array as input");
+    return 1;
+  }
+
+  Py_INCREF(array);
   return 0;
+
+fail:
+  return 1;
 }
 
 static int
-Py_cvec_set_phas (Py_cvec * self, PyObject *value, void * closure)
+Py_cvec_set_phas (Py_cvec * vec, PyObject *input, void * closure)
 {
+  uint_t i;
+  PyObject * array;
+  if (input == NULL) {
+    PyErr_SetString (PyExc_ValueError, "input array is not a python object");
+    goto fail;
+  }
+  if (PyArray_Check(input)) {
+
+    // we got an array, convert it to a cvec.phas
+    if (PyArray_NDIM (input) == 0) {
+      PyErr_SetString (PyExc_ValueError, "input array is a scalar");
+      goto fail;
+    } else if (PyArray_NDIM (input) > 2) {
+      PyErr_SetString (PyExc_ValueError,
+          "input array has more than two dimensions");
+      goto fail;
+    }
+
+    if (!PyArray_ISFLOAT (input)) {
+      PyErr_SetString (PyExc_ValueError, "input array should be float");
+      goto fail;
+    } else if (PyArray_TYPE (input) != AUBIO_NPY_SMPL) {
+      PyErr_SetString (PyExc_ValueError, "input array should be float32");
+      goto fail;
+    }
+    array = input;
+
+    // check input array dimensions
+    if (PyArray_NDIM (array) == 1) {
+      if (vec->channels != 1) {
+          PyErr_SetString (PyExc_ValueError,
+                  "input array should have more than one channel");
+          goto fail;
+      }
+      if (vec->o->length != PyArray_SIZE (array)) {
+          PyErr_Format (PyExc_ValueError,
+                  "input array has length %d, but cvec has length %d",
+                  PyArray_SIZE (array), vec->o->length);
+          goto fail;
+      }
+    } else {
+      if (vec->channels != PyArray_DIM (array, 0)) {
+          PyErr_Format (PyExc_ValueError,
+                  "input array has %d channels, but vector has %d channels",
+                  PyArray_DIM (array, 0), vec->channels);
+          goto fail;
+      }
+      if (vec->o->length != PyArray_DIM (array, 1)) {
+          PyErr_Format (PyExc_ValueError,
+                  "input array has length %d, but vector has length %d",
+                  PyArray_DIM (array, 1), vec->o->length);
+          goto fail;
+      }
+    }
+
+    for (i = 0; i < vec->channels; i++) {
+      vec->o->phas[i] = (smpl_t *) PyArray_GETPTR1 (array, i);
+    }
+
+  } else {
+    PyErr_SetString (PyExc_ValueError, "can only accept array as input");
+    return 1;
+  }
+
+  Py_INCREF(array);
   return 0;
+
+fail:
+  return 1;
 }
 
 static Py_ssize_t
@@ -336,12 +467,6 @@ static PyMemberDef Py_cvec_members[] = {
 static PyMethodDef Py_cvec_methods[] = {
   {"__array__", (PyCFunction) PyAubio_CvecToArray, METH_NOARGS,
       "Returns the content of this cvec as a numpy array"},
-/*
-  {"norm", (PyCFunction) PyAubio_CvecNormToArray, METH_NOARGS,
-      "Returns the content of the magnitude of this cvec as a numpy array."},
-  {"phas", (PyCFunction) PyAubio_CvecPhasToArray, METH_NOARGS,
-      "Returns the content of the phase of this cvec as a numpy array."},
-*/
   {NULL}
 };
 
