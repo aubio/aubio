@@ -12,13 +12,13 @@ namespace aubio {
   }
 
   smpl_t* fvec::operator[]( uint_t channel ) {
-    return self->data[channel];
+    return fvec_get_channel(self, channel);
   }
 
   cvec::cvec(uint_t length, uint_t channels) {
     self = new_cvec(length, channels);
-    norm = self->norm;
-    phas = self->phas;
+    norm = cvec_get_norm(self);
+    phas = cvec_get_phas(self);
   }
 
   cvec::~cvec() {
