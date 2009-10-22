@@ -1,3 +1,5 @@
+#define AUBIO_UNSTABLE 1
+
 #include <stdio.h>
 #include <aubio.h>
 

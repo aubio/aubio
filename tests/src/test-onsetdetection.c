@@ -1,4 +1,6 @@
 
+#define AUBIO_UNSTABLE 1
+
 #include <aubio.h>
 
 int
