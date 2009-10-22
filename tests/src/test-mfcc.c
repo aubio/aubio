@@ -11,14 +11,11 @@ main (void)
   cvec_t *in = new_cvec (win_s, channels);      /* input buffer */
   fvec_t *out = new_fvec (n_coefs, channels);     /* input buffer */
   smpl_t samplerate = 16000.;
-  uint_t i = 0;
 
   /* allocate fft and other memory space */
   aubio_mfcc_t *o = new_aubio_mfcc (win_s, n_filters, n_coefs, samplerate);
 
-  for (i = 0; i < in->length; i ++) {
-    in->norm[0][i] = 1.;
-  }
+  cvec_set (in, 1.);
 
   aubio_mfcc_do (o, in, out);
   fvec_print (out);
