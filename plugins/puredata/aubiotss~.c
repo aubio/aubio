@@ -8,6 +8,7 @@
  * */
 
 #include <m_pd.h>
+#define AUBIO_UNSTABLE 1
 #include <aubio.h>
 
 char aubiotss_version[] = "aubiotss~ version 0.1";
