@@ -16,6 +16,8 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#define AUBIO_UNSTABLE 1 // for fvec_median_channel
+
 #include "utils.h"
 
 /* pitch objects */
