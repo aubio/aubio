@@ -35,15 +35,13 @@ extern "C" {
 
 */
 
-/** Spectrum buffer type */
-typedef struct _cvec_t cvec_t;
 /** Buffer for complex data */
-struct _cvec_t {
+typedef struct {
   uint_t length;   /**< length of buffer = (requested length)/2 + 1 */
   uint_t channels; /**< number of channels */
   smpl_t **norm;   /**< norm array of size [length] * [channels] */
   smpl_t **phas;   /**< phase array of size [length] * [channels] */
-};
+} cvec_t;
 
 /** cvec_t buffer creation function
 

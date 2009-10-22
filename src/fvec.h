@@ -34,14 +34,13 @@ extern "C" {
 
 */
 
-/** Sample buffer type */
-typedef struct _fvec_t fvec_t;
-/** Buffer for real values */
-struct _fvec_t {
+/** Buffer for real data */
+typedef struct {
   uint_t length;   /**< length of buffer */
   uint_t channels; /**< number of channels */
   smpl_t **data;   /**< data array of size [length] * [channels] */
-};
+} fvec_t;
+
 /** fvec_t buffer creation function
 
   \param length the length of the buffer to create

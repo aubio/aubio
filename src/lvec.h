@@ -35,14 +35,13 @@ extern "C" {
 
 */
 
-/** Sample buffer type */
-typedef struct _lvec_t lvec_t;
-/** Buffer for real values */
-struct _lvec_t {
+/** Buffer for real data in double precision */
+typedef struct {
   uint_t length;   /**< length of buffer */
   uint_t channels; /**< number of channels */
   lsmp_t **data;   /**< data array of size [length] * [channels] */
-};
+} lvec_t;
+
 /** lvec_t buffer creation function
 
   \param length the length of the buffer to create
