@@ -68,6 +68,10 @@
 
 #include "types.h"
 
+#define AUBIO_UNSTABLE 1
+
+#include "mathutils.h"
+
 /****
  * 
  * SYSTEM INTERFACE

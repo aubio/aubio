@@ -21,6 +21,7 @@
 #include "fvec.h"
 #include "cvec.h"
 #include "mathutils.h"
+#include "musicutils.h"
 #include "spectral/fft.h"
 #include "pitch/pitchfcomb.h"
 

@@ -1,8 +1,8 @@
 #include "config.h"
+#include "aubio_priv.h"
 #include "types.h"
 #include "fvec.h"
 #include "cvec.h"
-#include "aubio_priv.h"
 #include "vecutils.h"
 
 #define AUBIO_OP(OPNAME, OP, TYPE, OBJ) \

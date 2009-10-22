@@ -23,6 +23,7 @@
 #include "aubio_priv.h"
 #include "fvec.h"
 #include "mathutils.h"
+#include "musicutils.h"
 #include "config.h"
 
 
