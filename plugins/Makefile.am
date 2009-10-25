@@ -1,4 +1,4 @@
 if PUREDATAFOUND
 PUREDATA = puredata
 endif
-SUBDIRS = wavesurfer audacity ${PUREDATA} 
+SUBDIRS = wavesurfer ${PUREDATA} 
