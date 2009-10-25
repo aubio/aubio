@@ -266,7 +266,6 @@ AC_OUTPUT([
     interfaces/java/Makefile
     interfaces/java/aubio/Makefile
     plugins/Makefile
-    plugins/wavesurfer/Makefile
     plugins/puredata/Makefile
     doc/Makefile
   ])
