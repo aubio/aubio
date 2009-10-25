@@ -40,13 +40,9 @@ static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
       /* block loop */
       aubio_onset_do (o, ibuf, onset);
       if (fvec_read_sample(onset, 0, 0)) {
-        for (pos = 0; pos < overlap_size; pos++){
-          obuf->data[0][pos] = woodblock->data[0][pos];
-        }
+        fvec_copy (woodblock, obuf);
       } else {
-        for (pos = 0; pos < overlap_size; pos++) {
-          obuf->data[0][pos] = 0.;
-        }
+        fvec_zeros (obuf);
       }
       /* end of block loop */
       pos = -1; /* so it will be zero next j loop */

@@ -41,20 +41,12 @@ static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
     if (pos == overlap_size-1) {         
       /* block loop */
       aubio_tempo_do (bt,ibuf,tempo_out);
-      if (tempo_out->data[0][0]>0) 
-        istactus = tempo_out->data[0][0];
-      else 
-        istactus = 0;
-      if (tempo_out->data[0][1]>0) 
-        isonset = tempo_out->data[0][0];
-      else 
-        isonset = 0;
-      if (istactus) {
-              for (pos = 0; pos < overlap_size; pos++)
-                      obuf->data[0][pos] = woodblock->data[0][pos];
+      istactus = fvec_read_sample (tempo_out, 0, 0);
+      isonset = fvec_read_sample (tempo_out, 0, 1);
+      if (istactus > 0.) {
+        fvec_copy (woodblock, obuf);
       } else {
-              for (pos = 0; pos < overlap_size; pos++)
-                      obuf->data[0][pos] = 0.;
+        fvec_zeros (obuf);
       }
       /* end of block loop */
       pos = -1; /* so it will be zero next j loop */

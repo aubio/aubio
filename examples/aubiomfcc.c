@@ -70,7 +70,7 @@ static void process_print (void) {
       if (output_filename == NULL) {
         outmsg("%f\t",frames*overlap_size/(float)samplerate);
         for (coef_cnt = 0; coef_cnt < n_coefs; coef_cnt++) {
-            outmsg("%f ",mfcc_out->data[0][coef_cnt]);
+            outmsg("%f ", fvec_read_sample (mfcc_out, 0, coef_cnt) );
         }
         outmsg("\n");
       }

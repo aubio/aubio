@@ -41,12 +41,10 @@ static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
       aubio_pitch_do (o, ibuf, pitch);
       if (fvec_read_sample(pitch, 0, 0)) {
         for (pos = 0; pos < overlap_size; pos++){
-          obuf->data[0][pos] = woodblock->data[0][pos];
+          // TODO, play sine at this freq
         }
       } else {
-        for (pos = 0; pos < overlap_size; pos++) {
-          obuf->data[0][pos] = 0.;
-        }
+        fvec_zeros (obuf);
       }
       /* end of block loop */
       pos = -1; /* so it will be zero next j loop */
