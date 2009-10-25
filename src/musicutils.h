@@ -19,7 +19,7 @@
 */
 
 /** @file
- *  various math functions
+ *  various functions useful in audio signal processing
  */
 
 #ifndef MUSICUTILS_H
