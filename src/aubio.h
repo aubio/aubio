@@ -19,35 +19,128 @@
 */
 
 /** \mainpage 
- *
- * \section whatis Introduction
- *
- *  aubio is a library for audio labelling: it provides functions for pitch
- *  estimation, onset detection, beat tracking, and other annotation tasks.
- *
- *  \verbinclude README
- *
- * \section bugs bugs and todo
- *
- *  This software is under development. It needs debugging and
- *  optimisations.
- *
- *  See <a href='bug.html'>bugs</a> and <a href='todo.html'>todo</a> lists.
- * 
+ 
+  \section introduction Introduction
+ 
+  aubio is a library to extract annotations from audio signals: it provides a
+  set of functions that take an input audio signal, and output pitch estimates,
+  attack times (onset), beat location estimates, and other annotation tasks.
+ 
+  \section basics Basics 
+ 
+  All object structures in aubio share the same function prefixes and suffixes:
+  
+    - \p new_aubio_foo creates the object \p foo
+    - \p aubio_foo_do executes the object \p foo
+    - \p del_aubio_foo destroys the object \p foo
+
+  All memory allocation and deallocation take place in the \p new_ and \p del_
+  functions. Optionally, more than one \p _do methods are available.
+  Additional parameters can be adjusted and observed using:
+  
+    - \p aubio_foo_get_param, getter function, gets the value of a parameter
+    - \p aubio_foo_set_param, setter function, changes the value of a parameter
+
+  Unless specified in its documentation, no memory operations take place in the
+  getter functions. However, memory resizing can take place in setter
+  functions.
+
+  \subsection vectors Vectors
+
+  Two basic structures are being used in aubio: ::fvec_t and ::cvec_t. The
+  ::fvec_t structures are used to store vectors of floating pointer number,
+  optionally on several channels. ::cvec_t are used to store complex number,
+  as two vectors of norm and phase elements, also on several channels.
+ 
+  Additionally, the ::lvec_t structure can be used to store floating point
+  numbers in double precision. They are mostly used to store filter
+  coefficients, to avoid instability.
+ 
+  \subsection objects Available objects
+
+  Here is a list of some of the most common objects for aubio:
+
+  \code
+
+  // fast Fourier transform (FFT)
+  aubio_fft_t *fft = new_aubio_fft (winsize, channels);
+  // phase vocoder
+  aubio_pvoc_t *pv = new_aubio_pvoc (winsize, stepsize, channels);
+  // onset detection 
+  aubio_onset_t *onset = new_aubio_onset (method, winsize, stepsize, channels, samplerate);
+  // pitch detection 
+  aubio_pitch_t *pitch = new_aubio_pitch (method, winsize, stepsize, channels, samplerate);
+  // beat tracking
+  aubio_tempo_t *tempo = new_aubio_tempo (method, winsize, stepsize, channels, samplerate);
+
+  \endcode
+
+  See the <a href="globals_type.html">list of typedefs</a> for a complete list.
+
+  \subsection example Example
+
+  Here is a simple example that creates an A-Weighting filter and applies it to a
+  vector.
+ 
+  \code
+
+  // set channels, window size, and sampling rate 
+  uint_t channels = 2, winsize = 1024, samplerate = 44100;
+  // create a vector
+  fvec_t *this_buffer = new_fvec (winsize, channels);
+  // create the a-weighting filter
+  aubio_filter_t *this_filter = new_aubio_filter_weighting (channels, samplerate);
+  
+  while (running) {
+    // here some code to pass some data in fvec_t in ...
+    // apply the filter, in place
+    aubio_filter_do (this_filter, this_buffer);
+    // here some code to used the filtered buffer 
+  }
+  
+  // and free the structures
+  del_aubio_filter (this_filter);
+  del_fvec (this_buffer);
+
+  \endcode
+
+  Several examples of C programs are available in the \p examples/ and \p tests/src
+  directory of the source tree.
+
+  \subsection unstable_api Unstable API
+
+  Several more functions are available and used within aubio, but not
+  documented here, either because they are not considered useful to the user,
+  or because they may need to be changed in the future. However, they can still
+  be used by defining AUBIO_UNSTABLE to 1 before including the aubio header:
+
+  \code
+  #define AUBIO_UNSTABLE 1
+  #include <aubio/aubio.h>
+  \endcode
+
+  Future versions of aubio could break API compatibility with these functions
+  without warning. If you choose to use functions in AUBIO_UNSTABLE, you are on
+  your own.
+
+  \section download Download
+ 
+  Latest versions, further documentation, examples, wiki, and mailing lists can
+  be found at http://aubio.org .
+ 
  */
 
 #ifndef AUBIO_H
 #define AUBIO_H
 
-/**
- * Global aubio include file.
- * Programmers just need to include this file as:
- *
- * @code
- *   #include <aubio/aubio.h>
- * @endcode
- *
- * @file aubio.h
+/** @file aubio.h Global aubio include file.
+
+  Programmers just need to include this file as:
+ 
+  @code
+    #include <aubio/aubio.h>
+  @endcode
+ 
  */
 
 #ifdef __cplusplus
