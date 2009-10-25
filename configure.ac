@@ -129,7 +129,7 @@ AC_CHECK_HEADERS(fftw3.h,,AC_MSG_ERROR([Ouch! missing fftw3.h header]))
 AC_ARG_ENABLE(complex,
   AC_HELP_STRING([--enable-complex],[compile with complex.h [[default=auto]]]),
   [with_complex=$enableval],
-  with_complex="yes")
+  with_complex="no")
 if test "$with_complex" = "yes"; then
   AC_CHECK_HEADERS(complex.h,,AC_MSG_WARN([Ouch! missing complex.h header]))
 fi

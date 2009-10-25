@@ -20,8 +20,8 @@ def set_options(opt):
       help='compile aubio in double precision mode')
   opt.add_option('--disable-fftw3f', action='store_true', default=False,
       help='compile with fftw3 instead of fftw3f')
-  opt.add_option('--disable-complex', action='store_true', default=False,
-      help='compile without C99 complex')
+  opt.add_option('--enable-complex', action='store_true', default=False,
+      help='compile with C99 complex')
   opt.add_option('--disable-jack', action='store_true', default=False,
       help='compile without jack support')
   opt.add_option('--disable-lash', action='store_true', default=False,
@@ -56,7 +56,7 @@ def configure(conf):
   conf.check(header_name='limits.h')
 
   # optionally use complex.h
-  if (Options.options.disable_complex == False):
+  if (Options.options.enable_complex == True):
     conf.check(header_name='complex.h')
 
   # required dependancies
