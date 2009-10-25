@@ -31,7 +31,6 @@ AM_PROG_CC_C_O dnl compiling with per-target flag
 if test "$ac_cv_prog_cc" = "no" ; then
    AC_MSG_ERROR([*** No C compiler found !])
 fi
-AC_PROG_CXX
 AC_PROG_INSTALL
 
 AUBIO_CFLAGS=
@@ -260,14 +259,12 @@ AC_OUTPUT([
     examples/Makefile
     tests/Makefile
     tests/src/Makefile
-    tests/cpp/Makefile
     sounds/Makefile
     swig/Makefile
     python/Makefile
     python/aubio/Makefile
     interfaces/java/Makefile
     interfaces/java/aubio/Makefile
-    interfaces/cpp/Makefile
     plugins/Makefile
     plugins/audacity/Makefile
     plugins/audacity/plug-ins/Makefile

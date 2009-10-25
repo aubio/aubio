@@ -1,3 +1,3 @@
 if COMPILE_TESTS 
-SUBDIRS = src cpp
+SUBDIRS = src
 endif

@@ -136,7 +136,7 @@ def build(bld):
   bld.env['LIB_VERSION'] = LIB_VERSION 
 
   # add sub directories
-  bld.add_subdirs('src examples interfaces/cpp')
+  bld.add_subdirs('src examples')
   if bld.env['SWIG']:
     if bld.env['PYTHON']:
       bld.add_subdirs('python/aubio python')
