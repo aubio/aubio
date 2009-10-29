@@ -24,7 +24,7 @@ manpage.1: manpage.sgml
   <!-- SECTION should be 1-8, maybe w/ subsection other parameters are
        allowed: see man(7), man(1). -->
   <!ENTITY dhsection   "<manvolnum>1</manvolnum>">
-  <!ENTITY dhemail     "<email>piem@altern.org</email>">
+  <!ENTITY dhemail     "<email>piem@aubio.org</email>">
   <!ENTITY dhusername  "Paul Brossier">
   <!ENTITY dhucpackage "<refentrytitle>AUBIOCUT</refentrytitle>">
   <!ENTITY dhpackage   "aubiocut">
@@ -295,7 +295,7 @@ manpage.1: manpage.sgml
 
     <para>This manual page was written by &dhusername; (&dhemail;). Permission
     is granted to copy, distribute and/or modify this document under the terms
-    of the &gnu; General Public License, Version 2 any later version published
+    of the &gnu; General Public License, Version 3 any later version published
     by the Free Software Foundation.</para>
 
     <para>On Debian systems, the complete text of the GNU General Public
