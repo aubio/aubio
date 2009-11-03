@@ -22,6 +22,7 @@ nobase_pkginclude_HEADERS = \
 	spectral/phasevoc.h \
 	spectral/fft.h \
 	spectral/tss.h \
+	spectral/specdesc.h \
 	spectral/spectral_centroid.h \
 	pitch/pitch.h \
 	pitch/pitchmcomb.h \
@@ -30,7 +31,6 @@ nobase_pkginclude_HEADERS = \
 	pitch/pitchfcomb.h \
 	pitch/pitchyinfft.h \
 	onset/onset.h \
-	onset/onsetdetection.h \
 	onset/peakpick.h \
 	tempo/tempo.h \
 	tempo/beattracking.h

@@ -68,13 +68,13 @@ class pvoc:
         aubio_pvoc_rdo(self.pv,tc(),tf())
 
 class onsetdetection:
-    """ class for aubio_onsetdetection """
+    """ class for aubio_specdesc """
     def __init__(self,mode,buf,chan):
-        self.od = new_aubio_onsetdetection(mode,buf,chan)
+        self.od = new_aubio_specdesc(mode,buf,chan)
     def do(self,tc,tf):
-        aubio_onsetdetection_do(self.od,tc(),tf())
+        aubio_specdesc_do(self.od,tc(),tf())
     def __del__(self):
-        del_aubio_onsetdetection(self.od)
+        del_aubio_specdesc(self.od)
 
 class peakpick:
     """ class for aubio_peakpicker """
@@ -91,7 +91,7 @@ class peakpick:
         del_aubio_peakpicker(self.pp)
 
 class onsetpick:
-    """ superclass for aubio_pvoc + aubio_onsetdetection + aubio_peakpicker """
+    """ superclass for aubio_pvoc + aubio_specdesc + aubio_peakpicker """
     def __init__(self,bufsize,hopsize,channels,myvec,threshold,mode='dual',derivate=False,dcthreshold=0):
         self.myfft    = cvec(bufsize,channels)
         self.pv       = pvoc(bufsize,hopsize,channels)

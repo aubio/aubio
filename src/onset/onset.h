@@ -46,7 +46,7 @@ typedef struct _aubio_onset_t aubio_onset_t;
 
 /** create onset detection object
   
-  \param onset_mode onset detection type as specified in onsetdetection.h
+  \param onset_mode onset detection type as specified in specdesc.h
   \param buf_size buffer size for phase vocoder
   \param hop_size hop size for phase vocoder
   \param channels number of channels 

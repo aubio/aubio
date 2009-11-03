@@ -21,7 +21,7 @@
 #include "aubio_priv.h"
 #include "fvec.h"
 #include "cvec.h"
-#include "onset/onsetdetection.h"
+#include "spectral/specdesc.h"
 #include "tempo/beattracking.h"
 #include "spectral/phasevoc.h"
 #include "onset/peakpick.h"
@@ -30,7 +30,7 @@
 
 /* structure to store object state */
 struct _aubio_tempo_t {
-  aubio_onsetdetection_t * od;   /** onset detection */
+  aubio_specdesc_t * od;   /** onset detection */
   aubio_pvoc_t * pv;             /** phase vocoder */
   aubio_peakpicker_t * pp;       /** peak picker */
   aubio_beattracking_t * bt;     /** beat tracking */
@@ -55,9 +55,9 @@ void aubio_tempo_do(aubio_tempo_t *o, fvec_t * input, fvec_t * tempo)
   uint_t winlen = o->winlen;
   uint_t step   = o->step;
   aubio_pvoc_do (o->pv, input, o->fftgrain);
-  aubio_onsetdetection_do (o->od, o->fftgrain, o->of);
+  aubio_specdesc_do (o->od, o->fftgrain, o->of);
   /*if (usedoubled) {
-    aubio_onsetdetection_do(o2,fftgrain, onset2);
+    aubio_specdesc_do(o2,fftgrain, onset2);
     onset->data[0][0] *= onset2->data[0][0];
   }*/
   /* execute every overlap_size*step */
@@ -120,13 +120,13 @@ aubio_tempo_t * new_aubio_tempo (char_t * onset_mode,
   o->pv       = new_aubio_pvoc(buf_size, hop_size, channels);
   o->pp       = new_aubio_peakpicker(channels);
   aubio_peakpicker_set_threshold (o->pp, o->threshold);
-  o->od       = new_aubio_onsetdetection(onset_mode,buf_size,channels);
+  o->od       = new_aubio_specdesc(onset_mode,buf_size,channels);
   o->of       = new_fvec(1, channels);
   o->bt       = new_aubio_beattracking(o->winlen,channels);
   o->onset    = new_fvec(1, channels);
   o->peek     = new_fvec(3, channels);
   /*if (usedoubled)    {
-    o2 = new_aubio_onsetdetection(type_onset2,buffer_size,channels);
+    o2 = new_aubio_specdesc(type_onset2,buffer_size,channels);
     onset2 = new_fvec(1 , channels);
   }*/
   return o;
@@ -142,7 +142,7 @@ smpl_t aubio_tempo_get_confidence(aubio_tempo_t *o) {
 
 void del_aubio_tempo (aubio_tempo_t *o)
 {
-  del_aubio_onsetdetection(o->od);
+  del_aubio_specdesc(o->od);
   del_aubio_beattracking(o->bt);
   del_aubio_peakpicker(o->pp);
   del_aubio_pvoc(o->pv);

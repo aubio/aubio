@@ -22,20 +22,20 @@
 #include "fvec.h"
 #include "cvec.h"
 #include "spectral/fft.h"
+#include "spectral/specdesc.h"
 #include "mathutils.h"
 #include "utils/hist.h"
-#include "onset/onsetdetection.h"
 
 /** Energy based onset detection function 
  
   This function calculates the local energy of the input spectral frame.
   
-  \param o onset detection object as returned by new_aubio_onsetdetection()
+  \param o onset detection object as returned by new_aubio_specdesc()
   \param fftgrain input spectral frame
   \param onset output onset detection function
 
 */
-void aubio_onsetdetection_energy(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
+void aubio_specdesc_energy(aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset);
 /** High Frequency Content onset detection function
  
   This method computes the High Frequency Content (HFC) of the input spectral
@@ -44,24 +44,24 @@ void aubio_onsetdetection_energy(aubio_onsetdetection_t *o, cvec_t * fftgrain, f
   Paul Masri. Computer modeling of Sound for Transformation and Synthesis of
   Musical Signal. PhD dissertation, University of Bristol, UK, 1996.
   
-  \param o onset detection object as returned by new_aubio_onsetdetection()
+  \param o onset detection object as returned by new_aubio_specdesc()
   \param fftgrain input spectral frame
   \param onset output onset detection function
 
 */
-void aubio_onsetdetection_hfc(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
+void aubio_specdesc_hfc(aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset);
 /** Complex Domain Method onset detection function 
  
   Christopher Duxbury, Mike E. Davies, and Mark B. Sandler. Complex domain
   onset detection for musical signals. In Proceedings of the Digital Audio
   Effects Conference, DAFx-03, pages 90-93, London, UK, 2003.
 
-  \param o onset detection object as returned by new_aubio_onsetdetection()
+  \param o onset detection object as returned by new_aubio_specdesc()
   \param fftgrain input spectral frame
   \param onset output onset detection function
 
 */
-void aubio_onsetdetection_complex(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
+void aubio_specdesc_complex(aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset);
 /** Phase Based Method onset detection function 
 
   Juan-Pablo Bello, Mike P. Davies, and Mark B. Sandler. Phase-based note onset
@@ -69,60 +69,60 @@ void aubio_onsetdetection_complex(aubio_onsetdetection_t *o, cvec_t * fftgrain, 
   Conference on Acoustics Speech and Signal Processing, pages 441­444,
   Hong-Kong, 2003.
 
-  \param o onset detection object as returned by new_aubio_onsetdetection()
+  \param o onset detection object as returned by new_aubio_specdesc()
   \param fftgrain input spectral frame
   \param onset output onset detection function
 
 */
-void aubio_onsetdetection_phase(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
+void aubio_specdesc_phase(aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset);
 /** Spectral difference method onset detection function 
 
   Jonhatan Foote and Shingo Uchihashi. The beat spectrum: a new approach to
   rhythm analysis. In IEEE International Conference on Multimedia and Expo
   (ICME 2001), pages 881­884, Tokyo, Japan, August 2001.
 
-  \param o onset detection object as returned by new_aubio_onsetdetection()
+  \param o onset detection object as returned by new_aubio_specdesc()
   \param fftgrain input spectral frame
   \param onset output onset detection function
 
 */
-void aubio_onsetdetection_specdiff(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
+void aubio_specdesc_specdiff(aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset);
 /** Kullback-Liebler onset detection function 
   
   Stephen Hainsworth and Malcom Macleod. Onset detection in music audio
   signals. In Proceedings of the International Computer Music Conference
   (ICMC), Singapore, 2003.
   
-  \param o onset detection object as returned by new_aubio_onsetdetection()
+  \param o onset detection object as returned by new_aubio_specdesc()
   \param fftgrain input spectral frame
   \param onset output onset detection function
 
 */
-void aubio_onsetdetection_kl(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
+void aubio_specdesc_kl(aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset);
 /** Modified Kullback-Liebler onset detection function 
 
   Paul Brossier, ``Automatic annotation of musical audio for interactive
   systems'', Chapter 2, Temporal segmentation, PhD thesis, Centre for Digital
   music, Queen Mary University of London, London, UK, 2006.
 
-  \param o onset detection object as returned by new_aubio_onsetdetection()
+  \param o onset detection object as returned by new_aubio_specdesc()
   \param fftgrain input spectral frame
   \param onset output onset detection function
 
 */
-void aubio_onsetdetection_mkl(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
+void aubio_specdesc_mkl(aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset);
 /** Spectral Flux 
 
   Simon Dixon, Onset Detection Revisited, in ``Proceedings of the 9th
   International Conference on Digital Audio Effects'' (DAFx-06), Montreal,
   Canada, 2006. 
 
-  \param o onset detection object as returned by new_aubio_onsetdetection()
+  \param o onset detection object as returned by new_aubio_specdesc()
   \param fftgrain input spectral frame
   \param onset output onset detection function
 
 */
-void aubio_onsetdetection_specflux(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
+void aubio_specdesc_specflux(aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset);
 
 /** onsetdetection types */
 typedef enum {
@@ -135,13 +135,13 @@ typedef enum {
         aubio_onset_mkl,            /**< modified Kullback Liebler */
         aubio_onset_specflux,       /**< spectral flux */
         aubio_onset_default = aubio_onset_hfc, /**< default mode, set to hfc */
-} aubio_onsetdetection_type;
+} aubio_specdesc_type;
 
 /** structure to store object state */
-struct _aubio_onsetdetection_t {
-  aubio_onsetdetection_type onset_type; /**< onset detection type */
-  /** Pointer to aubio_onsetdetection_<type> function */
-  void (*funcpointer)(aubio_onsetdetection_t *o,
+struct _aubio_specdesc_t {
+  aubio_specdesc_type onset_type; /**< onset detection type */
+  /** Pointer to aubio_specdesc_<type> function */
+  void (*funcpointer)(aubio_specdesc_t *o,
       cvec_t * fftgrain, fvec_t * onset);
   smpl_t threshold;      /**< minimum norm threshold for phase and specdiff */
   fvec_t *oldmag;        /**< previous norm vector */
@@ -153,7 +153,7 @@ struct _aubio_onsetdetection_t {
 
 
 /* Energy based onset detection function */
-void aubio_onsetdetection_energy  (aubio_onsetdetection_t *o UNUSED,
+void aubio_specdesc_energy  (aubio_specdesc_t *o UNUSED,
     cvec_t * fftgrain, fvec_t * onset) {
   uint_t i,j;
   for (i=0;i<fftgrain->channels;i++) {
@@ -165,7 +165,7 @@ void aubio_onsetdetection_energy  (aubio_onsetdetection_t *o UNUSED,
 }
 
 /* High Frequency Content onset detection function */
-void aubio_onsetdetection_hfc(aubio_onsetdetection_t *o UNUSED,
+void aubio_specdesc_hfc(aubio_specdesc_t *o UNUSED,
     cvec_t * fftgrain, fvec_t * onset){
   uint_t i,j;
   for (i=0;i<fftgrain->channels;i++) {
@@ -178,7 +178,7 @@ void aubio_onsetdetection_hfc(aubio_onsetdetection_t *o UNUSED,
 
 
 /* Complex Domain Method onset detection function */
-void aubio_onsetdetection_complex (aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset) {
+void aubio_specdesc_complex (aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset) {
   uint_t i, j;
   uint_t nbins = fftgrain->length;
   for (i=0;i<fftgrain->channels; i++)  {
@@ -203,7 +203,7 @@ void aubio_onsetdetection_complex (aubio_onsetdetection_t *o, cvec_t * fftgrain,
 
 
 /* Phase Based Method onset detection function */
-void aubio_onsetdetection_phase(aubio_onsetdetection_t *o, 
+void aubio_specdesc_phase(aubio_specdesc_t *o, 
     cvec_t * fftgrain, fvec_t * onset){
   uint_t i, j;
   uint_t nbins = fftgrain->length;
@@ -235,7 +235,7 @@ void aubio_onsetdetection_phase(aubio_onsetdetection_t *o,
 }
 
 /* Spectral difference method onset detection function */
-void aubio_onsetdetection_specdiff(aubio_onsetdetection_t *o,
+void aubio_specdesc_specdiff(aubio_specdesc_t *o,
     cvec_t * fftgrain, fvec_t * onset){
   uint_t i, j;
   uint_t nbins = fftgrain->length;
@@ -266,7 +266,7 @@ void aubio_onsetdetection_specdiff(aubio_onsetdetection_t *o,
 /* Kullback Liebler onset detection function
  * note we use ln(1+Xn/(Xn-1+0.0001)) to avoid 
  * negative (1.+) and infinite values (+1.e-10) */
-void aubio_onsetdetection_kl(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset){
+void aubio_specdesc_kl(aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset){
   uint_t i,j;
   for (i=0;i<fftgrain->channels;i++) {
     onset->data[i][0] = 0.;
@@ -282,7 +282,7 @@ void aubio_onsetdetection_kl(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_
 /* Modified Kullback Liebler onset detection function
  * note we use ln(1+Xn/(Xn-1+0.0001)) to avoid 
  * negative (1.+) and infinite values (+1.e-10) */
-void aubio_onsetdetection_mkl(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset){
+void aubio_specdesc_mkl(aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset){
   uint_t i,j;
   for (i=0;i<fftgrain->channels;i++) {
     onset->data[i][0] = 0.;
@@ -295,7 +295,7 @@ void aubio_onsetdetection_mkl(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec
 }
 
 /* Spectral flux */
-void aubio_onsetdetection_specflux(aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset){ 
+void aubio_specdesc_specflux(aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset){ 
   uint_t i, j;
   for (i=0;i<fftgrain->channels;i++) {
     onset->data[i][0] = 0.;
@@ -309,7 +309,7 @@ void aubio_onsetdetection_specflux(aubio_onsetdetection_t *o, cvec_t * fftgrain,
 
 /* Generic function pointing to the choosen one */
 void 
-aubio_onsetdetection_do (aubio_onsetdetection_t *o, cvec_t * fftgrain, 
+aubio_specdesc_do (aubio_specdesc_t *o, cvec_t * fftgrain, 
     fvec_t * onset) {
   o->funcpointer(o,fftgrain,onset);
 }
@@ -317,12 +317,12 @@ aubio_onsetdetection_do (aubio_onsetdetection_t *o, cvec_t * fftgrain,
 /* Allocate memory for an onset detection 
  * depending on the choosen type, allocate memory as needed
  */
-aubio_onsetdetection_t * 
-new_aubio_onsetdetection (char_t * onset_mode, 
+aubio_specdesc_t * 
+new_aubio_specdesc (char_t * onset_mode, 
     uint_t size, uint_t channels){
-  aubio_onsetdetection_t * o = AUBIO_NEW(aubio_onsetdetection_t);
+  aubio_specdesc_t * o = AUBIO_NEW(aubio_specdesc_t);
   uint_t rsize = size/2+1;
-  aubio_onsetdetection_type onset_type;
+  aubio_specdesc_type onset_type;
   if (strcmp (onset_mode, "energy") == 0)
       onset_type = aubio_onset_energy;
   else if (strcmp (onset_mode, "specdiff") == 0)
@@ -388,28 +388,28 @@ new_aubio_onsetdetection (char_t * onset_mode,
 
   switch(onset_type) {
     case aubio_onset_energy:
-      o->funcpointer = aubio_onsetdetection_energy;
+      o->funcpointer = aubio_specdesc_energy;
       break;
     case aubio_onset_hfc:
-      o->funcpointer = aubio_onsetdetection_hfc;
+      o->funcpointer = aubio_specdesc_hfc;
       break;
     case aubio_onset_complex:
-      o->funcpointer = aubio_onsetdetection_complex;
+      o->funcpointer = aubio_specdesc_complex;
       break;
     case aubio_onset_phase:
-      o->funcpointer = aubio_onsetdetection_phase;
+      o->funcpointer = aubio_specdesc_phase;
       break;
     case aubio_onset_specdiff:
-      o->funcpointer = aubio_onsetdetection_specdiff;
+      o->funcpointer = aubio_specdesc_specdiff;
       break;
     case aubio_onset_kl:
-      o->funcpointer = aubio_onsetdetection_kl;
+      o->funcpointer = aubio_specdesc_kl;
       break;
     case aubio_onset_mkl:
-      o->funcpointer = aubio_onsetdetection_mkl;
+      o->funcpointer = aubio_specdesc_mkl;
       break;
     case aubio_onset_specflux:
-      o->funcpointer = aubio_onsetdetection_specflux;
+      o->funcpointer = aubio_specdesc_specflux;
       break;
     default:
       break;
@@ -418,7 +418,7 @@ new_aubio_onsetdetection (char_t * onset_mode,
   return o;
 }
 
-void del_aubio_onsetdetection (aubio_onsetdetection_t *o){
+void del_aubio_specdesc (aubio_specdesc_t *o){
   switch(o->onset_type) {
     /* for both energy and hfc, only fftgrain->norm is required */
     case aubio_onset_energy: 

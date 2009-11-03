@@ -40,17 +40,17 @@ extern "C" {
 #endif
 
 /** onsetdetection structure */
-typedef struct _aubio_onsetdetection_t aubio_onsetdetection_t;
+typedef struct _aubio_specdesc_t aubio_specdesc_t;
 /** execute onset detection function on a spectral frame 
 
   Generic function to compute onset detection.
  
-  \param o onset detection object as returned by new_aubio_onsetdetection()
+  \param o onset detection object as returned by new_aubio_specdesc()
   \param fftgrain input signal spectrum as computed by aubio_pvoc_do
   \param onset output vector (one sample long, to send to the peak picking)
 
 */
-void aubio_onsetdetection_do (aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec_t * onset);
+void aubio_specdesc_do (aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset);
 /** creation of an onset detection object 
 
   \param type onset detection mode
@@ -58,13 +58,13 @@ void aubio_onsetdetection_do (aubio_onsetdetection_t *o, cvec_t * fftgrain, fvec
   \param channels number of input channels
 
 */
-aubio_onsetdetection_t * new_aubio_onsetdetection(char_t * onset_mode, uint_t buf_size, uint_t channels);
+aubio_specdesc_t * new_aubio_specdesc(char_t * onset_mode, uint_t buf_size, uint_t channels);
 /** deletion of an onset detection object
 
-  \param o onset detection object as returned by new_aubio_onsetdetection()
+  \param o onset detection object as returned by new_aubio_specdesc()
 
 */
-void del_aubio_onsetdetection(aubio_onsetdetection_t *o);
+void del_aubio_specdesc(aubio_specdesc_t *o);
 
 #ifdef __cplusplus
 }

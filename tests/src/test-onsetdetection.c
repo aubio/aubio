@@ -11,35 +11,35 @@ main ()
   cvec_t *in = new_cvec (win_s, channels);      /* input buffer */
   fvec_t *out = new_fvec (1, channels); /* input buffer */
 
-  aubio_onsetdetection_t *o;
+  aubio_specdesc_t *o;
   
-  o = new_aubio_onsetdetection ("energy", win_s, channels);
-  aubio_onsetdetection_do (o, in, out);
-  del_aubio_onsetdetection (o);
+  o = new_aubio_specdesc ("energy", win_s, channels);
+  aubio_specdesc_do (o, in, out);
+  del_aubio_specdesc (o);
 
-  o = new_aubio_onsetdetection ("energy", win_s, channels);
-  aubio_onsetdetection_do (o, in, out);
-  del_aubio_onsetdetection (o);
+  o = new_aubio_specdesc ("energy", win_s, channels);
+  aubio_specdesc_do (o, in, out);
+  del_aubio_specdesc (o);
 
-  o = new_aubio_onsetdetection ("hfc", win_s, channels);
-  aubio_onsetdetection_do (o, in, out);
-  del_aubio_onsetdetection (o);
+  o = new_aubio_specdesc ("hfc", win_s, channels);
+  aubio_specdesc_do (o, in, out);
+  del_aubio_specdesc (o);
 
-  o = new_aubio_onsetdetection ("complex", win_s, channels);
-  aubio_onsetdetection_do (o, in, out);
-  del_aubio_onsetdetection (o);
+  o = new_aubio_specdesc ("complex", win_s, channels);
+  aubio_specdesc_do (o, in, out);
+  del_aubio_specdesc (o);
 
-  o = new_aubio_onsetdetection ("phase", win_s, channels);
-  aubio_onsetdetection_do (o, in, out);
-  del_aubio_onsetdetection (o);
+  o = new_aubio_specdesc ("phase", win_s, channels);
+  aubio_specdesc_do (o, in, out);
+  del_aubio_specdesc (o);
 
-  o = new_aubio_onsetdetection ("kl", win_s, channels);
-  aubio_onsetdetection_do (o, in, out);
-  del_aubio_onsetdetection (o);
+  o = new_aubio_specdesc ("kl", win_s, channels);
+  aubio_specdesc_do (o, in, out);
+  del_aubio_specdesc (o);
 
-  o = new_aubio_onsetdetection ("mkl", win_s, channels);
-  aubio_onsetdetection_do (o, in, out);
-  del_aubio_onsetdetection (o);
+  o = new_aubio_specdesc ("mkl", win_s, channels);
+  aubio_specdesc_do (o, in, out);
+  del_aubio_specdesc (o);
 
   del_cvec (in);
   del_fvec (out);

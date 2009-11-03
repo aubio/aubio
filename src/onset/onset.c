@@ -21,7 +21,7 @@
 #include "aubio_priv.h"
 #include "fvec.h"
 #include "cvec.h"
-#include "onset/onsetdetection.h"
+#include "spectral/specdesc.h"
 #include "spectral/phasevoc.h"
 #include "onset/peakpick.h"
 #include "mathutils.h"
@@ -30,7 +30,7 @@
 /** structure to store object state */
 struct _aubio_onset_t {
   aubio_pvoc_t * pv;            /**< phase vocoder */
-  aubio_onsetdetection_t * od;  /**< onset detection */ 
+  aubio_specdesc_t * od;  /**< onset detection */ 
   aubio_peakpicker_t * pp;      /**< peak picker */
   cvec_t * fftgrain;            /**< phase vocoder output */
   fvec_t * of;                  /**< onset detection function */
@@ -48,9 +48,9 @@ void aubio_onset_do (aubio_onset_t *o, fvec_t * input, fvec_t * onset)
   smpl_t wasonset = 0;
   uint_t i;
   aubio_pvoc_do (o->pv,input, o->fftgrain);
-  aubio_onsetdetection_do (o->od,o->fftgrain, o->of);
+  aubio_specdesc_do (o->od,o->fftgrain, o->of);
   /*if (usedoubled) {
-    aubio_onsetdetection_do (o2,fftgrain, onset2);
+    aubio_specdesc_do (o2,fftgrain, onset2);
     onset->data[0][0] *= onset2->data[0][0];
   }*/
   aubio_peakpicker_do(o->pp, o->of, onset);
@@ -108,11 +108,11 @@ aubio_onset_t * new_aubio_onset (char_t * onset_mode,
   o->pv = new_aubio_pvoc(buf_size, hop_size, channels);
   o->pp = new_aubio_peakpicker(channels);
   aubio_peakpicker_set_threshold (o->pp, o->threshold);
-  o->od = new_aubio_onsetdetection(onset_mode,buf_size,channels);
+  o->od = new_aubio_specdesc(onset_mode,buf_size,channels);
   o->fftgrain = new_cvec(buf_size,channels);
   o->of = new_fvec(1, channels);
   /*if (usedoubled)    {
-    o2 = new_aubio_onsetdetection(onset_type2,buffer_size,channels);
+    o2 = new_aubio_specdesc(onset_type2,buffer_size,channels);
     onset2 = new_fvec(1 , channels);
   }*/
   return o;
@@ -120,7 +120,7 @@ aubio_onset_t * new_aubio_onset (char_t * onset_mode,
 
 void del_aubio_onset (aubio_onset_t *o)
 {
-  del_aubio_onsetdetection(o->od);
+  del_aubio_specdesc(o->od);
   del_aubio_peakpicker(o->pp);
   del_aubio_pvoc(o->pv);
   del_fvec(o->of);
