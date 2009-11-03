@@ -80,21 +80,23 @@ aubio_filter_do (aubio_filter_t * f, fvec_t * in)
 }
 
 /* The rough way: reset memory of filter between each run to avoid end effects. */
-void aubio_filter_do_filtfilt(aubio_filter_t * f, fvec_t * in, fvec_t * tmp) {
-  uint_t j,i=0;
+void
+aubio_filter_do_filtfilt (aubio_filter_t * f, fvec_t * in, fvec_t * tmp)
+{
+  uint_t j, i = 0;
   uint_t length = in->length;
   /* apply filtering */
-  aubio_filter_do(f,in);
-  aubio_filter_do_reset(f);
+  aubio_filter_do (f, in);
+  aubio_filter_do_reset (f);
   /* mirror */
   for (j = 0; j < length; j++)
-    tmp->data[i][length-j-1] = in->data[i][j];
+    tmp->data[i][length - j - 1] = in->data[i][j];
   /* apply filtering on mirrored */
-  aubio_filter_do(f,tmp);
-  aubio_filter_do_reset(f);
+  aubio_filter_do (f, tmp);
+  aubio_filter_do_reset (f);
   /* invert back */
   for (j = 0; j < length; j++)
-    in->data[i][j] = tmp->data[i][length-j-1];
+    in->data[i][j] = tmp->data[i][length - j - 1];
 }
 
 lvec_t *
@@ -131,8 +133,8 @@ aubio_filter_set_samplerate (aubio_filter_t * f, uint_t samplerate)
 void
 aubio_filter_do_reset (aubio_filter_t * f)
 {
-  lvec_zeros(f->x);
-  lvec_zeros(f->y);
+  lvec_zeros (f->x);
+  lvec_zeros (f->y);
 }
 
 aubio_filter_t *

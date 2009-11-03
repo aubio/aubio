@@ -25,7 +25,8 @@
 
 uint_t
 aubio_filter_set_biquad (aubio_filter_t * f, lsmp_t b0, lsmp_t b1, lsmp_t b2,
-    lsmp_t a1, lsmp_t a2) {
+    lsmp_t a1, lsmp_t a2)
+{
   uint_t order = aubio_filter_get_order (f);
   lvec_t *bs = aubio_filter_get_feedforward (f);
   lvec_t *as = aubio_filter_get_feedback (f);

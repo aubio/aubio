@@ -79,7 +79,7 @@ aubio_filter_t *new_aubio_filter_a_weighting (uint_t channels,
   192000 Hz
 
 */
-uint_t aubio_filter_set_a_weighting (aubio_filter_t *f, uint_t samplerate);
+uint_t aubio_filter_set_a_weighting (aubio_filter_t * f, uint_t samplerate);
 
 #ifdef __cplusplus
 }

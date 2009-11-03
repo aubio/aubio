@@ -45,10 +45,10 @@ typedef struct _aubio_resampler_t aubio_resampler_t;
   \param type libsamplerate resampling type
 
 */
-aubio_resampler_t * new_aubio_resampler(smpl_t ratio, uint_t type);
+aubio_resampler_t *new_aubio_resampler (smpl_t ratio, uint_t type);
 
 /** delete resampler object */
-void del_aubio_resampler(aubio_resampler_t *s);
+void del_aubio_resampler (aubio_resampler_t * s);
 
 /** resample input in output
 
@@ -57,7 +57,8 @@ void del_aubio_resampler(aubio_resampler_t *s);
   \param output output buffer of size N*ratio
 
 */
-void aubio_resampler_do (aubio_resampler_t *s, fvec_t * input,  fvec_t * output);
+void aubio_resampler_do (aubio_resampler_t * s, fvec_t * input,
+    fvec_t * output);
 
 #ifdef __cplusplus
 }

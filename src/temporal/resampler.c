@@ -22,49 +22,55 @@
 
 #if HAVE_SAMPLERATE
 
-#include <samplerate.h> /* from libsamplerate */
+#include <samplerate.h>         /* from libsamplerate */
 
 #include "aubio_priv.h"
 #include "fvec.h"
 #include "temporal/resampler.h"
 
-struct _aubio_resampler_t {
-	SRC_DATA  *proc;
-	SRC_STATE *stat;
-	smpl_t ratio;
-	uint_t type;
+struct _aubio_resampler_t
+{
+  SRC_DATA *proc;
+  SRC_STATE *stat;
+  smpl_t ratio;
+  uint_t type;
 };
 
-aubio_resampler_t * new_aubio_resampler(smpl_t ratio, uint_t type) {
-	aubio_resampler_t * s  = AUBIO_NEW(aubio_resampler_t);
-	int error = 0;
-	s->stat = src_new (type, 1, &error) ; /* only one channel */
-	s->proc = AUBIO_NEW(SRC_DATA);
-	if (error) AUBIO_ERR("%s\n",src_strerror(error));
-	s->ratio = ratio;
-	return s;
+aubio_resampler_t *
+new_aubio_resampler (smpl_t ratio, uint_t type)
+{
+  aubio_resampler_t *s = AUBIO_NEW (aubio_resampler_t);
+  int error = 0;
+  s->stat = src_new (type, 1, &error);  /* only one channel */
+  s->proc = AUBIO_NEW (SRC_DATA);
+  if (error)
+    AUBIO_ERR ("%s\n", src_strerror (error));
+  s->ratio = ratio;
+  return s;
 }
 
-void del_aubio_resampler(aubio_resampler_t *s) {
-	src_delete(s->stat);
-	AUBIO_FREE(s->proc);
-	AUBIO_FREE(s);
+void
+del_aubio_resampler (aubio_resampler_t * s)
+{
+  src_delete (s->stat);
+  AUBIO_FREE (s->proc);
+  AUBIO_FREE (s);
 }
 
-void aubio_resampler_do (aubio_resampler_t *s, 
-    fvec_t * input,  fvec_t * output) {
-	uint_t i ;
-	s->proc->input_frames = input->length;
-	s->proc->output_frames = output->length;
-	s->proc->src_ratio = (double)s->ratio;
-	for (i = 0 ; i< input->channels; i++) 
-	{
-		/* make SRC_PROC data point to input outputs */
-		s->proc->data_in = (float *)input->data[i];
-		s->proc->data_out= (float *)output->data[i];
-		/* do resampling */
-		src_process (s->stat, s->proc) ;
-	}
-}	
+void
+aubio_resampler_do (aubio_resampler_t * s, fvec_t * input, fvec_t * output)
+{
+  uint_t i;
+  s->proc->input_frames = input->length;
+  s->proc->output_frames = output->length;
+  s->proc->src_ratio = (double) s->ratio;
+  for (i = 0; i < input->channels; i++) {
+    /* make SRC_PROC data point to input outputs */
+    s->proc->data_in = (float *) input->data[i];
+    s->proc->data_out = (float *) output->data[i];
+    /* do resampling */
+    src_process (s->stat, s->proc);
+  }
+}
 
 #endif /* HAVE_SAMPLERATE */
