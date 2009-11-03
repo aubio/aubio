@@ -44,8 +44,7 @@ typedef struct _aubio_pitch_t aubio_pitch_t;
   \param out output pitch candidates of size [1 x channes]
 
 */
-void aubio_pitch_do (aubio_pitch_t * o, fvec_t * in,
-    fvec_t * out);
+void aubio_pitch_do (aubio_pitch_t * o, fvec_t * in, fvec_t * out);
 
 /** change yin or yinfft tolerance threshold
 
@@ -53,8 +52,7 @@ void aubio_pitch_do (aubio_pitch_t * o, fvec_t * in,
   \param tol tolerance default is 0.15 for yin and 0.85 for yinfft
 
 */
-uint_t aubio_pitch_set_tolerance (aubio_pitch_t * o,
-    smpl_t tol);
+uint_t aubio_pitch_set_tolerance (aubio_pitch_t * o, smpl_t tol);
 
 /** deletion of the pitch detection object
 
@@ -72,7 +70,7 @@ void del_aubio_pitch (aubio_pitch_t * o);
   \param samplerate sampling rate of the signal
 
 */
-aubio_pitch_t * new_aubio_pitch (char_t * mode,
+aubio_pitch_t *new_aubio_pitch (char_t * mode,
     uint_t bufsize, uint_t hopsize, uint_t channels, uint_t samplerate);
 
 /** set the output unit of the pitch detection object 
@@ -81,8 +79,7 @@ aubio_pitch_t * new_aubio_pitch (char_t * mode,
   \param mode set pitch units for output
 
 */
-uint_t aubio_pitch_set_unit (aubio_pitch_t * o,
-    char_t * mode);
+uint_t aubio_pitch_set_unit (aubio_pitch_t * o, char_t * mode);
 
 #ifdef __cplusplus
 }

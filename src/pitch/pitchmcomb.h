@@ -49,7 +49,9 @@ typedef struct _aubio_pitchmcomb_t aubio_pitchmcomb_t;
   \param fftgrain input signal spectrum as computed by aubio_pvoc_do 
  
 */
-void aubio_pitchmcomb_do (aubio_pitchmcomb_t * p, cvec_t * fftgrain, fvec_t * output);
+void aubio_pitchmcomb_do (aubio_pitchmcomb_t * p, cvec_t * fftgrain,
+    fvec_t * output);
+
 /** creation of the pitch detection object
  
   \param bufsize size of the input buffer to analyse 
@@ -58,13 +60,15 @@ void aubio_pitchmcomb_do (aubio_pitchmcomb_t * p, cvec_t * fftgrain, fvec_t * ou
   \param samplerate sampling rate of the signal 
  
 */
-aubio_pitchmcomb_t * new_aubio_pitchmcomb(uint_t bufsize, uint_t hopsize, uint_t channels);
+aubio_pitchmcomb_t *new_aubio_pitchmcomb (uint_t bufsize, uint_t hopsize,
+    uint_t channels);
+
 /** deletion of the pitch detection object
  
   \param p pitch detection object as returned by new_aubio_pitchfcomb
  
 */
-void del_aubio_pitchmcomb(aubio_pitchmcomb_t *p);
+void del_aubio_pitchmcomb (aubio_pitchmcomb_t * p);
 
 #ifdef __cplusplus
 }

@@ -47,7 +47,7 @@ typedef struct _aubio_pitchyin_t aubio_pitchyin_t;
   \param bufsize size of the input buffer to analyse 
  
 */
-aubio_pitchyin_t * new_aubio_pitchyin (uint_t bufsize);
+aubio_pitchyin_t *new_aubio_pitchyin (uint_t bufsize);
 
 /** deletion of the pitch detection object
  
@@ -72,7 +72,7 @@ void aubio_pitchyin_do (aubio_pitchyin_t * o, fvec_t * in, fvec_t * out);
   \param tol tolerance parameter for minima selection [default 0.15]
 
 */
-uint_t aubio_pitchyin_set_tolerance (aubio_pitchyin_t *o, smpl_t tol);
+uint_t aubio_pitchyin_set_tolerance (aubio_pitchyin_t * o, smpl_t tol);
 
 /** get tolerance parameter for YIN algorithm 
   
