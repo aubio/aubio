@@ -28,45 +28,46 @@
 
 /* peak picking parameters, default values in brackets
  *
- *	   [<----post----|--pre-->]
- *	.................|.............
- *	time->           ^now
+ *     [<----post----|--pre-->]
+ *  .................|.............
+ *  time->           ^now
  */
-struct _aubio_peakpicker_t {
-	/** thresh: offset threshold [0.033 or 0.01] */
-	smpl_t threshold; 	
-	/** win_post: median filter window length (causal part) [8] */
-	uint_t 	win_post; 			
-	/** pre: median filter window (anti-causal part) [post-1] */
-	uint_t 	win_pre; 				
-	/** threshfn: name or handle of fn for computing adaptive threshold [median]  */
-	aubio_thresholdfn_t thresholdfn;
-	/** picker: name or handle of fn for picking event times [peakpick] */
-	aubio_pickerfn_t pickerfn;
+struct _aubio_peakpicker_t
+{
+        /** thresh: offset threshold [0.033 or 0.01] */
+  smpl_t threshold;
+        /** win_post: median filter window length (causal part) [8] */
+  uint_t win_post;
+        /** pre: median filter window (anti-causal part) [post-1] */
+  uint_t win_pre;
+        /** threshfn: name or handle of fn for computing adaptive threshold [median]  */
+  aubio_thresholdfn_t thresholdfn;
+        /** picker: name or handle of fn for picking event times [peakpick] */
+  aubio_pickerfn_t pickerfn;
 
-	/** biquad lowpass filter */
-	aubio_filter_t * biquad;
-	/** original onsets */
-	fvec_t * onset_keep;
-	/** modified onsets */
-	fvec_t * onset_proc;
-	/** peak picked window [3] */
-	fvec_t * onset_peek;
-	/** scratch pad for biquad and median */
-	fvec_t * scratch;
+        /** biquad lowpass filter */
+  aubio_filter_t *biquad;
+        /** original onsets */
+  fvec_t *onset_keep;
+        /** modified onsets */
+  fvec_t *onset_proc;
+        /** peak picked window [3] */
+  fvec_t *onset_peek;
+        /** scratch pad for biquad and median */
+  fvec_t *scratch;
 
   /** number of channels to analyse */
   uint_t channels;
 
-	/** \bug should be used to calculate filter coefficients */
-	/* cutoff: low-pass filter cutoff [0.34, 1] */
-	/* smpl_t cutoff; */
+        /** \bug should be used to calculate filter coefficients */
+  /* cutoff: low-pass filter cutoff [0.34, 1] */
+  /* smpl_t cutoff; */
 
-	/* not used anymore */
-	/* time precision [512/44100  winlength/samplerate, fs/buffer_size */
-	/* smpl_t tau; */
-	/* alpha: normalisation exponent [9] */
-	/* smpl_t alpha; */
+  /* not used anymore */
+  /* time precision [512/44100  winlength/samplerate, fs/buffer_size */
+  /* smpl_t tau; */
+  /* alpha: normalisation exponent [9] */
+  /* smpl_t alpha; */
 };
 
 
@@ -123,59 +124,73 @@ aubio_peakpicker_do (aubio_peakpicker_t * p, fvec_t * onset, fvec_t * out)
 /** this method returns the current value in the pick peaking buffer
  * after smoothing
  */
-smpl_t aubio_peakpicker_get_thresholded_input(aubio_peakpicker_t * p) 
+smpl_t
+aubio_peakpicker_get_thresholded_input (aubio_peakpicker_t * p)
 {
-	return p->onset_peek->data[0][1];
+  return p->onset_peek->data[0][1];
 }
 
-uint_t aubio_peakpicker_set_threshold(aubio_peakpicker_t * p, smpl_t threshold) {
-    p->threshold = threshold;
-	return AUBIO_OK;
+uint_t
+aubio_peakpicker_set_threshold (aubio_peakpicker_t * p, smpl_t threshold)
+{
+  p->threshold = threshold;
+  return AUBIO_OK;
 }
 
-smpl_t aubio_peakpicker_get_threshold(aubio_peakpicker_t * p) {
-	return p->threshold;
+smpl_t
+aubio_peakpicker_get_threshold (aubio_peakpicker_t * p)
+{
+  return p->threshold;
 }
 
-uint_t aubio_peakpicker_set_thresholdfn(aubio_peakpicker_t * p, aubio_thresholdfn_t thresholdfn) {
-	p->thresholdfn = thresholdfn;
-	return AUBIO_OK;
+uint_t
+aubio_peakpicker_set_thresholdfn (aubio_peakpicker_t * p,
+    aubio_thresholdfn_t thresholdfn)
+{
+  p->thresholdfn = thresholdfn;
+  return AUBIO_OK;
 }
 
-aubio_thresholdfn_t aubio_peakpicker_get_thresholdfn(aubio_peakpicker_t * p) {
-	return (aubio_thresholdfn_t) (p->thresholdfn);
+aubio_thresholdfn_t
+aubio_peakpicker_get_thresholdfn (aubio_peakpicker_t * p)
+{
+  return (aubio_thresholdfn_t) (p->thresholdfn);
 }
 
-aubio_peakpicker_t * new_aubio_peakpicker(uint_t channels) {
-	aubio_peakpicker_t * t = AUBIO_NEW(aubio_peakpicker_t);
-	t->threshold = 0.1; /* 0.0668; 0.33; 0.082; 0.033; */
-	t->win_post  = 5;
-	t->win_pre   = 1;
+aubio_peakpicker_t *
+new_aubio_peakpicker (uint_t channels)
+{
+  aubio_peakpicker_t *t = AUBIO_NEW (aubio_peakpicker_t);
+  t->threshold = 0.1;           /* 0.0668; 0.33; 0.082; 0.033; */
+  t->win_post = 5;
+  t->win_pre = 1;
   //channels = 1;
   t->channels = channels;
 
-	t->thresholdfn = (aubio_thresholdfn_t)(fvec_median_channel); /* (fvec_mean); */
-	t->pickerfn = (aubio_pickerfn_t)(fvec_peakpick);
+  t->thresholdfn = (aubio_thresholdfn_t) (fvec_median_channel); /* (fvec_mean); */
+  t->pickerfn = (aubio_pickerfn_t) (fvec_peakpick);
 
-	t->scratch = new_fvec(t->win_post+t->win_pre+1, channels);
-	t->onset_keep = new_fvec(t->win_post+t->win_pre+1, channels);
-	t->onset_proc = new_fvec(t->win_post+t->win_pre+1, channels);
-	t->onset_peek = new_fvec(3, channels);
+  t->scratch = new_fvec (t->win_post + t->win_pre + 1, channels);
+  t->onset_keep = new_fvec (t->win_post + t->win_pre + 1, channels);
+  t->onset_proc = new_fvec (t->win_post + t->win_pre + 1, channels);
+  t->onset_peek = new_fvec (3, channels);
 
-	/* cutoff: low-pass filter with cutoff reduced frequency at 0.34
-   generated with octave butter function: [b,a] = butter(2, 0.34);
+  /* cutoff: low-pass filter with cutoff reduced frequency at 0.34
+     generated with octave butter function: [b,a] = butter(2, 0.34);
    */
   t->biquad = new_aubio_filter_biquad (0.15998789, 0.31997577, 0.15998789,
-    -0.59488894, 0.23484048, channels);
+      -0.59488894, 0.23484048, channels);
 
-	return t;
+  return t;
 }
 
-void del_aubio_peakpicker(aubio_peakpicker_t * p) {
-	del_aubio_filter(p->biquad);
-	del_fvec(p->onset_keep);
-	del_fvec(p->onset_proc);
-	del_fvec(p->onset_peek);
-	del_fvec(p->scratch);
-	AUBIO_FREE(p);
+void
+del_aubio_peakpicker (aubio_peakpicker_t * p)
+{
+  del_aubio_filter (p->biquad);
+  del_fvec (p->onset_keep);
+  del_fvec (p->onset_proc);
+  del_fvec (p->onset_peek);
+  del_fvec (p->scratch);
+  AUBIO_FREE (p);
 }
