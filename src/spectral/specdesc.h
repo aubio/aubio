@@ -26,7 +26,11 @@
   of a windowed signal (as created with aubio_pvoc). They output one smpl_t per
   buffer and per channel (stored in a vector of size [channels]x[1]).
  
-  The following spectral description methods are available:
+  A list of the spectral description methods currently available follows.
+
+  \section onsetdesc Onset detection functions
+
+  These functions are designed to raise at notes attacks in music signals.
 
   \b \p energy : Energy based onset detection function 
  
@@ -76,7 +80,64 @@
   Simon Dixon, Onset Detection Revisited, in ``Proceedings of the 9th
   International Conference on Digital Audio Effects'' (DAFx-06), Montreal,
   Canada, 2006. 
-  
+
+  \section shapedesc Spectral shape descriptors
+
+  The following descriptors are described in:
+
+  Geoffroy Peeters, <i>A large set of audio features for sound description
+  (similarity and classification) in the CUIDADO project</i>, CUIDADO I.S.T.
+  Project Report 2004 (<a
+  href="http://www.ircam.fr/anasyn/peeters/ARTICLES/Peeters_2003_cuidadoaudiofeatures.pdf">pdf</a>)
+
+  \b \p centroid : Spectral centroid 
+
+  The spectral centroid represents the barycenter of the spectrum.
+
+  \e Note: This function returns the result in bin. To get the spectral
+  centroid in Hz, aubio_bintofreq() should be used. 
+
+  \b \p spread : Spectral spread 
+
+  The spectral spread is the variance of the spectral distribution around its
+  centroid.
+
+  See also <a href="http://en.wikipedia.org/wiki/Standard_deviation">Standard
+  deviation</a> on Wikipedia.
+
+  \b \p skewness : Spectral skewness
+
+  Similarly, the skewness is computed from the third order moment of the
+  spectrum. A negative skewness indicates more energy on the lower part of the
+  spectrum. A positive skewness indicates more energy on the high frequency of
+  the spectrum.
+
+  See also <a href="http://en.wikipedia.org/wiki/Skewness">Skewness</a> on
+  Wikipedia.
+
+  \b \p kurtosis : Spectral kurtosis
+
+  The kurtosis is a measure of the flatness of the spectrum, computed from the
+  fourth order moment.
+
+  See also <a href="http://en.wikipedia.org/wiki/Kurtosis">Kurtosis</a> on
+  Wikipedia.
+
+  \b \p decrease : Spectral slope 
+
+  The spectral slope represents decreasing rate of the spectral amplitude,
+  computed using a linear regression.
+
+  \b \p decrease : Spectral decrease
+
+  The spectral decrease is another representation of the decreasing rate,  
+  based on perceptual criteria.
+
+  \b \p rolloff : Spectral roll-off
+
+  This function returns the bin number below which 95% of the spectrum energy
+  is found.
+
 */
 
 
