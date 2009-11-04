@@ -23,7 +23,7 @@
 
 /** \file
 
-  Create a C-weighting filter
+  C-weighting filter coefficients
   
   This file creates a C-weighting digital filter, which reduces low and high
   frequencies and enhance the middle ones to reflect the ability of the human

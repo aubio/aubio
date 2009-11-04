@@ -23,7 +23,7 @@
 
 /** \file
 
-  Create an A-weighting filter
+  A-weighting filter coefficients
   
   This file creates an A-weighting digital filter, which reduces low and high
   frequencies and enhance the middle ones to reflect the ability of the human
