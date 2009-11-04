@@ -40,15 +40,15 @@ typedef struct _aubio_filterbank_t aubio_filterbank_t;
 
 /** create filterbank object
 
-  \param win_s size of analysis buffer (and length the FFT transform)
   \param n_filters number of filters to create
+  \param win_s size of analysis buffer (and length the FFT transform)
 
 */
 aubio_filterbank_t *new_aubio_filterbank (uint_t n_filters, uint_t win_s);
 
 /** destroy filterbank object
 
-  \param fb filterbank, as returned by new_aubio_filterbank method
+  \param fb filterbank, as returned by new_aubio_filterbank() method
 
 */
 void del_aubio_filterbank (aubio_filterbank_t * fb);
@@ -71,7 +71,8 @@ fvec_t *aubio_filterbank_get_coeffs (aubio_filterbank_t * f);
 
 /** copy filter coefficients to the filterbank
 
-  \param f filterbank object to get coefficients from
+  \param f filterbank object to set coefficients
+  \param filters filter bank coefficients to copy from
 
  */
 uint_t aubio_filterbank_set_coeffs (aubio_filterbank_t * f, fvec_t * filters);
