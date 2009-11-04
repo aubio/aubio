@@ -183,7 +183,6 @@ extern "C"
 #include "pitch/pitchyinfft.h"
 #include "pitch/pitchschmitt.h"
 #include "pitch/pitchfcomb.h"
-#include "spectral/spectral_centroid.h"
 #include "onset/peakpick.h"
 #include "tempo/beattracking.h"
 #endif

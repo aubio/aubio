@@ -26,103 +26,29 @@
 #include "mathutils.h"
 #include "utils/hist.h"
 
-/** Energy based onset detection function 
- 
-  This function calculates the local energy of the input spectral frame.
-  
-  \param o onset detection object as returned by new_aubio_specdesc()
-  \param fftgrain input spectral frame
-  \param onset output onset detection function
-
-*/
 void aubio_specdesc_energy(aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset);
-/** High Frequency Content onset detection function
- 
-  This method computes the High Frequency Content (HFC) of the input spectral
-  frame. The resulting function is efficient at detecting percussive onsets.
-
-  Paul Masri. Computer modeling of Sound for Transformation and Synthesis of
-  Musical Signal. PhD dissertation, University of Bristol, UK, 1996.
-  
-  \param o onset detection object as returned by new_aubio_specdesc()
-  \param fftgrain input spectral frame
-  \param onset output onset detection function
-
-*/
 void aubio_specdesc_hfc(aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset);
-/** Complex Domain Method onset detection function 
- 
-  Christopher Duxbury, Mike E. Davies, and Mark B. Sandler. Complex domain
-  onset detection for musical signals. In Proceedings of the Digital Audio
-  Effects Conference, DAFx-03, pages 90-93, London, UK, 2003.
-
-  \param o onset detection object as returned by new_aubio_specdesc()
-  \param fftgrain input spectral frame
-  \param onset output onset detection function
-
-*/
 void aubio_specdesc_complex(aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset);
-/** Phase Based Method onset detection function 
-
-  Juan-Pablo Bello, Mike P. Davies, and Mark B. Sandler. Phase-based note onset
-  detection for music signals. In Proceedings of the IEEE International
-  Conference on Acoustics Speech and Signal Processing, pages 441­444,
-  Hong-Kong, 2003.
-
-  \param o onset detection object as returned by new_aubio_specdesc()
-  \param fftgrain input spectral frame
-  \param onset output onset detection function
-
-*/
 void aubio_specdesc_phase(aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset);
-/** Spectral difference method onset detection function 
-
-  Jonhatan Foote and Shingo Uchihashi. The beat spectrum: a new approach to
-  rhythm analysis. In IEEE International Conference on Multimedia and Expo
-  (ICME 2001), pages 881­884, Tokyo, Japan, August 2001.
-
-  \param o onset detection object as returned by new_aubio_specdesc()
-  \param fftgrain input spectral frame
-  \param onset output onset detection function
-
-*/
 void aubio_specdesc_specdiff(aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset);
-/** Kullback-Liebler onset detection function 
-  
-  Stephen Hainsworth and Malcom Macleod. Onset detection in music audio
-  signals. In Proceedings of the International Computer Music Conference
-  (ICMC), Singapore, 2003.
-  
-  \param o onset detection object as returned by new_aubio_specdesc()
-  \param fftgrain input spectral frame
-  \param onset output onset detection function
-
-*/
 void aubio_specdesc_kl(aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset);
-/** Modified Kullback-Liebler onset detection function 
-
-  Paul Brossier, ``Automatic annotation of musical audio for interactive
-  systems'', Chapter 2, Temporal segmentation, PhD thesis, Centre for Digital
-  music, Queen Mary University of London, London, UK, 2006.
-
-  \param o onset detection object as returned by new_aubio_specdesc()
-  \param fftgrain input spectral frame
-  \param onset output onset detection function
-
-*/
 void aubio_specdesc_mkl(aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset);
-/** Spectral Flux 
-
-  Simon Dixon, Onset Detection Revisited, in ``Proceedings of the 9th
-  International Conference on Digital Audio Effects'' (DAFx-06), Montreal,
-  Canada, 2006. 
-
-  \param o onset detection object as returned by new_aubio_specdesc()
-  \param fftgrain input spectral frame
-  \param onset output onset detection function
-
-*/
 void aubio_specdesc_specflux(aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset);
+
+extern void aubio_specdesc_centroid (aubio_specdesc_t * o, cvec_t * spec,
+    fvec_t * desc);
+extern void aubio_specdesc_spread (aubio_specdesc_t * o, cvec_t * spec,
+    fvec_t * desc);
+extern void aubio_specdesc_skewness (aubio_specdesc_t * o, cvec_t * spec,
+    fvec_t * desc);
+extern void aubio_specdesc_kurtosis (aubio_specdesc_t * o, cvec_t * spec,
+    fvec_t * desc);
+extern void aubio_specdesc_slope (aubio_specdesc_t * o, cvec_t * spec,
+    fvec_t * desc);
+extern void aubio_specdesc_decrease (aubio_specdesc_t * o, cvec_t * spec,
+    fvec_t * desc);
+extern void aubio_specdesc_rolloff (aubio_specdesc_t * o, cvec_t * spec,
+    fvec_t * desc);
 
 /** onsetdetection types */
 typedef enum {
@@ -134,6 +60,13 @@ typedef enum {
         aubio_onset_kl,             /**< Kullback Liebler */
         aubio_onset_mkl,            /**< modified Kullback Liebler */
         aubio_onset_specflux,       /**< spectral flux */
+        aubio_specmethod_centroid,  /**< spectral centroid */
+        aubio_specmethod_spread,    /**< spectral spread */
+        aubio_specmethod_skewness,  /**< spectral skewness */
+        aubio_specmethod_kurtosis,  /**< spectral kurtosis */
+        aubio_specmethod_slope,     /**< spectral kurtosis */
+        aubio_specmethod_decrease,  /**< spectral decrease */
+        aubio_specmethod_rolloff,   /**< spectral rolloff */
         aubio_onset_default = aubio_onset_hfc, /**< default mode, set to hfc */
 } aubio_specdesc_type;
 
@@ -341,10 +274,24 @@ new_aubio_specdesc (char_t * onset_mode,
       onset_type = aubio_onset_kl;
   else if (strcmp (onset_mode, "specflux") == 0)
       onset_type = aubio_onset_specflux;
+  else if (strcmp (onset_mode, "centroid") == 0)
+      onset_type = aubio_specmethod_centroid;
+  else if (strcmp (onset_mode, "spread") == 0)
+      onset_type = aubio_specmethod_spread;
+  else if (strcmp (onset_mode, "skewness") == 0)
+      onset_type = aubio_specmethod_skewness;
+  else if (strcmp (onset_mode, "kurtosis") == 0)
+      onset_type = aubio_specmethod_kurtosis;
+  else if (strcmp (onset_mode, "slope") == 0)
+      onset_type = aubio_specmethod_slope;
+  else if (strcmp (onset_mode, "decrease") == 0)
+      onset_type = aubio_specmethod_decrease;
+  else if (strcmp (onset_mode, "rolloff") == 0)
+      onset_type = aubio_specmethod_rolloff;
   else if (strcmp (onset_mode, "default") == 0)
       onset_type = aubio_onset_default;
   else {
-      AUBIO_ERR("unknown onset type.\n");
+      AUBIO_ERR("unknown spectral descriptor type %s.\n", onset_mode);
       onset_type = aubio_onset_default;
   }
   switch(onset_type) {
@@ -410,6 +357,28 @@ new_aubio_specdesc (char_t * onset_mode,
       break;
     case aubio_onset_specflux:
       o->funcpointer = aubio_specdesc_specflux;
+      break;
+    // for for the additional descriptors. these don't need additional memory
+    case aubio_specmethod_centroid:
+      o->funcpointer = aubio_specdesc_centroid;
+      break;
+    case aubio_specmethod_spread:
+      o->funcpointer = aubio_specdesc_spread;
+      break;
+    case aubio_specmethod_skewness:
+      o->funcpointer = aubio_specdesc_skewness;
+      break;
+    case aubio_specmethod_kurtosis:
+      o->funcpointer = aubio_specdesc_kurtosis;
+      break;
+    case aubio_specmethod_slope:
+      o->funcpointer = aubio_specdesc_slope;
+      break;
+    case aubio_specmethod_decrease:
+      o->funcpointer = aubio_specdesc_decrease;
+      break;
+    case aubio_specmethod_rolloff:
+      o->funcpointer = aubio_specdesc_rolloff;
       break;
     default:
       break;
