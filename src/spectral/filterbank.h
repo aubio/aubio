@@ -44,7 +44,6 @@ typedef struct _aubio_filterbank_t aubio_filterbank_t;
   \param n_filters number of filters to create
 
 */
-
 aubio_filterbank_t *new_aubio_filterbank (uint_t n_filters, uint_t win_s);
 
 /** destroy filterbank object
