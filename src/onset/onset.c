@@ -90,7 +90,7 @@ uint_t aubio_onset_set_threshold(aubio_onset_t * o, smpl_t threshold) {
 }
 
 uint_t aubio_onset_set_minioi(aubio_onset_t * o, uint_t minioi) {
-  o->minioi = minioi;
+  o->minioi = FLOOR(minioi / 1000. * o->samplerate / o->hop_size);
   return AUBIO_OK;
 }
 

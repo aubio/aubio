@@ -84,8 +84,8 @@ uint_t aubio_onset_set_threshold(aubio_onset_t * o, smpl_t threshold);
 /** set minimum inter onset interval
 
   \param o onset detection object as returned by new_aubio_onset
-  \param minioi minimum number of frames between onsets (in multiple of
-  hop_size/samplerare)
+  \param minioi minimum interval between two consecutive onsets (in
+  milliseconds)
 
 */
 uint_t aubio_onset_set_minioi(aubio_onset_t * o, uint_t minioi);
