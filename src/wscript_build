@@ -9,5 +9,5 @@ libaubio = bld.new_task_gen(
 
 # install headers, except _priv.h ones
 for file in bld.path.ant_glob('**/*.h').split():
-  if '_priv.h' in file: continue
+  if '_priv.h' in file or file == 'config.h': continue
   bld.install_as('${PREFIX}/include/aubio/' + file, file)

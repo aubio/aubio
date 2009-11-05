@@ -35,7 +35,7 @@ nobase_pkginclude_HEADERS = \
 	tempo/tempo.h \
 	tempo/beattracking.h
 
-nodist_pkginclude_HEADERS = config.h
+nodist_noinst_HEADERS = config.h
 
 lib_LTLIBRARIES = libaubio.la 
 libaubio_la_SOURCES = \
