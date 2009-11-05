@@ -7,11 +7,12 @@
  *
  */
 
+#include <stdio.h>
 #include <unistd.h>  /* sleep() */
 #include <aubio.h>
 #include "jackio.h"
 
-uint_t testing  = 1;  /* change this to 1 to listen        */
+uint_t testing  = 0;  /* change this to 1 to listen        */
 
 uint_t win_s    = 512;/* window size                       */
 uint_t hop_s    = 128;/* hop size                          */
@@ -47,6 +48,8 @@ int main(){
           sleep(1);
         } while(testing);
         aubio_jack_close(jack_setup);
+#else
+        fprintf(stderr, "WARNING: no jack support\n");
 #endif
         
         del_aubio_pvoc(pv);
