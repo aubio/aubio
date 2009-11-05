@@ -244,10 +244,6 @@ dnl Check for docbook-to-man
 AC_PATH_PROG(DOCBOOK_TO_MAN,docbook-to-man,no)
 AM_CONDITIONAL(DOCBOOKFOUND, test "${DOCBOOK_TO_MAN}" != "no")
 
-dnl Check for Puredata
-AC_CHECK_HEADER(m_pd.h,PUREDATA=y,AC_MSG_WARN([Puredata header not found.]))
-AM_CONDITIONAL(PUREDATAFOUND, test "${PUREDATA}" = "y")
-
 dnl Check for Java
 AC_CHECK_HEADER(jni.h,JAVAHEADERS=y,AC_MSG_WARN([Java header jni.h not found.]))
 AM_CONDITIONAL(JAVAFOUND, test "${JAVAHEADERS}" = "y")
@@ -265,8 +261,6 @@ AC_OUTPUT([
     python/aubio/Makefile
     interfaces/java/Makefile
     interfaces/java/aubio/Makefile
-    plugins/Makefile
-    plugins/puredata/Makefile
     doc/Makefile
   ])
 
@@ -302,11 +296,6 @@ if test "${HAVE_LASH}" = "1"; then
   echo "Lash:                    yes"
 else
   echo "Lash:                    no"
-fi
-if test "${PUREDATA}" = "y"; then
-  echo "PureData:                yes"
-else
-  echo "PureData:                no"
 fi
 echo "**************************************************************"
 echo Configuration completed successfully. Type \'make\' to build ${PACKAGE}

@@ -13,7 +13,7 @@ endif
 endif
 
 
-SUBDIRS = src examples sounds plugins $(PYTHONDIR) $(SWIGDIR) $(JAVADIR) $(DOC) tests
+SUBDIRS = src examples sounds $(PYTHONDIR) $(SWIGDIR) $(JAVADIR) $(DOC) tests
 EXTRA_DIST = bootstrap VERSION
 
 docs:

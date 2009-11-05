@@ -1,4 +1,0 @@
-if PUREDATAFOUND
-PUREDATA = puredata
-endif
-SUBDIRS = ${PUREDATA} 
