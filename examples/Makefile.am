@@ -1,5 +1,5 @@
 # global flags
-AM_CFLAGS = -DAUBIO_PREFIX=\"$(prefix)\" -I$(top_srcdir)/src @AUBIO_CFLAGS@ @LASH_CFLAGS@ @SNDFILE_CFLAGS@ @JACK_CFLAGS@
+AM_CFLAGS = -DAUBIO_PREFIX=\"$(prefix)\" -DPACKAGE=\"@PACKAGE@\" -I$(top_srcdir)/src @AUBIO_CFLAGS@ @LASH_CFLAGS@ @SNDFILE_CFLAGS@ @JACK_CFLAGS@
 AM_LDFLAGS = -L$(top_builddir)/src -laubio @LASH_LIBS@
 
 # add your programs to this list
