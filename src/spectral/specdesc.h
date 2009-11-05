@@ -123,7 +123,7 @@
   See also <a href="http://en.wikipedia.org/wiki/Kurtosis">Kurtosis</a> on
   Wikipedia.
 
-  \b \p decrease : Spectral slope 
+  \b \p slope : Spectral slope 
 
   The spectral slope represents decreasing rate of the spectral amplitude,
   computed using a linear regression.
