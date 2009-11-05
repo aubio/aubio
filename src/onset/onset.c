@@ -39,6 +39,7 @@ struct _aubio_onset_t {
   uint_t minioi;                /**< minimum inter onset interval */
   fvec_t * wasonset;            /**< number of frames since last onset */
   uint_t samplerate;            /**< sampling rate of the input signal */
+  uint_t hop_size;              /**< number of samples between two runs */ 
 };
 
 /* execute onset detection function on iput buffer */
@@ -105,6 +106,7 @@ aubio_onset_t * new_aubio_onset (char_t * onset_mode,
   o->silence   = -70;
   o->wasonset  = new_fvec(1, channels);
   o->samplerate = samplerate;
+  o->hop_size = hop_size;
   o->pv = new_aubio_pvoc(buf_size, hop_size, channels);
   o->pp = new_aubio_peakpicker(channels);
   aubio_peakpicker_set_threshold (o->pp, o->threshold);
