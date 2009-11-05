@@ -23,6 +23,8 @@ def set_options(opt):
       help='compile without jack support')
   opt.add_option('--disable-lash', action='store_true', default=False,
       help='compile without lash support')
+  opt.add_option('--disable-libsamplerate', action='store_true', default=False,
+      help='compile without libsamplerate support')
   opt.add_option('--with-target-platform', type='string',
       help='set target platform for cross-compilation', dest='target_platform')
   opt.tool_options('compiler_cc')
@@ -54,11 +56,12 @@ def configure(conf):
   if (Options.options.enable_complex == True):
     conf.check(header_name='complex.h')
 
-  # required dependancies
+  # check dependencies
   conf.check_cfg(package = 'sndfile', atleast_version = '1.0.4',
     args = '--cflags --libs')
-  conf.check_cfg(package = 'samplerate', atleast_version = '0.0.15',
-    args = '--cflags --libs')
+  if (Options.options.disable_libsamplerate == False):
+      conf.check_cfg(package = 'libsamplerate', atleast_version = '0.0.15',
+        args = '--cflags --libs')
 
   # double precision mode
   if (Options.options.enable_double == True):
