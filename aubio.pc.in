@@ -1,7 +1,7 @@
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 libdir=@libdir@
-includedir=@includedir@/aubio
+includedir=@includedir@
 
 Name: aubio
 Description: a library for audio labelling
