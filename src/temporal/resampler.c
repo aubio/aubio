@@ -20,13 +20,13 @@
 
 #include "config.h"
 
-#if HAVE_SAMPLERATE
-
-#include <samplerate.h>         /* from libsamplerate */
-
 #include "aubio_priv.h"
 #include "fvec.h"
 #include "temporal/resampler.h"
+
+#if HAVE_SAMPLERATE
+
+#include <samplerate.h>         /* from libsamplerate */
 
 struct _aubio_resampler_t
 {
@@ -73,4 +73,25 @@ aubio_resampler_do (aubio_resampler_t * s, fvec_t * input, fvec_t * output)
   }
 }
 
+#else
+struct _aubio_resampler_t
+{
+};
+
+aubio_resampler_t *
+new_aubio_resampler (smpl_t ratio UNUSED, uint_t type UNUSED)
+{
+  AUBIO_ERR ("aubio was not compiled with libsamplerate\n");
+  return NULL;
+}
+
+void
+del_aubio_resampler (aubio_resampler_t * s)
+{
+}
+
+void
+aubio_resampler_do (aubio_resampler_t * s, fvec_t * input, fvec_t * output)
+{
+}
 #endif /* HAVE_SAMPLERATE */
