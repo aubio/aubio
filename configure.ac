@@ -244,10 +244,6 @@ dnl Check for docbook-to-man
 AC_PATH_PROG(DOCBOOK_TO_MAN,docbook-to-man,no)
 AM_CONDITIONAL(DOCBOOKFOUND, test "${DOCBOOK_TO_MAN}" != "no")
 
-dnl Check for Java
-AC_CHECK_HEADER(jni.h,JAVAHEADERS=y,AC_MSG_WARN([Java header jni.h not found.]))
-AM_CONDITIONAL(JAVAFOUND, test "${JAVAHEADERS}" = "y")
-
 dnl Create Makefiles
 AC_OUTPUT([
     Makefile
@@ -259,8 +255,6 @@ AC_OUTPUT([
     swig/Makefile
     python/Makefile
     python/aubio/Makefile
-    interfaces/java/Makefile
-    interfaces/java/aubio/Makefile
     doc/Makefile
   ])
 

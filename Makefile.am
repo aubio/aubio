@@ -7,13 +7,10 @@ SWIGDIR = swig
 if PYTHONFOUND
 PYTHONDIR = python
 endif
-if JAVAFOUND
-JAVADIR = interfaces/java
-endif
 endif
 
 
-SUBDIRS = src examples sounds $(PYTHONDIR) $(SWIGDIR) $(JAVADIR) $(DOC) tests
+SUBDIRS = src examples sounds $(PYTHONDIR) $(SWIGDIR) $(DOC) tests
 EXTRA_DIST = bootstrap VERSION
 
 docs:
