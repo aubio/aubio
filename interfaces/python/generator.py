@@ -4,7 +4,7 @@
 
 import os, sys
 
-skip_objects = ['fft', 'pvoc', 'filter', 'filterbank', 'biquad']
+skip_objects = ['fft', 'pvoc', 'filter', 'filterbank', 'resampler']
 
 cpp_output = [l.strip() for l in os.popen('cpp -I ../../build/default/src ../../src/aubio.h').readlines()]
 
