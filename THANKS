@@ -3,6 +3,4 @@ comb pitch detection and onsets), Chris Duxbury (onsets), Samer Abdallah (peak
 picking), Alain de Cheveigne (pitchyin).  Details to the relevant articles are
 provided in each file.
 
-The midi files have been borrowed from Fluidsynth, written by Peter Hanappe.
-
 Also many thanks to Miguel Ramirez and Nicolas Wack for their bug fixing.
