@@ -26,6 +26,16 @@
 #include "temporal/biquad.h"
 #include "onset/peakpick.h"
 
+/** function pointer to thresholding function */
+typedef smpl_t (*aubio_thresholdfn_t)(fvec_t *input, uint_t channel);
+/** function pointer to peak-picking function */
+typedef uint_t (*aubio_pickerfn_t)(fvec_t *input, uint_t pos);
+
+/** set peak picker thresholding function */
+uint_t aubio_peakpicker_set_thresholdfn(aubio_peakpicker_t * p, aubio_thresholdfn_t thresholdfn);
+/** get peak picker thresholding function */
+aubio_thresholdfn_t aubio_peakpicker_get_thresholdfn(aubio_peakpicker_t * p);
+
 /* peak picking parameters, default values in brackets
  *
  *     [<----post----|--pre-->]
@@ -53,6 +63,8 @@ struct _aubio_peakpicker_t
   fvec_t *onset_proc;
         /** peak picked window [3] */
   fvec_t *onset_peek;
+        /** thresholded function */
+  fvec_t *thresholded;
         /** scratch pad for biquad and median */
   fvec_t *scratch;
 
@@ -80,6 +92,7 @@ aubio_peakpicker_do (aubio_peakpicker_t * p, fvec_t * onset, fvec_t * out)
   fvec_t *onset_keep = p->onset_keep;
   fvec_t *onset_proc = p->onset_proc;
   fvec_t *onset_peek = p->onset_peek;
+  fvec_t *thresholded = p->thresholded;
   fvec_t *scratch = p->scratch;
   smpl_t mean = 0., median = 0.;
   uint_t length = p->win_post + p->win_pre + 1;
@@ -111,9 +124,10 @@ aubio_peakpicker_do (aubio_peakpicker_t * p, fvec_t * onset, fvec_t * out)
     /* shift peek array */
     for (j = 0; j < 3 - 1; j++)
       onset_peek->data[i][j] = onset_peek->data[i][j + 1];
-    /* calculate new peek value */
-    onset_peek->data[i][2] =
+    /* calculate new tresholded value */
+    thresholded->data[i][0] =
         onset_proc->data[i][p->win_post] - median - mean * p->threshold;
+    onset_peek->data[i][2] = thresholded->data[i][0];
     out->data[i][0] = (p->pickerfn) (onset_peek, 1);
     if (out->data[i][0]) {
       out->data[i][0] = fvec_quadint (onset_peek, 1, i);
@@ -124,10 +138,10 @@ aubio_peakpicker_do (aubio_peakpicker_t * p, fvec_t * onset, fvec_t * out)
 /** this method returns the current value in the pick peaking buffer
  * after smoothing
  */
-smpl_t
+fvec_t *
 aubio_peakpicker_get_thresholded_input (aubio_peakpicker_t * p)
 {
-  return p->onset_peek->data[0][1];
+  return p->thresholded;
 }
 
 uint_t
@@ -174,6 +188,7 @@ new_aubio_peakpicker (uint_t channels)
   t->onset_keep = new_fvec (t->win_post + t->win_pre + 1, channels);
   t->onset_proc = new_fvec (t->win_post + t->win_pre + 1, channels);
   t->onset_peek = new_fvec (3, channels);
+  t->thresholded = new_fvec (1, channels);
 
   /* cutoff: low-pass filter with cutoff reduced frequency at 0.34
      generated with octave butter function: [b,a] = butter(2, 0.34);
@@ -191,6 +206,7 @@ del_aubio_peakpicker (aubio_peakpicker_t * p)
   del_fvec (p->onset_keep);
   del_fvec (p->onset_proc);
   del_fvec (p->onset_peek);
+  del_fvec (p->thresholded);
   del_fvec (p->scratch);
   AUBIO_FREE (p);
 }
