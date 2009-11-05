@@ -7,6 +7,7 @@ nobase_pkginclude_HEADERS = \
 	fvec.h \
 	lvec.h \
 	cvec.h \
+	musicutils.h \
 	mathutils.h \
 	vecutils.h \
 	utils/hist.h \
