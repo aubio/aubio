@@ -23,8 +23,6 @@ def set_options(opt):
       help='compile without jack support')
   opt.add_option('--disable-lash', action='store_true', default=False,
       help='compile without lash support')
-  opt.add_option('--enable-java', action='store_true', default=False,
-      help='compile with java support')
   opt.add_option('--with-target-platform', type='string',
       help='set target platform for cross-compilation', dest='target_platform')
   opt.tool_options('compiler_cc')
@@ -100,11 +98,6 @@ def configure(conf):
       conf.check_python_version((2,4,2))
       conf.check_python_headers()
 
-    # java
-    if (Options.options.enable_java == True):
-      conf.fatal('Java build not yet implemented')
-      conf.check_tool('java')
-
   # check support for C99 __VA_ARGS__ macros
   check_c99_varargs = '''
 #include <stdio.h>
@@ -134,8 +127,6 @@ def build(bld):
   if bld.env['SWIG']:
     if bld.env['PYTHON']:
       bld.add_subdirs('python/aubio python')
-    if bld.env['JAVA']:
-      pass
 
   # create the aubio.pc file for pkg-config
   aubiopc = bld.new_task_gen('subst')
