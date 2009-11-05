@@ -1,25 +1,12 @@
 # build examples
 
-defines = ['AUBIO_PREFIX="' + bld.env['AUBIO_PREFIX'] + '"']
-defines += ['PACKAGE="' + bld.env['PACKAGE'] + '"']
-
-extra_source = ['utils.c', 'sndfileio.c', 'jackio.c']
-
-bld.new_task_gen(features = 'cc',
-    includes = '../src',
-    source = extra_source, 
-    uselib = ['LASH'],
-    defines = defines, 
-    target = 'utils_io')
-
 # loop over all *.c filenames in examples to build them all
 for target_name in bld.path.ant_glob('*.c').split():
   # ignore utils.c
-  if target_name in extra_source: continue 
+  if target_name in ['utils.c', 'jackio.c', 'sndfileio.c']: continue 
   bld.new_task_gen(features = 'cc cprogram', 
-      add_objects = 'utils_io',
+      add_objects = 'utilsio',
       includes = '../src',
-      defines = defines, 
       uselib = ['LASH', 'JACK', 'SNDFILE'],
       uselib_local = ['aubio'],
       source = target_name,

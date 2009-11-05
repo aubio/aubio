@@ -1,9 +1,3 @@
-bld.new_task_gen(features = 'cc',
-    includes = '../../examples ../../src',
-    source = ['../../examples/sndfileio.c'], 
-    uselib = ['JACK'],
-    target = 'sndfileio')
-
 pyaubio = bld.new_task_gen(name = 'python-aubio', 
   features = 'cc cshlib pyext', 
   source = '../../swig/aubio.i',

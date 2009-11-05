@@ -125,6 +125,8 @@ def build(bld):
   bld.env['VERSION'] = VERSION 
   bld.env['LIB_VERSION'] = LIB_VERSION 
 
+  build_extras(bld)
+
   # add sub directories
   bld.add_subdirs('src examples')
   if bld.env['SWIG']:
@@ -180,3 +182,20 @@ def build_tests(bld):
       this_target.uselib_local = ['aubio']
       this_target.uselib = ['JACK']
       this_target.source += ' examples/jackio.c'
+
+def build_extras(bld):
+    # corner cases to build these ones only once
+    sndfileio = bld.new_task_gen(features = 'cc',
+        includes = 'examples src',
+        source = ['examples/sndfileio.c'], 
+        target = 'sndfileio')
+
+    defines = ['AUBIO_PREFIX="' + bld.env['AUBIO_PREFIX'] + '"']
+    defines += ['PACKAGE="' + bld.env['PACKAGE'] + '"']
+
+    utilsio = bld.new_task_gen(features = 'cc',
+          includes = 'examples src',
+          add_objects = 'sndfileio',
+          source = ['examples/utils.c', 'examples/jackio.c'], 
+          defines = defines, 
+          target = 'utilsio')
