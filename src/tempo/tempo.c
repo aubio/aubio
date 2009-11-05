@@ -39,7 +39,6 @@ struct _aubio_tempo_t {
   fvec_t * dfframe;              /** peak picked detection function buffer */
   fvec_t * out;                  /** beat tactus candidates */
   fvec_t * onset;                /** onset results */
-  fvec_t * peek;                 /** thresholded onset function */
   smpl_t silence;                /** silence parameter */
   smpl_t threshold;              /** peak picking threshold */
   sint_t blockpos;               /** current position in dfframe */
@@ -54,6 +53,7 @@ void aubio_tempo_do(aubio_tempo_t *o, fvec_t * input, fvec_t * tempo)
   uint_t i;
   uint_t winlen = o->winlen;
   uint_t step   = o->step;
+  fvec_t * thresholded;
   aubio_pvoc_do (o->pv, input, o->fftgrain);
   aubio_specdesc_do (o->od, o->fftgrain, o->of);
   /*if (usedoubled) {
@@ -74,15 +74,15 @@ void aubio_tempo_do(aubio_tempo_t *o, fvec_t * input, fvec_t * tempo)
   o->blockpos++;
   aubio_peakpicker_do (o->pp, o->of, o->onset);
   tempo->data[0][1] = o->onset->data[0][0];
-  o->dfframe->data[0][winlen - step + o->blockpos] = 
-    aubio_peakpicker_get_thresholded_input(o->pp);
+  thresholded = aubio_peakpicker_get_thresholded_input(o->pp);
+  o->dfframe->data[0][winlen - step + o->blockpos] = thresholded->data[0][0];
   /* end of second level loop */
   tempo->data[0][0] = 0; /* reset tactus */
   i=0;
   for (i = 1; i < o->out->data[0][0]; i++ ) {
     /* if current frame is a predicted tactus */
     if (o->blockpos == FLOOR(o->out->data[0][i])) {
-      tempo->data[0][0] = 1. + o->out->data[0][i] - FLOOR(o->out->data[0][i]); /* set tactus */
+      tempo->data[0][0] = o->out->data[0][i] - FLOOR(o->out->data[0][i]); /* set tactus */
       /* test for silence */
       if (aubio_silence_detection(input, o->silence)==1) {
         tempo->data[0][1] = 0; /* unset onset */
@@ -124,7 +124,6 @@ aubio_tempo_t * new_aubio_tempo (char_t * onset_mode,
   o->of       = new_fvec(1, channels);
   o->bt       = new_aubio_beattracking(o->winlen,channels);
   o->onset    = new_fvec(1, channels);
-  o->peek     = new_fvec(3, channels);
   /*if (usedoubled)    {
     o2 = new_aubio_specdesc(type_onset2,buffer_size,channels);
     onset2 = new_fvec(1 , channels);
@@ -151,7 +150,6 @@ void del_aubio_tempo (aubio_tempo_t *o)
   del_cvec(o->fftgrain);
   del_fvec(o->dfframe);
   del_fvec(o->onset);
-  del_fvec(o->peek);
   AUBIO_FREE(o);
   return;
 }
