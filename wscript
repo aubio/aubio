@@ -1,9 +1,6 @@
 #! /usr/bin/python
 # 
-# TODO
-#  - plugins/puredata: add pd compilation
-#  - java: add swig compilation
-#  - doc: add docbook2html and doxygen
+#  - doc: add doxygen
 #  - tests: move to new unit test system 
 
 APPNAME = 'aubio'
@@ -121,9 +118,6 @@ def configure(conf):
   # write configuration header
   conf.write_config_header('src/config.h')
 
-  # check for puredata header
-  conf.check(header_name='m_pd.h')
-
   # add some defines used in examples 
   conf.define('AUBIO_PREFIX', conf.env['PREFIX'])
   conf.define('PACKAGE', APPNAME)
@@ -162,9 +156,6 @@ def build(bld):
     manpages = bld.new_task_gen(name = 'docbooktoman', 
         source=bld.path.ant_glob('doc/*.sgml'))
     bld.install_files('${MANDIR}/man1', bld.path.ant_glob('doc/*.1'))
-
-  if bld.env['HAVE_M_PD_H']:
-    bld.add_subdirs('plugins/puredata')
 
   # install woodblock sound
   bld.install_files('${PREFIX}/share/sounds/aubio/', 
