@@ -24,7 +24,7 @@
 #include "spectral/specdesc.h"
 #include "tempo/beattracking.h"
 #include "spectral/phasevoc.h"
-#include "onset/peakpick.h"
+#include "onset/peakpicker.h"
 #include "mathutils.h"
 #include "tempo/tempo.h"
 

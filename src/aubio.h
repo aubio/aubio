@@ -169,6 +169,7 @@ extern "C"
 #include "spectral/specdesc.h"
 #include "pitch/pitch.h"
 #include "onset/onset.h"
+#include "onset/peakpicker.h"
 #include "tempo/tempo.h"
 
 #if AUBIO_UNSTABLE
@@ -184,7 +185,6 @@ extern "C"
 #include "pitch/pitchyinfft.h"
 #include "pitch/pitchschmitt.h"
 #include "pitch/pitchfcomb.h"
-#include "onset/peakpick.h"
 #include "tempo/beattracking.h"
 #endif
 

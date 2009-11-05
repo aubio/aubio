@@ -23,7 +23,7 @@
 #include "cvec.h"
 #include "spectral/specdesc.h"
 #include "spectral/phasevoc.h"
-#include "onset/peakpick.h"
+#include "onset/peakpicker.h"
 #include "mathutils.h"
 #include "onset/onset.h"
 
