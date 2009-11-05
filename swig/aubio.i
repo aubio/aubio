@@ -8,6 +8,7 @@
 typedef unsigned int uint_t;
 typedef int sint_t;
 typedef float smpl_t;
+typedef char char_t;
 
 /* fvec */
 fvec_t * new_fvec(uint_t length, uint_t channels);
@@ -106,7 +107,6 @@ uint_t aubio_pitch_set_unit(aubio_pitch_t *p, char * pitch_unit);
 void del_aubio_pitch(aubio_pitch_t * p);
 
 /* tempo */
-typedef struct _aubio_tempo_t aubio_tempo_t;
 aubio_tempo_t * new_aubio_tempo (char_t * mode,
     uint_t buf_size, uint_t hop_size, uint_t channels, uint_t samplerate);
 void aubio_tempo_do (aubio_tempo_t *o, fvec_t * input, fvec_t * tempo);
@@ -116,8 +116,23 @@ smpl_t aubio_tempo_get_bpm(aubio_tempo_t * bt);
 smpl_t aubio_tempo_get_confidence(aubio_tempo_t * bt);
 void del_aubio_tempo(aubio_tempo_t * o);
 
+/* specdesc */
+void aubio_specdesc_do (aubio_specdesc_t * o, cvec_t * fftgrain,
+  fvec_t * desc);
+aubio_specdesc_t *new_aubio_specdesc (char_t * method, uint_t buf_size,
+  uint_t channels); 
+void del_aubio_specdesc (aubio_specdesc_t * o);
+
+/* peak picker */
+aubio_peakpicker_t * new_aubio_peakpicker(uint_t channels);
+void aubio_peakpicker_do(aubio_peakpicker_t * p, fvec_t * in, fvec_t * out);
+fvec_t * aubio_peakpicker_get_thresholded_input(aubio_peakpicker_t * p);
+void del_aubio_peakpicker(aubio_peakpicker_t * p);
+uint_t aubio_peakpicker_set_threshold(aubio_peakpicker_t * p, smpl_t threshold);
+
 /* sndfile */
 %{
+#include "config.h"
 #if HAVE_SNDFILE
 #include "sndfileio.h"
 %}
