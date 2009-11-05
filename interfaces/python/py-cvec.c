@@ -28,7 +28,7 @@ Py_cvec_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
 
   self = (Py_cvec *) type->tp_alloc (type, 0);
 
-  self->length = Py_default_vector_length;
+  self->length = Py_default_vector_length / 2 + 1;
   self->channels = Py_default_vector_channels;
 
   if (self == NULL) {
@@ -36,7 +36,7 @@ Py_cvec_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
   }
 
   if (length > 0) {
-    self->length = length;
+    self->length = length / 2 + 1;
   } else if (length < 0) {
     PyErr_SetString (PyExc_ValueError,
         "can not use negative number of elements");
@@ -57,7 +57,7 @@ Py_cvec_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
 static int
 Py_cvec_init (Py_cvec * self, PyObject * args, PyObject * kwds)
 {
-  self->o = new_cvec (self->length, self->channels);
+  self->o = new_cvec ((self->length - 1) * 2, self->channels);
   if (self->o == NULL) {
     return -1;
   }
