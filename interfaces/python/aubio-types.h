@@ -2,6 +2,7 @@
 #include <structmember.h>
 #define NO_IMPORT_ARRAY
 #include <numpy/arrayobject.h>
+#define AUBIO_UNSTABLE 1
 #include <aubio.h>
 
 #define Py_default_vector_length   1024
