@@ -40,8 +40,8 @@ typedef struct _aubio_pitch_t aubio_pitch_t;
 /** execute pitch detection on an input signal frame
 
   \param o pitch detection object as returned by new_aubio_pitch()
-  \param in input signal of size [hopsize x channels]
-  \param out output pitch candidates of size [1 x channes]
+  \param in input signal of size [hop_size x channels]
+  \param out output pitch candidates of size [1 x channels]
 
 */
 void aubio_pitch_do (aubio_pitch_t * o, fvec_t * in, fvec_t * out);
@@ -63,15 +63,15 @@ void del_aubio_pitch (aubio_pitch_t * o);
 
 /** creation of the pitch detection object
 
-  \param mode set pitch detection algorithm
-  \param bufsize size of the input buffer to analyse
-  \param hopsize step size between two consecutive analysis instant
+  \param method set pitch detection algorithm
+  \param buf_size size of the input buffer to analyse
+  \param hop_size step size between two consecutive analysis instant
   \param channels number of channels to analyse
   \param samplerate sampling rate of the signal
 
 */
-aubio_pitch_t *new_aubio_pitch (char_t * mode,
-    uint_t bufsize, uint_t hopsize, uint_t channels, uint_t samplerate);
+aubio_pitch_t *new_aubio_pitch (char_t * method,
+    uint_t buf_size, uint_t hop_size, uint_t channels, uint_t samplerate);
 
 /** set the output unit of the pitch detection object 
 

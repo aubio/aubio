@@ -38,13 +38,13 @@ typedef struct _aubio_mfcc_t aubio_mfcc_t;
 
 /** create mfcc object
 
-  \param win_s size of analysis buffer (and length the FFT transform)
+  \param buf_size size of analysis buffer (and length the FFT transform)
   \param samplerate audio sampling rate
   \param n_coeffs number of desired coefficients
   \param n_filters number of desired filters
 
 */
-aubio_mfcc_t *new_aubio_mfcc (uint_t win_s,
+aubio_mfcc_t *new_aubio_mfcc (uint_t buf_size,
     uint_t n_filters, uint_t n_coeffs, uint_t samplerate);
 
 /** delete mfcc object
@@ -57,7 +57,7 @@ void del_aubio_mfcc (aubio_mfcc_t * mf);
 /** mfcc object processing
 
   \param mf mfcc object as returned by new_aubio_mfcc
-  \param in input spectrum (win_s long)
+  \param in input spectrum (buf_size long)
   \param out output mel coefficients buffer (n_coeffs long)
 
 */

@@ -53,10 +53,10 @@ typedef struct _aubio_pitchyinfft_t aubio_pitchyinfft_t;
 void aubio_pitchyinfft_do (aubio_pitchyinfft_t * p, fvec_t * in, fvec_t * out);
 /** creation of the pitch detection object
  
-  \param bufsize size of the input buffer to analyse 
+  \param buf_size size of the input buffer to analyse 
  
 */
-aubio_pitchyinfft_t *new_aubio_pitchyinfft (uint_t bufsize);
+aubio_pitchyinfft_t *new_aubio_pitchyinfft (uint_t buf_size);
 /** deletion of the pitch detection object
  
   \param p pitch detection object as returned by new_aubio_pitchyinfft()

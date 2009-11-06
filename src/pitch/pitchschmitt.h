@@ -54,10 +54,10 @@ void aubio_pitchschmitt_do (aubio_pitchschmitt_t * p, fvec_t * in,
 
 /** creation of the pitch detection object
  
-  \param size size of the input buffer to analyse 
+  \param buf_size size of the input buffer to analyse 
  
 */
-aubio_pitchschmitt_t *new_aubio_pitchschmitt (uint_t bufsize);
+aubio_pitchschmitt_t *new_aubio_pitchschmitt (uint_t buf_size);
 
 /** deletion of the pitch detection object
  

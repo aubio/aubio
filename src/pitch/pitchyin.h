@@ -44,10 +44,10 @@ typedef struct _aubio_pitchyin_t aubio_pitchyin_t;
 
 /** creation of the pitch detection object
  
-  \param bufsize size of the input buffer to analyse 
+  \param buf_size size of the input buffer to analyse 
  
 */
-aubio_pitchyin_t *new_aubio_pitchyin (uint_t bufsize);
+aubio_pitchyin_t *new_aubio_pitchyin (uint_t buf_size);
 
 /** deletion of the pitch detection object
  

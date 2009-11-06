@@ -46,12 +46,12 @@ typedef struct _aubio_tss_t aubio_tss_t;
 
 /** create tss object
 
-  \param win_s buffer size
-  \param hop_s step size
+  \param buf_size buffer size
+  \param hop_size step size
   \param channels number of input channels
 
 */
-aubio_tss_t *new_aubio_tss (uint_t win_s, uint_t hop_s, uint_t channels);
+aubio_tss_t *new_aubio_tss (uint_t buf_size, uint_t hop_size, uint_t channels);
 
 /** delete tss object
 

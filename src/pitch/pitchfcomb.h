@@ -54,12 +54,12 @@ void aubio_pitchfcomb_do (aubio_pitchfcomb_t * p, fvec_t * input,
 
 /** creation of the pitch detection object
  
-  \param bufsize size of the input buffer to analyse 
-  \param hopsize step size between two consecutive analysis instant 
+  \param buf_size size of the input buffer to analyse 
+  \param hop_size step size between two consecutive analysis instant 
   \param channels number of channels to detect pitch on
  
 */
-aubio_pitchfcomb_t *new_aubio_pitchfcomb (uint_t bufsize, uint_t hopsize,
+aubio_pitchfcomb_t *new_aubio_pitchfcomb (uint_t buf_size, uint_t hop_size,
     uint_t channels);
 
 /** deletion of the pitch detection object

@@ -38,7 +38,7 @@ extern "C" {
 typedef struct _aubio_tempo_t aubio_tempo_t;
 
 /** create tempo detection object */
-aubio_tempo_t * new_aubio_tempo (char_t * mode, 
+aubio_tempo_t * new_aubio_tempo (char_t * method, 
     uint_t buf_size, uint_t hop_size, uint_t channels, uint_t samplerate);
 
 /** execute tempo detection */

@@ -46,11 +46,12 @@ typedef struct _aubio_beattracking_t aubio_beattracking_t;
 
 /** create beat tracking object
 
-  \param winlen: frame size [512] 
+  \param hop_size number of onset detection samples [512] 
   \param channels number (not functionnal) [1]
 
 */
-aubio_beattracking_t * new_aubio_beattracking(uint_t winlen, uint_t channels);
+aubio_beattracking_t * new_aubio_beattracking(uint_t hop_size, uint_t channels);
+
 /** track the beat 
 
   \param bt beat tracking object
@@ -59,7 +60,9 @@ aubio_beattracking_t * new_aubio_beattracking(uint_t winlen, uint_t channels);
   \param out stored detected beat locations 
 
 */
-void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframes, fvec_t * out);
+void aubio_beattracking_do (aubio_beattracking_t * bt, fvec_t * dfframes,
+    fvec_t * out);
+
 /** get current tempo in bpm
 
   \param bt beat tracking object
@@ -69,6 +72,7 @@ void aubio_beattracking_do(aubio_beattracking_t * bt, fvec_t * dfframes, fvec_t 
 
 */
 smpl_t aubio_beattracking_get_bpm(aubio_beattracking_t * bt);
+
 /** get current tempo confidence 
 
   \param bt beat tracking object
@@ -78,6 +82,7 @@ smpl_t aubio_beattracking_get_bpm(aubio_beattracking_t * bt);
 
 */
 smpl_t aubio_beattracking_get_confidence(aubio_beattracking_t * bt);
+
 /** delete beat tracking object
 
   \param p beat tracking object
