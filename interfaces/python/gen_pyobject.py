@@ -29,7 +29,7 @@ maintaining this bizarre file.
 # move into the C library at some point.
 defaultsizes = {
     'resampler':    ('input->length * self->ratio', 'input->channels'),
-    'onsetdetection': ('1', 'self->channels'),
+    'specdesc':     ('1', 'self->channels'),
     'onset':        ('1', 'self->channels'),
     'pitchyin':     ('1', 'in->channels'),
     'pitchyinfft':  ('1', 'in->channels'),
@@ -37,9 +37,9 @@ defaultsizes = {
     'pitchmcomb':   ('1', 'self->channels'),
     'pitchfcomb':   ('1', 'self->channels'),
     'pitch':        ('1', 'self->channels'),
-    'tss':          ('self->hop_s', 'self->channels'),
+    'tss':          ('self->hop_size', 'self->channels'),
     'mfcc':         ('self->n_coeffs', 'in->channels'),
-    'beattracking': ('self->winlen', 'self->channels'),
+    'beattracking': ('self->hop_size', 'self->channels'),
     'tempo':        ('1', 'self->channels'),
     'peakpicker':   ('1', 'self->channels'),
 }
@@ -54,13 +54,8 @@ aubioinitvalue = {
 
 aubiodefvalue = {
     # we have some clean up to do
-    'win_s': 'Py_default_vector_length', 
-    'bufsize': 'Py_default_vector_length', 
     'buf_size': 'Py_default_vector_length', 
-    'winlen': 'Py_default_vector_length', 
     # and here too
-    'hop_s': 'Py_default_vector_length / 2', 
-    'hopsize': 'Py_default_vector_length / 2', 
     'hop_size': 'Py_default_vector_length / 2', 
     # these should be alright
     'channels': 'Py_default_vector_channels', 
@@ -75,10 +70,7 @@ aubiodefvalue = {
     'ihig': '1.', 
     'thrs': '0.5',
     'ratio': '0.5',
-    'threshold': '0.5',
-    'mode': '"default"',
-    'onset_mode': '"default"',
-    'type': '0',
+    'method': '"default"',
     }
 
 # aubio to python
@@ -306,6 +298,10 @@ AUBIO_MEMBERS_START(%(name)s)""" % locals()
         elif param[0] == 'uint_t':
             s += """
   {"%(pname)s", T_INT, offsetof (Py_%(name)s, %(pname)s), READONLY, ""},""" \
+        % { 'pname': param[1], 'ptype': param[0], 'name': name}
+        elif param[0] == 'smpl_t':
+            s += """
+  {"%(pname)s", T_FLOAT, offsetof (Py_%(name)s, %(pname)s), READONLY, ""},""" \
         % { 'pname': param[1], 'ptype': param[0], 'name': name}
         else:
             print "-- ERROR, unknown member type ", param
