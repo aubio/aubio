@@ -31,7 +31,7 @@ nobase_pkginclude_HEADERS = \
 	pitch/pitchfcomb.h \
 	pitch/pitchyinfft.h \
 	onset/onset.h \
-	onset/peakpick.h \
+	onset/peakpicker.h \
 	tempo/tempo.h \
 	tempo/beattracking.h
 
@@ -66,7 +66,7 @@ libaubio_la_SOURCES = \
 	pitch/pitchfcomb.c \
 	pitch/pitchyinfft.c \
 	onset/onset.c \
-	onset/peakpick.c \
+	onset/peakpicker.c \
 	tempo/tempo.c \
 	tempo/beattracking.c
 
