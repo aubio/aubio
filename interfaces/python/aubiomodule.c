@@ -3,6 +3,7 @@
 #include <numpy/arrayobject.h>
 
 #include "aubio-types.h"
+#include "generated/aubio-generated.h"
 
 static char Py_alpha_norm_doc[] = "compute alpha normalisation factor";
 
@@ -125,6 +126,8 @@ init_aubio (void)
       || (PyType_Ready (&Py_filterbankType) < 0) 
       || (PyType_Ready (&Py_fftType) < 0) 
       || (PyType_Ready (&Py_pvocType) < 0) 
+      // generated objects
+      || (generated_types_ready() < 0 )
   ) {
     return;
   }
@@ -154,4 +157,7 @@ init_aubio (void)
   PyModule_AddObject (m, "fft", (PyObject *) & Py_fftType);
   Py_INCREF (&Py_pvocType);
   PyModule_AddObject (m, "pvoc", (PyObject *) & Py_pvocType);
+
+  // generated objects
+  add_generated_objects(m);
 }
