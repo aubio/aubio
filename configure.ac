@@ -124,7 +124,6 @@ AC_CHECK_LIB(pthread, pthread_create)
 
 dnl Check for header files
 AC_CHECK_HEADERS([string.h stdlib.h stdio.h math.h limits.h errno.h stdarg.h unistd.h signal.h],,)
-AC_CHECK_HEADERS(fftw3.h,,AC_MSG_ERROR([Ouch! missing fftw3.h header]))
 AC_ARG_ENABLE(complex,
   AC_HELP_STRING([--enable-complex],[compile with complex.h [[default=auto]]]),
   [with_complex=$enableval],
