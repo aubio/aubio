@@ -35,6 +35,7 @@ typedef struct
 } Py_fvec;
 extern PyTypeObject Py_fvecType;
 extern PyObject *PyAubio_FvecToArray (Py_fvec * self);
+extern PyObject *PyAubio_CFvecToArray (fvec_t * self);
 extern Py_fvec *PyAubio_ArrayToFvec (PyObject * self);
 
 typedef struct

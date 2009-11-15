@@ -176,6 +176,23 @@ fail:
 }
 
 PyObject *
+PyAubio_CFvecToArray (fvec_t * self)
+{
+  PyObject *array = NULL;
+  uint_t i;
+  npy_intp dims[] = { self->length, 1 };
+  PyObject *concat = PyList_New (0), *tmp = NULL;
+  for (i = 0; i < self->channels; i++) {
+    tmp = PyArray_SimpleNewFromData (1, dims, AUBIO_NPY_SMPL, self->data[i]);
+    PyList_Append (concat, tmp);
+    Py_DECREF (tmp);
+  }
+  array = PyArray_FromObject (concat, AUBIO_NPY_SMPL, 2, 2);
+  Py_DECREF (concat);
+  return array;
+}
+
+PyObject *
 PyAubio_FvecToArray (Py_fvec * self)
 {
   PyObject *array = NULL;
@@ -264,7 +281,7 @@ static PyMemberDef Py_fvec_members[] = {
 
 static PyMethodDef Py_fvec_methods[] = {
   {"__array__", (PyCFunction) PyAubio_FvecToArray, METH_NOARGS,
-      "Returns the first channel as a numpy array."},
+      "Returns the vector as a numpy array."},
   {NULL}
 };
 
