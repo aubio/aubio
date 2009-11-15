@@ -26,20 +26,22 @@ objects = [a.split()[3][:-1] for a in typedefs]
 
 print "-- INFO: %d objects in total" % len(objects)
 
-for object in objects:
+generated_objects = []
+
+for this_object in objects:
     lint = 0
  
-    if object[-2:] == '_t':
-        object_name = object[:-2]
+    if this_object[-2:] == '_t':
+        object_name = this_object[:-2]
     else:
-        object_name = object
-        print "-- WARNING: %s does not end in _t" % object
+        object_name = this_object
+        print "-- WARNING: %s does not end in _t" % this_object
 
     if object_name[:len('aubio_')] != 'aubio_':
-        print "-- WARNING: %s does not start n aubio_" % object
+        print "-- WARNING: %s does not start n aubio_" % this_object
 
     print "-- INFO: looking at", object_name
-    object_methods = filter(lambda x: object in x, cpp_output)
+    object_methods = filter(lambda x: this_object in x, cpp_output)
     object_methods = [a.strip() for a in object_methods]
     object_methods = filter(lambda x: not x.startswith('typedef'), object_methods)
     #for method in object_methods:
@@ -99,7 +101,7 @@ for object in objects:
         for method in other_methods:
             print method
 
-    # generate object
+    # generate this_object
     if not os.path.isdir('generated'): os.mkdir('generated')
     from gen_pyobject import *
     short_name = object_name[len('aubio_'):]
@@ -117,3 +119,43 @@ for object in objects:
     #except Exception, e:
     #        print "-- ERROR:", type(e), str(e), "in", short_name
     #        continue
+    generated_objects += [this_object]
+
+
+s = """// generated list of generated objects
+
+"""
+
+for each in generated_objects:
+    s += "extern PyTypeObject Py_%sType;\n" % \
+            each.replace('aubio_','').replace('_t','')
+
+types_ready = []
+for each in generated_objects:
+    types_ready.append("  PyType_Ready (&Py_%sType) < 0" % \
+            each.replace('aubio_','').replace('_t','') )
+
+s += """
+int
+generated_types_ready (void)
+{
+    return ("""
+s += ('||\n').join(types_ready)
+s += """);
+}
+"""
+
+s += """
+void
+add_generated_objects ( PyObject *m )
+{"""
+for each in generated_objects:
+    s += """  Py_INCREF (&Py_%(name)sType);
+  PyModule_AddObject (m, "%(name)s", (PyObject *) & Py_%(name)sType);""" % \
+          { 'name': ( each.replace('aubio_','').replace('_t','') ) }
+
+s += """
+}"""
+
+fd = open('generated/aubio-generated.h', 'w')
+fd.write(s)
