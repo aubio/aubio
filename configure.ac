@@ -35,6 +35,9 @@ AC_PROG_INSTALL
 
 AUBIO_CFLAGS=
 
+AC_CHECK_LIB(m, floorf)
+AUBIO_LIBS="-lm"
+
 dnl Enable double precision (no)
 AC_ARG_ENABLE(double,
   AC_HELP_STRING([--enable-double],[compile in double precision [[default=no]]]),
@@ -231,6 +234,7 @@ AC_ARG_ENABLE(testprogs,
 AM_CONDITIONAL(COMPILE_TESTS,test "${with_testprogs}" != "no")
 
 AC_SUBST(AUBIO_CFLAGS)
+AC_SUBST(AUBIO_LIBS)
 
 dnl Check for swig and python
 dnl should check for swig version and python headers
