@@ -25,11 +25,51 @@ maintaining this bizarre file.
 # There is no way of knowing that output1 is actually input2. In the future,
 # const could be used for the inputs in the C prototypes.
 
+def split_type(arg):
+    """ arg = 'foo *name' 
+        return ['foo*', 'name'] """
+    l = arg.split()
+    # ['foo', '*name'] -> ['foo*', 'name']
+    if l[-1].startswith('*'):
+        return [l[0]+'*', l[1][1:]]
+    # ['foo', '*', 'name'] -> ['foo*', 'name']
+    if len(l) == 3:
+        return [l[0]+l[1], l[2]]
+    else:
+        return l
+
+def get_params(proto):
+    """ get the list of parameters from a function prototype
+    example: proto = "int main (int argc, char ** argv)"
+    returns: ['int argc', 'char ** argv']
+    """
+    import re
+    paramregex = re.compile('[\(, ](\w+ \*?\*? ?\w+)[, \)]')
+    return paramregex.findall(proto)
+
+def get_params_types_names(proto):
+    """ get the list of parameters from a function prototype
+    example: proto = "int main (int argc, char ** argv)"
+    returns: [['int', 'argc'], ['char **','argv']]
+    """
+    return map(split_type, get_params(proto)) 
+
+def get_return_type(proto):
+    import re
+    paramregex = re.compile('(\w+ ?\*?).*')
+    outputs = paramregex.findall(proto)
+    assert len(outputs) == 1
+    return outputs[0].replace(' ', '')
+
+def get_name(proto):
+    name = proto.split()[1].split('(')[0]
+    return name.replace('*','')
+
 # the important bits: the size of the output for each objects. this data should
 # move into the C library at some point.
 defaultsizes = {
     'resampler':    ('input->length * self->ratio', 'input->channels'),
-    'specdesc':     ('1', 'self->channels'),
+    'specdesc':     ('1', 'fftgrain->channels'),
     'onset':        ('1', 'self->channels'),
     'pitchyin':     ('1', 'in->channels'),
     'pitchyinfft':  ('1', 'in->channels'),
@@ -78,37 +118,37 @@ aubio2pytypes = {
     'uint_t': 'I',
     'smpl_t': 'I',
     'lsmp_t': 'I',
-    'fvec_t': 'O',
-    'cvec_t': 'O',
+    'fvec_t*': 'O',
+    'cvec_t*': 'O',
     'char_t*': 's',
 }
 
 # aubio to pyaubio
 aubio2pyaubio = {
-    'fvec_t': 'Py_fvec',
-    'cvec_t': 'Py_cvec',
+    'fvec_t*': 'Py_fvec',
+    'cvec_t*': 'Py_cvec',
 }
 
 # array to aubio
 aubiovecfrompyobj = {
-    'fvec_t': 'PyAubio_ArrayToFvec',
-    'cvec_t': 'PyAubio_ArrayToCvec',
+    'fvec_t*': 'PyAubio_ArrayToFvec',
+    'cvec_t*': 'PyAubio_ArrayToCvec',
 }
 
 # aubio to array
 aubiovectopyobj = {
-    'fvec_t': 'PyAubio_FvecToArray',
-    'cvec_t': 'PyAubio_CvecToArray',
+    'fvec_t*': 'PyAubio_FvecToArray',
+    'cvec_t*': 'PyAubio_CvecToArray',
 }
 
-def get_newparams(newfunc):
-    newparams = [[p.split()[0], p.split()[-1]]
-            for p in newfunc.split('(')[1].split(')')[0].split(',')]
-    # make char_t a pointer 
-    return map(lambda x: [x[0].replace('char_t', 'char_t*'), x[1]], newparams)
+aubiovectopyobj_new = {
+    'fvec_t*': 'PyAubio_CFvecToArray',
+    'cvec_t*': 'PyAubio_CCvecToArray',
+    'smpl_t': 'PyFloat_FromDouble',
+}
 
 def gen_new_init(newfunc, name):
-    newparams = get_newparams(newfunc)
+    newparams = get_params_types_names(newfunc)
     # self->param1, self->param2, self->param3
     selfparams = ', self->'.join([p[1] for p in newparams])
     # "param1", "param2", "param3"
@@ -117,6 +157,8 @@ def gen_new_init(newfunc, name):
     paramrefs = ", ".join(["&" + p[1] for p in newparams])
     s = """\
 // WARNING: this file is generated, DO NOT EDIT
+
+// WARNING: if you haven't read the first line yet, please do so
 #include "aubiowraphell.h"
 
 typedef struct
@@ -158,7 +200,6 @@ Py_%(name)s_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
     return NULL;
   }
 """ % locals()
-    # TODO add parameters default values
     for ptype, pname in newparams:
         defval = aubiodefvalue[pname]
         if ptype == 'char_t*':
@@ -205,9 +246,9 @@ AUBIO_DEL(%(name)s)
 
 def gen_do(dofunc, name):
     funcname = dofunc.split()[1].split('(')[0]
-    doparams = [p.split() for p in dofunc.split('(')[1].split(')')[0].split(',')]
+    doparams = get_params_types_names(dofunc) 
     # make sure the first parameter is the object
-    assert doparams[0][0] == "aubio_"+name+"_t", \
+    assert doparams[0][0] == "aubio_"+name+"_t*", \
         "method is not in 'aubio_<name>_t"
     # and remove it
     doparams = doparams[1:]
@@ -240,22 +281,29 @@ def gen_do(dofunc, name):
 
     # build strings for outputs
     outputparams = doparams[1:]
-    if len(doparams) > 1:
+    if len(outputparams) >= 1:
         #assert len(outputparams) == 1, \
         #    "too many output parameters"
         outputvecs = "\n  ".join([aubio2pyaubio[p[0]]+" * " + p[-1] + ";" for p in outputparams])
-        outputcreate = """\
+        outputcreate = "\n  ".join(["""\
 AUBIO_NEW_VEC(%(name)s, %(pytype)s, %(length)s, %(channels)s)
   %(name)s->o = new_%(autype)s (%(length)s, %(channels)s);""" % \
-    {'name': p[-1], 'pytype': aubio2pyaubio[p[0]], 'autype': p[0][:-2],
-        'length': defaultsizes[name][0], 'channels': defaultsizes[name][1]}
-        returnval = "(PyObject *)" + aubiovectopyobj[p[0]] + " (" + p[-1] + ")"
+    {'name': p[-1], 'pytype': aubio2pyaubio[p[0]], 'autype': p[0][:-3],
+        'length': defaultsizes[name][0], 'channels': defaultsizes[name][1]} \
+        for p in outputparams]) 
+        if len(outputparams) > 1:
+            returnval = "PyObject *outputs = PyList_New(0);\n"
+            for p in outputparams:
+                returnval += "  PyList_Append( outputs, (PyObject *)" + aubiovectopyobj[p[0]] + " (" + p[-1] + ")" +");\n"
+            returnval += "  return outputs;"
+        else:
+            returnval = "return (PyObject *)" + aubiovectopyobj[p[0]] + " (" + p[-1] + ")"
     else:
         # no output
         outputvecs = ""
         outputcreate = ""
         #returnval = "Py_None";
-        returnval = "(PyObject *)" + aubiovectopyobj[p[0]] + " (" + p[-1] + ")"
+        returnval = "return (PyObject *)" + aubiovectopyobj[p[0]] + " (" + p[-1] + ")"
     # end of output strings
 
     # build the parameters for the  _do() call
@@ -281,13 +329,13 @@ Py_%(name)s_do(Py_%(name)s * self, PyObject * args)
   /* compute _do function */
   %(funcname)s (%(doparams_string)s);
 
-  return %(returnval)s;
+  %(returnval)s;
 }
 """ % locals()
     return s
 
 def gen_members(new_method, name):
-    newparams = get_newparams(new_method)
+    newparams = get_params_types_names(new_method)
     s = """
 AUBIO_MEMBERS_START(%(name)s)""" % locals()
     for param in newparams:
@@ -311,12 +359,82 @@ AUBIO_MEMBERS_STOP(%(name)s)
 """ % locals()
     return s
 
+
 def gen_methods(get_methods, set_methods, name):
-    # TODO add methods 
-    s = """\
+    s = ""
+    method_defs = ""
+    for method in set_methods:
+        method_name = get_name(method)
+        params = get_params_types_names(method)
+        out_type = get_return_type(method)
+        assert params[0][0] == "aubio_"+name+"_t*", \
+            "get method is not in 'aubio_<name>_t"
+        print method
+        print params[1:]
+        setter_args = "self->o, " +",".join([p[1] for p in params[1:]])
+        parse_args = ""
+        for p in params[1:]:
+            parse_args += p[0] + " " + p[1] + ";\n"
+        argmap = "".join([aubio2pytypes[p[0]] for p in params[1:]])
+        arglist = ", ".join(["&"+p[1] for p in params[1:]])
+        parse_args += """
+  if (!PyArg_ParseTuple (args, "%(argmap)s", %(arglist)s)) {
+    return NULL;
+  } """ % locals()
+        s += """
+static PyObject *
+Py%(funcname)s (Py_%(objname)s *self, PyObject *args)
+{
+  uint_t err = 0;
+
+  %(parse_args)s
+
+  err = %(funcname)s (%(setter_args)s);
+
+  if (err > 0) {
+    PyErr_SetString (PyExc_ValueError,
+        "error running %(funcname)s");
+    return NULL;
+  }
+  return Py_None;
+}
+""" % {'funcname': method_name, 'objname': name, 
+        'out_type': out_type, 'setter_args': setter_args, 'parse_args': parse_args }
+        shortname = method_name.split(name+'_')[-1]
+        method_defs += """\
+  {"%(shortname)s", (PyCFunction) Py%(method_name)s,
+    METH_VARARGS, ""},
+""" % locals()
+
+    for method in get_methods:
+        method_name = get_name(method)
+        params = get_params_types_names(method)
+        out_type = get_return_type(method)
+        assert params[0][0] == "aubio_"+name+"_t*", \
+            "get method is not in 'aubio_<name>_t %s" % params[0][0]
+        assert len(params) == 1, \
+            "get method has more than one parameter %s" % params
+        getter_args = "self->o" 
+        returnval = "(PyObject *)" + aubiovectopyobj_new[out_type] + " (tmp)"
+        shortname = method_name.split(name+'_')[-1]
+        method_defs += """\
+  {"%(shortname)s", (PyCFunction) Py%(method_name)s,
+    METH_NOARGS, ""},
+""" % locals()
+        s += """
+static PyObject *
+Py%(funcname)s (Py_%(objname)s *self, PyObject *unused)
+{
+  %(out_type)s tmp = %(funcname)s (%(getter_args)s);
+  return %(returnval)s;
+}
+""" % {'funcname': method_name, 'objname': name, 
+        'out_type': out_type, 'getter_args': getter_args, 'returnval': returnval }
+
+    s += """
 static PyMethodDef Py_%(name)s_methods[] = {
 """ % locals() 
-    # TODO add PyMethodDefs
+    s += method_defs 
     s += """\
   {NULL} /* sentinel */
 };
