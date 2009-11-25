@@ -116,8 +116,8 @@ aubiodefvalue = {
 # aubio to python
 aubio2pytypes = {
     'uint_t': 'I',
-    'smpl_t': 'I',
-    'lsmp_t': 'I',
+    'smpl_t': 'f',
+    'lsmp_t': 'd',
     'fvec_t*': 'O',
     'cvec_t*': 'O',
     'char_t*': 's',
