@@ -19,6 +19,7 @@
 */
 
 #include <aubio.h>
+#include "config.h"
 
 #if HAVE_JACK
 #include "aubio_priv.h"
