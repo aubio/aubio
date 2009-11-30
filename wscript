@@ -197,5 +197,6 @@ def build_extras(bld):
           includes = 'examples src',
           add_objects = 'sndfileio',
           source = ['examples/utils.c', 'examples/jackio.c'], 
+          uselib = ['LASH', 'JACK', 'SNDFILE'],
           defines = defines, 
           target = 'utilsio')
