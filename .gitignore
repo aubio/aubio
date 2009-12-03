@@ -4,6 +4,7 @@ Makefile
 .libs
 *.lo
 *.la
+*.o
 
 *.pyc
 *.~[0-9]~
