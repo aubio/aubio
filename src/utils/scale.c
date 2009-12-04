@@ -69,13 +69,11 @@ uint_t aubio_scale_set_limits (aubio_scale_t *s, smpl_t ilow, smpl_t ihig,
 
 void aubio_scale_do (aubio_scale_t *s, fvec_t *input) 
 {
-  uint_t i, j;
-  for (i=0; i < input->channels; i++){
-    for (j=0;  j < input->length; j++){
-      input->data[i][j] -= s->ilow;
-      input->data[i][j] *= s->scaler;
-      input->data[i][j] += s->olow;
-    }
+  uint_t j;
+  for (j=0;  j < input->length; j++){
+    input->data[j] -= s->ilow;
+    input->data[j] *= s->scaler;
+    input->data[j] += s->olow;
   }
 }
 

@@ -39,9 +39,8 @@ typedef struct _aubio_hist_t aubio_hist_t;
  * \param flow minimum input
  * \param fhig maximum input
  * \param nelems number of histogram columns
- * \param channels number of channels
  */
-aubio_hist_t * new_aubio_hist(smpl_t flow, smpl_t fhig, uint_t nelems, uint_t channels);
+aubio_hist_t * new_aubio_hist(smpl_t flow, smpl_t fhig, uint_t nelems);
 /** histogram deletion */
 void del_aubio_hist(aubio_hist_t *s);
 /** compute the histogram */
