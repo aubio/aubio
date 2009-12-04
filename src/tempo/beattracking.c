@@ -54,7 +54,7 @@ struct _aubio_beattracking_t
 };
 
 aubio_beattracking_t *
-new_aubio_beattracking (uint_t winlen, uint_t channels)
+new_aubio_beattracking (uint_t winlen)
 {
 
   aubio_beattracking_t *p = AUBIO_NEW (aubio_beattracking_t);
@@ -78,25 +78,25 @@ new_aubio_beattracking (uint_t winlen, uint_t channels)
 
   p->rayparam = rayparam;
   p->step = step;
-  p->rwv = new_fvec (laglen, 1);
-  p->gwv = new_fvec (laglen, 1);
-  p->dfwv = new_fvec (winlen, 1);
-  p->dfrev = new_fvec (winlen, channels);
-  p->acf = new_fvec (winlen, channels);
-  p->acfout = new_fvec (laglen, channels);
-  p->phwv = new_fvec (2 * laglen, 1);
-  p->phout = new_fvec (winlen, channels);
+  p->rwv = new_fvec (laglen);
+  p->gwv = new_fvec (laglen);
+  p->dfwv = new_fvec (winlen);
+  p->dfrev = new_fvec (winlen);
+  p->acf = new_fvec (winlen);
+  p->acfout = new_fvec (laglen);
+  p->phwv = new_fvec (2 * laglen);
+  p->phout = new_fvec (winlen);
 
   p->timesig = 0;
 
   /* exponential weighting, dfwv = 0.5 when i =  43 */
   for (i = 0; i < winlen; i++) {
-    p->dfwv->data[0][i] = (EXP ((LOG (2.0) / rayparam) * (i + 1)))
+    p->dfwv->data[i] = (EXP ((LOG (2.0) / rayparam) * (i + 1)))
         / dfwvnorm;
   }
 
   for (i = 0; i < (laglen); i++) {
-    p->rwv->data[0][i] = ((smpl_t) (i + 1.) / SQR ((smpl_t) rayparam)) *
+    p->rwv->data[i] = ((smpl_t) (i + 1.) / SQR ((smpl_t) rayparam)) *
         EXP ((-SQR ((smpl_t) (i + 1.)) / (2. * SQR ((smpl_t) rayparam))));
   }
 
@@ -160,7 +160,7 @@ aubio_beattracking_do (aubio_beattracking_t * bt, fvec_t * dfframe,
   for (i = 1; i < laglen - 1; i++) {
     for (a = 1; a <= numelem; a++) {
       for (b = (1 - a); b < a; b++) {
-        bt->acfout->data[0][i] += bt->acf->data[0][a * (i + 1) + b - 1]
+        bt->acfout->data[i] += bt->acf->data[a * (i + 1) + b - 1]
             * 1. / (2. * a - 1.);
       }
     }
@@ -170,7 +170,7 @@ aubio_beattracking_do (aubio_beattracking_t * bt, fvec_t * dfframe,
 
   /* find non-zero Rayleigh period */
   maxindex = fvec_max_elem (bt->acfout);
-  bt->rp = maxindex ? fvec_quadint (bt->acfout, maxindex, 0) : 1;
+  bt->rp = maxindex ? fvec_quadint (bt->acfout, maxindex) : 1;
   //rp = (maxindex==127) ? 43 : maxindex; //rayparam
   bt->rp = (maxindex == bt->acfout->length - 1) ? bt->rayparam : maxindex;      //rayparam
 
@@ -190,7 +190,7 @@ aubio_beattracking_do (aubio_beattracking_t * bt, fvec_t * dfframe,
   fvec_zeros (bt->phout);
   for (i = 0; i < bp; i++) {
     for (k = 0; k < kmax; k++) {
-      bt->phout->data[0][i] += bt->dfrev->data[0][i + (uint_t) ROUND (bp * k)];
+      bt->phout->data[i] += bt->dfrev->data[i + (uint_t) ROUND (bp * k)];
     }
   }
   fvec_weight (bt->phout, bt->phwv);
@@ -203,7 +203,7 @@ aubio_beattracking_do (aubio_beattracking_t * bt, fvec_t * dfframe,
 #endif /* AUBIO_BEAT_WARNINGS */
     phase = step - bt->lastbeat;
   } else {
-    phase = fvec_quadint (bt->phout, maxindex, 0);
+    phase = fvec_quadint (bt->phout, maxindex);
   }
   /* take back one frame delay */
   phase += 1.;
@@ -236,20 +236,20 @@ aubio_beattracking_do (aubio_beattracking_t * bt, fvec_t * dfframe,
 
   if (beat >= 0) {
     //AUBIO_DBG ("beat: %d, %f, %f\n", i, bp, beat);
-    output->data[0][i] = beat;
+    output->data[i] = beat;
     i++;
   }
 
   while (beat + bp <= step) {
     beat += bp;
     //AUBIO_DBG ("beat: %d, %f, %f\n", i, bp, beat);
-    output->data[0][i] = beat;
+    output->data[i] = beat;
     i++;
   }
 
   bt->lastbeat = beat;
   /* store the number of beats in this frame as the first element */
-  output->data[0][0] = i;
+  output->data[0] = i;
 }
 
 uint_t
@@ -259,14 +259,14 @@ fvec_gettimesig (fvec_t * acf, uint_t acflen, uint_t gp)
   smpl_t three_energy = 0., four_energy = 0.;
   if (acflen > 6 * gp + 2) {
     for (k = -2; k < 2; k++) {
-      three_energy += acf->data[0][3 * gp + k];
-      four_energy += acf->data[0][4 * gp + k];
+      three_energy += acf->data[3 * gp + k];
+      four_energy += acf->data[4 * gp + k];
     }
   } else {
     /*Expanded to be more accurate in time sig estimation */
     for (k = -2; k < 2; k++) {
-      three_energy += acf->data[0][3 * gp + k] + acf->data[0][6 * gp + k];
-      four_energy += acf->data[0][4 * gp + k] + acf->data[0][2 * gp + k];
+      three_energy += acf->data[3 * gp + k] + acf->data[6 * gp + k];
+      four_energy += acf->data[4 * gp + k] + acf->data[2 * gp + k];
     }
   }
   return (three_energy > four_energy) ? 3 : 4;
@@ -300,12 +300,12 @@ aubio_beattracking_checkstate (aubio_beattracking_t * bt)
     for (i = 1; i < laglen - 1; i++) {
       for (a = 1; a <= bt->timesig; a++) {
         for (b = (1 - a); b < a; b++) {
-          acfout->data[0][i] += acf->data[0][a * (i + 1) + b - 1];
+          acfout->data[i] += acf->data[a * (i + 1) + b - 1];
         }
       }
     }
     fvec_weight (acfout, bt->gwv);
-    gp = fvec_quadint (acfout, fvec_max_elem (acfout), 0);
+    gp = fvec_quadint (acfout, fvec_max_elem (acfout));
     /*
        while(gp<32) gp =gp*2;
        while(gp>64) gp = gp/2;
@@ -350,7 +350,7 @@ aubio_beattracking_checkstate (aubio_beattracking_t * bt)
     gp = rp;
     bt->timesig = fvec_gettimesig (acf, acflen, gp);
     for (j = 0; j < laglen; j++)
-      bt->gwv->data[0][j] =
+      bt->gwv->data[j] =
           EXP (-.5 * SQR ((smpl_t) (j + 1. - gp)) / SQR (bt->g_var));
     flagconst = 0;
     bp = gp;
@@ -362,7 +362,7 @@ aubio_beattracking_checkstate (aubio_beattracking_t * bt)
     /* gaussian phase weighting */
     if (step > bt->lastbeat) {
       for (j = 0; j < 2 * laglen; j++) {
-        bt->phwv->data[0][j] =
+        bt->phwv->data[j] =
             EXP (-.5 * SQR ((smpl_t) (1. + j - step +
                     bt->lastbeat)) / (bp / 8.));
       }
@@ -409,7 +409,7 @@ smpl_t
 aubio_beattracking_get_bpm (aubio_beattracking_t * bt)
 {
   if (bt->timesig != 0 && bt->counter == 0 && bt->flagstep == 0) {
-    return 5168. / fvec_quadint (bt->acfout, bt->bp, 0);
+    return 5168. / fvec_quadint (bt->acfout, bt->bp);
   } else {
     return 0.;
   }

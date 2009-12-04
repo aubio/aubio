@@ -47,10 +47,9 @@ typedef struct _aubio_beattracking_t aubio_beattracking_t;
 /** create beat tracking object
 
   \param hop_size number of onset detection samples [512] 
-  \param channels number (not functionnal) [1]
 
 */
-aubio_beattracking_t * new_aubio_beattracking(uint_t hop_size, uint_t channels);
+aubio_beattracking_t * new_aubio_beattracking(uint_t hop_size);
 
 /** track the beat 
 

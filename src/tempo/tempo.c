@@ -58,7 +58,7 @@ void aubio_tempo_do(aubio_tempo_t *o, fvec_t * input, fvec_t * tempo)
   aubio_specdesc_do (o->od, o->fftgrain, o->of);
   /*if (usedoubled) {
     aubio_specdesc_do(o2,fftgrain, onset2);
-    onset->data[0][0] *= onset2->data[0][0];
+    onset->data[0] *= onset2->data[0];
   }*/
   /* execute every overlap_size*step */
   if (o->blockpos == (signed)step -1 ) {
@@ -66,26 +66,26 @@ void aubio_tempo_do(aubio_tempo_t *o, fvec_t * input, fvec_t * tempo)
     aubio_beattracking_do(o->bt,o->dfframe,o->out);
     /* rotate dfframe */
     for (i = 0 ; i < winlen - step; i++ ) 
-      o->dfframe->data[0][i] = o->dfframe->data[0][i+step];
+      o->dfframe->data[i] = o->dfframe->data[i+step];
     for (i = winlen - step ; i < winlen; i++ ) 
-      o->dfframe->data[0][i] = 0.;
+      o->dfframe->data[i] = 0.;
     o->blockpos = -1;
   }
   o->blockpos++;
   aubio_peakpicker_do (o->pp, o->of, o->onset);
-  tempo->data[0][1] = o->onset->data[0][0];
+  tempo->data[1] = o->onset->data[0];
   thresholded = aubio_peakpicker_get_thresholded_input(o->pp);
-  o->dfframe->data[0][winlen - step + o->blockpos] = thresholded->data[0][0];
+  o->dfframe->data[winlen - step + o->blockpos] = thresholded->data[0];
   /* end of second level loop */
-  tempo->data[0][0] = 0; /* reset tactus */
+  tempo->data[0] = 0; /* reset tactus */
   i=0;
-  for (i = 1; i < o->out->data[0][0]; i++ ) {
+  for (i = 1; i < o->out->data[0]; i++ ) {
     /* if current frame is a predicted tactus */
-    if (o->blockpos == FLOOR(o->out->data[0][i])) {
-      tempo->data[0][0] = o->out->data[0][i] - FLOOR(o->out->data[0][i]); /* set tactus */
+    if (o->blockpos == FLOOR(o->out->data[i])) {
+      tempo->data[0] = o->out->data[i] - FLOOR(o->out->data[i]); /* set tactus */
       /* test for silence */
       if (aubio_silence_detection(input, o->silence)==1) {
-        tempo->data[0][1] = 0; /* unset onset */
+        tempo->data[1] = 0; /* unset onset */
       }
     }
   }
@@ -104,7 +104,7 @@ uint_t aubio_tempo_set_threshold(aubio_tempo_t * o, smpl_t threshold) {
 
 /* Allocate memory for an tempo detection */
 aubio_tempo_t * new_aubio_tempo (char_t * onset_mode, 
-    uint_t buf_size, uint_t hop_size, uint_t channels, uint_t samplerate)
+    uint_t buf_size, uint_t hop_size, uint_t samplerate)
 {
   aubio_tempo_t * o = AUBIO_NEW(aubio_tempo_t);
   o->samplerate = samplerate;
@@ -114,19 +114,19 @@ aubio_tempo_t * new_aubio_tempo (char_t * onset_mode,
   o->threshold = 0.3;
   o->silence = -90.;
   o->blockpos = 0;
-  o->dfframe  = new_fvec(o->winlen,channels);
-  o->fftgrain = new_cvec(buf_size, channels);
-  o->out      = new_fvec(o->step,channels);
-  o->pv       = new_aubio_pvoc(buf_size, hop_size, channels);
-  o->pp       = new_aubio_peakpicker(channels);
+  o->dfframe  = new_fvec(o->winlen);
+  o->fftgrain = new_cvec(buf_size);
+  o->out      = new_fvec(o->step);
+  o->pv       = new_aubio_pvoc(buf_size, hop_size);
+  o->pp       = new_aubio_peakpicker();
   aubio_peakpicker_set_threshold (o->pp, o->threshold);
-  o->od       = new_aubio_specdesc(onset_mode,buf_size,channels);
-  o->of       = new_fvec(1, channels);
-  o->bt       = new_aubio_beattracking(o->winlen,channels);
-  o->onset    = new_fvec(1, channels);
+  o->od       = new_aubio_specdesc(onset_mode,buf_size);
+  o->of       = new_fvec(1);
+  o->bt       = new_aubio_beattracking(o->winlen);
+  o->onset    = new_fvec(1);
   /*if (usedoubled)    {
-    o2 = new_aubio_specdesc(type_onset2,buffer_size,channels);
-    onset2 = new_fvec(1 , channels);
+    o2 = new_aubio_specdesc(type_onset2,buffer_size);
+    onset2 = new_fvec(1);
   }*/
   return o;
 }
