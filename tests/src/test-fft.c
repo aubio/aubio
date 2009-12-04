@@ -4,20 +4,19 @@
 int main(){
         /* allocate some memory */
         uint_t win_s      = 8;                       /* window size        */
-        uint_t channels   = 1;                        /* number of channels */
-        fvec_t * in       = new_fvec (win_s, channels); /* input buffer       */
-        cvec_t * fftgrain = new_cvec (win_s, channels); /* fft norm and phase */
-        fvec_t * out      = new_fvec (win_s, channels); /* output buffer      */
-        in->data[0][0] = 1;
-        in->data[0][1] = 2;
-        in->data[0][2] = 3;
-        in->data[0][3] = 4;
-        in->data[0][4] = 5;
-        in->data[0][5] = 6;
-        in->data[0][6] = 5;
-        in->data[0][7] = 6;
+        fvec_t * in       = new_fvec (win_s); /* input buffer       */
+        cvec_t * fftgrain = new_cvec (win_s); /* fft norm and phase */
+        fvec_t * out      = new_fvec (win_s); /* output buffer      */
+        in->data[0] = 1;
+        in->data[1] = 2;
+        in->data[2] = 3;
+        in->data[3] = 4;
+        in->data[4] = 5;
+        in->data[5] = 6;
+        in->data[6] = 5;
+        in->data[7] = 6;
         /* allocate fft and other memory space */
-        aubio_fft_t * fft = new_aubio_fft(win_s,channels);
+        aubio_fft_t * fft = new_aubio_fft(win_s);
         /* fill input with some data */
         fvec_print(in);
         /* execute stft */

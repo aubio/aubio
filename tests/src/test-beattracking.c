@@ -6,12 +6,11 @@
 int main(){
         /* allocate some memory */
         uint_t win_s      = 1024;                       /* window size */
-        uint_t channels   = 1;                          /* number of channel */
-        fvec_t * in       = new_fvec (win_s, channels); /* input buffer */
-        fvec_t * out      = new_fvec (win_s/4, channels);     /* input buffer */
+        fvec_t * in       = new_fvec (win_s); /* input buffer */
+        fvec_t * out      = new_fvec (win_s/4);     /* input buffer */
   
         /* allocate fft and other memory space */
-        aubio_beattracking_t * tempo  = new_aubio_beattracking(win_s, channels);
+        aubio_beattracking_t * tempo  = new_aubio_beattracking(win_s);
 
         uint_t i = 0;
 

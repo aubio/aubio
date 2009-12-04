@@ -6,13 +6,12 @@
 int main(){
         uint_t win_s    = 1024; /* window size                       */
         uint_t hop_s    = 256;  /* hop size                          */
-        uint_t channels = 4;  /* number of channels                */
         /* allocate some memory */
-        fvec_t * in       = new_fvec (hop_s, channels); /* input buffer       */
-        cvec_t * fftgrain = new_cvec (win_s, channels); /* fft norm and phase */
-        fvec_t * out      = new_fvec (hop_s, channels); /* output buffer      */
+        fvec_t * in       = new_fvec (hop_s); /* input buffer       */
+        cvec_t * fftgrain = new_cvec (win_s); /* fft norm and phase */
+        fvec_t * out      = new_fvec (hop_s); /* output buffer      */
         /* allocate fft and other memory space */
-        aubio_pvoc_t * pv = new_aubio_pvoc(win_s,hop_s,channels);
+        aubio_pvoc_t * pv = new_aubio_pvoc(win_s,hop_s);
         /* fill input with some data */
         printf("initialised\n");
         /* execute stft */

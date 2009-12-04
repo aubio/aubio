@@ -21,21 +21,24 @@ uint_t midiin   = 4;  /* number of midi input channels     */
 uint_t midiout  = 2;  /* number of midi output channels    */
 uint_t pos      = 0;  /* frames%dspblocksize for jack loop */
 
-fvec_t * in;
-cvec_t * fftgrain;
-fvec_t * out;
+fvec_t * in[2];
+cvec_t * fftgrain[2];
+fvec_t * out[2];
 
-aubio_pvoc_t * pv;
+aubio_pvoc_t * pv[2];
 
 int aubio_process(float **input, float **output, int nframes);
 
 int main(){
         /* allocate some memory */
-        in       = new_fvec (hop_s, channels); /* input buffer       */
-        fftgrain = new_cvec (win_s, channels); /* fft norm and phase */
-        out      = new_fvec (hop_s, channels); /* output buffer      */
+  uint_t i;
+    for (i=0;i<channels;i++) {
+        in[i]       = new_fvec (hop_s); /* input buffer       */
+        fftgrain[i] = new_cvec (win_s); /* fft norm and phase */
+        out[i]      = new_fvec (hop_s); /* output buffer      */
         /* allocate fft and other memory space */
-        pv = new_aubio_pvoc(win_s,hop_s,channels);
+        pv[i] = new_aubio_pvoc(win_s,hop_s);
+    }
 
 #ifdef HAVE_JACK
         aubio_jack_t * jack_setup;
@@ -52,10 +55,12 @@ int main(){
         fprintf(stderr, "WARNING: no jack support\n");
 #endif
         
-        del_aubio_pvoc(pv);
-        del_cvec(fftgrain);
-        del_fvec(in);
-        del_fvec(out);
+    for (i=0;i<channels;i++) {
+        del_aubio_pvoc(pv[i]);
+        del_cvec(fftgrain[i]);
+        del_fvec(in[i]);
+        del_fvec(out[i]);
+    }
         aubio_cleanup();
         return 0;
 }
@@ -66,24 +71,26 @@ int aubio_process(float **input, float **output, int nframes) {
   for (j=0;j<(unsigned)nframes;j++) {
     for (i=0;i<channels;i++) {
       /* write input to datanew */
-      fvec_write_sample(in, input[i][j], i, pos);
+      fvec_write_sample(in[i], input[i][j], pos);
       /* put synthnew in output */
-      output[i][j] = fvec_read_sample(out, i, pos);
+      output[i][j] = fvec_read_sample(out[i], pos);
     }
     /*time for fft*/
     if (pos == hop_s-1) {
       /* block loop */
-      aubio_pvoc_do (pv,in, fftgrain);
+    for (i=0;i<channels;i++) {
+      aubio_pvoc_do (pv[i], in[i], fftgrain[i]);
       // zero phases of first channel
-      for (i=0;i<fftgrain->length;i++) fftgrain->phas[0][i] = 0.; 
+      for (i=0;i<fftgrain[i]->length;i++) fftgrain[0]->phas[i] = 0.; 
       // double phases of second channel
-      for (i=0;i<fftgrain->length;i++) {
-        fftgrain->phas[1][i] = 
-          aubio_unwrap2pi (fftgrain->phas[1][i] * 2.); 
+      for (i=0;i<fftgrain[i]->length;i++) {
+        fftgrain[1]->phas[i] = 
+          aubio_unwrap2pi (fftgrain[1]->phas[i] * 2.); 
       }
       // copy second channel to third one
-      aubio_pvoc_rdo(pv,fftgrain,out);
+      aubio_pvoc_rdo(pv[i], fftgrain[i], out[i]);
       pos = -1;
+    }
     }
     pos++;
   }

@@ -5,11 +5,10 @@ main (void)
 {
   /* allocate some memory */
   uint_t win_s = 512;           /* fft size */
-  uint_t channels = 1;          /* number of channel */
   uint_t n_filters = 40;        /* number of filters */
   uint_t n_coefs = 13;          /* number of coefficients */
-  cvec_t *in = new_cvec (win_s, channels);      /* input buffer */
-  fvec_t *out = new_fvec (n_coefs, channels);     /* input buffer */
+  cvec_t *in = new_cvec (win_s);      /* input buffer */
+  fvec_t *out = new_fvec (n_coefs);     /* input buffer */
   smpl_t samplerate = 16000.;
 
   /* allocate fft and other memory space */

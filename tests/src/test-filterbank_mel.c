@@ -8,11 +8,10 @@ main (void)
 {
   /* allocate some memory */
   uint_t win_s = 512;           /* fft size */
-  uint_t channels = 2;          /* number of channel */
   uint_t n_filters = 40;        /* number of filters */
-  cvec_t *in = new_cvec (win_s, channels);      /* input buffer */
-  fvec_t *out = new_fvec (win_s, channels);     /* input buffer */
-  fvec_t *coeffs = NULL;
+  cvec_t *in = new_cvec (win_s);      /* input buffer */
+  fvec_t *out = new_fvec (win_s);     /* input buffer */
+  fmat_t *coeffs = NULL;
   smpl_t samplerate = 16000.;
 
   /* allocate fft and other memory space */
@@ -26,7 +25,7 @@ main (void)
     return -1;
   }
 
-  //fvec_print (coeffs);
+  //fmat_print (coeffs);
 
   //fprintf(stderr, "%f\n", fvec_sum(coeffs));
 
