@@ -48,14 +48,14 @@
   \subsection vectors Vectors
 
   Two basic structures are being used in aubio: ::fvec_t and ::cvec_t. The
-  ::fvec_t structures are used to store vectors of floating pointer number,
-  optionally on several channels. ::cvec_t are used to store complex number,
-  as two vectors of norm and phase elements, also on several channels.
- 
+  ::fvec_t structures are used to store vectors of floating pointer number.
+  ::cvec_t are used to store complex number, as two vectors of norm and phase
+  elements.
+
   Additionally, the ::lvec_t structure can be used to store floating point
   numbers in double precision. They are mostly used to store filter
   coefficients, to avoid instability.
- 
+
   \subsection objects Available objects
 
   Here is a list of some of the most common objects for aubio:
@@ -63,15 +63,15 @@
   \code
 
   // fast Fourier transform (FFT)
-  aubio_fft_t *fft = new_aubio_fft (winsize, channels);
+  aubio_fft_t *fft = new_aubio_fft (winsize);
   // phase vocoder
-  aubio_pvoc_t *pv = new_aubio_pvoc (winsize, stepsize, channels);
-  // onset detection 
-  aubio_onset_t *onset = new_aubio_onset (method, winsize, stepsize, channels, samplerate);
-  // pitch detection 
-  aubio_pitch_t *pitch = new_aubio_pitch (method, winsize, stepsize, channels, samplerate);
+  aubio_pvoc_t *pv = new_aubio_pvoc (winsize, stepsize);
+  // onset detection
+  aubio_onset_t *onset = new_aubio_onset (method, winsize, stepsize, samplerate);
+  // pitch detection
+  aubio_pitch_t *pitch = new_aubio_pitch (method, winsize, stepsize, samplerate);
   // beat tracking
-  aubio_tempo_t *tempo = new_aubio_tempo (method, winsize, stepsize, channels, samplerate);
+  aubio_tempo_t *tempo = new_aubio_tempo (method, winsize, stepsize, samplerate);
 
   \endcode
 
@@ -81,16 +81,16 @@
 
   Here is a simple example that creates an A-Weighting filter and applies it to a
   vector.
- 
+
   \code
 
-  // set channels, window size, and sampling rate 
-  uint_t channels = 2, winsize = 1024, sr = 44100;
+  // set window size, and sampling rate
+  uint_t winsize = 1024, sr = 44100;
   // create a vector
-  fvec_t *this_buffer = new_fvec (winsize, channels);
+  fvec_t *this_buffer = new_fvec (winsize);
   // create the a-weighting filter
-  aubio_filter_t *this_filter = new_aubio_filter_a_weighting (channels, sr);
-  
+  aubio_filter_t *this_filter = new_aubio_filter_a_weighting (sr);
+
   while (running) {
     // here some code to put some data in this_buffer
     // ...
@@ -98,10 +98,10 @@
     // apply the filter, in place
     aubio_filter_do (this_filter, this_buffer);
 
-    // here some code to get some data from this_buffer 
+    // here some code to get some data from this_buffer
     // ...
   }
-  
+
   // and free the structures
   del_aubio_filter (this_filter);
   del_fvec (this_buffer);
@@ -128,10 +128,10 @@
   your own.
 
   \section download Download
- 
+
   Latest versions, further documentation, examples, wiki, and mailing lists can
   be found at http://aubio.org .
- 
+
  */
 
 #ifndef AUBIO_H
@@ -140,11 +140,11 @@
 /** @file aubio.h Global aubio include file.
 
   Programmers just need to include this file as:
- 
+
   @code
     #include <aubio/aubio.h>
   @endcode
- 
+
  */
 
 #ifdef __cplusplus
@@ -157,6 +157,7 @@ extern "C"
 #include "fvec.h"
 #include "cvec.h"
 #include "lvec.h"
+#include "fmat.h"
 #include "musicutils.h"
 #include "temporal/resampler.h"
 #include "temporal/filter.h"
