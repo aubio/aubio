@@ -27,7 +27,7 @@
 #include "onset/peakpicker.h"
 
 /** function pointer to thresholding function */
-typedef smpl_t (*aubio_thresholdfn_t)(fvec_t *input, uint_t channel);
+typedef smpl_t (*aubio_thresholdfn_t)(fvec_t *input);
 /** function pointer to peak-picking function */
 typedef uint_t (*aubio_pickerfn_t)(fvec_t *input, uint_t pos);
 
@@ -68,9 +68,6 @@ struct _aubio_peakpicker_t
         /** scratch pad for biquad and median */
   fvec_t *scratch;
 
-  /** number of channels to analyse */
-  uint_t channels;
-
         /** \bug should be used to calculate filter coefficients */
   /* cutoff: low-pass filter cutoff [0.34, 1] */
   /* smpl_t cutoff; */
@@ -96,42 +93,38 @@ aubio_peakpicker_do (aubio_peakpicker_t * p, fvec_t * onset, fvec_t * out)
   fvec_t *scratch = p->scratch;
   smpl_t mean = 0., median = 0.;
   uint_t length = p->win_post + p->win_pre + 1;
-  uint_t i, j = 0;
+  uint_t j = 0;
 
-  for (i = 0; i < p->channels; i++) {
-    /* store onset in onset_keep */
-    /* shift all elements but last, then write last */
-    for (j = 0; j < length - 1; j++) {
-      onset_keep->data[i][j] = onset_keep->data[i][j + 1];
-      onset_proc->data[i][j] = onset_keep->data[i][j];
-    }
-    onset_keep->data[i][length - 1] = onset->data[i][0];
-    onset_proc->data[i][length - 1] = onset->data[i][0];
+  /* store onset in onset_keep */
+  /* shift all elements but last, then write last */
+  for (j = 0; j < length - 1; j++) {
+    onset_keep->data[j] = onset_keep->data[j + 1];
+    onset_proc->data[j] = onset_keep->data[j];
   }
+  onset_keep->data[length - 1] = onset->data[0];
+  onset_proc->data[length - 1] = onset->data[0];
 
   /* filter onset_proc */
   /** \bug filtfilt calculated post+pre times, should be only once !? */
   aubio_filter_do_filtfilt (p->biquad, onset_proc, scratch);
 
-  for (i = 0; i < p->channels; i++) {
-    /* calculate mean and median for onset_proc */
-    mean = fvec_mean_channel (onset_proc, i);
-    /* copy to scratch */
-    for (j = 0; j < length; j++)
-      scratch->data[i][j] = onset_proc->data[i][j];
-    median = p->thresholdfn (scratch, i);
+  /* calculate mean and median for onset_proc */
+  mean = fvec_mean (onset_proc);
+  /* copy to scratch */
+  for (j = 0; j < length; j++)
+    scratch->data[j] = onset_proc->data[j];
+  median = p->thresholdfn (scratch);
 
-    /* shift peek array */
-    for (j = 0; j < 3 - 1; j++)
-      onset_peek->data[i][j] = onset_peek->data[i][j + 1];
-    /* calculate new tresholded value */
-    thresholded->data[i][0] =
-        onset_proc->data[i][p->win_post] - median - mean * p->threshold;
-    onset_peek->data[i][2] = thresholded->data[i][0];
-    out->data[i][0] = (p->pickerfn) (onset_peek, 1);
-    if (out->data[i][0]) {
-      out->data[i][0] = fvec_quadint (onset_peek, 1, i);
-    }
+  /* shift peek array */
+  for (j = 0; j < 3 - 1; j++)
+    onset_peek->data[j] = onset_peek->data[j + 1];
+  /* calculate new tresholded value */
+  thresholded->data[0] =
+      onset_proc->data[p->win_post] - median - mean * p->threshold;
+  onset_peek->data[2] = thresholded->data[0];
+  out->data[0] = (p->pickerfn) (onset_peek, 1);
+  if (out->data[0]) {
+    out->data[0] = fvec_quadint (onset_peek, 1);
   }
 }
 
@@ -172,29 +165,27 @@ aubio_peakpicker_get_thresholdfn (aubio_peakpicker_t * p)
 }
 
 aubio_peakpicker_t *
-new_aubio_peakpicker (uint_t channels)
+new_aubio_peakpicker ()
 {
   aubio_peakpicker_t *t = AUBIO_NEW (aubio_peakpicker_t);
   t->threshold = 0.1;           /* 0.0668; 0.33; 0.082; 0.033; */
   t->win_post = 5;
   t->win_pre = 1;
-  //channels = 1;
-  t->channels = channels;
 
-  t->thresholdfn = (aubio_thresholdfn_t) (fvec_median_channel); /* (fvec_mean); */
+  t->thresholdfn = (aubio_thresholdfn_t) (fvec_median); /* (fvec_mean); */
   t->pickerfn = (aubio_pickerfn_t) (fvec_peakpick);
 
-  t->scratch = new_fvec (t->win_post + t->win_pre + 1, channels);
-  t->onset_keep = new_fvec (t->win_post + t->win_pre + 1, channels);
-  t->onset_proc = new_fvec (t->win_post + t->win_pre + 1, channels);
-  t->onset_peek = new_fvec (3, channels);
-  t->thresholded = new_fvec (1, channels);
+  t->scratch = new_fvec (t->win_post + t->win_pre + 1);
+  t->onset_keep = new_fvec (t->win_post + t->win_pre + 1);
+  t->onset_proc = new_fvec (t->win_post + t->win_pre + 1);
+  t->onset_peek = new_fvec (3);
+  t->thresholded = new_fvec (1);
 
   /* cutoff: low-pass filter with cutoff reduced frequency at 0.34
      generated with octave butter function: [b,a] = butter(2, 0.34);
    */
   t->biquad = new_aubio_filter_biquad (0.15998789, 0.31997577, 0.15998789,
-      -0.59488894, 0.23484048, channels);
+      -0.59488894, 0.23484048);
 
   return t;
 }

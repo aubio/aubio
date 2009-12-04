@@ -47,17 +47,11 @@ void aubio_onset_do (aubio_onset_t *o, fvec_t * input, fvec_t * onset)
 {
   smpl_t isonset = 0;
   smpl_t wasonset = 0;
-  uint_t i;
   aubio_pvoc_do (o->pv,input, o->fftgrain);
   aubio_specdesc_do (o->od,o->fftgrain, o->of);
-  /*if (usedoubled) {
-    aubio_specdesc_do (o2,fftgrain, onset2);
-    onset->data[0][0] *= onset2->data[0][0];
-  }*/
   aubio_peakpicker_do(o->pp, o->of, onset);
-  for (i = 0; i < input->channels; i++) {
-  isonset = onset->data[i][0];
-  wasonset = o->wasonset->data[i][0];
+  isonset = onset->data[0];
+  wasonset = o->wasonset->data[0];
   if (isonset > 0.) {
     if (aubio_silence_detection(input, o->silence)==1) {
       isonset  = 0;
@@ -73,9 +67,8 @@ void aubio_onset_do (aubio_onset_t *o, fvec_t * input, fvec_t * onset)
   } else {
     wasonset++;
   }
-  o->wasonset->data[i][0] = wasonset;
-  onset->data[i][0] = isonset;
-  }
+  o->wasonset->data[0] = wasonset;
+  onset->data[0] = isonset;
   return;
 }
 
@@ -97,25 +90,25 @@ uint_t aubio_onset_set_minioi(aubio_onset_t * o, uint_t minioi) {
 
 /* Allocate memory for an onset detection */
 aubio_onset_t * new_aubio_onset (char_t * onset_mode, 
-    uint_t buf_size, uint_t hop_size, uint_t channels, uint_t samplerate)
+    uint_t buf_size, uint_t hop_size, uint_t samplerate)
 {
   aubio_onset_t * o = AUBIO_NEW(aubio_onset_t);
   /** set some default parameter */
   o->threshold = 0.3;
   o->minioi    = 4;
   o->silence   = -70;
-  o->wasonset  = new_fvec(1, channels);
+  o->wasonset  = new_fvec(1);
   o->samplerate = samplerate;
   o->hop_size = hop_size;
-  o->pv = new_aubio_pvoc(buf_size, hop_size, channels);
-  o->pp = new_aubio_peakpicker(channels);
+  o->pv = new_aubio_pvoc(buf_size, hop_size);
+  o->pp = new_aubio_peakpicker();
   aubio_peakpicker_set_threshold (o->pp, o->threshold);
-  o->od = new_aubio_specdesc(onset_mode,buf_size,channels);
-  o->fftgrain = new_cvec(buf_size,channels);
-  o->of = new_fvec(1, channels);
+  o->od = new_aubio_specdesc(onset_mode,buf_size);
+  o->fftgrain = new_cvec(buf_size);
+  o->of = new_fvec(1);
   /*if (usedoubled)    {
-    o2 = new_aubio_specdesc(onset_type2,buffer_size,channels);
-    onset2 = new_fvec(1 , channels);
+    o2 = new_aubio_specdesc(onset_type2,buffer_size);
+    onset2 = new_fvec(1);
   }*/
   return o;
 }
