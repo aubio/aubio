@@ -38,24 +38,22 @@ extern "C" {
 /** Buffer for complex data */
 typedef struct {
   uint_t length;   /**< length of buffer = (requested length)/2 + 1 */
-  uint_t channels; /**< number of channels */
-  smpl_t **norm;   /**< norm array of size [length] * [channels] */
-  smpl_t **phas;   /**< phase array of size [length] * [channels] */
+  smpl_t *norm;   /**< norm array of size [length] */
+  smpl_t *phas;   /**< phase array of size [length] */
 } cvec_t;
 
 /** cvec_t buffer creation function
 
   This function creates a cvec_t structure holding two arrays of size
-  [length/2+1] * channels, corresponding to the norm and phase values of the
+  [length/2+1], corresponding to the norm and phase values of the
   spectral frame. The length stored in the structure is the actual size of both
   arrays, not the length of the complex and symetrical vector, specified as
   creation argument.
 
   \param length the length of the buffer to create
-  \param channels the number of channels in the buffer
 
 */
-cvec_t * new_cvec(uint_t length, uint_t channels);
+cvec_t * new_cvec(uint_t length);
 /** cvec_t buffer deletion function
 
   \param s buffer to delete as returned by new_cvec()
@@ -65,99 +63,49 @@ void del_cvec(cvec_t *s);
 /** write norm value in a complex buffer
 
   Note that this function is not used in the aubio library, since the same
-  result can be obtained by assigning vec->norm[channel][position]. Its purpose
+  result can be obtained by assigning vec->norm[position]. Its purpose
   is to access these values from wrappers, as created by swig.
 
   \param s vector to write to 
-  \param data norm value to write in s->norm[channel][position]
-  \param channel channel to write to 
+  \param data norm value to write in s->norm[position]
   \param position sample position to write to
 
 */
-void cvec_write_norm(cvec_t *s, smpl_t data, uint_t channel, uint_t position);
+void cvec_write_norm(cvec_t *s, smpl_t data, uint_t position);
 /** write phase value in a complex buffer
 
   Note that this function is not used in the aubio library, since the same
-  result can be obtained by assigning vec->phas[channel][position]. Its purpose
+  result can be obtained by assigning vec->phas[position]. Its purpose
   is to access these values from wrappers, as created by swig.
 
   \param s vector to write to
-  \param data phase value to write in s->phas[channel][position]
-  \param channel channel to write to
+  \param data phase value to write in s->phas[position]
   \param position sample position to write to
 
 */
-void cvec_write_phas(cvec_t *s, smpl_t data, uint_t channel, uint_t position);
+void cvec_write_phas(cvec_t *s, smpl_t data, uint_t position);
 /** read norm value from a complex buffer
 
   Note that this function is not used in the aubio library, since the same
-  result can be obtained with vec->norm[channel][position]. Its purpose is to
+  result can be obtained with vec->norm[position]. Its purpose is to
   access these values from wrappers, as created by swig.
 
   \param s vector to read from
-  \param channel channel to read from
   \param position sample position to read from
 
 */
-smpl_t cvec_read_norm(cvec_t *s, uint_t channel, uint_t position);
+smpl_t cvec_read_norm(cvec_t *s, uint_t position);
 /** read phase value from a complex buffer
 
   Note that this function is not used in the aubio library, since the same
-  result can be obtained with vec->phas[channel][position]. Its purpose is to
+  result can be obtained with vec->phas[position]. Its purpose is to
   access these values from wrappers, as created by swig.
 
   \param s vector to read from
-  \param channel channel to read from
   \param position sample position to read from
 
 */
-smpl_t cvec_read_phas(cvec_t *s, uint_t channel, uint_t position);
-/** write norm channel in a complex buffer
-
-  Note that this function is not used in the aubio library, since the same
-  result can be obtained by assigning vec->norm[channel]. Its purpose is to
-  access these values from wrappers, as created by swig.
-
-  \param s vector to write to
-  \param data norm vector of [length] samples to write in s->norm[channel]
-  \param channel channel to write to
-
-*/
-void cvec_put_norm_channel(cvec_t *s, smpl_t * data, uint_t channel);
-/** write phase channel in a complex buffer
-
-  Note that this function is not used in the aubio library, since the same
-  result can be obtained by assigning vec->phas[channel]. Its purpose is to
-  access these values from wrappers, as created by swig.
-
-  \param s vector to write to
-  \param data phase vector of [length] samples to write in s->phas[channel]
-  \param channel channel to write to
-
-*/
-void cvec_put_phas_channel(cvec_t *s, smpl_t * data, uint_t channel);
-/** read norm channel from a complex buffer
-
-  Note that this function is not used in the aubio library, since the same
-  result can be obtained with vec->norm[channel]. Its purpose is to access
-  these values from wrappers, as created by swig.
-
-  \param s vector to read from 
-  \param channel channel to read from
-
-*/
-smpl_t * cvec_get_norm_channel(cvec_t *s, uint_t channel);
-/** write phase channel in a complex buffer
-
-  Note that this function is not used in the aubio library, since the same
-  result can be obtained with vec->phas[channel]. Its purpose is to access
-  these values from wrappers, as created by swig.
-
-  \param s vector to read from 
-  \param channel channel to read from 
-
-*/
-smpl_t * cvec_get_phas_channel(cvec_t *s, uint_t channel);
+smpl_t cvec_read_phas(cvec_t *s, uint_t position);
 /** read norm data from a complex buffer
 
   Note that this function is not used in the aubio library, since the same
@@ -167,7 +115,7 @@ smpl_t * cvec_get_phas_channel(cvec_t *s, uint_t channel);
   \param s vector to read from
 
 */
-smpl_t ** cvec_get_norm(cvec_t *s);
+smpl_t * cvec_get_norm(cvec_t *s);
 /** read phase data from a complex buffer
 
   Note that this function is not used in the aubio library, since the same
@@ -177,7 +125,7 @@ smpl_t ** cvec_get_norm(cvec_t *s);
   \param s vector to read from
 
 */
-smpl_t ** cvec_get_phas(cvec_t *s);
+smpl_t * cvec_get_phas(cvec_t *s);
 
 /** print out cvec data 
 
