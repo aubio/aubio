@@ -25,7 +25,7 @@
 
   Digital filter
 
-  This object stores a digital filter of order \f$n\f$ for \f$c\f$ channels.
+  This object stores a digital filter of order \f$n\f$.
   It contains the following data:
     - \f$ n*1 b_i \f$ feedforward coefficients 
     - \f$ n*1 a_i \f$ feedback coefficients 
@@ -150,16 +150,15 @@ void aubio_filter_do_reset (aubio_filter_t * f);
 
 /** create new filter object
 
-  This function creates a new ::aubio_filter_t object, given an order 
-  and a specific number of channels.
+  This function creates a new ::aubio_filter_t object, given the order of the
+  filter.
 
   \param order order of the filter (number of coefficients)
-  \param channels number of channels to allocate
 
   \return the newly created filter object
 
 */
-aubio_filter_t *new_aubio_filter (uint_t order, uint_t channels);
+aubio_filter_t *new_aubio_filter (uint_t order);
 
 /** delete a filter object
  

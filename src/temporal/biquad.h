@@ -61,11 +61,10 @@ uint_t aubio_filter_set_biquad (aubio_filter_t * f, lsmp_t b0, lsmp_t b1,
   \param b2 forward filter coefficient
   \param a1 feedback filter coefficient
   \param a2 feedback filter coefficient
-  \param channels number of channels to allocate
 
 */
 aubio_filter_t *new_aubio_filter_biquad (lsmp_t b0, lsmp_t b1, lsmp_t b2,
-    lsmp_t a1, lsmp_t a2, uint_t channels);
+    lsmp_t a1, lsmp_t a2);
 
 #ifdef __cplusplus
 }

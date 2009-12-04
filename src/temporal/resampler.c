@@ -60,17 +60,14 @@ del_aubio_resampler (aubio_resampler_t * s)
 void
 aubio_resampler_do (aubio_resampler_t * s, fvec_t * input, fvec_t * output)
 {
-  uint_t i;
   s->proc->input_frames = input->length;
   s->proc->output_frames = output->length;
   s->proc->src_ratio = (double) s->ratio;
-  for (i = 0; i < input->channels; i++) {
-    /* make SRC_PROC data point to input outputs */
-    s->proc->data_in = (float *) input->data[i];
-    s->proc->data_out = (float *) output->data[i];
-    /* do resampling */
-    src_process (s->stat, s->proc);
-  }
+  /* make SRC_PROC data point to input outputs */
+  s->proc->data_in = (float *) input->data;
+  s->proc->data_out = (float *) output->data;
+  /* do resampling */
+  src_process (s->stat, s->proc);
 }
 
 #else
@@ -86,12 +83,12 @@ new_aubio_resampler (smpl_t ratio UNUSED, uint_t type UNUSED)
 }
 
 void
-del_aubio_resampler (aubio_resampler_t * s)
+del_aubio_resampler (aubio_resampler_t * s UNUSED)
 {
 }
 
 void
-aubio_resampler_do (aubio_resampler_t * s, fvec_t * input, fvec_t * output)
+aubio_resampler_do (aubio_resampler_t * s UNUSED, fvec_t * input UNUSED, fvec_t * output UNUSED)
 {
 }
 #endif /* HAVE_SAMPLERATE */

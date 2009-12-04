@@ -60,7 +60,6 @@ extern "C" {
 
 /** create new C-design filter
 
-  \param channels number of channels to allocate
   \param samplerate sampling frequency of the signal to filter. Should be one of 
   8000, 11025, 16000, 22050, 24000, 32000, 44100, 48000, 88200, 96000, and
   192000 Hz
@@ -68,8 +67,7 @@ extern "C" {
   \return a new filter object
 
 */
-aubio_filter_t *new_aubio_filter_c_weighting (uint_t channels,
-    uint_t samplerate);
+aubio_filter_t *new_aubio_filter_c_weighting (uint_t samplerate);
 
 /** set feedback and feedforward coefficients of a C-weighting filter
 

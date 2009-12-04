@@ -48,34 +48,27 @@ aubio_filter_do_outplace (aubio_filter_t * f, fvec_t * in, fvec_t * out)
 void
 aubio_filter_do (aubio_filter_t * f, fvec_t * in)
 {
-  uint_t i, j, l, order = f->order;
-  lsmp_t *x;
-  lsmp_t *y;
-  lsmp_t *a = f->a->data[0];
-  lsmp_t *b = f->b->data[0];
+  uint_t j, l, order = f->order;
+  lsmp_t *x = f->x->data;
+  lsmp_t *y = f->y->data;
+  lsmp_t *a = f->a->data;
+  lsmp_t *b = f->b->data;
 
-  for (i = 0; i < in->channels; i++) {
-    x = f->x->data[i];
-    y = f->y->data[i];
-    for (j = 0; j < in->length; j++) {
-      /* new input */
-      x[0] = KILL_DENORMAL (in->data[i][j]);
-      y[0] = b[0] * x[0];
-      for (l = 1; l < order; l++) {
-        y[0] += b[l] * x[l];
-        y[0] -= a[l] * y[l];
-      }
-      /* new output */
-      in->data[i][j] = y[0];
-      /* store for next sample */
-      for (l = order - 1; l > 0; l--) {
-        x[l] = x[l - 1];
-        y[l] = y[l - 1];
-      }
+  for (j = 0; j < in->length; j++) {
+    /* new input */
+    x[0] = KILL_DENORMAL (in->data[j]);
+    y[0] = b[0] * x[0];
+    for (l = 1; l < order; l++) {
+      y[0] += b[l] * x[l];
+      y[0] -= a[l] * y[l];
     }
-    /* store for next run */
-    f->x->data[i] = x;
-    f->y->data[i] = y;
+    /* new output */
+    in->data[j] = y[0];
+    /* store for next sample */
+    for (l = order - 1; l > 0; l--) {
+      x[l] = x[l - 1];
+      y[l] = y[l - 1];
+    }
   }
 }
 
@@ -83,20 +76,20 @@ aubio_filter_do (aubio_filter_t * f, fvec_t * in)
 void
 aubio_filter_do_filtfilt (aubio_filter_t * f, fvec_t * in, fvec_t * tmp)
 {
-  uint_t j, i = 0;
+  uint_t j;
   uint_t length = in->length;
   /* apply filtering */
   aubio_filter_do (f, in);
   aubio_filter_do_reset (f);
   /* mirror */
   for (j = 0; j < length; j++)
-    tmp->data[i][length - j - 1] = in->data[i][j];
+    tmp->data[length - j - 1] = in->data[j];
   /* apply filtering on mirrored */
   aubio_filter_do (f, tmp);
   aubio_filter_do_reset (f);
   /* invert back */
   for (j = 0; j < length; j++)
-    in->data[i][j] = tmp->data[i][length - j - 1];
+    in->data[j] = tmp->data[length - j - 1];
 }
 
 lvec_t *
@@ -138,18 +131,18 @@ aubio_filter_do_reset (aubio_filter_t * f)
 }
 
 aubio_filter_t *
-new_aubio_filter (uint_t order, uint_t channels)
+new_aubio_filter (uint_t order)
 {
   aubio_filter_t *f = AUBIO_NEW (aubio_filter_t);
-  f->x = new_lvec (order, channels);
-  f->y = new_lvec (order, channels);
-  f->a = new_lvec (order, 1);
-  f->b = new_lvec (order, 1);
+  f->x = new_lvec (order);
+  f->y = new_lvec (order);
+  f->a = new_lvec (order);
+  f->b = new_lvec (order);
   /* by default, samplerate is not set */
   f->samplerate = 0;
   f->order = order;
   /* set default to identity */
-  f->a->data[0][1] = 1.;
+  f->a->data[1] = 1.;
   return f;
 }
 

@@ -31,7 +31,7 @@ aubio_filter_set_a_weighting (aubio_filter_t * f, uint_t samplerate)
   aubio_filter_set_samplerate (f, samplerate);
   lvec_t *bs = aubio_filter_get_feedforward (f);
   lvec_t *as = aubio_filter_get_feedback (f);
-  lsmp_t *b = bs->data[0], *a = as->data[0];
+  lsmp_t *b = bs->data, *a = as->data;
   uint_t order = aubio_filter_get_order (f);
 
   if (order != 7) {
@@ -240,9 +240,9 @@ aubio_filter_set_a_weighting (aubio_filter_t * f, uint_t samplerate)
 }
 
 aubio_filter_t *
-new_aubio_filter_a_weighting (uint_t channels, uint_t samplerate)
+new_aubio_filter_a_weighting (uint_t samplerate)
 {
-  aubio_filter_t *f = new_aubio_filter (7, channels);
+  aubio_filter_t *f = new_aubio_filter (7);
   aubio_filter_set_a_weighting (f, samplerate);
   return f;
 }
