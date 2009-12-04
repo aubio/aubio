@@ -8,11 +8,9 @@
 #define AUBIO_OP(OPNAME, OP, TYPE, OBJ) \
 void TYPE ## _ ## OPNAME (TYPE ## _t *o) \
 { \
-  uint_t i,j; \
-  for (i = 0; i < o->channels; i++) { \
-    for (j = 0; j < o->length; j++) { \
-      o->OBJ[i][j] = OP (o->OBJ[i][j]); \
-    } \
+  uint_t j; \
+  for (j = 0; j < o->length; j++) { \
+    o->OBJ[j] = OP (o->OBJ[j]); \
   } \
 }
 
@@ -34,21 +32,17 @@ AUBIO_OP_C_AND_F(round, ROUND)
 //AUBIO_OP_C_AND_F(pow, POW)
 void fvec_pow (fvec_t *s, smpl_t power)
 {
-  uint_t i,j;
-  for (i = 0; i < s->channels; i++) {
-    for (j = 0; j < s->length; j++) {
-      s->data[i][j] = POW(s->data[i][j], power);
-    }
+  uint_t j;
+  for (j = 0; j < s->length; j++) {
+    s->data[j] = POW(s->data[j], power);
   }
 }
 
 void cvec_pow (cvec_t *s, smpl_t power)
 {
-  uint_t i,j;
-  for (i = 0; i < s->channels; i++) {
-    for (j = 0; j < s->length; j++) {
-      s->norm[i][j] = POW(s->norm[i][j], power);
-    }
+  uint_t j;
+  for (j = 0; j < s->length; j++) {
+    s->norm[j] = POW(s->norm[j], power);
   }
 }
 
