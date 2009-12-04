@@ -32,24 +32,21 @@ uint_t n_coefs = 13;
 unsigned int pos = 0; /*frames%dspblocksize*/
 
 static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
-  unsigned int i;       /*channels*/
   unsigned int j;       /*frames*/
   
   for (j=0;j<(unsigned)nframes;j++) {
     if(usejack) {
-      for (i=0;i<channels;i++) {
-        /* write input to datanew */
-        fvec_write_sample(ibuf, input[i][j], i, pos);
-        /* put synthnew in output */
-        output[i][j] = fvec_read_sample(obuf, i, pos);
-      }
+      /* write input to datanew */
+      fvec_write_sample(ibuf, input[0][j], pos);
+      /* put synthnew in output */
+      output[0][j] = fvec_read_sample(obuf, pos);
     }
     /*time for fft*/
     if (pos == overlap_size-1) {         
       /* block loop */
       
       //compute mag spectrum
-      aubio_pvoc_do (pv,ibuf, fftgrain);
+      aubio_pvoc_do (pv, ibuf, fftgrain);
      
       //compute mfccs
       aubio_mfcc_do(mfcc, fftgrain, mfcc_out);
@@ -71,7 +68,7 @@ static void process_print (void) {
       if (output_filename == NULL) {
         outmsg("%f\t",frames*overlap_size/(float)samplerate);
         for (coef_cnt = 0; coef_cnt < n_coefs; coef_cnt++) {
-            outmsg("%f ", fvec_read_sample (mfcc_out, 0, coef_cnt) );
+            outmsg("%f ", fvec_read_sample (mfcc_out, coef_cnt) );
         }
         outmsg("\n");
       }
@@ -85,14 +82,14 @@ int main(int argc, char **argv) {
   examples_common_init(argc,argv);
 
   /* phase vocoder */
-  pv = new_aubio_pvoc (buffer_size, overlap_size, channels);
+  pv = new_aubio_pvoc (buffer_size, overlap_size);
 
-  fftgrain = new_cvec (buffer_size, channels);
+  fftgrain = new_cvec (buffer_size);
 
   //populating the filter
   mfcc = new_aubio_mfcc(buffer_size, n_filters, n_coefs, samplerate);
   
-  mfcc_out = new_fvec(n_coefs,channels);
+  mfcc_out = new_fvec(n_coefs);
   
   //process
   examples_common_process(aubio_process,process_print);

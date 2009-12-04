@@ -30,18 +30,16 @@ static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
   unsigned int j;       /*frames*/
   for (j=0;j<(unsigned)nframes;j++) {
     if(usejack) {
-      for (i=0;i<channels;i++) {
-        /* write input to datanew */
-        fvec_write_sample(ibuf, input[i][j], i, pos);
-        /* put synthnew in output */
-        output[i][j] = fvec_read_sample(obuf, i, pos);
-      }
+      /* write input to datanew */
+      fvec_write_sample(ibuf, input[0][j], pos);
+      /* put synthnew in output */
+      output[0][j] = fvec_read_sample(obuf, pos);
     }
     /*time for fft*/
-    if (pos == overlap_size-1) {         
+    if (pos == overlap_size-1) {
       /* block loop */
       aubio_onset_do (o, ibuf, onset);
-      if (fvec_read_sample(onset, 0, 0)) {
+      if ( fvec_read_sample(onset, 0) ) {
         fvec_copy (woodblock, obuf);
       } else {
         fvec_zeros (obuf);
@@ -54,30 +52,31 @@ static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
   return 1;
 }
 
-static void process_print (void) {
-      /* output times in seconds, taking back some 
-       * delay to ensure the label is _before_ the
-       * actual onset */
-      if (!verbose && usejack) return;
-      smpl_t onset_found = fvec_read_sample(onset, 0, 0);
-      if (onset_found) {
-        if(frames >= 4) {
-          outmsg("%f\n",(frames - frames_delay + onset_found) 
-                  *overlap_size/(float)samplerate);
-        } else if (frames < frames_delay) {
-          outmsg("%f\n",0.);
-        }
-      }
+static void
+process_print (void)
+{
+  /* output times in seconds, taking back some delay to ensure the label is
+   * _before_ the actual onset */
+  if (!verbose && usejack)
+    return;
+  smpl_t onset_found = fvec_read_sample (onset, 0);
+  if (onset_found) {
+    if (frames >= 4) {
+      outmsg ("%f\n", (frames - frames_delay + onset_found)
+          * overlap_size / (float) samplerate);
+    } else if (frames < frames_delay) {
+      outmsg ("%f\n", 0.);
+    }
+  }
 }
 
 int main(int argc, char **argv) {
   frames_delay = 3;
   examples_common_init(argc,argv);
 
-  o = new_aubio_onset (onset_mode, buffer_size, overlap_size, channels,
-          samplerate);
+  o = new_aubio_onset (onset_mode, buffer_size, overlap_size, samplerate);
   if (threshold != 0.) aubio_onset_set_threshold (o, threshold);
-  onset = new_fvec (1, channels);
+  onset = new_fvec (1);
 
   examples_common_process(aubio_process,process_print);
 

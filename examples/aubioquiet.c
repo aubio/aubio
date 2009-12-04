@@ -25,27 +25,24 @@ sint_t wassilence = 1, issilence;
 
 int aubio_process(smpl_t **input, smpl_t **output, int nframes);
 int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
-  unsigned int i;       /*channels*/
   unsigned int j;       /*frames*/
   for (j=0;j<(unsigned)nframes;j++) {
     if(usejack) {
-      for (i=0;i<channels;i++) {
-        /* write input to datanew */
-        fvec_write_sample(ibuf, input[i][j], i, pos);
-        /* put synthnew in output */
-        output[i][j] = fvec_read_sample(obuf, i, pos);
-      }
+      /* write input to datanew */
+      fvec_write_sample(ibuf, input[0][j], pos);
+      /* put synthnew in output */
+      output[0][j] = fvec_read_sample(obuf, pos);
     }
     /*time for fft*/
     if (pos == overlap_size-1) {         
       /* test for silence */
       if (aubio_silence_detection(ibuf, silence)==1) {
-	if (wassilence==1) issilence = 1;
-	else issilence = 2;
+        if (wassilence==1) issilence = 1;
+        else issilence = 2;
         wassilence=1;
       } else { 
-	if (wassilence<=0) issilence = 0;
-	else issilence = -1;
+        if (wassilence<=0) issilence = 0;
+        else issilence = -1;
         wassilence=0;
       }
       /* end of block loop */

@@ -28,23 +28,20 @@ smpl_t istactus = 0;
 smpl_t isonset = 0;
 
 static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
-  unsigned int i;       /*channels*/
   unsigned int j;       /*frames*/
   for (j=0;j<(unsigned)nframes;j++) {
     if(usejack) {
-      for (i=0;i<channels;i++) {
-        /* write input to datanew */
-        fvec_write_sample(ibuf, input[i][j], i, pos);
-        /* put synthnew in output */
-        output[i][j] = fvec_read_sample(obuf, i, pos);
-      }
+      /* write input to datanew */
+      fvec_write_sample(ibuf, input[0][j], pos);
+      /* put synthnew in output */
+      output[0][j] = fvec_read_sample(obuf, pos);
     }
     /*time for fft*/
     if (pos == overlap_size-1) {         
       /* block loop */
       aubio_tempo_do (bt,ibuf,tempo_out);
-      istactus = fvec_read_sample (tempo_out, 0, 0);
-      isonset = fvec_read_sample (tempo_out, 0, 1);
+      istactus = fvec_read_sample (tempo_out, 0);
+      isonset = fvec_read_sample (tempo_out, 1);
       if (istactus > 0.) {
         fvec_copy (woodblock, obuf);
       } else {
@@ -75,8 +72,8 @@ int main(int argc, char **argv) {
   /* override default settings */
   examples_common_init(argc,argv);
 
-  tempo_out = new_fvec(2,channels);
-  bt = new_aubio_tempo(onset_mode,buffer_size,overlap_size,channels, samplerate);
+  tempo_out = new_fvec(2);
+  bt = new_aubio_tempo(onset_mode,buffer_size,overlap_size, samplerate);
   if (threshold != 0.) aubio_tempo_set_threshold (bt, threshold);
 
   examples_common_process(aubio_process,process_print);

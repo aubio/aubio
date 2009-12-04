@@ -95,7 +95,7 @@ int aubio_sndfile_open_wo(aubio_sndfile_t * f, const char* inputname) {
 aubio_sndfile_t * new_aubio_sndfile_wo(aubio_sndfile_t * fmodel, const char *outputname) {
         aubio_sndfile_t * f = AUBIO_NEW(aubio_sndfile_t);
         f->samplerate    = fmodel->samplerate;
-        f->channels      = fmodel->channels;
+        f->channels      = 1; //fmodel->channels;
         f->format        = fmodel->format;
         aubio_sndfile_open_wo(f, outputname);
         return f;
@@ -124,7 +124,7 @@ int del_aubio_sndfile(aubio_sndfile_t * f) {
 
 /* read frames from file in data 
  *  return the number of frames actually read */
-int aubio_sndfile_read(aubio_sndfile_t * f, int frames, fvec_t * read) {
+int aubio_sndfile_read(aubio_sndfile_t * f, int frames, fvec_t ** read) {
         sf_count_t read_frames;
         int i,j, channels = f->channels;
         int nsamples = frames*channels;
@@ -149,7 +149,7 @@ int aubio_sndfile_read(aubio_sndfile_t * f, int frames, fvec_t * read) {
 
         /* de-interleaving data  */
         for (i=0; i<channels; i++) {
-                pread = (smpl_t *)fvec_get_channel(read,i);
+                pread = (smpl_t *)fvec_get_data(read[i]);
                 for (j=0; j<aread; j++) {
                         pread[j] = (smpl_t)f->tmpdata[channels*j+i];
                 }
@@ -157,10 +157,49 @@ int aubio_sndfile_read(aubio_sndfile_t * f, int frames, fvec_t * read) {
         return aread;
 }
 
+int
+aubio_sndfile_read_mono (aubio_sndfile_t * f, int frames, fvec_t * read)
+{
+  sf_count_t read_frames;
+  int i, j, channels = f->channels;
+  int nsamples = frames * channels;
+  int aread;
+  smpl_t *pread;
+
+  /* allocate data for de/interleaving reallocated when needed. */
+  if (nsamples >= f->size) {
+    AUBIO_ERR ("Maximum aubio_sndfile_read buffer size exceeded.");
+    return -1;
+    /*
+    AUBIO_FREE(f->tmpdata);
+    f->tmpdata = AUBIO_ARRAY(float,nsamples);
+    */
+  }
+  //f->size = nsamples;
+
+  /* do actual reading */
+  read_frames = sf_read_float (f->handle, f->tmpdata, nsamples);
+
+  aread = (int) FLOOR (read_frames / (float) channels);
+
+  /* de-interleaving data  */
+  pread = (smpl_t *) fvec_get_data (read);
+  for (i = 0; i < channels; i++) {
+    for (j = 0; j < aread; j++) {
+      pread[j] += (smpl_t) f->tmpdata[channels * j + i];
+    }
+  }
+  for (j = 0; j < aread; j++) {
+    pread[j] /= (smpl_t)channels;
+  }
+
+  return aread;
+}
+
 /* write 'frames' samples to file from data 
  *   return the number of frames actually written 
  */
-int aubio_sndfile_write(aubio_sndfile_t * f, int frames, fvec_t * write) {
+int aubio_sndfile_write(aubio_sndfile_t * f, int frames, fvec_t ** write) {
         sf_count_t written_frames = 0;
         int i, j,	channels = f->channels;
         int nsamples = channels*frames;
@@ -179,7 +218,7 @@ int aubio_sndfile_write(aubio_sndfile_t * f, int frames, fvec_t * write) {
 
         /* interleaving data  */
         for (i=0; i<channels; i++) {
-                pwrite = (smpl_t *)fvec_get_channel(write,i);
+                pwrite = (smpl_t *)fvec_get_data(write[i]);
                 for (j=0; j<frames; j++) {
                         f->tmpdata[channels*j+i] = (float)pwrite[j];
                 }

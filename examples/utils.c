@@ -60,7 +60,6 @@ smpl_t threshold = 0.0;         // leave unset, only set as asked
 smpl_t silence = -90.;
 uint_t buffer_size = 512;       //1024;
 uint_t overlap_size = 256;      //512;
-uint_t channels = 1;
 uint_t samplerate = 44100;
 
 
@@ -207,7 +206,7 @@ examples_common_init (int argc, char **argv)
   /* parse command line arguments */
   parse_args (argc, argv);
 
-  woodblock = new_fvec (buffer_size, 1);
+  woodblock = new_fvec (overlap_size);
   if (output_filename || usejack) {
     /* dummy assignement to keep egcs happy */
     found_wood = (onsetfile = new_aubio_sndfile_ro (onset_filename)) ||
@@ -220,7 +219,7 @@ examples_common_init (int argc, char **argv)
   }
   if (onsetfile) {
     /* read the output sound once */
-    aubio_sndfile_read (onsetfile, overlap_size, woodblock);
+    aubio_sndfile_read_mono (onsetfile, overlap_size, woodblock);
   }
 
   if (!usejack) {
@@ -232,7 +231,6 @@ examples_common_init (int argc, char **argv)
     }
     if (verbose)
       aubio_sndfile_info (file);
-    channels = aubio_sndfile_channels (file);
     samplerate = aubio_sndfile_samplerate (file);
     if (output_filename != NULL)
       fileout = new_aubio_sndfile_wo (file, output_filename);
@@ -255,8 +253,9 @@ examples_common_init (int argc, char **argv)
   }
 #endif /* HAVE_LASH */
 
-  ibuf = new_fvec (overlap_size, channels);
-  obuf = new_fvec (overlap_size, channels);
+  uint_t i;
+  ibuf = new_fvec (overlap_size);
+  obuf = new_fvec (overlap_size);
 
 }
 
@@ -264,6 +263,7 @@ examples_common_init (int argc, char **argv)
 void
 examples_common_del (void)
 {
+  uint_t i;
   del_fvec (ibuf);
   del_fvec (obuf);
   del_fvec (woodblock);
@@ -282,7 +282,7 @@ examples_common_process (aubio_process_func_t process_func,
 
 #if HAVE_JACK
     debug ("Jack init ...\n");
-    jack_setup = new_aubio_jack (channels, channels,
+    jack_setup = new_aubio_jack (1, 1,
         0, 1, (aubio_process_func_t) process_func);
     debug ("Jack activation ...\n");
     aubio_jack_activate (jack_setup);
@@ -300,12 +300,12 @@ examples_common_process (aubio_process_func_t process_func,
 
     frames = 0;
 
-    while ((signed) overlap_size == aubio_sndfile_read (file, overlap_size,
-            ibuf)) {
-      process_func (ibuf->data, obuf->data, overlap_size);
+    while ((signed) overlap_size ==
+        aubio_sndfile_read_mono (file, overlap_size, ibuf)) {
+      process_func (&ibuf->data, &obuf->data, overlap_size);
       print ();
       if (output_filename != NULL) {
-        aubio_sndfile_write (fileout, overlap_size, obuf);
+        aubio_sndfile_write (fileout, overlap_size, &obuf);
       }
       frames++;
     }
@@ -327,7 +327,7 @@ flush_process (aubio_process_func_t process_func, aubio_print_func_t print)
   uint_t i;
   fvec_zeros(obuf);
   for (i = 0; (signed) i < frames_delay; i++) {
-    process_func (ibuf->data, obuf->data, overlap_size);
+    process_func (&ibuf->data, &obuf->data, overlap_size);
     print ();
   }
 }

@@ -26,22 +26,19 @@ aubio_pitch_t *o;
 fvec_t *pitch;
 
 static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
-  unsigned int i;       /*channels*/
   unsigned int j;       /*frames*/
   for (j=0;j<(unsigned)nframes;j++) {
     if(usejack) {
-      for (i=0;i<channels;i++) {
-        /* write input to datanew */
-        fvec_write_sample(ibuf, input[i][j], i, pos);
-        /* put synthnew in output */
-        output[i][j] = fvec_read_sample(obuf, i, pos);
-      }
+      /* write input to datanew */
+      fvec_write_sample(ibuf, input[0][j], pos);
+      /* put synthnew in output */
+      output[0][j] = fvec_read_sample(obuf, pos);
     }
     /*time for fft*/
     if (pos == overlap_size-1) {         
       /* block loop */
       aubio_pitch_do (o, ibuf, pitch);
-      if (fvec_read_sample(pitch, 0, 0)) {
+      if (fvec_read_sample(pitch, 0)) {
         for (pos = 0; pos < overlap_size; pos++){
           // TODO, play sine at this freq
         }
@@ -58,7 +55,7 @@ static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
 
 static void process_print (void) {
       if (!verbose && usejack) return;
-      smpl_t pitch_found = fvec_read_sample(pitch, 0, 0);
+      smpl_t pitch_found = fvec_read_sample(pitch, 0);
       outmsg("%f %f\n",(frames) 
               *overlap_size/(float)samplerate, pitch_found);
 }
@@ -66,9 +63,8 @@ static void process_print (void) {
 int main(int argc, char **argv) {
   examples_common_init(argc,argv);
 
-  o = new_aubio_pitch (onset_mode, buffer_size, overlap_size, channels,
-          samplerate);
-  pitch = new_fvec (1, channels);
+  o = new_aubio_pitch (onset_mode, buffer_size, overlap_size, samplerate);
+  pitch = new_fvec (1);
 
   examples_common_process(aubio_process,process_print);
 

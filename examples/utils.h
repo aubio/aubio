@@ -73,7 +73,6 @@ extern int verbose;
 extern int usejack;
 extern uint_t buffer_size;
 extern uint_t overlap_size;
-extern uint_t channels;
 extern uint_t samplerate;
 
 extern fvec_t *ibuf;
