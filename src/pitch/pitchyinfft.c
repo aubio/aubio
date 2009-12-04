@@ -55,42 +55,40 @@ aubio_pitchyinfft_t *
 new_aubio_pitchyinfft (uint_t bufsize)
 {
   aubio_pitchyinfft_t *p = AUBIO_NEW (aubio_pitchyinfft_t);
-  p->winput = new_fvec (bufsize, 1);
-  p->fft = new_aubio_fft (bufsize, 1);
-  p->fftout = new_cvec (bufsize, 1);
-  p->sqrmag = new_fvec (bufsize, 1);
-  p->res = new_cvec (bufsize, 1);
-  p->yinfft = new_fvec (bufsize / 2 + 1, 1);
+  p->winput = new_fvec (bufsize);
+  p->fft = new_aubio_fft (bufsize);
+  p->fftout = new_cvec (bufsize);
+  p->sqrmag = new_fvec (bufsize);
+  p->res = new_cvec (bufsize);
+  p->yinfft = new_fvec (bufsize / 2 + 1);
   p->tol = 0.85;
   p->win = new_aubio_window ("hanningz", bufsize);
-  p->weight = new_fvec (bufsize / 2 + 1, 1);
-  {
-    uint_t i = 0, j = 1;
-    smpl_t freq = 0, a0 = 0, a1 = 0, f0 = 0, f1 = 0;
-    for (i = 0; i < p->weight->length; i++) {
-      freq = (smpl_t) i / (smpl_t) bufsize *(smpl_t) 44100.;
-      while (freq > freqs[j]) {
-        j += 1;
-      }
-      a0 = weight[j - 1];
-      f0 = freqs[j - 1];
-      a1 = weight[j];
-      f1 = freqs[j];
-      if (f0 == f1) {           // just in case
-        p->weight->data[0][i] = a0;
-      } else if (f0 == 0) {     // y = ax+b
-        p->weight->data[0][i] = (a1 - a0) / f1 * freq + a0;
-      } else {
-        p->weight->data[0][i] = (a1 - a0) / (f1 - f0) * freq +
-            (a0 - (a1 - a0) / (f1 / f0 - 1.));
-      }
-      while (freq > freqs[j]) {
-        j += 1;
-      }
-      //AUBIO_DBG("%f\n",p->weight->data[0][i]);
-      p->weight->data[0][i] = DB2LIN (p->weight->data[0][i]);
-      //p->weight->data[0][i] = SQRT(DB2LIN(p->weight->data[0][i]));
+  p->weight = new_fvec (bufsize / 2 + 1);
+  uint_t i = 0, j = 1;
+  smpl_t freq = 0, a0 = 0, a1 = 0, f0 = 0, f1 = 0;
+  for (i = 0; i < p->weight->length; i++) {
+    freq = (smpl_t) i / (smpl_t) bufsize *(smpl_t) 44100.;
+    while (freq > freqs[j]) {
+      j += 1;
     }
+    a0 = weight[j - 1];
+    f0 = freqs[j - 1];
+    a1 = weight[j];
+    f1 = freqs[j];
+    if (f0 == f1) {           // just in case
+      p->weight->data[i] = a0;
+    } else if (f0 == 0) {     // y = ax+b
+      p->weight->data[i] = (a1 - a0) / f1 * freq + a0;
+    } else {
+      p->weight->data[i] = (a1 - a0) / (f1 - f0) * freq +
+          (a0 - (a1 - a0) / (f1 / f0 - 1.));
+    }
+    while (freq > freqs[j]) {
+      j += 1;
+    }
+    //AUBIO_DBG("%f\n",p->weight->data[i]);
+    p->weight->data[i] = DB2LIN (p->weight->data[i]);
+    //p->weight->data[i] = SQRT(DB2LIN(p->weight->data[i]));
   }
   return p;
 }
@@ -98,60 +96,58 @@ new_aubio_pitchyinfft (uint_t bufsize)
 void
 aubio_pitchyinfft_do (aubio_pitchyinfft_t * p, fvec_t * input, fvec_t * output)
 {
-  uint_t i, tau, l;
+  uint_t tau, l;
   uint_t halfperiod;
   smpl_t tmp, sum;
   cvec_t *res = (cvec_t *) p->res;
   fvec_t *yin = (fvec_t *) p->yinfft;
-  for (i = 0; i < input->channels; i++) {
-    l = 0;
-    tmp = 0.;
-    sum = 0.;
-    for (l = 0; l < input->length; l++) {
-      p->winput->data[0][l] = p->win->data[0][l] * input->data[i][l];
-    }
-    aubio_fft_do (p->fft, p->winput, p->fftout);
-    for (l = 0; l < p->fftout->length; l++) {
-      p->sqrmag->data[0][l] = SQR (p->fftout->norm[0][l]);
-      p->sqrmag->data[0][l] *= p->weight->data[0][l];
-    }
-    for (l = 1; l < p->fftout->length; l++) {
-      p->sqrmag->data[0][(p->fftout->length - 1) * 2 - l] =
-          SQR (p->fftout->norm[0][l]);
-      p->sqrmag->data[0][(p->fftout->length - 1) * 2 - l] *=
-          p->weight->data[0][l];
-    }
-    for (l = 0; l < p->sqrmag->length / 2 + 1; l++) {
-      sum += p->sqrmag->data[0][l];
-    }
-    sum *= 2.;
-    aubio_fft_do (p->fft, p->sqrmag, res);
-    yin->data[0][0] = 1.;
-    for (tau = 1; tau < yin->length; tau++) {
-      yin->data[0][tau] = sum - res->norm[0][tau] * COS (res->phas[0][tau]);
-      tmp += yin->data[0][tau];
-      yin->data[0][tau] *= tau / tmp;
-    }
-    tau = fvec_min_elem (yin);
-    if (yin->data[0][tau] < p->tol) {
-      /* no interpolation */
-      //return tau;
-      /* 3 point quadratic interpolation */
-      //return fvec_quadint_min(yin,tau,1);
-      /* additional check for (unlikely) octave doubling in higher frequencies */
-      if (tau > 35) {
-        output->data[i][0] = fvec_quadint (yin, tau, i);
-      } else {
-        /* should compare the minimum value of each interpolated peaks */
-        halfperiod = FLOOR (tau / 2 + .5);
-        if (yin->data[0][halfperiod] < p->tol)
-          output->data[i][0] = fvec_quadint (yin, halfperiod, i);
-        else
-          output->data[i][0] = fvec_quadint (yin, tau, i);
-      }
+  l = 0;
+  tmp = 0.;
+  sum = 0.;
+  for (l = 0; l < input->length; l++) {
+    p->winput->data[l] = p->win->data[l] * input->data[l];
+  }
+  aubio_fft_do (p->fft, p->winput, p->fftout);
+  for (l = 0; l < p->fftout->length; l++) {
+    p->sqrmag->data[l] = SQR (p->fftout->norm[l]);
+    p->sqrmag->data[l] *= p->weight->data[l];
+  }
+  for (l = 1; l < p->fftout->length; l++) {
+    p->sqrmag->data[(p->fftout->length - 1) * 2 - l] =
+        SQR (p->fftout->norm[l]);
+    p->sqrmag->data[(p->fftout->length - 1) * 2 - l] *=
+        p->weight->data[l];
+  }
+  for (l = 0; l < p->sqrmag->length / 2 + 1; l++) {
+    sum += p->sqrmag->data[l];
+  }
+  sum *= 2.;
+  aubio_fft_do (p->fft, p->sqrmag, res);
+  yin->data[0] = 1.;
+  for (tau = 1; tau < yin->length; tau++) {
+    yin->data[tau] = sum - res->norm[tau] * COS (res->phas[tau]);
+    tmp += yin->data[tau];
+    yin->data[tau] *= tau / tmp;
+  }
+  tau = fvec_min_elem (yin);
+  if (yin->data[tau] < p->tol) {
+    /* no interpolation */
+    //return tau;
+    /* 3 point quadratic interpolation */
+    //return fvec_quadint_min(yin,tau,1);
+    /* additional check for (unlikely) octave doubling in higher frequencies */
+    if (tau > 35) {
+      output->data[0] = fvec_quadint (yin, tau);
     } else {
-      output->data[i][0] = 0.;
+      /* should compare the minimum value of each interpolated peaks */
+      halfperiod = FLOOR (tau / 2 + .5);
+      if (yin->data[halfperiod] < p->tol)
+        output->data[0] = fvec_quadint (yin, halfperiod);
+      else
+        output->data[0] = fvec_quadint (yin, tau);
     }
+  } else {
+    output->data[0] = 0.;
   }
 }
 

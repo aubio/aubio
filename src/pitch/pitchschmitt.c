@@ -50,13 +50,11 @@ void
 aubio_pitchschmitt_do (aubio_pitchschmitt_t * p, fvec_t * input,
     fvec_t * output)
 {
-  uint_t i, j;
-  for (i = 0; i < input->channels; i++) {
-    for (j = 0; j < input->length; j++) {
-      p->buf[j] = input->data[i][j] * 32768.;
-    }
-    output->data[i][0] = aubio_schmittS16LE (p, input->length, p->buf);
+  uint_t j;
+  for (j = 0; j < input->length; j++) {
+    p->buf[j] = input->data[j] * 32768.;
   }
+  output->data[0] = aubio_schmittS16LE (p, input->length, p->buf);
 }
 
 smpl_t

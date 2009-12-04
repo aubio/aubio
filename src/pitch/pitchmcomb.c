@@ -103,42 +103,40 @@ struct _aubio_spectralcandidate_t
 void
 aubio_pitchmcomb_do (aubio_pitchmcomb_t * p, cvec_t * fftgrain, fvec_t * output)
 {
-  uint_t i, j;
+  uint_t j;
   smpl_t instfreq;
   fvec_t *newmag = (fvec_t *) p->newmag;
   //smpl_t hfc; //fe=instfreq(theta1,theta,ops); //theta1=theta;
   /* copy incoming grain to newmag */
-  for (i = 0; i < fftgrain->channels; i++) {
-    for (j = 0; j < newmag->length; j++)
-      newmag->data[0][j] = fftgrain->norm[i][j];
-    /* detect only if local energy > 10. */
-    //if (fvec_local_energy(newmag)>10.) {
-    //hfc = fvec_local_hfc(newmag); //not used
-    aubio_pitchmcomb_spectral_pp (p, newmag);
-    aubio_pitchmcomb_combdet (p, newmag);
-    //aubio_pitchmcomb_sort_cand_freq(p->candidates,p->ncand);
-    //return p->candidates[p->goodcandidate]->ebin;
-    j = (uint_t) FLOOR (p->candidates[p->goodcandidate]->ebin + .5);
-    instfreq = aubio_unwrap2pi (fftgrain->phas[i][j]
-        - p->theta->data[i][j] - j * p->phasediff);
-    instfreq *= p->phasefreq;
-    /* store phase for next run */
-    for (j = 0; j < p->theta->length; j++) {
-      p->theta->data[i][j] = fftgrain->phas[i][j];
-    }
-    //return p->candidates[p->goodcandidate]->ebin;
-    output->data[i][0] =
-        FLOOR (p->candidates[p->goodcandidate]->ebin + .5) + instfreq;
-    /*} else {
-       return -1.;
-       } */
+  for (j = 0; j < newmag->length; j++)
+    newmag->data[j] = fftgrain->norm[j];
+  /* detect only if local energy > 10. */
+  //if (fvec_local_energy(newmag)>10.) {
+  //hfc = fvec_local_hfc(newmag); //not used
+  aubio_pitchmcomb_spectral_pp (p, newmag);
+  aubio_pitchmcomb_combdet (p, newmag);
+  //aubio_pitchmcomb_sort_cand_freq(p->candidates,p->ncand);
+  //return p->candidates[p->goodcandidate]->ebin;
+  j = (uint_t) FLOOR (p->candidates[p->goodcandidate]->ebin + .5);
+  instfreq = aubio_unwrap2pi (fftgrain->phas[j]
+      - p->theta->data[j] - j * p->phasediff);
+  instfreq *= p->phasefreq;
+  /* store phase for next run */
+  for (j = 0; j < p->theta->length; j++) {
+    p->theta->data[j] = fftgrain->phas[j];
   }
+  //return p->candidates[p->goodcandidate]->ebin;
+  output->data[0] =
+      FLOOR (p->candidates[p->goodcandidate]->ebin + .5) + instfreq;
+  /*} else {
+     return -1.;
+     } */
 }
 
 uint_t
 aubio_pitch_cands (aubio_pitchmcomb_t * p, cvec_t * fftgrain, smpl_t * cands)
 {
-  uint_t i = 0, j;
+  uint_t j;
   uint_t k;
   fvec_t *newmag = (fvec_t *) p->newmag;
   aubio_spectralcandidate_t **scands =
@@ -146,7 +144,7 @@ aubio_pitch_cands (aubio_pitchmcomb_t * p, cvec_t * fftgrain, smpl_t * cands)
   //smpl_t hfc; //fe=instfreq(theta1,theta,ops); //theta1=theta;
   /* copy incoming grain to newmag */
   for (j = 0; j < newmag->length; j++)
-    newmag->data[i][j] = fftgrain->norm[i][j];
+    newmag->data[j] = fftgrain->norm[j];
   /* detect only if local energy > 10. */
   if (fvec_local_energy (newmag) > 10.) {
     /* hfc = fvec_local_hfc(newmag); do not use */
@@ -171,17 +169,17 @@ aubio_pitchmcomb_spectral_pp (aubio_pitchmcomb_t * p, fvec_t * newmag)
 {
   fvec_t *mag = (fvec_t *) p->scratch;
   fvec_t *tmp = (fvec_t *) p->scratch2;
-  uint_t i = 0, j;
+  uint_t j;
   uint_t length = mag->length;
   /* copy newmag to mag (scracth) */
   for (j = 0; j < length; j++) {
-    mag->data[i][j] = newmag->data[i][j];
+    mag->data[j] = newmag->data[j];
   }
   fvec_min_removal (mag);       /* min removal          */
   fvec_alpha_normalise (mag, p->alpha); /* alpha normalisation  */
   /* skipped *//* low pass filtering   */
   /** \bug fvec_moving_thres may write out of bounds */
-  fvec_adapt_thres (mag, tmp, p->win_post, p->win_pre, i);      /* adaptative threshold */
+  fvec_adapt_thres (mag, tmp, p->win_post, p->win_pre);      /* adaptative threshold */
   fvec_add (mag, -p->threshold);        /* fixed threshold      */
   {
     aubio_spectralpeak_t *peaks = (aubio_spectralpeak_t *) p->peaks;
@@ -189,7 +187,7 @@ aubio_pitchmcomb_spectral_pp (aubio_pitchmcomb_t * p, fvec_t * newmag)
     /*  return bin and ebin */
     count = aubio_pitchmcomb_quadpick (peaks, mag);
     for (j = 0; j < count; j++)
-      peaks[j].mag = newmag->data[i][peaks[j].bin];
+      peaks[j].mag = newmag->data[peaks[j].bin];
     /* reset non peaks */
     for (j = count; j < length; j++)
       peaks[j].mag = 0.;
@@ -260,7 +258,7 @@ aubio_pitchmcomb_combdet (aubio_pitchmcomb_t * p, fvec_t * newmag)
       if (17. * xx < candidate[l]->ecomb[k]) {
         candidate[l]->ecomb[k] = peaks[position].ebin;
         candidate[l]->ene +=    /* ecomb rounded to nearest int */
-            POW (newmag->data[0][(uint_t) FLOOR (candidate[l]->ecomb[k] + .5)],
+            POW (newmag->data[(uint_t) FLOOR (candidate[l]->ecomb[k] + .5)],
             0.25);
         candidate[l]->len += 1. / curlen;
       } else
@@ -289,16 +287,15 @@ aubio_pitchmcomb_combdet (aubio_pitchmcomb_t * p, fvec_t * newmag)
 uint_t
 aubio_pitchmcomb_quadpick (aubio_spectralpeak_t * spectral_peaks, fvec_t * X)
 {
-  uint_t i, j, ispeak, count = 0;
-  for (i = 0; i < X->channels; i++)
-    for (j = 1; j < X->length - 1; j++) {
-      ispeak = fvec_peakpick (X, j);
-      if (ispeak) {
-        count += ispeak;
-        spectral_peaks[count - 1].bin = j;
-        spectral_peaks[count - 1].ebin = fvec_quadint (X, j, i) - 1.;
-      }
+  uint_t j, ispeak, count = 0;
+  for (j = 1; j < X->length - 1; j++) {
+    ispeak = fvec_peakpick (X, j);
+    if (ispeak) {
+      count += ispeak;
+      spectral_peaks[count - 1].bin = j;
+      spectral_peaks[count - 1].ebin = fvec_quadint (X, j) - 1.;
     }
+  }
   return count;
 }
 
@@ -363,7 +360,7 @@ aubio_pitchmcomb_sort_cand_freq (aubio_spectralcandidate_t ** candidates,
 }
 
 aubio_pitchmcomb_t *
-new_aubio_pitchmcomb (uint_t bufsize, uint_t hopsize, uint_t channels)
+new_aubio_pitchmcomb (uint_t bufsize, uint_t hopsize)
 {
   aubio_pitchmcomb_t *p = AUBIO_NEW (aubio_pitchmcomb_t);
   /* bug: should check if size / 8 > post+pre+1 */
@@ -385,13 +382,13 @@ new_aubio_pitchmcomb (uint_t bufsize, uint_t hopsize, uint_t channels)
   //p->pickerfn = quadpick;
   //p->biquad = new_biquad(0.1600,0.3200,0.1600, -0.5949, 0.2348);
   /* allocate temp memory */
-  p->newmag = new_fvec (spec_size, 1);
+  p->newmag = new_fvec (spec_size);
   /* array for median */
-  p->scratch = new_fvec (spec_size, 1);
+  p->scratch = new_fvec (spec_size);
   /* array for phase */
-  p->theta = new_fvec (spec_size, channels);
+  p->theta = new_fvec (spec_size);
   /* array for adaptative threshold */
-  p->scratch2 = new_fvec (p->win_post + p->win_pre + 1, 1);
+  p->scratch2 = new_fvec (p->win_post + p->win_pre + 1);
   /* array of spectral peaks */
   p->peaks = AUBIO_ARRAY (aubio_spectralpeak_t, spec_size);
   for (i = 0; i < spec_size; i++) {

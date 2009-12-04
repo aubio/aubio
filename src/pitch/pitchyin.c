@@ -64,7 +64,7 @@ aubio_pitchyin_t *
 new_aubio_pitchyin (uint_t bufsize)
 {
   aubio_pitchyin_t *o = AUBIO_NEW (aubio_pitchyin_t);
-  o->yin = new_fvec (bufsize / 2, 1);
+  o->yin = new_fvec (bufsize / 2);
   o->tol = 0.15;
   return o;
 }
@@ -80,17 +80,15 @@ del_aubio_pitchyin (aubio_pitchyin_t * o)
 void
 aubio_pitchyin_diff (fvec_t * input, fvec_t * yin)
 {
-  uint_t c, j, tau;
+  uint_t j, tau;
   smpl_t tmp;
-  for (c = 0; c < input->channels; c++) {
-    for (tau = 0; tau < yin->length; tau++) {
-      yin->data[c][tau] = 0.;
-    }
-    for (tau = 1; tau < yin->length; tau++) {
-      for (j = 0; j < yin->length; j++) {
-        tmp = input->data[c][j] - input->data[c][j + tau];
-        yin->data[c][tau] += SQR (tmp);
-      }
+  for (tau = 0; tau < yin->length; tau++) {
+    yin->data[tau] = 0.;
+  }
+  for (tau = 1; tau < yin->length; tau++) {
+    for (j = 0; j < yin->length; j++) {
+      tmp = input->data[j] - input->data[j + tau];
+      yin->data[tau] += SQR (tmp);
     }
   }
 }
@@ -99,28 +97,26 @@ aubio_pitchyin_diff (fvec_t * input, fvec_t * yin)
 void
 aubio_pitchyin_getcum (fvec_t * yin)
 {
-  uint_t c, tau;
+  uint_t tau;
   smpl_t tmp;
-  for (c = 0; c < yin->channels; c++) {
-    tmp = 0.;
-    yin->data[c][0] = 1.;
-    //AUBIO_DBG("%f\t",yin->data[c][0]);
-    for (tau = 1; tau < yin->length; tau++) {
-      tmp += yin->data[c][tau];
-      yin->data[c][tau] *= tau / tmp;
-      //AUBIO_DBG("%f\t",yin->data[c][tau]);
-    }
-    //AUBIO_DBG("\n");
+  tmp = 0.;
+  yin->data[0] = 1.;
+  //AUBIO_DBG("%f\t",yin->data[0]);
+  for (tau = 1; tau < yin->length; tau++) {
+    tmp += yin->data[tau];
+    yin->data[tau] *= tau / tmp;
+    //AUBIO_DBG("%f\t",yin->data[tau]);
   }
+  //AUBIO_DBG("\n");
 }
 
 uint_t
 aubio_pitchyin_getpitch (fvec_t * yin)
 {
-  uint_t c = 0, tau = 1;
+  uint_t tau = 1;
   do {
-    if (yin->data[c][tau] < 0.1) {
-      while (yin->data[c][tau + 1] < yin->data[c][tau]) {
+    if (yin->data[tau] < 0.1) {
+      while (yin->data[tau + 1] < yin->data[tau]) {
         tau++;
       }
       return tau;
@@ -138,31 +134,28 @@ aubio_pitchyin_do (aubio_pitchyin_t * o, fvec_t * input, fvec_t * out)
 {
   smpl_t tol = o->tol;
   fvec_t *yin = o->yin;
-  uint_t c, j, tau = 0;
+  uint_t j, tau = 0;
   sint_t period;
   smpl_t tmp = 0., tmp2 = 0.;
-  for (c = 0; c < input->channels; c++) {
-    yin->data[c][0] = 1.;
-    for (tau = 1; tau < yin->length; tau++) {
-      yin->data[c][tau] = 0.;
-      for (j = 0; j < yin->length; j++) {
-        tmp = input->data[c][j] - input->data[c][j + tau];
-        yin->data[c][tau] += SQR (tmp);
-      }
-      tmp2 += yin->data[c][tau];
-      yin->data[c][tau] *= tau / tmp2;
-      period = tau - 3;
-      if (tau > 4 && (yin->data[c][period] < tol) &&
-          (yin->data[c][period] < yin->data[c][period + 1])) {
-        out->data[c][0] = fvec_quadint (yin, period, c);
-        goto beach;
-      }
+  yin->data[0] = 1.;
+  for (tau = 1; tau < yin->length; tau++) {
+    yin->data[tau] = 0.;
+    for (j = 0; j < yin->length; j++) {
+      tmp = input->data[j] - input->data[j + tau];
+      yin->data[tau] += SQR (tmp);
     }
-    out->data[c][0] = fvec_quadint (yin, fvec_min_elem (yin), c);
-  beach:
-    continue;
+    tmp2 += yin->data[tau];
+    yin->data[tau] *= tau / tmp2;
+    period = tau - 3;
+    if (tau > 4 && (yin->data[period] < tol) &&
+        (yin->data[period] < yin->data[period + 1])) {
+      out->data[0] = fvec_quadint (yin, period);
+      goto beach;
+    }
   }
-  //return 0;
+  out->data[0] = fvec_quadint (yin, fvec_min_elem (yin));
+beach:
+  return;
 }
 
 uint_t
