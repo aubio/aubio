@@ -45,9 +45,8 @@ typedef enum
 fvec_t *
 new_aubio_window (char_t * window_type, uint_t size)
 {
-  // create fvec of size x 1 channel
-  fvec_t * win = new_fvec( size, 1);
-  smpl_t * w = win->data[0];
+  fvec_t * win = new_fvec (size);
+  smpl_t * w = win->data;
   uint_t i;
   aubio_window_type wintype;
   if (strcmp (window_type, "rectangle") == 0)
@@ -133,33 +132,21 @@ aubio_unwrap2pi (smpl_t phase)
 smpl_t
 fvec_mean (fvec_t * s)
 {
-  uint_t i, j;
-  smpl_t tmp = 0.0;
-  for (i = 0; i < s->channels; i++)
-    for (j = 0; j < s->length; j++)
-      tmp += s->data[i][j];
-  return tmp / (smpl_t) (s->length);
-}
-
-smpl_t
-fvec_mean_channel (fvec_t * s, uint_t i)
-{
   uint_t j;
   smpl_t tmp = 0.0;
-  for (j = 0; j < s->length; j++)
-      tmp += s->data[i][j];
+  for (j = 0; j < s->length; j++) {
+    tmp += s->data[j];
+  }
   return tmp / (smpl_t) (s->length);
 }
 
 smpl_t
 fvec_sum (fvec_t * s)
 {
-  uint_t i, j;
+  uint_t j;
   smpl_t tmp = 0.0;
-  for (i = 0; i < s->channels; i++) {
-    for (j = 0; j < s->length; j++) {
-      tmp += s->data[i][j];
-    }
+  for (j = 0; j < s->length; j++) {
+    tmp += s->data[j];
   }
   return tmp;
 }
@@ -167,12 +154,10 @@ fvec_sum (fvec_t * s)
 smpl_t
 fvec_max (fvec_t * s)
 {
-  uint_t i, j;
+  uint_t j;
   smpl_t tmp = 0.0;
-  for (i = 0; i < s->channels; i++) {
-    for (j = 0; j < s->length; j++) {
-      tmp = (tmp > s->data[i][j]) ? tmp : s->data[i][j];
-    }
+  for (j = 0; j < s->length; j++) {
+    tmp = (tmp > s->data[j]) ? tmp : s->data[j];
   }
   return tmp;
 }
@@ -180,12 +165,10 @@ fvec_max (fvec_t * s)
 smpl_t
 fvec_min (fvec_t * s)
 {
-  uint_t i, j;
-  smpl_t tmp = s->data[0][0];
-  for (i = 0; i < s->channels; i++) {
-    for (j = 0; j < s->length; j++) {
-      tmp = (tmp < s->data[i][j]) ? tmp : s->data[i][j];
-    }
+  uint_t j;
+  smpl_t tmp = s->data[0];
+  for (j = 0; j < s->length; j++) {
+    tmp = (tmp < s->data[j]) ? tmp : s->data[j];
   }
   return tmp;
 }
@@ -193,13 +176,11 @@ fvec_min (fvec_t * s)
 uint_t
 fvec_min_elem (fvec_t * s)
 {
-  uint_t i, j, pos = 0.;
-  smpl_t tmp = s->data[0][0];
-  for (i = 0; i < s->channels; i++) {
-    for (j = 0; j < s->length; j++) {
-      pos = (tmp < s->data[i][j]) ? pos : j;
-      tmp = (tmp < s->data[i][j]) ? tmp : s->data[i][j];
-    }
+  uint_t j, pos = 0.;
+  smpl_t tmp = s->data[0];
+  for (j = 0; j < s->length; j++) {
+    pos = (tmp < s->data[j]) ? pos : j;
+    tmp = (tmp < s->data[j]) ? tmp : s->data[j];
   }
   return pos;
 }
@@ -207,13 +188,11 @@ fvec_min_elem (fvec_t * s)
 uint_t
 fvec_max_elem (fvec_t * s)
 {
-  uint_t i, j, pos = 0;
+  uint_t j, pos = 0;
   smpl_t tmp = 0.0;
-  for (i = 0; i < s->channels; i++) {
-    for (j = 0; j < s->length; j++) {
-      pos = (tmp > s->data[i][j]) ? pos : j;
-      tmp = (tmp > s->data[i][j]) ? tmp : s->data[i][j];
-    }
+  for (j = 0; j < s->length; j++) {
+    pos = (tmp > s->data[j]) ? pos : j;
+    tmp = (tmp > s->data[j]) ? tmp : s->data[j];
   }
   return pos;
 }
@@ -221,11 +200,9 @@ fvec_max_elem (fvec_t * s)
 void
 fvec_shift (fvec_t * s)
 {
-  uint_t i, j;
-  for (i = 0; i < s->channels; i++) {
-    for (j = 0; j < s->length / 2; j++) {
-      ELEM_SWAP (s->data[i][j], s->data[i][j + s->length / 2]);
-    }
+  uint_t j;
+  for (j = 0; j < s->length / 2; j++) {
+    ELEM_SWAP (s->data[j], s->data[j + s->length / 2]);
   }
 }
 
@@ -233,11 +210,9 @@ smpl_t
 fvec_local_energy (fvec_t * f)
 {
   smpl_t energy = 0.;
-  uint_t i, j;
-  for (i = 0; i < f->channels; i++) {
-    for (j = 0; j < f->length; j++) {
-      energy += SQR (f->data[i][j]);
-    }
+  uint_t j;
+  for (j = 0; j < f->length; j++) {
+    energy += SQR (f->data[j]);
   }
   return energy;
 }
@@ -246,11 +221,9 @@ smpl_t
 fvec_local_hfc (fvec_t * v)
 {
   smpl_t hfc = 0.;
-  uint_t i, j;
-  for (i = 0; i < v->channels; i++) {
-    for (j = 0; j < v->length; j++) {
-      hfc += (i + 1) * v->data[i][j];
-    }
+  uint_t j;
+  for (j = 0; j < v->length; j++) {
+    hfc += (j + 1) * v->data[j];
   }
   return hfc;
 }
@@ -265,12 +238,10 @@ fvec_min_removal (fvec_t * v)
 smpl_t
 fvec_alpha_norm (fvec_t * o, smpl_t alpha)
 {
-  uint_t i, j;
+  uint_t j;
   smpl_t tmp = 0.;
-  for (i = 0; i < o->channels; i++) {
-    for (j = 0; j < o->length; j++) {
-      tmp += POW (ABS (o->data[i][j]), alpha);
-    }
+  for (j = 0; j < o->length; j++) {
+    tmp += POW (ABS (o->data[j]), alpha);
   }
   return POW (tmp / o->length, 1. / alpha);
 }
@@ -278,40 +249,36 @@ fvec_alpha_norm (fvec_t * o, smpl_t alpha)
 void
 fvec_alpha_normalise (fvec_t * o, smpl_t alpha)
 {
-  uint_t i, j;
+  uint_t j;
   smpl_t norm = fvec_alpha_norm (o, alpha);
-  for (i = 0; i < o->channels; i++) {
-    for (j = 0; j < o->length; j++) {
-      o->data[i][j] /= norm;
-    }
+  for (j = 0; j < o->length; j++) {
+    o->data[j] /= norm;
   }
 }
 
 void
 fvec_add (fvec_t * o, smpl_t val)
 {
-  uint_t i, j;
-  for (i = 0; i < o->channels; i++) {
-    for (j = 0; j < o->length; j++) {
-      o->data[i][j] += val;
-    }
+  uint_t j;
+  for (j = 0; j < o->length; j++) {
+    o->data[j] += val;
   }
 }
 
 void fvec_adapt_thres(fvec_t * vec, fvec_t * tmp,
-    uint_t post, uint_t pre, uint_t channel) {
-  uint_t length = vec->length, i=channel, j;
+    uint_t post, uint_t pre) {
+  uint_t length = vec->length, j;
   for (j=0;j<length;j++) {
-    vec->data[i][j] -= fvec_moving_thres(vec, tmp, post, pre, j, i);
+    vec->data[j] -= fvec_moving_thres(vec, tmp, post, pre, j);
   }
 }
 
 smpl_t
 fvec_moving_thres (fvec_t * vec, fvec_t * tmpvec,
-    uint_t post, uint_t pre, uint_t pos, uint_t channel)
+    uint_t post, uint_t pre, uint_t pos)
 {
-  uint_t i = channel, k;
-  smpl_t *medar = (smpl_t *) tmpvec->data[i];
+  uint_t k;
+  smpl_t *medar = (smpl_t *) tmpvec->data;
   uint_t win_length = post + pre + 1;
   uint_t length = vec->length;
   /* post part of the buffer does not exist */
@@ -319,24 +286,24 @@ fvec_moving_thres (fvec_t * vec, fvec_t * tmpvec,
     for (k = 0; k < post + 1 - pos; k++)
       medar[k] = 0.;            /* 0-padding at the beginning */
     for (k = post + 1 - pos; k < win_length; k++)
-      medar[k] = vec->data[0][k + pos - post];
+      medar[k] = vec->data[k + pos - post];
     /* the buffer is fully defined */
   } else if (pos + pre < length) {
     for (k = 0; k < win_length; k++)
-      medar[k] = vec->data[0][k + pos - post];
+      medar[k] = vec->data[k + pos - post];
     /* pre part of the buffer does not exist */
   } else {
     for (k = 0; k < length - pos + post; k++)
-      medar[k] = vec->data[0][k + pos - post];
+      medar[k] = vec->data[k + pos - post];
     for (k = length - pos + post; k < win_length; k++)
       medar[k] = 0.;            /* 0-padding at the end */
   }
-  return fvec_median_channel (tmpvec, i);
+  return fvec_median (tmpvec);
 }
 
-smpl_t fvec_median_channel (fvec_t * input, uint_t channel) {
+smpl_t fvec_median (fvec_t * input) {
   uint_t n = input->length;
-  smpl_t * arr = (smpl_t *) input->data[channel];
+  smpl_t * arr = (smpl_t *) input->data;
   uint_t low, high ;
   uint_t median;
   uint_t middle, ll, hh;
@@ -385,24 +352,23 @@ smpl_t fvec_median_channel (fvec_t * input, uint_t channel) {
   }
 }
 
-smpl_t fvec_quadint (fvec_t * x, uint_t pos, uint_t i) {
+smpl_t fvec_quadint (fvec_t * x, uint_t pos) {
   smpl_t s0, s1, s2;
   uint_t x0 = (pos < 1) ? pos : pos - 1;
   uint_t x2 = (pos + 1 < x->length) ? pos + 1 : pos;
-  if (x0 == pos) return (x->data[i][pos] <= x->data[i][x2]) ? pos : x2;
-  if (x2 == pos) return (x->data[i][pos] <= x->data[i][x0]) ? pos : x0;
-  s0 = x->data[i][x0];
-  s1 = x->data[i][pos];
-  s2 = x->data[i][x2];
+  if (x0 == pos) return (x->data[pos] <= x->data[x2]) ? pos : x2;
+  if (x2 == pos) return (x->data[pos] <= x->data[x0]) ? pos : x0;
+  s0 = x->data[x0];
+  s1 = x->data[pos];
+  s2 = x->data[x2];
   return pos + 0.5 * (s2 - s0 ) / (s2 - 2.* s1 + s0);
 }
 
 uint_t fvec_peakpick(fvec_t * onset, uint_t pos) {
-  uint_t i=0, tmp=0;
-  /*for (i=0;i<onset->channels;i++)*/
-  tmp = (onset->data[i][pos] > onset->data[i][pos-1]
-      &&  onset->data[i][pos] > onset->data[i][pos+1]
-      &&  onset->data[i][pos] > 0.);
+  uint_t tmp=0;
+  tmp = (onset->data[pos] > onset->data[pos-1]
+      &&  onset->data[pos] > onset->data[pos+1]
+      &&  onset->data[pos] > 0.);
   return tmp;
 }
 
@@ -511,19 +477,19 @@ aubio_level_detection (fvec_t * o, smpl_t threshold)
 smpl_t
 aubio_zero_crossing_rate (fvec_t * input)
 {
-  uint_t i = 0, j;
+  uint_t j;
   uint_t zcr = 0;
   for (j = 1; j < input->length; j++) {
     // previous was strictly negative
-    if (input->data[i][j - 1] < 0.) {
+    if (input->data[j - 1] < 0.) {
       // current is positive or null
-      if (input->data[i][j] >= 0.) {
+      if (input->data[j] >= 0.) {
         zcr += 1;
       }
       // previous was positive or null
     } else {
       // current is strictly negative
-      if (input->data[i][j] < 0.) {
+      if (input->data[j] < 0.) {
         zcr += 1;
       }
     }
@@ -534,19 +500,17 @@ aubio_zero_crossing_rate (fvec_t * input)
 void
 aubio_autocorr (fvec_t * input, fvec_t * output)
 {
-  uint_t i, j, k, length = input->length;
+  uint_t i, j, length = input->length;
   smpl_t *data, *acf;
   smpl_t tmp = 0;
-  for (k = 0; k < input->channels; k++) {
-    data = input->data[k];
-    acf = output->data[k];
-    for (i = 0; i < length; i++) {
-      tmp = 0.;
-      for (j = i; j < length; j++) {
-        tmp += data[j - i] * data[j];
-      }
-      acf[i] = tmp / (smpl_t) (length - i);
+  data = input->data;
+  acf = output->data;
+  for (i = 0; i < length; i++) {
+    tmp = 0.;
+    for (j = i; j < length; j++) {
+      tmp += data[j - i] * data[j];
     }
+    acf[i] = tmp / (smpl_t) (length - i);
   }
 }
 

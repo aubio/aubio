@@ -41,16 +41,6 @@ extern "C" {
 */
 smpl_t fvec_mean (fvec_t * s);
 
-/** compute the mean of a vector channel
-
-  \param s vector to compute mean from
-  \param i channel to compute mean from
-
-  \return the mean of v
-
-*/
-smpl_t fvec_mean_channel (fvec_t * s, uint_t i);
-
 /** find the max of a vector
 
   \param s vector to get the max from
@@ -204,7 +194,7 @@ pre elements after pos.
 
 */
 smpl_t fvec_moving_thres (fvec_t * v, fvec_t * tmp, uint_t post, uint_t pre,
-    uint_t pos, uint_t channel);
+    uint_t pos);
 
 /** apply adaptive threshold to a vector
 
@@ -217,8 +207,7 @@ moving median threshold computed at p.
   \param pre length of anti-causal part to take after pos
 
 */
-void fvec_adapt_thres (fvec_t * v, fvec_t * tmp, uint_t post, uint_t pre, 
-    uint_t channel);
+void fvec_adapt_thres (fvec_t * v, fvec_t * tmp, uint_t post, uint_t pre);
 
 /** returns the median of a vector 
 
@@ -231,15 +220,14 @@ Devillard's implementation, available at http://ndevilla.free.fr/median/median/
 and in the Public Domain.
 
   \param v vector to get median from
-  \param channel channel to get median from
 
   \return the median of v
  
 */
-smpl_t fvec_median_channel (fvec_t * v, uint_t channel);
+smpl_t fvec_median (fvec_t * v);
 
 /** finds exact peak index by quadratic interpolation*/
-smpl_t fvec_quadint (fvec_t * x, uint_t pos, uint_t channel);
+smpl_t fvec_quadint (fvec_t * x, uint_t pos);
 
 /** Quadratic interpolation using Lagrange polynomial.
  
