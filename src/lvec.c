@@ -21,65 +21,47 @@
 #include "aubio_priv.h"
 #include "lvec.h"
 
-lvec_t * new_lvec( uint_t length, uint_t channels) {
+lvec_t * new_lvec( uint_t length) {
   lvec_t * s = AUBIO_NEW(lvec_t);
-  uint_t i,j;
-  s->channels = channels;
+  uint_t j;
   s->length = length;
-  s->data = AUBIO_ARRAY(lsmp_t*,s->channels);
-  for (i=0; i< s->channels; i++) {
-    s->data[i] = AUBIO_ARRAY(lsmp_t, s->length);
-    for (j=0; j< s->length; j++) {
-      s->data[i][j]=0.;
-    }
+  s->data = AUBIO_ARRAY(lsmp_t, s->length);
+  for (j=0; j< s->length; j++) {
+    s->data[j]=0.;
   }
   return s;
 }
 
 void del_lvec(lvec_t *s) {
-  uint_t i;
-  for (i=0; i<s->channels; i++) {
-    AUBIO_FREE(s->data[i]);
-  }
   AUBIO_FREE(s->data);
   AUBIO_FREE(s);
 }
 
-void lvec_write_sample(lvec_t *s, lsmp_t data, uint_t channel, uint_t position) {
-  s->data[channel][position] = data;
+void lvec_write_sample(lvec_t *s, lsmp_t data, uint_t position) {
+  s->data[position] = data;
 }
-lsmp_t lvec_read_sample(lvec_t *s, uint_t channel, uint_t position) {
-  return s->data[channel][position];
-}
-void lvec_put_channel(lvec_t *s, lsmp_t * data, uint_t channel) {
-  s->data[channel] = data;
-}
-lsmp_t * lvec_get_channel(lvec_t *s, uint_t channel) {
-  return s->data[channel];
+lsmp_t lvec_read_sample(lvec_t *s, uint_t position) {
+  return s->data[position];
 }
 
-lsmp_t ** lvec_get_data(lvec_t *s) {
+lsmp_t * lvec_get_data(lvec_t *s) {
   return s->data;
 }
 
 /* helper functions */
 
 void lvec_print(lvec_t *s) {
-  uint_t i,j;
-  for (i=0; i< s->channels; i++) {
-    for (j=0; j< s->length; j++) {
-      AUBIO_MSG(AUBIO_LSMP_FMT " ", s->data[i][j]);
-    }
-    AUBIO_MSG("\n");
+  uint_t j;
+  for (j=0; j< s->length; j++) {
+    AUBIO_MSG(AUBIO_LSMP_FMT " ", s->data[j]);
   }
+  AUBIO_MSG("\n");
 }
 
 void lvec_set(lvec_t *s, smpl_t val) {
-  uint_t i,j;
-  for (i=0; i< s->channels; i++) {
-    for (j=0; j< s->length; j++) {
-      s->data[i][j] = val;
-    }
+  uint_t j;
+  for (j=0; j< s->length; j++) {
+    s->data[j] = val;
   }
 }
 

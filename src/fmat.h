@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2009 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _FVEC_H
-#define _FVEC_H
+#ifndef _FMAT_H
+#define _FMAT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,53 +29,79 @@ extern "C" {
 
   Real buffers
 
-  This file specifies the fvec_t buffer type, which is used throughout aubio to
-  store real data.
+  This file specifies the fmat_t type, which is used in aubio to store real
+  valued arrays.
 
 */
 
 /** Buffer for real data */
 typedef struct {
   uint_t length;   /**< length of buffer */
-  smpl_t *data;   /**< data array of size [length] */
-} fvec_t;
+  uint_t height; /**< number of channels */
+  smpl_t **data;   /**< data array of size [length] * [channels] */
+} fmat_t;
 
-/** fvec_t buffer creation function
+/** fmat_t buffer creation function
 
   \param length the length of the buffer to create
+  \param channels the number of channels in the buffer
 
 */
-fvec_t * new_fvec(uint_t length);
-/** fvec_t buffer deletion function
+fmat_t * new_fmat(uint_t length, uint_t channels);
+/** fmat_t buffer deletion function
 
-  \param s buffer to delete as returned by new_fvec()
+  \param s buffer to delete as returned by new_fmat()
 
 */
-void del_fvec(fvec_t *s);
+void del_fmat(fmat_t *s);
 /** read sample value in a buffer
 
   Note that this function is not used in the aubio library, since the same
-  result can be obtained using vec->data[position]. Its purpose is to
+  result can be obtained using vec->data[channel][position]. Its purpose is to
   access these values from wrappers, as created by swig.
 
   \param s vector to read from
+  \param channel channel to read from
   \param position sample position to read from 
 
 */
-smpl_t fvec_read_sample(fvec_t *s, uint_t position);
+smpl_t fmat_read_sample(fmat_t *s, uint_t channel, uint_t position);
 /** write sample value in a buffer
 
   Note that this function is not used in the aubio library, since the same
-  result can be obtained by assigning vec->data[position]. Its purpose
+  result can be obtained by assigning vec->data[channel][position]. Its purpose
   is to access these values from wrappers, as created by swig.
 
   \param s vector to write to 
-  \param data value to write in s->data[position]
+  \param data value to write in s->data[channel][position]
+  \param channel channel to write to 
   \param position sample position to write to 
 
 */
-void  fvec_write_sample(fvec_t *s, smpl_t data, uint_t position);
+void  fmat_write_sample(fmat_t *s, smpl_t data, uint_t channel, uint_t position);
+/** read channel vector from a buffer
 
+  Note that this function is not used in the aubio library, since the same
+  result can be obtained with vec->data[channel]. Its purpose is to access
+  these values from wrappers, as created by swig.
+
+  \param s vector to read from
+  \param channel channel to read from
+
+*/
+smpl_t * fmat_get_channel(fmat_t *s, uint_t channel);
+/** write channel vector into a buffer
+
+  Note that this function is not used in the aubio library, since the same
+  result can be obtained by assigning vec->data[channel]. Its purpose is to
+  access these values from wrappers, as created by swig.
+
+  \param s vector to write to 
+  \param data vector of [length] values to write
+  \param channel channel to write to 
+
+*/
+void fmat_put_channel(fmat_t *s, smpl_t * data, uint_t channel);
 /** read data from a buffer
 
   Note that this function is not used in the aubio library, since the same
@@ -85,14 +111,14 @@ void  fvec_write_sample(fvec_t *s, smpl_t data, uint_t position);
   \param s vector to read from
 
 */
-smpl_t * fvec_get_data(fvec_t *s);
+smpl_t ** fmat_get_data(fmat_t *s);
 
-/** print out fvec data 
+/** print out fmat data 
 
   \param s vector to print out 
 
 */
-void fvec_print(fvec_t *s);
+void fmat_print(fmat_t *s);
 
 /** set all elements to a given value
 
@@ -100,28 +126,28 @@ void fvec_print(fvec_t *s);
   \param val value to set elements to
 
 */
-void fvec_set(fvec_t *s, smpl_t val);
+void fmat_set(fmat_t *s, smpl_t val);
 
 /** set all elements to zero 
 
   \param s vector to modify
 
 */
-void fvec_zeros(fvec_t *s);
+void fmat_zeros(fmat_t *s);
 
 /** set all elements to ones 
 
   \param s vector to modify
 
 */
-void fvec_ones(fvec_t *s);
+void fmat_ones(fmat_t *s);
 
 /** revert order of vector elements
 
   \param s vector to revert
 
 */
-void fvec_rev(fvec_t *s);
+void fmat_rev(fmat_t *s);
 
 /** apply weight to vector
 
@@ -132,18 +158,18 @@ void fvec_rev(fvec_t *s);
   \param weight weighting coefficients
 
 */
-void fvec_weight(fvec_t *s, fvec_t *weight);
+void fmat_weight(fmat_t *s, fmat_t *weight);
 
-/** make a copy of a vector
+/** make a copy of a matrix 
 
   \param s source vector
   \param t vector to copy to
 
 */
-void fvec_copy(fvec_t *s, fvec_t *t);
+void fmat_copy(fmat_t *s, fmat_t *t);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* _FVEC_H */
+#endif /* _FMAT_H */

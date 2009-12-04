@@ -38,17 +38,15 @@ extern "C" {
 /** Buffer for real data in double precision */
 typedef struct {
   uint_t length;   /**< length of buffer */
-  uint_t channels; /**< number of channels */
-  lsmp_t **data;   /**< data array of size [length] * [channels] */
+  lsmp_t *data;   /**< data array of size [length] */
 } lvec_t;
 
 /** lvec_t buffer creation function
 
   \param length the length of the buffer to create
-  \param channels the number of channels in the buffer
 
 */
-lvec_t * new_lvec(uint_t length, uint_t channels);
+lvec_t * new_lvec(uint_t length);
 /** lvec_t buffer deletion function
 
   \param s buffer to delete as returned by new_lvec()
@@ -58,51 +56,27 @@ void del_lvec(lvec_t *s);
 /** read sample value in a buffer
 
   Note that this function is not used in the aubio library, since the same
-  result can be obtained using vec->data[channel][position]. Its purpose is to
+  result can be obtained using vec->data[position]. Its purpose is to
   access these values from wrappers, as created by swig.
 
   \param s vector to read from
-  \param channel channel to read from
   \param position sample position to read from 
 
 */
-lsmp_t lvec_read_sample(lvec_t *s, uint_t channel, uint_t position);
+lsmp_t lvec_read_sample(lvec_t *s, uint_t position);
 /** write sample value in a buffer
 
   Note that this function is not used in the aubio library, since the same
-  result can be obtained by assigning vec->data[channel][position]. Its purpose
+  result can be obtained by assigning vec->data[position]. Its purpose
   is to access these values from wrappers, as created by swig.
 
   \param s vector to write to 
-  \param data value to write in s->data[channel][position]
-  \param channel channel to write to 
+  \param data value to write in s->data[position]
   \param position sample position to write to 
 
 */
-void  lvec_write_sample(lvec_t *s, lsmp_t data, uint_t channel, uint_t position);
-/** read channel vector from a buffer
+void  lvec_write_sample(lvec_t *s, lsmp_t data, uint_t position);
 
-  Note that this function is not used in the aubio library, since the same
-  result can be obtained with vec->data[channel]. Its purpose is to access
-  these values from wrappers, as created by swig.
-
-  \param s vector to read from
-  \param channel channel to read from
-
-*/
-lsmp_t * lvec_get_channel(lvec_t *s, uint_t channel);
-/** write channel vector into a buffer
-
-  Note that this function is not used in the aubio library, since the same
-  result can be obtained by assigning vec->data[channel]. Its purpose is to
-  access these values from wrappers, as created by swig.
-
-  \param s vector to write to 
-  \param data vector of [length] values to write
-  \param channel channel to write to 
-
-*/
-void lvec_put_channel(lvec_t *s, lsmp_t * data, uint_t channel);
 /** read data from a buffer
 
   Note that this function is not used in the aubio library, since the same
@@ -112,7 +86,7 @@ void lvec_put_channel(lvec_t *s, lsmp_t * data, uint_t channel);
   \param s vector to read from
 
 */
-lsmp_t ** lvec_get_data(lvec_t *s);
+lsmp_t * lvec_get_data(lvec_t *s);
 
 /** print out lvec data 
 
