@@ -20,6 +20,7 @@
 */
 
 #include "aubio_priv.h"
+#include "fmat.h"
 #include "fvec.h"
 #include "cvec.h"
 #include "spectral/filterbank.h"
@@ -30,8 +31,8 @@ aubio_filterbank_set_triangle_bands (aubio_filterbank_t * fb,
     fvec_t * freqs, smpl_t samplerate)
 {
 
-  fvec_t *filters = aubio_filterbank_get_coeffs (fb);
-  uint_t n_filters = filters->channels, win_s = filters->length;
+  fmat_t *filters = aubio_filterbank_get_coeffs (fb);
+  uint_t n_filters = filters->height, win_s = filters->length;
 
   uint_t fn;                    /* filter counter */
   uint_t bin;                   /* bin counter */
@@ -48,52 +49,52 @@ aubio_filterbank_set_triangle_bands (aubio_filterbank_t * fb,
         n_filters, freqs->length - 2);
   }
 
-  if (freqs->data[0][freqs->length - 1] > samplerate / 2) {
+  if (freqs->data[freqs->length - 1] > samplerate / 2) {
     AUBIO_WRN ("Nyquist frequency is %fHz, but highest frequency band ends at \
-%fHz\n", samplerate / 2, freqs->data[0][freqs->length - 1]);
+%fHz\n", samplerate / 2, freqs->data[freqs->length - 1]);
   }
 
   /* convenience reference to lower/center/upper frequency for each triangle */
-  fvec_t *lower_freqs = new_fvec (n_filters, 1);
-  fvec_t *upper_freqs = new_fvec (n_filters, 1);
-  fvec_t *center_freqs = new_fvec (n_filters, 1);
+  fvec_t *lower_freqs = new_fvec (n_filters);
+  fvec_t *upper_freqs = new_fvec (n_filters);
+  fvec_t *center_freqs = new_fvec (n_filters);
 
   /* height of each triangle */
-  fvec_t *triangle_heights = new_fvec (n_filters, 1);
+  fvec_t *triangle_heights = new_fvec (n_filters);
 
   /* lookup table of each bin frequency in hz */
-  fvec_t *fft_freqs = new_fvec (win_s, 1);
+  fvec_t *fft_freqs = new_fvec (win_s);
 
   /* fill up the lower/center/upper */
   for (fn = 0; fn < n_filters; fn++) {
-    lower_freqs->data[0][fn] = freqs->data[0][fn];
-    center_freqs->data[0][fn] = freqs->data[0][fn + 1];
-    upper_freqs->data[0][fn] = freqs->data[0][fn + 2];
+    lower_freqs->data[fn] = freqs->data[fn];
+    center_freqs->data[fn] = freqs->data[fn + 1];
+    upper_freqs->data[fn] = freqs->data[fn + 2];
   }
 
   /* compute triangle heights so that each triangle has unit area */
   for (fn = 0; fn < n_filters; fn++) {
-    triangle_heights->data[0][fn] =
-        2. / (upper_freqs->data[0][fn] - lower_freqs->data[0][fn]);
+    triangle_heights->data[fn] =
+        2. / (upper_freqs->data[fn] - lower_freqs->data[fn]);
   }
 
   /* fill fft_freqs lookup table, which assigns the frequency in hz to each bin */
   for (bin = 0; bin < win_s; bin++) {
-    fft_freqs->data[0][bin] =
+    fft_freqs->data[bin] =
         aubio_bintofreq (bin, samplerate, (win_s - 1) * 2);
   }
 
   /* zeroing of all filters */
-  fvec_zeros (filters);
+  fmat_zeros (filters);
 
-  if (fft_freqs->data[0][1] >= lower_freqs->data[0][0]) {
+  if (fft_freqs->data[1] >= lower_freqs->data[0]) {
     /* - 1 to make sure we don't miss the smallest power of two */
     uint_t min_win_s =
-        (uint_t) FLOOR (samplerate / lower_freqs->data[0][0]) - 1;
+        (uint_t) FLOOR (samplerate / lower_freqs->data[0]) - 1;
     AUBIO_WRN ("Lowest frequency bin (%.2fHz) is higher than lowest frequency \
 band (%.2f-%.2fHz). Consider increasing the window size from %d to %d.\n",
-        fft_freqs->data[0][1], lower_freqs->data[0][0],
-        upper_freqs->data[0][0], (win_s - 1) * 2,
+        fft_freqs->data[1], lower_freqs->data[0],
+        upper_freqs->data[0], (win_s - 1) * 2,
         aubio_next_power_of_two (min_win_s));
   }
 
@@ -102,8 +103,8 @@ band (%.2f-%.2fHz). Consider increasing the window size from %d to %d.\n",
 
     /* skip first elements */
     for (bin = 0; bin < win_s - 1; bin++) {
-      if (fft_freqs->data[0][bin] <= lower_freqs->data[0][fn] &&
-          fft_freqs->data[0][bin + 1] > lower_freqs->data[0][fn]) {
+      if (fft_freqs->data[bin] <= lower_freqs->data[fn] &&
+          fft_freqs->data[bin + 1] > lower_freqs->data[fn]) {
         bin++;
         break;
       }
@@ -111,15 +112,15 @@ band (%.2f-%.2fHz). Consider increasing the window size from %d to %d.\n",
 
     /* compute positive slope step size */
     smpl_t riseInc =
-        triangle_heights->data[0][fn] /
-        (center_freqs->data[0][fn] - lower_freqs->data[0][fn]);
+        triangle_heights->data[fn] /
+        (center_freqs->data[fn] - lower_freqs->data[fn]);
 
     /* compute coefficients in positive slope */
     for (; bin < win_s - 1; bin++) {
       filters->data[fn][bin] =
-          (fft_freqs->data[0][bin] - lower_freqs->data[0][fn]) * riseInc;
+          (fft_freqs->data[bin] - lower_freqs->data[fn]) * riseInc;
 
-      if (fft_freqs->data[0][bin + 1] >= center_freqs->data[0][fn]) {
+      if (fft_freqs->data[bin + 1] >= center_freqs->data[fn]) {
         bin++;
         break;
       }
@@ -127,19 +128,19 @@ band (%.2f-%.2fHz). Consider increasing the window size from %d to %d.\n",
 
     /* compute negative slope step size */
     smpl_t downInc =
-        triangle_heights->data[0][fn] /
-        (upper_freqs->data[0][fn] - center_freqs->data[0][fn]);
+        triangle_heights->data[fn] /
+        (upper_freqs->data[fn] - center_freqs->data[fn]);
 
     /* compute coefficents in negative slope */
     for (; bin < win_s - 1; bin++) {
       filters->data[fn][bin] +=
-          (upper_freqs->data[0][fn] - fft_freqs->data[0][bin]) * downInc;
+          (upper_freqs->data[fn] - fft_freqs->data[bin]) * downInc;
 
       if (filters->data[fn][bin] < 0.) {
         filters->data[fn][bin] = 0.;
       }
 
-      if (fft_freqs->data[0][bin + 1] >= upper_freqs->data[0][fn])
+      if (fft_freqs->data[bin + 1] >= upper_freqs->data[fn])
         break;
     }
     /* nothing else to do */
@@ -175,17 +176,17 @@ aubio_filterbank_set_mel_coeffs_slaney (aubio_filterbank_t * fb,
   uint_t fn;                    /* filter counter */
 
   /* buffers to compute filter frequencies */
-  fvec_t *freqs = new_fvec (n_filters + 2, 1);
+  fvec_t *freqs = new_fvec (n_filters + 2);
 
   /* first step: fill all the linear filter frequencies */
   for (fn = 0; fn < linearFilters; fn++) {
-    freqs->data[0][fn] = lowestFrequency + fn * linearSpacing;
+    freqs->data[fn] = lowestFrequency + fn * linearSpacing;
   }
-  smpl_t lastlinearCF = freqs->data[0][fn - 1];
+  smpl_t lastlinearCF = freqs->data[fn - 1];
 
   /* second step: fill all the log filter frequencies */
   for (fn = 0; fn < logFilters + 2; fn++) {
-    freqs->data[0][fn + linearFilters] =
+    freqs->data[fn + linearFilters] =
         lastlinearCF * (POW (logSpacing, fn + 1));
   }
 

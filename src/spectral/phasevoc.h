@@ -25,7 +25,7 @@
   This object implements a phase vocoder. The spectral frames are computed
   using a HanningZ window and a swapped version of the signal to simplify the
   phase relationships across frames. The window sizes and overlap are specified
-  at creation time. Multiple channels are fully supported.
+  at creation time.
 
 */
 
@@ -43,10 +43,9 @@ typedef struct _aubio_pvoc_t aubio_pvoc_t;
 
   \param win_s size of analysis buffer (and length the FFT transform)
   \param hop_s step size between two consecutive analysis
-  \param channels number of channels
 
 */
-aubio_pvoc_t * new_aubio_pvoc (uint_t win_s, uint_t hop_s, uint_t channels);
+aubio_pvoc_t * new_aubio_pvoc (uint_t win_s, uint_t hop_s);
 /** delete phase vocoder object
 
   \param pv phase vocoder object as returned by new_aubio_pvoc
@@ -56,7 +55,7 @@ void del_aubio_pvoc(aubio_pvoc_t *pv);
 
 /** compute spectral frame
   
-  This function accepts an input vector of size [channels]x[hop_s]. The
+  This function accepts an input vector of size [hop_s]. The
   analysis buffer is rotated and filled with the new data. After windowing of
   this signal window, the Fourier transform is computed and returned in
   fftgrain as two vectors, magnitude and phase.
@@ -70,7 +69,7 @@ void aubio_pvoc_do(aubio_pvoc_t *pv, fvec_t *in, cvec_t * fftgrain);
 /** compute signal from spectral frame
 
   This function takes an input spectral frame fftgrain of size
-  [channels]x[buf_s] and computes its inverse Fourier transform. Overlap-add
+  [buf_s] and computes its inverse Fourier transform. Overlap-add
   synthesis is then computed using the previously synthetised frames, and the
   output stored in out.
   
@@ -93,12 +92,6 @@ uint_t aubio_pvoc_get_win(aubio_pvoc_t* pv);
 
 */
 uint_t aubio_pvoc_get_hop(aubio_pvoc_t* pv);
-/** get channel number
- 
-  \param pv phase vocoder to get the number of channels from
-
-*/
-uint_t aubio_pvoc_get_channels(aubio_pvoc_t* pv);
 
 #ifdef __cplusplus
 }

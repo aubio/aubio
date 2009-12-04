@@ -21,6 +21,7 @@
 
 #include "aubio_priv.h"
 #include "fvec.h"
+#include "fmat.h"
 #include "cvec.h"
 #include "mathutils.h"
 #include "vecutils.h"
@@ -39,7 +40,7 @@ struct _aubio_mfcc_t
   uint_t n_coefs;           /** number of coefficients (<= n_filters/2 +1) */
   aubio_filterbank_t *fb;   /** filter bank */
   fvec_t *in_dct;           /** input buffer for dct * [fb->n_filters] */
-  fvec_t *dct_coeffs;       /** DCT transform n_filters * n_coeffs */
+  fmat_t *dct_coeffs;       /** DCT transform n_filters * n_coeffs */
 };
 
 
@@ -63,9 +64,9 @@ new_aubio_mfcc (uint_t win_s, uint_t n_filters, uint_t n_coefs,
   aubio_filterbank_set_mel_coeffs_slaney (mfcc->fb, samplerate);
 
   /* allocating buffers */
-  mfcc->in_dct = new_fvec (n_filters, 1);
+  mfcc->in_dct = new_fvec (n_filters);
 
-  mfcc->dct_coeffs = new_fvec (n_coefs, n_filters);
+  mfcc->dct_coeffs = new_fmat (n_coefs, n_filters);
 
   /* compute DCT transform dct_coeffs[i][j] as
      cos ( j * (i+.5) * PI / n_filters ) */
@@ -99,7 +100,7 @@ del_aubio_mfcc (aubio_mfcc_t * mf)
 void
 aubio_mfcc_do (aubio_mfcc_t * mf, cvec_t * in, fvec_t * out)
 {
-  uint_t i, j, k;
+  uint_t j, k;
 
   /* compute filterbank */
   aubio_filterbank_do (mf->fb, in, mf->in_dct);
@@ -114,12 +115,10 @@ aubio_mfcc_do (aubio_mfcc_t * mf, cvec_t * in, fvec_t * out)
   fvec_zeros(out);
 
   /* compute discrete cosine transform */
-  for (i = 0; i < out->channels; i++) {
-    for (j = 0; j < mf->n_filters; j++) {
-      for (k = 0; k < mf->n_coefs; k++) {
-        out->data[i][k] += mf->in_dct->data[i][j]
-            * mf->dct_coeffs->data[j][k];
-      }
+  for (j = 0; j < mf->n_filters; j++) {
+    for (k = 0; k < mf->n_coefs; k++) {
+      out->data[k] += mf->in_dct->data[j]
+          * mf->dct_coeffs->data[j][k];
     }
   }
 

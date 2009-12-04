@@ -88,49 +88,43 @@ struct _aubio_specdesc_t {
 /* Energy based onset detection function */
 void aubio_specdesc_energy  (aubio_specdesc_t *o UNUSED,
     cvec_t * fftgrain, fvec_t * onset) {
-  uint_t i,j;
-  for (i=0;i<fftgrain->channels;i++) {
-    onset->data[i][0] = 0.;
-    for (j=0;j<fftgrain->length;j++) {
-      onset->data[i][0] += SQR(fftgrain->norm[i][j]);
-    }
+  uint_t j;
+  onset->data[0] = 0.;
+  for (j=0;j<fftgrain->length;j++) {
+    onset->data[0] += SQR(fftgrain->norm[j]);
   }
 }
 
 /* High Frequency Content onset detection function */
 void aubio_specdesc_hfc(aubio_specdesc_t *o UNUSED,
     cvec_t * fftgrain, fvec_t * onset){
-  uint_t i,j;
-  for (i=0;i<fftgrain->channels;i++) {
-    onset->data[i][0] = 0.;
-    for (j=0;j<fftgrain->length;j++) {
-      onset->data[i][0] += (j+1)*fftgrain->norm[i][j];
-    }
+  uint_t j;
+  onset->data[0] = 0.;
+  for (j=0;j<fftgrain->length;j++) {
+    onset->data[0] += (j+1)*fftgrain->norm[j];
   }
 }
 
 
 /* Complex Domain Method onset detection function */
 void aubio_specdesc_complex (aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset) {
-  uint_t i, j;
+  uint_t j;
   uint_t nbins = fftgrain->length;
-  for (i=0;i<fftgrain->channels; i++)  {
-    onset->data[i][0] = 0.;
-    for (j=0;j<nbins; j++)  {
-      // compute the predicted phase
-      o->dev1->data[i][j] = 2. * o->theta1->data[i][j] - o->theta2->data[i][j];
-      // compute the euclidean distance in the complex domain
-      // sqrt ( r_1^2 + r_2^2 - 2 * r_1 * r_2 * \cos ( \phi_1 - \phi_2 ) )
-      onset->data[i][0] +=
-        SQRT (ABS (SQR (o->oldmag->data[i][j]) + SQR (fftgrain->norm[i][j])
-              - 2. * o->oldmag->data[i][j] * fftgrain->norm[i][j]
-              * COS (o->dev1->data[i][j] - fftgrain->phas[i][j])));
-      /* swap old phase data (need to remember 2 frames behind)*/
-      o->theta2->data[i][j] = o->theta1->data[i][j];
-      o->theta1->data[i][j] = fftgrain->phas[i][j];
-      /* swap old magnitude data (1 frame is enough) */
-      o->oldmag->data[i][j] = fftgrain->norm[i][j];
-    }
+  onset->data[0] = 0.;
+  for (j=0;j<nbins; j++)  {
+    // compute the predicted phase
+    o->dev1->data[j] = 2. * o->theta1->data[j] - o->theta2->data[j];
+    // compute the euclidean distance in the complex domain
+    // sqrt ( r_1^2 + r_2^2 - 2 * r_1 * r_2 * \cos ( \phi_1 - \phi_2 ) )
+    onset->data[0] +=
+      SQRT (ABS (SQR (o->oldmag->data[j]) + SQR (fftgrain->norm[j])
+            - 2. * o->oldmag->data[j] * fftgrain->norm[j]
+            * COS (o->dev1->data[j] - fftgrain->phas[j])));
+    /* swap old phase data (need to remember 2 frames behind)*/
+    o->theta2->data[j] = o->theta1->data[j];
+    o->theta1->data[j] = fftgrain->phas[j];
+    /* swap old magnitude data (1 frame is enough) */
+    o->oldmag->data[j] = fftgrain->norm[j];
   }
 }
 
@@ -138,51 +132,48 @@ void aubio_specdesc_complex (aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * on
 /* Phase Based Method onset detection function */
 void aubio_specdesc_phase(aubio_specdesc_t *o, 
     cvec_t * fftgrain, fvec_t * onset){
-  uint_t i, j;
+  uint_t j;
   uint_t nbins = fftgrain->length;
-  for (i=0;i<fftgrain->channels; i++)  {
-    onset->data[i][0] = 0.0;
-    o->dev1->data[i][0]=0.;
-    for ( j=0;j<nbins; j++ )  {
-      o->dev1->data[i][j] = 
-        aubio_unwrap2pi(
-            fftgrain->phas[i][j]
-            -2.0*o->theta1->data[i][j]
-            +o->theta2->data[i][j]);
-      if ( o->threshold < fftgrain->norm[i][j] )
-        o->dev1->data[i][j] = ABS(o->dev1->data[i][j]);
-      else 
-        o->dev1->data[i][j] = 0.0;
-      /* keep a track of the past frames */
-      o->theta2->data[i][j] = o->theta1->data[i][j];
-      o->theta1->data[i][j] = fftgrain->phas[i][j];
-    }
-    /* apply o->histogram */
-    aubio_hist_dyn_notnull(o->histog,o->dev1);
-    /* weight it */
-    aubio_hist_weight(o->histog);
-    /* its mean is the result */
-    onset->data[i][0] = aubio_hist_mean(o->histog);  
-    //onset->data[i][0] = fvec_mean(o->dev1);
+  onset->data[0] = 0.0;
+  o->dev1->data[0]=0.;
+  for ( j=0;j<nbins; j++ )  {
+    o->dev1->data[j] = 
+      aubio_unwrap2pi(
+          fftgrain->phas[j]
+          -2.0*o->theta1->data[j]
+          +o->theta2->data[j]);
+    if ( o->threshold < fftgrain->norm[j] )
+      o->dev1->data[j] = ABS(o->dev1->data[j]);
+    else 
+      o->dev1->data[j] = 0.0;
+    /* keep a track of the past frames */
+    o->theta2->data[j] = o->theta1->data[j];
+    o->theta1->data[j] = fftgrain->phas[j];
   }
+  /* apply o->histogram */
+  aubio_hist_dyn_notnull(o->histog,o->dev1);
+  /* weight it */
+  aubio_hist_weight(o->histog);
+  /* its mean is the result */
+  onset->data[0] = aubio_hist_mean(o->histog);  
+  //onset->data[0] = fvec_mean(o->dev1);
 }
 
 /* Spectral difference method onset detection function */
 void aubio_specdesc_specdiff(aubio_specdesc_t *o,
     cvec_t * fftgrain, fvec_t * onset){
-  uint_t i, j;
+  uint_t j;
   uint_t nbins = fftgrain->length;
-  for (i=0;i<fftgrain->channels; i++)  {
-    onset->data[i][0] = 0.0;
+    onset->data[0] = 0.0;
     for (j=0;j<nbins; j++)  {
-      o->dev1->data[i][j] = SQRT(
-          ABS(SQR( fftgrain->norm[i][j])
-            - SQR(o->oldmag->data[i][j])));
-      if (o->threshold < fftgrain->norm[i][j] )
-        o->dev1->data[i][j] = ABS(o->dev1->data[i][j]);
+      o->dev1->data[j] = SQRT(
+          ABS(SQR( fftgrain->norm[j])
+            - SQR(o->oldmag->data[j])));
+      if (o->threshold < fftgrain->norm[j] )
+        o->dev1->data[j] = ABS(o->dev1->data[j]);
       else 
-        o->dev1->data[i][j] = 0.0;
-      o->oldmag->data[i][j] = fftgrain->norm[i][j];
+        o->dev1->data[j] = 0.0;
+      o->oldmag->data[j] = fftgrain->norm[j];
     }
 
     /* apply o->histogram (act somewhat as a low pass on the
@@ -191,52 +182,44 @@ void aubio_specdesc_specdiff(aubio_specdesc_t *o,
     /* weight it */
     aubio_hist_weight(o->histog);
     /* its mean is the result */
-    onset->data[i][0] = aubio_hist_mean(o->histog);  
-
-  }
+    onset->data[0] = aubio_hist_mean(o->histog);  
 }
 
 /* Kullback Liebler onset detection function
  * note we use ln(1+Xn/(Xn-1+0.0001)) to avoid 
  * negative (1.+) and infinite values (+1.e-10) */
 void aubio_specdesc_kl(aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset){
-  uint_t i,j;
-  for (i=0;i<fftgrain->channels;i++) {
-    onset->data[i][0] = 0.;
+  uint_t j;
+    onset->data[0] = 0.;
     for (j=0;j<fftgrain->length;j++) {
-      onset->data[i][0] += fftgrain->norm[i][j]
-        *LOG(1.+fftgrain->norm[i][j]/(o->oldmag->data[i][j]+1.e-10));
-      o->oldmag->data[i][j] = fftgrain->norm[i][j];
+      onset->data[0] += fftgrain->norm[j]
+        *LOG(1.+fftgrain->norm[j]/(o->oldmag->data[j]+1.e-10));
+      o->oldmag->data[j] = fftgrain->norm[j];
     }
-    if (isnan(onset->data[i][0])) onset->data[i][0] = 0.;
-  }
+    if (isnan(onset->data[0])) onset->data[0] = 0.;
 }
 
 /* Modified Kullback Liebler onset detection function
  * note we use ln(1+Xn/(Xn-1+0.0001)) to avoid 
  * negative (1.+) and infinite values (+1.e-10) */
 void aubio_specdesc_mkl(aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset){
-  uint_t i,j;
-  for (i=0;i<fftgrain->channels;i++) {
-    onset->data[i][0] = 0.;
+  uint_t j;
+    onset->data[0] = 0.;
     for (j=0;j<fftgrain->length;j++) {
-      onset->data[i][0] += LOG(1.+fftgrain->norm[i][j]/(o->oldmag->data[i][j]+1.e-10));
-      o->oldmag->data[i][j] = fftgrain->norm[i][j];
+      onset->data[0] += LOG(1.+fftgrain->norm[j]/(o->oldmag->data[j]+1.e-10));
+      o->oldmag->data[j] = fftgrain->norm[j];
     }
-    if (isnan(onset->data[i][0])) onset->data[i][0] = 0.;
-  }
+    if (isnan(onset->data[0])) onset->data[0] = 0.;
 }
 
 /* Spectral flux */
 void aubio_specdesc_specflux(aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset){ 
-  uint_t i, j;
-  for (i=0;i<fftgrain->channels;i++) {
-    onset->data[i][0] = 0.;
-    for (j=0;j<fftgrain->length;j++) {
-      if (fftgrain->norm[i][j] > o->oldmag->data[i][j])
-        onset->data[i][0] += fftgrain->norm[i][j] - o->oldmag->data[i][j];
-      o->oldmag->data[i][j] = fftgrain->norm[i][j];
-    }
+  uint_t j;
+  onset->data[0] = 0.;
+  for (j=0;j<fftgrain->length;j++) {
+    if (fftgrain->norm[j] > o->oldmag->data[j])
+      onset->data[0] += fftgrain->norm[j] - o->oldmag->data[j];
+    o->oldmag->data[j] = fftgrain->norm[j];
   }
 }
 
@@ -251,8 +234,7 @@ aubio_specdesc_do (aubio_specdesc_t *o, cvec_t * fftgrain,
  * depending on the choosen type, allocate memory as needed
  */
 aubio_specdesc_t * 
-new_aubio_specdesc (char_t * onset_mode, 
-    uint_t size, uint_t channels){
+new_aubio_specdesc (char_t * onset_mode, uint_t size){
   aubio_specdesc_t * o = AUBIO_NEW(aubio_specdesc_t);
   uint_t rsize = size/2+1;
   aubio_specdesc_type onset_type;
@@ -302,28 +284,28 @@ new_aubio_specdesc (char_t * onset_mode,
       break;
       /* the other approaches will need some more memory spaces */
     case aubio_onset_complex:
-      o->oldmag = new_fvec(rsize,channels);
-      o->dev1   = new_fvec(rsize,channels);
-      o->theta1 = new_fvec(rsize,channels);
-      o->theta2 = new_fvec(rsize,channels);
+      o->oldmag = new_fvec(rsize);
+      o->dev1   = new_fvec(rsize);
+      o->theta1 = new_fvec(rsize);
+      o->theta2 = new_fvec(rsize);
       break;
     case aubio_onset_phase:
-      o->dev1   = new_fvec(rsize,channels);
-      o->theta1 = new_fvec(rsize,channels);
-      o->theta2 = new_fvec(rsize,channels);
-      o->histog = new_aubio_hist(0.0, PI, 10, channels);
+      o->dev1   = new_fvec(rsize);
+      o->theta1 = new_fvec(rsize);
+      o->theta2 = new_fvec(rsize);
+      o->histog = new_aubio_hist(0.0, PI, 10);
       o->threshold = 0.1;
       break;
     case aubio_onset_specdiff:
-      o->oldmag = new_fvec(rsize,channels);
-      o->dev1   = new_fvec(rsize,channels);
-      o->histog = new_aubio_hist(0.0, PI, 10, channels);
+      o->oldmag = new_fvec(rsize);
+      o->dev1   = new_fvec(rsize);
+      o->histog = new_aubio_hist(0.0, PI, 10);
       o->threshold = 0.1;
       break;
     case aubio_onset_kl:
     case aubio_onset_mkl:
     case aubio_onset_specflux:
-      o->oldmag = new_fvec(rsize,channels);
+      o->oldmag = new_fvec(rsize);
       break;
     default:
       break;

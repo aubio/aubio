@@ -21,6 +21,7 @@
 
 #include "aubio_priv.h"
 #include "fvec.h"
+#include "fmat.h"
 #include "cvec.h"
 #include "spectral/filterbank.h"
 #include "mathutils.h"
@@ -30,7 +31,7 @@ struct _aubio_filterbank_t
 {
   uint_t win_s;
   uint_t n_filters;
-  fvec_t *filters;
+  fmat_t *filters;
 };
 
 aubio_filterbank_t *
@@ -41,8 +42,8 @@ new_aubio_filterbank (uint_t n_filters, uint_t win_s)
   fb->win_s = win_s;
   fb->n_filters = n_filters;
 
-  /* allocate filter tables, an fvec of length win_s and of filter_cnt channel */
-  fb->filters = new_fvec (win_s / 2 + 1, n_filters);
+  /* allocate filter tables, a matrix of length win_s and of height n_filters */
+  fb->filters = new_fmat (win_s / 2 + 1, n_filters);
 
   return fb;
 }
@@ -50,48 +51,43 @@ new_aubio_filterbank (uint_t n_filters, uint_t win_s)
 void
 del_aubio_filterbank (aubio_filterbank_t * fb)
 {
-  del_fvec (fb->filters);
+  del_fmat (fb->filters);
   AUBIO_FREE (fb);
 }
 
 void
 aubio_filterbank_do (aubio_filterbank_t * f, cvec_t * in, fvec_t * out)
 {
-  uint_t i, j, fn;
+  uint_t j, fn;
 
   /* apply filter to all input channel, provided out has enough channels */
-  uint_t max_channels = MIN (in->channels, out->channels);
   uint_t max_filters = MIN (f->n_filters, out->length);
   uint_t max_length = MIN (in->length, f->filters->length);
 
   /* reset all values in output vector */
   fvec_zeros (out);
 
-  /* apply filters on all channels */
-  for (i = 0; i < max_channels; i++) {
+  /* for each filter */
+  for (fn = 0; fn < max_filters; fn++) {
 
-    /* for each filter */
-    for (fn = 0; fn < max_filters; fn++) {
-
-      /* for each sample */
-      for (j = 0; j < max_length; j++) {
-        out->data[i][fn] += in->norm[i][j] * f->filters->data[fn][j];
-      }
+    /* for each sample */
+    for (j = 0; j < max_length; j++) {
+      out->data[fn] += in->norm[j] * f->filters->data[fn][j];
     }
   }
 
   return;
 }
 
-fvec_t *
+fmat_t *
 aubio_filterbank_get_coeffs (aubio_filterbank_t * f)
 {
   return f->filters;
 }
 
 uint_t
-aubio_filterbank_set_coeffs (aubio_filterbank_t * f, fvec_t * filters)
+aubio_filterbank_set_coeffs (aubio_filterbank_t * f, fmat_t * filter_coeffs)
 {
-  fvec_copy(filters, f->filters);
+  fmat_copy(filter_coeffs, f->filters);
   return 0;
 }

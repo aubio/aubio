@@ -24,7 +24,7 @@
  
   All of the following spectral description functions take as arguments the FFT
   of a windowed signal (as created with aubio_pvoc). They output one smpl_t per
-  buffer and per channel (stored in a vector of size [channels]x[1]).
+  buffer (stored in a vector of size [1]).
  
   A list of the spectral description methods currently available follows.
 
@@ -167,11 +167,9 @@ void aubio_specdesc_do (aubio_specdesc_t * o, cvec_t * fftgrain,
 
   \param method spectral description method
   \param buf_size length of the input spectrum frame
-  \param channels number of input channels
 
 */
-aubio_specdesc_t *new_aubio_specdesc (char_t * method, uint_t buf_size,
-    uint_t channels);
+aubio_specdesc_t *new_aubio_specdesc (char_t * method, uint_t buf_size);
 
 /** deletion of a spectral descriptor 
 

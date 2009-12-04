@@ -29,7 +29,6 @@
 struct _aubio_pvoc_t {
   uint_t win_s;       /** grain length */
   uint_t hop_s;       /** overlap step */
-  uint_t channels;    /** number of channels */
   aubio_fft_t * fft;  /** fft object */
   fvec_t * synth;     /** cur output grain [win_s] */
   fvec_t * synthold;  /** last input frame [win_s-hop_s] */
@@ -48,12 +47,9 @@ static void aubio_pvoc_addsynth(const smpl_t * synth, smpl_t * synthold,
     smpl_t * synthnew, uint_t win_s, uint_t hop_s);
 
 void aubio_pvoc_do(aubio_pvoc_t *pv, fvec_t * datanew, cvec_t *fftgrain) {
-  uint_t i;
-  for (i=0; i<pv->channels; i++) {
-    /* slide  */
-    aubio_pvoc_swapbuffers(pv->data->data[i],pv->dataold->data[i],
-        datanew->data[i],pv->win_s,pv->hop_s);
-  }
+  /* slide  */
+  aubio_pvoc_swapbuffers(pv->data->data,pv->dataold->data,
+      datanew->data,pv->win_s,pv->hop_s);
   /* windowing */
   fvec_weight(pv->data, pv->w);
   /* shift */
@@ -63,18 +59,15 @@ void aubio_pvoc_do(aubio_pvoc_t *pv, fvec_t * datanew, cvec_t *fftgrain) {
 }
 
 void aubio_pvoc_rdo(aubio_pvoc_t *pv,cvec_t * fftgrain, fvec_t * synthnew) {
-  uint_t i;
   /* calculate rfft */
   aubio_fft_rdo(pv->fft,fftgrain,pv->synth);
   /* unshift */
   fvec_shift(pv->synth);
-  for (i=0; i<pv->channels; i++) {
-    aubio_pvoc_addsynth(pv->synth->data[i],pv->synthold->data[i],
-        synthnew->data[i],pv->win_s,pv->hop_s);
-  }
+  aubio_pvoc_addsynth(pv->synth->data,pv->synthold->data,
+      synthnew->data,pv->win_s,pv->hop_s);
 }
 
-aubio_pvoc_t * new_aubio_pvoc (uint_t win_s, uint_t hop_s, uint_t channels) {
+aubio_pvoc_t * new_aubio_pvoc (uint_t win_s, uint_t hop_s) {
   aubio_pvoc_t * pv = AUBIO_NEW(aubio_pvoc_t);
 
   /* if (win_s < 2*hop_s) {
@@ -87,18 +80,17 @@ aubio_pvoc_t * new_aubio_pvoc (uint_t win_s, uint_t hop_s, uint_t channels) {
     hop_s = win_s / 2;
   }
 
-  pv->fft      = new_aubio_fft(win_s,channels);
+  pv->fft      = new_aubio_fft (win_s);
 
   /* remember old */
-  pv->data     = new_fvec (win_s, channels);
-  pv->synth    = new_fvec (win_s, channels);
+  pv->data     = new_fvec (win_s);
+  pv->synth    = new_fvec (win_s);
 
   /* new input output */
-  pv->dataold  = new_fvec  (win_s-hop_s, channels);
-  pv->synthold = new_fvec (win_s-hop_s, channels);
+  pv->dataold  = new_fvec  (win_s-hop_s);
+  pv->synthold = new_fvec (win_s-hop_s);
   pv->w        = new_aubio_window ("hanningz", win_s);
 
-  pv->channels = channels;
   pv->hop_s    = hop_s;
   pv->win_s    = win_s;
 

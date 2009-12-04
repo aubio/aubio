@@ -23,49 +23,50 @@
 #include "spectral/specdesc.h"
 
 smpl_t
-cvec_sum_channel (cvec_t * s, uint_t i)
+cvec_sum (cvec_t * s)
 {
   uint_t j;
   smpl_t tmp = 0.0;
-  for (j = 0; j < s->length; j++)
-      tmp += s->norm[i][j];
+  for (j = 0; j < s->length; j++) {
+    tmp += s->norm[j];
+  }
   return tmp;
 }
 
 smpl_t
-cvec_mean_channel (cvec_t * s, uint_t i)
+cvec_mean (cvec_t * s)
 {
-  return cvec_sum_channel(s, i) / (smpl_t) (s->length);
+  return cvec_sum (s) / (smpl_t) (s->length);
 }
 
 smpl_t
-cvec_centroid_channel (cvec_t * spec, uint_t i)
+cvec_centroid (cvec_t * spec)
 {
   smpl_t sum = 0., sc = 0.;
   uint_t j;
-  sum = cvec_sum_channel (spec, i); 
+  sum = cvec_sum (spec); 
   if (sum == 0.) {
     return 0.;
   } else {
     for (j = 0; j < spec->length; j++) {
-      sc += (smpl_t) j *spec->norm[i][j];
+      sc += (smpl_t) j *spec->norm[j];
     }
     return sc / sum;
   }
 }
 
 smpl_t
-cvec_moment_channel (cvec_t * spec, uint_t i, uint_t order)
+cvec_moment (cvec_t * spec, uint_t order)
 {
   smpl_t sum = 0., centroid = 0., sc = 0.;
   uint_t j;
-  sum = cvec_sum_channel (spec, i); 
+  sum = cvec_sum (spec); 
   if (sum == 0.) {
     return 0.;
   } else {
-    centroid = cvec_centroid_channel (spec, i);
+    centroid = cvec_centroid (spec);
     for (j = 0; j < spec->length; j++) {
-      sc += (smpl_t) POW(j - centroid, order) * spec->norm[i][j];
+      sc += (smpl_t) POW(j - centroid, order) * spec->norm[j];
     }
     return sc / sum;
   }
@@ -75,35 +76,27 @@ void
 aubio_specdesc_centroid (aubio_specdesc_t * o UNUSED, cvec_t * spec,
     fvec_t * desc)
 {
-  uint_t i;
-  for (i = 0; i < spec->channels; i++) {
-    desc->data[i][0] = cvec_centroid_channel (spec, i); 
-  }
+  desc->data[0] = cvec_centroid (spec); 
 }
 
 void
 aubio_specdesc_spread (aubio_specdesc_t * o UNUSED, cvec_t * spec,
     fvec_t * desc)
 {
-  uint_t i;
-  for (i = 0; i < spec->channels; i++) {
-    desc->data[i][0] = cvec_moment_channel (spec, i, 2);
-  }
+  desc->data[0] = cvec_moment (spec, 2);
 }
 
 void
 aubio_specdesc_skewness (aubio_specdesc_t * o UNUSED, cvec_t * spec,
     fvec_t * desc)
 {
-  uint_t i; smpl_t spread;
-  for (i = 0; i < spec->channels; i++) {
-    spread = cvec_moment_channel (spec, i, 2);
-    if (spread == 0) {
-      desc->data[i][0] = 0.;
-    } else {
-      desc->data[i][0] = cvec_moment_channel (spec, i, 3);
-      desc->data[i][0] /= POW ( SQRT (spread), 3);
-    }
+  smpl_t spread;
+  spread = cvec_moment (spec, 2);
+  if (spread == 0) {
+    desc->data[0] = 0.;
+  } else {
+    desc->data[0] = cvec_moment (spec, 3);
+    desc->data[0] /= POW ( SQRT (spread), 3);
   }
 }
 
@@ -111,15 +104,13 @@ void
 aubio_specdesc_kurtosis (aubio_specdesc_t * o UNUSED, cvec_t * spec,
     fvec_t * desc)
 {
-  uint_t i; smpl_t spread;
-  for (i = 0; i < spec->channels; i++) {
-    spread = cvec_moment_channel (spec, i, 2);
-    if (spread == 0) {
-      desc->data[i][0] = 0.;
-    } else {
-      desc->data[i][0] = cvec_moment_channel (spec, i, 4);
-      desc->data[i][0] /= SQR (spread);
-    }
+  smpl_t spread;
+  spread = cvec_moment (spec, 2);
+  if (spread == 0) {
+    desc->data[0] = 0.;
+  } else {
+    desc->data[0] = cvec_moment (spec, 4);
+    desc->data[0] /= SQR (spread);
   }
 }
 
@@ -127,7 +118,7 @@ void
 aubio_specdesc_slope (aubio_specdesc_t * o UNUSED, cvec_t * spec,
     fvec_t * desc)
 {
-  uint_t i, j;
+  uint_t j;
   smpl_t norm = 0, sum = 0.; 
   // compute N * sum(j**2) - sum(j)**2
   for (j = 0; j < spec->length; j++) {
@@ -136,20 +127,18 @@ aubio_specdesc_slope (aubio_specdesc_t * o UNUSED, cvec_t * spec,
   norm *= spec->length;
   // sum_0^N(j) = length * (length + 1) / 2
   norm -= SQR( (spec->length) * (spec->length - 1.) / 2. );
-  for (i = 0; i < spec->channels; i++) {
-    sum = cvec_sum_channel (spec, i); 
-    desc->data[i][0] = 0.;
-    if (sum == 0.) {
-      break; 
-    } else {
-      for (j = 0; j < spec->length; j++) {
-        desc->data[i][0] += j * spec->norm[i][j]; 
-      }
-      desc->data[i][0] *= spec->length;
-      desc->data[i][0] -= sum * spec->length * (spec->length - 1) / 2.;
-      desc->data[i][0] /= norm;
-      desc->data[i][0] /= sum;
+  sum = cvec_sum (spec); 
+  desc->data[0] = 0.;
+  if (sum == 0.) {
+    return; 
+  } else {
+    for (j = 0; j < spec->length; j++) {
+      desc->data[0] += j * spec->norm[j]; 
     }
+    desc->data[0] *= spec->length;
+    desc->data[0] -= sum * spec->length * (spec->length - 1) / 2.;
+    desc->data[0] /= norm;
+    desc->data[0] /= sum;
   }
 }
 
@@ -157,19 +146,17 @@ void
 aubio_specdesc_decrease (aubio_specdesc_t *o UNUSED, cvec_t * spec,
     fvec_t * desc)
 {
-  uint_t i, j; smpl_t sum;
-  for (i = 0; i < spec->channels; i++) {
-    sum = cvec_sum_channel (spec, i); 
-    desc->data[i][0] = 0;
-    if (sum == 0.) {
-      break;
-    } else {
-      sum -= spec->norm[i][0];
-      for (j = 1; j < spec->length; j++) {
-        desc->data[i][0] += (spec->norm[i][j] - spec->norm[i][0]) / j;
-      }
-      desc->data[i][0] /= sum;
+  uint_t j; smpl_t sum;
+  sum = cvec_sum (spec); 
+  desc->data[0] = 0;
+  if (sum == 0.) {
+    return;
+  } else {
+    sum -= spec->norm[0];
+    for (j = 1; j < spec->length; j++) {
+      desc->data[0] += (spec->norm[j] - spec->norm[0]) / j;
     }
+    desc->data[0] /= sum;
   }
 }
 
@@ -177,22 +164,20 @@ void
 aubio_specdesc_rolloff (aubio_specdesc_t *o UNUSED, cvec_t * spec,
     fvec_t *desc)
 {
-  uint_t i, j; smpl_t cumsum, rollsum;
-  for (i = 0; i < spec->channels; i++) {
-    cumsum = 0.; rollsum = 0.;
-    for (j = 0; j < spec->length; j++) {
-      cumsum += SQR (spec->norm[i][j]);
+  uint_t j; smpl_t cumsum, rollsum;
+  cumsum = 0.; rollsum = 0.;
+  for (j = 0; j < spec->length; j++) {
+    cumsum += SQR (spec->norm[j]);
+  }
+  if (cumsum == 0) {
+    desc->data[0] = 0.;
+  } else {
+    cumsum *= 0.95;
+    j = 0;
+    while (rollsum < cumsum) { 
+      rollsum += SQR (spec->norm[j]);
+      j++;
     }
-    if (cumsum == 0) {
-      desc->data[i][0] = 0.;
-    } else {
-      cumsum *= 0.95;
-      j = 0;
-      while (rollsum < cumsum) { 
-        rollsum += SQR (spec->norm[i][j]);
-        j++;
-      }
-      desc->data[i][0] = j;
-    }
+    desc->data[0] = j;
   }
 }

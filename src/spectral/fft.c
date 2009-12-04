@@ -74,7 +74,6 @@ typedef FFTW_TYPE fft_data_t;
 
 struct _aubio_fft_t {
   uint_t winsize;
-  uint_t channels;
   uint_t fft_size;
   real_t *in, *out;
   fftw_plan pfw, pbw;
@@ -82,15 +81,14 @@ struct _aubio_fft_t {
   fvec_t * compspec;
 };
 
-aubio_fft_t * new_aubio_fft(uint_t winsize, uint_t channels) {
+aubio_fft_t * new_aubio_fft(uint_t winsize) {
   aubio_fft_t * s = AUBIO_NEW(aubio_fft_t);
   uint_t i;
   s->winsize  = winsize;
-  s->channels = channels;
   /* allocate memory */
   s->in       = AUBIO_ARRAY(real_t,winsize);
   s->out      = AUBIO_ARRAY(real_t,winsize);
-  s->compspec = new_fvec(winsize,channels);
+  s->compspec = new_fvec(winsize);
   /* create plans */
 #ifdef HAVE_COMPLEX_H
   s->fft_size = winsize/2 + 1;
@@ -135,47 +133,43 @@ void aubio_fft_rdo(aubio_fft_t * s, cvec_t * spectrum, fvec_t * output) {
 }
 
 void aubio_fft_do_complex(aubio_fft_t * s, fvec_t * input, fvec_t * compspec) {
-  uint_t i, j;
-  for (i = 0; i < s->channels; i++) {
-    for (j=0; j < s->winsize; j++) {
-      s->in[j] = input->data[i][j];
-    }
-    fftw_execute(s->pfw);
-#ifdef HAVE_COMPLEX_H
-    compspec->data[i][0] = REAL(s->specdata[0]);
-    for (j = 1; j < s->fft_size -1 ; j++) {
-      compspec->data[i][j] = REAL(s->specdata[j]);
-      compspec->data[i][compspec->length - j] = IMAG(s->specdata[j]);
-    }
-    compspec->data[i][s->fft_size-1] = REAL(s->specdata[s->fft_size-1]);
-#else
-    for (j = 0; j < s->fft_size; j++) {
-      compspec->data[i][j] = s->specdata[j];
-    }
-#endif
+  uint_t j;
+  for (j=0; j < s->winsize; j++) {
+    s->in[j] = input->data[j];
   }
+  fftw_execute(s->pfw);
+#ifdef HAVE_COMPLEX_H
+  compspec->data[0] = REAL(s->specdata[0]);
+  for (j = 1; j < s->fft_size -1 ; j++) {
+    compspec->data[j] = REAL(s->specdata[j]);
+    compspec->data[compspec->length - j] = IMAG(s->specdata[j]);
+  }
+  compspec->data[s->fft_size-1] = REAL(s->specdata[s->fft_size-1]);
+#else
+  for (j = 0; j < s->fft_size; j++) {
+    compspec->data[j] = s->specdata[j];
+  }
+#endif
 }
 
 void aubio_fft_rdo_complex(aubio_fft_t * s, fvec_t * compspec, fvec_t * output) {
-  uint_t i, j;
+  uint_t j;
   const smpl_t renorm = 1./(smpl_t)s->winsize;
-  for (i = 0; i < compspec->channels; i++) {
 #ifdef HAVE_COMPLEX_H
-    s->specdata[0] = compspec->data[i][0];
-    for (j=1; j < s->fft_size - 1; j++) {
-      s->specdata[j] = compspec->data[i][j] + 
-        I * compspec->data[i][compspec->length - j];
-    }
-    s->specdata[s->fft_size - 1] = compspec->data[i][s->fft_size - 1];
+  s->specdata[0] = compspec->data[0];
+  for (j=1; j < s->fft_size - 1; j++) {
+    s->specdata[j] = compspec->data[j] + 
+      I * compspec->data[compspec->length - j];
+  }
+  s->specdata[s->fft_size - 1] = compspec->data[s->fft_size - 1];
 #else
-    for (j=0; j < s->fft_size; j++) {
-      s->specdata[j] = compspec->data[i][j];
-    }
+  for (j=0; j < s->fft_size; j++) {
+    s->specdata[j] = compspec->data[j];
+  }
 #endif
-    fftw_execute(s->pbw);
-    for (j = 0; j < output->length; j++) {
-      output->data[i][j] = s->out[j]*renorm;
-    }
+  fftw_execute(s->pbw);
+  for (j = 0; j < output->length; j++) {
+    output->data[j] = s->out[j]*renorm;
   }
 }
 
@@ -190,54 +184,46 @@ void aubio_fft_get_realimag(cvec_t * spectrum, fvec_t * compspec) {
 }
 
 void aubio_fft_get_phas(fvec_t * compspec, cvec_t * spectrum) {
-  uint_t i, j;
-  for (i = 0; i < spectrum->channels; i++) {
-    if (compspec->data[i][0] < 0) {
-      spectrum->phas[i][0] = PI;
-    } else {
-      spectrum->phas[i][0] = 0.;
-    }
-    for (j=1; j < spectrum->length - 1; j++) {
-      spectrum->phas[i][j] = ATAN2(compspec->data[i][compspec->length-j],
-          compspec->data[i][j]);
-    }
-    if (compspec->data[i][compspec->length/2] < 0) {
-      spectrum->phas[i][spectrum->length - 1] = PI;
-    } else {
-      spectrum->phas[i][spectrum->length - 1] = 0.;
-    }
+  uint_t j;
+  if (compspec->data[0] < 0) {
+    spectrum->phas[0] = PI;
+  } else {
+    spectrum->phas[0] = 0.;
+  }
+  for (j=1; j < spectrum->length - 1; j++) {
+    spectrum->phas[j] = ATAN2(compspec->data[compspec->length-j],
+        compspec->data[j]);
+  }
+  if (compspec->data[compspec->length/2] < 0) {
+    spectrum->phas[spectrum->length - 1] = PI;
+  } else {
+    spectrum->phas[spectrum->length - 1] = 0.;
   }
 }
 
 void aubio_fft_get_norm(fvec_t * compspec, cvec_t * spectrum) {
-  uint_t i, j = 0;
-  for (i = 0; i < spectrum->channels; i++) {
-    spectrum->norm[i][0] = ABS(compspec->data[i][0]);
-    for (j=1; j < spectrum->length - 1; j++) {
-      spectrum->norm[i][j] = SQRT(SQR(compspec->data[i][j]) 
-          + SQR(compspec->data[i][compspec->length - j]) );
-    }
-    spectrum->norm[i][spectrum->length-1] = 
-      ABS(compspec->data[i][compspec->length/2]);
+  uint_t j = 0;
+  spectrum->norm[0] = ABS(compspec->data[0]);
+  for (j=1; j < spectrum->length - 1; j++) {
+    spectrum->norm[j] = SQRT(SQR(compspec->data[j]) 
+        + SQR(compspec->data[compspec->length - j]) );
   }
+  spectrum->norm[spectrum->length-1] = 
+    ABS(compspec->data[compspec->length/2]);
 }
 
 void aubio_fft_get_imag(cvec_t * spectrum, fvec_t * compspec) {
-  uint_t i, j;
-  for (i = 0; i < compspec->channels; i++) {
-    for (j = 1; j < ( compspec->length + 1 ) / 2 /*- 1 + 1*/; j++) {
-      compspec->data[i][compspec->length - j] =
-        spectrum->norm[i][j]*SIN(spectrum->phas[i][j]);
-    }
+  uint_t j;
+  for (j = 1; j < ( compspec->length + 1 ) / 2 /*- 1 + 1*/; j++) {
+    compspec->data[compspec->length - j] =
+      spectrum->norm[j]*SIN(spectrum->phas[j]);
   }
 }
 
 void aubio_fft_get_real(cvec_t * spectrum, fvec_t * compspec) {
-  uint_t i, j;
-  for (i = 0; i < compspec->channels; i++) {
-    for (j = 0; j < compspec->length / 2 + 1; j++) {
-      compspec->data[i][j] = 
-        spectrum->norm[i][j]*COS(spectrum->phas[i][j]);
-    }
+  uint_t j;
+  for (j = 0; j < compspec->length / 2 + 1; j++) {
+    compspec->data[j] = 
+      spectrum->norm[j]*COS(spectrum->phas[j]);
   }
 }

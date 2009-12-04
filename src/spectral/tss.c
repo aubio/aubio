@@ -43,54 +43,51 @@ struct _aubio_tss_t
 void aubio_tss_do(aubio_tss_t *o, cvec_t * input, 
     cvec_t * trans, cvec_t * stead)
 {
-  uint_t i,j;
+  uint_t j;
   uint_t test;
   uint_t nbins     = input->length;
-  uint_t channels  = input->channels;
   smpl_t alpha     = o->alpha;
   smpl_t beta      = o->beta;
   smpl_t parm      = o->parm;
-  smpl_t ** dev    = (smpl_t **)o->dev->data;
-  smpl_t ** oft1   = (smpl_t **)o->oft1->data;
-  smpl_t ** oft2   = (smpl_t **)o->oft2->data;
-  smpl_t ** theta1 = (smpl_t **)o->theta1->data;
-  smpl_t ** theta2 = (smpl_t **)o->theta2->data;
+  smpl_t * dev    = (smpl_t *)o->dev->data;
+  smpl_t * oft1   = (smpl_t *)o->oft1->data;
+  smpl_t * oft2   = (smpl_t *)o->oft2->data;
+  smpl_t * theta1 = (smpl_t *)o->theta1->data;
+  smpl_t * theta2 = (smpl_t *)o->theta2->data;
   /* second phase derivative */
-  for (i=0;i<channels; i++){
-    for (j=0;j<nbins; j++){
-      dev[i][j] = aubio_unwrap2pi(input->phas[i][j]
-          -2.0*theta1[i][j]+theta2[i][j]);
-      theta2[i][j] = theta1[i][j];
-      theta1[i][j] = input->phas[i][j];
-    }
+  for (j=0;j<nbins; j++){
+    dev[j] = aubio_unwrap2pi(input->phas[j]
+        -2.0*theta1[j]+theta2[j]);
+    theta2[j] = theta1[j];
+    theta1[j] = input->phas[j];
+  }
 
-    for (j=0;j<nbins; j++){
-      /* transient analysis */
-      test = (ABS(dev[i][j]) > parm*oft1[i][j]);
-      trans->norm[i][j] = input->norm[i][j] * test;
-      trans->phas[i][j] = input->phas[i][j] * test;
-    }
+  for (j=0;j<nbins; j++){
+    /* transient analysis */
+    test = (ABS(dev[j]) > parm*oft1[j]);
+    trans->norm[j] = input->norm[j] * test;
+    trans->phas[j] = input->phas[j] * test;
+  }
 
-    for (j=0;j<nbins; j++){
-      /* steady state analysis */
-      test = (ABS(dev[i][j]) < parm*oft2[i][j]);
-      stead->norm[i][j] = input->norm[i][j] * test;
-      stead->phas[i][j] = input->phas[i][j] * test;
+  for (j=0;j<nbins; j++){
+    /* steady state analysis */
+    test = (ABS(dev[j]) < parm*oft2[j]);
+    stead->norm[j] = input->norm[j] * test;
+    stead->phas[j] = input->phas[j] * test;
 
-      /*increase sstate probability for sines */
-      test = (trans->norm[i][j]==0.);
-      oft1[i][j]  = test;
-      test = (stead->norm[i][j]==0.);
-      oft2[i][j]  = test;
-      test = (trans->norm[i][j]>0.);
-      oft1[i][j] += alpha*test;
-      test = (stead->norm[i][j]>0.);
-      oft2[i][j] += alpha*test;
-      test = (oft1[i][j]>1. && trans->norm[i][j]>0.);
-      oft1[i][j] += beta*test;
-      test = (oft2[i][j]>1. && stead->norm[i][j]>0.);
-      oft2[i][j] += beta*test;
-    }
+    /*increase sstate probability for sines */
+    test = (trans->norm[j]==0.);
+    oft1[j]  = test;
+    test = (stead->norm[j]==0.);
+    oft2[j]  = test;
+    test = (trans->norm[j]>0.);
+    oft1[j] += alpha*test;
+    test = (stead->norm[j]>0.);
+    oft2[j] += alpha*test;
+    test = (oft1[j]>1. && trans->norm[j]>0.);
+    oft1[j] += beta*test;
+    test = (oft2[j]>1. && stead->norm[j]>0.);
+    oft2[j] += beta*test;
   }
 }
 
@@ -100,7 +97,7 @@ uint_t aubio_tss_set_threshold(aubio_tss_t *o, smpl_t threshold){
   return AUBIO_OK;
 }
 
-aubio_tss_t * new_aubio_tss(uint_t buf_size, uint_t hop_size, uint_t channels)
+aubio_tss_t * new_aubio_tss(uint_t buf_size, uint_t hop_size)
 {
   aubio_tss_t * o = AUBIO_NEW(aubio_tss_t);
   uint_t rsize = buf_size/2+1;
@@ -109,11 +106,11 @@ aubio_tss_t * new_aubio_tss(uint_t buf_size, uint_t hop_size, uint_t channels)
   o->alpha = 3.;
   o->beta = 4.;
   o->parm = o->threshold*o->thrsfact;
-  o->theta1 = new_fvec(rsize,channels);
-  o->theta2 = new_fvec(rsize,channels);
-  o->oft1 = new_fvec(rsize,channels);
-  o->oft2 = new_fvec(rsize,channels);
-  o->dev = new_fvec(rsize,channels);
+  o->theta1 = new_fvec(rsize);
+  o->theta2 = new_fvec(rsize);
+  o->oft1 = new_fvec(rsize);
+  o->oft2 = new_fvec(rsize);
+  o->dev = new_fvec(rsize);
   return o;
 }
 

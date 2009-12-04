@@ -62,12 +62,12 @@ void del_aubio_filterbank (aubio_filterbank_t * fb);
 */
 void aubio_filterbank_do (aubio_filterbank_t * fb, cvec_t * in, fvec_t * out);
 
-/** return a pointer to the fvec object containing all filter coefficients 
+/** return a pointer to the matrix object containing all filter coefficients 
 
   \param f filterbank object to get coefficients from
 
  */
-fvec_t *aubio_filterbank_get_coeffs (aubio_filterbank_t * f);
+fmat_t *aubio_filterbank_get_coeffs (aubio_filterbank_t * f);
 
 /** copy filter coefficients to the filterbank
 
@@ -75,7 +75,7 @@ fvec_t *aubio_filterbank_get_coeffs (aubio_filterbank_t * f);
   \param filters filter bank coefficients to copy from
 
  */
-uint_t aubio_filterbank_set_coeffs (aubio_filterbank_t * f, fvec_t * filters);
+uint_t aubio_filterbank_set_coeffs (aubio_filterbank_t * f, fmat_t * filters);
 
 #ifdef __cplusplus
 }

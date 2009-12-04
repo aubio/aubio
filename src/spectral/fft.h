@@ -44,10 +44,9 @@ typedef struct _aubio_fft_t aubio_fft_t;
 /** create new FFT computation object
 
   \param size length of the FFT
-  \param channels number of channels
 
 */
-aubio_fft_t * new_aubio_fft(uint_t size, uint_t channels);
+aubio_fft_t * new_aubio_fft (uint_t size);
 /** delete FFT object 
 
   \param s fft object as returned by new_aubio_fft
