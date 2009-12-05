@@ -93,7 +93,6 @@ PyTypeObject Py_ ## NAME ## Type = { \
 };
 
 // some more helpers
-#define AUBIO_NEW_VEC(name, type, lengthval, channelsval) \
+#define AUBIO_NEW_VEC(name, type, lengthval) \
   name = (type *) PyObject_New (type, & type ## Type); \
-  name->channels = channelsval; \
   name->length = lengthval;

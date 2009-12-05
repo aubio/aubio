@@ -5,7 +5,6 @@ typedef struct
   PyObject_HEAD
   aubio_filter_t * o;
   uint_t order;
-  uint_t channels;
 } Py_filter;
 
 static char Py_filter_doc[] = "filter object";
@@ -13,12 +12,12 @@ static char Py_filter_doc[] = "filter object";
 static PyObject *
 Py_filter_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
 {
-  int order= 0, channels = 0;
+  int order= 0;
   Py_filter *self;
-  static char *kwlist[] = { "order", "channels", NULL };
+  static char *kwlist[] = { "order", NULL };
 
   if (!PyArg_ParseTupleAndKeywords (args, kwds, "|II", kwlist,
-          &order, &channels)) {
+          &order)) {
     return NULL;
   }
 
@@ -29,7 +28,6 @@ Py_filter_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
   }
 
   self->order = 7;
-  self->channels = Py_default_vector_channels;
 
   if (order > 0) {
     self->order = order;
@@ -39,21 +37,13 @@ Py_filter_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
     return NULL;
   }
 
-  if (channels > 0) {
-    self->channels = channels;
-  } else if (channels < 0) {
-    PyErr_SetString (PyExc_ValueError,
-        "can not use negative number of channels");
-    return NULL;
-  }
-
   return (PyObject *) self;
 }
 
 static int
 Py_filter_init (Py_filter * self, PyObject * args, PyObject * kwds)
 {
-  self->o = new_aubio_filter (self->order, self->channels);
+  self->o = new_aubio_filter (self->order);
   if (self->o == NULL) {
     return -1;
   }
@@ -91,11 +81,11 @@ Py_filter_do(PyObject * self, PyObject * args)
   // compute the function
 #if 1
   aubio_filter_do (((Py_filter *)self)->o, vec->o);
-  Py_INCREF(vec);
+  PyArray_INCREF((PyArrayObject*)vec);
   return (PyObject *)vec;
 #else
   Py_fvec *copy = (Py_fvec*) PyObject_New (Py_fvec, &Py_fvecType);
-  copy->o = new_fvec(vec->o->length, vec->o->channels);
+  copy->o = new_fvec(vec->o->length);
   aubio_filter_do_outplace (((Py_filter *)self)->o, vec->o, copy->o);
   return (PyObject *)copy;
 #endif
@@ -141,8 +131,6 @@ static PyMemberDef Py_filter_members[] = {
   // TODO remove READONLY flag and define getter/setter
   {"order", T_INT, offsetof (Py_filter, order), READONLY,
       "order of the filter"},
-  {"channels", T_INT, offsetof (Py_filter, channels), READONLY,
-      "number of channels"},
   {NULL}                        /* Sentinel */
 };
 

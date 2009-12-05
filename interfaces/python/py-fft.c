@@ -2,18 +2,18 @@
 
 static char Py_fft_doc[] = "fft object";
 
-AUBIO_DECLARE(fft, uint_t win_s; uint_t channels)
+AUBIO_DECLARE(fft, uint_t win_s)
 
 //AUBIO_NEW(fft)
 static PyObject *
 Py_fft_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
 {
-  int win_s = 0, channels = 0;
+  int win_s = 0;
   Py_fft *self;
-  static char *kwlist[] = { "win_s", "channels", NULL };
+  static char *kwlist[] = { "win_s", NULL };
 
-  if (!PyArg_ParseTupleAndKeywords (args, kwds, "|II", kwlist,
-          &win_s, &channels)) {
+  if (!PyArg_ParseTupleAndKeywords (args, kwds, "|I", kwlist,
+          &win_s)) {
     return NULL;
   }
 
@@ -24,7 +24,6 @@ Py_fft_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
   }
 
   self->win_s = Py_default_vector_length;
-  self->channels = Py_default_vector_channels;
 
   if (self == NULL) {
     return NULL;
@@ -38,19 +37,11 @@ Py_fft_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
     return NULL;
   }
 
-  if (channels > 0) {
-    self->channels = channels;
-  } else if (channels < 0) {
-    PyErr_SetString (PyExc_ValueError,
-        "can not use negative number of filters");
-    return NULL;
-  }
-
   return (PyObject *) self;
 }
 
 
-AUBIO_INIT(fft, self->win_s, self->channels)
+AUBIO_INIT(fft, self->win_s)
 
 AUBIO_DEL(fft)
 
@@ -72,9 +63,8 @@ Py_fft_do(PyObject * self, PyObject * args)
   }
 
   output = (Py_cvec*) PyObject_New (Py_cvec, &Py_cvecType);
-  output->channels = vec->channels;
   output->length = ((Py_fft *) self)->win_s;
-  output->o = new_cvec(((Py_fft *) self)->win_s, vec->channels);
+  output->o = new_cvec(((Py_fft *) self)->win_s);
 
   // compute the function
   aubio_fft_do (((Py_fft *)self)->o, vec->o, output->o);
@@ -86,8 +76,6 @@ Py_fft_do(PyObject * self, PyObject * args)
 AUBIO_MEMBERS_START(fft) 
   {"win_s", T_INT, offsetof (Py_fft, win_s), READONLY,
     "size of the window"},
-  {"channels", T_INT, offsetof (Py_fft, channels), READONLY,
-    "number of channels"},
 AUBIO_MEMBERS_STOP(fft)
 
 static PyObject * 
@@ -108,9 +96,8 @@ Py_fft_rdo(PyObject * self, PyObject * args)
   }
 
   output = (Py_fvec*) PyObject_New (Py_fvec, &Py_fvecType);
-  output->channels = vec->channels;
   output->length = ((Py_fft *) self)->win_s;
-  output->o = new_fvec(output->length, output->channels);
+  output->o = new_fvec(output->length);
 
   // compute the function
   aubio_fft_rdo (((Py_fft *)self)->o, vec->o, output->o);

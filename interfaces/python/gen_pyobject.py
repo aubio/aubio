@@ -68,20 +68,20 @@ def get_name(proto):
 # the important bits: the size of the output for each objects. this data should
 # move into the C library at some point.
 defaultsizes = {
-    'resampler':    ('input->length * self->ratio', 'input->channels'),
-    'specdesc':     ('1', 'fftgrain->channels'),
-    'onset':        ('1', 'self->channels'),
-    'pitchyin':     ('1', 'in->channels'),
-    'pitchyinfft':  ('1', 'in->channels'),
-    'pitchschmitt': ('1', 'in->channels'),
-    'pitchmcomb':   ('1', 'self->channels'),
-    'pitchfcomb':   ('1', 'self->channels'),
-    'pitch':        ('1', 'self->channels'),
-    'tss':          ('self->hop_size', 'self->channels'),
-    'mfcc':         ('self->n_coeffs', 'in->channels'),
-    'beattracking': ('self->hop_size', 'self->channels'),
-    'tempo':        ('1', 'self->channels'),
-    'peakpicker':   ('1', 'self->channels'),
+    'resampler':    'input->length * self->ratio',
+    'specdesc':     '1',
+    'onset':        '1',
+    'pitchyin':     '1',
+    'pitchyinfft':  '1',
+    'pitchschmitt': '1',
+    'pitchmcomb':   '1',
+    'pitchfcomb':   '1',
+    'pitch':        '1',
+    'tss':          'self->hop_size',
+    'mfcc':         'self->n_coeffs',
+    'beattracking': 'self->hop_size',
+    'tempo':        '1',
+    'peakpicker':   '1',
 }
 
 # default value for variables
@@ -98,7 +98,6 @@ aubiodefvalue = {
     # and here too
     'hop_size': 'Py_default_vector_length / 2', 
     # these should be alright
-    'channels': 'Py_default_vector_channels', 
     'samplerate': 'Py_aubio_default_samplerate', 
     # now for the non obvious ones
     'n_filters': '40', 
@@ -150,7 +149,10 @@ aubiovectopyobj_new = {
 def gen_new_init(newfunc, name):
     newparams = get_params_types_names(newfunc)
     # self->param1, self->param2, self->param3
-    selfparams = ', self->'.join([p[1] for p in newparams])
+    if len(newparams):
+        selfparams = ', self->'+', self->'.join([p[1] for p in newparams])
+    else:
+        selfparams = '' 
     # "param1", "param2", "param3"
     paramnames = ", ".join(["\""+p[1]+"\"" for p in newparams])
     pyparams = "".join(map(lambda p: aubio2pytypes[p[0]], newparams))
@@ -178,6 +180,7 @@ static char Py_%(name)s_doc[] = "%(name)s object";
 static PyObject *
 Py_%(name)s_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
 {
+  Py_%(name)s *self;
 """ % locals()
     for ptype, pname in newparams:
         initval = aubioinitvalue[ptype]
@@ -185,14 +188,16 @@ Py_%(name)s_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
   %(ptype)s %(pname)s = %(initval)s;
 """ % locals()
     # now the actual PyArg_Parse
-    s += """\
-  Py_%(name)s *self;
+    if len(paramnames):
+        s += """\
   static char *kwlist[] = { %(paramnames)s, NULL };
 
   if (!PyArg_ParseTupleAndKeywords (args, kwds, "|%(pyparams)s", kwlist,
           %(paramrefs)s)) {
     return NULL;
   }
+""" % locals()
+    s += """\
 
   self = (Py_%(name)s *) pytype->tp_alloc (pytype, 0);
 
@@ -237,7 +242,7 @@ Py_%(name)s_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
   return (PyObject *) self;
 }
 
-AUBIO_INIT(%(name)s, self->%(selfparams)s)
+AUBIO_INIT(%(name)s %(selfparams)s)
 
 AUBIO_DEL(%(name)s)
 
@@ -286,10 +291,10 @@ def gen_do(dofunc, name):
         #    "too many output parameters"
         outputvecs = "\n  ".join([aubio2pyaubio[p[0]]+" * " + p[-1] + ";" for p in outputparams])
         outputcreate = "\n  ".join(["""\
-AUBIO_NEW_VEC(%(name)s, %(pytype)s, %(length)s, %(channels)s)
-  %(name)s->o = new_%(autype)s (%(length)s, %(channels)s);""" % \
+AUBIO_NEW_VEC(%(name)s, %(pytype)s, %(length)s)
+  %(name)s->o = new_%(autype)s (%(length)s);""" % \
     {'name': p[-1], 'pytype': aubio2pyaubio[p[0]], 'autype': p[0][:-3],
-        'length': defaultsizes[name][0], 'channels': defaultsizes[name][1]} \
+        'length': defaultsizes[name]} \
         for p in outputparams]) 
         if len(outputparams) > 1:
             returnval = "PyObject *outputs = PyList_New(0);\n"

@@ -121,6 +121,7 @@ init_aubio (void)
   int err;
 
   if ((PyType_Ready (&Py_fvecType) < 0) 
+      || (PyType_Ready (&Py_fmatType) < 0) 
       || (PyType_Ready (&Py_cvecType) < 0) 
       || (PyType_Ready (&Py_filterType) < 0) 
       || (PyType_Ready (&Py_filterbankType) < 0) 
@@ -147,6 +148,8 @@ init_aubio (void)
 
   Py_INCREF (&Py_fvecType);
   PyModule_AddObject (m, "fvec", (PyObject *) & Py_fvecType);
+  Py_INCREF (&Py_fmatType);
+  PyModule_AddObject (m, "fmat", (PyObject *) & Py_fmatType);
   Py_INCREF (&Py_cvecType);
   PyModule_AddObject (m, "cvec", (PyObject *) & Py_cvecType);
   Py_INCREF (&Py_filterType);

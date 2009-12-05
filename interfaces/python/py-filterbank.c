@@ -67,9 +67,8 @@ Py_filterbank_do(Py_filterbank * self, PyObject * args)
   }
 
   output = (Py_fvec*) PyObject_New (Py_fvec, &Py_fvecType);
-  output->channels = vec->channels;
   output->length = self->n_filters;
-  output->o = new_fvec(self->n_filters, vec->channels);
+  output->o = new_fvec(self->n_filters);
 
   // compute the function
   aubio_filterbank_do (self->o, vec->o, output->o);
@@ -137,11 +136,9 @@ Py_filterbank_set_mel_coeffs_slaney (Py_filterbank * self, PyObject *args)
 static PyObject * 
 Py_filterbank_get_coeffs (Py_filterbank * self, PyObject *unused)
 {
-  Py_fvec *output = (Py_fvec *) PyObject_New (Py_fvec, &Py_fvecType);
-  output->channels = self->n_filters;
-  output->length = self->win_s / 2 + 1;
+  Py_fmat *output = (Py_fmat *) PyObject_New (Py_fmat, &Py_fvecType);
   output->o = aubio_filterbank_get_coeffs (self->o);
-  return (PyObject *)PyAubio_FvecToArray(output);
+  return (PyObject *)PyAubio_FmatToArray(output);
 }
 
 static PyMethodDef Py_filterbank_methods[] = {
