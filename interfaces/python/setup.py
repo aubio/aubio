@@ -10,6 +10,7 @@ setup(name="_aubio", version="1.0",
         Extension("_aubio",
             ["aubiomodule.c",
             "py-fvec.c",
+            "py-fmat.c",
             "py-cvec.c",
             "py-filter.c",
             # macroised 

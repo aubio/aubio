@@ -2,18 +2,18 @@
 
 static char Py_pvoc_doc[] = "pvoc object";
 
-AUBIO_DECLARE(pvoc, uint_t win_s; uint_t hop_s; uint_t channels)
+AUBIO_DECLARE(pvoc, uint_t win_s; uint_t hop_s)
 
 //AUBIO_NEW(pvoc)
 static PyObject *
 Py_pvoc_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
 {
-  int win_s = 0, hop_s = 0, channels = 0;
+  int win_s = 0, hop_s = 0;
   Py_pvoc *self;
-  static char *kwlist[] = { "win_s", "hop_s", "channels", NULL };
+  static char *kwlist[] = { "win_s", "hop_s", NULL };
 
-  if (!PyArg_ParseTupleAndKeywords (args, kwds, "|III", kwlist,
-          &win_s, &hop_s, &channels)) {
+  if (!PyArg_ParseTupleAndKeywords (args, kwds, "|II", kwlist,
+          &win_s, &hop_s)) {
     return NULL;
   }
 
@@ -25,7 +25,6 @@ Py_pvoc_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
 
   self->win_s = Py_default_vector_length;
   self->hop_s = Py_default_vector_length/2;
-  self->channels = Py_default_vector_channels;
 
   if (self == NULL) {
     return NULL;
@@ -47,19 +46,11 @@ Py_pvoc_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
     return NULL;
   }
 
-  if (channels > 0) {
-    self->channels = channels;
-  } else if (channels < 0) {
-    PyErr_SetString (PyExc_ValueError,
-        "can not use negative number of filters");
-    return NULL;
-  }
-
   return (PyObject *) self;
 }
 
 
-AUBIO_INIT(pvoc, self->win_s, self->hop_s, self->channels)
+AUBIO_INIT(pvoc, self->win_s, self->hop_s)
 
 AUBIO_DEL(pvoc)
 
@@ -81,9 +72,8 @@ Py_pvoc_do(PyObject * self, PyObject * args)
   }
 
   output = (Py_cvec*) PyObject_New (Py_cvec, &Py_cvecType);
-  output->channels = vec->channels;
   output->length = ((Py_pvoc *) self)->win_s;
-  output->o = new_cvec(((Py_pvoc *) self)->win_s, vec->channels);
+  output->o = new_cvec(((Py_pvoc *) self)->win_s);
 
   // compute the function
   aubio_pvoc_do (((Py_pvoc *)self)->o, vec->o, output->o);
@@ -97,8 +87,6 @@ AUBIO_MEMBERS_START(pvoc)
     "size of the window"},
   {"hop_s", T_INT, offsetof (Py_pvoc, hop_s), READONLY,
     "size of the hop"},
-  {"channels", T_INT, offsetof (Py_pvoc, channels), READONLY,
-    "number of channels"},
 AUBIO_MEMBERS_STOP(pvoc)
 
 static PyObject * 
@@ -119,9 +107,8 @@ Py_pvoc_rdo(PyObject * self, PyObject * args)
   }
 
   output = (Py_fvec*) PyObject_New (Py_fvec, &Py_fvecType);
-  output->channels = vec->channels;
   output->length = ((Py_pvoc *) self)->hop_s;
-  output->o = new_fvec(output->length, output->channels);
+  output->o = new_fvec(output->length);
 
   // compute the function
   aubio_pvoc_rdo (((Py_pvoc *)self)->o, vec->o, output->o);
