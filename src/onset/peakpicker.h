@@ -35,7 +35,7 @@ extern "C" {
 typedef struct _aubio_peakpicker_t aubio_peakpicker_t;
 
 /** peak-picker creation function */
-aubio_peakpicker_t * new_aubio_peakpicker();
+aubio_peakpicker_t * new_aubio_peakpicker(void);
 /** real time peak picking function */
 void aubio_peakpicker_do(aubio_peakpicker_t * p, fvec_t * in, fvec_t * out);
 /** destroy peak picker structure */
