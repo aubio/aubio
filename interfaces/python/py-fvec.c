@@ -3,10 +3,9 @@
 /* fvec type definition 
 
 class fvec():
-    def __init__(self, length = 1024, channels = 1):
+    def __init__(self, length = 1024):
         self.length = length 
-        self.channels = channels 
-        self.data = array(length, channels)
+        self.data = array(length)
 
 */
 
@@ -15,20 +14,18 @@ static char Py_fvec_doc[] = "fvec object";
 static PyObject *
 Py_fvec_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
 {
-  int length= 0, channels = 0;
+  int length= 0;
   Py_fvec *self;
-  static char *kwlist[] = { "length", "channels", NULL };
+  static char *kwlist[] = { "length", NULL };
 
-  if (!PyArg_ParseTupleAndKeywords (args, kwds, "|II", kwlist,
-          &length, &channels)) {
+  if (!PyArg_ParseTupleAndKeywords (args, kwds, "|I", kwlist,
+          &length)) {
     return NULL;
   }
-
 
   self = (Py_fvec *) type->tp_alloc (type, 0);
 
   self->length = Py_default_vector_length;
-  self->channels = Py_default_vector_channels;
 
   if (self == NULL) {
     return NULL;
@@ -42,21 +39,13 @@ Py_fvec_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
     return NULL;
   }
 
-  if (channels > 0) {
-    self->channels = channels;
-  } else if (channels < 0) {
-    PyErr_SetString (PyExc_ValueError,
-        "can not use negative number of channels");
-    return NULL;
-  }
-
   return (PyObject *) self;
 }
 
 static int
 Py_fvec_init (Py_fvec * self, PyObject * args, PyObject * kwds)
 {
-  self->o = new_fvec (self->length, self->channels);
+  self->o = new_fvec (self->length);
   if (self->o == NULL) {
     return -1;
   }
@@ -74,16 +63,17 @@ Py_fvec_del (Py_fvec * self)
 static PyObject *
 Py_fvec_repr (Py_fvec * self, PyObject * unused)
 {
+#if 0
   PyObject *format = NULL;
   PyObject *args = NULL;
   PyObject *result = NULL;
 
-  format = PyString_FromString ("aubio fvec of %d elements with %d channels");
+  format = PyString_FromString ("aubio fvec of %d elements");
   if (format == NULL) {
     goto fail;
   }
 
-  args = Py_BuildValue ("II", self->length, self->channels);
+  args = Py_BuildValue ("I", self->length);
   if (args == NULL) {
     goto fail;
   }
@@ -96,13 +86,33 @@ fail:
   Py_XDECREF (args);
 
   return result;
+#endif
+  PyObject *format = NULL;
+  PyObject *args = NULL;
+  PyObject *result = NULL;
+
+  format = PyString_FromString ("%s");
+  if (format == NULL) {
+    goto fail;
+  }
+
+  args = Py_BuildValue ("O", PyAubio_FvecToArray (self));
+  if (args == NULL) {
+    goto fail;
+  }
+
+  result = PyString_Format (format, args);
+fail:
+  Py_XDECREF (format);
+  Py_XDECREF (args);
+
+  return result;
 }
 
 Py_fvec *
 PyAubio_ArrayToFvec (PyObject *input) {
   PyObject *array;
   Py_fvec *vec;
-  uint_t i;
   if (input == NULL) {
     PyErr_SetString (PyExc_ValueError, "input array is not a python object");
     goto fail;
@@ -117,28 +127,18 @@ PyAubio_ArrayToFvec (PyObject *input) {
     if (PyArray_NDIM (input) == 0) {
       PyErr_SetString (PyExc_ValueError, "input array is a scalar");
       goto fail;
-    } else if (PyArray_NDIM (input) > 2) {
+    } else if (PyArray_NDIM (input) > 1) {
       PyErr_SetString (PyExc_ValueError,
-          "input array has more than two dimensions");
+          "input array has more than one dimensions");
       goto fail;
     }
 
     if (!PyArray_ISFLOAT (input)) {
       PyErr_SetString (PyExc_ValueError, "input array should be float");
       goto fail;
-#if AUBIO_DO_CASTING
-    } else if (PyArray_TYPE (input) != AUBIO_NPY_SMPL) {
-      // input data type is not float32, casting 
-      array = PyArray_Cast ( (PyArrayObject*) input, AUBIO_NPY_SMPL);
-      if (array == NULL) {
-        PyErr_SetString (PyExc_IndexError, "failed converting to AUBIO_NPY_SMPL");
-        goto fail;
-      }
-#else
     } else if (PyArray_TYPE (input) != AUBIO_NPY_SMPL) {
       PyErr_SetString (PyExc_ValueError, "input array should be float32");
       goto fail;
-#endif
     } else {
       // input data type is float32, nothing else to do
       array = input;
@@ -146,26 +146,19 @@ PyAubio_ArrayToFvec (PyObject *input) {
 
     // create a new fvec object
     vec = (Py_fvec*) PyObject_New (Py_fvec, &Py_fvecType); 
-    if (PyArray_NDIM (array) == 1) {
-      vec->channels = 1;
-      vec->length = PyArray_SIZE (array);
-    } else {
-      vec->channels = PyArray_DIM (array, 0);
-      vec->length = PyArray_DIM (array, 1);
-    }
+    vec->length = PyArray_SIZE (array);
 
     // no need to really allocate fvec, just its struct member 
-    // vec->o = new_fvec (vec->length, vec->channels);
+    // vec->o = new_fvec (vec->length);
     vec->o = (fvec_t *)malloc(sizeof(fvec_t));
-    vec->o->length = vec->length; vec->o->channels = vec->channels;
-    vec->o->data = (smpl_t**)malloc(vec->o->channels * sizeof(smpl_t*));
-    // hat data[i] point to array line
-    for (i = 0; i < vec->channels; i++) {
-      vec->o->data[i] = (smpl_t *) PyArray_GETPTR1 (array, i);
-    }
+    vec->o->length = vec->length;
+    vec->o->data = (smpl_t *) PyArray_GETPTR1 (array, 0);
 
+  } else if (PyObject_TypeCheck (input, &PyList_Type)) {
+    PyErr_SetString (PyExc_ValueError, "does not convert from list yet");
+    return NULL;
   } else {
-    PyErr_SetString (PyExc_ValueError, "can only accept array or fvec as input");
+    PyErr_SetString (PyExc_ValueError, "can only accept vector or fvec as input");
     return NULL;
   }
 
@@ -178,91 +171,45 @@ fail:
 PyObject *
 PyAubio_CFvecToArray (fvec_t * self)
 {
-  PyObject *array = NULL;
-  uint_t i;
   npy_intp dims[] = { self->length, 1 };
-  PyObject *concat = PyList_New (0), *tmp = NULL;
-  for (i = 0; i < self->channels; i++) {
-    tmp = PyArray_SimpleNewFromData (1, dims, AUBIO_NPY_SMPL, self->data[i]);
-    PyList_Append (concat, tmp);
-    Py_DECREF (tmp);
-  }
-  array = PyArray_FromObject (concat, AUBIO_NPY_SMPL, 2, 2);
-  Py_DECREF (concat);
-  return array;
+  return  PyArray_SimpleNewFromData (1, dims, AUBIO_NPY_SMPL, self->data);
 }
 
 PyObject *
 PyAubio_FvecToArray (Py_fvec * self)
 {
   PyObject *array = NULL;
-  if (self->channels == 1) {
-    npy_intp dims[] = { self->length, 1 };
-    array = PyArray_SimpleNewFromData (1, dims, AUBIO_NPY_SMPL, self->o->data[0]);
-  } else {
-    uint_t i;
-    npy_intp dims[] = { self->length, 1 };
-    PyObject *concat = PyList_New (0), *tmp = NULL;
-    for (i = 0; i < self->channels; i++) {
-      tmp = PyArray_SimpleNewFromData (1, dims, AUBIO_NPY_SMPL, self->o->data[i]);
-      PyList_Append (concat, tmp);
-      Py_DECREF (tmp);
-    }
-    array = PyArray_FromObject (concat, AUBIO_NPY_SMPL, 2, 2);
-    Py_DECREF (concat);
-  }
+  npy_intp dims[] = { self->length, 1 };
+  array = PyArray_SimpleNewFromData (1, dims, AUBIO_NPY_SMPL, self->o->data);
   return array;
-}
-
-static Py_ssize_t
-Py_fvec_getchannels (Py_fvec * self)
-{
-  return self->channels;
 }
 
 static PyObject *
 Py_fvec_getitem (Py_fvec * self, Py_ssize_t index)
 {
-  PyObject *array;
-
-  if (index < 0 || index >= self->channels) {
-    PyErr_SetString (PyExc_IndexError, "no such channel");
+  if (index < 0 || index >= self->length) {
+    PyErr_SetString (PyExc_IndexError, "no such element");
     return NULL;
   }
 
-  npy_intp dims[] = { self->length, 1 };
-  array = PyArray_SimpleNewFromData (1, dims, AUBIO_NPY_SMPL, self->o->data[index]);
-  return array;
+  return PyFloat_FromDouble (self->o->data[index]);
 }
 
 static int
 Py_fvec_setitem (Py_fvec * self, Py_ssize_t index, PyObject * o)
 {
-  PyObject *array;
 
-  if (index < 0 || index >= self->channels) {
-    PyErr_SetString (PyExc_IndexError, "no such channel");
-    return -1;
-  }
-
-  array = PyArray_FROM_OT (o, AUBIO_NPY_SMPL);
-  if (array == NULL) {
-    PyErr_SetString (PyExc_ValueError, "should be an array of float");
+  if (index < 0 || index >= self->length) {
+    PyErr_SetString (PyExc_IndexError, "no such element");
     goto fail;
   }
 
-  if (PyArray_NDIM (array) != 1) {
-    PyErr_SetString (PyExc_ValueError, "should be a one-dimensional array");
+  if (PyFloat_Check (o)) {
+    PyErr_SetString (PyExc_ValueError, "should be a float");
     goto fail;
   }
 
-  if (PyArray_SIZE (array) != self->length) {
-    PyErr_SetString (PyExc_ValueError,
-        "should be an array of same length as target fvec");
-    goto fail;
-  }
-
-  self->o->data[index] = (smpl_t *) PyArray_GETPTR1 (array, 0);
+  self->o->data[index] = (smpl_t) PyFloat_AsDouble(o);
 
   return 0;
 
@@ -270,12 +217,16 @@ fail:
   return -1;
 }
 
+int
+Py_fvec_get_length (Py_fvec * self)                                                                                                                                     
+{                                                                                                                                                                        
+  return self->length;                                                                                                                                                 
+}
+
 static PyMemberDef Py_fvec_members[] = {
   // TODO remove READONLY flag and define getter/setter
   {"length", T_INT, offsetof (Py_fvec, length), READONLY,
       "length attribute"},
-  {"channels", T_INT, offsetof (Py_fvec, channels), READONLY,
-      "channels attribute"},
   {NULL}                        /* Sentinel */
 };
 
@@ -286,7 +237,7 @@ static PyMethodDef Py_fvec_methods[] = {
 };
 
 static PySequenceMethods Py_fvec_tp_as_sequence = {
-  (lenfunc) Py_fvec_getchannels,        /* sq_length         */
+  (lenfunc) Py_fvec_get_length,        /* sq_length         */
   0,                                    /* sq_concat         */
   0,                                    /* sq_repeat         */
   (ssizeargfunc) Py_fvec_getitem,       /* sq_item           */

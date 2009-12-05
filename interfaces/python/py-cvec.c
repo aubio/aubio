@@ -3,25 +3,24 @@
 /* cvec type definition 
 
 class cvec():
-    def __init__(self, length = 1024, channels = 1):
+    def __init__(self, length = 1024):
         self.length = length 
-        self.channels = channels 
-        self.norm = array(length, channels)
-        self.phas = array(length, channels)
-*/
+        self.norm = array(length)
+        self.phas = array(length)
 
+*/
 
 static char Py_cvec_doc[] = "cvec object";
 
 static PyObject *
 Py_cvec_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
 {
-  int length= 0, channels = 0;
+  int length= 0;
   Py_cvec *self;
-  static char *kwlist[] = { "length", "channels", NULL };
+  static char *kwlist[] = { "length", NULL };
 
-  if (!PyArg_ParseTupleAndKeywords (args, kwds, "|II", kwlist,
-          &length, &channels)) {
+  if (!PyArg_ParseTupleAndKeywords (args, kwds, "|I", kwlist,
+          &length)) {
     return NULL;
   }
 
@@ -29,7 +28,6 @@ Py_cvec_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
   self = (Py_cvec *) type->tp_alloc (type, 0);
 
   self->length = Py_default_vector_length / 2 + 1;
-  self->channels = Py_default_vector_channels;
 
   if (self == NULL) {
     return NULL;
@@ -43,21 +41,13 @@ Py_cvec_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
     return NULL;
   }
 
-  if (channels > 0) {
-    self->channels = channels;
-  } else if (channels < 0) {
-    PyErr_SetString (PyExc_ValueError,
-        "can not use negative number of channels");
-    return NULL;
-  }
-
   return (PyObject *) self;
 }
 
 static int
 Py_cvec_init (Py_cvec * self, PyObject * args, PyObject * kwds)
 {
-  self->o = new_cvec ((self->length - 1) * 2, self->channels);
+  self->o = new_cvec ((self->length - 1) * 2);
   if (self->o == NULL) {
     return -1;
   }
@@ -79,16 +69,16 @@ Py_cvec_repr (Py_cvec * self, PyObject * unused)
   PyObject *args = NULL;
   PyObject *result = NULL;
 
-  format = PyString_FromString ("aubio cvec of %d elements with %d channels");
+  format = PyString_FromString ("aubio cvec of %d elements");
   if (format == NULL) {
     goto fail;
   }
 
-  args = Py_BuildValue ("II", self->length, self->channels);
+  args = Py_BuildValue ("I", self->length);
   if (args == NULL) {
     goto fail;
   }
-  //cvec_print ( self->o );
+  cvec_print ( self->o );
 
   result = PyString_Format (format, args);
 
@@ -103,7 +93,10 @@ Py_cvec *
 PyAubio_ArrayToCvec (PyObject *input) {
   PyObject *array;
   Py_cvec *vec;
-  uint_t i;
+  if (input == NULL) {
+    PyErr_SetString (PyExc_ValueError, "input array is not a python object");
+    goto fail;
+  }
   // parsing input object into a Py_cvec
   if (PyObject_TypeCheck (input, &Py_cvecType)) {
     // input is an cvec, nothing else to do
@@ -114,28 +107,18 @@ PyAubio_ArrayToCvec (PyObject *input) {
     if (PyArray_NDIM (input) == 0) {
       PyErr_SetString (PyExc_ValueError, "input array is a scalar");
       goto fail;
-    } else if (PyArray_NDIM (input) > 2) {
+    } else if (PyArray_NDIM (input) > 1) {
       PyErr_SetString (PyExc_ValueError,
-          "input array has more than two dimensions");
+          "input array has more than one dimensions");
       goto fail;
     }
 
     if (!PyArray_ISFLOAT (input)) {
       PyErr_SetString (PyExc_ValueError, "input array should be float");
       goto fail;
-#if AUBIO_DO_CASTING
-    } else if (PyArray_TYPE (input) != AUBIO_NPY_SMPL) {
-      // input data type is not float32, casting 
-      array = PyArray_Cast ( (PyArrayObject*) input, AUBIO_NPY_SMPL);
-      if (array == NULL) {
-        PyErr_SetString (PyExc_IndexError, "failed converting to NPY_FLOAT");
-        goto fail;
-      }
-#else
     } else if (PyArray_TYPE (input) != AUBIO_NPY_SMPL) {
       PyErr_SetString (PyExc_ValueError, "input array should be float32");
       goto fail;
-#endif
     } else {
       // input data type is float32, nothing else to do
       array = input;
@@ -143,29 +126,21 @@ PyAubio_ArrayToCvec (PyObject *input) {
 
     // create a new cvec object
     vec = (Py_cvec*) PyObject_New (Py_cvec, &Py_cvecType); 
-    if (PyArray_NDIM (array) == 1) {
+    if (PyArray_NDIM (array) != 2) {
       PyErr_SetString (PyExc_ValueError,
-          "input array should be have at least two rows for norm and phas");
+          "input array should be have exactly two rows for norm and phas");
       goto fail;
-    } else if (PyArray_NDIM (array) == 2) {
-      vec->channels = 1;
-      vec->length = PyArray_SIZE (array);
     } else {
-      vec->channels = PyArray_DIM (array, 0) / 2;
-      vec->length = PyArray_DIM (array, 1);
+      vec->length = PyArray_SIZE (array);
     }
 
     // no need to really allocate cvec, just its struct member 
-    // vec->o = new_cvec (vec->length, vec->channels);
+    // vec->o = new_cvec (vec->length);
     vec->o = (cvec_t *)malloc(sizeof(cvec_t));
-    vec->o->length = vec->length; vec->o->channels = vec->channels;
-    vec->o->norm = (smpl_t**)malloc(vec->o->channels * sizeof(smpl_t*));
-    vec->o->phas = (smpl_t**)malloc(vec->o->channels * sizeof(smpl_t*));
-    // hat data[i] point to array line
-    for (i = 0; i < vec->channels; i+=2) {
-      vec->o->norm[i] = (smpl_t *) PyArray_GETPTR1 (array, i);
-      vec->o->phas[i] = (smpl_t *) PyArray_GETPTR1 (array, i+1);
-    }
+    vec->o->length = vec->length;
+    // have norm and phas point to array rows 
+    vec->o->norm = (smpl_t *) PyArray_GETPTR1 (array, 0);
+    vec->o->phas = (smpl_t *) PyArray_GETPTR1 (array, 1);
 
   } else {
     PyErr_SetString (PyExc_ValueError, "can only accept array or cvec as input");
@@ -182,17 +157,14 @@ PyObject *
 PyAubio_CvecToArray (Py_cvec * self)
 {
   PyObject *array = NULL;
-  uint_t i;
   npy_intp dims[] = { self->o->length, 1 };
   PyObject *concat = PyList_New (0), *tmp = NULL;
-  for (i = 0; i < self->channels; i++) {
-    tmp = PyArray_SimpleNewFromData (1, dims, NPY_FLOAT, self->o->norm[i]);
-    PyList_Append (concat, tmp);
-    Py_DECREF (tmp);
-    tmp = PyArray_SimpleNewFromData (1, dims, NPY_FLOAT, self->o->phas[i]);
-    PyList_Append (concat, tmp);
-    Py_DECREF (tmp);
-  }
+  tmp = PyArray_SimpleNewFromData (1, dims, NPY_FLOAT, self->o->norm);
+  PyList_Append (concat, tmp);
+  Py_DECREF (tmp);
+  tmp = PyArray_SimpleNewFromData (1, dims, NPY_FLOAT, self->o->phas);
+  PyList_Append (concat, tmp);
+  Py_DECREF (tmp);
   array = PyArray_FromObject (concat, NPY_FLOAT, 2, 2);
   Py_DECREF (concat);
   return array;
@@ -201,36 +173,16 @@ PyAubio_CvecToArray (Py_cvec * self)
 PyObject *
 PyAubio_CvecNormToArray (Py_cvec * self)
 {
-  PyObject *array = NULL;
-  uint_t i;
   npy_intp dims[] = { self->o->length, 1 };
-  PyObject *concat = PyList_New (0), *tmp = NULL;
-  for (i = 0; i < self->channels; i++) {
-    tmp = PyArray_SimpleNewFromData (1, dims, NPY_FLOAT, self->o->norm[i]);
-    PyList_Append (concat, tmp);
-    Py_DECREF (tmp);
-  }
-  array = PyArray_FromObject (concat, NPY_FLOAT, 2, 2);
-  Py_DECREF (concat);
-  return array;
+  return PyArray_SimpleNewFromData (1, dims, NPY_FLOAT, self->o->norm);
 }
 
 
 PyObject *
 PyAubio_CvecPhasToArray (Py_cvec * self)
 {
-  PyObject *array = NULL;
-  uint_t i;
   npy_intp dims[] = { self->o->length, 1 };
-  PyObject *concat = PyList_New (0), *tmp = NULL;
-  for (i = 0; i < self->channels; i++) {
-    tmp = PyArray_SimpleNewFromData (1, dims, NPY_FLOAT, self->o->phas[i]);
-    PyList_Append (concat, tmp);
-    Py_DECREF (tmp);
-  }
-  array = PyArray_FromObject (concat, NPY_FLOAT, 2, 2);
-  Py_DECREF (concat);
-  return array;
+  return PyArray_SimpleNewFromData (1, dims, NPY_FLOAT, self->o->phas);
 }
 
 PyObject *
@@ -254,7 +206,6 @@ Py_cvec_get_phas (Py_cvec * self, void *closure)
 static int
 Py_cvec_set_norm (Py_cvec * vec, PyObject *input, void * closure)
 {
-  uint_t i;
   PyObject * array;
   if (input == NULL) {
     PyErr_SetString (PyExc_ValueError, "input array is not a python object");
@@ -282,36 +233,21 @@ Py_cvec_set_norm (Py_cvec * vec, PyObject *input, void * closure)
     array = input;
 
     // check input array dimensions
-    if (PyArray_NDIM (array) == 1) {
-      if (vec->channels != 1) {
-          PyErr_SetString (PyExc_ValueError,
-                  "input array should have more than one channel");
-          goto fail;
-      }
+    if (PyArray_NDIM (array) != 1) {
+      PyErr_Format (PyExc_ValueError,
+          "input array has %d dimensions, not 1",
+          PyArray_NDIM (array));
+      goto fail;
+    } else {
       if (vec->o->length != PyArray_SIZE (array)) {
           PyErr_Format (PyExc_ValueError,
                   "input array has length %d, but cvec has length %d",
                   PyArray_SIZE (array), vec->o->length);
           goto fail;
       }
-    } else {
-      if (vec->channels != PyArray_DIM (array, 0)) {
-          PyErr_Format (PyExc_ValueError,
-                  "input array has %d channels, but vector has %d channels",
-                  PyArray_DIM (array, 0), vec->channels);
-          goto fail;
-      }
-      if (vec->o->length != PyArray_DIM (array, 1)) {
-          PyErr_Format (PyExc_ValueError,
-                  "input array has length %d, but vector has length %d",
-                  PyArray_DIM (array, 1), vec->o->length);
-          goto fail;
-      }
     }
 
-    for (i = 0; i < vec->channels; i++) {
-      vec->o->norm[i] = (smpl_t *) PyArray_GETPTR1 (array, i);
-    }
+    vec->o->norm = (smpl_t *) PyArray_GETPTR1 (array, 0);
 
   } else {
     PyErr_SetString (PyExc_ValueError, "can only accept array as input");
@@ -328,7 +264,6 @@ fail:
 static int
 Py_cvec_set_phas (Py_cvec * vec, PyObject *input, void * closure)
 {
-  uint_t i;
   PyObject * array;
   if (input == NULL) {
     PyErr_SetString (PyExc_ValueError, "input array is not a python object");
@@ -356,36 +291,21 @@ Py_cvec_set_phas (Py_cvec * vec, PyObject *input, void * closure)
     array = input;
 
     // check input array dimensions
-    if (PyArray_NDIM (array) == 1) {
-      if (vec->channels != 1) {
-          PyErr_SetString (PyExc_ValueError,
-                  "input array should have more than one channel");
-          goto fail;
-      }
+    if (PyArray_NDIM (array) != 1) {
+      PyErr_Format (PyExc_ValueError,
+          "input array has %d dimensions, not 1",
+          PyArray_NDIM (array));
+      goto fail;
+    } else {
       if (vec->o->length != PyArray_SIZE (array)) {
           PyErr_Format (PyExc_ValueError,
                   "input array has length %d, but cvec has length %d",
                   PyArray_SIZE (array), vec->o->length);
           goto fail;
       }
-    } else {
-      if (vec->channels != PyArray_DIM (array, 0)) {
-          PyErr_Format (PyExc_ValueError,
-                  "input array has %d channels, but vector has %d channels",
-                  PyArray_DIM (array, 0), vec->channels);
-          goto fail;
-      }
-      if (vec->o->length != PyArray_DIM (array, 1)) {
-          PyErr_Format (PyExc_ValueError,
-                  "input array has length %d, but vector has length %d",
-                  PyArray_DIM (array, 1), vec->o->length);
-          goto fail;
-      }
     }
 
-    for (i = 0; i < vec->channels; i++) {
-      vec->o->phas[i] = (smpl_t *) PyArray_GETPTR1 (array, i);
-    }
+    vec->o->phas = (smpl_t *) PyArray_GETPTR1 (array, 0);
 
   } else {
     PyErr_SetString (PyExc_ValueError, "can only accept array as input");
@@ -399,68 +319,10 @@ fail:
   return 1;
 }
 
-static Py_ssize_t
-Py_cvec_getchannels (Py_cvec * self)
-{
-  return self->channels;
-}
-
-static PyObject *
-Py_cvec_getitem (Py_cvec * self, Py_ssize_t index)
-{
-  PyObject *array;
-
-  if (index < 0 || index >= self->channels) {
-    PyErr_SetString (PyExc_IndexError, "no such channel");
-    return NULL;
-  }
-
-  npy_intp dims[] = { self->length, 1 };
-  array = PyArray_SimpleNewFromData (1, dims, NPY_FLOAT, self->o->norm[index]);
-  return array;
-}
-
-static int
-Py_cvec_setitem (Py_cvec * self, Py_ssize_t index, PyObject * o)
-{
-  PyObject *array;
-
-  if (index < 0 || index >= self->channels) {
-    PyErr_SetString (PyExc_IndexError, "no such channel");
-    return -1;
-  }
-
-  array = PyArray_FROM_OT (o, NPY_FLOAT);
-  if (array == NULL) {
-    PyErr_SetString (PyExc_ValueError, "should be an array of float");
-    goto fail;
-  }
-
-  if (PyArray_NDIM (array) != 1) {
-    PyErr_SetString (PyExc_ValueError, "should be a one-dimensional array");
-    goto fail;
-  }
-
-  if (PyArray_SIZE (array) != self->length) {
-    PyErr_SetString (PyExc_ValueError,
-        "should be an array of same length as target cvec");
-    goto fail;
-  }
-
-  self->o->norm[index] = (smpl_t *) PyArray_GETPTR1 (array, 0);
-
-  return 0;
-
-fail:
-  return -1;
-}
-
 static PyMemberDef Py_cvec_members[] = {
   // TODO remove READONLY flag and define getter/setter
   {"length", T_INT, offsetof (Py_cvec, length), READONLY,
       "length attribute"},
-  {"channels", T_INT, offsetof (Py_cvec, channels), READONLY,
-      "channels attribute"},
   {NULL}                        /* Sentinel */
 };
 
@@ -480,20 +342,6 @@ static PyGetSetDef Py_cvec_getseters[] = {
   {NULL} /* sentinel */
 };
 
-static PySequenceMethods Py_cvec_tp_as_sequence = {
-  (lenfunc) Py_cvec_getchannels,        /* sq_length         */
-  0,                                    /* sq_concat         */
-  0,                                    /* sq_repeat         */
-  (ssizeargfunc) Py_cvec_getitem,       /* sq_item           */
-  0,                                    /* sq_slice          */
-  (ssizeobjargproc) Py_cvec_setitem,    /* sq_ass_item       */
-  0,                                    /* sq_ass_slice      */
-  0,                                    /* sq_contains       */
-  0,                                    /* sq_inplace_concat */
-  0,                                    /* sq_inplace_repeat */
-};
-
-
 PyTypeObject Py_cvecType = {
   PyObject_HEAD_INIT (NULL)
   0,                            /* ob_size           */
@@ -507,7 +355,7 @@ PyTypeObject Py_cvecType = {
   0,                            /* tp_compare        */
   (reprfunc) Py_cvec_repr,      /* tp_repr           */
   0,                            /* tp_as_number      */
-  &Py_cvec_tp_as_sequence,      /* tp_as_sequence    */
+  0, //&Py_cvec_tp_as_sequence,      /* tp_as_sequence    */
   0,                            /* tp_as_mapping     */
   0,                            /* tp_hash           */
   0,                            /* tp_call           */
