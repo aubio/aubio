@@ -291,7 +291,7 @@ new_aubio_specdesc (char_t * onset_mode,
   else if (strcmp (onset_mode, "default") == 0)
       onset_type = aubio_onset_default;
   else {
-      AUBIO_ERR("unknown spectral descriptor type %s.\n", onset_mode);
+      AUBIO_ERR("unknown spectral descriptor type %s, using default.\n", onset_mode);
       onset_type = aubio_onset_default;
   }
   switch(onset_type) {
