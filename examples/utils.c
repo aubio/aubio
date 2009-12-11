@@ -207,22 +207,6 @@ examples_common_init (int argc, char **argv)
   /* parse command line arguments */
   parse_args (argc, argv);
 
-  woodblock = new_fvec (buffer_size, 1);
-  if (output_filename || usejack) {
-    /* dummy assignement to keep egcs happy */
-    found_wood = (onsetfile = new_aubio_sndfile_ro (onset_filename)) ||
-        (onsetfile = new_aubio_sndfile_ro ("sounds/woodblock.aiff")) ||
-        (onsetfile = new_aubio_sndfile_ro ("../sounds/woodblock.aiff"));
-    if (onsetfile == NULL) {
-      outmsg ("Could not find woodblock.aiff\n");
-      exit (1);
-    }
-  }
-  if (onsetfile) {
-    /* read the output sound once */
-    aubio_sndfile_read (onsetfile, overlap_size, woodblock);
-  }
-
   if (!usejack) {
     debug ("Opening files ...\n");
     file = new_aubio_sndfile_ro (input_filename);
@@ -254,6 +238,22 @@ examples_common_init (int argc, char **argv)
     }
   }
 #endif /* HAVE_LASH */
+
+  woodblock = new_fvec (overlap_size, channels);
+  if (output_filename || usejack) {
+    /* dummy assignement to keep egcs happy */
+    found_wood = (onsetfile = new_aubio_sndfile_ro (onset_filename)) ||
+        (onsetfile = new_aubio_sndfile_ro ("sounds/woodblock.aiff")) ||
+        (onsetfile = new_aubio_sndfile_ro ("../sounds/woodblock.aiff"));
+    if (onsetfile == NULL) {
+      outmsg ("Could not find woodblock.aiff\n");
+      exit (1);
+    }
+  }
+  if (onsetfile) {
+    /* read the output sound once */
+    aubio_sndfile_read (onsetfile, overlap_size, woodblock);
+  }
 
   ibuf = new_fvec (overlap_size, channels);
   obuf = new_fvec (overlap_size, channels);
