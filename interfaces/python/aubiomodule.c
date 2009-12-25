@@ -11,7 +11,7 @@ static PyObject *
 Py_alpha_norm (PyObject * self, PyObject * args)
 {
   PyObject *input;
-  Py_fvec *vec;
+  fvec_t *vec;
   smpl_t alpha;
   PyObject *result;
 
@@ -23,14 +23,14 @@ Py_alpha_norm (PyObject * self, PyObject * args)
     return NULL;
   }
 
-  vec = PyAubio_ArrayToFvec (input);
+  vec = PyAubio_ArrayToCFvec (input);
 
   if (vec == NULL) {
     return NULL;
   }
 
   // compute the function
-  result = Py_BuildValue ("f", fvec_alpha_norm (vec->o, alpha));
+  result = Py_BuildValue ("f", fvec_alpha_norm (vec, alpha));
   if (result == NULL) {
     return NULL;
   }
@@ -44,7 +44,7 @@ static PyObject *
 Py_zero_crossing_rate (PyObject * self, PyObject * args)
 {
   PyObject *input;
-  Py_fvec *vec;
+  fvec_t *vec;
   PyObject *result;
 
   if (!PyArg_ParseTuple (args, "O:zero_crossing_rate", &input)) {
@@ -55,14 +55,14 @@ Py_zero_crossing_rate (PyObject * self, PyObject * args)
     return NULL;
   }
 
-  vec = PyAubio_ArrayToFvec (input);
+  vec = PyAubio_ArrayToCFvec (input);
 
   if (vec == NULL) {
     return NULL;
   }
 
   // compute the function
-  result = Py_BuildValue ("f", aubio_zero_crossing_rate (vec->o));
+  result = Py_BuildValue ("f", aubio_zero_crossing_rate (vec));
   if (result == NULL) {
     return NULL;
   }
@@ -72,11 +72,11 @@ Py_zero_crossing_rate (PyObject * self, PyObject * args)
 
 static char Py_min_removal_doc[] = "compute zero crossing rate";
 
-static PyObject * 
+static PyObject *
 Py_min_removal(PyObject * self, PyObject * args)
 {
   PyObject *input;
-  Py_fvec *vec;
+  fvec_t *vec;
 
   if (!PyArg_ParseTuple (args, "O:min_removal", &input)) {
     return NULL;
@@ -86,19 +86,19 @@ Py_min_removal(PyObject * self, PyObject * args)
     return NULL;
   }
 
-  vec = PyAubio_ArrayToFvec (input);
+  vec = PyAubio_ArrayToCFvec (input);
 
   if (vec == NULL) {
     return NULL;
   }
 
   // compute the function
-  fvec_min_removal (vec->o);
+  fvec_min_removal (vec);
 
   // since this function does not return, we could return None
   //return Py_None;
-  // however it is convenient to return the modified vector 
-  return (PyObject *) PyAubio_FvecToArray(vec);
+  // however it is convenient to return the modified vector
+  return (PyObject *) PyAubio_CFvecToArray(vec);
   // or even without converting it back to an array
   //Py_INCREF(vec);
   //return (PyObject *)vec;
@@ -106,7 +106,7 @@ Py_min_removal(PyObject * self, PyObject * args)
 
 static PyMethodDef aubio_methods[] = {
   {"alpha_norm", Py_alpha_norm, METH_VARARGS, Py_alpha_norm_doc},
-  {"zero_crossing_rate", Py_zero_crossing_rate, METH_VARARGS, 
+  {"zero_crossing_rate", Py_zero_crossing_rate, METH_VARARGS,
     Py_zero_crossing_rate_doc},
   {"min_removal", Py_min_removal, METH_VARARGS, Py_min_removal_doc},
   {NULL, NULL} /* Sentinel */
@@ -120,13 +120,11 @@ init_aubio (void)
   PyObject *m;
   int err;
 
-  if ((PyType_Ready (&Py_fvecType) < 0) 
-      || (PyType_Ready (&Py_fmatType) < 0) 
-      || (PyType_Ready (&Py_cvecType) < 0) 
-      || (PyType_Ready (&Py_filterType) < 0) 
-      || (PyType_Ready (&Py_filterbankType) < 0) 
-      || (PyType_Ready (&Py_fftType) < 0) 
-      || (PyType_Ready (&Py_pvocType) < 0) 
+  if (   (PyType_Ready (&Py_cvecType) < 0)
+      || (PyType_Ready (&Py_filterType) < 0)
+      || (PyType_Ready (&Py_filterbankType) < 0)
+      || (PyType_Ready (&Py_fftType) < 0)
+      || (PyType_Ready (&Py_pvocType) < 0)
       // generated objects
       || (generated_types_ready() < 0 )
   ) {
@@ -146,10 +144,6 @@ init_aubio (void)
     return;
   }
 
-  Py_INCREF (&Py_fvecType);
-  PyModule_AddObject (m, "fvec", (PyObject *) & Py_fvecType);
-  Py_INCREF (&Py_fmatType);
-  PyModule_AddObject (m, "fmat", (PyObject *) & Py_fmatType);
   Py_INCREF (&Py_cvecType);
   PyModule_AddObject (m, "cvec", (PyObject *) & Py_cvecType);
   Py_INCREF (&Py_filterType);
