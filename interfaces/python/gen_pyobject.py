@@ -124,14 +124,14 @@ aubio2pytypes = {
 
 # aubio to pyaubio
 aubio2pyaubio = {
-    'fvec_t*': 'Py_fvec',
-    'cvec_t*': 'Py_cvec',
+    'fvec_t*': 'fvec_t',
+    'cvec_t*': 'cvec_t',
 }
 
 # array to aubio
 aubiovecfrompyobj = {
-    'fvec_t*': 'PyAubio_ArrayToFvec',
-    'cvec_t*': 'PyAubio_ArrayToCvec',
+    'fvec_t*': 'PyAubio_ArrayToCFvec',
+    'cvec_t*': 'PyAubio_ArrayToCCvec',
 }
 
 # aubio to array
@@ -142,7 +142,7 @@ aubiovectopyobj = {
 
 aubiovectopyobj_new = {
     'fvec_t*': 'PyAubio_CFvecToArray',
-    'cvec_t*': 'PyAubio_CCvecToArray',
+    'cvec_t*': 'PyAubio_CCvecToPyCvec',
     'smpl_t': 'PyFloat_FromDouble',
 }
 
@@ -291,28 +291,27 @@ def gen_do(dofunc, name):
         #    "too many output parameters"
         outputvecs = "\n  ".join([aubio2pyaubio[p[0]]+" * " + p[-1] + ";" for p in outputparams])
         outputcreate = "\n  ".join(["""\
-AUBIO_NEW_VEC(%(name)s, %(pytype)s, %(length)s)
-  %(name)s->o = new_%(autype)s (%(length)s);""" % \
+  %(name)s = new_%(autype)s (%(length)s);""" % \
     {'name': p[-1], 'pytype': aubio2pyaubio[p[0]], 'autype': p[0][:-3],
         'length': defaultsizes[name]} \
         for p in outputparams]) 
         if len(outputparams) > 1:
             returnval = "PyObject *outputs = PyList_New(0);\n"
             for p in outputparams:
-                returnval += "  PyList_Append( outputs, (PyObject *)" + aubiovectopyobj[p[0]] + " (" + p[-1] + ")" +");\n"
+                returnval += "  PyList_Append( outputs, (PyObject *)" + aubiovectopyobj_new[p[0]] + " (" + p[-1] + ")" +");\n"
             returnval += "  return outputs;"
         else:
-            returnval = "return (PyObject *)" + aubiovectopyobj[p[0]] + " (" + p[-1] + ")"
+            returnval = "return (PyObject *)" + aubiovectopyobj_new[p[0]] + " (" + p[-1] + ")"
     else:
         # no output
         outputvecs = ""
         outputcreate = ""
         #returnval = "Py_None";
-        returnval = "return (PyObject *)" + aubiovectopyobj[p[0]] + " (" + p[-1] + ")"
+        returnval = "return (PyObject *)" + aubiovectopyobj_new[p[0]] + " (" + p[-1] + ")"
     # end of output strings
 
     # build the parameters for the  _do() call
-    doparams_string = "self->o, " + ", ".join([p[-1]+"->o" for p in doparams])
+    doparams_string = "self->o, " + ", ".join([p[-1] for p in doparams])
 
     # put it all together
     s = """\
