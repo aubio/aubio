@@ -1,6 +1,6 @@
 from numpy.testing import TestCase, run_module_suite
 from numpy.testing import assert_equal, assert_almost_equal
-from _aubio import cvec
+from aubio import cvec
 from numpy import array, shape, pi
 
 class aubio_cvec_test_case(TestCase):

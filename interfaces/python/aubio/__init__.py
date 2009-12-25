@@ -1,4 +1,5 @@
 import numpy
+from _aubio import *
 
 class fvec(numpy.ndarray):
 

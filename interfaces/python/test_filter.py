@@ -1,7 +1,6 @@
 from numpy.testing import TestCase, run_module_suite
 from numpy.testing import assert_equal, assert_almost_equal
-from _aubio import *
-from aubio import fvec
+from aubio import fvec, digital_filter
 from numpy import array
 
 def array_from_text_file(filename, dtype = 'float'):

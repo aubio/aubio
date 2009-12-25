@@ -1,8 +1,7 @@
 from numpy.testing import TestCase, run_module_suite
 from numpy.testing import assert_equal, assert_almost_equal
 # WARNING: numpy also has an fft object
-from _aubio import fft, cvec
-from aubio import fvec
+from aubio import fvec, fft, cvec
 from numpy import array, shape
 from math import pi
 

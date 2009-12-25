@@ -1,8 +1,7 @@
 from numpy.testing import TestCase, run_module_suite
 from numpy.testing import assert_equal, assert_almost_equal
 from numpy import array, shape
-from _aubio import *
-#from aubio import cvec
+from aubio import cvec, filterbank
 
 class aubio_filter_test_case(TestCase):
 

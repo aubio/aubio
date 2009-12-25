@@ -1,7 +1,6 @@
 from numpy.testing import TestCase, run_module_suite
 from numpy.testing import assert_equal, assert_almost_equal
-from aubio import fvec
-from _aubio import *
+from aubio import fvec, cvec, pvoc
 from numpy import array, shape
 
 class aubio_pvoc_test_case(TestCase):
