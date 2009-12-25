@@ -53,14 +53,14 @@ static PyObject *
 Py_filterbank_do(Py_filterbank * self, PyObject * args)
 {
   PyObject *input;
-  Py_cvec *vec;
+  cvec_t *vec;
   fvec_t *out;
 
   if (!PyArg_ParseTuple (args, "O", &input)) {
     return NULL;
   }
 
-  vec = PyAubio_ArrayToCvec (input);
+  vec = PyAubio_ArrayToCCvec (input);
 
   if (vec == NULL) {
     return NULL;
@@ -69,7 +69,7 @@ Py_filterbank_do(Py_filterbank * self, PyObject * args)
   out = new_fvec (self->n_filters);
 
   // compute the function
-  aubio_filterbank_do (self->o, vec->o, out);
+  aubio_filterbank_do (self->o, vec, out);
   return (PyObject *)PyAubio_CFvecToArray(out);
 }
 
