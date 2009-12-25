@@ -89,87 +89,6 @@ fail:
   return result;
 }
 
-Py_cvec *
-PyAubio_ArrayToCvec (PyObject *input) {
-  PyObject *array;
-  Py_cvec *vec;
-  if (input == NULL) {
-    PyErr_SetString (PyExc_ValueError, "input array is not a python object");
-    goto fail;
-  }
-  // parsing input object into a Py_cvec
-  if (PyObject_TypeCheck (input, &Py_cvecType)) {
-    // input is an cvec, nothing else to do
-    vec = (Py_cvec *) input;
-  } else if (PyArray_Check(input)) {
-
-    // we got an array, convert it to an cvec 
-    if (PyArray_NDIM (input) == 0) {
-      PyErr_SetString (PyExc_ValueError, "input array is a scalar");
-      goto fail;
-    } else if (PyArray_NDIM (input) > 1) {
-      PyErr_SetString (PyExc_ValueError,
-          "input array has more than one dimensions");
-      goto fail;
-    }
-
-    if (!PyArray_ISFLOAT (input)) {
-      PyErr_SetString (PyExc_ValueError, "input array should be float");
-      goto fail;
-    } else if (PyArray_TYPE (input) != AUBIO_NPY_SMPL) {
-      PyErr_SetString (PyExc_ValueError, "input array should be float32");
-      goto fail;
-    } else {
-      // input data type is float32, nothing else to do
-      array = input;
-    }
-
-    // create a new cvec object
-    vec = (Py_cvec*) PyObject_New (Py_cvec, &Py_cvecType); 
-    if (PyArray_NDIM (array) != 2) {
-      PyErr_SetString (PyExc_ValueError,
-          "input array should be have exactly two rows for norm and phas");
-      goto fail;
-    } else {
-      vec->length = PyArray_SIZE (array);
-    }
-
-    // no need to really allocate cvec, just its struct member 
-    // vec->o = new_cvec (vec->length);
-    vec->o = (cvec_t *)malloc(sizeof(cvec_t));
-    vec->o->length = vec->length;
-    // have norm and phas point to array rows 
-    vec->o->norm = (smpl_t *) PyArray_GETPTR1 (array, 0);
-    vec->o->phas = (smpl_t *) PyArray_GETPTR1 (array, 1);
-
-  } else {
-    PyErr_SetString (PyExc_ValueError, "can only accept array or cvec as input");
-    return NULL;
-  }
-
-  return vec;
-
-fail:
-  return NULL;
-}
-
-PyObject *
-PyAubio_CvecToArray (Py_cvec * self)
-{
-  PyObject *array = NULL;
-  npy_intp dims[] = { self->o->length, 1 };
-  PyObject *concat = PyList_New (0), *tmp = NULL;
-  tmp = PyArray_SimpleNewFromData (1, dims, NPY_FLOAT, self->o->norm);
-  PyList_Append (concat, tmp);
-  Py_DECREF (tmp);
-  tmp = PyArray_SimpleNewFromData (1, dims, NPY_FLOAT, self->o->phas);
-  PyList_Append (concat, tmp);
-  Py_DECREF (tmp);
-  array = PyArray_FromObject (concat, NPY_FLOAT, 2, 2);
-  Py_DECREF (concat);
-  return array;
-}
-
 PyObject *
 PyAubio_CvecNormToArray (Py_cvec * self)
 {
@@ -327,8 +246,6 @@ static PyMemberDef Py_cvec_members[] = {
 };
 
 static PyMethodDef Py_cvec_methods[] = {
-  {"__array__", (PyCFunction) PyAubio_CvecToArray, METH_NOARGS,
-      "Returns the content of this cvec as a numpy array"},
   {NULL}
 };
 

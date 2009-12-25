@@ -26,8 +26,6 @@ typedef struct
   uint_t channels;
 } Py_cvec;
 extern PyTypeObject Py_cvecType;
-extern PyObject *PyAubio_CvecToArray (Py_cvec * self);
-extern Py_cvec *PyAubio_ArrayToCvec (PyObject * self);
 
 // defined in aubio-proxy.c
 extern PyObject *PyAubio_CFvecToArray (fvec_t * self);
