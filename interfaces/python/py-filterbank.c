@@ -54,7 +54,7 @@ Py_filterbank_do(Py_filterbank * self, PyObject * args)
 {
   PyObject *input;
   Py_cvec *vec;
-  Py_fvec *output;
+  fvec_t *out;
 
   if (!PyArg_ParseTuple (args, "O", &input)) {
     return NULL;
@@ -66,13 +66,11 @@ Py_filterbank_do(Py_filterbank * self, PyObject * args)
     return NULL;
   }
 
-  output = (Py_fvec*) PyObject_New (Py_fvec, &Py_fvecType);
-  output->length = self->n_filters;
-  output->o = new_fvec(self->n_filters);
+  out = new_fvec (self->n_filters);
 
   // compute the function
-  aubio_filterbank_do (self->o, vec->o, output->o);
-  return (PyObject *)PyAubio_FvecToArray(output);
+  aubio_filterbank_do (self->o, vec->o, out);
+  return (PyObject *)PyAubio_CFvecToArray(out);
 }
 
 AUBIO_MEMBERS_START(filterbank) 
@@ -89,7 +87,7 @@ Py_filterbank_set_triangle_bands (Py_filterbank * self, PyObject *args)
 
   PyObject *input;
   uint_t samplerate;
-  Py_fvec *freqs;
+  fvec_t *freqs;
   if (!PyArg_ParseTuple (args, "OI", &input, &samplerate)) {
     return NULL;
   }
@@ -98,14 +96,14 @@ Py_filterbank_set_triangle_bands (Py_filterbank * self, PyObject *args)
     return NULL;
   }
 
-  freqs = PyAubio_ArrayToFvec (input);
+  freqs = PyAubio_ArrayToCFvec (input);
 
   if (freqs == NULL) {
     return NULL;
   }
 
   err = aubio_filterbank_set_triangle_bands (self->o,
-      freqs->o, samplerate);
+      freqs, samplerate);
   if (err > 0) {
     PyErr_SetString (PyExc_ValueError,
         "error when setting filter to A-weighting");
@@ -136,9 +134,8 @@ Py_filterbank_set_mel_coeffs_slaney (Py_filterbank * self, PyObject *args)
 static PyObject * 
 Py_filterbank_get_coeffs (Py_filterbank * self, PyObject *unused)
 {
-  Py_fmat *output = (Py_fmat *) PyObject_New (Py_fmat, &Py_fvecType);
-  output->o = aubio_filterbank_get_coeffs (self->o);
-  return (PyObject *)PyAubio_FmatToArray(output);
+  return (PyObject *)PyAubio_CFmatToArray(
+      aubio_filterbank_get_coeffs (self->o) );
 }
 
 static PyMethodDef Py_filterbank_methods[] = {
