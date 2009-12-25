@@ -1,5 +1,6 @@
 from numpy.testing import TestCase, run_module_suite
 from numpy.testing import assert_equal, assert_almost_equal
+from aubio import fvec
 from _aubio import *
 from numpy import array, shape
 
@@ -25,13 +26,13 @@ class aubio_pvoc_test_case(TestCase):
 
   def test_steps_two_channels(self):
     """ check the resynthesis of steps is correct """
-    f = pvoc(1024, 512, 2)
-    t1 = fvec(512, 2)
-    t2 = fvec(512, 2)
+    f = pvoc(1024, 512)
+    t1 = fvec(512)
+    t2 = fvec(512)
     # positive step in first channel
-    t1[0][100:200] = .1
+    t1[100:200] = .1
     # positive step in second channel
-    t1[1][20:50] = -.1
+    t1[20:50] = -.1
     s1 = f(t1)
     r1 = f.rdo(s1)
     s2 = f(t2)
@@ -41,12 +42,11 @@ class aubio_pvoc_test_case(TestCase):
     
   def test_steps_three_random_channels(self):
     from random import random
-    f = pvoc(64, 16, 3)
-    t0 = fvec(16, 3)
-    t1 = fvec(16, 3)
-    for i in xrange(3):
-      for j in xrange(16):
-        t1[i][j] = random() * 2. - 1.
+    f = pvoc(64, 16)
+    t0 = fvec(16)
+    t1 = fvec(16)
+    for i in xrange(16):
+        t1[i] = random() * 2. - 1.
     t2 = f.rdo(f(t1))
     t2 = f.rdo(f(t0))
     t2 = f.rdo(f(t0))

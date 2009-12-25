@@ -1,7 +1,7 @@
 from numpy.testing import TestCase, run_module_suite
 from numpy.testing import assert_equal, assert_almost_equal
 # WARNING: numpy also has an fft object
-from _aubio import cvec, specdesc
+from _aubio import specdesc, cvec
 from numpy import array, shape, arange, zeros, log
 from math import pi
 
@@ -9,11 +9,8 @@ class aubio_specdesc(TestCase):
 
     def test_members(self):
         o = specdesc()
-        assert_equal ([o.buf_size, o.channels, o.method],
-            [1024, 1, "default"])
-        o = specdesc("complex", 512, 2)
-        assert_equal ([o.buf_size, o.channels, o.method],
-            [512, 2, "complex"])
+        assert_equal ([o.buf_size, o.method],
+            [1024, "default"])
 
     def test_hfc(self):
         o = specdesc("hfc")
@@ -21,7 +18,7 @@ class aubio_specdesc(TestCase):
         assert_equal( 0., o(c))
         a = arange(c.length, dtype='float32')
         c.norm = a
-        assert_equal (a, c.norm[0])
+        assert_equal (a, c.norm)
         assert_equal ( sum(a*(a+1)), o(c))
 
     def test_complex(self):
@@ -30,7 +27,7 @@ class aubio_specdesc(TestCase):
         assert_equal( 0., o(c))
         a = arange(c.length, dtype='float32')
         c.norm = a
-        assert_equal (a, c.norm[0])
+        assert_equal (a, c.norm)
         # the previous run was on zeros, so previous frames are still 0
         # so we have sqrt ( abs ( r2 ^ 2) ) == r2
         assert_equal ( sum(a), o(c))

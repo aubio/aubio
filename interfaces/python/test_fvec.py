@@ -1,13 +1,17 @@
 from numpy.testing import TestCase, run_module_suite
 from numpy.testing import assert_equal, assert_almost_equal
 from _aubio import *
-from numpy import array
+from aubio import fvec
+from numpy import array, shape
 
 class aubio_fvec_test_case(TestCase):
 
-
     def test_vector_created_with_zeroes(self):
-        a = fvec()
+        a = fvec(10)
+        a
+        shape(a)
+        a[0]
+        #del a
         assert_equal(array(a), 0.)
 
     def test_vector_assign_element(self):
@@ -19,17 +23,18 @@ class aubio_fvec_test_case(TestCase):
         a = fvec()
         a[-1] = 1
         assert_equal(a[-1], 1)
-        assert_equal(a[a.length-1], 1)
+        assert_equal(a[len(a)-1], 1)
 
     def test_vector(self):
         a = fvec()
-        a, a.length
+        a, len(a) #a.length
         a[0]
         array(a)
         a = fvec(10)
         a = fvec(1)
+        a.T
         array(a).T
-        a[0] = range(a.length)
+        a = range(len(a))
 
     def test_wrong_values(self):
         self.assertRaises (ValueError, fvec, -10)
