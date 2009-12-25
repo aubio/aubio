@@ -122,25 +122,14 @@ aubio2pytypes = {
     'char_t*': 's',
 }
 
-# aubio to pyaubio
-aubio2pyaubio = {
-    'fvec_t*': 'fvec_t',
-    'cvec_t*': 'cvec_t',
-}
-
-# array to aubio
+# python to aubio
 aubiovecfrompyobj = {
     'fvec_t*': 'PyAubio_ArrayToCFvec',
     'cvec_t*': 'PyAubio_ArrayToCCvec',
 }
 
-# aubio to array
+# aubio to python
 aubiovectopyobj = {
-    'fvec_t*': 'PyAubio_FvecToArray',
-    'cvec_t*': 'PyAubio_CvecToArray',
-}
-
-aubiovectopyobj_new = {
     'fvec_t*': 'PyAubio_CFvecToArray',
     'cvec_t*': 'PyAubio_CCvecToPyCvec',
     'smpl_t': 'PyFloat_FromDouble',
@@ -269,7 +258,7 @@ def gen_do(dofunc, name):
     pytypes = "".join([aubio2pytypes[p[0]] for p in doparams[0:1]])
     inputdefs = "\n  ".join(["PyObject * " + p[-1] + "_obj;" for p in inputparams])
     inputvecs = "\n  ".join(map(lambda p: \
-                aubio2pyaubio[p[0]]+" * " + p[-1] + ";", inputparams))
+                p[0] + p[-1] + ";", inputparams))
     parseinput = ""
     for p in inputparams:
         inputvec = p[-1]
@@ -289,25 +278,25 @@ def gen_do(dofunc, name):
     if len(outputparams) >= 1:
         #assert len(outputparams) == 1, \
         #    "too many output parameters"
-        outputvecs = "\n  ".join([aubio2pyaubio[p[0]]+" * " + p[-1] + ";" for p in outputparams])
+        outputvecs = "\n  ".join([p[0] + p[-1] + ";" for p in outputparams])
         outputcreate = "\n  ".join(["""\
   %(name)s = new_%(autype)s (%(length)s);""" % \
-    {'name': p[-1], 'pytype': aubio2pyaubio[p[0]], 'autype': p[0][:-3],
+    {'name': p[-1], 'pytype': p[0], 'autype': p[0][:-3],
         'length': defaultsizes[name]} \
         for p in outputparams]) 
         if len(outputparams) > 1:
             returnval = "PyObject *outputs = PyList_New(0);\n"
             for p in outputparams:
-                returnval += "  PyList_Append( outputs, (PyObject *)" + aubiovectopyobj_new[p[0]] + " (" + p[-1] + ")" +");\n"
+                returnval += "  PyList_Append( outputs, (PyObject *)" + aubiovectopyobj[p[0]] + " (" + p[-1] + ")" +");\n"
             returnval += "  return outputs;"
         else:
-            returnval = "return (PyObject *)" + aubiovectopyobj_new[p[0]] + " (" + p[-1] + ")"
+            returnval = "return (PyObject *)" + aubiovectopyobj[p[0]] + " (" + p[-1] + ")"
     else:
         # no output
         outputvecs = ""
         outputcreate = ""
         #returnval = "Py_None";
-        returnval = "return (PyObject *)" + aubiovectopyobj_new[p[0]] + " (" + p[-1] + ")"
+        returnval = "return (PyObject *)" + aubiovectopyobj[p[0]] + " (" + p[-1] + ")"
     # end of output strings
 
     # build the parameters for the  _do() call
@@ -419,7 +408,7 @@ Py%(funcname)s (Py_%(objname)s *self, PyObject *args)
         assert len(params) == 1, \
             "get method has more than one parameter %s" % params
         getter_args = "self->o" 
-        returnval = "(PyObject *)" + aubiovectopyobj_new[out_type] + " (tmp)"
+        returnval = "(PyObject *)" + aubiovectopyobj[out_type] + " (tmp)"
         shortname = method_name.split(name+'_')[-1]
         method_defs += """\
   {"%(shortname)s", (PyCFunction) Py%(method_name)s,
