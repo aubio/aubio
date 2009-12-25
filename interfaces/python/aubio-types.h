@@ -17,37 +17,7 @@
 #define AUBIO_NPY_SMPL NPY_FLOAT
 #endif
 
-/**
-
-Defining this constant to 1 will allow PyAubio_CastToFvec to convert from data
-types different than NPY_FLOAT to and fvec, and therefore creating a copy of
-it. 
-
-*/
-
-typedef struct
-{
-  PyObject_HEAD
-  fvec_t * o;
-  uint_t length;
-} Py_fvec;
-extern PyTypeObject Py_fvecType;
-extern PyObject *PyAubio_FvecToArray (Py_fvec * self);
-extern PyObject *PyAubio_CFvecToArray (fvec_t * self);
-extern Py_fvec *PyAubio_ArrayToFvec (PyObject * self);
-
-typedef struct
-{
-  PyObject_HEAD
-  fmat_t * o;
-  uint_t length;
-  uint_t height;
-} Py_fmat;
-extern PyTypeObject Py_fmatType;
-extern PyObject *PyAubio_FmatToArray (Py_fmat * self);
-extern PyObject *PyAubio_CFmatToArray (fmat_t * self);
-extern Py_fmat *PyAubio_ArrayToFmat (PyObject * self);
-
+// special python type for cvec
 typedef struct
 {
   PyObject_HEAD
@@ -59,6 +29,17 @@ extern PyTypeObject Py_cvecType;
 extern PyObject *PyAubio_CvecToArray (Py_cvec * self);
 extern Py_cvec *PyAubio_ArrayToCvec (PyObject * self);
 
+// defined in aubio-proxy.c
+extern PyObject *PyAubio_CFvecToArray (fvec_t * self);
+extern fvec_t *PyAubio_ArrayToCFvec (PyObject * self);
+
+extern Py_cvec *PyAubio_CCvecToPyCvec (cvec_t * self);
+extern cvec_t *PyAubio_ArrayToCCvec (PyObject *input);
+
+extern PyObject *PyAubio_CFmatToArray (fmat_t * self);
+extern fmat_t *PyAubio_ArrayToCFmat (PyObject *input);
+
+// hand written wrappers
 extern PyTypeObject Py_filterType;
 
 extern PyTypeObject Py_filterbankType;
@@ -66,3 +47,4 @@ extern PyTypeObject Py_filterbankType;
 extern PyTypeObject Py_fftType;
 
 extern PyTypeObject Py_pvocType;
+
