@@ -251,10 +251,10 @@ static PyMethodDef Py_cvec_methods[] = {
 
 static PyGetSetDef Py_cvec_getseters[] = {
   {"norm", (getter)Py_cvec_get_norm, (setter)Py_cvec_set_norm, 
-      "Content of the magnitude of this cvec",
+      "Numpy vector of shape (length,) containing the magnitude",
       NULL},
   {"phas", (getter)Py_cvec_get_phas, (setter)Py_cvec_set_phas, 
-      "Content of the magnitude of this cvec",
+      "Numpy vector of shape (length,) containing the phase",
       NULL},
   {NULL} /* sentinel */
 };
