@@ -16,7 +16,7 @@ Py_filter_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
   Py_filter *self;
   static char *kwlist[] = { "order", NULL };
 
-  if (!PyArg_ParseTupleAndKeywords (args, kwds, "|II", kwlist,
+  if (!PyArg_ParseTupleAndKeywords (args, kwds, "|I", kwlist,
           &order)) {
     return NULL;
   }
@@ -59,10 +59,10 @@ Py_filter_del (Py_filter * self)
 }
 
 static PyObject * 
-Py_filter_do(PyObject * self, PyObject * args)
+Py_filter_do(Py_filter * self, PyObject * args)
 {
   PyObject *input;
-  Py_fvec *vec;
+  fvec_t *vec;
 
   if (!PyArg_ParseTuple (args, "O:digital_filter.do", &input)) {
     return NULL;
@@ -72,23 +72,16 @@ Py_filter_do(PyObject * self, PyObject * args)
     return NULL;
   }
 
-  vec = PyAubio_ArrayToFvec (input);
+  vec = PyAubio_ArrayToCFvec (input);
 
   if (vec == NULL) {
     return NULL;
   }
 
   // compute the function
-#if 1
-  aubio_filter_do (((Py_filter *)self)->o, vec->o);
-  PyArray_INCREF((PyArrayObject*)vec);
-  return (PyObject *)vec;
-#else
-  Py_fvec *copy = (Py_fvec*) PyObject_New (Py_fvec, &Py_fvecType);
-  copy->o = new_fvec(vec->o->length);
-  aubio_filter_do_outplace (((Py_filter *)self)->o, vec->o, copy->o);
-  return (PyObject *)copy;
-#endif
+  fvec_t * out = new_fvec(vec->length);
+  aubio_filter_do_outplace (self->o, vec, out);
+  return PyAubio_CFvecToArray(out);
 }
 
 static PyObject * 
