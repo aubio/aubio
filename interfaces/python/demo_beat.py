@@ -25,4 +25,3 @@ else:
     a = aubioinput(filename, process = process, hopsize = hop_s,
             caps = 'audio/x-raw-float, rate=44100, channels=1')
     a.run()
-    print beats 
