@@ -237,7 +237,7 @@ examples_common_init (int argc, char **argv)
   }
 #endif /* HAVE_LASH */
 
-  woodblock = new_fvec (overlap_size, channels);
+  woodblock = new_fvec (overlap_size);
   if (output_filename || usejack) {
     /* dummy assignement to keep egcs happy */
     found_wood = (onsetfile = new_aubio_sndfile_ro (onset_filename)) ||
@@ -250,11 +250,11 @@ examples_common_init (int argc, char **argv)
   }
   if (onsetfile) {
     /* read the output sound once */
-    aubio_sndfile_read (onsetfile, overlap_size, woodblock);
+    aubio_sndfile_read_mono (onsetfile, overlap_size, woodblock);
   }
 
-  ibuf = new_fvec (overlap_size, channels);
-  obuf = new_fvec (overlap_size, channels);
+  ibuf = new_fvec (overlap_size);
+  obuf = new_fvec (overlap_size);
 
 }
 

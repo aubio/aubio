@@ -13,6 +13,10 @@ class aubio_fvec_test_case(TestCase):
         #del a
         assert_equal(array(a), 0.)
 
+    def test_vector_create_with_list(self):
+        a = fvec([0,1,2,3])
+        assert_equal (range(4), a)
+
     def test_vector_assign_element(self):
         a = fvec()
         a[0] = 1
@@ -52,6 +56,9 @@ class aubio_fvec_test_case(TestCase):
         a = array([0, 1], dtype='float32')
         from math import sqrt
         assert_almost_equal (alpha_norm(a, 2), sqrt(2)/2.)
+
+    def test_alpha_norm_of_none(self):
+        self.assertRaises (ValueError, alpha_norm, None, 1)
 
     def test_alpha_norm_of_array_of_float32(self):
         # check scalar fails
