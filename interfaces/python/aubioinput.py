@@ -9,8 +9,11 @@ gobject.threads_init ()
 def gst_buffer_to_numpy_array(buffer, chan):
     import numpy
     samples = numpy.frombuffer(buffer.data, dtype=numpy.float32) 
-    samples.resize([len(samples)/chan, chan])
-    return samples.T
+    if chan == 1:
+        return samples.T
+    else:
+        samples.resize([len(samples)/chan, chan])
+        return samples.T
 
 class AubioSink(gst.BaseSink):
     _caps = gst.caps_from_string('audio/x-raw-float, \
@@ -52,7 +55,14 @@ class AubioSink(gst.BaseSink):
             v = gst_buffer_to_numpy_array(block, chan)
             if self.process:
                 self.process(v, self.pos)
-            self.pos += 1    
+            self.pos += 1
+        remaining = self.adapter.available()
+        if remaining < blocksize and remaining > 0:
+            block = self.adapter.take_buffer(remaining)
+            v = gst_buffer_to_numpy_array(block, chan)
+            if self.process:
+                self.process(v, self.pos)
+            self.pos += 1
         return gst.FLOW_OK
 
 gobject.type_register(AubioSink)
