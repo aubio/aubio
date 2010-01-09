@@ -27,6 +27,7 @@
 /* note that <complex.h> is not included here but only in aubio_priv.h, so that
  * c++ projects can still use their own complex definition. */
 #include <fftw3.h>
+#include <pthread.h>
 
 #ifdef HAVE_COMPLEX_H
 #if HAVE_FFTW3F
@@ -72,6 +73,9 @@ typedef FFTW_TYPE fft_data_t;
 #define real_t double 
 #endif /* HAVE_FFTW3F */
 
+// a global mutex for FFTW thread safety
+pthread_mutex_t aubio_fftw_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 struct _aubio_fft_t {
   uint_t winsize;
   uint_t fft_size;
@@ -90,6 +94,7 @@ aubio_fft_t * new_aubio_fft(uint_t winsize) {
   s->out      = AUBIO_ARRAY(real_t,winsize);
   s->compspec = new_fvec(winsize);
   /* create plans */
+  pthread_mutex_lock(&aubio_fftw_mutex);
 #ifdef HAVE_COMPLEX_H
   s->fft_size = winsize/2 + 1;
   s->specdata = (fft_data_t*)fftw_malloc(sizeof(fft_data_t)*s->fft_size);
@@ -101,6 +106,7 @@ aubio_fft_t * new_aubio_fft(uint_t winsize) {
   s->pfw = fftw_plan_r2r_1d(winsize, s->in,  s->specdata, FFTW_R2HC, FFTW_ESTIMATE);
   s->pbw = fftw_plan_r2r_1d(winsize, s->specdata, s->out, FFTW_HC2R, FFTW_ESTIMATE);
 #endif
+  pthread_mutex_unlock(&aubio_fftw_mutex);
   for (i = 0; i < s->winsize; i++) {
     s->in[i] = 0.;
     s->out[i] = 0.;
