@@ -441,12 +441,9 @@ aubio_is_power_of_two (uint_t a)
 uint_t
 aubio_next_power_of_two (uint_t a)
 {
-  uint_t i;
-  a--;
-  for (i = 0; i < sizeof (uint_t) * CHAR_BIT; i++) {
-    a = a | a >> 1;
-  }
-  return a + 1;
+  uint_t i = 1;
+  while (i < a) i <<= 1;
+  return i;
 }
 
 smpl_t
