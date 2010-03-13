@@ -91,6 +91,7 @@ del_aubio_mfcc (aubio_mfcc_t * mf)
 
   /* delete buffers */
   del_fvec (mf->in_dct);
+  del_fmat (mf->dct_coeffs);
 
   /* delete mfcc object */
   AUBIO_FREE (mf);
