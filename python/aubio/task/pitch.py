@@ -15,7 +15,6 @@ class taskpitch(task):
 		self.pitchdet	= pitch(mode=self.params.pitchmode,
 			bufsize=self.params.bufsize,
 			hopsize=self.params.hopsize,
-			channels=self.channels,
 			samplerate=self.srate,
 			omode=self.params.omode,
 			tolerance = tolerance)

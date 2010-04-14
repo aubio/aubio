@@ -9,7 +9,6 @@ class taskonset(task):
 		task.__init__(self,input,params=params)
 		self.opick = onsetpick(self.params.bufsize,
 			self.params.hopsize,
-			self.channels,
 			self.myvec,
 			self.params.threshold,
 			mode=self.params.onsetmode,

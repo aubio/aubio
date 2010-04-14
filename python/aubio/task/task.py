@@ -16,9 +16,8 @@ class task(taskparams):
 		self.input     = input
 		self.filei     = sndfile(self.input)
 		self.srate     = self.filei.samplerate()
-		self.channels  = self.filei.channels()
 		self.params.step = float(self.params.hopsize)/float(self.srate)
-		self.myvec     = fvec(self.params.hopsize,self.channels)
+		self.myvec     = fvec(self.params.hopsize)
 		self.output    = output
 
 	def __call__(self):
