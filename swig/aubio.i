@@ -134,6 +134,7 @@ aubio_sndfile_t * new_aubio_sndfile_wo(aubio_sndfile_t * existingfile, const cha
 void aubio_sndfile_info(aubio_sndfile_t * file);
 int aubio_sndfile_write(aubio_sndfile_t * file, int frames, fvec_t ** write);
 int aubio_sndfile_read(aubio_sndfile_t * file, int frames, fvec_t ** read);
+int aubio_sndfile_read_mono(aubio_sndfile_t * file, int frames, fvec_t * read);
 int del_aubio_sndfile(aubio_sndfile_t * file);
 uint_t aubio_sndfile_channels(aubio_sndfile_t * file);
 uint_t aubio_sndfile_samplerate(aubio_sndfile_t * file);
