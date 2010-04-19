@@ -153,9 +153,6 @@ if test "$ac_cv_varargs_macros" = "yes"; then
             [Defined when c99 style varargs macros are supported])
 fi
 
-dnl Check for pkg-config
-AC_PATH_PROG(PKG_CONFIG,pkg-config,no)
-
 PKG_CHECK_MODULES(SNDFILE,     sndfile >= 1.0.4,       HAVE_SNDFILE=1)
 if test "${HAVE_SNDFILE}" = "1"; then
   AC_DEFINE(HAVE_SNDFILE,1,[Define to enable libsndfile support])
