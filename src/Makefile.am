@@ -5,6 +5,7 @@ nobase_pkginclude_HEADERS = \
 	aubio.h \
 	types.h \
 	fvec.h \
+	fmat.h \
 	lvec.h \
 	cvec.h \
 	musicutils.h \
@@ -40,6 +41,7 @@ nodist_noinst_HEADERS = config.h
 lib_LTLIBRARIES = libaubio.la 
 libaubio_la_SOURCES = \
 	fvec.c \
+	fmat.c \
 	lvec.c \
 	cvec.c \
 	mathutils.c \
