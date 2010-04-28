@@ -1,5 +1,13 @@
 #! /usr/bin/python
 # 
+# waf build script, see http://code.google.com/p/waf/
+# usage:
+#     $ waf distclean configure build
+# get it:
+#     $ svn co http://waf.googlecode.com/svn/trunk /path/to/waf
+#     $ alias waf=/path/to/waf/waf-light
+#
+# TODO
 #  - doc: add doxygen
 #  - tests: move to new unit test system 
 
