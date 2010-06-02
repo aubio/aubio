@@ -219,7 +219,7 @@ if test "$with_lash" = "yes"
 then
   PKG_CHECK_MODULES(LASH,   lash-1.0 >= 0.5.0,   HAVE_LASH=1, HAVE_LASH=0)
   if test "${HAVE_LASH}" = "1"; then
-    LASH_CFLAGS+="-DHAVE_LASH"
+    AC_DEFINE(HAVE_LASH,1,[Define to enable lash support])
   fi
 fi
   
