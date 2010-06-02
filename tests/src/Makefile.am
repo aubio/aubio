@@ -1,4 +1,4 @@
-AM_CFLAGS = -I$(top_srcdir)/src
+AM_CFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/examples
 AM_LDFLAGS = -L$(top_builddir)/src -laubio @FFTWLIB_LIBS@
 
 test_phasevoc_jack_CFLAGS = $(AM_CFLAGS) @JACK_CFLAGS@
@@ -30,10 +30,11 @@ bin_PROGRAMS = \
 	test-beattracking \
 	test-onset \
 	test-tempo \
+	test-mathutils \
 	test-tss
 
 run-tests: $(bin_PROGRAMS)
-	@for i in $(bin_PROGRAMS); do echo $$i; ((time ./$$i 2>&1 > /dev/null) 2>&1; echo $$?); done
+	@for i in $(bin_PROGRAMS); do echo -n $$i\ ; ./$$i > /dev/null && echo OK || echo FAILED: $$?; done
 
 run-valgrind-tests: $(bin_PROGRAMS)
 	@for i in $(bin_PROGRAMS); do echo $$i; valgrind .libs/lt-$$i 2>&1 | grep ERROR\ SUMMARY -A4; echo $$?; done
