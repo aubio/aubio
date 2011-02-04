@@ -106,7 +106,8 @@ smpl_t fvec_sum (fvec_t * v);
 
 /** compute the energy of a vector
 
-  This function compute the sum of the squared elements of a vector.
+  This function compute the sum of the squared elements of a vector, normalised
+  by its length.
  
   \param v vector to get the energy from 
 

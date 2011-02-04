@@ -214,7 +214,7 @@ fvec_local_energy (fvec_t * f)
   for (j = 0; j < f->length; j++) {
     energy += SQR (f->data[j]);
   }
-  return energy;
+  return energy / f->length;
 }
 
 smpl_t
@@ -449,9 +449,7 @@ aubio_next_power_of_two (uint_t a)
 smpl_t
 aubio_db_spl (fvec_t * o)
 {
-  smpl_t val = SQRT (fvec_local_energy (o));
-  val /= (smpl_t) o->length;
-  return LIN2DB (val);
+  return 10. * LOG10 (fvec_local_energy (o));
 }
 
 uint_t
