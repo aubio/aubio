@@ -116,12 +116,12 @@ aubio_tss_t * new_aubio_tss(uint_t buf_size, uint_t hop_size)
 
 void del_aubio_tss(aubio_tss_t *s)
 {
-  free(s->theta1);
-  free(s->theta2);
-  free(s->oft1);
-  free(s->oft2);
-  free(s->dev);
-  free(s);
+  AUBIO_FREE(s->theta1);
+  AUBIO_FREE(s->theta2);
+  AUBIO_FREE(s->oft1);
+  AUBIO_FREE(s->oft2);
+  AUBIO_FREE(s->dev);
+  AUBIO_FREE(s);
 }
 
 uint_t aubio_tss_set_alpha(aubio_tss_t *o, smpl_t alpha){
