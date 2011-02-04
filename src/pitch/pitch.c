@@ -133,7 +133,6 @@ new_aubio_pitch (char_t * pitch_mode,
     AUBIO_ERR ("unknown pitch detection method %s, using default.\n",
         pitch_mode);
     pitch_type = aubio_pitcht_default;
-    return NULL;
   }
   p->srate = samplerate;
   p->type = pitch_type;
