@@ -116,11 +116,11 @@ aubio_tss_t * new_aubio_tss(uint_t buf_size, uint_t hop_size)
 
 void del_aubio_tss(aubio_tss_t *s)
 {
-  AUBIO_FREE(s->theta1);
-  AUBIO_FREE(s->theta2);
-  AUBIO_FREE(s->oft1);
-  AUBIO_FREE(s->oft2);
-  AUBIO_FREE(s->dev);
+  del_fvec(s->theta1);
+  del_fvec(s->theta2);
+  del_fvec(s->oft1);
+  del_fvec(s->oft2);
+  del_fvec(s->dev);
   AUBIO_FREE(s);
 }
 
