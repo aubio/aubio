@@ -72,7 +72,6 @@ new_aubio_window (char_t * window_type, uint_t size)
   else {
       AUBIO_ERR ("unknown window type %s, using default.\n", window_type);
       wintype = aubio_win_default;
-      return NULL;
   }
   switch(wintype) {
     case aubio_win_rectangle:
