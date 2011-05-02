@@ -114,5 +114,6 @@ void
 del_aubio_pitchschmitt (aubio_pitchschmitt_t * p)
 {
   AUBIO_FREE (p->schmittBuffer);
+  AUBIO_FREE (p->buf);
   AUBIO_FREE (p);
 }
