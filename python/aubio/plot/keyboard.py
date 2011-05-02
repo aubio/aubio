@@ -30,8 +30,8 @@ def draw_keyboard(firstnote = 21, lastnote = 108, y0 = 0, y1 = 1):
   yb      = [y0+(y1-y0)*2/3. for i in range(len(xb))]
   ybdelta = [(y1-y0)*1/3. for i in range(len(xb))]
 
-  whites  = Gnuplot.Data(xw,yw,xwdelta,ywdelta,with = 'boxxyerrorbars')
-  blacks  = Gnuplot.Data(xb,yb,xbdelta,ybdelta,with = 'boxxyerrorbars fill solid')
+  whites  = Gnuplot.Data(xw,yw,xwdelta,ywdelta,with_ = 'boxxyerrorbars')
+  blacks  = Gnuplot.Data(xb,yb,xbdelta,ybdelta,with_ = 'boxxyerrorbars fill solid')
 
   return blacks,whites
 
