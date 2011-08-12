@@ -5,6 +5,7 @@ nobase_pkginclude_HEADERS = \
 	aubio.h \
 	types.h \
 	fvec.h \
+	fmat.h \
 	lvec.h \
 	cvec.h \
 	musicutils.h \
