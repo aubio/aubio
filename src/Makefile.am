@@ -43,6 +43,7 @@ libaubio_la_SOURCES = \
 	fvec.c \
 	lvec.c \
 	cvec.c \
+	fmat.c \
 	mathutils.c \
 	vecutils.c \
 	utils/hist.c \
