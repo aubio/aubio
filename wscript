@@ -28,11 +28,11 @@ def options(opt):
   opt.add_option('--enable-complex', action='store_true', default=False,
       help='compile with C99 complex')
   opt.add_option('--enable-jack', action='store_true', default=False,
-      help='compile without jack support')
+      help='compile with jack support')
   opt.add_option('--enable-lash', action='store_true', default=False,
-      help='compile without lash support')
+      help='compile with lash support')
   opt.add_option('--enable-libsamplerate', action='store_true', default=False,
-      help='compile without libsamplerate support')
+      help='compile with libsamplerate support')
   opt.add_option('--with-target-platform', type='string',
       help='set target platform for cross-compilation', dest='target_platform')
   opt.load('compiler_cc')
