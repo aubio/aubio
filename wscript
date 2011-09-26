@@ -14,31 +14,31 @@
 APPNAME = 'aubio'
 VERSION = '0.3.3'
 LIB_VERSION = '2.1.1'
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
 def init(opt):
   pass
 
-def set_options(opt):
+def options(opt):
   opt.add_option('--enable-double', action='store_true', default=False,
       help='compile aubio in double precision mode')
   opt.add_option('--disable-fftw3f', action='store_true', default=False,
       help='compile with fftw3 instead of fftw3f')
   opt.add_option('--enable-complex', action='store_true', default=False,
       help='compile with C99 complex')
-  opt.add_option('--disable-jack', action='store_true', default=False,
+  opt.add_option('--enable-jack', action='store_true', default=False,
       help='compile without jack support')
-  opt.add_option('--disable-lash', action='store_true', default=False,
+  opt.add_option('--enable-lash', action='store_true', default=False,
       help='compile without lash support')
-  opt.add_option('--disable-libsamplerate', action='store_true', default=False,
+  opt.add_option('--enable-libsamplerate', action='store_true', default=False,
       help='compile without libsamplerate support')
   opt.add_option('--with-target-platform', type='string',
       help='set target platform for cross-compilation', dest='target_platform')
-  opt.tool_options('compiler_cc')
-  opt.tool_options('compiler_cxx')
-  opt.tool_options('gnu_dirs')
-  opt.tool_options('UnitTest')
+  opt.load('compiler_cc')
+  opt.load('compiler_cxx')
+  opt.load('gnu_dirs')
+  opt.load('waf_unit_test')
 
 def configure(conf):
   import Options
@@ -46,6 +46,7 @@ def configure(conf):
   conf.check_tool('compiler_cxx')
   conf.check_tool('gnu_dirs') # helpful for autotools transition and .pc generation
   conf.check_tool('misc') # needed for subst
+  conf.load('waf_unit_test')
 
   if Options.options.target_platform:
     Options.platform = Options.options.target_platform
@@ -67,8 +68,8 @@ def configure(conf):
   # check dependencies
   conf.check_cfg(package = 'sndfile', atleast_version = '1.0.4',
     args = '--cflags --libs')
-  if (Options.options.disable_libsamplerate == False):
-      conf.check_cfg(package = 'libsamplerate', atleast_version = '0.0.15',
+  if (Options.options.enable_libsamplerate == True):
+      conf.check_cfg(package = 'samplerate', atleast_version = '0.0.15',
         args = '--cflags --libs')
 
   # double precision mode
@@ -91,15 +92,15 @@ def configure(conf):
           args = '--cflags --libs')
 
   # optional dependancies
-  if (Options.options.disable_jack == False):
+  if (Options.options.enable_jack == True):
     conf.check_cfg(package = 'jack', atleast_version = '0.15.0',
     args = '--cflags --libs')
-  if (Options.options.disable_lash == False):
+  if (Options.options.enable_lash == True):
     conf.check_cfg(package = 'lash-1.0', atleast_version = '0.5.0',
     args = '--cflags --libs', uselib_store = 'LASH')
 
   # swig
-  if conf.find_program('swig', var='SWIG', mandatory = False):
+  if 0: #conf.find_program('swig', var='SWIG', mandatory = False):
     conf.check_tool('swig', tooldir='swig')
     conf.check_swig_version('1.3.27')
 
@@ -115,7 +116,7 @@ def configure(conf):
 #define AUBIO_ERR(...) fprintf(stderr, __VA_ARGS__)
 '''
   if conf.check_cc(fragment = check_c99_varargs, 
-      type='cstaticlib', 
+      type='cstlib',
       msg = 'Checking for C99 __VA_ARGS__ macro'):
     conf.define('HAVE_C99_VARARGS_MACROS', 1)
 
@@ -132,8 +133,6 @@ def configure(conf):
 def build(bld):
   bld.env['VERSION'] = VERSION 
   bld.env['LIB_VERSION'] = LIB_VERSION 
-
-  build_extras(bld)
 
   # add sub directories
   bld.add_subdirs('src examples')
@@ -167,8 +166,6 @@ def build(bld):
 
   # build and run the unit tests
   build_tests(bld)
-  import UnitTest
-  bld.add_post_fun(UnitTest.summary)
 
 def shutdown(bld):
   pass
@@ -176,35 +173,17 @@ def shutdown(bld):
 # loop over all *.c filenames in tests/src to build them all
 # target name is filename.c without the .c
 def build_tests(bld):
-  for target_name in bld.path.ant_glob('tests/src/**/*.c').split():
+  for target_name in bld.path.ant_glob('tests/src/**/*.c'):
     this_target = bld.new_task_gen(
-        features = 'cc cprogram test',
+        features = 'c cprogram test',
         source = target_name,
-        target = target_name.split('.')[0],
+        target = str(target_name).split('.')[0],
         includes = 'src',
         defines = 'AUBIO_UNSTABLE_API=1',
-        uselib_local = 'aubio')
+        use = 'aubio')
     # phasevoc-jack also needs jack 
-    if target_name.endswith('test-phasevoc-jack.c'):
+    if str(target_name).endswith('test-phasevoc-jack.c'):
       this_target.includes = ['src', 'examples']
-      this_target.uselib_local = ['aubio']
+      this_target.use = ['aubio']
       this_target.uselib = ['JACK']
-      this_target.source += ' examples/jackio.c'
-
-def build_extras(bld):
-    # corner cases to build these ones only once
-    sndfileio = bld.new_task_gen(features = 'cc',
-        includes = 'examples src',
-        source = ['examples/sndfileio.c'], 
-        target = 'sndfileio')
-
-    defines = ['AUBIO_PREFIX="' + bld.env['AUBIO_PREFIX'] + '"']
-    defines += ['PACKAGE="' + bld.env['PACKAGE'] + '"']
-
-    utilsio = bld.new_task_gen(features = 'cc',
-          includes = 'examples src',
-          add_objects = 'sndfileio',
-          source = ['examples/utils.c', 'examples/jackio.c'], 
-          uselib = ['LASH', 'JACK', 'SNDFILE'],
-          defines = defines, 
-          target = 'utilsio')
+      this_target.target += ' examples/jackio.c'

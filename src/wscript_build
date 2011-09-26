@@ -1,6 +1,6 @@
 # build libaubio
 libaubio = bld.new_task_gen(
-    features = 'cc cshlib',
+    features = 'c cshlib',
     includes = ['.'],
     source = bld.path.ant_glob('*.c **/*.c'),
     target = 'aubio',
@@ -8,6 +8,7 @@ libaubio = bld.new_task_gen(
     vnum = bld.env['LIB_VERSION'])
 
 # install headers, except _priv.h ones
-for file in bld.path.ant_glob('**/*.h').split():
-  if '_priv.h' in file or file == 'config.h': continue
-  bld.install_as('${PREFIX}/include/aubio/' + file, file)
+bld.install_files('${PREFIX}/include/aubio/',
+	bld.path.ant_glob('**/*.h',
+	exclude = ['_priv.h', 'config.h']),
+	relative_trick=True)

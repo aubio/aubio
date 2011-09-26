@@ -1,14 +1,23 @@
 # build examples
+sndfileio = bld.new_task_gen(features = 'c',
+    includes = '../src',
+    source = ['sndfileio.c'],
+    target = 'sndfileio')
+
+utilsio = bld.new_task_gen(features = 'c',
+      includes = '../src',
+      add_objects = 'sndfileio',
+      source = ['utils.c', 'jackio.c'],
+      uselib = ['LASH', 'JACK', 'SNDFILE'],
+      target = 'utilsio')
 
 # loop over all *.c filenames in examples to build them all
-for target_name in bld.path.ant_glob('*.c').split():
-  # ignore utils.c
-  if target_name in ['utils.c', 'jackio.c', 'sndfileio.c']: continue 
-  bld.new_task_gen(features = 'cc cprogram', 
+for target_name in bld.path.ant_glob('*.c', excl = ['utils.c', 'jackio.c', 'sndfileio.c']):
+  bld.new_task_gen(features = 'c cprogram',
       add_objects = 'utilsio',
       includes = '../src',
       uselib = ['LASH', 'JACK', 'SNDFILE'],
-      uselib_local = ['aubio'],
+      use = ['aubio'],
       source = target_name,
       # program name is filename.c without the .c
-      target = target_name.split('.')[0])
+      target = str(target_name).split('.')[0])

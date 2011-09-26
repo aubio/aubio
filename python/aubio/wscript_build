@@ -3,7 +3,7 @@ pyaubio = bld.new_task_gen(name = 'python-aubio',
   source = '../../swig/aubio.i',
   add_objects = 'sndfileio',
   target = '_aubiowrapper',
-  uselib_local = ['aubio'],
+  use = ['aubio'],
   uselib = ['SNDFILE'],
   swig_flags = '-python -Wall',
   includes = '. ../../src ../../examples')
