@@ -81,8 +81,8 @@
 /* Memory management */
 #define AUBIO_MALLOC(_n)             malloc(_n)
 #define AUBIO_REALLOC(_p,_n)         realloc(_p,_n)
-#define AUBIO_NEW(_t)                (_t*)malloc(sizeof(_t))
-#define AUBIO_ARRAY(_t,_n)           (_t*)malloc((_n)*sizeof(_t))
+#define AUBIO_NEW(_t)                (_t*)calloc(sizeof(_t), 1)
+#define AUBIO_ARRAY(_t,_n)           (_t*)calloc((_n)*sizeof(_t), 1)
 #define AUBIO_MEMCPY(_dst,_src,_n)   memcpy(_dst,_src,_n)
 #define AUBIO_MEMSET(_dst,_src,_t)   memset(_dst,_src,_t)
 #define AUBIO_FREE(_p)               free(_p)
