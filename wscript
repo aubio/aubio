@@ -75,7 +75,7 @@ def configure(conf):
   # check dependencies
   conf.check_cfg(package = 'sndfile', atleast_version = '1.0.4',
     args = '--cflags --libs')
-  if (Options.options.enable_libsamplerate == True):
+  if (Options.options.enable_samplerate == True):
       conf.check_cfg(package = 'samplerate', atleast_version = '0.0.15',
         args = '--cflags --libs')
 
