@@ -17,7 +17,7 @@ for target_name in bld.path.ant_glob('*.c', excl = ['utils.c', 'jackio.c', 'sndf
       add_objects = 'utilsio',
       includes = '../src',
       uselib = ['LASH', 'JACK', 'SNDFILE'],
-      use = ['aubio'],
+      use = 'aubio',
       source = target_name,
       # program name is filename.c without the .c
       target = str(target_name).split('.')[0])
