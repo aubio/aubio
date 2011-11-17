@@ -12,8 +12,15 @@
 #  - tests: move to new unit test system 
 
 APPNAME = 'aubio'
-VERSION = '0.3.3'
-LIB_VERSION = '2.1.1'
+
+# read from VERSION
+for l in open('VERSION').readlines(): exec (l.strip())
+
+VERSION = '.'.join \
+	([str(x) for x in [AUBIO_MAJOR_VERSION, AUBIO_MINOR_VERSION, AUBIO_PATCH_VERSION]]) \
+	+ AUBIO_VERSION_STATUS
+LIB_VERSION = '.'.join \
+	([str(x) for x in [LIBAUBIO_LT_CUR, LIBAUBIO_LT_REV, LIBAUBIO_LT_AGE]])
 top = '.'
 out = 'build'
 
