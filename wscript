@@ -38,7 +38,7 @@ def options(opt):
       help='compile with jack support')
   opt.add_option('--enable-lash', action='store_true', default=False,
       help='compile with lash support')
-  opt.add_option('--enable-libsamplerate', action='store_true', default=False,
+  opt.add_option('--enable-samplerate', action='store_true', default=False,
       help='compile with libsamplerate support')
   opt.add_option('--with-target-platform', type='string',
       help='set target platform for cross-compilation', dest='target_platform')
