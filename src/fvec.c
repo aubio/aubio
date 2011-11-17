@@ -23,12 +23,8 @@
 
 fvec_t * new_fvec( uint_t length) {
   fvec_t * s = AUBIO_NEW(fvec_t);
-  uint_t j;
   s->length = length;
   s->data = AUBIO_ARRAY(smpl_t, s->length);
-  for (j=0; j< s->length; j++) {
-    s->data[j]=0.;
-  }
   return s;
 }
 

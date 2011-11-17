@@ -23,14 +23,9 @@
 
 cvec_t * new_cvec( uint_t length) {
   cvec_t * s = AUBIO_NEW(cvec_t);
-  uint_t j;
   s->length = length/2 + 1;
   s->norm = AUBIO_ARRAY(smpl_t,s->length);
   s->phas = AUBIO_ARRAY(smpl_t,s->length);
-  for (j=0; j< s->length; j++) {
-    s->norm[j]=0.;
-    s->phas[j]=0.;
-  }
   return s;
 }
 
