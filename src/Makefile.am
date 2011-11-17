@@ -58,6 +58,7 @@ libaubio_la_SOURCES = \
 	spectral/mfcc.c \
 	spectral/phasevoc.c \
 	spectral/fft.c \
+	spectral/ooura_fft8g.c \
 	spectral/tss.c \
 	spectral/specdesc.c \
 	spectral/statistics.c \

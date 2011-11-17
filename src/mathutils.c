@@ -511,11 +511,11 @@ aubio_autocorr (fvec_t * input, fvec_t * output)
 void
 aubio_cleanup (void)
 {
-#if HAVE_FFTW3
-  fftw_cleanup ();
-#else
-#if HAVE_FFTW3F
+#ifdef HAVE_FFTW3F
   fftwf_cleanup ();
+#else
+#ifdef HAVE_FFTW3
+  fftw_cleanup ();
 #endif
 #endif
 }

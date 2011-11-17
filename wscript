@@ -30,6 +30,8 @@ def init(opt):
 def options(opt):
   opt.add_option('--enable-double', action='store_true', default=False,
       help='compile aubio in double precision mode')
+  opt.add_option('--disable-fftw', action='store_true', default=False,
+      help='compile with ooura instead of fftw')
   opt.add_option('--disable-fftw3f', action='store_true', default=False,
       help='compile with fftw3 instead of fftw3f')
   opt.add_option('--enable-complex', action='store_true', default=False,
@@ -85,18 +87,23 @@ def configure(conf):
   else:
     conf.define('HAVE_AUBIO_DOUBLE', 0)
 
-  # one of fftwf or fftw3f
-  if (Options.options.disable_fftw3f == True):
-    conf.check_cfg(package = 'fftw3', atleast_version = '3.0.0',
-        args = '--cflags --libs')
-  else:
-    # fftw3f not disabled, take most sensible one according to enable_double
-    if (Options.options.enable_double == True):
+  if (Options.options.disable_fftw == False):
+    # one of fftwf or fftw3f
+    if (Options.options.disable_fftw3f == True):
       conf.check_cfg(package = 'fftw3', atleast_version = '3.0.0',
           args = '--cflags --libs')
     else:
-      conf.check_cfg(package = 'fftw3f', atleast_version = '3.0.0',
-          args = '--cflags --libs')
+      # fftw3f not disabled, take most sensible one according to enable_double
+      if (Options.options.enable_double == True):
+        conf.check_cfg(package = 'fftw3', atleast_version = '3.0.0',
+            args = '--cflags --libs')
+      else:
+        conf.check_cfg(package = 'fftw3f', atleast_version = '3.0.0',
+            args = '--cflags --libs')
+    conf.define('HAVE_FFTW3', 1)
+  else:
+    # fftw disabled, use ooura
+    pass
 
   # optional dependancies
   if (Options.options.enable_jack == True):
@@ -191,6 +198,5 @@ def build_tests(bld):
     # phasevoc-jack also needs jack 
     if str(target_name).endswith('test-phasevoc-jack.c'):
       this_target.includes = ['src', 'examples']
-      this_target.use = ['aubio']
       this_target.uselib = ['JACK']
       this_target.target += ' examples/jackio.c'

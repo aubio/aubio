@@ -173,27 +173,38 @@ fi
 
 dnl Check for fftw3 (required)
 dnl if we compile in double precsion, default to fftw3, else fftw3f
+
+AC_ARG_ENABLE(fftw3,
+  AC_HELP_STRING([--enable-fftw3],[compile with fftw3 [[default=auto]]]),
+  [with_fftw3=$enableval],
+  with_fftw3="yes")
+
 if test "$with_double_precision" = "yes"; then
     default_fftw3f="no"
 else
-    default_fftw3f="yes"
+    default_fftw3f=$with_fftw3
 fi
+
 AC_ARG_ENABLE(fftw3f,
   AC_HELP_STRING([--enable-fftw3f],[compile with fftw3f [[default=auto]]]),
   [with_fftw3f=$enableval],
   [with_fftw3f=$default_fftw3f])
+
+# check if we have fftw3f
 if test "$with_fftw3f" = "yes"; then
   PKG_CHECK_MODULES(FFTWLIB,    fftw3f >= 3.0.0,     HAVE_FFTW3F=1, HAVE_FFTW3F=0)
 else
-  PKG_CHECK_MODULES(FFTWLIB,    fftw3  >= 3.0.0,     HAVE_FFTW3=1)
+# check if we have fftw3
+if test "$with_fftw3" = "yes"; then
+  PKG_CHECK_MODULES(FFTWLIB,    fftw3  >= 3.0.0,     HAVE_FFTW3=1, HAVE_FFTW3=0)
 fi
-if test "${HAVE_FFTW3F}" = "0"; then
-  PKG_CHECK_MODULES(FFTWLIB,    fftw3  >= 3.0.0,     HAVE_FFTW3=1)
 fi
+
 if test "${HAVE_FFTW3}" = "1"; then
   AC_DEFINE(HAVE_FFTW3,1,[Define to enable fftw3 support])
 fi
 if test "${HAVE_FFTW3F}" = "1"; then
+  AC_DEFINE(HAVE_FFTW3,1,[Define to enable fftw3 support])
   AC_DEFINE(HAVE_FFTW3F,1,[Define to enable fftw3f support])
 fi
 
@@ -263,12 +274,12 @@ echo
 echo "**************************************************************"
 echo "Summary:"
 if test "${HAVE_FFTW3F}" = "1"; then
-  echo "Fftw3:                   yes (using fftw3f)"
+  echo "FFT:                     using fftw3f"
 else
 if test "${HAVE_FFTW3}" = "1"; then
-  echo "Fftw3:                   yes (not using fftw3f)"
+  echo "Fft:                     using fftw3"
 else
-  echo "Fftw3:                   no (that should not happen)"
+  echo "Fft:                     using ooura"
 fi
 fi
 if test "${HAVE_SNDFILE}" = "1"; then

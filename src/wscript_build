@@ -1,10 +1,17 @@
+uselib = ['SAMPLERATE']
+if 'HAVE_FFTW3' in conf.get_env():
+  source = bld.path.ant_glob('*.c **/*.c', excl = ['**/ooura_fft8g.c'])
+  uselib += ['FFTW3', 'FFTW3F']
+else:
+  source = bld.path.ant_glob('*.c **/*.c')
+
 # build libaubio
-libaubio = bld.new_task_gen(
-    features = 'c cshlib',
+bld.shlib(
     includes = ['.'],
-    source = bld.path.ant_glob('*.c **/*.c'),
+    source = source,
     target = 'aubio',
-    uselib = ['FFTW3', 'FFTW3F', 'SAMPLERATE'],
+    lib = 'm',
+    uselib = uselib,
     vnum = bld.env['LIB_VERSION'])
 
 # install headers, except _priv.h ones
