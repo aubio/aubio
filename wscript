@@ -21,6 +21,12 @@ VERSION = '.'.join \
 	+ AUBIO_VERSION_STATUS
 LIB_VERSION = '.'.join \
 	([str(x) for x in [LIBAUBIO_LT_CUR, LIBAUBIO_LT_REV, LIBAUBIO_LT_AGE]])
+
+import os.path, sys
+if os.path.exists('src/config.h') or os.path.exists('Makefile'):
+    print "Please run 'make distclean' using waf"
+    sys.exit(1)
+
 top = '.'
 out = 'build'
 
