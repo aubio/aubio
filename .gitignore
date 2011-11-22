@@ -63,3 +63,8 @@ src/config.h
 src/config.h.in
 src/config.h.in~
 src/stamp-h1
+
+# generated documentation
+doc/devel/
+doc/user/
+doc/examples/

@@ -5,6 +5,7 @@ nobase_pkginclude_HEADERS = \
 	aubio.h \
 	types.h \
 	fvec.h \
+	fmat.h \
 	lvec.h \
 	cvec.h \
 	musicutils.h \
@@ -42,6 +43,7 @@ libaubio_la_SOURCES = \
 	fvec.c \
 	lvec.c \
 	cvec.c \
+	fmat.c \
 	mathutils.c \
 	vecutils.c \
 	utils/hist.c \
