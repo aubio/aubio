@@ -19,7 +19,7 @@ setup(name="_aubio", version="1.0",
             "py-phasevoc.c",
             # generated files
             ] + generated_files,
-            include_dirs=['../../build/default/src', '../../src', '.' ],
-            library_dirs=['../../build/default/src', '../../src/.libs' ],
+            include_dirs=['../../build/src', '../../src', '.' ],
+            library_dirs=['../../build/src', '../../src/.libs' ],
             libraries=['aubio'])])
 
