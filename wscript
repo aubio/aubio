@@ -1,5 +1,5 @@
 #! /usr/bin/python
-# 
+#
 # waf build script, see http://code.google.com/p/waf/
 # usage:
 #     $ waf distclean configure build
@@ -9,7 +9,7 @@
 #
 # TODO
 #  - doc: add doxygen
-#  - tests: move to new unit test system 
+#  - tests: move to new unit test system
 
 APPNAME = 'aubio'
 
@@ -46,6 +46,8 @@ def options(opt):
       help='compile with jack support')
   opt.add_option('--enable-lash', action='store_true', default=False,
       help='compile with lash support')
+  opt.add_option('--enable-sndfile', action='store_true', default=False,
+      help='compile with libsndfile support')
   opt.add_option('--enable-samplerate', action='store_true', default=False,
       help='compile with libsamplerate support')
   opt.add_option('--with-target-platform', type='string',
@@ -60,7 +62,7 @@ def configure(conf):
   conf.check_tool('compiler_cc')
   conf.check_tool('compiler_cxx')
   conf.check_tool('gnu_dirs') # helpful for autotools transition and .pc generation
-  conf.check_tool('misc') # needed for subst
+  #conf.check_tool('misc') # needed for subst
   conf.load('waf_unit_test')
 
   if Options.options.target_platform:
@@ -81,8 +83,9 @@ def configure(conf):
     conf.check(header_name='complex.h')
 
   # check dependencies
-  conf.check_cfg(package = 'sndfile', atleast_version = '1.0.4',
-    args = '--cflags --libs')
+  if (Options.options.enable_sndfile == True):
+    conf.check_cfg(package = 'sndfile', atleast_version = '1.0.4',
+      args = '--cflags --libs')
   if (Options.options.enable_samplerate == True):
       conf.check_cfg(package = 'samplerate', atleast_version = '0.0.15',
         args = '--cflags --libs')
@@ -93,7 +96,16 @@ def configure(conf):
   else:
     conf.define('HAVE_AUBIO_DOUBLE', 0)
 
-  if (Options.options.disable_fftw == False):
+  # check if pkg-config is installed, optional
+  try:
+    conf.find_program('pkg-config', var='PKGCONFIG')
+  except conf.errors.ConfigurationError:
+    conf.to_log('pkg-config was not found, not looking for (ignoring)')
+
+  print conf.env
+  print Options.options.directories
+
+  if (Options.options.disable_fftw == False) or not conf.env['PKGCONFIG']:
     # one of fftwf or fftw3f
     if (Options.options.disable_fftw3f == True):
       conf.check_cfg(package = 'fftw3', atleast_version = '3.0.0',
@@ -120,12 +132,16 @@ def configure(conf):
     args = '--cflags --libs', uselib_store = 'LASH')
 
   # swig
-  if 0: #conf.find_program('swig', var='SWIG', mandatory = False):
+  try:
+    conf.find_program('swig', var='SWIG')
+  except conf.errors.ConfigurationError:
+    conf.to_log('swig was not found, not looking for (ignoring)')
+  if conf.env['SWIG']:
     conf.check_tool('swig', tooldir='swig')
     conf.check_swig_version('1.3.27')
 
     # python
-    if conf.find_program('python', mandatory = False):
+    if conf.find_program('python'):
       conf.check_tool('python')
       conf.check_python_version((2,4,2))
       conf.check_python_headers()
@@ -135,7 +151,7 @@ def configure(conf):
 #include <stdio.h>
 #define AUBIO_ERR(...) fprintf(stderr, __VA_ARGS__)
 '''
-  if conf.check_cc(fragment = check_c99_varargs, 
+  if conf.check_cc(fragment = check_c99_varargs,
       type='cstlib',
       msg = 'Checking for C99 __VA_ARGS__ macro'):
     conf.define('HAVE_C99_VARARGS_MACROS', 1)
@@ -143,16 +159,19 @@ def configure(conf):
   # write configuration header
   conf.write_config_header('src/config.h')
 
-  # add some defines used in examples 
+  # add some defines used in examples
   conf.define('AUBIO_PREFIX', conf.env['PREFIX'])
   conf.define('PACKAGE', APPNAME)
 
   # check if docbook-to-man is installed, optional
-  conf.find_program('docbook-to-man', var='DOCBOOKTOMAN', mandatory=False)
+  try:
+    conf.find_program('docbook-to-man', var='DOCBOOKTOMAN')
+  except conf.errors.ConfigurationError:
+    conf.to_log('docbook-to-man was not found (ignoring)')
 
 def build(bld):
-  bld.env['VERSION'] = VERSION 
-  bld.env['LIB_VERSION'] = LIB_VERSION 
+  bld.env['VERSION'] = VERSION
+  bld.env['LIB_VERSION'] = LIB_VERSION
 
   # add sub directories
   bld.add_subdirs('src examples')
@@ -161,10 +180,11 @@ def build(bld):
       bld.add_subdirs('python/aubio python')
 
   # create the aubio.pc file for pkg-config
-  aubiopc = bld.new_task_gen('subst')
-  aubiopc.source = 'aubio.pc.in'
-  aubiopc.target = 'aubio.pc'
-  aubiopc.install_path = '${PREFIX}/lib/pkgconfig'
+  if bld.env['TARGET_PLATFORM'] == 'linux':
+    aubiopc = bld.new_task_gen('subst')
+    aubiopc.source = 'aubio.pc.in'
+    aubiopc.target = 'aubio.pc'
+    aubiopc.install_path = '${PREFIX}/lib/pkgconfig'
 
   # build manpages from sgml files
   if bld.env['DOCBOOKTOMAN']:
@@ -176,12 +196,12 @@ def build(bld):
         ext_out = '.1',
         reentrant = 0,
     )
-    manpages = bld.new_task_gen(name = 'docbooktoman', 
+    manpages = bld.new_task_gen(name = 'docbooktoman',
         source=bld.path.ant_glob('doc/*.sgml'))
     bld.install_files('${MANDIR}/man1', bld.path.ant_glob('doc/*.1'))
 
   # install woodblock sound
-  bld.install_files('${PREFIX}/share/sounds/aubio/', 
+  bld.install_files('${PREFIX}/share/sounds/aubio/',
       'sounds/woodblock.aiff')
 
   # build and run the unit tests
@@ -194,15 +214,26 @@ def shutdown(bld):
 # target name is filename.c without the .c
 def build_tests(bld):
   for target_name in bld.path.ant_glob('tests/src/**/*.c'):
+    includes = ['src']
+    uselib = []
+    if not str(target_name).endswith('-jack.c'):
+      includes = []
+      uselib = []
+      extra_source = []
+    else:
+      # phasevoc-jack needs jack
+      if bld.env['JACK']:
+        includes = ['examples']
+        uselib = ['JACK']
+        extra_source = ['examples/jackio.c']
+      else:
+        continue
+
     this_target = bld.new_task_gen(
         features = 'c cprogram test',
-        source = target_name,
+        uselib = uselib,
+        source = [target_name] + extra_source,
         target = str(target_name).split('.')[0],
-        includes = 'src',
+        includes = ['src'] + includes,
         defines = 'AUBIO_UNSTABLE_API=1',
         use = 'aubio')
-    # phasevoc-jack also needs jack 
-    if str(target_name).endswith('test-phasevoc-jack.c'):
-      this_target.includes = ['src', 'examples']
-      this_target.uselib = ['JACK']
-      this_target.target += ' examples/jackio.c'
