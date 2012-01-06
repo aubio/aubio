@@ -102,9 +102,6 @@ def configure(conf):
   except conf.errors.ConfigurationError:
     conf.to_log('pkg-config was not found, not looking for (ignoring)')
 
-  print conf.env
-  print Options.options.directories
-
   if (Options.options.disable_fftw == False) or not conf.env['PKGCONFIG']:
     # one of fftwf or fftw3f
     if (Options.options.disable_fftw3f == True):
