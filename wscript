@@ -102,31 +102,34 @@ def configure(conf):
   except conf.errors.ConfigurationError:
     conf.to_log('pkg-config was not found, not looking for (ignoring)')
 
-  if (Options.options.disable_fftw == False) or not conf.env['PKGCONFIG']:
-    # one of fftwf or fftw3f
-    if (Options.options.disable_fftw3f == True):
-      conf.check_cfg(package = 'fftw3', atleast_version = '3.0.0',
-          args = '--cflags --libs')
-    else:
-      # fftw3f not disabled, take most sensible one according to enable_double
-      if (Options.options.enable_double == True):
+  # optional dependancies using pkg-config
+  if conf.env['PKGCONFIG']:
+
+    if (Options.options.disable_fftw == False):
+      # one of fftwf or fftw3f
+      if (Options.options.disable_fftw3f == True):
         conf.check_cfg(package = 'fftw3', atleast_version = '3.0.0',
             args = '--cflags --libs')
       else:
-        conf.check_cfg(package = 'fftw3f', atleast_version = '3.0.0',
-            args = '--cflags --libs')
-    conf.define('HAVE_FFTW3', 1)
-  else:
-    # fftw disabled, use ooura
-    pass
+        # fftw3f not disabled, take most sensible one according to enable_double
+        if (Options.options.enable_double == True):
+          conf.check_cfg(package = 'fftw3', atleast_version = '3.0.0',
+              args = '--cflags --libs')
+        else:
+          conf.check_cfg(package = 'fftw3f', atleast_version = '3.0.0',
+              args = '--cflags --libs')
+      conf.define('HAVE_FFTW3', 1)
+    else:
+      # fftw disabled, use ooura
+      pass
 
-  # optional dependancies
-  if (Options.options.enable_jack == True):
-    conf.check_cfg(package = 'jack', atleast_version = '0.15.0',
-    args = '--cflags --libs')
-  if (Options.options.enable_lash == True):
-    conf.check_cfg(package = 'lash-1.0', atleast_version = '0.5.0',
-    args = '--cflags --libs', uselib_store = 'LASH')
+    if (Options.options.enable_jack == True):
+      conf.check_cfg(package = 'jack', atleast_version = '0.15.0',
+      args = '--cflags --libs')
+
+    if (Options.options.enable_lash == True):
+      conf.check_cfg(package = 'lash-1.0', atleast_version = '0.5.0',
+      args = '--cflags --libs', uselib_store = 'LASH')
 
   # swig
   try:
