@@ -100,7 +100,8 @@ def configure(conf):
   try:
     conf.find_program('pkg-config', var='PKGCONFIG')
   except conf.errors.ConfigurationError:
-    conf.to_log('pkg-config was not found, not looking for (ignoring)')
+    conf.msg('Could not find pkg-config', 'disabling fftw, jack, and lash')
+    conf.msg('Could not find fftw', 'using ooura')
 
   # optional dependancies using pkg-config
   if conf.env['PKGCONFIG']:
@@ -121,6 +122,7 @@ def configure(conf):
       conf.define('HAVE_FFTW3', 1)
     else:
       # fftw disabled, use ooura
+      conf.msg('Fftw disabled', 'using ooura')
       pass
 
     if (Options.options.enable_jack == True):
