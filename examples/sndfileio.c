@@ -18,6 +18,8 @@
 
 */
 
+#ifdef HAVE_SNDFILE
+
 #include <string.h>
 
 #include <sndfile.h>
@@ -247,3 +249,4 @@ void aubio_sndfile_info(aubio_sndfile_t * f) {
         AUBIO_DBG("format   : %d\n", f->format);
 }
 
+#endif /* HAVE_SNDFILE */
