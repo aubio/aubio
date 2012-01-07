@@ -5,7 +5,6 @@ test_phasevoc_jack_CFLAGS = $(AM_CFLAGS) @JACK_CFLAGS@
 test_phasevoc_jack_LDADD  = $(AM_LDFLAGS) @JACK_LIBS@ 
 
 bin_PROGRAMS = \
-	test-fft \
 	test-hist \
 	test-scale \
 	test-cvec \
@@ -27,9 +26,7 @@ bin_PROGRAMS = \
 	test-pitchfcomb \
 	test-pitchmcomb \
 	test-pitch \
-	test-beattracking \
 	test-onset \
-	test-tempo \
 	test-mathutils \
 	test-tss
 
