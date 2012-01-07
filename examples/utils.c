@@ -18,7 +18,7 @@
 
 */
 
-/** 
+/**
 
   This file includes some tools common to all examples. Code specific to the
   algorithm performed by each program should go in the source file of that
@@ -63,8 +63,13 @@ uint_t overlap_size = 256;      //512;
 uint_t samplerate = 44100;
 
 
+#ifdef HAVE_SNDFILE
 aubio_sndfile_t *file = NULL;
 aubio_sndfile_t *fileout = NULL;
+#else
+void *file = NULL;
+void *fileout = NULL;
+#endif
 
 fvec_t *ibuf;
 fvec_t *obuf;
@@ -196,6 +201,8 @@ parse_args (int argc, char **argv)
   return 0;
 }
 
+#ifdef HAVE_SNDFILE
+
 void
 examples_common_init (int argc, char **argv)
 {
@@ -258,6 +265,17 @@ examples_common_init (int argc, char **argv)
 
 }
 
+#else /* HAVE_SNDFILE */
+
+void
+examples_common_init (int argc, char **argv)
+{
+  outmsg ("Error, compiled without sndfile, nothing to do for now!\n");
+}
+
+
+#endif /* HAVE_SNDFILE */
+
 
 void
 examples_common_del (void)
@@ -272,6 +290,8 @@ examples_common_del (void)
 #if HAVE_JACK
 aubio_jack_t *jack_setup;
 #endif
+
+#if HAVE_SNDFILE
 
 void
 examples_common_process (aubio_process_func_t process_func,
@@ -319,6 +339,16 @@ examples_common_process (aubio_process_func_t process_func,
 
   }
 }
+
+#else /* HAVE_SNDFILE */
+
+void
+examples_common_process (aubio_process_func_t process_func,
+    aubio_print_func_t print)
+{
+}
+
+#endif /* HAVE_SNDFILE */
 
 void
 flush_process (aubio_process_func_t process_func, aubio_print_func_t print)

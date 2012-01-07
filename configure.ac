@@ -153,9 +153,15 @@ if test "$ac_cv_varargs_macros" = "yes"; then
             [Defined when c99 style varargs macros are supported])
 fi
 
-PKG_CHECK_MODULES(SNDFILE,     sndfile >= 1.0.4,       HAVE_SNDFILE=1)
-if test "${HAVE_SNDFILE}" = "1"; then
-  AC_DEFINE(HAVE_SNDFILE,1,[Define to enable libsndfile support])
+AC_ARG_ENABLE(sndfile,
+  AC_HELP_STRING([--enable-sndfile],[compile with sndfile [[default=auto]]]),
+  [with_sndfile=$enableval],
+  with_sndfile="yes")
+if test "$with_sndfile" = "yes"; then
+  PKG_CHECK_MODULES(SNDFILE, sndfile >= 1.0.4, HAVE_SNDFILE=1, HAVE_SNDFILE=0)
+  if test "${HAVE_SNDFILE}" = "1"; then
+    AC_DEFINE(HAVE_SNDFILE,1,[Define to enable libsndfile support])
+  fi
 fi
 
 dnl Enable samplerate support (auto)
