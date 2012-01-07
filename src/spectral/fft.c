@@ -101,8 +101,8 @@ extern void rdft(int, int, double *, int *, double *);
 
 aubio_fft_t * new_aubio_fft (uint_t winsize) {
   aubio_fft_t * s = AUBIO_NEW(aubio_fft_t);
-  uint_t i;
 #ifdef HAVE_FFTW3
+  uint_t i;
   s->winsize  = winsize;
   /* allocate memory */
   s->in       = AUBIO_ARRAY(real_t,winsize);
