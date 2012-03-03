@@ -6,6 +6,7 @@ generated_files = filter(lambda x: x.endswith('.c'), generated_files)
 generated_files = ['generated/'+f for f in generated_files]
 
 setup(name="_aubio", version="1.0",
+      packages = ['aubio'],
       ext_modules = [ 
         Extension("_aubio",
             ["aubiomodule.c",
