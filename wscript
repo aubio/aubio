@@ -24,7 +24,7 @@ LIB_VERSION = '.'.join \
 
 import os.path, sys
 if os.path.exists('src/config.h') or os.path.exists('Makefile'):
-    print "Please run 'make distclean' using waf"
+    print "Please run 'make distclean' to clean-up autotools files before using waf"
     sys.exit(1)
 
 top = '.'
