@@ -280,10 +280,11 @@ examples_common_init (int argc, char **argv)
 void
 examples_common_del (void)
 {
-  uint_t i;
+#if HAVE_SNDFILE
   del_fvec (ibuf);
   del_fvec (obuf);
   del_fvec (woodblock);
+#endif
   aubio_cleanup ();
 }
 
