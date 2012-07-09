@@ -1,3 +1,5 @@
+# vim:set syntax=python:
+
 uselib = ['SAMPLERATE']
 if 'HAVE_FFTW3' in conf.get_env():
   source = bld.path.ant_glob('*.c **/*.c', excl = ['**/ooura_fft8g.c'])
