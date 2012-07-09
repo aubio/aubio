@@ -18,6 +18,8 @@
 
 */
 
+#include "config.h"
+
 #ifdef HAVE_SNDFILE
 
 #include <string.h>
