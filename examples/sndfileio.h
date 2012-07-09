@@ -46,9 +46,13 @@ aubio_sndfile_t * new_aubio_sndfile_wo(aubio_sndfile_t * existingfile, const cha
  */
 int aubio_sndfile_open_wo (aubio_sndfile_t * file, const char * outputname);
 /** 
- * Read frames data from file 
+ * Read frames data from file into an array of buffers
  */
 int aubio_sndfile_read(aubio_sndfile_t * file, int frames, fvec_t ** read);
+/** 
+ * Read frames data from file into a single buffer
+ */
+int aubio_sndfile_read_mono (aubio_sndfile_t * f, int frames, fvec_t * read);
 /** 
  * Write data of length frames to file
  */
