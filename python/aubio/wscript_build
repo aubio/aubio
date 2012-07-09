@@ -1,6 +1,6 @@
 # vim:set syntax=python:
 
-pyaubio = bld.new_task_gen(name = 'python-aubio', 
+pyaubio = ctx.new_task_gen(name = 'python-aubio',
   features = 'c cshlib pyext',
   source = '../../swig/aubio.i',
   add_objects = 'sndfileio',
@@ -12,6 +12,6 @@ pyaubio = bld.new_task_gen(name = 'python-aubio',
 pyaubio.install_path = '${PYTHONDIR}/${PACKAGE}'
 
 # install python files 
-bld.install_files('${PYTHONDIR}/${PACKAGE}/', bld.path.ant_glob('**/*.py'))
+ctx.install_files('${PYTHONDIR}/${PACKAGE}/', ctx.path.ant_glob('**/*.py'))
 # install swig generated python file
-bld.install_files('${PYTHONDIR}/${PACKAGE}/', '../../swig/aubiowrapper.py')
+ctx.install_files('${PYTHONDIR}/${PACKAGE}/', '../../swig/aubiowrapper.py')
