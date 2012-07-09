@@ -36,9 +36,9 @@ def init(opt):
 def options(opt):
   opt.add_option('--enable-double', action='store_true', default=False,
       help='compile aubio in double precision mode')
-  opt.add_option('--disable-fftw', action='store_true', default=False,
+  opt.add_option('--enable-fftw', action='store_true', default=False,
       help='compile with ooura instead of fftw')
-  opt.add_option('--disable-fftw3f', action='store_true', default=False,
+  opt.add_option('--enable-fftw3f', action='store_true', default=False,
       help='compile with fftw3 instead of fftw3f')
   opt.add_option('--enable-complex', action='store_true', default=False,
       help='compile with C99 complex')
@@ -50,16 +50,18 @@ def options(opt):
       help='compile with libsndfile support')
   opt.add_option('--enable-samplerate', action='store_true', default=False,
       help='compile with libsamplerate support')
+  opt.add_option('--enable-swig', action='store_true', default=False,
+      help='compile with swig support (obsolete)')
   opt.add_option('--with-target-platform', type='string',
       help='set target platform for cross-compilation', dest='target_platform')
-  opt.load('compiler_cc')
+  opt.load('compiler_c')
   opt.load('compiler_cxx')
   opt.load('gnu_dirs')
   opt.load('waf_unit_test')
 
 def configure(conf):
   import Options
-  conf.check_tool('compiler_cc')
+  conf.check_tool('compiler_c')
   conf.check_tool('compiler_cxx')
   conf.check_tool('gnu_dirs') # helpful for autotools transition and .pc generation
   #conf.check_tool('misc') # needed for subst
@@ -106,13 +108,15 @@ def configure(conf):
   # optional dependancies using pkg-config
   if conf.env['PKGCONFIG']:
 
-    if (Options.options.disable_fftw == False):
+    if (Options.options.enable_fftw == True or Options.options.enable_fftw3f == True):
       # one of fftwf or fftw3f
-      if (Options.options.disable_fftw3f == True):
-        conf.check_cfg(package = 'fftw3', atleast_version = '3.0.0',
+      if (Options.options.enable_fftw3f == True):
+        conf.check_cfg(package = 'fftw3f', atleast_version = '3.0.0',
             args = '--cflags --libs')
+        if (Options.options.enable_double == True):
+          conf.msg('Warning', 'fftw3f enabled, but aubio compiled in double precision!')
       else:
-        # fftw3f not disabled, take most sensible one according to enable_double
+        # fftw3f not enabled, take most sensible one according to enable_double
         if (Options.options.enable_double == True):
           conf.check_cfg(package = 'fftw3', atleast_version = '3.0.0',
               args = '--cflags --libs')
@@ -134,19 +138,21 @@ def configure(conf):
       args = '--cflags --libs', uselib_store = 'LASH')
 
   # swig
-  try:
-    conf.find_program('swig', var='SWIG')
-  except conf.errors.ConfigurationError:
-    conf.to_log('swig was not found, not looking for (ignoring)')
-  if conf.env['SWIG']:
-    conf.check_tool('swig', tooldir='swig')
-    conf.check_swig_version('1.3.27')
+  if (Options.options.enable_swig == True):
+    try:
+      conf.find_program('swig', var='SWIG')
+    except conf.errors.ConfigurationError:
+      conf.to_log('swig was not found, not looking for (ignoring)')
 
-    # python
-    if conf.find_program('python'):
-      conf.check_tool('python')
-      conf.check_python_version((2,4,2))
-      conf.check_python_headers()
+    if conf.env['SWIG']:
+      conf.check_tool('swig')
+      conf.check_swig_version()
+
+      # python
+      if conf.find_program('python'):
+        conf.check_tool('python')
+        conf.check_python_version((2,4,2))
+        conf.check_python_headers()
 
   # check support for C99 __VA_ARGS__ macros
   check_c99_varargs = '''
@@ -179,7 +185,7 @@ def build(bld):
   bld.add_subdirs('src examples')
   if bld.env['SWIG']:
     if bld.env['PYTHON']:
-      bld.add_subdirs('python/aubio python')
+      bld.add_subdirs('python')
 
   # create the aubio.pc file for pkg-config
   if bld.env['TARGET_PLATFORM'] == 'linux':
