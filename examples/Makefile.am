@@ -10,7 +10,7 @@ bin_PROGRAMS = \
 	aubiomfcc
 
 noinst_PROGRAMS = \
-	aubiopitch
+	aubiopitch \
 	aubioquiet
 
 EXTRA_DIST = utils.h sndfileio.h jackio.h
