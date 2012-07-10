@@ -10,7 +10,9 @@
 #include <stdio.h>
 #include <unistd.h>  /* sleep() */
 #include <aubio.h>
+#ifdef HAVE_JACK
 #include "jackio.h"
+#endif /* HAVE_JACK */
 
 uint_t testing  = 0;  /* change this to 1 to listen        */
 

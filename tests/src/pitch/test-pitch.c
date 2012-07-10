@@ -19,6 +19,7 @@ main ()
   };
 
   del_aubio_pitch (o);
+  del_fvec (out);
   del_fvec (in);
   aubio_cleanup ();
 

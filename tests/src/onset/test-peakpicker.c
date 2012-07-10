@@ -16,6 +16,7 @@ int main(){
         aubio_peakpicker_do(o, in, out);
 
         del_aubio_peakpicker(o);
+        del_fvec(out);
         del_fvec(in);
         return 0;
 }
