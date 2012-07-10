@@ -17,6 +17,7 @@ int main(){
 
         del_fvec(in);
         del_fvec(out);
+        del_aubio_pitchyin(p);
         aubio_cleanup();
 
         return 0;
