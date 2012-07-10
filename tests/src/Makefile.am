@@ -1,37 +1,42 @@
 AM_CFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/examples
 AM_LDFLAGS = -L$(top_builddir)/src -laubio @FFTWLIB_LIBS@
 
-test_phasevoc_jack_CFLAGS = $(AM_CFLAGS) @JACK_CFLAGS@
-test_phasevoc_jack_LDADD  = $(AM_LDFLAGS) @JACK_LIBS@ 
+spectral_test_phasevoc_jack_CFLAGS = $(AM_CFLAGS) @JACK_CFLAGS@
+spectral_test_phasevoc_jack_LDADD  = $(AM_LDFLAGS) @JACK_LIBS@ 
 
-bin_PROGRAMS = \
-	test-hist \
-	test-scale \
-	test-cvec \
-	test-fvec \
-	test-window \
-	test-filter \
-	test-biquad \
-	test-resample \
-	test-peakpick \
-	test-phasevoc \
-	test-filterbank \
-	test-filterbank_mel \
-	test-mfcc \
-	test-phasevoc-jack \
-	test-onsetdetection \
-	test-pitchyin \
-	test-pitchyinfft \
-	test-pitchschmitt \
-	test-pitchfcomb \
-	test-pitchmcomb \
-	test-pitch \
-	test-onset \
-	test-mathutils \
-	test-tss
+noinst_PROGRAMS = \
+  test-fvec \
+  test-cvec \
+  test-mathutils \
+  test-mathutils-window \
+  pitch/test-pitchyin \
+  pitch/test-pitchyinfft \
+  pitch/test-pitch \
+  pitch/test-pitchmcomb \
+  pitch/test-pitchfcomb \
+  pitch/test-pitchschmitt \
+  temporal/test-cweighting \
+  temporal/test-resampler \
+  temporal/test-filter \
+  temporal/test-biquad \
+  temporal/test-aweighting \
+  onset/test-peakpicker \
+  onset/test-onset \
+  tempo/test-tempo \
+  tempo/test-beattracking \
+  spectral/test-fft \
+  spectral/test-specdesc \
+  spectral/test-phasevoc \
+  spectral/test-phasevoc-jack \
+  spectral/test-tss \
+  spectral/test-filterbank \
+  spectral/test-filterbank_mel \
+  spectral/test-mfcc \
+  utils/test-scale \
+  utils/test-hist
 
-run-tests: $(bin_PROGRAMS)
-	@for i in $(bin_PROGRAMS); do echo -n $$i\ ; ./$$i > /dev/null && echo OK || echo FAILED: $$?; done
+run-tests: $(noinst_PROGRAMS)
+	@for i in $(noinst_PROGRAMS); do echo -n $$i\ ; ./$$i > /dev/null && echo OK || echo FAILED: $$?; done
 
-run-valgrind-tests: $(bin_PROGRAMS)
-	@for i in $(bin_PROGRAMS); do echo $$i; valgrind .libs/lt-$$i 2>&1 | grep ERROR\ SUMMARY -A4; echo $$?; done
+run-valgrind-tests: $(noinst_PROGRAMS)
+	@for i in $(noinst_PROGRAMS); do echo $$i; valgrind .libs/lt-$$i 2>&1 | grep ERROR\ SUMMARY -A4; echo $$?; done
