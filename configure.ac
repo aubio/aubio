@@ -3,6 +3,8 @@ dnl Process this file with autoconf to produce a configure script
 dnl Init autoconf
 AC_INIT(src/aubio.h)
 
+AC_CONFIG_MACRO_DIR([m4])
+
 dnl Package name and version
 PACKAGE=aubio
 . $srcdir/VERSION
@@ -242,9 +244,9 @@ fi
   
 dnl Enable unit tests 
 AC_ARG_ENABLE(testprogs,
-  AC_HELP_STRING([--enable-testprogs],[compile test programs [[default=no]]]),
+  AC_HELP_STRING([--enable-testprogs],[compile test programs [[default=yes]]]),
   [with_testprogs=$enableval],
-  with_testprogs="no")
+  with_testprogs="yes")
 AM_CONDITIONAL(COMPILE_TESTS,test "${with_testprogs}" != "no")
 
 AC_SUBST(AUBIO_CFLAGS)
