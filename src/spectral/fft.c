@@ -133,8 +133,8 @@ aubio_fft_t * new_aubio_fft (uint_t winsize) {
   s->winsize = winsize;
   s->fft_size = winsize / 2 + 1;
   s->compspec = new_fvec(winsize);
-  s->in    = AUBIO_ARRAY(double, s->fft_size);
-  s->out   = AUBIO_ARRAY(double, s->fft_size);
+  s->in    = AUBIO_ARRAY(double, s->winsize);
+  s->out   = AUBIO_ARRAY(double, s->winsize);
   s->ip    = AUBIO_ARRAY(int   , s->fft_size);
   s->w     = AUBIO_ARRAY(double, s->fft_size);
   s->ip[0] = 0;
