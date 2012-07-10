@@ -43,11 +43,11 @@ typedef struct {
 
 /** fmat_t buffer creation function
 
-  \param length the length of the buffer to create
-  \param channels the number of channels in the buffer
+  \param length the length of the matrix to create
+  \param height the height of the matrix to create
 
 */
-fmat_t * new_fmat(uint_t length, uint_t channels);
+fmat_t * new_fmat(uint_t length, uint_t height);
 /** fmat_t buffer deletion function
 
   \param s buffer to delete as returned by new_fmat()
