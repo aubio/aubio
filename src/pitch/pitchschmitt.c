@@ -84,9 +84,9 @@ aubio_schmittS16LE (aubio_pitchschmitt_t * p, uint_t nframes,
       t1 = (sint_t) (A1 * trigfact + 0.5);
       t2 = -(sint_t) (A2 * trigfact + 0.5);
       startpoint = 0;
-      for (j = 1; schmittBuffer[j] <= t1 && j < blockSize; j++);
-      for (; !(schmittBuffer[j] >= t2 &&
-              schmittBuffer[j + 1] < t2) && j < blockSize; j++);
+      for (j = 1; j < blockSize && schmittBuffer[j] <= t1; j++);
+      for (     ; j < blockSize - 1 && !(schmittBuffer[j] >= t2 &&
+             schmittBuffer[j + 1] < t2); j++);
       startpoint = j;
       schmittTriggered = 0;
       endpoint = startpoint + 1;
