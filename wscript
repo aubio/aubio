@@ -63,6 +63,7 @@ def configure(ctx):
   ctx.check_tool('gnu_dirs') # helpful for autotools transition and .pc generation
   #ctx.check_tool('misc') # needed for subst
   ctx.load('waf_unit_test')
+  ctx.env.CFLAGS = ['-g']
 
   if Options.options.target_platform:
     Options.platform = Options.options.target_platform
@@ -123,7 +124,7 @@ def configure(ctx):
       ctx.define('HAVE_FFTW3', 1)
     else:
       # fftw disabled, use ooura
-      ctx.msg('Fftw disabled', 'using ooura')
+      ctx.msg('Checking for FFT implementation', 'ooura')
       pass
 
     if (Options.options.enable_jack == True):
@@ -179,7 +180,7 @@ def build(ctx):
   ctx.env['LIB_VERSION'] = LIB_VERSION
 
   # add sub directories
-  ctx.add_subdirs('src examples')
+  ctx.add_subdirs(['src','examples'])
   if ctx.env['SWIG']:
     if ctx.env['PYTHON']:
       ctx.add_subdirs('python')
@@ -219,26 +220,20 @@ def shutdown(ctx):
 # target name is filename.c without the .c
 def build_tests(ctx):
   for target_name in ctx.path.ant_glob('tests/src/**/*.c'):
-    includes = ['src']
     uselib = []
-    if not str(target_name).endswith('-jack.c'):
-      includes = []
-      uselib = []
-      extra_source = []
-    else:
-      # phasevoc-jack needs jack
-      if ctx.env['JACK']:
-        includes = ['examples']
-        uselib = ['JACK']
-        extra_source = ['examples/jackio.c']
-      else:
-        continue
+    includes = ['src']
+    extra_source = []
+    if str(target_name).endswith('-jack.c') and ctx.env['JACK']:
+      uselib += ['JACK']
+      includes += ['examples']
+      extra_source += ['examples/jackio.c']
 
     this_target = ctx.new_task_gen(
         features = 'c cprogram test',
         uselib = uselib,
         source = [target_name] + extra_source,
         target = str(target_name).split('.')[0],
-        includes = ['src'] + includes,
+        includes = includes,
         defines = 'AUBIO_UNSTABLE_API=1',
+        cflags = ['-g'],
         use = 'aubio')
