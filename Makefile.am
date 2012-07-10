@@ -9,6 +9,7 @@ PYTHONDIR = python
 endif
 endif
 
+ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS = src examples sounds $(PYTHONDIR) $(SWIGDIR) $(DOC) tests
 EXTRA_DIST = bootstrap VERSION
