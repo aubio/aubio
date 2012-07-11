@@ -3,159 +3,175 @@
 """ This file generates a c file from a list of cpp prototypes. """
 
 import os, sys
+from gen_pyobject import write_msg, gen_new_init, gen_do, gen_members, gen_methods, gen_finish
 
-skip_objects = ['fft', 'pvoc', 'filter', 'filterbank', 'resampler']
+def get_cpp_objects():
 
-cpp_output = [l.strip() for l in os.popen('cpp -DAUBIO_UNSTABLE=1 -I../../build/src ../../src/aubio.h').readlines()]
+  cpp_output = [l.strip() for l in os.popen('cpp -DAUBIO_UNSTABLE=1 -I../../build/src ../../src/aubio.h').readlines()]
 
-cpp_output = filter(lambda y: len(y) > 1, cpp_output)
-cpp_output = filter(lambda y: not y.startswith('#'), cpp_output)
+  cpp_output = filter(lambda y: len(y) > 1, cpp_output)
+  cpp_output = filter(lambda y: not y.startswith('#'), cpp_output)
 
-i = 1
-while 1:
-    if i >= len(cpp_output): break
-    if cpp_output[i-1].endswith(',') or cpp_output[i-1].endswith('{') or cpp_output[i].startswith('}'):
-        cpp_output[i] = cpp_output[i-1] + ' ' + cpp_output[i]
-        cpp_output.pop(i-1)
-    else:
-        i += 1
+  i = 1
+  while 1:
+      if i >= len(cpp_output): break
+      if cpp_output[i-1].endswith(',') or cpp_output[i-1].endswith('{') or cpp_output[i].startswith('}'):
+          cpp_output[i] = cpp_output[i-1] + ' ' + cpp_output[i]
+          cpp_output.pop(i-1)
+      else:
+          i += 1
 
-typedefs = filter(lambda y: y.startswith ('typedef struct _aubio'), cpp_output)
+  typedefs = filter(lambda y: y.startswith ('typedef struct _aubio'), cpp_output)
 
-objects = [a.split()[3][:-1] for a in typedefs]
+  cpp_objects = [a.split()[3][:-1] for a in typedefs]
 
-print "-- INFO: %d objects in total" % len(objects)
+  return cpp_output, cpp_objects
 
-generated_objects = []
+def generate_object_files():
 
-for this_object in objects:
-    lint = 0
- 
-    if this_object[-2:] == '_t':
-        object_name = this_object[:-2]
-    else:
-        object_name = this_object
-        print "-- WARNING: %s does not end in _t" % this_object
+  generated_objects = []
+  cpp_output, cpp_objects = get_cpp_objects()
+  skip_objects = ['fft', 'pvoc', 'filter', 'filterbank', 'resampler']
 
-    if object_name[:len('aubio_')] != 'aubio_':
-        print "-- WARNING: %s does not start n aubio_" % this_object
+  write_msg("-- INFO: %d objects in total" % len(cpp_objects))
 
-    print "-- INFO: looking at", object_name
-    object_methods = filter(lambda x: this_object in x, cpp_output)
-    object_methods = [a.strip() for a in object_methods]
-    object_methods = filter(lambda x: not x.startswith('typedef'), object_methods)
-    #for method in object_methods:
-    #    print method
+  for this_object in cpp_objects:
+      lint = 0
+   
+      if this_object[-2:] == '_t':
+          object_name = this_object[:-2]
+      else:
+          object_name = this_object
+          write_msg("-- WARNING: %s does not end in _t" % this_object)
 
-    new_methods = filter(lambda x: 'new_'+object_name in x, object_methods)
-    if len(new_methods) > 1:
-        print "-- WARNING: more than one new method for", object_name
-        for method in new_methods:
-            print method
-    elif len(new_methods) < 1:
-        print "-- WARNING: no new method for", object_name
-    elif 0:
-        for method in new_methods:
-            print method
+      if object_name[:len('aubio_')] != 'aubio_':
+          write_msg("-- WARNING: %s does not start n aubio_" % this_object)
 
-    del_methods = filter(lambda x: 'del_'+object_name in x, object_methods)
-    if len(del_methods) > 1:
-        print "-- WARNING: more than one del method for", object_name
-        for method in del_methods:
-            print method
-    elif len(del_methods) < 1:
-        print "-- WARNING: no del method for", object_name
+      write_msg("-- INFO: looking at", object_name)
+      object_methods = filter(lambda x: this_object in x, cpp_output)
+      object_methods = [a.strip() for a in object_methods]
+      object_methods = filter(lambda x: not x.startswith('typedef'), object_methods)
+      #for method in object_methods:
+      #    write_msg(method)
+      new_methods = filter(lambda x: 'new_'+object_name in x, object_methods)
+      if len(new_methods) > 1:
+          write_msg("-- WARNING: more than one new method for", object_name)
+          for method in new_methods:
+              write_msg(method)
+      elif len(new_methods) < 1:
+          write_msg("-- WARNING: no new method for", object_name)
+      elif 0:
+          for method in new_methods:
+              write_msg(method)
 
-    do_methods = filter(lambda x: object_name+'_do' in x, object_methods)
-    if len(do_methods) > 1:
-        pass
-        #print "-- WARNING: more than one do method for", object_name
-        #for method in do_methods:
-        #    print method
-    elif len(do_methods) < 1:
-        print "-- WARNING: no do method for", object_name
-    elif 0:
-        for method in do_methods:
-            print method
+      del_methods = filter(lambda x: 'del_'+object_name in x, object_methods)
+      if len(del_methods) > 1:
+          write_msg("-- WARNING: more than one del method for", object_name)
+          for method in del_methods:
+              write_msg(method)
+      elif len(del_methods) < 1:
+          write_msg("-- WARNING: no del method for", object_name)
 
-    # check do methods return void
-    for method in do_methods:
-        if (method.split()[0] != 'void'):
-            print "-- ERROR: _do method does not return void:", method 
+      do_methods = filter(lambda x: object_name+'_do' in x, object_methods)
+      if len(do_methods) > 1:
+          pass
+          #write_msg("-- WARNING: more than one do method for", object_name)
+          #for method in do_methods:
+          #    write_msg(method)
+      elif len(do_methods) < 1:
+          write_msg("-- WARNING: no do method for", object_name)
+      elif 0:
+          for method in do_methods:
+              write_msg(method)
 
-    get_methods = filter(lambda x: object_name+'_get_' in x, object_methods)
+      # check do methods return void
+      for method in do_methods:
+          if (method.split()[0] != 'void'):
+              write_msg("-- ERROR: _do method does not return void:", method )
 
-    set_methods = filter(lambda x: object_name+'_set_' in x, object_methods)
-    for method in set_methods:
-        if (method.split()[0] != 'uint_t'):
-            print "-- ERROR: _set method does not return uint_t:", method 
+      get_methods = filter(lambda x: object_name+'_get_' in x, object_methods)
 
-    other_methods = filter(lambda x: x not in new_methods, object_methods)
-    other_methods = filter(lambda x: x not in del_methods, other_methods)
-    other_methods = filter(lambda x: x not in    do_methods, other_methods)
-    other_methods = filter(lambda x: x not in get_methods, other_methods)
-    other_methods = filter(lambda x: x not in set_methods, other_methods)
+      set_methods = filter(lambda x: object_name+'_set_' in x, object_methods)
+      for method in set_methods:
+          if (method.split()[0] != 'uint_t'):
+              write_msg("-- ERROR: _set method does not return uint_t:", method )
 
-    if len(other_methods) > 0:
-        print "-- WARNING: some methods for", object_name, "were unidentified"
-        for method in other_methods:
-            print method
+      other_methods = filter(lambda x: x not in new_methods, object_methods)
+      other_methods = filter(lambda x: x not in del_methods, other_methods)
+      other_methods = filter(lambda x: x not in    do_methods, other_methods)
+      other_methods = filter(lambda x: x not in get_methods, other_methods)
+      other_methods = filter(lambda x: x not in set_methods, other_methods)
 
-    # generate this_object
-    if not os.path.isdir('generated'): os.mkdir('generated')
-    from gen_pyobject import *
-    short_name = object_name[len('aubio_'):]
-    if short_name in skip_objects:
-            print "-- INFO: skipping object", short_name 
-            continue
-    if 1: #try:
-        s = gen_new_init(new_methods[0], short_name)
-        s += gen_do(do_methods[0], short_name) 
-        s += gen_members(new_methods[0], short_name)
-        s += gen_methods(get_methods, set_methods, short_name)
-        s += gen_finish(short_name)
-        fd = open('generated/gen-'+short_name+'.c', 'w')
-        fd.write(s)
-    #except Exception, e:
-    #        print "-- ERROR:", type(e), str(e), "in", short_name
-    #        continue
-    generated_objects += [this_object]
+      if len(other_methods) > 0:
+          write_msg("-- WARNING: some methods for", object_name, "were unidentified")
+          for method in other_methods:
+              write_msg(method)
 
 
-s = """// generated list of generated objects
+      # generate this_object
+      if not os.path.isdir('generated'): os.mkdir('generated')
+      short_name = object_name[len('aubio_'):]
+      if short_name in skip_objects:
+              write_msg("-- INFO: skipping object", short_name )
+              continue
+      if 1: #try:
+          s = gen_new_init(new_methods[0], short_name)
+          s += gen_do(do_methods[0], short_name) 
+          s += gen_members(new_methods[0], short_name)
+          s += gen_methods(get_methods, set_methods, short_name)
+          s += gen_finish(short_name)
+          generated_filepath = 'generated/gen-'+short_name+'.c'
+          fd = open(generated_filepath, 'w')
+          fd.write(s)
+      #except Exception, e:
+      #        write_msg("-- ERROR:", type(e), str(e), "in", short_name)
+      #        continue
+      generated_objects += [this_object]
+
+  s = """// generated list of objects created with generator.py
 
 """
 
-for each in generated_objects:
-    s += "extern PyTypeObject Py_%sType;\n" % \
-            each.replace('aubio_','').replace('_t','')
+  for each in generated_objects:
+      s += "extern PyTypeObject Py_%sType;\n" % \
+              each.replace('aubio_','').replace('_t','')
 
-types_ready = []
-for each in generated_objects:
-    types_ready.append("  PyType_Ready (&Py_%sType) < 0" % \
-            each.replace('aubio_','').replace('_t','') )
+  types_ready = []
+  for each in generated_objects:
+      types_ready.append("  PyType_Ready (&Py_%sType) < 0" % \
+              each.replace('aubio_','').replace('_t','') )
 
-s += """
-int
-generated_types_ready (void)
-{
-    return ("""
-s += ('||\n').join(types_ready)
-s += """);
-}
-"""
+  s += """
+  int
+  generated_types_ready (void)
+  {
+    return (
+  """
+  s += ('\n     ||').join(types_ready)
+  s += """);
+  }
+  """
 
-s += """
-void
-add_generated_objects ( PyObject *m )
-{"""
-for each in generated_objects:
-    s += """  Py_INCREF (&Py_%(name)sType);
-  PyModule_AddObject (m, "%(name)s", (PyObject *) & Py_%(name)sType);""" % \
-          { 'name': ( each.replace('aubio_','').replace('_t','') ) }
+  s += """
+  void
+  add_generated_objects ( PyObject *m )
+  {"""
+  for each in generated_objects:
+      s += """  Py_INCREF (&Py_%(name)sType);
+    PyModule_AddObject (m, "%(name)s", (PyObject *) & Py_%(name)sType);""" % \
+            { 'name': ( each.replace('aubio_','').replace('_t','') ) }
 
-s += """
-}"""
+  s += """
+  }"""
 
-fd = open('generated/aubio-generated.h', 'w')
-fd.write(s)
+  fd = open('generated/aubio-generated.h', 'w')
+  fd.write(s)
+
+  from os import listdir
+  generated_files = listdir('generated')
+  generated_files = filter(lambda x: x.endswith('.c'), generated_files)
+  generated_files = ['generated/'+f for f in generated_files]
+  return generated_files
+
+if __name__ == '__main__':
+  generate_object_files() 

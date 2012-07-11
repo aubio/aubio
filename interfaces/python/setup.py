@@ -1,9 +1,8 @@
+#! /usr/bin/python
+
 from distutils.core import setup, Extension
 
-from os import listdir
-generated_files = listdir('generated')
-generated_files = filter(lambda x: x.endswith('.c'), generated_files)
-generated_files = ['generated/'+f for f in generated_files]
+from generator import generate_object_files
 
 setup(name="_aubio", version="1.0",
       packages = ['aubio'],
@@ -19,7 +18,7 @@ setup(name="_aubio", version="1.0",
             "py-fft.c",
             "py-phasevoc.c",
             # generated files
-            ] + generated_files,
+            ] + generate_object_files(),
             include_dirs=['../../build/src', '../../src', '.' ],
             library_dirs=['../../build/src', '../../src/.libs' ],
             libraries=['aubio'])])

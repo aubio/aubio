@@ -25,6 +25,11 @@ maintaining this bizarre file.
 # There is no way of knowing that output1 is actually input2. In the future,
 # const could be used for the inputs in the C prototypes.
 
+def write_msg(*args):
+  pass
+  # uncomment out for debugging
+  #print args
+
 def split_type(arg):
     """ arg = 'foo *name' 
         return ['foo*', 'name'] """
@@ -225,7 +230,7 @@ Py_%(name)s_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
   }
 """ % locals()
         else:
-            print "ERROR, unknown type of parameter %s %s" % (ptype, pname)
+            write_msg ("ERROR, unknown type of parameter %s %s" % (ptype, pname) )
     s += """\
 
   return (PyObject *) self;
@@ -345,7 +350,7 @@ AUBIO_MEMBERS_START(%(name)s)""" % locals()
   {"%(pname)s", T_FLOAT, offsetof (Py_%(name)s, %(pname)s), READONLY, ""},""" \
         % { 'pname': param[1], 'ptype': param[0], 'name': name}
         else:
-            print "-- ERROR, unknown member type ", param
+            write_msg ("-- ERROR, unknown member type ", param )
     s += """
 AUBIO_MEMBERS_STOP(%(name)s)
 
@@ -362,8 +367,8 @@ def gen_methods(get_methods, set_methods, name):
         out_type = get_return_type(method)
         assert params[0][0] == "aubio_"+name+"_t*", \
             "get method is not in 'aubio_<name>_t"
-        print method
-        print params[1:]
+        write_msg (method )
+        write_msg (params[1:])
         setter_args = "self->o, " +",".join([p[1] for p in params[1:]])
         parse_args = ""
         for p in params[1:]:
