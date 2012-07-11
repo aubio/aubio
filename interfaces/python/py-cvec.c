@@ -125,7 +125,7 @@ Py_cvec_get_phas (Py_cvec * self, void *closure)
 static int
 Py_cvec_set_norm (Py_cvec * vec, PyObject *input, void * closure)
 {
-  PyObject * array;
+  PyArrayObject * array;
   if (input == NULL) {
     PyErr_SetString (PyExc_ValueError, "input array is not a python object");
     goto fail;
@@ -133,23 +133,23 @@ Py_cvec_set_norm (Py_cvec * vec, PyObject *input, void * closure)
   if (PyArray_Check(input)) {
 
     // we got an array, convert it to a cvec.norm 
-    if (PyArray_NDIM (input) == 0) {
+    if (PyArray_NDIM ((PyArrayObject *)input) == 0) {
       PyErr_SetString (PyExc_ValueError, "input array is a scalar");
       goto fail;
-    } else if (PyArray_NDIM (input) > 2) {
+    } else if (PyArray_NDIM ((PyArrayObject *)input) > 2) {
       PyErr_SetString (PyExc_ValueError,
           "input array has more than two dimensions");
       goto fail;
     }
 
-    if (!PyArray_ISFLOAT (input)) {
+    if (!PyArray_ISFLOAT ((PyArrayObject *)input)) {
       PyErr_SetString (PyExc_ValueError, "input array should be float");
       goto fail;
-    } else if (PyArray_TYPE (input) != AUBIO_NPY_SMPL) {
+    } else if (PyArray_TYPE ((PyArrayObject *)input) != AUBIO_NPY_SMPL) {
       PyErr_SetString (PyExc_ValueError, "input array should be float32");
       goto fail;
     }
-    array = input;
+    array = (PyArrayObject *)input;
 
     // check input array dimensions
     if (PyArray_NDIM (array) != 1) {
@@ -161,7 +161,7 @@ Py_cvec_set_norm (Py_cvec * vec, PyObject *input, void * closure)
       if (vec->o->length != PyArray_SIZE (array)) {
           PyErr_Format (PyExc_ValueError,
                   "input array has length %d, but cvec has length %d",
-                  PyArray_SIZE (array), vec->o->length);
+                  (int)PyArray_SIZE (array), vec->o->length);
           goto fail;
       }
     }
@@ -183,7 +183,7 @@ fail:
 static int
 Py_cvec_set_phas (Py_cvec * vec, PyObject *input, void * closure)
 {
-  PyObject * array;
+  PyArrayObject * array;
   if (input == NULL) {
     PyErr_SetString (PyExc_ValueError, "input array is not a python object");
     goto fail;
@@ -191,23 +191,23 @@ Py_cvec_set_phas (Py_cvec * vec, PyObject *input, void * closure)
   if (PyArray_Check(input)) {
 
     // we got an array, convert it to a cvec.phas
-    if (PyArray_NDIM (input) == 0) {
+    if (PyArray_NDIM ((PyArrayObject *)input) == 0) {
       PyErr_SetString (PyExc_ValueError, "input array is a scalar");
       goto fail;
-    } else if (PyArray_NDIM (input) > 2) {
+    } else if (PyArray_NDIM ((PyArrayObject *)input) > 2) {
       PyErr_SetString (PyExc_ValueError,
           "input array has more than two dimensions");
       goto fail;
     }
 
-    if (!PyArray_ISFLOAT (input)) {
+    if (!PyArray_ISFLOAT ((PyArrayObject *)input)) {
       PyErr_SetString (PyExc_ValueError, "input array should be float");
       goto fail;
-    } else if (PyArray_TYPE (input) != AUBIO_NPY_SMPL) {
+    } else if (PyArray_TYPE ((PyArrayObject *)input) != AUBIO_NPY_SMPL) {
       PyErr_SetString (PyExc_ValueError, "input array should be float32");
       goto fail;
     }
-    array = input;
+    array = (PyArrayObject *)input;
 
     // check input array dimensions
     if (PyArray_NDIM (array) != 1) {
@@ -219,7 +219,7 @@ Py_cvec_set_phas (Py_cvec * vec, PyObject *input, void * closure)
       if (vec->o->length != PyArray_SIZE (array)) {
           PyErr_Format (PyExc_ValueError,
                   "input array has length %d, but cvec has length %d",
-                  PyArray_SIZE (array), vec->o->length);
+                  (int)PyArray_SIZE (array), vec->o->length);
           goto fail;
       }
     }
