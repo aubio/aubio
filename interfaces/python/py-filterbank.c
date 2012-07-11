@@ -49,7 +49,7 @@ AUBIO_INIT(filterbank, self->n_filters, self->win_s)
 
 AUBIO_DEL(filterbank)
 
-static PyObject * 
+static PyObject *
 Py_filterbank_do(Py_filterbank * self, PyObject * args)
 {
   PyObject *input;
@@ -73,14 +73,14 @@ Py_filterbank_do(Py_filterbank * self, PyObject * args)
   return (PyObject *)PyAubio_CFvecToArray(out);
 }
 
-AUBIO_MEMBERS_START(filterbank) 
+AUBIO_MEMBERS_START(filterbank)
   {"win_s", T_INT, offsetof (Py_filterbank, win_s), READONLY,
     "size of the window"},
   {"n_filters", T_INT, offsetof (Py_filterbank, n_filters), READONLY,
     "number of filters"},
 AUBIO_MEMBERS_STOP(filterbank)
 
-static PyObject * 
+static PyObject *
 Py_filterbank_set_triangle_bands (Py_filterbank * self, PyObject *args)
 {
   uint_t err = 0;
@@ -112,7 +112,7 @@ Py_filterbank_set_triangle_bands (Py_filterbank * self, PyObject *args)
   return Py_None;
 }
 
-static PyObject * 
+static PyObject *
 Py_filterbank_set_mel_coeffs_slaney (Py_filterbank * self, PyObject *args)
 {
   uint_t err = 0;
@@ -131,7 +131,37 @@ Py_filterbank_set_mel_coeffs_slaney (Py_filterbank * self, PyObject *args)
   return Py_None;
 }
 
-static PyObject * 
+static PyObject *
+Py_filterbank_set_coeffs (Py_filterbank * self, PyObject *args)
+{
+  uint_t err = 0;
+
+  PyObject *input;
+  fmat_t *coeffs;
+
+  if (!PyArg_ParseTuple (args, "O", &input)) {
+    return NULL;
+  }
+
+  coeffs = PyAubio_ArrayToCFmat (input);
+
+  if (coeffs == NULL) {
+    PyErr_SetString (PyExc_ValueError,
+        "unable to parse input array");
+    return NULL;
+  }
+
+  err = aubio_filterbank_set_coeffs (self->o, coeffs);
+
+  if (err > 0) {
+    PyErr_SetString (PyExc_ValueError,
+        "error when setting filter coefficients");
+    return NULL;
+  }
+  return Py_None;
+}
+
+static PyObject *
 Py_filterbank_get_coeffs (Py_filterbank * self, PyObject *unused)
 {
   return (PyObject *)PyAubio_CFmatToArray(
@@ -145,6 +175,8 @@ static PyMethodDef Py_filterbank_methods[] = {
     METH_VARARGS, "set coefficients of filterbank as in Auditory Toolbox"},
   {"get_coeffs", (PyCFunction) Py_filterbank_get_coeffs,
     METH_NOARGS, "get coefficients of filterbank"},
+  {"set_coeffs", (PyCFunction) Py_filterbank_set_coeffs,
+    METH_VARARGS, "set coefficients of filterbank"},
   {NULL}
 };
 
