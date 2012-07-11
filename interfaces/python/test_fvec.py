@@ -85,7 +85,7 @@ class aubio_fvec_test_case(TestCase):
 
     def test_zero_crossing_rate(self):
         a = array([0,1,-1], dtype='float32')
-        self.assertEquals (zero_crossing_rate(a), 1./3 )
+        assert_almost_equal (zero_crossing_rate(a), 1./3. )
         a = array([0.]*100, dtype='float32')
         self.assertEquals (zero_crossing_rate(a), 0 )
         a = array([-1.]*100, dtype='float32')
