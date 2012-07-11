@@ -1,17 +1,80 @@
-from numpy.testing import TestCase, run_module_suite
-from numpy.testing import assert_equal, assert_almost_equal
-# WARNING: numpy also has an fft object
+#! /usr/bin/python
+
+from numpy.testing import TestCase, assert_equal, assert_almost_equal
+from numpy import random, arange, log, zeros
 from aubio import specdesc, cvec
-from numpy import array, shape, arange, zeros, log
 from math import pi
+
+methods = ["default",
+     "energy",
+     "hfc",
+     "complex",
+     "phase",
+     "specdiff",
+     "kl",
+     "mkl",
+     "specflux",
+     "centroid",
+     "spread",
+     "skewness",
+     "kurtosis",
+     "slope",
+     "decrease",
+     "rolloff"]
+buf_size = 2048
 
 class aubio_specdesc(TestCase):
 
     def test_members(self):
         o = specdesc()
-        assert_equal ([o.buf_size, o.method],
-            [1024, "default"])
 
+        for method in methods:
+          o = specdesc(method, buf_size)
+          assert_equal ([o.buf_size, o.method], [buf_size, method])
+
+          spec = cvec(buf_size)
+          spec.norm[0] = 1
+          spec.norm[1] = 1./2.
+          #print "%20s" % method, str(o(spec))
+          o(spec)
+          spec.norm = random.random_sample((len(spec.norm),)).astype('float32')
+          spec.phas = random.random_sample((len(spec.phas),)).astype('float32')
+          #print "%20s" % method, str(o(spec))
+          assert (o(spec) != 0.)
+
+    def test_hfc(self):
+        o = specdesc("hfc", buf_size)
+        spec = cvec(buf_size)
+        # hfc of zeros is zero
+        assert_equal (o(spec), 0.)
+        # hfc of ones is sum of all bin numbers
+        spec.norm[:] = 1
+        expected = sum(range(buf_size/2 + 2))
+        assert_equal (o(spec), expected)
+        # changing phase doesn't change anything
+        spec.phas[:] = 1
+        assert_equal (o(spec), sum(range(buf_size/2 + 2)))
+
+    def test_phase(self):
+        o = specdesc("phase", buf_size)
+        spec = cvec(buf_size)
+        # phase of zeros is zero
+        assert_equal (o(spec), 0.)
+        spec.phas = random.random_sample((len(spec.phas),)).astype('float32')
+        # phase of random is not zero
+        spec.norm[:] = 1
+        assert (o(spec) != 0.)
+
+    def test_specdiff(self):
+        o = specdesc("phase", buf_size)
+        spec = cvec(buf_size)
+        # specdiff of zeros is zero
+        assert_equal (o(spec), 0.)
+        spec.phas = random.random_sample((len(spec.phas),)).astype('float32')
+        # phase of random is not zero
+        spec.norm[:] = 1
+        assert (o(spec) != 0.)
+    
     def test_hfc(self):
         o = specdesc("hfc")
         c = cvec()
@@ -33,11 +96,6 @@ class aubio_specdesc(TestCase):
         assert_equal ( sum(a), o(c))
         # second time. c.norm = a, so, r1 = r2, and the euclidian distance is 0
         assert_equal ( 0, o(c))
-
-    def test_phase(self):
-        o = specdesc("phase")
-        c = cvec()
-        assert_equal( 0., o(c))
 
     def test_kl(self):
         o = specdesc("kl")
@@ -81,16 +139,15 @@ class aubio_specdesc(TestCase):
 
     def test_spread(self):
         o = specdesc("spread")
-        c = cvec()
+        c = cvec(2048)
+        ramp = arange(c.length, dtype='float32')
         assert_equal( 0., o(c))
-        a = arange(c.length, dtype='float32')
+
+        a = ramp
         c.norm = a
         centroid = sum(a*a) / sum(a)
-        spread = sum( (a - centroid)**2 *a) / sum(a)
-        assert_almost_equal (spread, o(c), decimal = 2)
-
-        c.norm = a * 3
-        assert_almost_equal (spread, o(c), decimal = 2)
+        spread = sum( a * pow(ramp - centroid, 2.) ) / sum(a)
+        assert_almost_equal (o(c), spread, decimal = 1)
 
     def test_skewness(self):
         o = specdesc("skewness")
@@ -174,6 +231,7 @@ class aubio_specdesc(TestCase):
           i+=1
         rolloff = i 
         assert_equal (rolloff, o(c))
+
 
 if __name__ == '__main__':
     from unittest import main
