@@ -11,7 +11,7 @@ PyAubio_ArrayToCFvec (PyObject *input) {
   // parsing input object into a Py_fvec
   if (PyArray_Check(input)) {
 
-    // we got an array, convert it to an fvec 
+    // we got an array, convert it to an fvec
     if (PyArray_NDIM ((PyArrayObject *)input) == 0) {
       PyErr_SetString (PyExc_ValueError, "input array is a scalar");
       goto fail;
@@ -33,7 +33,7 @@ PyAubio_ArrayToCFvec (PyObject *input) {
     }
 
     // vec = new_fvec (vec->length);
-    // no need to really allocate fvec, just its struct member 
+    // no need to really allocate fvec, just its struct member
     vec = (fvec_t *)malloc(sizeof(fvec_t));
     vec->length = PyArray_SIZE ((PyArrayObject *)array);
     vec->data = (smpl_t *) PyArray_GETPTR1 ((PyArrayObject *)array, 0);
@@ -61,7 +61,7 @@ PyAubio_CFvecToArray (fvec_t * self)
 
 Py_cvec *
 PyAubio_CCvecToPyCvec (cvec_t * input) {
-  Py_cvec *vec = (Py_cvec*) PyObject_New (Py_cvec, &Py_cvecType); 
+  Py_cvec *vec = (Py_cvec*) PyObject_New (Py_cvec, &Py_cvecType);
   vec->length = input->length;
   vec->o = input;
   Py_INCREF(vec);
@@ -97,6 +97,57 @@ PyAubio_CFmatToArray (fmat_t * input)
 
 fmat_t *
 PyAubio_ArrayToCFmat (PyObject *input) {
+  PyObject *array;
+  fmat_t *mat;
+  uint_t i;
+  if (input == NULL) {
+    PyErr_SetString (PyExc_ValueError, "input array is not a python object");
+    goto fail;
+  }
+  // parsing input object into a Py_fvec
+  if (PyArray_Check(input)) {
+
+    // we got an array, convert it to an fvec
+    if (PyArray_NDIM ((PyArrayObject *)input) == 0) {
+      PyErr_SetString (PyExc_ValueError, "input array is a scalar");
+      goto fail;
+    } else if (PyArray_NDIM ((PyArrayObject *)input) > 2) {
+      PyErr_SetString (PyExc_ValueError,
+          "input array has more than two dimensions");
+      goto fail;
+    }
+
+    if (!PyArray_ISFLOAT ((PyArrayObject *)input)) {
+      PyErr_SetString (PyExc_ValueError, "input array should be float");
+      goto fail;
+    } else if (PyArray_TYPE ((PyArrayObject *)input) != AUBIO_NPY_SMPL) {
+      PyErr_SetString (PyExc_ValueError, "input array should be float32");
+      goto fail;
+    } else {
+      // input data type is float32, nothing else to do
+      array = input;
+    }
+
+    // no need to really allocate fvec, just its struct member
+    mat = (fmat_t *)malloc(sizeof(fmat_t));
+    mat->length = PyArray_DIM ((PyArrayObject *)array, 1);
+    mat->height = PyArray_DIM ((PyArrayObject *)array, 0);
+    mat->data = (smpl_t **)malloc(sizeof(smpl_t*) * mat->height);
+    for (i=0; i< mat->height; i++) {
+      mat->data[i] = (smpl_t*)PyArray_GETPTR1 ((PyArrayObject *)array, i);
+    }
+
+  } else if (PyObject_TypeCheck (input, &PyList_Type)) {
+    PyErr_SetString (PyExc_ValueError, "can not convert list to fmat");
+    return NULL;
+  } else {
+    PyErr_SetString (PyExc_ValueError, "can only accept matrix of float as input");
+    return NULL;
+  }
+
+  return mat;
+
+fail:
   return NULL;
 }
 
