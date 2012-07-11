@@ -1,5 +1,6 @@
-from numpy.testing import TestCase, run_module_suite
-from numpy.testing import assert_equal, assert_almost_equal
+#! /usr/bin/python
+
+from numpy.testing import TestCase, assert_equal, assert_almost_equal
 from aubio import fvec, digital_filter
 from numpy import array
 
