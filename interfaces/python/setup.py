@@ -4,8 +4,17 @@ from distutils.core import setup, Extension
 
 from generator import generate_object_files
 
-setup(name="_aubio", version="1.0",
+setup(name='aubio',
+      version = '0.4.0alpha',
       packages = ['aubio'],
+      description = 'interface to the aubio library',
+      long_description = 'interface to the aubio library',
+      license = 'GNU/GPL version 3',
+      author = 'Paul Brossier',
+      author_email = 'piem@aubio.org',
+      maintainer = 'Paul Brossier',
+      maintainer_email = 'piem@aubio.org',
+      url = 'http://aubio.org/',
       ext_modules = [ 
         Extension("_aubio",
             ["aubiomodule.c",
