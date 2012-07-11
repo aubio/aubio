@@ -311,10 +311,6 @@ new_aubio_specdesc (char_t * onset_mode, uint_t size){
       break;
   }
 
-  /* this switch could be in its own function to change between
-   * detections on the fly. this would need getting rid of the switch
-   * above and always allocate all the structure */
-
   switch(onset_type) {
     case aubio_onset_energy:
       o->funcpointer = aubio_specdesc_energy;
@@ -340,7 +336,6 @@ new_aubio_specdesc (char_t * onset_mode, uint_t size){
     case aubio_onset_specflux:
       o->funcpointer = aubio_specdesc_specflux;
       break;
-    // for for the additional descriptors. these don't need additional memory
     case aubio_specmethod_centroid:
       o->funcpointer = aubio_specdesc_centroid;
       break;
@@ -371,12 +366,10 @@ new_aubio_specdesc (char_t * onset_mode, uint_t size){
 
 void del_aubio_specdesc (aubio_specdesc_t *o){
   switch(o->onset_type) {
-    /* for both energy and hfc, only fftgrain->norm is required */
     case aubio_onset_energy: 
       break;
     case aubio_onset_hfc:
       break;
-      /* the other approaches will need some more memory spaces */
     case aubio_onset_complex:
       del_fvec(o->oldmag);
       del_fvec(o->dev1);
