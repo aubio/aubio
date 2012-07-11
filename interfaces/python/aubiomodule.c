@@ -1,5 +1,6 @@
 #include <Python.h>
 #define PY_ARRAY_UNIQUE_SYMBOL PyArray_API
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include <numpy/arrayobject.h>
 
 #include "aubio-types.h"
@@ -131,17 +132,17 @@ init_aubio (void)
     return;
   }
 
+  m = Py_InitModule3 ("_aubio", aubio_methods, aubio_module_doc);
+
+  if (m == NULL) {
+    return;
+  }
+
   err = _import_array ();
 
   if (err != 0) {
     fprintf (stderr,
         "Unable to import Numpy C API from aubio module (error %d)\n", err);
-  }
-
-  m = Py_InitModule3 ("_aubio", aubio_methods, aubio_module_doc);
-
-  if (m == NULL) {
-    return;
   }
 
   Py_INCREF (&Py_cvecType);

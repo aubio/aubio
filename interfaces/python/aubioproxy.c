@@ -12,19 +12,19 @@ PyAubio_ArrayToCFvec (PyObject *input) {
   if (PyArray_Check(input)) {
 
     // we got an array, convert it to an fvec 
-    if (PyArray_NDIM (input) == 0) {
+    if (PyArray_NDIM ((PyArrayObject *)input) == 0) {
       PyErr_SetString (PyExc_ValueError, "input array is a scalar");
       goto fail;
-    } else if (PyArray_NDIM (input) > 1) {
+    } else if (PyArray_NDIM ((PyArrayObject *)input) > 1) {
       PyErr_SetString (PyExc_ValueError,
           "input array has more than one dimensions");
       goto fail;
     }
 
-    if (!PyArray_ISFLOAT (input)) {
+    if (!PyArray_ISFLOAT ((PyArrayObject *)input)) {
       PyErr_SetString (PyExc_ValueError, "input array should be float");
       goto fail;
-    } else if (PyArray_TYPE (input) != AUBIO_NPY_SMPL) {
+    } else if (PyArray_TYPE ((PyArrayObject *)input) != AUBIO_NPY_SMPL) {
       PyErr_SetString (PyExc_ValueError, "input array should be float32");
       goto fail;
     } else {
@@ -35,8 +35,8 @@ PyAubio_ArrayToCFvec (PyObject *input) {
     // vec = new_fvec (vec->length);
     // no need to really allocate fvec, just its struct member 
     vec = (fvec_t *)malloc(sizeof(fvec_t));
-    vec->length = PyArray_SIZE (array);
-    vec->data = (smpl_t *) PyArray_GETPTR1 (array, 0);
+    vec->length = PyArray_SIZE ((PyArrayObject *)array);
+    vec->data = (smpl_t *) PyArray_GETPTR1 ((PyArrayObject *)array, 0);
 
   } else if (PyObject_TypeCheck (input, &PyList_Type)) {
     PyErr_SetString (PyExc_ValueError, "does not convert from list yet");
