@@ -1,3 +1,5 @@
+#! /usr/bin/python
+
 from numpy.testing import TestCase, run_module_suite
 
 class aubiomodule_test_case(TestCase):
