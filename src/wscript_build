@@ -10,6 +10,9 @@ if 'HAVE_FFTW3' in conf.get_env():
 if 'HAVE_SAMPLERATE':
   uselib += ['SAMPLERATE']
 
+if 'HAVE_SNDFILE':
+  uselib += ['SNDFILE']
+
 # build libaubio
 ctx.shlib(
     includes = ['.'],

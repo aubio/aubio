@@ -21,7 +21,7 @@ int main(){
 
   del_aubio_source_apple_audio(s);
 #else
-  fprintf(stderr, "was not compiled with aubio_source_apple_audio");
+  fprintf(stderr, "ERR: aubio was not compiled with aubio_source_apple_audio\n");
 #endif /* __APPLE__ */
   return 0;
 }

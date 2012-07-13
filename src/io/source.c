@@ -25,29 +25,45 @@
 #ifdef __APPLE__
 #include "io/source_apple_audio_file.h"
 #endif /* __APPLE__ */
+#ifdef HAVE_SNDFILE
+#include "io/source_sndfile.h"
+#endif
 
 struct _aubio_source_t { 
   void *source;
 };
 
-aubio_source_t * new_aubio_source(char_t * uri, uint_t hop_size, uint_t samplerate) {
+aubio_source_t * new_aubio_source(char_t * uri, uint_t samplerate, uint_t hop_size) {
   aubio_source_t * s = AUBIO_NEW(aubio_source_t);
 #ifdef __APPLE__
-  s->source= (void *)new_aubio_source_apple_audio(uri, hop_size, samplerate);
+  s->source= (void *)new_aubio_source_apple_audio(uri, samplerate, hop_size);
+  if (s->source) return s;
+#else /* __APPLE__ */
+#if HAVE_SNDFILE
+  s->source= (void *)new_aubio_source_sndfile(uri, samplerate, hop_size);
+  if (s->source) return s;
+#endif /* HAVE_SNDFILE */
 #endif /* __APPLE__ */
   if (s->source == NULL) return NULL;
-  return s;
 }
 
 void aubio_source_do(aubio_source_t * s, fvec_t * data, uint_t * read) {
 #ifdef __APPLE__
   aubio_source_apple_audio_do((aubio_source_apple_audio_t *)s->source, data, read);
+#else /* __APPLE__ */
+#if HAVE_SNDFILE
+  aubio_source_sndfile_do((aubio_source_sndfile_t *)s->source, data, read);
+#endif /* HAVE_SNDFILE */
 #endif /* __APPLE__ */
 }
 
 void del_aubio_source(aubio_source_t * s) {
 #ifdef __APPLE__
   del_aubio_source_apple_audio((aubio_source_apple_audio_t *)s->source);
+#else /* __APPLE__ */
+#if HAVE_SNDFILE
+  del_aubio_source_sndfile((aubio_source_sndfile_t *)s->source);
+#endif /* HAVE_SNDFILE */
 #endif /* __APPLE__ */
   AUBIO_FREE(s);
 }

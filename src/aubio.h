@@ -174,9 +174,11 @@ extern "C"
 #include "onset/onset.h"
 #include "onset/peakpicker.h"
 #include "tempo/tempo.h"
+#include "io/sndfileio.h"
 #include "io/source.h"
-#include "io/sink.h"
+#include "io/source_sndfile.h"
 #include "io/source_apple_audio.h"
+#include "io/sink.h"
 
 #if AUBIO_UNSTABLE
 #include "vecutils.h"
