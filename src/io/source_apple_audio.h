@@ -18,26 +18,12 @@
 
 */
 
-#ifndef _AUBIO_SOURCE_H
-#define _AUBIO_SOURCE_H
+#ifndef _AUBIO_SOURCE_APPLE_AUDIO_H
+#define _AUBIO_SOURCE_APPLE_AUDIO_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+typedef struct _aubio_source_apple_audio_t aubio_source_apple_audio_t;
+aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * path, uint_t samplerate, uint_t block_size);
+void aubio_source_apple_audio_do(aubio_source_apple_audio_t * s, fvec_t * read_to, uint_t * read);
+void del_aubio_source_apple_audio(aubio_source_apple_audio_t * s);
 
-/** \file
-
-  Media source 
-
-*/
-
-typedef struct _aubio_source_t aubio_source_t;
-aubio_source_t * new_aubio_source(char_t * method, uint_t hop_size, uint_t samplerate);
-void aubio_source_do(aubio_source_t * s, fvec_t * read_data, uint_t * read);
-void del_aubio_source(aubio_source_t * s);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* _AUBIO_SOURCE_H */
+#endif /* _AUBIO_SOURCE_APPLE_AUDIO_H */

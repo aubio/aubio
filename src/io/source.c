@@ -22,21 +22,33 @@
 #include "aubio_priv.h"
 #include "fvec.h"
 #include "io/source.h"
+#ifdef __APPLE__
+#include "io/source_apple_audio_file.h"
+#endif /* __APPLE__ */
 
 struct _aubio_source_t { 
-  uint_t hopsize;
-  uint_t samplerate;
+  void *source;
 };
 
 aubio_source_t * new_aubio_source(char_t * uri, uint_t hop_size, uint_t samplerate) {
-  return NULL;
+  aubio_source_t * s = AUBIO_NEW(aubio_source_t);
+#ifdef __APPLE__
+  s->source= (void *)new_aubio_source_apple_audio(uri, hop_size, samplerate);
+#endif /* __APPLE__ */
+  if (s->source == NULL) return NULL;
+  return s;
 }
 
-fvec_t * aubio_source_do(aubio_source_t * s, fvec_t * write_data) {
-  return NULL;
+void aubio_source_do(aubio_source_t * s, fvec_t * data, uint_t * read) {
+#ifdef __APPLE__
+  aubio_source_apple_audio_do((aubio_source_apple_audio_t *)s->source, data, read);
+#endif /* __APPLE__ */
 }
 
 void del_aubio_source(aubio_source_t * s) {
-  return;
+#ifdef __APPLE__
+  del_aubio_source_apple_audio((aubio_source_apple_audio_t *)s->source);
+#endif /* __APPLE__ */
+  AUBIO_FREE(s);
 }
 
