@@ -1,20 +1,14 @@
 # vim:set syntax=python:
 
 # build examples
-sndfileio = ctx.new_task_gen(features = 'c',
-    includes = '../src',
-    source = ['sndfileio.c'],
-    target = 'sndfileio')
-
 utilsio = ctx.new_task_gen(name = 'utilsio', features = 'c',
       includes = '../src',
-      add_objects = 'sndfileio',
       source = ['utils.c', 'jackio.c'],
-      uselib = ['LASH', 'JACK', 'SNDFILE'],
+      uselib = ['LASH', 'JACK'],
       target = 'utilsio')
 
 # loop over all *.c filenames in examples to build them all
-for target_name in ctx.path.ant_glob('*.c', excl = ['utils.c', 'jackio.c', 'sndfileio.c']):
+for target_name in ctx.path.ant_glob('*.c', excl = ['utils.c', 'jackio.c']):
   ctx.new_task_gen(features = 'c cprogram',
       add_objects = 'utilsio',
       includes = '../src',
