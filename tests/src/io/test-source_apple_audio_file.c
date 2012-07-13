@@ -5,6 +5,7 @@ char_t *path = "/Users/piem/archives/sounds/loops/drum_Chocolate_Milk_-_Ation_Sp
 //char_t *path = "/Volumes/moving/moving/photos/gopro2/100GOPRO/GOPR4515.MP4";
 
 int main(){
+#ifdef __APPLE__
   uint_t samplerate = 32000;
   uint_t hop_size = 1024;
   uint_t read = hop_size;
@@ -19,7 +20,9 @@ int main(){
   }
 
   del_aubio_source_apple_audio(s);
-
+#else
+  fprintf(stderr, "was not compiled with aubio_source_apple_audio");
+#endif /* __APPLE__ */
   return 0;
 }
 
