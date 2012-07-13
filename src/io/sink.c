@@ -29,13 +29,14 @@ struct _aubio_sink_t {
 };
 
 aubio_sink_t * new_aubio_sink(char_t * uri, uint_t hop_size, uint_t samplerate) {
-  return NULL;
+  aubio_sink_t * s = AUBIO_NEW(aubio_sink_t);
+  return s;
 }
 
-uint_t aubio_sink_do(aubio_sink_t * s, fvec_t * write_data) {
-  return 0;
+void aubio_sink_do(aubio_sink_t * s, fvec_t * write_data, uint_t * written) {
 }
 
 void del_aubio_sink(aubio_sink_t * s) {
+  AUBIO_FREE(s);
   return;
 }
