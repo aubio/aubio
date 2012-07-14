@@ -117,6 +117,7 @@ void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_data, uin
 }
 
 void del_aubio_source_sndfile(aubio_source_sndfile_t * s){
+  if (!s) return;
   if (sf_close(s->handle)) {
     AUBIO_ERR("Error closing file %s: %s", s->path, sf_strerror (NULL));
   }
