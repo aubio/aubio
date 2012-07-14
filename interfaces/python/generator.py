@@ -31,7 +31,15 @@ def generate_object_files():
 
   generated_objects = []
   cpp_output, cpp_objects = get_cpp_objects()
-  skip_objects = ['fft', 'pvoc', 'filter', 'filterbank', 'resampler']
+  skip_objects = ['fft',
+      'pvoc',
+      'filter',
+      'filterbank',
+      'resampler',
+      'sndfile',
+      'sink',
+      'source_apple_audio',
+      'source_sndfile']
 
   write_msg("-- INFO: %d objects in total" % len(cpp_objects))
 
