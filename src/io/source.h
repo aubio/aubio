@@ -32,7 +32,7 @@ extern "C" {
 */
 
 typedef struct _aubio_source_t aubio_source_t;
-aubio_source_t * new_aubio_source(char_t * method, uint_t hop_size, uint_t samplerate);
+aubio_source_t * new_aubio_source(char_t * uri, uint_t samplerate, uint_t hop_size);
 void aubio_source_do(aubio_source_t * s, fvec_t * read_data, uint_t * read);
 void del_aubio_source(aubio_source_t * s);
 
