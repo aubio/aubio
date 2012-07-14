@@ -179,6 +179,7 @@ extern "C"
 #include "io/source_sndfile.h"
 #include "io/source_apple_audio.h"
 #include "io/sink.h"
+#include "io/sink_sndfile.h"
 
 #if AUBIO_UNSTABLE
 #include "vecutils.h"
