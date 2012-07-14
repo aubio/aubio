@@ -28,7 +28,6 @@
 #include "aubio_priv.h"
 #include "source_sndfile.h"
 #include "fvec.h"
-#include "mathutils.h"
 
 #define MAX_CHANNELS 6
 #define MAX_SIZE 4096
@@ -86,13 +85,13 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplera
   }
   
   s->scratch_size = s->hop_size*s->input_channels;
-  s->scratch_data = AUBIO_ARRAY(float,s->scratch_size);
-
   /* allocate data for de/interleaving reallocated when needed. */
   if (s->scratch_size >= MAX_SIZE * MAX_CHANNELS) {
-    AUBIO_ERR("%d exceeds maximum aubio_source_sndfile buffer size %d\n", s->scratch_size, MAX_CHANNELS * MAX_CHANNELS);
+    AUBIO_ERR("%d x %d exceeds maximum aubio_source_sndfile buffer size %d\n",
+        s->hop_size, s->input_channels, MAX_CHANNELS * MAX_CHANNELS);
     return NULL;
   }
+  s->scratch_data = AUBIO_ARRAY(float,s->scratch_size);
 
   return s;
 }
@@ -101,8 +100,6 @@ void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_data, uin
   sf_count_t read_frames;
   int i,j, input_channels = s->input_channels;
   int aread;
-  smpl_t *pread;	
-
   /* do actual reading */
   read_frames = sf_read_float (s->handle, s->scratch_data, s->scratch_size);
 
