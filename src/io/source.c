@@ -23,7 +23,7 @@
 #include "fvec.h"
 #include "io/source.h"
 #ifdef __APPLE__
-#include "io/source_apple_audio_file.h"
+#include "io/source_apple_audio.h"
 #endif /* __APPLE__ */
 #ifdef HAVE_SNDFILE
 #include "io/source_sndfile.h"
