@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <assert.h>
+#define AUBIO_UNSTABLE 1
 #include <aubio.h>
 
 int main(){
-  int a, b;
+  uint_t a, b;
 
   a = 31; b = aubio_next_power_of_two(a);
   fprintf(stdout, "next_power_of_two of %d is %d\n", a, b);
