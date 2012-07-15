@@ -73,6 +73,7 @@ def configure(ctx):
     ctx.env.LINKFLAGS += ['-arch', 'i386', '-arch', 'x86_64']
     ctx.env.CC = 'llvm-gcc-4.2'
     ctx.env.LINK_CC = 'llvm-gcc-4.2'
+    ctx.env.FRAMEWORK = ['CoreFoundation', 'AudioToolbox']
 
   # check for required headers
   ctx.check(header_name='stdlib.h')
