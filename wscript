@@ -52,16 +52,13 @@ def options(ctx):
   ctx.add_option('--with-target-platform', type='string',
       help='set target platform for cross-compilation', dest='target_platform')
   ctx.load('compiler_c')
-  ctx.load('compiler_cxx')
   ctx.load('gnu_dirs')
   ctx.load('waf_unit_test')
 
 def configure(ctx):
   import Options
   ctx.check_tool('compiler_c')
-  ctx.check_tool('compiler_cxx')
   ctx.check_tool('gnu_dirs') # helpful for autotools transition and .pc generation
-  #ctx.check_tool('misc') # needed for subst
   ctx.load('waf_unit_test')
   ctx.env.CFLAGS = ['-g']
 
