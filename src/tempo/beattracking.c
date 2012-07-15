@@ -159,7 +159,7 @@ aubio_beattracking_do (aubio_beattracking_t * bt, fvec_t * dfframe,
   /* compute shift invariant comb filterbank */
   for (i = 1; i < laglen - 1; i++) {
     for (a = 1; a <= numelem; a++) {
-      for (b = (1 - a); b < a; b++) {
+      for (b = (1 - a); b < (sint_t)a; b++) {
         bt->acfout->data[i] += bt->acf->data[a * (i + 1) + b - 1]
             * 1. / (2. * a - 1.);
       }
@@ -299,7 +299,7 @@ aubio_beattracking_checkstate (aubio_beattracking_t * bt)
     fvec_zeros (acfout);
     for (i = 1; i < laglen - 1; i++) {
       for (a = 1; a <= bt->timesig; a++) {
-        for (b = (1 - a); b < a; b++) {
+        for (b = (1 - a); b < (sint_t)a; b++) {
           acfout->data[i] += acf->data[a * (i + 1) + b - 1];
         }
       }
