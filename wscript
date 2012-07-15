@@ -68,6 +68,12 @@ def configure(ctx):
   if Options.platform == 'win32':
     ctx.env['shlib_PATTERN'] = 'lib%s.dll'
 
+  if Options.platform == 'macfat':
+    ctx.env.CFLAGS += ['-arch', 'i386', '-arch', 'x86_64']
+    ctx.env.LINKFLAGS += ['-arch', 'i386', '-arch', 'x86_64']
+    ctx.env.CC = 'llvm-gcc-4.2'
+    ctx.env.LINK_CC = 'llvm-gcc-4.2'
+
   # check for required headers
   ctx.check(header_name='stdlib.h')
   ctx.check(header_name='stdio.h')
