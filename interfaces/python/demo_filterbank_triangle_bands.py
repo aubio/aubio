@@ -20,7 +20,7 @@ times = vstack([arange(win_s / 2 + 1) * samplerate / win_s] * n_filters)
 loglog(times.T, f.get_coeffs().T, '.-')
 xlim([50, samplerate/2])
 ylim([1.0e-6, 2.0e-2])
-ylabel('amplitude')
+ylabel('Amplitude')
 
 ## build a new filterbank
 
@@ -41,7 +41,7 @@ times = vstack([arange(win_s / 2 + 1) * samplerate / win_s] * n_filters)
 loglog(times.T, f.get_coeffs().T, '.-')
 xlim([50, samplerate/2])
 ylim([1.0e-6, 2.0e-2])
-xlabel('frequency (Hz)')
-ylabel('amplitude')
+xlabel('Frequency (Hz)')
+ylabel('Amplitude')
 
 show()
