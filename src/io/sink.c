@@ -44,13 +44,30 @@ aubio_sink_t * new_aubio_sink(char_t * uri, uint_t samplerate) {
   if (s->sink) return s;
 #endif /* HAVE_SNDFILE */
 #endif /* __APPLE__ */
-  if (s->sink == NULL) { AUBIO_FREE(s); return NULL; }
+  AUBIO_ERROR("failed opening %s", uri);
+  AUBIO_FREE(s);
+  return NULL;
 }
 
 void aubio_sink_do(aubio_sink_t * s, fvec_t * write_data, uint_t write) {
+#ifdef __APPLE__
+  aubio_sink_apple_audio_do((aubio_sink_apple_audio_t *)s->sink, write_data, write);
+#else /* __APPLE__ */
+#if HAVE_SNDFILE
+  aubio_sink_sndfile_do((aubio_sink_sndfile_t *)s->sink, write_data, write);
+#endif /* HAVE_SNDFILE */
+#endif /* __APPLE__ */
 }
 
 void del_aubio_sink(aubio_sink_t * s) {
+  if (!s) return;
+#ifdef __APPLE__
+  del_aubio_sink_apple_audio((aubio_sink_apple_audio_t *)s->sink);
+#else /* __APPLE__ */
+#if HAVE_SNDFILE
+  del_aubio_sink_sndfile((aubio_sink_sndfile_t *)s->sink);
+#endif /* HAVE_SNDFILE */
+#endif /* __APPLE__ */
   AUBIO_FREE(s);
   return;
 }
