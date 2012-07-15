@@ -36,15 +36,15 @@ struct _aubio_source_t {
 aubio_source_t * new_aubio_source(char_t * uri, uint_t samplerate, uint_t hop_size) {
   aubio_source_t * s = AUBIO_NEW(aubio_source_t);
 #ifdef __APPLE__
-  s->source= (void *)new_aubio_source_apple_audio(uri, samplerate, hop_size);
+  s->source = (void *)new_aubio_source_apple_audio(uri, samplerate, hop_size);
   if (s->source) return s;
 #else /* __APPLE__ */
 #if HAVE_SNDFILE
-  s->source= (void *)new_aubio_source_sndfile(uri, samplerate, hop_size);
+  s->source = (void *)new_aubio_source_sndfile(uri, samplerate, hop_size);
   if (s->source) return s;
 #endif /* HAVE_SNDFILE */
 #endif /* __APPLE__ */
-  if (s->source == NULL) return NULL;
+  if (s->source == NULL) { AUBIO_FREE(s); return NULL; }
 }
 
 void aubio_source_do(aubio_source_t * s, fvec_t * data, uint_t * read) {
