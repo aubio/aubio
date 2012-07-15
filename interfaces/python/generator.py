@@ -38,6 +38,8 @@ def generate_object_files():
       'resampler',
       'sndfile',
       'sink',
+      'sink_apple_audio',
+      'sink_sndfile',
       'source_apple_audio',
       'source_sndfile']
 
