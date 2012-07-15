@@ -22,18 +22,32 @@
 #include "aubio_priv.h"
 #include "fvec.h"
 #include "io/sink.h"
+#ifdef __APPLE__
+#include "io/sink_apple_audio.h"
+#endif /* __APPLE__ */
+#ifdef HAVE_SNDFILE
+#include "io/sink_sndfile.h"
+#endif
 
 struct _aubio_sink_t { 
-  uint_t hopsize;
-  uint_t samplerate;
+  void *sink;
 };
 
-aubio_sink_t * new_aubio_sink(char_t * uri, uint_t hop_size, uint_t samplerate) {
+aubio_sink_t * new_aubio_sink(char_t * uri, uint_t samplerate) {
   aubio_sink_t * s = AUBIO_NEW(aubio_sink_t);
-  return s;
+#ifdef __APPLE__
+  s->sink = (void *)new_aubio_sink_apple_audio(uri, samplerate);
+  if (s->sink) return s;
+#else /* __APPLE__ */
+#if HAVE_SNDFILE
+  s->sink = (void *)new_aubio_sink_sndfile(uri, samplerate);
+  if (s->sink) return s;
+#endif /* HAVE_SNDFILE */
+#endif /* __APPLE__ */
+  if (s->sink == NULL) { AUBIO_FREE(s); return NULL; }
 }
 
-void aubio_sink_do(aubio_sink_t * s, fvec_t * write_data, uint_t * written) {
+void aubio_sink_do(aubio_sink_t * s, fvec_t * write_data, uint_t write) {
 }
 
 void del_aubio_sink(aubio_sink_t * s) {

@@ -32,8 +32,8 @@ extern "C" {
 */
 
 typedef struct _aubio_sink_t aubio_sink_t;
-aubio_sink_t * new_aubio_sink(char_t * method, uint_t hop_size, uint_t samplerate);
-void aubio_sink_do(aubio_sink_t * s, fvec_t * write_data, uint_t * written);
+aubio_sink_t * new_aubio_sink(char_t * method, uint_t samplerate);
+void aubio_sink_do(aubio_sink_t * s, fvec_t * write_data, uint_t written);
 void del_aubio_sink(aubio_sink_t * s);
 
 #ifdef __cplusplus

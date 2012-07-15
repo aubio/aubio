@@ -33,7 +33,6 @@
 #define MAX_SIZE 4096
 
 struct _aubio_sink_sndfile_t {
-  uint_t hop_size;
   uint_t samplerate;
   uint_t channels;
   char_t *path;
@@ -42,7 +41,7 @@ struct _aubio_sink_sndfile_t {
   smpl_t *scratch_data;
 };
 
-aubio_sink_sndfile_t * new_aubio_sink_sndfile(char_t * path, uint_t samplerate, uint_t hop_size) {
+aubio_sink_sndfile_t * new_aubio_sink_sndfile(char_t * path, uint_t samplerate) {
   aubio_sink_sndfile_t * s = AUBIO_NEW(aubio_sink_sndfile_t);
 
   if (path == NULL) {
@@ -50,8 +49,8 @@ aubio_sink_sndfile_t * new_aubio_sink_sndfile(char_t * path, uint_t samplerate, 
     return NULL;
   }
 
-  s->hop_size = hop_size;
   s->samplerate = samplerate;
+  s->max_size = MAX_SIZE;
   s->channels = 1;
   s->path = path;
 
@@ -71,11 +70,11 @@ aubio_sink_sndfile_t * new_aubio_sink_sndfile(char_t * path, uint_t samplerate, 
     return NULL;
   }	
 
-  s->scratch_size = s->hop_size*s->channels;
+  s->scratch_size = s->max-size*s->channels;
   /* allocate data for de/interleaving reallocated when needed. */
   if (s->scratch_size >= MAX_SIZE * MAX_CHANNELS) {
     AUBIO_ERR("%d x %d exceeds maximum aubio_sink_sndfile buffer size %d\n",
-        s->hop_size, s->channels, MAX_CHANNELS * MAX_CHANNELS);
+        s->max_size, s->channels, MAX_CHANNELS * MAX_CHANNELS);
     return NULL;
   }
   s->scratch_data = AUBIO_ARRAY(float,s->scratch_size);
@@ -83,21 +82,31 @@ aubio_sink_sndfile_t * new_aubio_sink_sndfile(char_t * path, uint_t samplerate, 
   return s;
 }
 
-void aubio_sink_sndfile_do(aubio_sink_sndfile_t *s, fvec_t * write, uint_t * written){
+void aubio_sink_sndfile_do(aubio_sink_sndfile_t *s, fvec_t * write_data, uint_t write){
   sf_count_t written_frames = 0;
   int i, j,	channels = s->channels;
-  int nsamples = channels*(*written);
+  int nsamples = channels*write;
   smpl_t *pwrite;
+
+  if (write > s->max_size) {
+    write = s->max_size;
+    AUBIO_WRN("trying to write %d frames, but only %d can be written at a time",
+      write, s->max_frames);
+  }
 
   /* interleaving data  */
   for ( i = 0; i < channels; i++) {
-    pwrite = (smpl_t *)write->data;
-    for (j=0; j < s->hop_size; j++) {
+    pwrite = (smpl_t *)write_data->data;
+    for (j=0; j < write; j++) {
       s->scratch_data[channels*j+i] = pwrite[j];
     }
   }
-  written_frames = sf_write_float (s->handle, s->scratch_data, nsamples);
-  *written = written_frames/channels;
+
+  uint_t written = sf_write_float (s->handle, s->scratch_data, nsamples);
+  if (written/channels != write) {
+    AUBIO_WRN("trying to write %d frames to %s, but only %d could be written",
+      write, s->path, written);
+  }
   return;
 }
 
