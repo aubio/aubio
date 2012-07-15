@@ -60,7 +60,7 @@ def configure(ctx):
   ctx.check_tool('compiler_c')
   ctx.check_tool('gnu_dirs') # helpful for autotools transition and .pc generation
   ctx.load('waf_unit_test')
-  ctx.env.CFLAGS = ['-g']
+  ctx.env.CFLAGS = ['-g', '-Wall', '-Wextra']
 
   if Options.options.target_platform:
     Options.platform = Options.options.target_platform
