@@ -1,6 +1,9 @@
 #! /bin/sh
 
-export CFLAGS=-I/Users/piem/Library/Python/2.7/site-packages/numpy-1.8.0.dev_436a28f_20120710-py2.7-macosx-10.7-x86_64.egg/numpy/core/include/
+set -e
+set -x
+
+export CFLAGS="-I/Users/piem/Library/Python/2.7/site-packages/numpy-1.8.0.dev_436a28f_20120710-py2.7-macosx-10.7-x86_64.egg/numpy/core/include/ -arch i386 -arch x86_64"
 export LDFLAGS=-L../../build/src/
 python setup.py clean build
 export PYTHONPATH=./build/lib.macosx-10.6-intel-2.7:$PYTHONPATH
