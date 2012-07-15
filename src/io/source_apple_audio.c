@@ -24,8 +24,6 @@
 #include "fvec.h"
 #include "io/source_apple_audio.h"
 
-// CFURLRef, CFURLCreateWithFileSystemPath, ...
-#include <CoreFoundation/CoreFoundation.h>
 // ExtAudioFileRef, AudioStreamBasicDescription, AudioBufferList, ...
 #include <AudioToolbox/AudioToolbox.h>
 
@@ -44,13 +42,12 @@ struct _aubio_source_apple_audio_t {
   char_t *path;
 
   ExtAudioFileRef audioFile;
-  AudioStreamBasicDescription fileFormat;
   AudioBufferList bufferList;
 };
 
-static int createAubioBufferList(AudioBufferList *bufferList, int channels, int segmentSize);
-static void freeAudioBufferList(AudioBufferList *bufferList);
-static CFURLRef getURLFromPath(const char * path);
+extern int createAubioBufferList(AudioBufferList *bufferList, int channels, int segmentSize);
+extern void freeAudioBufferList(AudioBufferList *bufferList);
+extern CFURLRef getURLFromPath(const char * path);
 
 aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * path, uint_t samplerate, uint_t block_size)
 {
@@ -95,8 +92,9 @@ aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * path, uint_t 
   // set the client format description
   err = ExtAudioFileSetProperty(s->audioFile, kExtAudioFileProperty_ClientDataFormat,
       propSize, &clientFormat);
-  if (err) { fprintf(stderr, "error in ExtAudioFileSetProperty, %d\n", (int)err); goto beach;}
+  if (err) { AUBIO_ERROR("error in ExtAudioFileSetProperty, %d\n", (int)err); goto beach;}
 
+#if 0
   // print client and format descriptions
   AUBIO_DBG("Opened %s\n", s->path);
   AUBIO_DBG("file/client Format.mFormatID:        : %3c%c%c%c / %c%c%c%c\n",
@@ -112,6 +110,7 @@ aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * path, uint_t 
   AUBIO_DBG("file/client Format.mBytesPerFrame    : %6d / %d\n",    (int)fileFormat.mBytesPerFrame   , (int)clientFormat.mBytesPerFrame);
   AUBIO_DBG("file/client Format.mBytesPerPacket   : %6d / %d\n",    (int)fileFormat.mBytesPerPacket  , (int)clientFormat.mBytesPerPacket);
   AUBIO_DBG("file/client Format.mReserved         : %6d / %d\n",    (int)fileFormat.mReserved        , (int)clientFormat.mReserved);
+#endif
 
   // compute the size of the segments needed to read the input file
   UInt32 samples = s->block_size * clientFormat.mChannelsPerFrame;
@@ -164,35 +163,6 @@ beach:
   *read = 0;
   return;
 }
-
-static int createAubioBufferList(AudioBufferList * bufferList, int channels, int segmentSize) {
-  bufferList->mNumberBuffers = 1;
-  bufferList->mBuffers[0].mNumberChannels = channels;
-  bufferList->mBuffers[0].mData = (short *)malloc(segmentSize * sizeof(short));
-  bufferList->mBuffers[0].mDataByteSize = segmentSize * sizeof(short);
-  return 0;
-}
-
-static void freeAudioBufferList(AudioBufferList *bufferList) {
-  UInt32 i = 0;
-  if (!bufferList) return;
-  for (i = 0; i < bufferList->mNumberBuffers; i++) {
-    if (bufferList->mBuffers[i].mData) {
-      free (bufferList->mBuffers[i].mData);
-      bufferList->mBuffers[i].mData = NULL;
-    }
-  }
-  bufferList = NULL;
-}
-
-static CFURLRef getURLFromPath(const char * path) {
-  CFStringRef cfTotalPath = CFStringCreateWithCString (kCFAllocatorDefault,
-      path, kCFStringEncodingUTF8);
-
-  return CFURLCreateWithFileSystemPath(kCFAllocatorDefault, cfTotalPath,
-      kCFURLPOSIXPathStyle, false);
-}
-
 
 void del_aubio_source_apple_audio(aubio_source_apple_audio_t * s){
   OSStatus err = noErr;
