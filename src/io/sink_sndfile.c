@@ -36,6 +36,9 @@ struct _aubio_sink_sndfile_t {
   uint_t samplerate;
   uint_t channels;
   char_t *path;
+
+  uint_t max_size;
+
   SNDFILE *handle;
   uint_t scratch_size;
   smpl_t *scratch_data;
@@ -70,7 +73,7 @@ aubio_sink_sndfile_t * new_aubio_sink_sndfile(char_t * path, uint_t samplerate) 
     return NULL;
   }	
 
-  s->scratch_size = s->max-size*s->channels;
+  s->scratch_size = s->max_size*s->channels;
   /* allocate data for de/interleaving reallocated when needed. */
   if (s->scratch_size >= MAX_SIZE * MAX_CHANNELS) {
     AUBIO_ERR("%d x %d exceeds maximum aubio_sink_sndfile buffer size %d\n",
@@ -89,9 +92,9 @@ void aubio_sink_sndfile_do(aubio_sink_sndfile_t *s, fvec_t * write_data, uint_t 
   smpl_t *pwrite;
 
   if (write > s->max_size) {
-    write = s->max_size;
     AUBIO_WRN("trying to write %d frames, but only %d can be written at a time",
-      write, s->max_frames);
+      write, s->max_size);
+    write = s->max_size;
   }
 
   /* interleaving data  */
