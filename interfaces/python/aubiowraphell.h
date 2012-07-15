@@ -7,21 +7,13 @@ typedef struct { \
   PARAMS; \
 } Py_## NAME;
 
-#define AUBIO_NEW(NAME) \
-static PyObject * \
-Py_ ## NAME ## _new (PyTypeObject * type, PyObject * args, PyObject * kwds) \
-{ \
-  Py_ ## NAME * self; \
-  self = (Py_ ## NAME *) type->tp_alloc (type, 0); \
-  return (PyObject *)self; \
-}
-
 #define AUBIO_INIT(NAME, PARAMS... ) \
 static int \
 Py_ ## NAME ## _init (Py_ ## NAME * self, PyObject * args, PyObject * kwds) \
 { \
   self->o = new_aubio_## NAME ( PARAMS ); \
   if (self->o == NULL) { \
+    PyErr_SetString (PyExc_StandardError, "error creating object"); \
     return -1; \
   } \
 \
