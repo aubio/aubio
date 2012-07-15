@@ -58,6 +58,7 @@ void aubio_source_do(aubio_source_t * s, fvec_t * data, uint_t * read) {
 }
 
 void del_aubio_source(aubio_source_t * s) {
+  if (!s) return;
 #ifdef __APPLE__
   del_aubio_source_apple_audio((aubio_source_apple_audio_t *)s->source);
 #else /* __APPLE__ */
