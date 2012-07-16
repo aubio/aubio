@@ -40,7 +40,7 @@ typedef struct _aubio_resampler_t aubio_resampler_t;
 /** create resampler object 
 
   \param ratio output_sample_rate / input_sample_rate 
-  \param type libsamplerate resampling type
+  \param type libsamplerate resampling type, see http://www.mega-nerd.com/SRC/api_misc.html#Converters
 
 */
 aubio_resampler_t *new_aubio_resampler (smpl_t ratio, uint_t type);
