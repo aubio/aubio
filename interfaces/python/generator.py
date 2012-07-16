@@ -39,7 +39,6 @@ def generate_object_files():
       'filterbank',
       'resampler',
       'sndfile',
-      'sink',
       'sink_apple_audio',
       'sink_sndfile',
       'source_apple_audio',

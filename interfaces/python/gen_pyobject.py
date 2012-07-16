@@ -20,6 +20,7 @@ maintaining this bizarre file.
 
 param_numbers = {
   'source': [0, 2],
+  'sink':   [2, 0],
 }
 
 # TODO
@@ -144,6 +145,7 @@ aubio2pytypes = {
 aubiovecfrompyobj = {
     'fvec_t*': 'PyAubio_ArrayToCFvec',
     'cvec_t*': 'PyAubio_ArrayToCCvec',
+    'uint_t': '(uint_t)PyInt_AsLong',
 }
 
 # aubio to python
@@ -152,6 +154,7 @@ aubiovectopyobj = {
     'cvec_t*': 'PyAubio_CCvecToPyCvec',
     'smpl_t': 'PyFloat_FromDouble',
     'uint_t*': 'PyInt_FromLong',
+    'uint_t': 'PyInt_FromLong',
 }
 
 def gen_new_init(newfunc, name):
@@ -274,25 +277,39 @@ def gen_do_input_params(inputparams):
     # build the parsing string for PyArg_ParseTuple
     pytypes = "".join([aubio2pytypes[p['type']] for p in inputparams])
 
-    inputdefs = "/* input vectors python prototypes */\n  "
-    inputdefs += "\n  ".join(["PyObject * " + p['name'] + "_obj;" for p in inputparams])
+    inputdefs = "  /* input vectors python prototypes */\n"
+    for p in inputparams:
+      if p['type'] != 'uint_t':
+        inputdefs += "  PyObject * " + p['name'] + "_obj;\n"
 
-    inputvecs = "/* input vectors prototypes */\n  "
+    inputvecs = "  /* input vectors prototypes */\n  "
     inputvecs += "\n  ".join(map(lambda p: p['type'] + ' ' + p['name'] + ";", inputparams))
 
-    parseinput = "/* input vectors parsing */\n  "
+    parseinput = "  /* input vectors parsing */\n  "
     for p in inputparams:
         inputvec = p['name']
-        inputdef = p['name'] + "_obj"
+        if p['type'] != 'uint_t':
+          inputdef = p['name'] + "_obj"
+        else:
+          inputdef = p['name']
         converter = aubiovecfrompyobj[p['type']]
-        parseinput += """%(inputvec)s = %(converter)s (%(inputdef)s);
+        if p['type'] != 'uint_t':
+          parseinput += """%(inputvec)s = %(converter)s (%(inputdef)s);
 
   if (%(inputvec)s == NULL) {
     return NULL;
-  }""" % locals()
+  }
+
+  """ % locals()
 
     # build the string for the input objects references
-    inputrefs = ", ".join(["&" + p['name'] + "_obj" for p in inputparams])
+    inputreflist = []
+    for p in inputparams:
+      if p['type'] != 'uint_t':
+        inputreflist += [ "&" + p['name'] + "_obj" ]
+      else:
+        inputreflist += [ "&" + p['name'] ]
+    inputrefs = ", ".join(inputreflist)
     # end of inputs strings
   return inputdefs, parseinput, inputrefs, inputvecs, pytypes
 
@@ -342,6 +359,7 @@ def gen_do(dofunc, name):
 
     if name in param_numbers.keys():
       n_input_param, n_output_param = param_numbers[name]
+      print name, n_output_param
     else:
       n_input_param, n_output_param = 1, n_param - 1
 
