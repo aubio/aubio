@@ -104,7 +104,7 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplera
   s->input_data = NULL;
   if (s->ratio != 1) {
     s->input_data = new_fvec(s->input_hop_size);
-    s->resampler = new_aubio_resampler(s->ratio, 0);
+    s->resampler = new_aubio_resampler(s->ratio, 4);
     if (s->ratio > 1) {
       // we would need to add a ring buffer for these
       if ( (uint_t)(s->input_hop_size * s->ratio + .5)  != s->hop_size ) {
