@@ -105,7 +105,12 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplera
   if (s->ratio != 1) {
     s->input_data = new_fvec(s->input_hop_size);
     s->resampler = new_aubio_resampler(s->ratio, 0);
-    if (s-> ratio > 1) {
+    if (s->ratio > 1) {
+      // we would need to add a ring buffer for these
+      if ( (uint_t)(s->input_hop_size * s->ratio + .5)  != s->hop_size ) {
+        AUBIO_ERR("can not upsample from %d to %d\n", s->input_samplerate, s->samplerate);
+        goto beach;
+      }
       AUBIO_WRN("upsampling %s from %d to % d\n", s->path, s->input_samplerate, s->samplerate);
     }
   }
@@ -123,7 +128,7 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplera
   return s;
 
 beach:
-  AUBIO_ERR("can not read %s at samplerate %dHz with hop_size of %d\n",
+  AUBIO_ERR("can not read %s at samplerate %dHz with a hop_size of %d\n",
       s->path, s->samplerate, s->hop_size);
   del_aubio_source_sndfile(s);
   return NULL;
