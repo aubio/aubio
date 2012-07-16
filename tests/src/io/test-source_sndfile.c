@@ -6,7 +6,7 @@ char_t *path = "/home/piem/archives/drum_Chocolate_Milk_-_Ation_Speaks_Louder_Th
 
 int main(){
 #ifdef HAVE_SNDFILE
-  uint_t samplerate = 44100;
+  uint_t samplerate = 32000;
   uint_t hop_size = 512;
   uint_t read = hop_size;
   fvec_t *vec = new_fvec(hop_size);
