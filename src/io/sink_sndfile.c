@@ -86,8 +86,7 @@ aubio_sink_sndfile_t * new_aubio_sink_sndfile(char_t * path, uint_t samplerate) 
 }
 
 void aubio_sink_sndfile_do(aubio_sink_sndfile_t *s, fvec_t * write_data, uint_t write){
-  sf_count_t written_frames = 0;
-  int i, j,	channels = s->channels;
+  uint_t i, j,	channels = s->channels;
   int nsamples = channels*write;
   smpl_t *pwrite;
 
@@ -100,15 +99,15 @@ void aubio_sink_sndfile_do(aubio_sink_sndfile_t *s, fvec_t * write_data, uint_t 
   /* interleaving data  */
   for ( i = 0; i < channels; i++) {
     pwrite = (smpl_t *)write_data->data;
-    for (j=0; j < write; j++) {
+    for (j = 0; j < write; j++) {
       s->scratch_data[channels*j+i] = pwrite[j];
     }
   }
 
-  uint_t written = sf_write_float (s->handle, s->scratch_data, nsamples);
-  if (written/channels != write) {
+  sf_count_t written_frames = sf_write_float (s->handle, s->scratch_data, nsamples);
+  if (written_frames/channels != write) {
     AUBIO_WRN("trying to write %d frames to %s, but only %d could be written",
-      write, s->path, written);
+      write, s->path, (uint_t)written_frames);
   }
   return;
 }
