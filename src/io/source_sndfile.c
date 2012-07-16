@@ -29,6 +29,8 @@
 #include "source_sndfile.h"
 #include "fvec.h"
 
+#include "temporal/resampler.h"
+
 #define MAX_CHANNELS 6
 #define MAX_SIZE 4096
 
@@ -43,6 +45,13 @@ struct _aubio_source_sndfile_t {
   SNDFILE *handle;
   uint_t scratch_size;
   smpl_t *scratch_data;
+
+  smpl_t ratio;
+
+#ifdef HAVE_SAMPLERATE
+  aubio_resampler_t *resampler;
+  fvec_t *resampled_data;
+#endif /* HAVE_SAMPLERATE */
 };
 
 aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplerate, uint_t hop_size) {
@@ -69,7 +78,7 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplera
     return NULL;
   }	
 
-  if (sfinfo.channels > MAX_CHANNELS) { 
+  if (sfinfo.channels > MAX_CHANNELS) {
     AUBIO_ERR("Not able to process more than %d channels\n", MAX_CHANNELS);
     return NULL;
   }
@@ -79,12 +88,23 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplera
   s->input_channels   = sfinfo.channels;
   s->input_format     = sfinfo.format;
 
-  if (s->samplerate != s->input_samplerate) {
-    AUBIO_ERR("resampling not implemented yet\n");
+  s->ratio = s->samplerate/(float)s->input_samplerate;
+
+  if (s->ratio != 1) {
+#ifdef HAVE_SAMPLERATE
+    s->resampler = new_aubio_resampler(s->ratio, 0);
+    s->resampled_data = new_fvec(s->hop_size / s->ratio);
+    if (s-> ratio > 1) {
+      AUBIO_WRN("upsampling from %d to % d\n", s->input_samplerate, s->samplerate);
+    }
+#else
+    AUBIO_ERR("can not read %s at samplerate %dHz\n", s->path, s->samplerate);
+    AUBIO_ERR("aubio was compiled without aubio_resampler\n");
     return NULL;
+#endif /* HAVE_SAMPLERATE */
   }
-  
-  s->scratch_size = s->hop_size*s->input_channels;
+
+  s->scratch_size = s->hop_size * s->input_channels / s->ratio;
   /* allocate data for de/interleaving reallocated when needed. */
   if (s->scratch_size >= MAX_SIZE * MAX_CHANNELS) {
     AUBIO_ERR("%d x %d exceeds maximum aubio_source_sndfile buffer size %d\n",
@@ -103,16 +123,34 @@ void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_data, uin
   /* do actual reading */
   read_frames = sf_read_float (s->handle, s->scratch_data, s->scratch_size);
 
-  aread = (int)FLOOR(read_frames/(float)input_channels);
+  smpl_t *data;
+
+#ifdef HAVE_SAMPLERATE
+  if (s->resampler) {
+    data = s->resampled_data->data;
+  } else
+#endif /* HAVE_SAMPLERATE */
+  {
+    data = read_data->data;
+  }
+  aread = (int)FLOOR(s->ratio * read_frames / (float)input_channels + .5);
 
   /* de-interleaving and down-mixing data  */
-  for (j = 0; j < aread; j++) {
-    read_data->data[j] = 0;
+  for (j = 0; j < read_frames; j++) {
+    data[j] = 0;
     for (i = 0; i < input_channels; i++) {
-      read_data->data[j] += (smpl_t)s->scratch_data[input_channels*j+i];
+      data[j] += (smpl_t)s->scratch_data[input_channels*j+i];
     }
-    read_data->data[j] /= (smpl_t)input_channels;
+    data[j] /= (smpl_t)input_channels;
   }
+
+#ifdef HAVE_SAMPLERATE
+  if (s->resampler) {
+    aubio_resampler_do(s->resampler, s->resampled_data, read_data);
+    data = s->resampled_data->data;
+  }
+#endif /* HAVE_SAMPLERATE */
+
   *read = aread;
 }
 
@@ -121,6 +159,14 @@ void del_aubio_source_sndfile(aubio_source_sndfile_t * s){
   if (sf_close(s->handle)) {
     AUBIO_ERR("Error closing file %s: %s", s->path, sf_strerror (NULL));
   }
+#ifdef HAVE_SAMPLERATE
+  if (s->resampler) {
+    del_aubio_resampler(s->resampler);
+  }
+  if (s->resampled_data) {
+    del_fvec(s->resampled_data);
+  }
+#endif /* HAVE_SAMPLERATE */
   AUBIO_FREE(s->scratch_data);
   AUBIO_FREE(s);
 }
