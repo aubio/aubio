@@ -2,7 +2,7 @@
 
 """ This file generates a c file from a list of cpp prototypes. """
 
-import os, sys
+import os, sys, shutil
 from gen_pyobject import write_msg, gen_new_init, gen_do, gen_members, gen_methods, gen_finish
 
 def get_cpp_objects():
@@ -28,6 +28,8 @@ def get_cpp_objects():
   return cpp_output, cpp_objects
 
 def generate_object_files():
+  if os.path.isdir('generated'): shutil.rmtree('generated')
+  os.mkdir('generated')
 
   generated_objects = []
   cpp_output, cpp_objects = get_cpp_objects()
@@ -109,7 +111,6 @@ def generate_object_files():
 
 
       # generate this_object
-      if not os.path.isdir('generated'): os.mkdir('generated')
       short_name = object_name[len('aubio_'):]
       if short_name in skip_objects:
               write_msg("-- INFO: skipping object", short_name )
