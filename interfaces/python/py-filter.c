@@ -120,6 +120,24 @@ Py_filter_set_a_weighting (Py_filter * self, PyObject *args)
   return Py_None;
 }
 
+static PyObject *
+Py_filter_set_biquad(Py_filter * self, PyObject *args)
+{
+  uint_t err = 0;
+  lsmp_t b0, b1, b2, a1, a2;
+  if (!PyArg_ParseTuple (args, "ddddd", &b0, &b1, &b2, &a1, &a2)) {
+    return NULL;
+  }
+
+  err = aubio_filter_set_biquad (self->o, b0, b1, b2, a1, a2);
+  if (err > 0) {
+    PyErr_SetString (PyExc_ValueError,
+        "error when setting filter with biquad coefficients");
+    return NULL;
+  }
+  return Py_None;
+}
+
 static PyMemberDef Py_filter_members[] = {
   // TODO remove READONLY flag and define getter/setter
   {"order", T_INT, offsetof (Py_filter, order), READONLY,
@@ -132,6 +150,8 @@ static PyMethodDef Py_filter_methods[] = {
       "set filter coefficients to C-weighting"},
   {"set_a_weighting", (PyCFunction) Py_filter_set_a_weighting, METH_VARARGS,
       "set filter coefficients to A-weighting"},
+  {"set_biquad", (PyCFunction) Py_filter_set_biquad, METH_VARARGS,
+      "set b0, b1, b2, a1, a2 biquad coefficients"},
   {NULL}
 };
 
