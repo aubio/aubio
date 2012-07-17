@@ -96,7 +96,7 @@ Py_filter_set_c_weighting (Py_filter * self, PyObject *args)
   err = aubio_filter_set_c_weighting (self->o, samplerate);
   if (err > 0) {
     PyErr_SetString (PyExc_ValueError,
-        "error when setting filter to A-weighting");
+        "error when setting filter to C-weighting");
     return NULL;
   }
   return Py_None;
