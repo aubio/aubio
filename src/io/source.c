@@ -71,3 +71,13 @@ void del_aubio_source(aubio_source_t * s) {
   AUBIO_FREE(s);
 }
 
+uint_t aubio_source_get_samplerate(aubio_source_t * s) {
+#ifdef __APPLE__
+  return aubio_source_apple_audio_get_samplerate((aubio_source_apple_audio_t *)s->source);
+#else /* __APPLE__ */
+#if HAVE_SNDFILE
+  return aubio_source_sndfile_get_samplerate((aubio_source_sndfile_t *)s->source);
+#endif /* HAVE_SNDFILE */
+#endif /* __APPLE__ */
+}
+
