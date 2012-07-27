@@ -33,3 +33,15 @@ if __name__ == '__main__':
     steadstate = pw.rdo(stead_spec)   # overlap-add synthesis of steady states
     g(transients, read)               # write transients to output
     h(steadstate, read)               # write steady states to output
+
+  del f, g, h                         # finish writing the files now
+
+  from demo_spectrogram import get_spectrogram
+  from pylab import subplot, show
+  subplot(311)
+  get_spectrogram(sys.argv[1])
+  subplot(312)
+  get_spectrogram(sys.argv[2])
+  subplot(313)
+  get_spectrogram(sys.argv[3])
+  show()
