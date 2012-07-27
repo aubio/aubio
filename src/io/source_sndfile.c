@@ -89,6 +89,8 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplera
   s->input_channels   = sfinfo.channels;
   s->input_format     = sfinfo.format;
 
+  if (s->samplerate == 1) s->samplerate = s->input_samplerate;
+
   /* compute input block size required before resampling */
   s->ratio = s->samplerate/(float)s->input_samplerate;
   s->input_hop_size = (uint_t)FLOOR(s->hop_size / s->ratio + .5);
@@ -166,6 +168,10 @@ void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_data, uin
 #endif /* HAVE_SAMPLERATE */
 
   *read = (int)FLOOR(s->ratio * read_samples / input_channels + .5);
+}
+
+uint_t aubio_source_sndfile_get_samplerate(aubio_source_sndfile_t * s) {
+  return s->samplerate;
 }
 
 void del_aubio_source_sndfile(aubio_source_sndfile_t * s){

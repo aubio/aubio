@@ -24,6 +24,7 @@
 typedef struct _aubio_source_sndfile_t aubio_source_sndfile_t;
 aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplerate, uint_t block_size);
 void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_to, uint_t * read);
+uint_t aubio_source_sndfile_get_samplerate(aubio_source_sndfile_t * s);
 void del_aubio_source_sndfile(aubio_source_sndfile_t * s);
 
 #endif /* _AUBIO_SOURCE_SNDFILE_H */
