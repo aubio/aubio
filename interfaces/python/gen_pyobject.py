@@ -94,7 +94,7 @@ defaultsizes = {
     'pitchmcomb':   ['1'],
     'pitchfcomb':   ['1'],
     'pitch':        ['1'],
-    'tss':          ['self->win_size', 'self->win_size'],
+    'tss':          ['self->buf_size', 'self->buf_size'],
     'mfcc':         ['self->n_coeffs'],
     'beattracking': ['self->hop_size'],
     'tempo':        ['1'],
