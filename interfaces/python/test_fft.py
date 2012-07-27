@@ -89,8 +89,9 @@ class aubio_fft_test_case(TestCase):
     fftgrain = f ( timegrain )
     #self.plot_this ( fftgrain.phas )
     assert_equal ( fftgrain.phas[0], 0)
-    assert_equal ( abs(fftgrain.phas[1]), 0)
-    assert_almost_equal (fftgrain.norm[0], impulse, decimal = 6 )
+    # could be 0 or -0 depending on fft implementation (0 for fftw3, -0 for ooura)
+    assert_almost_equal ( fftgrain.phas[1], 0)
+    assert_almost_equal ( fftgrain.norm[0], impulse, decimal = 6 )
 
   def test_rdo_before_do(self):
     """ check running fft.rdo before fft.do works """
