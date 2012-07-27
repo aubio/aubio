@@ -89,6 +89,11 @@ aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * path, uint_t 
       kExtAudioFileProperty_FileDataFormat, &propSize, &fileFormat);
   if (err) { AUBIO_ERROR("error in ExtAudioFileGetProperty, %d\n", (int)err); goto beach;}
 
+  if (s->samplerate == 1) {
+    clientFormat.mSampleRate = fileFormat.mSampleRate;
+    s->samplerate = fileFormat.mSampleRate;
+  }
+
   // set the client format description
   err = ExtAudioFileSetProperty(s->audioFile, kExtAudioFileProperty_ClientDataFormat,
       propSize, &clientFormat);
@@ -173,6 +178,10 @@ void del_aubio_source_apple_audio(aubio_source_apple_audio_t * s){
   freeAudioBufferList(&s->bufferList);
   AUBIO_FREE(s);
   return;
+}
+
+uint_t aubio_source_apple_audio_get_samplerate(aubio_source_apple_audio_t * s) {
+  return s->samplerate;
 }
 
 #endif /* __APPLE__ */
