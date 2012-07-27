@@ -27,7 +27,6 @@
 #include <string.h>             /* for strcmp */
 #include <aubio.h>
 #include "config.h"
-#include "sndfileio.h"
 #ifdef HAVE_JACK
 #include "jackio.h"
 #endif /* HAVE_JACK */

@@ -18,6 +18,11 @@ requirements. If you know of one, please let me know, it will spare me
 maintaining this bizarre file.
 """
 
+param_numbers = {
+  'source': [0, 2],
+  'sink':   [2, 0],
+}
+
 # TODO
 # do function: for now, only the following pattern is supported:
 # void aubio_<foo>_do (aubio_foo_t * o, 
@@ -80,20 +85,21 @@ def get_name(proto):
 # the important bits: the size of the output for each objects. this data should
 # move into the C library at some point.
 defaultsizes = {
-    'resampler':    'input->length * self->ratio',
-    'specdesc':     '1',
-    'onset':        '1',
-    'pitchyin':     '1',
-    'pitchyinfft':  '1',
-    'pitchschmitt': '1',
-    'pitchmcomb':   '1',
-    'pitchfcomb':   '1',
-    'pitch':        '1',
-    'tss':          'self->hop_size',
-    'mfcc':         'self->n_coeffs',
-    'beattracking': 'self->hop_size',
-    'tempo':        '1',
-    'peakpicker':   '1',
+    'resampler':    ['input->length * self->ratio'],
+    'specdesc':     ['1'],
+    'onset':        ['1'],
+    'pitchyin':     ['1'],
+    'pitchyinfft':  ['1'],
+    'pitchschmitt': ['1'],
+    'pitchmcomb':   ['1'],
+    'pitchfcomb':   ['1'],
+    'pitch':        ['1'],
+    'tss':          ['self->win_size', 'self->win_size'],
+    'mfcc':         ['self->n_coeffs'],
+    'beattracking': ['self->hop_size'],
+    'tempo':        ['1'],
+    'peakpicker':   ['1'],
+    'source':       ['self->hop_size', '1'],
 }
 
 # default value for variables
@@ -122,6 +128,7 @@ aubiodefvalue = {
     'thrs': '0.5',
     'ratio': '0.5',
     'method': '"default"',
+    'uri': '"none"',
     }
 
 # aubio to python
@@ -138,6 +145,7 @@ aubio2pytypes = {
 aubiovecfrompyobj = {
     'fvec_t*': 'PyAubio_ArrayToCFvec',
     'cvec_t*': 'PyAubio_ArrayToCCvec',
+    'uint_t': '(uint_t)PyInt_AsLong',
 }
 
 # aubio to python
@@ -145,6 +153,8 @@ aubiovectopyobj = {
     'fvec_t*': 'PyAubio_CFvecToArray',
     'cvec_t*': 'PyAubio_CCvecToPyCvec',
     'smpl_t': 'PyFloat_FromDouble',
+    'uint_t*': 'PyInt_FromLong',
+    'uint_t': 'PyInt_FromLong',
 }
 
 def gen_new_init(newfunc, name):
@@ -256,6 +266,86 @@ AUBIO_DEL(%(name)s)
 """ % locals()
     return s
 
+def gen_do_input_params(inputparams):
+  inputdefs = ''
+  parseinput = ''
+  inputrefs = ''
+  inputvecs = ''
+  pytypes = ''
+
+  if len(inputparams):
+    # build the parsing string for PyArg_ParseTuple
+    pytypes = "".join([aubio2pytypes[p['type']] for p in inputparams])
+
+    inputdefs = "  /* input vectors python prototypes */\n"
+    for p in inputparams:
+      if p['type'] != 'uint_t':
+        inputdefs += "  PyObject * " + p['name'] + "_obj;\n"
+
+    inputvecs = "  /* input vectors prototypes */\n  "
+    inputvecs += "\n  ".join(map(lambda p: p['type'] + ' ' + p['name'] + ";", inputparams))
+
+    parseinput = "  /* input vectors parsing */\n  "
+    for p in inputparams:
+        inputvec = p['name']
+        if p['type'] != 'uint_t':
+          inputdef = p['name'] + "_obj"
+        else:
+          inputdef = p['name']
+        converter = aubiovecfrompyobj[p['type']]
+        if p['type'] != 'uint_t':
+          parseinput += """%(inputvec)s = %(converter)s (%(inputdef)s);
+
+  if (%(inputvec)s == NULL) {
+    return NULL;
+  }
+
+  """ % locals()
+
+    # build the string for the input objects references
+    inputreflist = []
+    for p in inputparams:
+      if p['type'] != 'uint_t':
+        inputreflist += [ "&" + p['name'] + "_obj" ]
+      else:
+        inputreflist += [ "&" + p['name'] ]
+    inputrefs = ", ".join(inputreflist)
+    # end of inputs strings
+  return inputdefs, parseinput, inputrefs, inputvecs, pytypes
+
+def gen_do_output_params(outputparams, name):
+  outputvecs = ""
+  outputcreate = ""
+  if len(outputparams):
+    outputvecs = "  /* output vectors prototypes */\n"
+    for p in outputparams:
+      params = {
+        'name': p['name'], 'pytype': p['type'], 'autype': p['type'][:-3],
+        'length': defaultsizes[name].pop(0) }
+      if (p['type'] == 'uint_t*'):
+        outputvecs += '  uint_t' + ' ' + p['name'] + ";\n"
+        outputcreate += "  %(name)s = 0;\n" % params
+      else:
+        outputvecs += "  " + p['type'] + ' ' + p['name'] + ";\n"
+        outputcreate += "  /* creating output %(name)s as a new_%(autype)s of length %(length)s */\n" % params
+        outputcreate += "  %(name)s = new_%(autype)s (%(length)s);\n" % params
+
+  returnval = "";
+  if len(outputparams) > 1:
+    returnval += "  PyObject *outputs = PyList_New(0);\n"
+    for p in outputparams:
+      returnval += "  PyList_Append( outputs, (PyObject *)" + aubiovectopyobj[p['type']] + " (" + p['name'] + ")" +");\n"
+    returnval += "  return outputs;"
+  elif len(outputparams) == 1:
+    if defaultsizes[name] == '1':
+      returnval += "  return (PyObject *)PyFloat_FromDouble(" + p['name'] + "->data[0])"
+    else:
+      returnval += "  return (PyObject *)" + aubiovectopyobj[p['type']] + " (" + p['name'] + ")"
+  else:
+    returnval = "  return Py_None;";
+  # end of output strings
+  return outputvecs, outputcreate, returnval
+
 def gen_do(dofunc, name):
     funcname = dofunc.split()[1].split('(')[0]
     doparams = get_params_types_names(dofunc) 
@@ -264,97 +354,60 @@ def gen_do(dofunc, name):
         "method is not in 'aubio_<name>_t"
     # and remove it
     doparams = doparams[1:]
-    # guess the input/output params, assuming we have less than 3
-    assert len(doparams) > 0, \
-        "no parameters for function do in object %s" % name
-    #assert (len(doparams) <= 2), \
-    #    "more than 3 parameters for do in object %s" % name
 
-    # build strings for inputs, assuming there is only one input 
-    inputparams = [doparams[0]]
-    # build the parsing string for PyArg_ParseTuple
-    pytypes = "".join([aubio2pytypes[p['type']] for p in doparams[0:1]])
+    n_param = len(doparams)
 
-    inputdefs = "/* input vectors python prototypes */\n  "
-    inputdefs += "\n  ".join(["PyObject * " + p['name'] + "_obj;" for p in inputparams])
+    if name in param_numbers.keys():
+      n_input_param, n_output_param = param_numbers[name]
+      print name, n_output_param
+    else:
+      n_input_param, n_output_param = 1, n_param - 1
 
-    inputvecs = "/* input vectors prototypes */\n  "
-    inputvecs += "\n  ".join(map(lambda p: p['type'] + ' ' + p['name'] + ";", inputparams))
+    assert n_output_param + n_input_param == n_param, "n_output_param + n_input_param != n_param for %s" % name
 
-    parseinput = "/* input vectors parsing */\n  "
-    for p in inputparams:
-        inputvec = p['name']
-        inputdef = p['name'] + "_obj"
-        converter = aubiovecfrompyobj[p['type']]
-        parseinput += """%(inputvec)s = %(converter)s (%(inputdef)s);
+    inputparams = doparams[:n_input_param]
+    outputparams = doparams[n_input_param:n_input_param + n_output_param]
 
-  if (%(inputvec)s == NULL) {
-    return NULL;
-  }""" % locals()
-
-    # build the string for the input objects references
-    inputrefs = ", ".join(["&" + p['name'] + "_obj" for p in inputparams])
-    # end of inputs strings
+    inputdefs, parseinput, inputrefs, inputvecs, pytypes = gen_do_input_params(inputparams);
+    outputvecs, outputcreate, returnval = gen_do_output_params(outputparams, name)
 
     # build strings for outputs
-    outputparams = doparams[1:]
-    if len(outputparams) >= 1:
-        #assert len(outputparams) == 1, \
-        #    "too many output parameters"
-        outputvecs = "\n  /* output vectors prototypes */\n  "
-        outputvecs += "\n  ".join([p['type'] + ' ' + p['name'] + ";" for p in outputparams])
-        params = {
-          'name': p['name'], 'pytype': p['type'], 'autype': p['type'][:-3],
-          'length': defaultsizes[name]}
-        outputcreate = "\n  ".join(["""/* creating output %(name)s as a new_%(autype)s of length %(length)s */""" % \
-            params for p in outputparams]) 
-        outputcreate += "\n"
-        outputcreate += "\n  ".join(["""  %(name)s = new_%(autype)s (%(length)s);""" % \
-            params for p in outputparams]) 
-        returnval = ""
-        if len(outputparams) > 1:
-            returnval += "PyObject *outputs = PyList_New(0);\n"
-            for p in outputparams:
-                returnval += "  PyList_Append( outputs, (PyObject *)" + aubiovectopyobj[p['type']] + " (" + p['name'] + ")" +");\n"
-            returnval += "  return outputs;"
-        else:
-            if defaultsizes[name] == '1':
-                returnval += "return (PyObject *)PyFloat_FromDouble(" + p['name'] + "->data[0])"
-            else:
-                returnval += "return (PyObject *)" + aubiovectopyobj[p['type']] + " (" + p['name'] + ")"
-    else:
-        # no output
-        outputvecs = ""
-        outputcreate = ""
-        #returnval = "Py_None";
-        returnval = "return (PyObject *)" + aubiovectopyobj[p['type']] + " (" + p['name'] + ")"
-    # end of output strings
-
     # build the parameters for the  _do() call
-    doparams_string = "self->o, " + ", ".join([p['name'] for p in doparams])
+    doparams_string = "self->o"
+    for p in doparams:
+      if p['type'] == 'uint_t*':
+        doparams_string += ", &" + p['name']
+      else:
+        doparams_string += ", " + p['name']
 
+    if n_input_param:
+      arg_parse_tuple = """\
+  if (!PyArg_ParseTuple (args, "%(pytypes)s", %(inputrefs)s)) {
+    return NULL;
+  }
+""" % locals()
+    else:
+      arg_parse_tuple = ""
     # put it all together
     s = """\
 /* function Py_%(name)s_do */
 static PyObject * 
 Py_%(name)s_do(Py_%(name)s * self, PyObject * args)
 {
-  %(inputdefs)s
-  %(inputvecs)s
-  %(outputvecs)s
+%(inputdefs)s
+%(inputvecs)s
+%(outputvecs)s
 
-  if (!PyArg_ParseTuple (args, "%(pytypes)s", %(inputrefs)s)) {
-    return NULL;
-  }
+%(arg_parse_tuple)s
 
-  %(parseinput)s
+%(parseinput)s
   
-  %(outputcreate)s
+%(outputcreate)s
 
   /* compute _do function */
   %(funcname)s (%(doparams_string)s);
 
-  %(returnval)s;
+%(returnval)s;
 }
 """ % locals()
     return s

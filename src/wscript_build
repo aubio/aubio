@@ -1,11 +1,17 @@
 # vim:set syntax=python:
 
-uselib = ['SAMPLERATE']
+source = ctx.path.ant_glob('*.c **/*.c')
+uselib = []
+
 if 'HAVE_FFTW3' in conf.get_env():
-  source = ctx.path.ant_glob('*.c **/*.c', excl = ['**/ooura_fft8g.c'])
+  source.filter(lambda x: not x.endswith('ooura_fft8g.c'))
   uselib += ['FFTW3', 'FFTW3F']
-else:
-  source = ctx.path.ant_glob('*.c **/*.c')
+
+if 'HAVE_SAMPLERATE':
+  uselib += ['SAMPLERATE']
+
+if 'HAVE_SNDFILE':
+  uselib += ['SNDFILE']
 
 # build libaubio
 ctx.shlib(
