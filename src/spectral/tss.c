@@ -60,32 +60,30 @@ void aubio_tss_do(aubio_tss_t *o, cvec_t * input,
         -2.0*theta1[j]+theta2[j]);
     theta2[j] = theta1[j];
     theta1[j] = input->phas[j];
-  }
 
-  for (j=0;j<nbins; j++){
     /* transient analysis */
     test = (ABS(dev[j]) > parm*oft1[j]);
     trans->norm[j] = input->norm[j] * test;
     trans->phas[j] = input->phas[j] * test;
-  }
 
-  for (j=0;j<nbins; j++){
     /* steady state analysis */
     test = (ABS(dev[j]) < parm*oft2[j]);
     stead->norm[j] = input->norm[j] * test;
     stead->phas[j] = input->phas[j] * test;
 
-    /*increase sstate probability for sines */
+    /*increase probability for transient */
     test = (trans->norm[j]==0.);
     oft1[j]  = test;
-    test = (stead->norm[j]==0.);
-    oft2[j]  = test;
     test = (trans->norm[j]>0.);
     oft1[j] += alpha*test;
-    test = (stead->norm[j]>0.);
-    oft2[j] += alpha*test;
     test = (oft1[j]>1. && trans->norm[j]>0.);
     oft1[j] += beta*test;
+
+    /*increase probability for steady states */
+    test = (stead->norm[j]==0.);
+    oft2[j]  = test;
+    test = (stead->norm[j]>0.);
+    oft2[j] += alpha*test;
     test = (oft2[j]>1. && stead->norm[j]>0.);
     oft2[j] += beta*test;
   }
