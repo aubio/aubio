@@ -22,7 +22,7 @@ def get_spectrogram(filename):
     if read < a.hop_size: break
 
   # plotting
-  imshow(log10(specgram.T), origin = 'bottom', aspect = 'auto', cmap=cm.gray_r)
+  imshow(log10(specgram.T + .001), origin = 'bottom', aspect = 'auto', cmap=cm.gray_r)
   axis([0, len(specgram), 0, len(specgram[0])])
   ylabel('Frequency (Hz)')
   xlabel('Time (s)')
