@@ -68,7 +68,7 @@ def configure(ctx):
   if Options.platform == 'win32':
     ctx.env['shlib_PATTERN'] = 'lib%s.dll'
 
-  if Options.platform == 'macfat':
+  if Options.platform == 'darwin':
     ctx.env.CFLAGS += ['-arch', 'i386', '-arch', 'x86_64']
     ctx.env.LINKFLAGS += ['-arch', 'i386', '-arch', 'x86_64']
     ctx.env.CC = 'llvm-gcc-4.2'
