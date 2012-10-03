@@ -4,7 +4,7 @@ import sys
 from aubio import source, sink
 
 if __name__ == '__main__':
-  if len(sys.argv) < 2:
+  if len(sys.argv) < 3:
     print 'usage: %s <inputfile> <outputfile>' % sys.argv[0]
     sys.exit(1)
   f = source(sys.argv[1], 8000, 256)
