@@ -24,16 +24,21 @@ def get_spectrogram(filename):
   # plotting
   imshow(log10(specgram.T + .001), origin = 'bottom', aspect = 'auto', cmap=cm.gray_r)
   axis([0, len(specgram), 0, len(specgram[0])])
-  ylabel('Frequency (Hz)')
-  xlabel('Time (s)')
   # show axes in Hz and seconds
   time_step = hop_s / float(samplerate)
   total_time = len(specgram) * time_step
-  ticks = 10
-  xticks( arange(ticks) / float(ticks) * len(specgram),
-      [x * total_time / float(ticks) for x in range(ticks) ] )
-  yticks( arange(ticks) / float(ticks) * len(specgram[0]),
-      [x * samplerate / 2. / float(ticks) for x in range(ticks) ] )
+  print "total time: %0.2fs" % total_time,
+  print ", samplerate: %.2fkHz" % (samplerate / 1000.)
+  n_xticks = 10
+  n_yticks = 10
+  xticks_pos = [          x / float(n_xticks) * len(specgram) for x in range(n_xticks) ]
+  xticks_str = [  "%.2f" % (x * total_time / float(n_xticks)) for x in range(n_xticks) ]
+  xticks( xticks_pos , xticks_str )
+  yticks_pos = [           y / float(n_yticks) * len(specgram[0]) for y in range(n_yticks) ]
+  yticks_str = [ "%.2f" % (y * samplerate / 2000. / float(n_yticks)) for y in range(n_yticks) ]
+  yticks( yticks_pos , yticks_str )
+  ylabel('Frequency (kHz)')
+  xlabel('Time (s)')
 
 if __name__ == '__main__':
   if len(sys.argv) < 2:
