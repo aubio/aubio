@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python
 
 from numpy import random, sin, arange, ones, zeros
 from math import pi

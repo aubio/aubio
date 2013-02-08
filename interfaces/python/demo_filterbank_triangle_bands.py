@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python
 
 from aubio import filterbank, fvec
 from pylab import loglog, show, subplot, xlim, ylim, xlabel, ylabel, title

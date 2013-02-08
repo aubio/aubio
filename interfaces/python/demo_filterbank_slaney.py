@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python
 
 from aubio import filterbank
 from numpy import array, arange, vstack
