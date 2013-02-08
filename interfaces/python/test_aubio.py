@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python
 
 from numpy.testing import TestCase, run_module_suite
 

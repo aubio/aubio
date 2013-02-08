@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python
 
 from numpy.testing import TestCase
 from numpy.testing import assert_equal, assert_almost_equal

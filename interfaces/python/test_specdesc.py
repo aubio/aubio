@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python
 
 from numpy.testing import TestCase, assert_equal, assert_almost_equal
 from numpy import random, arange, log, zeros
