@@ -359,7 +359,6 @@ def gen_do(dofunc, name):
 
     if name in param_numbers.keys():
       n_input_param, n_output_param = param_numbers[name]
-      print name, n_output_param
     else:
       n_input_param, n_output_param = 1, n_param - 1
 
