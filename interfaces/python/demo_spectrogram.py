@@ -45,7 +45,6 @@ def get_spectrogram(filename):
       # convert to string
       ticks_labels = [  "%.1f" % x for x in ticks_labels ]
       # return position, label tuple to use with x/yticks
-      print ticks_positions, ticks_labels
       return ticks_positions, ticks_labels
 
   # apply to the axis
