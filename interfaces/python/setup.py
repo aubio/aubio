@@ -1,10 +1,9 @@
 #! /usr/bin/python
 
 from distutils.core import setup, Extension
-
 from generator import generate_object_files
-
 import os.path
+import numpy
 
 library_dirs = ['../../build/src', '../../src/.libs']
 include_dirs = ['../../build/src', '../../src', '.' ]
@@ -23,7 +22,7 @@ aubio_extension = Extension("_aubio",
             "py-phasevoc.c",
             # generated files
             ] + generate_object_files(),
-            include_dirs = include_dirs,
+            include_dirs = include_dirs + [ numpy.get_include() ],
             library_dirs = library_dirs,
             libraries=['aubio'])
 
