@@ -3,9 +3,6 @@
 set -e
 set -x
 
-export CFLAGS="-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/include/"
-export CFLAGS="-arch i386 -arch x86_64 $CFLAGS"
-export LDFLAGS=-L../../build/src/
 python setup.py clean build
 export PYTHONPATH=./build/lib.macosx-10.6-intel-2.7:$PYTHONPATH
 export DYLD_LIBRARY_PATH=../../build/src
