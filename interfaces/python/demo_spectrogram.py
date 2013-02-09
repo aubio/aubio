@@ -31,12 +31,26 @@ def get_spectrogram(filename):
   print ", samplerate: %.2fkHz" % (samplerate / 1000.)
   n_xticks = 10
   n_yticks = 10
-  xticks_pos = [          x / float(n_xticks) * len(specgram) for x in range(n_xticks) ]
-  xticks_str = [  "%.2f" % (x * total_time / float(n_xticks)) for x in range(n_xticks) ]
-  xticks( xticks_pos , xticks_str )
-  yticks_pos = [           y / float(n_yticks) * len(specgram[0]) for y in range(n_yticks) ]
-  yticks_str = [ "%.2f" % (y * samplerate / 2000. / float(n_yticks)) for y in range(n_yticks) ]
-  yticks( yticks_pos , yticks_str )
+
+  def get_rounded_ticks( top_pos, step, n_ticks ):
+      top_label = top_pos * step
+      # get the first label
+      ticks_first_label = top_pos * step / n_ticks
+      # round to the closest .1
+      ticks_first_label = round ( ticks_first_label * 10. ) / 10.
+      # compute all labels from the first rounded one
+      ticks_labels = [ ticks_first_label * n for n in range(n_ticks) ] + [ top_label ]
+      # get the corresponding positions
+      ticks_positions = [ ticks_labels[n] / step for n in range(n_ticks) ] + [ top_pos ]
+      # convert to string
+      ticks_labels = [  "%.1f" % x for x in ticks_labels ]
+      # return position, label tuple to use with x/yticks
+      print ticks_positions, ticks_labels
+      return ticks_positions, ticks_labels
+
+  # apply to the axis
+  xticks( *get_rounded_ticks ( len(specgram), time_step, n_xticks ) )
+  yticks( *get_rounded_ticks ( len(specgram[0]), (samplerate / 2. / 1000.) / len(specgram[0]), n_yticks ) )
   ylabel('Frequency (kHz)')
   xlabel('Time (s)')
 
