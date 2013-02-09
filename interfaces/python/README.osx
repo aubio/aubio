@@ -1,0 +1,44 @@
+Instructions to compile the python module on Mac OS X
+
+Note: the following URLs to download from are given as examples only, you
+should check the corresponding pages for newer versions
+
+# install python 2.7 from python.org
+
+  url: http://www.python.org/
+
+  $ curl -O http://www.python.org/ftp/python/2.7.3/python-2.7.3-macosx10.6.dmg
+
+  $ open python-2.7.3-macosx10.6.dmg
+
+  follow the instructions
+
+# install setuptools http://pypi.python.org/pypi/setuptools
+
+  url: http://pypi.python.org/pypi/setuptools#files
+
+  $ curl -O http://pypi.python.org/packages/2.7/s/setuptools/setuptools-0.6c11-py2.7.egg
+
+  $ [sudo] sh setuptools-0.6c9-py2.4.egg
+
+# install pip 
+
+  url: http://www.pip-installer.org/en/latest/installing.html
+
+  $ curl -O https://raw.github.com/pypa/pip/master/contrib/get-pip.py
+
+  $ [sudo] python get-pip.py
+
+# install Scipy superpack
+
+  url: http://www.scipy.org/Download and http://fonnesbeck.github.com/ScipySuperpack/
+
+  $ curl -O https://raw.github.com/fonnesbeck/ScipySuperpack/master/install_superpack.sh
+
+  $ sh install_superpack.sh
+
+# you should now be able to build the new python module
+
+  make sure the variables are correct in the file build_osx before running it:
+
+  $ ./build_osx
