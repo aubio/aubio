@@ -29,7 +29,12 @@ Download and install [pip](http://www.pip-installer.org/en/latest/installing.htm
     $ curl -O https://raw.github.com/pypa/pip/master/contrib/get-pip.py
     $ ${SUDO} python get-pip.py
 
-Dowload and install [Scipy superpack](http://fonnesbeck.github.com/ScipySuperpack/)
+Download and install [matplotlib](http://matplotlib.sourceforge.net/)
+
+    $ pip install matplotlib
+
+Alternatively, you can fetch the fully fledged [Scipy
+superpack](http://fonnesbeck.github.com/ScipySuperpack/)
 
     $ curl -O https://raw.github.com/fonnesbeck/ScipySuperpack/master/install_superpack.sh
     $ sh install_superpack.sh
