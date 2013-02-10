@@ -68,3 +68,5 @@ src/stamp-h1
 doc/devel/
 doc/user/
 doc/examples/
+
+python/*.db
