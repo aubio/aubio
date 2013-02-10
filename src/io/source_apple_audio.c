@@ -77,7 +77,7 @@ aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * path, uint_t 
 
   if (samplerate == 0) {
     samplerate = fileFormat.mSampleRate;
-    AUBIO_WRN("sampling rate set to 0, automagically adjusting to %d", samplerate);
+    //AUBIO_DBG("sampling rate set to 0, automagically adjusting to %d\n", samplerate);
   }
   s->samplerate = samplerate;
 

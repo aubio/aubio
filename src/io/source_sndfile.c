@@ -90,7 +90,7 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplera
 
   if (samplerate == 0) {
     samplerate = s->input_samplerate;
-    AUBIO_WRN("sampling rate set to 0, automagically adjusting to %d", samplerate);
+    //AUBIO_DBG("sampling rate set to 0, automagically adjusting to %d\n", samplerate);
   }
   s->samplerate = samplerate;
   /* compute input block size required before resampling */
