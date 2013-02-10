@@ -77,7 +77,7 @@ aubio_sink_apple_audio_t * new_aubio_sink_apple_audio(char_t * uri, uint_t sampl
   err = ExtAudioFileCreateWithURL(fileURL, fileType, &clientFormat, NULL,
      overwrite ? kAudioFileFlags_EraseFile : 0, &s->audioFile);
   if (err) {
-    AUBIO_ERR("error when trying to access %s, in ExtAudioFileOpenURL, %d\n", s->path, (int)err);
+    AUBIO_ERR("error when trying to create %s, in ExtAudioFileCreateWithURL, %d\n", s->path, (int)err);
     goto beach;
   }
   if (createAubioBufferList(&s->bufferList, s->channels, s->max_frames * s->channels)) {
