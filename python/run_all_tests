@@ -6,7 +6,7 @@ if __name__ == '__main__':
     # get relevant files
     curdir = os.path.dirname(sys.argv[0])
     if curdir == '': curdir = '.'
-    files = os.listdir(curdir)
+    files = os.listdir(os.path.join(curdir, 'tests'))
     modfiles = filter (lambda y: y.endswith('.py'), files) 
     modfiles = filter (lambda f: f.startswith('test_'), modfiles)
     # get module names
