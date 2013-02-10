@@ -60,7 +60,6 @@ uint_t buffer_size = 512;       //1024;
 uint_t overlap_size = 256;      //512;
 uint_t samplerate = 44100;
 
-
 aubio_source_t *this_source = NULL;
 aubio_sink_t *this_sink = NULL;
 
@@ -203,15 +202,12 @@ examples_common_init (int argc, char **argv)
 
   if (!usejack) {
     debug ("Opening files ...\n");
-    // TODO get actual samplerate
-    samplerate = 44100;
-    this_source = new_aubio_source ((char_t*)source_uri, samplerate, overlap_size);
+    this_source = new_aubio_source ((char_t*)source_uri, 0, overlap_size);
     if (this_source == NULL) {
       outmsg ("Could not open input file %s.\n", source_uri);
       exit (1);
     }
-    // TODO get actual samplerate
-    //samplerate = aubio_sndfile_samplerate (this_source);
+    samplerate = aubio_source_get_samplerate(this_source);
     if (sink_uri != NULL) {
       this_sink = new_aubio_sink ((char_t*)sink_uri, samplerate);
     }
