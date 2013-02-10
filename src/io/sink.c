@@ -44,7 +44,7 @@ aubio_sink_t * new_aubio_sink(char_t * uri, uint_t samplerate) {
   if (s->sink) return s;
 #endif /* HAVE_SNDFILE */
 #endif /* __APPLE__ */
-  AUBIO_ERROR("failed creating aubio sink with %s", uri);
+  AUBIO_ERROR("failed creating aubio sink with %s\n", uri);
   AUBIO_FREE(s);
   return NULL;
 }
