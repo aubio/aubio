@@ -58,7 +58,7 @@ def configure(ctx):
   from waflib import Options
   ctx.load('compiler_c')
   ctx.load('waf_unit_test')
-  ctx.env.CFLAGS = ['-g', '-Wall', '-Wextra']
+  ctx.env.CFLAGS += ['-g', '-Wall', '-Wextra']
 
   if Options.options.target_platform:
     Options.platform = Options.options.target_platform
