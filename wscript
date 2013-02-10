@@ -197,8 +197,7 @@ def build(bld):
   # add sub directories
   bld.recurse('src examples')
   from waflib import Options
-  import sys
-  if Options.platform == sys.platform: bld.recurse('tests')
+  if Options.platform != 'ios': bld.recurse('tests')
 
   """
   # create the aubio.pc file for pkg-config
