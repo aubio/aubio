@@ -64,7 +64,7 @@ extern char_t * pitch_mode;
 
 void send_noteon (int pitch, int velo);
 
-extern const char *output_filename;
+extern const char *sink_uri;
 extern char_t * onset_mode;
 extern smpl_t threshold;
 extern smpl_t silence;

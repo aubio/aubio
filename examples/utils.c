@@ -41,10 +41,8 @@ pthread_t lash_thread;
 #endif /* HAVE_LASH */
 
 /* settings */
-const char *output_filename = NULL;
-const char *input_filename = NULL;
-const char *onset_filename =
-    AUBIO_PREFIX "/share/sounds/" PACKAGE "/woodblock.aiff";
+const char *sink_uri = NULL;
+const char *source_uri = NULL;
 int frames = 0;
 int verbose = 0;
 int usejack = 0;
@@ -63,13 +61,8 @@ uint_t overlap_size = 256;      //512;
 uint_t samplerate = 44100;
 
 
-#ifdef HAVE_SNDFILE
-aubio_sndfile_t *file = NULL;
-aubio_sndfile_t *fileout = NULL;
-#else
-void *file = NULL;
-void *fileout = NULL;
-#endif
+aubio_source_t *this_source = NULL;
+aubio_sink_t *this_sink = NULL;
 
 fvec_t *ibuf;
 fvec_t *obuf;
@@ -135,10 +128,10 @@ parse_args (int argc, char **argv)
     next_option = getopt_long (argc, argv, options, long_options, NULL);
     switch (next_option) {
       case 'o':
-        output_filename = optarg;
+        sink_uri = optarg;
         break;
       case 'i':
-        input_filename = optarg;
+        source_uri = optarg;
         break;
       case 'h':                /* help */
         usage (stdout, 0);
@@ -182,11 +175,11 @@ parse_args (int argc, char **argv)
   }
   while (next_option != -1);
 
-  if (input_filename != NULL) {
-    debug ("Input file : %s\n", input_filename);
-  } else if (input_filename != NULL && output_filename != NULL) {
-    debug ("Input file : %s\n", input_filename);
-    debug ("Output file : %s\n", output_filename);
+  if (source_uri != NULL) {
+    debug ("Input file : %s\n", source_uri);
+  } else if (source_uri != NULL && sink_uri != NULL) {
+    debug ("Input file : %s\n", source_uri);
+    debug ("Output file : %s\n", sink_uri);
   } else {
 #if HAVE_JACK
     debug ("Jack input output\n");
@@ -201,30 +194,27 @@ parse_args (int argc, char **argv)
   return 0;
 }
 
-#ifdef HAVE_SNDFILE
-
 void
 examples_common_init (int argc, char **argv)
 {
 
-  uint_t found_wood = 0;
-
-  aubio_sndfile_t *onsetfile = NULL;
   /* parse command line arguments */
   parse_args (argc, argv);
 
   if (!usejack) {
     debug ("Opening files ...\n");
-    file = new_aubio_sndfile_ro (input_filename);
-    if (file == NULL) {
-      outmsg ("Could not open input file %s.\n", input_filename);
+    // TODO get actual samplerate
+    samplerate = 44100;
+    this_source = new_aubio_source ((char_t*)source_uri, samplerate, overlap_size);
+    if (this_source == NULL) {
+      outmsg ("Could not open input file %s.\n", source_uri);
       exit (1);
     }
-    if (verbose)
-      aubio_sndfile_info (file);
-    samplerate = aubio_sndfile_samplerate (file);
-    if (output_filename != NULL)
-      fileout = new_aubio_sndfile_wo (file, output_filename);
+    // TODO get actual samplerate
+    //samplerate = aubio_sndfile_samplerate (this_source);
+    if (sink_uri != NULL) {
+      this_sink = new_aubio_sink ((char_t*)sink_uri, samplerate);
+    }
   }
 #ifdef HAVE_LASH
   else {
@@ -245,46 +235,19 @@ examples_common_init (int argc, char **argv)
 #endif /* HAVE_LASH */
 
   woodblock = new_fvec (overlap_size);
-  if (output_filename || usejack) {
-    /* dummy assignement to keep egcs happy */
-    found_wood = (onsetfile = new_aubio_sndfile_ro (onset_filename)) ||
-        (onsetfile = new_aubio_sndfile_ro ("sounds/woodblock.aiff")) ||
-        (onsetfile = new_aubio_sndfile_ro ("../sounds/woodblock.aiff"));
-    if (onsetfile == NULL) {
-      outmsg ("Could not find woodblock.aiff\n");
-      exit (1);
-    }
-  }
-  if (onsetfile) {
-    /* read the output sound once */
-    aubio_sndfile_read_mono (onsetfile, overlap_size, woodblock);
-  }
+  //TODO create woodblock sound
 
   ibuf = new_fvec (overlap_size);
   obuf = new_fvec (overlap_size);
 
 }
 
-#else /* HAVE_SNDFILE */
-
-void
-examples_common_init (int argc, char **argv)
-{
-  outmsg ("Error, compiled without sndfile, nothing to do for now!\n");
-}
-
-
-#endif /* HAVE_SNDFILE */
-
-
 void
 examples_common_del (void)
 {
-#if HAVE_SNDFILE
   del_fvec (ibuf);
   del_fvec (obuf);
   del_fvec (woodblock);
-#endif
   aubio_cleanup ();
 }
 
@@ -292,12 +255,12 @@ examples_common_del (void)
 aubio_jack_t *jack_setup;
 #endif
 
-#if HAVE_SNDFILE
-
 void
 examples_common_process (aubio_process_func_t process_func,
     aubio_print_func_t print)
 {
+
+  uint_t read = 0;
   if (usejack) {
 
 #if HAVE_JACK
@@ -320,36 +283,24 @@ examples_common_process (aubio_process_func_t process_func,
 
     frames = 0;
 
-    while ((signed) overlap_size ==
-        aubio_sndfile_read_mono (file, overlap_size, ibuf)) {
+    do {
+      aubio_source_do (this_source, ibuf, &read);
       process_func (&ibuf->data, &obuf->data, overlap_size);
       print ();
-      if (output_filename != NULL) {
-        aubio_sndfile_write (fileout, overlap_size, &obuf);
+      if (this_sink) {
+        aubio_sink_do (this_sink, obuf, overlap_size);
       }
       frames++;
-    }
+    } while (read == overlap_size);
 
     debug ("Processed %d frames of %d samples.\n", frames, buffer_size);
 
     flush_process (process_func, print);
-    del_aubio_sndfile (file);
-
-    if (output_filename != NULL)
-      del_aubio_sndfile (fileout);
+    del_aubio_source (this_source);
+    del_aubio_sink   (this_sink);
 
   }
 }
-
-#else /* HAVE_SNDFILE */
-
-void
-examples_common_process (aubio_process_func_t process_func,
-    aubio_print_func_t print)
-{
-}
-
-#endif /* HAVE_SNDFILE */
 
 void
 flush_process (aubio_process_func_t process_func, aubio_print_func_t print)
