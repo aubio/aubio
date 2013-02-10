@@ -1,19 +1,19 @@
 # vim:set syntax=python:
 
 # build examples
-utilsio = ctx.new_task_gen(name = 'utilsio', features = 'c',
-      includes = '../src',
-      source = ['utils.c', 'jackio.c'],
-      uselib = ['LASH', 'JACK'],
-      target = 'utilsio')
+utilsio = bld(
+        name = 'utilsio',
+        features = 'c',
+        includes = '../src',
+        source = ['utils.c', 'jackio.c'],
+        uselib = ['LASH', 'JACK'],
+        target = 'utilsio')
 
 # loop over all *.c filenames in examples to build them all
-for target_name in ctx.path.ant_glob('*.c', excl = ['utils.c', 'jackio.c']):
-  ctx.new_task_gen(features = 'c cprogram',
-      add_objects = 'utilsio',
+for source_file in ctx.path.ant_glob('*.c', excl = ['utils.c', 'jackio.c']):
+  bld.program(features = 'c cprogram',
       includes = '../src',
-      uselib = ['LASH', 'JACK', 'SNDFILE'],
-      use = 'aubio',
-      source = target_name,
-      # program name is filename.c without the .c
-      target = str(target_name).split('.')[0])
+      use = ['aubio', 'LASH', 'JACK', 'SNDFILE', 'utilsio'],
+      source = str(source_file),
+      target = str(source_file).split('.')[0]
+    )
