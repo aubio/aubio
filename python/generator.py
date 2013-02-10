@@ -7,7 +7,7 @@ from gen_pyobject import write_msg, gen_new_init, gen_do, gen_members, gen_metho
 
 def get_cpp_objects():
 
-  cpp_output = [l.strip() for l in os.popen('cpp -DAUBIO_UNSTABLE=1 -I../../build/src ../../src/aubio.h').readlines()]
+  cpp_output = [l.strip() for l in os.popen('cpp -DAUBIO_UNSTABLE=1 -I../build/src ../src/aubio.h').readlines()]
 
   cpp_output = filter(lambda y: len(y) > 1, cpp_output)
   cpp_output = filter(lambda y: not y.startswith('#'), cpp_output)

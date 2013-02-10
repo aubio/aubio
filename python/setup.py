@@ -5,8 +5,8 @@ from generator import generate_object_files
 import os.path
 import numpy
 
-library_dirs = ['../../build/src', '../../src/.libs']
-include_dirs = ['../../build/src', '../../src', '.' ]
+library_dirs = ['../build/src', '../src/.libs']
+include_dirs = ['../build/src', '../src', '.' ]
 library_dirs = filter (lambda x: os.path.isdir(x), library_dirs)
 include_dirs = filter (lambda x: os.path.isdir(x), include_dirs)
 
