@@ -73,6 +73,19 @@ def configure(ctx):
     ctx.env.LINK_CC = 'llvm-gcc-4.2'
     ctx.env.FRAMEWORK = ['CoreFoundation', 'AudioToolbox']
 
+  if Options.platform == 'ios':
+    ctx.env.CC = 'clang'
+    ctx.env.LD = 'clang'
+    ctx.env.LINK_CC = 'clang'
+    SDKVER="6.1"
+    DEVROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer"
+    SDKROOT="%(DEVROOT)s/SDKs/iPhoneOS%(SDKVER)s.sdk" % locals()
+    ctx.env.FRAMEWORK = ['CoreFoundation', 'AudioToolbox']
+    ctx.env.CFLAGS += [ '-miphoneos-version-min=6.1', '-arch', 'armv7',
+            '--sysroot=%s' % SDKROOT]
+    ctx.env.LINKFLAGS += ['-std=c99', '-arch', 'armv7', '--sysroot=%s' %
+            SDKROOT]
+
   # check for required headers
   ctx.check(header_name='stdlib.h')
   ctx.check(header_name='stdio.h')
@@ -182,7 +195,10 @@ def build(bld):
   bld.env['LIB_VERSION'] = LIB_VERSION
 
   # add sub directories
-  bld.recurse('src examples tests')
+  bld.recurse('src examples')
+  from waflib import Options
+  import sys
+  if Options.platform == sys.platform: bld.recurse('tests')
 
   """
   # create the aubio.pc file for pkg-config
