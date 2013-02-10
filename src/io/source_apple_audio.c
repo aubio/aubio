@@ -54,25 +54,11 @@ aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * path, uint_t 
   aubio_source_apple_audio_t * s = AUBIO_NEW(aubio_source_apple_audio_t);
 
   s->path = path;
-  s->samplerate = samplerate;
   s->block_size = block_size;
   s->channels = 1;
 
   OSStatus err = noErr;
   UInt32 propSize;
-
-  AudioStreamBasicDescription clientFormat;
-  propSize = sizeof(clientFormat);
-  memset(&clientFormat, 0, sizeof(AudioStreamBasicDescription));
-  clientFormat.mFormatID         = kAudioFormatLinearPCM;
-  clientFormat.mSampleRate       = (Float64)(s->samplerate);
-  clientFormat.mFormatFlags      = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
-  clientFormat.mChannelsPerFrame = s->channels;
-  clientFormat.mBitsPerChannel   = sizeof(short) * 8;
-  clientFormat.mFramesPerPacket  = 1;
-  clientFormat.mBytesPerFrame    = clientFormat.mBitsPerChannel * clientFormat.mChannelsPerFrame / 8;
-  clientFormat.mBytesPerPacket   = clientFormat.mFramesPerPacket * clientFormat.mBytesPerFrame;
-  clientFormat.mReserved         = 0;
 
   // open the resource url
   CFURLRef fileURL = getURLFromPath(path);
@@ -88,6 +74,25 @@ aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * path, uint_t 
   err = ExtAudioFileGetProperty(s->audioFile,
       kExtAudioFileProperty_FileDataFormat, &propSize, &fileFormat);
   if (err) { AUBIO_ERROR("error in ExtAudioFileGetProperty, %d\n", (int)err); goto beach;}
+
+  if (samplerate == 0) {
+    samplerate = fileFormat.mSampleRate;
+    AUBIO_WRN("sampling rate set to 0, automagically adjusting to %d", samplerate);
+  }
+  s->samplerate = samplerate;
+
+  AudioStreamBasicDescription clientFormat;
+  propSize = sizeof(clientFormat);
+  memset(&clientFormat, 0, sizeof(AudioStreamBasicDescription));
+  clientFormat.mFormatID         = kAudioFormatLinearPCM;
+  clientFormat.mSampleRate       = (Float64)(s->samplerate);
+  clientFormat.mFormatFlags      = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
+  clientFormat.mChannelsPerFrame = s->channels;
+  clientFormat.mBitsPerChannel   = sizeof(short) * 8;
+  clientFormat.mFramesPerPacket  = 1;
+  clientFormat.mBytesPerFrame    = clientFormat.mBitsPerChannel * clientFormat.mChannelsPerFrame / 8;
+  clientFormat.mBytesPerPacket   = clientFormat.mFramesPerPacket * clientFormat.mBytesPerFrame;
+  clientFormat.mReserved         = 0;
 
   // set the client format description
   err = ExtAudioFileSetProperty(s->audioFile, kExtAudioFileProperty_ClientDataFormat,
@@ -173,6 +178,10 @@ void del_aubio_source_apple_audio(aubio_source_apple_audio_t * s){
   freeAudioBufferList(&s->bufferList);
   AUBIO_FREE(s);
   return;
+}
+
+uint_t aubio_source_apple_audio_get_samplerate(aubio_source_apple_audio_t * s) {
+  return s->samplerate;
 }
 
 #endif /* __APPLE__ */

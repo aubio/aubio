@@ -36,6 +36,8 @@ aubio_source_t * new_aubio_source(char_t * uri, uint_t samplerate, uint_t hop_si
 void aubio_source_do(aubio_source_t * s, fvec_t * read_data, uint_t * read);
 void del_aubio_source(aubio_source_t * s);
 
+uint_t aubio_source_get_samplerate(aubio_source_t * s);
+
 #ifdef __cplusplus
 }
 #endif
