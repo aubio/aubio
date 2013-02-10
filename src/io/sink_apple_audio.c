@@ -58,7 +58,6 @@ aubio_sink_apple_audio_t * new_aubio_sink_apple_audio(char_t * uri, uint_t sampl
   s->max_frames = MAX_SIZE;
 
   AudioStreamBasicDescription clientFormat;
-  UInt32 propSize = sizeof(clientFormat);
   memset(&clientFormat, 0, sizeof(AudioStreamBasicDescription));
   clientFormat.mFormatID         = kAudioFormatLinearPCM;
   clientFormat.mSampleRate       = (Float64)(s->samplerate);
