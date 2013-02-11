@@ -193,8 +193,4 @@ void del_aubio_source_sndfile(aubio_source_sndfile_t * s){
   AUBIO_FREE(s);
 }
 
-uint_t aubio_source_sndfile_get_samplerate(aubio_source_sndfile_t * s) {
-  return s->samplerate;
-}
-
 #endif /* HAVE_SNDFILE */
