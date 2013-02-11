@@ -174,6 +174,18 @@ parse_args (int argc, char **argv)
   }
   while (next_option != -1);
 
+  if ( source_uri == NULL ) {
+    if (argc - optind == 1) {
+      source_uri = argv[optind];
+    } else if ( argc - optind > 1 ) {
+      errmsg ("Error: too many non-option arguments `%s'\n", argv[argc - 1]);
+      usage ( stderr, 1 );
+    }
+  } else if ( argc - optind > 0 ) {
+    errmsg ("Error: extra non-option argument %s\n", argv[optind]);
+    usage ( stderr, 1 );
+  }
+
   if (source_uri != NULL) {
     debug ("Input file : %s\n", source_uri);
   } else if (source_uri != NULL && sink_uri != NULL) {
