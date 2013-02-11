@@ -32,7 +32,7 @@
   aubio_onset_do routine using the corresponding functions.
 
 */
- 
+
 
 #ifndef ONSET_H
 #define ONSET_H
