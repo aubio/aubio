@@ -184,9 +184,8 @@ parse_args (int argc, char **argv)
     debug ("Jack input output\n");
     usejack = 1;
 #else
-    debug
-        ("Error: Could not switch to jack mode\n   aubio was compiled without jack support\n");
-    exit (1);
+    errmsg("Error: no arguments given (and no available audio input)\n");
+    usage ( stderr, 1 );
 #endif
   }
 
