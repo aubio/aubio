@@ -209,6 +209,10 @@ examples_common_init (int argc, char **argv)
     samplerate = aubio_source_get_samplerate(this_source);
     if (sink_uri != NULL) {
       this_sink = new_aubio_sink ((char_t*)sink_uri, samplerate);
+      if (this_sink == NULL) {
+        outmsg ("Could not open output file %s.\n", sink_uri);
+        exit (1);
+      }
     }
   }
 #ifdef HAVE_LASH
