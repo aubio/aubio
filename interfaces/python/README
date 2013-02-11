@@ -1,5 +1,0 @@
-This module wraps the aubio library for python using the numpy module.
-
-http://docs.python.org/c-api/index.html
-
-http://docs.scipy.org/doc/numpy/reference/c-api.html

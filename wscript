@@ -52,15 +52,13 @@ def options(ctx):
   ctx.add_option('--with-target-platform', type='string',
       help='set target platform for cross-compilation', dest='target_platform')
   ctx.load('compiler_c')
-  ctx.load('gnu_dirs')
   ctx.load('waf_unit_test')
 
 def configure(ctx):
-  import Options
-  ctx.check_tool('compiler_c')
-  ctx.check_tool('gnu_dirs') # helpful for autotools transition and .pc generation
+  from waflib import Options
+  ctx.load('compiler_c')
   ctx.load('waf_unit_test')
-  ctx.env.CFLAGS = ['-g', '-Wall', '-Wextra']
+  ctx.env.CFLAGS += ['-g', '-Wall', '-Wextra']
 
   if Options.options.target_platform:
     Options.platform = Options.options.target_platform
@@ -68,12 +66,25 @@ def configure(ctx):
   if Options.platform == 'win32':
     ctx.env['shlib_PATTERN'] = 'lib%s.dll'
 
-  if Options.platform == 'macfat':
+  if Options.platform == 'darwin':
     ctx.env.CFLAGS += ['-arch', 'i386', '-arch', 'x86_64']
     ctx.env.LINKFLAGS += ['-arch', 'i386', '-arch', 'x86_64']
     ctx.env.CC = 'llvm-gcc-4.2'
     ctx.env.LINK_CC = 'llvm-gcc-4.2'
     ctx.env.FRAMEWORK = ['CoreFoundation', 'AudioToolbox']
+
+  if Options.platform == 'ios':
+    ctx.env.CC = 'clang'
+    ctx.env.LD = 'clang'
+    ctx.env.LINK_CC = 'clang'
+    SDKVER="6.1"
+    DEVROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer"
+    SDKROOT="%(DEVROOT)s/SDKs/iPhoneOS%(SDKVER)s.sdk" % locals()
+    ctx.env.FRAMEWORK = ['CoreFoundation', 'AudioToolbox']
+    ctx.env.CFLAGS += [ '-miphoneos-version-min=6.1', '-arch', 'armv7',
+            '--sysroot=%s' % SDKROOT]
+    ctx.env.LINKFLAGS += ['-std=c99', '-arch', 'armv7', '--sysroot=%s' %
+            SDKROOT]
 
   # check for required headers
   ctx.check(header_name='stdlib.h')
@@ -179,16 +190,16 @@ def configure(ctx):
   except ctx.errors.ConfigurationError:
     ctx.to_log('docbook-to-man was not found (ignoring)')
 
-def build(ctx):
-  ctx.env['VERSION'] = VERSION
-  ctx.env['LIB_VERSION'] = LIB_VERSION
+def build(bld):
+  bld.env['VERSION'] = VERSION
+  bld.env['LIB_VERSION'] = LIB_VERSION
 
   # add sub directories
-  ctx.add_subdirs(['src','examples'])
-  if ctx.env['SWIG']:
-    if ctx.env['PYTHON']:
-      ctx.add_subdirs('python')
+  bld.recurse('src examples')
+  from waflib import Options
+  if Options.platform != 'ios': bld.recurse('tests')
 
+  """
   # create the aubio.pc file for pkg-config
   if ctx.env['TARGET_PLATFORM'] == 'linux':
     aubiopc = ctx.new_task_gen('subst')
@@ -211,33 +222,6 @@ def build(ctx):
     ctx.install_files('${MANDIR}/man1', ctx.path.ant_glob('doc/*.1'))
 
   # install woodblock sound
-  ctx.install_files('${PREFIX}/share/sounds/aubio/',
+  bld.install_files('${PREFIX}/share/sounds/aubio/',
       'sounds/woodblock.aiff')
-
-  # build and run the unit tests
-  build_tests(ctx)
-
-def shutdown(ctx):
-  pass
-
-# loop over all *.c filenames in tests/src to build them all
-# target name is filename.c without the .c
-def build_tests(ctx):
-  for target_name in ctx.path.ant_glob('tests/src/**/*.c'):
-    uselib = []
-    includes = ['src']
-    extra_source = []
-    if str(target_name).endswith('-jack.c') and ctx.env['JACK']:
-      uselib += ['JACK']
-      includes += ['examples']
-      extra_source += ['examples/jackio.c']
-
-    this_target = ctx.new_task_gen(
-        features = 'c cprogram test',
-        uselib = uselib,
-        source = [target_name] + extra_source,
-        target = str(target_name).split('.')[0],
-        includes = includes,
-        defines = 'AUBIO_UNSTABLE_API=1',
-        cflags = ['-g'],
-        use = 'aubio')
+  """

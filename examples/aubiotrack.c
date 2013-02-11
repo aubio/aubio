@@ -56,7 +56,7 @@ static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
 }
 
 static void process_print (void) {
-        if (output_filename == NULL) {
+        if (sink_uri == NULL) {
                 if (istactus) {
                         outmsg("%f\n",((smpl_t)(frames*overlap_size)+(istactus-1.)*overlap_size)/(smpl_t)samplerate); 
                 }

@@ -1,11 +1,3 @@
-Makefile.in
-Makefile
-.deps
-.libs
-*.lo
-*.la
-*.o
-
 *.pyc
 *.~[0-9]~
 *.swp
@@ -21,9 +13,6 @@ RE:examples/[a-z]*
 RE:tests/src/test-[a-z-_]*$
 RE:tests/cpp/test-[a-z-_]*$
 
-# ignore aubio
-plugins/puredata/aubio.pd_linux
-
 # only sgml manpages count
 doc/*.1
 
@@ -31,40 +20,14 @@ doc/*.1
 **/cachegrind.out.[0-9]*
 **/callgrind.out.[0-9]*
 
-# swig and java stuff
-**/*.class
-java/**/SWIG*.java
-java/**/aubio*.java
-java/**/midi_*.java
-
 # waf stuff
-.lock-wscript
+.lock-waf*
+.waf-*
 build/
-
-# autoreconf -f -i will create these
-INSTALL
-aclocal.m4
-aubio.pc
-autom4te.cache/
-compile
-config.guess
-config.log
-config.status
-config.sub
-configure
-depcomp
-mkinstalldirs
-install-sh
-libtool
-ltmain.sh
-missing
-py-compile
-src/config.h
-src/config.h.in
-src/config.h.in~
-src/stamp-h1
 
 # doxygen
 doc/devel/
 doc/user/
 doc/examples/
+
+python/*.db

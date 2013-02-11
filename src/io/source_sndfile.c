@@ -69,7 +69,6 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplera
   }
 
   s->hop_size = hop_size;
-  s->samplerate = samplerate;
   s->channels = 1;
   s->path = path;
 
@@ -89,8 +88,11 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplera
   s->input_channels   = sfinfo.channels;
   s->input_format     = sfinfo.format;
 
-  if (s->samplerate == 1) s->samplerate = s->input_samplerate;
-
+  if (samplerate == 0) {
+    samplerate = s->input_samplerate;
+    //AUBIO_DBG("sampling rate set to 0, automagically adjusting to %d\n", samplerate);
+  }
+  s->samplerate = samplerate;
   /* compute input block size required before resampling */
   s->ratio = s->samplerate/(float)s->input_samplerate;
   s->input_hop_size = (uint_t)FLOOR(s->hop_size / s->ratio + .5);
@@ -189,6 +191,10 @@ void del_aubio_source_sndfile(aubio_source_sndfile_t * s){
 #endif /* HAVE_SAMPLERATE */
   AUBIO_FREE(s->scratch_data);
   AUBIO_FREE(s);
+}
+
+uint_t aubio_source_sndfile_get_samplerate(aubio_source_sndfile_t * s) {
+  return s->samplerate;
 }
 
 #endif /* HAVE_SNDFILE */

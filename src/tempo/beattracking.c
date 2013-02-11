@@ -135,7 +135,7 @@ aubio_beattracking_do (aubio_beattracking_t * bt, fvec_t * dfframe,
   smpl_t phase;                 // beat alignment (step - lastbeat) 
   smpl_t beat;                  // beat position 
   smpl_t bp;                    // beat period
-  uint_t a; sint_t b;           // used to build shift invariant comb filterbank
+  uint_t a, b;                  // used to build shift invariant comb filterbank
   uint_t kmax;                  // number of elements used to find beat phase
 
   /* copy dfframe, apply detection function weighting, and revert */
@@ -159,8 +159,8 @@ aubio_beattracking_do (aubio_beattracking_t * bt, fvec_t * dfframe,
   /* compute shift invariant comb filterbank */
   for (i = 1; i < laglen - 1; i++) {
     for (a = 1; a <= numelem; a++) {
-      for (b = (1 - a); b < (sint_t)a; b++) {
-        bt->acfout->data[i] += bt->acf->data[a * (i + 1) + b - 1]
+      for (b = 1; b < 2 * a; b++) {
+        bt->acfout->data[i] += bt->acf->data[i * a + b - 1]
             * 1. / (2. * a - 1.);
       }
     }
@@ -275,7 +275,7 @@ fvec_gettimesig (fvec_t * acf, uint_t acflen, uint_t gp)
 void
 aubio_beattracking_checkstate (aubio_beattracking_t * bt)
 {
-  uint_t i, j, a; sint_t b;
+  uint_t i, j, a, b;
   uint_t flagconst = 0;
   sint_t counter = bt->counter;
   uint_t flagstep = bt->flagstep;
@@ -299,8 +299,8 @@ aubio_beattracking_checkstate (aubio_beattracking_t * bt)
     fvec_zeros (acfout);
     for (i = 1; i < laglen - 1; i++) {
       for (a = 1; a <= bt->timesig; a++) {
-        for (b = (1 - a); b < (sint_t)a; b++) {
-          acfout->data[i] += acf->data[a * (i + 1) + b - 1];
+        for (b = 1; b < 2 * a; b++) {
+          acfout->data[i] += acf->data[i * a + b - 1];
         }
       }
     }

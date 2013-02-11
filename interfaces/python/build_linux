@@ -1,9 +1,0 @@
-#! /bin/sh
-
-set -e
-set -x
-
-python setup.py clean build
-export PYTHONPATH=./build/lib.linux-x86_64-2.7/
-export LD_LIBRARY_PATH=../../build/src/
-./run_all_tests --verbose

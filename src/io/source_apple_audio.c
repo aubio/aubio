@@ -54,25 +54,11 @@ aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * path, uint_t 
   aubio_source_apple_audio_t * s = AUBIO_NEW(aubio_source_apple_audio_t);
 
   s->path = path;
-  s->samplerate = samplerate;
   s->block_size = block_size;
   s->channels = 1;
 
   OSStatus err = noErr;
   UInt32 propSize;
-
-  AudioStreamBasicDescription clientFormat;
-  propSize = sizeof(clientFormat);
-  memset(&clientFormat, 0, sizeof(AudioStreamBasicDescription));
-  clientFormat.mFormatID         = kAudioFormatLinearPCM;
-  clientFormat.mSampleRate       = (Float64)(s->samplerate);
-  clientFormat.mFormatFlags      = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
-  clientFormat.mChannelsPerFrame = s->channels;
-  clientFormat.mBitsPerChannel   = sizeof(short) * 8;
-  clientFormat.mFramesPerPacket  = 1;
-  clientFormat.mBytesPerFrame    = clientFormat.mBitsPerChannel * clientFormat.mChannelsPerFrame / 8;
-  clientFormat.mBytesPerPacket   = clientFormat.mFramesPerPacket * clientFormat.mBytesPerFrame;
-  clientFormat.mReserved         = 0;
 
   // open the resource url
   CFURLRef fileURL = getURLFromPath(path);
@@ -89,10 +75,24 @@ aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * path, uint_t 
       kExtAudioFileProperty_FileDataFormat, &propSize, &fileFormat);
   if (err) { AUBIO_ERROR("error in ExtAudioFileGetProperty, %d\n", (int)err); goto beach;}
 
-  if (s->samplerate == 1) {
-    clientFormat.mSampleRate = fileFormat.mSampleRate;
-    s->samplerate = fileFormat.mSampleRate;
+  if (samplerate == 0) {
+    samplerate = fileFormat.mSampleRate;
+    //AUBIO_DBG("sampling rate set to 0, automagically adjusting to %d\n", samplerate);
   }
+  s->samplerate = samplerate;
+
+  AudioStreamBasicDescription clientFormat;
+  propSize = sizeof(clientFormat);
+  memset(&clientFormat, 0, sizeof(AudioStreamBasicDescription));
+  clientFormat.mFormatID         = kAudioFormatLinearPCM;
+  clientFormat.mSampleRate       = (Float64)(s->samplerate);
+  clientFormat.mFormatFlags      = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
+  clientFormat.mChannelsPerFrame = s->channels;
+  clientFormat.mBitsPerChannel   = sizeof(short) * 8;
+  clientFormat.mFramesPerPacket  = 1;
+  clientFormat.mBytesPerFrame    = clientFormat.mBitsPerChannel * clientFormat.mChannelsPerFrame / 8;
+  clientFormat.mBytesPerPacket   = clientFormat.mFramesPerPacket * clientFormat.mBytesPerFrame;
+  clientFormat.mReserved         = 0;
 
   // set the client format description
   err = ExtAudioFileSetProperty(s->audioFile, kExtAudioFileProperty_ClientDataFormat,

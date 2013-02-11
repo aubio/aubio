@@ -44,7 +44,7 @@ aubio_source_t * new_aubio_source(char_t * uri, uint_t samplerate, uint_t hop_si
   if (s->source) return s;
 #endif /* HAVE_SNDFILE */
 #endif /* __APPLE__ */
-  AUBIO_ERROR("failed creating aubio source with %s", uri);
+  AUBIO_ERROR("failed creating aubio source with %s\n", uri);
   AUBIO_FREE(s);
   return NULL;
 }

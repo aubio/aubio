@@ -26,7 +26,6 @@ aubio_onset_t *o;
 fvec_t *onset;
 
 static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
-  unsigned int i;       /*channels*/
   unsigned int j;       /*frames*/
   for (j=0;j<(unsigned)nframes;j++) {
     if(usejack) {

@@ -65,7 +65,7 @@ static void process_print (void) {
       */
       
       uint_t coef_cnt;
-      if (output_filename == NULL) {
+      if (sink_uri == NULL) {
         outmsg("%f\t",frames*overlap_size/(float)samplerate);
         for (coef_cnt = 0; coef_cnt < n_coefs; coef_cnt++) {
             outmsg("%f ", fvec_read_sample (mfcc_out, coef_cnt) );

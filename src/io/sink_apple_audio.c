@@ -52,13 +52,12 @@ struct _aubio_sink_apple_audio_t {
 
 aubio_sink_apple_audio_t * new_aubio_sink_apple_audio(char_t * uri, uint_t samplerate) {
   aubio_sink_apple_audio_t * s = AUBIO_NEW(aubio_sink_apple_audio_t);
-  s->samplerate;
+  s->samplerate = samplerate;
   s->channels = 1;
   s->path = uri;
   s->max_frames = MAX_SIZE;
 
   AudioStreamBasicDescription clientFormat;
-  UInt32 propSize = sizeof(clientFormat);
   memset(&clientFormat, 0, sizeof(AudioStreamBasicDescription));
   clientFormat.mFormatID         = kAudioFormatLinearPCM;
   clientFormat.mSampleRate       = (Float64)(s->samplerate);
@@ -77,7 +76,7 @@ aubio_sink_apple_audio_t * new_aubio_sink_apple_audio(char_t * uri, uint_t sampl
   err = ExtAudioFileCreateWithURL(fileURL, fileType, &clientFormat, NULL,
      overwrite ? kAudioFileFlags_EraseFile : 0, &s->audioFile);
   if (err) {
-    AUBIO_ERR("error when trying to access %s, in ExtAudioFileOpenURL, %d\n", s->path, (int)err);
+    AUBIO_ERR("error when trying to create %s, in ExtAudioFileCreateWithURL, %d\n", s->path, (int)err);
     goto beach;
   }
   if (createAubioBufferList(&s->bufferList, s->channels, s->max_frames * s->channels)) {

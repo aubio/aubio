@@ -1,0 +1,9 @@
+#! /bin/sh
+
+set -e
+set -x
+
+python setup.py clean build
+export PYTHONPATH=./build/lib.macosx-10.6-intel-2.7:$PYTHONPATH
+export DYLD_LIBRARY_PATH=../build/src
+./run_all_tests --verbose

@@ -42,9 +42,12 @@ new_aubio_resampler (smpl_t ratio, uint_t type)
   aubio_resampler_t *s = AUBIO_NEW (aubio_resampler_t);
   int error = 0;
   s->stat = src_new (type, 1, &error);  /* only one channel */
+  if (error) {
+    AUBIO_ERR ("Failed creating resampler: %s\n", src_strerror (error));
+    del_aubio_resampler(s);
+    return NULL;
+  }
   s->proc = AUBIO_NEW (SRC_DATA);
-  if (error)
-    AUBIO_ERR ("%s\n", src_strerror (error));
   s->ratio = ratio;
   return s;
 }
@@ -52,7 +55,7 @@ new_aubio_resampler (smpl_t ratio, uint_t type)
 void
 del_aubio_resampler (aubio_resampler_t * s)
 {
-  src_delete (s->stat);
+  if (s->stat) src_delete (s->stat);
   AUBIO_FREE (s->proc);
   AUBIO_FREE (s);
 }

@@ -1,5 +1,9 @@
-/*
-  Copyright (C) 2012 Paul Brossier <piem@aubio.org>
+"""Copyright (C) 2004 Paul Brossier <piem@altern.org>
+print aubio.__LICENSE__ for the terms of use
+"""
+
+__LICENSE__ = """\
+  Copyright (C) 2004-2009 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -15,18 +19,10 @@
 
   You should have received a copy of the GNU General Public License
   along with aubio.  If not, see <http://www.gnu.org/licenses/>.
+"""            
 
-*/
-
-#ifndef _AUBIO_SOURCE_SNDFILE_H
-#define _AUBIO_SOURCE_SNDFILE_H
-
-typedef struct _aubio_source_sndfile_t aubio_source_sndfile_t;
-aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplerate, uint_t block_size);
-void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_to, uint_t * read);
-uint_t aubio_source_sndfile_get_samplerate(aubio_source_sndfile_t * s);
-void del_aubio_source_sndfile(aubio_source_sndfile_t * s);
-
-uint_t aubio_source_sndfile_get_samplerate(aubio_source_sndfile_t * s);
-
-#endif /* _AUBIO_SOURCE_SNDFILE_H */
+#from aubioclass import *
+#from onsetcompare import *
+#from median import *
+#from noteroc import *
+#from txtfile import *
