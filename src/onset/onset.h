@@ -72,6 +72,22 @@ void aubio_onset_do (aubio_onset_t *o, fvec_t * input, fvec_t * onset);
 */
 uint_t aubio_onset_set_silence(aubio_onset_t * o, smpl_t silence);
 
+/** get onset detection function
+
+  \param o onset detection object as returned by new_aubio_onset
+  \return the current value of the descriptor
+
+*/
+smpl_t aubio_onset_get_descriptor ( aubio_onset_t *o);
+
+/** get thresholded onset detection function
+
+  \param o onset detection object as returned by new_aubio_onset
+  \return the value of the thresholded descriptor
+
+*/
+smpl_t aubio_onset_get_thresholded_descriptor ( aubio_onset_t *o);
+
 /** set onset detection peak picking threshold 
 
   \param o onset detection object as returned by new_aubio_onset

@@ -72,6 +72,15 @@ void aubio_onset_do (aubio_onset_t *o, fvec_t * input, fvec_t * onset)
   return;
 }
 
+smpl_t aubio_onset_get_descriptor(aubio_onset_t * o) {
+    return o->of->data[0];
+}
+
+smpl_t aubio_onset_get_thresholded_descriptor(aubio_onset_t * o) {
+    fvec_t * thresholded = aubio_peakpicker_get_thresholded_input(o->pp);
+    return thresholded->data[0];
+}
+
 uint_t aubio_onset_set_silence(aubio_onset_t * o, smpl_t silence) {
   o->silence = silence;
   return AUBIO_OK;
