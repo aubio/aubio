@@ -15,7 +15,6 @@ if len(sys.argv) < 2:
 
 filename = sys.argv[1]
 onsets = []
-oldonsets = []
 
 s = source(filename, samplerate, hop_s)
 o = onset("default", win_s, hop_s)
@@ -31,9 +30,6 @@ while True:
         thisbeat = (block_read - 4. + isbeat[0]) * hop_s / samplerate
         print "%.4f" % thisbeat
         onsets.append (thisbeat)
-        # old onset
-        thisbeat = (block_read - 3. ) * hop_s / samplerate
-        oldonsets.append (thisbeat)
     block_read += 1
     if read < hop_s: break
 
@@ -46,7 +42,6 @@ plot(allsamples_max_times,  allsamples_max, '-b')
 plot(allsamples_max_times, -allsamples_max, '-b')
 axis(xmin = 0., xmax = max(allsamples_max_times) )
 for stamp in onsets: plot([stamp, stamp], [-1., 1.], '.-r')
-for stamp in oldonsets: plot([stamp, stamp], [-1., 1.], '.-g')
 xlabel('time (s)')
 ylabel('amplitude')
 show()
