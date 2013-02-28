@@ -1,4 +1,4 @@
 #! /bin/sh
 
-export PYTHONPATH=$PWD/build/*:$PWD/tests:$PYTHONPATH
+export PYTHONPATH=$PWD/build/lib.*:$PWD/tests:$PYTHONPATH
 export DYLD_LIBRARY_PATH=$PWD/../build/src

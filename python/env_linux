@@ -1,0 +1,4 @@
+#! /bin/sh
+
+export PYTHONPATH=$PWD/build/lib.*/:$PWD/tests:$PYTHONPATH
+export LD_LIBRARY_PATH=$PWD/../build/src/
