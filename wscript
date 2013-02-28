@@ -195,9 +195,11 @@ def build(bld):
   bld.env['LIB_VERSION'] = LIB_VERSION
 
   # add sub directories
-  bld.recurse('src examples')
+  bld.recurse('src')
   from waflib import Options
-  if Options.platform != 'ios': bld.recurse('tests')
+  if Options.platform != 'ios':
+      bld.recurse('examples')
+      bld.recurse('tests')
 
   """
   # create the aubio.pc file for pkg-config
