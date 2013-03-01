@@ -2,6 +2,7 @@
 
 from distutils.core import setup, Extension
 from generator import generate_object_files
+import sys
 import os.path
 import numpy
 
@@ -30,8 +31,10 @@ aubio_extension = Extension("aubio._aubio",
             ] + generate_object_files(),
         include_dirs = include_dirs + [ numpy.get_include() ],
         library_dirs = library_dirs,
-        extra_link_args = ['-framework','CoreFoundation', '-framework','AudioToolbox'],
         libraries=['aubio'])
+
+if sys.platform.startswith('darwin'):
+        aubio_extension.extra_link_args = ['-framework','CoreFoundation', '-framework','AudioToolbox']
 
 classifiers = [
         'Development Status :: 4 - Beta',
