@@ -227,3 +227,11 @@ def build(bld):
   bld.install_files('${PREFIX}/share/sounds/aubio/',
       'sounds/woodblock.aiff')
   """
+
+def shutdown(bld):
+    from waflib import Options, Logs
+    if Options.platform == 'ios':
+          msg ='aubio built for ios, contact the author for a commercial license'
+          Logs.pprint('RED', msg)
+          msg ='   Paul Brossier <piem@aubio.org>'
+          Logs.pprint('RED', msg)

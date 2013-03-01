@@ -14,7 +14,10 @@ if 'HAVE_SNDFILE':
   uselib += ['SNDFILE']
 
 # build libaubio
-ctx.shlib(
+from waflib import Options
+if Options.platform == 'ios': build_lib_func = ctx.stlib
+else: build_lib_func = ctx.shlib
+build_lib_func(
     includes = ['.'],
     source = source,
     target = 'aubio',
