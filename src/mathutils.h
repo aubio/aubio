@@ -18,8 +18,12 @@
 
 */
 
-/** @file
- *  various math functions
+/** \file
+
+  Various math functions
+
+  \example test-mathutils.c
+
  */
 
 #ifndef MATHUTILS_H
@@ -179,10 +183,10 @@ void fvec_add (fvec_t * v, smpl_t c);
 */
 void fvec_min_removal (fvec_t * v);
 
-/** compute moving median theshold of a vector
+/** compute moving median threshold of a vector
 
   This function computes the moving median threshold value of at the given
-position of a vector, taking the median amongs post elements before and up to
+position of a vector, taking the median among post elements before and up to
 pre elements after pos.
  
   \param v input vector
