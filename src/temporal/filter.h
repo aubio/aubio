@@ -57,6 +57,8 @@
     - new_aubio_filter_a_weighting() and aubio_filter_set_a_weighting(),
     - new_aubio_filter_c_weighting() and aubio_filter_set_c_weighting().
     - new_aubio_filter_biquad() and aubio_filter_set_biquad().
+
+  \example temporal/test-filter.c
  
 */
 

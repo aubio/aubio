@@ -18,9 +18,10 @@
 
 */
 
-/** @file
- *  various utilities functions for fvec and cvec objects
- *
+/** \file
+
+  Utility functions for ::fvec_t and ::cvec_t objects
+
  */
 
 #ifndef _VECUTILS_H

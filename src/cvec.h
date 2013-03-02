@@ -27,19 +27,21 @@ extern "C" {
 
 /** \file
 
-  Complex buffers
+  Vector of complex-valued data
 
-  This file specifies the cvec_t buffer type, which is used throughout aubio to
-  store complex data. Complex values are stored in terms of phase and
-  norm, within size/2+1 long vectors.
+  This file specifies the ::cvec_t buffer type, which is used throughout aubio
+  to store complex data. Complex values are stored in terms of ::cvec_t.phas
+  and norm, within size/2+1 long vectors of ::smpl_t.
+
+  \example test-cvec.c
 
 */
 
 /** Buffer for complex data */
 typedef struct {
-  uint_t length;   /**< length of buffer = (requested length)/2 + 1 */
-  smpl_t *norm;   /**< norm array of size [length] */
-  smpl_t *phas;   /**< phase array of size [length] */
+  uint_t length;  /**< length of buffer = (requested length)/2 + 1 */
+  smpl_t *norm;   /**< norm array of size ::cvec_t.length */
+  smpl_t *phas;   /**< phase array of size ::cvec_t.length */
 } cvec_t;
 
 /** cvec_t buffer creation function
@@ -47,7 +49,7 @@ typedef struct {
   This function creates a cvec_t structure holding two arrays of size
   [length/2+1], corresponding to the norm and phase values of the
   spectral frame. The length stored in the structure is the actual size of both
-  arrays, not the length of the complex and symetrical vector, specified as
+  arrays, not the length of the complex and symmetrical vector, specified as
   creation argument.
 
   \param length the length of the buffer to create

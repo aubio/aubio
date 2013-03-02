@@ -52,6 +52,8 @@
   The sampling frequency should normally be higher than 20kHz, but most common
   file sampling rates have been included for completeness.
 
+  \example temporal/test-c_weighting.c
+
 */
 
 #ifdef __cplusplus
