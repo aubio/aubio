@@ -109,11 +109,11 @@ new_aubio_window (char_t * window_type, uint_t size)
       break;
     case aubio_win_welch:
       for (i=0;i<size;i++)
-        w[i] = 1.0 - SQR((2*i-size)/(size+1.0));
+        w[i] = 1.0 - SQR((2.*i-size)/(size+1.0));
       break;
     case aubio_win_parzen:
       for (i=0;i<size;i++)
-        w[i] = 1.0 - ABS((2*i-size)/(size+1.0));
+        w[i] = 1.0 - ABS((2.*i-size)/(size+1.0));
       break;
     default:
       break;
