@@ -21,13 +21,11 @@
 
 /** \file
 
-  Mel frequency filter bankd coefficients 
+  Filterbank object coefficients initialization
 
-  Set filter bank coefficients to Mel frequency bands.
-
-  The filter coefficients are built according to Malcolm Slaney's Auditory
-  Toolbox available at http://cobweb.ecn.purdue.edu/~malcolm/interval/1998-010/
-  (see the file mfcc.m). 
+  Functions to create set the ::aubio_filterbank_t coefficients to
+    - ::aubio_filterbank_set_triangle_bands: overlapping triangular bands,
+    - ::aubio_filterbank_set_mel_coeffs_slaney: Mel frequency bands.
 
 */
 
@@ -57,7 +55,9 @@ uint_t aubio_filterbank_set_triangle_bands (aubio_filterbank_t * fb,
   \param fb filterbank object
   \param samplerate audio sampling rate
 
-  This function fills the filterbank coefficients according to Malcolm Slaney.
+  The filter coefficients are built according to Malcolm Slaney's Auditory
+  Toolbox, available at http://cobweb.ecn.purdue.edu/~malcolm/interval/1998-010/
+  (see file mfcc.m).
 
 */
 uint_t aubio_filterbank_set_mel_coeffs_slaney (aubio_filterbank_t * fb,
@@ -67,4 +67,4 @@ uint_t aubio_filterbank_set_mel_coeffs_slaney (aubio_filterbank_t * fb,
 }
 #endif
 
-#endif                          // FILTERBANK_MEL_H
+#endif // FILTERBANK_MEL_H

@@ -26,9 +26,11 @@
   of a windowed signal (as created with aubio_pvoc). They output one smpl_t per
   buffer (stored in a vector of size [1]).
  
+  \section specdesc Spectral description functions
+
   A list of the spectral description methods currently available follows.
 
-  \section onsetdesc Onset detection functions
+  \subsection onsetdesc Onset detection functions
 
   These functions are designed to raise at notes attacks in music signals.
 
@@ -81,7 +83,7 @@
   International Conference on Digital Audio Effects'' (DAFx-06), Montreal,
   Canada, 2006. 
 
-  \section shapedesc Spectral shape descriptors
+  \subsection shapedesc Spectral shape descriptors
 
   The following descriptors are described in:
 
@@ -138,6 +140,8 @@
   This function returns the bin number below which 95% of the spectrum energy
   is found.
 
+  \example spectral/test-specdesc.c
+
 */
 
 
@@ -167,6 +171,11 @@ void aubio_specdesc_do (aubio_specdesc_t * o, cvec_t * fftgrain,
 
   \param method spectral description method
   \param buf_size length of the input spectrum frame
+
+  The parameter \p method is a string that can be any of:
+
+    - `energy`, `hfc`, `complex`, `phase`, `specdiff`, `kl`, `mkl`, `specflux`
+    - `centroid`, `spread`, `skewness`, `kurtosis`, `slope`, `decrease`, `rolloff`
 
 */
 aubio_specdesc_t *new_aubio_specdesc (char_t * method, uint_t buf_size);
