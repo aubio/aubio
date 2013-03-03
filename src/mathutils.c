@@ -104,8 +104,16 @@ new_aubio_window (char_t * window_type, uint_t size)
           - 0.01168 * COS(3.0*TWO_PI*i/(size-1.0));
       break;
     case aubio_win_gaussian:
-      for (i=0;i<size;i++)
-        w[i] = EXP(- 1.0 / SQR(size) * SQR(2.0*i-size));
+      {
+        lsmp_t a, b, c = 0.5;
+        uint_t n;
+        for (n = 0; n < size; n++)
+        {
+          a = (n-c*(size-1))/(SQR(c)*(size-1));
+          b = -c*SQR(a);
+          w[n] = EXP(b);
+        }
+      }
       break;
     case aubio_win_welch:
       for (i=0;i<size;i++)
