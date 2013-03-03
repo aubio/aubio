@@ -43,13 +43,21 @@ typedef enum
 } aubio_window_type;
 
 fvec_t *
-new_aubio_window (char_t * window_type, uint_t size)
+new_aubio_window (char_t * window_type, uint_t length)
 {
-  fvec_t * win = new_fvec (size);
+  fvec_t * win = new_fvec (length);
+  fvec_set_window (win, window_type);
+  return win;
+}
+
+uint_t fvec_set_window (fvec_t *win, char_t *window_type) {
   smpl_t * w = win->data;
-  uint_t i;
+  uint_t i, size = win->length;
   aubio_window_type wintype;
-  if (strcmp (window_type, "rectangle") == 0)
+  if (window_type == NULL) {
+      AUBIO_ERR ("window type can not be null.\n");
+      return 1;
+  } else if (strcmp (window_type, "rectangle") == 0)
       wintype = aubio_win_rectangle;
   else if (strcmp (window_type, "hamming") == 0)
       wintype = aubio_win_hamming;
@@ -70,8 +78,8 @@ new_aubio_window (char_t * window_type, uint_t size)
   else if (strcmp (window_type, "default") == 0)
       wintype = aubio_win_default;
   else {
-      AUBIO_ERR ("unknown window type %s, using default.\n", window_type);
-      wintype = aubio_win_default;
+      AUBIO_ERR ("unknown window type `%s`.\n", window_type);
+      return 1;
   }
   switch(wintype) {
     case aubio_win_rectangle:
@@ -126,7 +134,7 @@ new_aubio_window (char_t * window_type, uint_t size)
     default:
       break;
   }
-  return win;
+  return 0;
 }
 
 smpl_t

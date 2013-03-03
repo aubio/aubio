@@ -45,6 +45,11 @@ Uni- versity of Verona, Italy, 2000.
 */
 fvec_t *new_aubio_window (char_t * window_type, uint_t size);
 
+/** set elements of a vector to window coefficients
+
+ */
+uint_t fvec_set_window (fvec_t * window, char_t * window_type);
+
 /** compute the principal argument
 
   This function maps the input phase to its corresponding value wrapped in the
