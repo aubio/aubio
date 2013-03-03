@@ -2,7 +2,7 @@
 
 for target_name in ctx.path.ant_glob('src/**/*.c'):
   uselib = []
-  includes = ['../src']
+  includes = ['../src', '.']
   extra_source = []
   if str(target_name).endswith('-jack.c') and ctx.env['JACK']:
     uselib += ['JACK']
