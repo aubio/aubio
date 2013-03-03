@@ -69,6 +69,9 @@ void aubio_sndfile_info(aubio_sndfile_t * file);
  * Return number of channel in file
  */
 uint_t aubio_sndfile_channels(aubio_sndfile_t * file);
+/**
+ * Return samplerate of a file (Hz)
+ */
 uint_t aubio_sndfile_samplerate(aubio_sndfile_t * file);
 
 #ifdef __cplusplus
