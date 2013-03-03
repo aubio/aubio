@@ -32,6 +32,8 @@
 
   Available at http://www.csis.ul.ie/dafx01/proceedings/papers/duxbury.pdf
 
+  \example spectral/test-tss.c
+
 */
 
 #ifndef TSS_H
