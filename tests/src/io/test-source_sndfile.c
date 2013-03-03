@@ -1,33 +1,42 @@
-#include <stdio.h>
 #include <aubio.h>
-#include "config.h"
+#include "utils_tests.h"
 
-char_t *path = "/home/piem/archives/samples/loops/drum_Chocolate_Milk_-_Ation_Speaks_Louder_Than_Words.wav";
+int main (int argc, char **argv)
+{
+  uint_t err = 0;
+  if (argc < 2) {
+    err = 2;
+    PRINT_ERR("not enough arguments\n");
+    PRINT_MSG("usage: %s <source_path> [samplerate]\n", argv[0]);
+    return err;
+  }
 
-int main(){
-  int err = 0;
 #ifdef HAVE_SNDFILE
-  uint_t samplerate = 8000;
-  uint_t hop_size = 512;
-  uint_t read = hop_size;
+  uint_t samplerate = 32000;
+  uint_t hop_size = 256;
+  uint_t n_frames = 0, read = 0;
+  if ( argc == 3 ) samplerate = atoi(argv[2]);
+
+  char_t *source_path = argv[1];
+
   fvec_t *vec = new_fvec(hop_size);
-  aubio_source_sndfile_t * s = new_aubio_source_sndfile(path, samplerate, hop_size);
+  aubio_source_sndfile_t * s = new_aubio_source_sndfile(source_path, samplerate, hop_size);
+  if (samplerate == 0 ) samplerate = aubio_source_sndfile_get_samplerate(s);
 
   if (!s) { err = 1; goto beach; }
 
-  while ( read == hop_size ) {
+  do {
     aubio_source_sndfile_do(s, vec, &read);
-    if (read == 0) break;
-    fprintf(stdout, "%d [%f, %f, ..., %f]\n", read, vec->data[0], vec->data[1], vec->data[read - 1]);
-  }
+    // fvec_print (vec);
+    n_frames += read;
+  } while ( read == hop_size );
 
 beach:
-  del_aubio_source_sndfile(s);
-  del_fvec(vec);
+  del_aubio_source_sndfile (s);
+  del_fvec (vec);
 #else
-  fprintf(stderr, "ERR: aubio was not compiled with aubio_source_sndfile\n");
+  PRINT_ERR("aubio was not compiled with aubio_source_sndfile\n");
   err = 2;
 #endif /* HAVE_SNDFILE */
   return err;
 }
-

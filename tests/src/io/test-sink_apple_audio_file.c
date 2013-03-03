@@ -1,34 +1,49 @@
-#include <stdio.h>
 #include <aubio.h>
-#include "config.h"
+#include "utils_tests.h"
 
-char_t *path = "/Users/piem/archives/sounds/loops/drum_Chocolate_Milk_-_Ation_Speaks_Louder_Than_Words.wav";
-char_t *outpath = "/var/tmp/test.wav";
+int main (int argc, char **argv)
+{
+  sint_t err = 0;
 
-int main(){
-  int err = 0;
+  if (argc < 3) {
+    err = 2;
+    PRINT_ERR("not enough arguments\n");
+    PRINT_MSG("usage: %s <input_path> <output_path> [samplerate]\n", argv[0]);
+    return err;
+  }
+
 #ifdef __APPLE__
   uint_t samplerate = 44100;
   uint_t hop_size = 512;
-  uint_t read = hop_size;
+  uint_t n_frames = 0, read = 0;
+
+  char_t *source_path = argv[1];
+  char_t *sink_path = argv[2];
+  if ( argc == 4 ) samplerate = atoi(argv[3]);
+
   fvec_t *vec = new_fvec(hop_size);
-  aubio_source_apple_audio_t * i = new_aubio_source_apple_audio(path, samplerate, hop_size);
-  aubio_sink_apple_audio_t *   o = new_aubio_sink_apple_audio(outpath, samplerate);
+  aubio_source_apple_audio_t *i = new_aubio_source_apple_audio(source_path, samplerate, hop_size);
+  if (samplerate == 0 ) samplerate = aubio_source_apple_audio_get_samplerate(i);
+  aubio_sink_apple_audio_t *o = new_aubio_sink_apple_audio(sink_path, samplerate);
 
-  if (!i || !o) { err = -1; goto beach; }
+  if (!i || !o) { err = 1; goto beach; }
 
-  while ( read == hop_size ) {
+  do {
     aubio_source_apple_audio_do(i, vec, &read);
     aubio_sink_apple_audio_do(o, vec, read);
-  }
+    n_frames += read;
+  } while ( read == hop_size );
+
+  PRINT_MSG("%d frames read from %s\n written to %s at %dHz\n",
+      n_frames, source_path, sink_path, samplerate);
 
 beach:
   del_aubio_source_apple_audio(i);
   del_aubio_sink_apple_audio(o);
   del_fvec(vec);
 #else
-  fprintf(stderr, "ERR: aubio was not compiled with aubio_source_apple_audio\n");
+  PRINT_ERR("aubio was not compiled with aubio_source_apple_audio\n");
+  err = 3;
 #endif /* __APPLE__ */
   return err;
 }
-
