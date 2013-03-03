@@ -4,7 +4,12 @@ from numpy.testing import TestCase, run_module_suite
 from numpy.testing import assert_equal, assert_almost_equal
 from numpy import random
 from math import pi
+from numpy import array
 from aubio import cvec, filterbank
+
+def array_from_text_file(filename, dtype = 'float'):
+  return array([line.split() for line in open(filename).readlines()], 
+      dtype = dtype)
 
 class aubio_filterbank_test_case(TestCase):
 
@@ -53,6 +58,12 @@ class aubio_filterbank_test_case(TestCase):
     c.norm[:] = random.random((512 / 2 + 1,)).astype('float32')
     assert_equal ( f(c) < 1., True )
     assert_equal ( f(c) > 0., True )
+
+  def test_mfcc_coeffs_16000(self):
+    expected = array_from_text_file('filterbank_mfcc_16000_512.expected')
+    f = filterbank(40, 512)
+    f.set_mel_coeffs_slaney(16000)
+    assert_almost_equal ( expected, f.get_coeffs() )
 
 if __name__ == '__main__':
   from unittest import main
