@@ -40,6 +40,15 @@ class aubio_filter_test_case(TestCase):
     u = f(v)
     assert_almost_equal (expected[1], u)
 
+  def test_c_weighting_8000(self):
+    expected = array_from_text_file('c_weighting_test_simple_8000.expected')
+    f = digital_filter(5)
+    f.set_c_weighting(8000)
+    v = fvec(32)
+    v[12] = .5
+    u = f(v)
+    assert_almost_equal (expected[1], u)
+
   def test_a_weighting(self):
     expected = array_from_text_file('a_weighting_test_simple.expected')
     f = digital_filter(7)
