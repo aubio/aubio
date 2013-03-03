@@ -122,7 +122,7 @@ typedef enum {
 #define AUBIO_ERR(format, args...)   fprintf(stderr, "AUBIO ERROR: " format , ##args)
 #define AUBIO_MSG(format, args...)   fprintf(stdout, format , ##args)
 #define AUBIO_DBG(format, args...)   fprintf(stderr, format , ##args)
-#define AUBIO_WRN(...)               fprintf(stderr, "AUBIO WARNING: " format, ##args)
+#define AUBIO_WRN(format, args...)   fprintf(stderr, "AUBIO WARNING: " format, ##args)
 #endif
 
 #define AUBIO_ERROR   AUBIO_ERR
