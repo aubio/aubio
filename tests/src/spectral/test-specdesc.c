@@ -1,17 +1,13 @@
-
-#define AUBIO_UNSTABLE 1
-
 #include <aubio.h>
 
-int
-main ()
+int main ()
 {
-  uint_t win_s = 1024;          /* window size */
-  cvec_t *in = new_cvec (win_s);      /* input buffer */
-  fvec_t *out = new_fvec (1); /* input buffer */
+  uint_t win_s = 1024; // window size
+  cvec_t *in = new_cvec (win_s); // input buffer
+  fvec_t *out = new_fvec (1); // output spectral descriptor
 
   aubio_specdesc_t *o;
-  
+
   o = new_aubio_specdesc ("energy", win_s);
   aubio_specdesc_do (o, in, out);
   del_aubio_specdesc (o);

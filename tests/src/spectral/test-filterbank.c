@@ -1,40 +1,28 @@
-#define AUBIO_UNSTABLE 1
-
-#include <stdio.h>
 #include <aubio.h>
 
-int main (void) {
+int main ()
+{
   uint_t win_s = 1024; // window size
   uint_t n_filters = 13; // number of filters
-  cvec_t *in = new_cvec (win_s); // input buffer
-  fvec_t *out = new_fvec (win_s); // vector output */
-  fmat_t *coeffs = NULL;
 
-  // create filterbank
+  cvec_t *in_spec = new_cvec (win_s); // input vector of samples
+  fvec_t *out_filters = new_fvec (n_filters); // per-band outputs
+  fmat_t *coeffs; // pointer to the coefficients
+
+  // create filterbank object
   aubio_filterbank_t *o = new_aubio_filterbank (n_filters, win_s);
 
   coeffs = aubio_filterbank_get_coeffs (o);
-  if (coeffs == NULL) {
-    return -1;
-  }
 
-  /*
-  if (fvec_max (coeffs) != 0.) {
-    return -1;
-  }
+  aubio_filterbank_do (o, in_spec, out_filters);
 
-  if (fvec_min (coeffs) != 0.) {
-    return -1;
-  }
-  */
-
-  fmat_print (coeffs);
-
-  aubio_filterbank_do (o, in, out);
+  // fmat_print (coeffs);
+  // cvec_print(in_spec);
+  // fvec_print(out_filters);
 
   del_aubio_filterbank (o);
-  del_cvec (in);
-  del_fvec (out);
+  del_cvec (in_spec);
+  del_fvec (out_filters);
   aubio_cleanup ();
 
   return 0;
