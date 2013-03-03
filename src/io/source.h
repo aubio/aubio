@@ -21,15 +21,17 @@
 #ifndef _AUBIO_SOURCE_H
 #define _AUBIO_SOURCE_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /** \file
 
   Media source 
 
+  \example io/test-source.c
+
 */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct _aubio_source_t aubio_source_t;
 aubio_source_t * new_aubio_source(char_t * uri, uint_t samplerate, uint_t hop_size);

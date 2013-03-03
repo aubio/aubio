@@ -21,10 +21,26 @@
 #ifndef _AUBIO_SOURCE_APPLE_AUDIO_H
 #define _AUBIO_SOURCE_APPLE_AUDIO_H
 
+/** \file
+
+  aubio source using ExtAudioFileRef
+
+  \example io/test-source_apple_audio.c
+
+*/
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct _aubio_source_apple_audio_t aubio_source_apple_audio_t;
 aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * path, uint_t samplerate, uint_t block_size);
 void aubio_source_apple_audio_do(aubio_source_apple_audio_t * s, fvec_t * read_to, uint_t * read);
 uint_t aubio_source_apple_audio_get_samplerate(aubio_source_apple_audio_t * s);
 void del_aubio_source_apple_audio(aubio_source_apple_audio_t * s);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _AUBIO_SOURCE_APPLE_AUDIO_H */

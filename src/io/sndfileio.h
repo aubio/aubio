@@ -21,8 +21,10 @@
 #ifndef SNDFILEIO_H
 #define SNDFILEIO_H
 
-/** @file 
- * sndfile functions
+/** \file
+
+  sndfile functions
+
  */
 
 #ifdef __cplusplus

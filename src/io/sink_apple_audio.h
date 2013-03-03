@@ -21,15 +21,17 @@
 #ifndef _AUBIO_SINK_APPLE_AUDIO_H
 #define _AUBIO_SINK_APPLE_AUDIO_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /** \file
 
   Apple Audio Media
 
+  \example io/test-sink_apple_audio.c
+
 */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct _aubio_sink_apple_audio_t aubio_sink_apple_audio_t;
 aubio_sink_apple_audio_t * new_aubio_sink_apple_audio(char_t * method, uint_t samplerate);

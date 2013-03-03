@@ -21,10 +21,6 @@
 #ifndef _AUBIO_SINK_H
 #define _AUBIO_SINK_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /** \file
 
   Media sink
@@ -32,6 +28,10 @@ extern "C" {
   \example io/test-sink.c
 
 */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct _aubio_sink_t aubio_sink_t;
 aubio_sink_t * new_aubio_sink(char_t * uri, uint_t samplerate);

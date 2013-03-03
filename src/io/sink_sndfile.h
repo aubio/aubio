@@ -21,15 +21,17 @@
 #ifndef _AUBIO_SINK_SNDFILE_H
 #define _AUBIO_SINK_SNDFILE_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /** \file
 
   sndfile sink
 
+  \example io/test-sink_sndfile.c
+
 */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct _aubio_sink_sndfile_t aubio_sink_sndfile_t;
 aubio_sink_sndfile_t * new_aubio_sink_sndfile(char_t * method, uint_t samplerate);
