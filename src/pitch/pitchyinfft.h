@@ -31,6 +31,8 @@
   systems'', Chapter 3, Pitch Analysis, PhD thesis, Centre for Digital music,
   Queen Mary University of London, London, UK, 2006.
 
+  \example pitch/test-pitchyinfft.c
+
 */
 
 #ifndef PITCHYINFFT_H

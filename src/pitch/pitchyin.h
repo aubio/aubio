@@ -30,6 +30,8 @@
 
   see http://recherche.ircam.fr/equipes/pcm/pub/people/cheveign.html
 
+  \example pitch/test-pitchyin.c
+
 */
 
 #ifndef PITCHYIN_H
