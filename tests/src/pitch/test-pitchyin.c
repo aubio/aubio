@@ -1,24 +1,30 @@
 #define AUBIO_UNSTABLE 1
 
+// this file uses the unstable aubio api, please use aubio_pitch instead
+// see src/pitch/pitch.h and tests/src/pitch/test-pitch.c
+
 #include <aubio.h>
 
-int main(){
-        /* allocate some memory */
-        uint_t win_s      = 1024;                       /* window size */
-        fvec_t * in       = new_fvec (win_s); /* input buffer */
-        fvec_t * out      = new_fvec (win_s/2); /* input buffer */
-        aubio_pitchyin_t *p = new_aubio_pitchyin (win_s);
-        uint_t i = 0;
+int main ()
+{
+  uint_t n = 10; // compute n times
+  uint_t win_s = 1024; // window size
+  // create some vectors
+  fvec_t * input_signal = new_fvec (win_s); // input signal
+  fvec_t * output_cands = new_fvec (1); // output candidates
+  // create pitch object
+  aubio_pitchyin_t *p = new_aubio_pitchyin (win_s);
 
-        while (i < 10) {
-          aubio_pitchyin_do (p, in,out);
-          i++;
-        };
+  while ( n-- ) {
+    aubio_pitchyin_do (p, input_signal, output_cands);
+  };
 
-        del_fvec(in);
-        del_fvec(out);
-        del_aubio_pitchyin(p);
-        aubio_cleanup();
+  fvec_print(output_cands);
 
-        return 0;
+  del_fvec(input_signal);
+  del_fvec(output_cands);
+  del_aubio_pitchyin(p);
+  aubio_cleanup();
+
+  return 0;
 }
