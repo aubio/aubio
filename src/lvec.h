@@ -27,18 +27,22 @@ extern "C" {
 
 /** \file
 
-  Real buffers
+  Vector of real-valued data in double precision
 
-  This file specifies the lvec_t buffer type, which is used in aubio to store
-  double precision real data. Note that the lvec_t data type is mostly used for
-  IIR filters (see temporal/filter.h).
+  This file specifies the ::lvec_t buffer type, which is used in some places in
+  aubio to store a vector of ::lsmp_t.
+
+  Note: the lvec_t data type is required in some algorithms such as IIR filters
+  (see temporal/filter.h).
+
+  \example test-lvec.c
 
 */
 
 /** Buffer for real data in double precision */
 typedef struct {
-  uint_t length;   /**< length of buffer */
-  lsmp_t *data;   /**< data array of size [length] */
+  uint_t length; /**< length of buffer */
+  lsmp_t *data;  /**< data array of size [length] */
 } lvec_t;
 
 /** lvec_t buffer creation function

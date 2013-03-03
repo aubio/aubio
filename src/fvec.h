@@ -27,17 +27,46 @@ extern "C" {
 
 /** \file
 
-  Real buffers
+  Vector of real-valued data
 
-  This file specifies the fvec_t buffer type, which is used throughout aubio to
-  store real data.
+  This file specifies the ::fvec_t buffer type, which is used throughout aubio
+  to store vector of real-valued ::smpl_t.
+
+  \example test-fvec.c
 
 */
 
-/** Buffer for real data */
+/** Buffer for real data
+
+  Vector of real-valued data
+
+  ::fvec_t is is the structure used to store vector of real-valued data, ::smpl_t .
+
+  \code
+
+  uint_t buffer_size = 1024;
+
+  // create a vector of 512 values
+  fvec_t * input = new_fvec (buffer_size);
+
+  // set some values of the vector
+  input->data[23] = 2.;
+  // ..
+
+  // compute the mean of the vector
+  mean = fvec_mean(a_vector);
+
+  // destroy the vector
+  del_fvec(a_vector);
+
+  \endcode
+
+  See `examples/` and `tests/src` directories for more examples.
+
+ */
 typedef struct {
-  uint_t length;   /**< length of buffer */
-  smpl_t *data;   /**< data array of size [length] */
+  uint_t length;  /**< length of buffer */
+  smpl_t *data;   /**< data vector of length ::fvec_t.length */
 } fvec_t;
 
 /** fvec_t buffer creation function

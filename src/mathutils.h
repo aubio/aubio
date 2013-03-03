@@ -23,6 +23,7 @@
   Various math functions
 
   \example test-mathutils.c
+  \example test-mathutils-window.c
 
  */
 

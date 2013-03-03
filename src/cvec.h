@@ -37,7 +37,29 @@ extern "C" {
 
 */
 
-/** Buffer for complex data */
+/** Buffer for complex data
+
+  \code
+
+  uint_t buffer_size = 1024;
+
+  // create a complex vector of 512 values
+  cvec_t * input = new_cvec (buffer_size);
+
+  // set some values of the vector
+  input->norm[23] = 2.;
+  input->phas[23] = M_PI;
+  // ..
+
+  // compute the mean of the vector
+  mean = cvec_mean(input);
+
+  // destroy the vector
+  del_cvec (input);
+
+  \endcode
+
+ */
 typedef struct {
   uint_t length;  /**< length of buffer = (requested length)/2 + 1 */
   smpl_t *norm;   /**< norm array of size ::cvec_t.length */
@@ -68,7 +90,7 @@ void del_cvec(cvec_t *s);
   result can be obtained by assigning vec->norm[position]. Its purpose
   is to access these values from wrappers, as created by swig.
 
-  \param s vector to write to 
+  \param s vector to write to
   \param data norm value to write in s->norm[position]
   \param position sample position to write to
 
@@ -129,9 +151,9 @@ smpl_t * cvec_get_norm(cvec_t *s);
 */
 smpl_t * cvec_get_phas(cvec_t *s);
 
-/** print out cvec data 
+/** print out cvec data
 
-  \param s vector to print out 
+  \param s vector to print out
 
 */
 void cvec_print(cvec_t *s);
@@ -144,14 +166,14 @@ void cvec_print(cvec_t *s);
 */
 void cvec_set(cvec_t *s, smpl_t val);
 
-/** set all elements to zero 
+/** set all elements to zero
 
   \param s vector to modify
 
 */
 void cvec_zeros(cvec_t *s);
 
-/** set all elements to ones 
+/** set all elements to ones
 
   \param s vector to modify
 

@@ -27,18 +27,20 @@ extern "C" {
 
 /** \file
 
-  Real buffers
+  Matrix of real valued data
 
-  This file specifies the fmat_t type, which is used in aubio to store real
-  valued arrays.
+  This file specifies the fmat_t type, which is used in aubio to store arrays
+  of floating point values.
+
+  \example test-fmat.c
 
 */
 
 /** Buffer for real data */
 typedef struct {
-  uint_t length;   /**< length of buffer */
-  uint_t height; /**< number of channels */
-  smpl_t **data;   /**< data array of size [length] * [channels] */
+  uint_t length; /**< length of matrix */
+  uint_t height; /**< height of matrix */
+  smpl_t **data; /**< data array of size [length] * [height] */
 } fmat_t;
 
 /** fmat_t buffer creation function
