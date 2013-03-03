@@ -39,6 +39,23 @@ Py_alpha_norm (PyObject * self, PyObject * args)
   return result;
 }
 
+static char Py_unwrap2pi_doc[] = "unwrap phase value to [-pi, pi]";
+
+static PyObject *
+Py_unwrap2pi (PyObject * self, PyObject * args)
+{
+  smpl_t input;
+  smpl_t output;
+
+  if (!PyArg_ParseTuple (args, "|f", &input)) {
+    return NULL;
+  }
+
+  output = aubio_unwrap2pi (input);
+
+  return (PyObject *)PyFloat_FromDouble (output);
+}
+
 static char Py_bintomidi_doc[] = "convert bin to midi";
 
 static PyObject *
@@ -208,6 +225,7 @@ Py_min_removal(PyObject * self, PyObject * args)
 }
 
 static PyMethodDef aubio_methods[] = {
+  {"unwrap2pi", Py_unwrap2pi, METH_VARARGS, Py_unwrap2pi_doc},
   {"bintomidi", Py_bintomidi, METH_VARARGS, Py_bintomidi_doc},
   {"miditobin", Py_miditobin, METH_VARARGS, Py_miditobin_doc},
   {"bintofreq", Py_bintofreq, METH_VARARGS, Py_bintofreq_doc},
