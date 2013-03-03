@@ -118,9 +118,7 @@ mailing list: <aubio-user@aubio.org>.
 To subscribe to the list, use the mailman form:
 http://lists.aubio.org/listinfo/aubio-user/
 
-Alternatively, you can contact directly the author:
-
-    Paul Brossier <piem@aubio.org>
+Alternatively, feel free to contact directly the author.
 
 
 Copyright and License Information
