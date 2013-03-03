@@ -32,6 +32,8 @@ extern "C" {
   This file creates the objects required for the computation of the selected
   pitch detection algorithm and output the results, in midi note or Hz.
 
+  \example pitch/test-pitch.c
+
 */
 
 /** pitch detection object */

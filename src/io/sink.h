@@ -29,6 +29,8 @@ extern "C" {
 
   Media sink
 
+  \example io/test-sink.c
+
 */
 
 typedef struct _aubio_sink_t aubio_sink_t;

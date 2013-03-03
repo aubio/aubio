@@ -27,8 +27,10 @@
 
    This file was derived from the tuneit project, written by Mario Lang to
    detect the fundamental frequency of a sound.
-   
-   see http://delysid.org/tuneit.html 
+
+   See http://delysid.org/tuneit.html
+
+   \example pitch/test-pitchfcomb.c
 
 */
 
@@ -42,28 +44,28 @@ extern "C" {
 /** pitch detection object */
 typedef struct _aubio_pitchfcomb_t aubio_pitchfcomb_t;
 
-/** execute pitch detection on an input buffer 
- 
+/** execute pitch detection on an input buffer
+
   \param p pitch detection object as returned by new_aubio_pitchfcomb
-  \param input input signal window (length as specified at creation time) 
+  \param input input signal window (length as specified at creation time)
   \param output pitch candidates in bins
- 
+
 */
 void aubio_pitchfcomb_do (aubio_pitchfcomb_t * p, fvec_t * input,
     fvec_t * output);
 
 /** creation of the pitch detection object
- 
-  \param buf_size size of the input buffer to analyse 
-  \param hop_size step size between two consecutive analysis instant 
- 
+
+  \param buf_size size of the input buffer to analyse
+  \param hop_size step size between two consecutive analysis instant
+
 */
 aubio_pitchfcomb_t *new_aubio_pitchfcomb (uint_t buf_size, uint_t hop_size);
 
 /** deletion of the pitch detection object
- 
+
   \param p pitch detection object as returned by new_aubio_pitchfcomb
- 
+
 */
 void del_aubio_pitchfcomb (aubio_pitchfcomb_t * p);
 

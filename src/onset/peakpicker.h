@@ -21,6 +21,8 @@
 /** \file 
  
   Peak picking utilities function
+
+  \example onset/test-peakpicker.c
   
 */
 

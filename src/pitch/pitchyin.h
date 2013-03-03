@@ -18,16 +18,16 @@
 
 */
 
-/** \file 
-  
+/** \file
+
   Pitch detection using the YIN algorithm
- 
+
   This algorithm was developped by A. de Cheveigne and H. Kawahara and
   published in:
-  
+
   De Cheveigné, A., Kawahara, H. (2002) "YIN, a fundamental frequency
-  estimator for speech and music", J. Acoust. Soc. Am. 111, 1917-1930.  
- 
+  estimator for speech and music", J. Acoust. Soc. Am. 111, 1917-1930.
+
   see http://recherche.ircam.fr/equipes/pcm/pub/people/cheveign.html
 
 */
@@ -43,40 +43,40 @@ extern "C" {
 typedef struct _aubio_pitchyin_t aubio_pitchyin_t;
 
 /** creation of the pitch detection object
- 
-  \param buf_size size of the input buffer to analyse 
- 
+
+  \param buf_size size of the input buffer to analyse
+
 */
 aubio_pitchyin_t *new_aubio_pitchyin (uint_t buf_size);
 
 /** deletion of the pitch detection object
- 
-  \param p pitch detection object as returned by new_aubio_pitchyin()
- 
+
+  \param o pitch detection object as returned by new_aubio_pitchyin()
+
 */
 void del_aubio_pitchyin (aubio_pitchyin_t * o);
 
-/** execute pitch detection on an input buffer 
- 
-  \param p pitch detection object as returned by new_aubio_pitchyin()
-  \param input input signal window (length as specified at creation time) 
-  \param tol tolerance parameter for minima selection [default 0.85] 
- 
+/** execute pitch detection an input buffer
+
+  \param o pitch detection object as returned by new_aubio_pitchyin()
+  \param samples_in input signal vector (length as specified at creation time)
+  \param cands_out pitch period candidates, in samples
+
 */
-void aubio_pitchyin_do (aubio_pitchyin_t * o, fvec_t * in, fvec_t * out);
+void aubio_pitchyin_do (aubio_pitchyin_t * o, fvec_t * samples_in, fvec_t * cands_out);
 
 
-/** set tolerance parameter for YIN algorithm 
-  
-  \param o YIN pitch detection object 
+/** set tolerance parameter for YIN algorithm
+
+  \param o YIN pitch detection object
   \param tol tolerance parameter for minima selection [default 0.15]
 
 */
 uint_t aubio_pitchyin_set_tolerance (aubio_pitchyin_t * o, smpl_t tol);
 
-/** get tolerance parameter for YIN algorithm 
-  
-  \param o YIN pitch detection object 
+/** get tolerance parameter for YIN algorithm
+
+  \param o YIN pitch detection object
   \return tolerance parameter for minima selection [default 0.15]
 
 */
@@ -86,4 +86,4 @@ smpl_t aubio_pitchyin_get_tolerance (aubio_pitchyin_t * o);
 }
 #endif
 
-#endif /*PITCHYIN_H*/ 
+#endif /*PITCHYIN_H*/

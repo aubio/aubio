@@ -20,16 +20,19 @@
 
 /** \file
  
-  Onset detection driver
+  Onset detection object
 
   The following routines compute the onset detection function and detect peaks
   in these functions. When onsets are found above a given silence threshold,
   and after a minimum inter-onset interval, the output vector returned by
-  aubio_onset_do is filled with 1. Otherwise, the output vector remains 0.
+  ::aubio_onset_do is filled with `1`. Otherwise, the output vector remains
+  `0`.
 
   The peak-picking threshold, the silence threshold, and the minimum
   inter-onset interval can be adjusted during the execution of the
   aubio_onset_do routine using the corresponding functions.
+
+  \example onset/test-onset.c
 
 */
 

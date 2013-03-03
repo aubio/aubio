@@ -45,12 +45,12 @@ typedef struct _aubio_pitchyinfft_t aubio_pitchyinfft_t;
 
 /** execute pitch detection on an input buffer 
  
-  \param p pitch detection object as returned by new_aubio_pitchyinfft
-  \param input input signal window (length as specified at creation time) 
-  \param output pitch period candidates, in samples
+  \param o pitch detection object as returned by new_aubio_pitchyinfft
+  \param samples_in input signal vector (length as specified at creation time)
+  \param cands_out pitch period candidates, in samples
  
 */
-void aubio_pitchyinfft_do (aubio_pitchyinfft_t * p, fvec_t * in, fvec_t * out);
+void aubio_pitchyinfft_do (aubio_pitchyinfft_t * o, fvec_t * samples_in, fvec_t * cands_out);
 /** creation of the pitch detection object
  
   \param buf_size size of the input buffer to analyse 
@@ -59,10 +59,10 @@ void aubio_pitchyinfft_do (aubio_pitchyinfft_t * p, fvec_t * in, fvec_t * out);
 aubio_pitchyinfft_t *new_aubio_pitchyinfft (uint_t buf_size);
 /** deletion of the pitch detection object
  
-  \param p pitch detection object as returned by new_aubio_pitchyinfft()
+  \param o pitch detection object as returned by new_aubio_pitchyinfft()
  
 */
-void del_aubio_pitchyinfft (aubio_pitchyinfft_t * p);
+void del_aubio_pitchyinfft (aubio_pitchyinfft_t * o);
 
 /** get tolerance parameter for YIN algorithm 
   
@@ -71,7 +71,7 @@ void del_aubio_pitchyinfft (aubio_pitchyinfft_t * p);
   \return tolerance parameter for minima selection [default 0.15]
 
 */
-smpl_t aubio_pitchyinfft_get_tolerance (aubio_pitchyinfft_t * p);
+smpl_t aubio_pitchyinfft_get_tolerance (aubio_pitchyinfft_t * o);
 
 /** set tolerance parameter for YIN algorithm 
   
@@ -79,7 +79,7 @@ smpl_t aubio_pitchyinfft_get_tolerance (aubio_pitchyinfft_t * p);
   \param tol tolerance parameter for minima selection [default 0.15]
 
 */
-uint_t aubio_pitchyinfft_set_tolerance (aubio_pitchyinfft_t * p, smpl_t tol);
+uint_t aubio_pitchyinfft_set_tolerance (aubio_pitchyinfft_t * o, smpl_t tol);
 
 #ifdef __cplusplus
 }

@@ -35,6 +35,8 @@
   See also <a href="http://en.wikipedia.org/wiki/Digital_biquad_filter">Digital
   biquad filter</a> on wikipedia.
 
+  \example temporal/test-biquad.c
+
 */
 
 #ifdef __cplusplus
@@ -54,7 +56,7 @@ extern "C" {
 uint_t aubio_filter_set_biquad (aubio_filter_t * f, lsmp_t b0, lsmp_t b1,
     lsmp_t b2, lsmp_t a1, lsmp_t a2);
 
-/** create new biquad filter
+/** create biquad filter with `b0`, `b1`, `b2`, `a1`, `a2` coeffs
 
   \param b0 forward filter coefficient
   \param b1 forward filter coefficient

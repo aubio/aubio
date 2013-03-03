@@ -25,6 +25,8 @@
   This object stores all the memory required for tempo detection algorithm
   and returns the estimated beat locations.
 
+  \example tempo/test-tempo.h
+
 */
 
 #ifndef TEMPO_H
