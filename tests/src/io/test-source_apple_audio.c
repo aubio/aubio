@@ -2,6 +2,9 @@
 #include <aubio.h>
 #include "utils_tests.h"
 
+// this file uses the unstable aubio api, please use aubio_source instead
+// see src/io/source.h and tests/src/source/test-source.c
+
 int main (int argc, char **argv)
 {
   uint_t err = 0;

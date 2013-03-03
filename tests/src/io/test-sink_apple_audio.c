@@ -2,6 +2,9 @@
 #include <aubio.h>
 #include "utils_tests.h"
 
+// this file uses the unstable aubio api, please use aubio_sink instead
+// see src/io/sink.h and tests/src/sink/test-sink.c
+
 int main (int argc, char **argv)
 {
   sint_t err = 0;
@@ -43,8 +46,8 @@ beach:
   del_aubio_sink_apple_audio(o);
   del_fvec(vec);
 #else
-  PRINT_ERR("aubio was not compiled with aubio_source_apple_audio\n");
   err = 3;
+  PRINT_ERR("aubio was not compiled with aubio_source_apple_audio\n");
 #endif /* __APPLE__ */
   return err;
 }

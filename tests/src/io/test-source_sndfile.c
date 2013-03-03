@@ -1,5 +1,9 @@
+#define AUBIO_UNSTABLE 1
 #include <aubio.h>
 #include "utils_tests.h"
+
+// this file uses the unstable aubio api, please use aubio_source instead
+// see src/io/source.h and tests/src/source/test-source.c
 
 int main (int argc, char **argv)
 {
@@ -35,8 +39,8 @@ beach:
   del_aubio_source_sndfile (s);
   del_fvec (vec);
 #else
+  err = 3;
   PRINT_ERR("aubio was not compiled with aubio_source_sndfile\n");
-  err = 2;
 #endif /* HAVE_SNDFILE */
   return err;
 }

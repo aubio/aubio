@@ -1,5 +1,9 @@
+#define AUBIO_UNSTABLE 1
 #include <aubio.h>
 #include "utils_tests.h"
+
+// this file uses the unstable aubio api, please use aubio_sink instead
+// see src/io/sink.h and tests/src/sink/test-sink.c
 
 int main (int argc, char **argv)
 {
@@ -42,8 +46,8 @@ beach:
   del_aubio_sink_sndfile(o);
   del_fvec(vec);
 #else
-  PRINT_ERR("aubio was not compiled with aubio_source_sndfile\n");
   err = 3;
+  PRINT_ERR("aubio was not compiled with aubio_source_sndfile\n");
 #endif /* HAVE_SNDFILE */
   return err;
 }
