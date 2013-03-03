@@ -1,20 +1,42 @@
 #include <aubio.h>
 #include <assert.h>
 
-int main(){
-  uint_t buffer_size = 1024;
-  fvec_t * in = new_fvec (buffer_size);
+int main ()
+{
+  uint_t vec_size = 10, i;
+  fvec_t * vec = new_fvec (vec_size);
 
-  assert( in->length                == buffer_size);
+  // vec->length matches requested size
+  assert(vec->length == vec_size);
 
-  assert( in->data[0]               == 0);
-  assert( in->data[buffer_size / 2] == 0);
-  assert( in->data[buffer_size - 1] == 0);
+  // all elements are initialized to `0.`
+  for ( i = 0; i < vec->length; i++ ) {
+    assert(vec->data[i] == 0.);
+  }
 
-  in->data[buffer_size -1 ] = 1;
-  assert( in->data[buffer_size - 1] == 1);
+  // all elements can be set to `0.`
+  fvec_zeros(vec);
+  for ( i = 0; i < vec->length; i++ ) {
+    assert(vec->data[i] == 0.);
+  }
+  fvec_print(vec);
 
-  del_fvec(in);
+  // all elements can be set to `1.`
+  fvec_ones(vec);
+  for ( i = 0; i < vec->length; i++ ) {
+    assert(vec->data[i] == 1.);
+  }
+  fvec_print(vec);
+
+  // each element can be accessed directly
+  for ( i = 0; i < vec->length; i++ ) {
+    vec->data[i] = i;
+    assert(vec->data[i] == i);
+  }
+  fvec_print(vec);
+
+  // now destroys the vector
+  del_fvec(vec);
 
   return 0;
 }

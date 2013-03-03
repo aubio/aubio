@@ -1,40 +1,31 @@
 #include <aubio.h>
-#include <stdlib.h>
+#include <math.h>
+#include <stdio.h>
 
-int main( )
+int main ()
 {
-  uint_t length;
-  for (length = 2; length <= 5; length++)
-  {
-    fvec_t *t = new_aubio_window("rectangle", length);
-    del_fvec(t);
-    t = new_aubio_window("hamming", length);
-    fvec_print(t);
-    del_fvec(t);
-    t = new_aubio_window("hanning", length);
-    fvec_print(t);
-    del_fvec(t);
-    t = new_aubio_window("hanningz", length);
-    fvec_print(t);
-    del_fvec(t);
-    t = new_aubio_window("blackman", length);
-    fvec_print(t);
-    del_fvec(t);
-    t = new_aubio_window("blackman_harris", length);
-    fvec_print(t);
-    del_fvec(t);
-    t = new_aubio_window("gaussian", length);
-    fvec_print(t);
-    del_fvec(t);
-    t = new_aubio_window("welch", length);
-    fvec_print(t);
-    del_fvec(t);
-    t = new_aubio_window("parzen", length);
-    fvec_print(t);
-    del_fvec(t);
-    t = new_aubio_window("default", length);
-    fvec_print(t);
-    del_fvec(t);
+  uint_t length = 0;
+  uint_t n_length = 4, n_types = 10, i, t;
+  uint_t lengths[4] = { 8, 10, 15, 16 };
+  char *method = "default";
+  char *window_types[10] = { "default",
+    "rectangle", "hamming", "hanning", "hanningz",
+    "blackman", "blackman_harris", "gaussian", "welch", "parzen"};
+
+  for ( t = 0; t < n_types; t ++ ) {
+    for ( i = 0; i < n_length; i++)
+    {
+      length = lengths[i];
+      method = window_types[t];
+
+      fvec_t * window = new_aubio_window(method, length);
+
+      fvec_set_window(window, method);
+      fprintf(stdout, "length: %d, method: %s, window:, ", length, method);
+      fvec_print(window);
+
+      del_fvec(window);
+    }
   }
   return 0;
 }
