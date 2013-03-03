@@ -1,41 +1,38 @@
 #define AUBIO_UNSTABLE 1
 
-#include <stdio.h>
 #include <aubio.h>
 
-int main(){
-        /* allocate some memory */
-        uint_t win_s      = 1024;                       /* window size */
-        fvec_t * in       = new_fvec (win_s); /* input buffer */
-        fvec_t * out      = new_fvec (win_s/4);     /* input buffer */
-  
-        /* allocate fft and other memory space */
-        aubio_beattracking_t * tempo  = new_aubio_beattracking(win_s);
+int main ()
+{
+  uint_t i = 0;
+  uint_t win_s = 1024; // window size
+  fvec_t * in = new_fvec (win_s); // input buffer
+  fvec_t * out = new_fvec (2); // output beat position
 
-        uint_t i = 0;
+  // create beattracking object
+  aubio_beattracking_t * tempo  = new_aubio_beattracking(win_s);
 
-        smpl_t curtempo, curtempoconf;
+  smpl_t bpm, confidence;
 
-        while (i < 10) {
-          aubio_beattracking_do(tempo,in,out);
-          curtempo = aubio_beattracking_get_bpm(tempo);
-          if (curtempo != 0.) {
-            fprintf(stdout,"%f\n",curtempo);
-            return 1;
-          }
-          curtempoconf = aubio_beattracking_get_confidence(tempo);
-          if (curtempoconf != 0.) {
-            fprintf(stdout,"%f\n",curtempo);
-            return 1;
-          }
-          i++;
-        };
+  while (i < 10) {
+    // put some fresh data in feature vector
+    // ...
 
-        del_aubio_beattracking(tempo);
-        del_fvec(in);
-        del_fvec(out);
-        aubio_cleanup();
+    aubio_beattracking_do(tempo,in,out);
+    // do something  with the beats
+    // ...
 
-        return 0;
+    // get bpm and confidence
+    bpm = aubio_beattracking_get_bpm(tempo);
+    confidence = aubio_beattracking_get_confidence(tempo);
+    i++;
+  };
+
+  del_aubio_beattracking(tempo);
+  del_fvec(in);
+  del_fvec(out);
+  aubio_cleanup();
+
+  return 0;
 }
 
