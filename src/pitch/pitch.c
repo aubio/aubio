@@ -34,18 +34,19 @@
 #include "pitch/pitchyinfft.h"
 #include "pitch/pitch.h"
 
-/** pitch detection algorithm */
+/** pitch detection algorithms */
 typedef enum
 {
-  aubio_pitcht_yin,     /**< YIN algorithm */
-  aubio_pitcht_mcomb,   /**< Multi-comb filter */
-  aubio_pitcht_schmitt, /**< Schmitt trigger */
-  aubio_pitcht_fcomb,   /**< Fast comb filter */
-  aubio_pitcht_yinfft,   /**< Spectral YIN */
-  aubio_pitcht_default = aubio_pitcht_yinfft, /**< the one used when "default" is asked */
+  aubio_pitcht_yin,        /**< `yin`, YIN algorithm */
+  aubio_pitcht_mcomb,      /**< `mcomb`, Multi-comb filter */
+  aubio_pitcht_schmitt,    /**< `schmitt`, Schmitt trigger */
+  aubio_pitcht_fcomb,      /**< `fcomb`, Fast comb filter */
+  aubio_pitcht_yinfft,     /**< `yinfft`, Spectral YIN */
+  aubio_pitcht_default
+    = aubio_pitcht_yinfft, /**< `default` */
 } aubio_pitch_type;
 
-/** pitch detection output mode */
+/** pitch detection output modes */
 typedef enum
 {
   aubio_pitchm_freq,   /**< Frequency (Hz) */
