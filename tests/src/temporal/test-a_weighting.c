@@ -1,6 +1,7 @@
 #include <aubio.h>
 
-int main(){
+int main ()
+{
   
   aubio_filter_t * f;
 

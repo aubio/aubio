@@ -1,7 +1,7 @@
 #include <aubio.h>
 
-int main(){
-  
+int main ()
+{
   aubio_filter_t * f;
 
   uint_t rates[] = { 8000, 16000, 22050, 44100, 96000, 192000};

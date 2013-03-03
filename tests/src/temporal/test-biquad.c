@@ -1,6 +1,7 @@
 #include <aubio.h>
 
-int main () {
+int main ()
+{
   uint_t win_s = 64; // window size
 
   // create biquad filter with `b0`, `b1`, `b2`, `a1`, `a2`
