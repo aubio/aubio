@@ -7,10 +7,10 @@ int
 main (void)
 {
   /* allocate some memory */
-  uint_t win_s = 512;           /* fft size */
-  uint_t n_filters = 40;        /* number of filters */
-  cvec_t *in = new_cvec (win_s);      /* input buffer */
-  fvec_t *out = new_fvec (win_s);     /* input buffer */
+  uint_t win_s = 512; // fft size
+  uint_t n_filters = 40; // number of filters
+  cvec_t *in_spec = new_cvec (win_s); // input buffer */
+  fvec_t *out_filters = new_fvec (n_filters); // output coeffs */
   fmat_t *coeffs = NULL;
   smpl_t samplerate = 16000.;
 
@@ -21,19 +21,19 @@ main (void)
   aubio_filterbank_set_mel_coeffs_slaney (o, samplerate);
 
   coeffs = aubio_filterbank_get_coeffs (o);
-  if (coeffs == NULL) {
-    return -1;
-  }
 
-  //fmat_print (coeffs);
+  fmat_print (coeffs);
 
   //fprintf(stderr, "%f\n", fvec_sum(coeffs));
 
-  aubio_filterbank_do (o, in, out);
+  aubio_filterbank_do (o, in_spec, out_filters);
+
+  fvec_print(in_spec);
+  fvec_print(out_filters);
 
   del_aubio_filterbank (o);
-  del_cvec (in);
-  del_fvec (out);
+  del_cvec (in_spec);
+  del_fvec (out_filters);
   aubio_cleanup ();
 
   return 0;

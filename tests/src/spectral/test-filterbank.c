@@ -3,17 +3,14 @@
 #include <stdio.h>
 #include <aubio.h>
 
-int
-main (void)
-{
-  /* allocate some memory */
-  uint_t win_s = 1024;          /* window size */
-  uint_t n_filters = 13;        /* number of filters */
-  cvec_t *in = new_cvec (win_s);      /* input buffer */
-  fvec_t *out = new_fvec (win_s);     /* input buffer */
+int main (void) {
+  uint_t win_s = 1024; // window size
+  uint_t n_filters = 13; // number of filters
+  cvec_t *in = new_cvec (win_s); // input buffer
+  fvec_t *out = new_fvec (win_s); // vector output */
   fmat_t *coeffs = NULL;
 
-  /* allocate fft and other memory space */
+  // create filterbank
   aubio_filterbank_t *o = new_aubio_filterbank (n_filters, win_s);
 
   coeffs = aubio_filterbank_get_coeffs (o);
