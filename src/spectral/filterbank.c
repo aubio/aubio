@@ -69,7 +69,6 @@ aubio_filterbank_do (aubio_filterbank_t * f, cvec_t * in, fvec_t * out)
 
   /* for each filter */
   for (fn = 0; fn < max_filters; fn++) {
-
     /* for each sample */
     for (j = 0; j < max_length; j++) {
       out->data[fn] += in->norm[j] * f->filters->data[fn][j];

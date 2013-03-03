@@ -25,6 +25,8 @@
 
   General-purpose spectral filterbank object.
 
+  \example spectral/test-filterbank.c
+
 */
 
 #ifndef FILTERBANK_H
@@ -35,7 +37,11 @@ extern "C"
 {
 #endif
 
-/** filterbank object */
+/** filterbank object
+
+  This object stores a matrix of spectral filter coefficients.
+
+ */
 typedef struct _aubio_filterbank_t aubio_filterbank_t;
 
 /** create filterbank object

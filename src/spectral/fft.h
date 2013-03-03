@@ -22,6 +22,8 @@
 
   Fast Fourier Transform object
 
+  \example src/spectral/test-fft.c
+
 */
 
 #ifndef FFT_H_

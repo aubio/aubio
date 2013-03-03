@@ -27,6 +27,8 @@
   phase relationships across frames. The window sizes and overlap are specified
   at creation time.
 
+  \example spectral/test-phasevoc.c
+
 */
 
 #ifndef _PHASEVOC_H

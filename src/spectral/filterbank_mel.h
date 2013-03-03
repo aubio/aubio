@@ -27,6 +27,8 @@
     - ::aubio_filterbank_set_triangle_bands: overlapping triangular bands,
     - ::aubio_filterbank_set_mel_coeffs_slaney: Mel frequency bands.
 
+  \example spectral/test-filterbank_mel.c
+
 */
 
 #ifndef FILTERBANK_MEL_H
