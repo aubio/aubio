@@ -33,7 +33,7 @@
   towards automatic musical accompaniment. In Proceedings of the Audio
   Engeeniring Society 118th Convention, Barcelona, Spain, May 2005.
 
-  \example tempo/test-beattracking.h
+  \example tempo/test-beattracking.c
   
 */
 #ifndef BEATTRACKING_H
