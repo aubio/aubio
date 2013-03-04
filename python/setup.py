@@ -17,16 +17,17 @@ include_dirs = ['../build/src', '../src', '.' ]
 library_dirs = filter (lambda x: os.path.isdir(x), library_dirs)
 include_dirs = filter (lambda x: os.path.isdir(x), include_dirs)
 
-aubio_extension = Extension("aubio._aubio",
-        ["aubiomodule.c",
-            "aubioproxy.c",
-            "py-cvec.c",
+aubio_extension = Extension("aubio._aubio", [
+            "ext/aubiomodule.c",
+            "ext/aubioproxy.c",
+            "ext/ufuncs.c",
+            "ext/py-cvec.c",
             # example without macro
-            "py-filter.c",
+            "ext/py-filter.c",
             # macroised
-            "py-filterbank.c",
-            "py-fft.c",
-            "py-phasevoc.c",
+            "ext/py-filterbank.c",
+            "ext/py-fft.c",
+            "ext/py-phasevoc.c",
             # generated files
             ] + generate_object_files(),
         include_dirs = include_dirs + [ numpy.get_include() ],
