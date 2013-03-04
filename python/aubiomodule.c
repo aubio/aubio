@@ -1,8 +1,4 @@
-#include <Python.h>
-#define PY_ARRAY_UNIQUE_SYMBOL PyArray_API
-//#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-#include <numpy/arrayobject.h>
-
+#define PY_AUBIO_MODULE_MAIN
 #include "aubio-types.h"
 #include "generated/aubio-generated.h"
 
@@ -246,6 +242,7 @@ init_aubio (void)
   PyObject *m;
   int err;
 
+  // fvec is defined in __init__.py
   if (   (PyType_Ready (&Py_cvecType) < 0)
       || (PyType_Ready (&Py_filterType) < 0)
       || (PyType_Ready (&Py_filterbankType) < 0)
@@ -281,6 +278,6 @@ init_aubio (void)
   Py_INCREF (&Py_pvocType);
   PyModule_AddObject (m, "pvoc", (PyObject *) & Py_pvocType);
 
-  // generated objects
+  // add generated objects
   add_generated_objects(m);
 }

@@ -1,13 +1,27 @@
-#include <Python.h>
+#include "Python.h"
 #include <structmember.h>
-#define NO_IMPORT_ARRAY
+
 //#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-#include <numpy/arrayobject.h>
+
+// define numpy unique symbols for aubio
+#define PY_ARRAY_UNIQUE_SYMBOL PYAUBIO_ARRAY_API
+#define PY_UFUNC_UNIQUE_SYMBOL PYAUBIO_UFUNC_API
+
+// only import array and ufunc from main module
+#ifndef PY_AUBIO_MODULE_MAIN
+#define NO_IMPORT_ARRAY
+#define NO_IMPORT_UFUNC
+#endif
+
+// import aubio
+#include <numpy/ndarraytypes.h>
+#include <numpy/ufuncobject.h>
+#include <numpy/npy_3kcompat.h>
+
 #define AUBIO_UNSTABLE 1
 #include <aubio.h>
 
 #define Py_default_vector_length 1024
-#define Py_default_vector_height 1
 
 #define Py_aubio_default_samplerate 44100
 
