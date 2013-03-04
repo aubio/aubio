@@ -7,18 +7,18 @@ See the [Python/C API Reference
 Manual] (http://docs.python.org/c-api/index.html) and the [Numpy/C API
 Reference](http://docs.scipy.org/doc/numpy/reference/c-api.html)
 
-Compiling python aubio on Mac OS X
-----------------------------------
+Compiling python aubio
+----------------------
 
-You should now be able to build the aubio python module out of the box on a
-recent version of OS X (10.8.x). Make sure the variables are correct in the
-file `build_osx` before running it:
+You should be able to build the aubio python module out of the box:
 
     $ ./build_osx
 
-Additionally, you can fetch tools such [matplotlib](http://matplotlib.org/) to
-use the demo scripts. One easy way to do it is to fetch the fully fledged
-[Scipy superpack](http://fonnesbeck.github.com/ScipySuperpack/)
+This should work on linux based systems as well as recent versions of OS X
+(10.8.x). Let me know if you have issues on your platforms.
 
-    $ curl -O https://raw.github.com/fonnesbeck/ScipySuperpack/master/install_superpack.sh
-    $ sh install_superpack.sh
+Additional tools
+----------------
+
+To use some of the demo scripts, you will need
+[matplotlib](http://matplotlib.org/).
