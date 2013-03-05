@@ -221,7 +221,7 @@ Py_min_removal(PyObject * self, PyObject * args)
 }
 
 static PyMethodDef aubio_methods[] = {
-  {"unwrap2pi", Py_unwrap2pi, METH_VARARGS, Py_unwrap2pi_doc},
+  //{"unwrap2pi", Py_unwrap2pi, METH_VARARGS, Py_unwrap2pi_doc},
   {"bintomidi", Py_bintomidi, METH_VARARGS, Py_bintomidi_doc},
   {"miditobin", Py_miditobin, METH_VARARGS, Py_miditobin_doc},
   {"bintofreq", Py_bintofreq, METH_VARARGS, Py_bintofreq_doc},
@@ -280,4 +280,7 @@ init_aubio (void)
 
   // add generated objects
   add_generated_objects(m);
+
+  // add ufunc
+  add_ufuncs(m);
 }
