@@ -1,6 +1,9 @@
 #define PY_AUBIO_MODULE_MAIN
 #include "aubio-types.h"
-#include "generated/aubio-generated.h"
+#include "aubio-generated.h"
+
+extern void add_generated_objects ( PyObject *m );
+extern void add_ufuncs ( PyObject *m );
 
 static char Py_alpha_norm_doc[] = "compute alpha normalisation factor";
 
@@ -261,10 +264,9 @@ init_aubio (void)
   }
 
   err = _import_array ();
-
   if (err != 0) {
     fprintf (stderr,
-        "Unable to import Numpy C API from aubio module (error %d)\n", err);
+        "Unable to import Numpy array from aubio module (error %d)\n", err);
   }
 
   Py_INCREF (&Py_cvecType);

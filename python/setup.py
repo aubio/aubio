@@ -1,21 +1,36 @@
 #! /usr/bin/python
 
 from distutils.core import setup, Extension
-from generator import generate_object_files
 import sys
 import os.path
 import numpy
 
 # read from VERSION
-for l in open(os.path.join('..','VERSION')).readlines(): exec (l.strip())
+for l in open('VERSION').readlines(): exec (l.strip())
 __version__ = '.'.join \
         ([str(x) for x in [AUBIO_MAJOR_VERSION, AUBIO_MINOR_VERSION, AUBIO_PATCH_VERSION]]) \
         + AUBIO_VERSION_STATUS
 
-library_dirs = ['../build/src', '../src/.libs']
-include_dirs = ['../build/src', '../src', '.' ]
+library_dirs = ['../build/src']
+include_dirs = ['../src'] # aubio.h
+include_dirs += ['../build/src'] # config.h
+include_dirs += ['ext']
+include_dirs += ['gen']
+#include_dirs += ['../build/src', '../src', '.' ]
+
 library_dirs = filter (lambda x: os.path.isdir(x), library_dirs)
 include_dirs = filter (lambda x: os.path.isdir(x), include_dirs)
+
+generated_object_files = []
+
+output_path = 'gen'
+
+if not os.path.isdir(output_path):
+    from generator import generate_object_files
+    generated_object_files = generate_object_files(output_path)
+else:
+    import glob
+    generated_object_files = glob.glob(os.path.join(output_path, '*.c'))
 
 aubio_extension = Extension("aubio._aubio", [
             "ext/aubiomodule.c",
@@ -29,7 +44,7 @@ aubio_extension = Extension("aubio._aubio", [
             "ext/py-fft.c",
             "ext/py-phasevoc.c",
             # generated files
-            ] + generate_object_files(),
+            ] + generated_object_files,
         include_dirs = include_dirs + [ numpy.get_include() ],
         library_dirs = library_dirs,
         libraries=['aubio'])

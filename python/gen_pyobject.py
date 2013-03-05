@@ -172,7 +172,7 @@ def gen_new_init(newfunc, name):
 // WARNING: this file is generated, DO NOT EDIT
 
 // WARNING: if you haven't read the first line yet, please do so
-#include "ext/aubiowraphell.h"
+#include "aubiowraphell.h"
 
 typedef struct
 {

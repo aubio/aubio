@@ -10,16 +10,19 @@
 // only import array and ufunc from main module
 #ifndef PY_AUBIO_MODULE_MAIN
 #define NO_IMPORT_ARRAY
+#endif
+#include <numpy/arrayobject.h>
+#ifndef PY_AUBIO_MODULE_UFUNC
 #define NO_IMPORT_UFUNC
+#else
+#include <numpy/ufuncobject.h>
 #endif
 
 // import aubio
-#include <numpy/ndarraytypes.h>
-#include <numpy/ufuncobject.h>
-#include <numpy/npy_3kcompat.h>
+//#include <numpy/npy_3kcompat.h>
 
 #define AUBIO_UNSTABLE 1
-#include <aubio.h>
+#include "aubio.h"
 
 #define Py_default_vector_length 1024
 

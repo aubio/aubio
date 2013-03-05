@@ -27,9 +27,9 @@ def get_cpp_objects():
 
   return cpp_output, cpp_objects
 
-def generate_object_files():
-  if os.path.isdir('generated'): shutil.rmtree('generated')
-  os.mkdir('generated')
+def generate_object_files(output_path):
+  if os.path.isdir(output_path): shutil.rmtree(output_path)
+  os.mkdir(output_path)
 
   generated_objects = []
   cpp_output, cpp_objects = get_cpp_objects()
@@ -48,7 +48,7 @@ def generate_object_files():
 
   for this_object in cpp_objects:
       lint = 0
-   
+
       if this_object[-2:] == '_t':
           object_name = this_object[:-2]
       else:
@@ -126,11 +126,11 @@ def generate_object_files():
               continue
       if 1: #try:
           s = gen_new_init(new_methods[0], short_name)
-          s += gen_do(do_methods[0], short_name) 
+          s += gen_do(do_methods[0], short_name)
           s += gen_members(new_methods[0], short_name)
           s += gen_methods(get_methods, set_methods, short_name)
           s += gen_finish(short_name)
-          generated_filepath = 'generated/gen-'+short_name+'.c'
+          generated_filepath = os.path.join(output_path,'gen-'+short_name+'.c')
           fd = open(generated_filepath, 'w')
           fd.write(s)
       #except Exception, e:
@@ -174,14 +174,14 @@ def generate_object_files():
   s += """
   }"""
 
-  fd = open('generated/aubio-generated.h', 'w')
+  fd = open(os.path.join(output_path,'aubio-generated.h'), 'w')
   fd.write(s)
 
   from os import listdir
-  generated_files = listdir('generated')
+  generated_files = listdir(output_path)
   generated_files = filter(lambda x: x.endswith('.c'), generated_files)
-  generated_files = ['generated/'+f for f in generated_files]
+  generated_files = [output_path+'/'+f for f in generated_files]
   return generated_files
 
 if __name__ == '__main__':
-  generate_object_files() 
+  generate_object_files('gen')

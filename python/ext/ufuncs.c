@@ -1,3 +1,4 @@
+#define PY_AUBIO_MODULE_UFUNC
 #include "aubio-types.h"
 
 static void unwrap2pi(char **args, npy_intp *dimensions,
@@ -60,11 +61,12 @@ static char unwrap2pi_types[] = {
 
 void add_ufuncs ( PyObject *m )
 {
-  int err = _import_umath();
+  int err = 0;
 
+  err = _import_umath ();
   if (err != 0) {
     fprintf (stderr,
-            "Unable to import Numpy C API Ufunc from aubio module (error %d)\n", err);
+        "Unable to import Numpy umath from aubio module (error %d)\n", err);
   }
 
   PyObject *f, *dict;
