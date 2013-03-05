@@ -22,7 +22,7 @@
 //#include <numpy/npy_3kcompat.h>
 
 #define AUBIO_UNSTABLE 1
-#ifdef LOCAL_AUBIO
+#ifdef USE_LOCAL_AUBIO
 #include "aubio.h"
 #else
 #include "aubio/aubio.h"
