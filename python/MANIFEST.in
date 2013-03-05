@@ -3,6 +3,7 @@ include ext/*.h
 include gen/aubio-generated.h
 include generator.py
 include gen_pyobject.py
+include aubio/*.py
 include demos/*.py
 include tests/run_all_tests
 include tests/*.py
