@@ -6,10 +6,7 @@ from numpy import random
 from math import pi
 from numpy import array
 from aubio import cvec, filterbank
-
-def array_from_text_file(filename, dtype = 'float'):
-  return array([line.split() for line in open(filename).readlines()], 
-      dtype = dtype)
+from utils import array_from_text_file
 
 class aubio_filterbank_test_case(TestCase):
 

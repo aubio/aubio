@@ -3,10 +3,7 @@
 from numpy.testing import TestCase, assert_equal, assert_almost_equal
 from aubio import fvec, digital_filter
 from numpy import array
-
-def array_from_text_file(filename, dtype = 'float'):
-  return array([line.split() for line in open(filename).readlines()], 
-      dtype = dtype)
+from utils import array_from_text_file
 
 class aubio_filter_test_case(TestCase):
 
