@@ -1,5 +1,7 @@
-from template import aubio_unit_template
-from localaubio import *
+#! /usr/bin/env python
+
+from numpy.testing import TestCase, assert_equal, assert_almost_equal
+from aubio import fvec, digital_filter
 import random
 
 buf_size = 2048
@@ -9,7 +11,7 @@ fhig = float(random.randint(100, 1000) + random.random())
 
 nelems = 1000
 
-class hist_unit(aubio_unit_template):
+class hist_test_case(TestCase):
 
   def setUp(self):
     self.o = new_aubio_hist(flow, fhig, nelems, channels)
@@ -62,9 +64,9 @@ class hist_unit(aubio_unit_template):
   def test_hist_impulse_under(self):
     """ test hist on constant under lower limit """
     """ this returns 0 because constant is out of range """
-    input = new_fvec(buf_size, channels)
+    vec_in = fvec(buf_size)
     constant = flow - 1. 
-    fvec_write_sample(input,constant,0,0)
+    vec_in[0] = constant
     aubio_hist_do_notnull(self.o, input)
     self.assertCloseEnough(0., aubio_hist_mean(self.o))
     del_fvec(input)
