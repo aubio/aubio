@@ -11,26 +11,30 @@ __version__ = '.'.join \
         ([str(x) for x in [AUBIO_MAJOR_VERSION, AUBIO_MINOR_VERSION, AUBIO_PATCH_VERSION]]) \
         + AUBIO_VERSION_STATUS
 
-library_dirs = ['../build/src']
-include_dirs = ['../src'] # aubio.h
-include_dirs += ['../build/src'] # config.h
+include_dirs = []
+library_dirs = []
+define_macros = []
+
 include_dirs += ['ext']
-include_dirs += ['gen']
-#include_dirs += ['../build/src', '../src', '.' ]
-
-library_dirs = filter (lambda x: os.path.isdir(x), library_dirs)
-include_dirs = filter (lambda x: os.path.isdir(x), include_dirs)
-
-generated_object_files = []
+include_dirs += [ numpy.get_include() ]
 
 output_path = 'gen'
+generated_object_files = []
 
 if not os.path.isdir(output_path):
     from generator import generate_object_files
     generated_object_files = generate_object_files(output_path)
+    # define include dirs
 else:
     import glob
     generated_object_files = glob.glob(os.path.join(output_path, '*.c'))
+include_dirs += [output_path]
+
+if os.path.isfile('../src/aubio.h'):
+    define_macros += [('USE_LOCAL_AUBIO', 1)]
+    include_dirs += ['../src'] # aubio.h
+    include_dirs += ['../build/src'] # config.h
+    library_dirs += ['../build/src']
 
 aubio_extension = Extension("aubio._aubio", [
             "ext/aubiomodule.c",
@@ -45,8 +49,9 @@ aubio_extension = Extension("aubio._aubio", [
             "ext/py-phasevoc.c",
             # generated files
             ] + generated_object_files,
-        include_dirs = include_dirs + [ numpy.get_include() ],
+        include_dirs = include_dirs,
         library_dirs = library_dirs,
+        define_macros = define_macros,
         libraries=['aubio'])
 
 if sys.platform.startswith('darwin'):
