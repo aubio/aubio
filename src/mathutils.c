@@ -398,6 +398,7 @@ aubio_quadfrac (smpl_t s0, smpl_t s1, smpl_t s2, smpl_t pf)
 smpl_t
 aubio_freqtomidi (smpl_t freq)
 {
+  if (freq < 2. || freq > 100000.) return 0.; // avoid nans and infs
   /* log(freq/A-2)/log(2) */
   smpl_t midi = freq / 6.875;
   midi = LOG (midi) / 0.69314718055995;
@@ -409,6 +410,7 @@ aubio_freqtomidi (smpl_t freq)
 smpl_t
 aubio_miditofreq (smpl_t midi)
 {
+  if (midi > 140.) return 0.; // avoid infs
   smpl_t freq = (midi + 3.) / 12.;
   freq = EXP (freq * 0.69314718055995);
   freq *= 6.875;
