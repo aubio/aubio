@@ -26,63 +26,64 @@ int test_next_power_of_two()
 
 int test_miditofreq()
 {
-  smpl_t midi, freq;
-  for ( midi = 0; midi < 128; midi += 3 ) {
-    freq = aubio_miditofreq(midi);
-    fprintf(stdout, "aubio_miditofreq(%.2f) = %.2f\n", midi, freq);
+  smpl_t a, b;
+  fprintf(stdout, "b = aubio_miditofreq(a): [");
+  for ( a = -123.; a < 400.; a += 20. ) {
+    b = aubio_miditofreq(a);
+    fprintf(stdout, "(%.2f,  %.2f), ", a, b);
   }
-  midi = 69.5;
-  freq = aubio_miditofreq(midi);
-  fprintf(stdout, "aubio_miditofreq(%.2f) = %.2f\n", midi, freq);
-  midi = -69.5;
-  freq = aubio_miditofreq(midi);
-  fprintf(stdout, "aubio_miditofreq(%.2f) = %.2f\n", midi, freq);
-  midi = -169.5;
-  freq = aubio_miditofreq(midi);
-  fprintf(stdout, "aubio_miditofreq(%.2f) = %.2f\n", midi, freq);
-  midi = 140.;
-  freq = aubio_miditofreq(midi);
-  fprintf(stdout, "aubio_miditofreq(%.2f) = %.2f\n", midi, freq);
-  midi = 0;
-  freq = aubio_miditofreq(midi);
-  fprintf(stdout, "aubio_miditofreq(%.2f) = %.2f\n", midi, freq);
-  midi = 8.2e10;
-  freq = aubio_miditofreq(midi);
-  fprintf(stdout, "aubio_miditofreq(%.2f) = %.2f\n", midi, freq);
-  midi = -5.e10;
-  freq = aubio_miditofreq(midi);
-  fprintf(stdout, "aubio_miditofreq(%.2f) = %.2f\n", midi, freq);
+  b = aubio_miditofreq(a);
+  fprintf(stdout, "(%.2f,  %.2f), ", a, b);
+  a = -69.5;
+  b = aubio_miditofreq(a);
+  fprintf(stdout, "(%.2f,  %.2f), ", a, b);
+  a = -169.5;
+  b = aubio_miditofreq(a);
+  fprintf(stdout, "(%.2f,  %.2f), ", a, b);
+  a = 140.;
+  b = aubio_miditofreq(a);
+  fprintf(stdout, "(%.2f,  %.2f), ", a, b);
+  a = 0;
+  b = aubio_miditofreq(a);
+  fprintf(stdout, "(%.2f,  %.2f), ", a, b);
+  a = 8.2e10;
+  b = aubio_miditofreq(a);
+  fprintf(stdout, "(%.2f,  %.2f), ", a, b);
+  a = -5.e10;
+  fprintf(stdout, "(%.2f,  %.2f)", a, b);
+  fprintf(stdout, "]\n");
   return 0;
 }
 
 int test_freqtomidi()
 {
   smpl_t midi, freq;
+  fprintf(stdout, "b = aubio_freqtomidi(a): [");
   for ( freq = 0.; freq < 30000.; freq += 440. ) {
     midi = aubio_freqtomidi(freq);
-    fprintf(stdout, "aubio_freqtomidi(%.2f) = %.2f\n", freq, midi);
+    fprintf(stdout, "(%.2f,  %.2f), ", freq, midi);
   }
   freq = 69.5;
   midi = aubio_freqtomidi(freq);
-  fprintf(stdout, "aubio_freqtomidi(%.2f) = %.2f\n", freq, midi);
+  fprintf(stdout, "(%.2f,  %.2f), ", freq, midi);
   freq = -69.5;
   midi = aubio_freqtomidi(freq);
-  fprintf(stdout, "aubio_freqtomidi(%.2f) = %.2f\n", freq, midi);
+  fprintf(stdout, "(%.2f,  %.2f), ", freq, midi);
   freq = -169.5;
   midi = aubio_freqtomidi(freq);
-  fprintf(stdout, "aubio_freqtomidi(%.2f) = %.2f\n", freq, midi);
+  fprintf(stdout, "(%.2f,  %.2f), ", freq, midi);
   freq = 140.;
   midi = aubio_freqtomidi(freq);
-  fprintf(stdout, "aubio_freqtomidi(%.2f) = %.2f\n", freq, midi);
+  fprintf(stdout, "(%.2f,  %.2f), ", freq, midi);
   freq = 0;
   midi = aubio_freqtomidi(freq);
-  fprintf(stdout, "aubio_freqtomidi(%.2f) = %.2f\n", freq, midi);
+  fprintf(stdout, "(%.2f,  %.2f), ", freq, midi);
   freq = 8.2e10;
   midi = aubio_freqtomidi(freq);
-  fprintf(stdout, "aubio_freqtomidi(%.2f) = %.2f\n", freq, midi);
+  fprintf(stdout, "(%.2f,  %.2f), ", freq, midi);
   freq = -5.;
   midi = aubio_freqtomidi(freq);
-  fprintf(stdout, "aubio_freqtomidi(%.2f) = %.2f\n", freq, midi);
+  fprintf(stdout, "(%.2f,  %.2f)]\n", freq, midi);
   return 0;
 }
 
