@@ -38,23 +38,6 @@ Py_alpha_norm (PyObject * self, PyObject * args)
   return result;
 }
 
-static char Py_unwrap2pi_doc[] = "unwrap phase value to [-pi, pi]";
-
-static PyObject *
-Py_unwrap2pi (PyObject * self, PyObject * args)
-{
-  smpl_t input;
-  smpl_t output;
-
-  if (!PyArg_ParseTuple (args, "|f", &input)) {
-    return NULL;
-  }
-
-  output = aubio_unwrap2pi (input);
-
-  return (PyObject *)PyFloat_FromDouble (output);
-}
-
 static char Py_bintomidi_doc[] = "convert bin to midi";
 
 static PyObject *
@@ -119,40 +102,6 @@ Py_freqtobin (PyObject * self, PyObject * args)
   }
 
   output = aubio_freqtobin (input, samplerate, fftsize);
-
-  return (PyObject *)PyFloat_FromDouble (output);
-}
-
-static char Py_freqtomidi_doc[] = "convert freq to midi";
-
-static PyObject *
-Py_freqtomidi (PyObject * self, PyObject * args)
-{
-  smpl_t input;
-  smpl_t output;
-
-  if (!PyArg_ParseTuple (args, "|f", &input)) {
-    return NULL;
-  }
-
-  output = aubio_freqtomidi (input);
-
-  return (PyObject *)PyFloat_FromDouble (output);
-}
-
-static char Py_miditofreq_doc[] = "convert midi to freq";
-
-static PyObject *
-Py_miditofreq (PyObject * self, PyObject * args)
-{
-  smpl_t input;
-  smpl_t output;
-
-  if (!PyArg_ParseTuple (args, "|f", &input)) {
-    return NULL;
-  }
-
-  output = aubio_miditofreq (input);
 
   return (PyObject *)PyFloat_FromDouble (output);
 }
@@ -224,13 +173,10 @@ Py_min_removal(PyObject * self, PyObject * args)
 }
 
 static PyMethodDef aubio_methods[] = {
-  //{"unwrap2pi", Py_unwrap2pi, METH_VARARGS, Py_unwrap2pi_doc},
   {"bintomidi", Py_bintomidi, METH_VARARGS, Py_bintomidi_doc},
   {"miditobin", Py_miditobin, METH_VARARGS, Py_miditobin_doc},
   {"bintofreq", Py_bintofreq, METH_VARARGS, Py_bintofreq_doc},
   {"freqtobin", Py_freqtobin, METH_VARARGS, Py_freqtobin_doc},
-  {"miditofreq", Py_miditofreq, METH_VARARGS, Py_miditofreq_doc},
-  {"freqtomidi", Py_freqtomidi, METH_VARARGS, Py_freqtomidi_doc},
   {"alpha_norm", Py_alpha_norm, METH_VARARGS, Py_alpha_norm_doc},
   {"zero_crossing_rate", Py_zero_crossing_rate, METH_VARARGS, Py_zero_crossing_rate_doc},
   {"min_removal", Py_min_removal, METH_VARARGS, Py_min_removal_doc},
