@@ -7,7 +7,7 @@ int main ()
   uint_t i = 0;
   uint_t win_s = 1024; // window size
   fvec_t * in = new_fvec (win_s); // input buffer
-  fvec_t * out = new_fvec (2); // output beat position
+  fvec_t * out = new_fvec (win_s / 4); // output beat position
 
   // create beattracking object
   aubio_beattracking_t * tempo  = new_aubio_beattracking(win_s);
