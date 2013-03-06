@@ -38,26 +38,28 @@ while True:
     block_read += 1
     if read < hop_s: break
 
-# do plotting
-from numpy import arange
-import matplotlib.pyplot as plt
-allsamples_max = (allsamples_max > 0) * allsamples_max
-allsamples_max_times = [ float(t) * hop_s / downsample / samplerate for t in range(len(allsamples_max)) ]
-plt1 = plt.axes([0.1, 0.75, 0.8, 0.19])
-plt2 = plt.axes([0.1, 0.1, 0.8, 0.65], sharex = plt1)
-plt.rc('lines',linewidth='.8')
-plt1.plot(allsamples_max_times,  allsamples_max, '-b')
-plt1.plot(allsamples_max_times, -allsamples_max, '-b')
-for stamp in onsets: plt1.plot([stamp, stamp], [-1., 1.], '-r')
-plt1.axis(xmin = 0., xmax = max(allsamples_max_times) )
-plt1.xaxis.set_visible(False)
-desc_times = [ float(t) * hop_s / samplerate for t in range(len(desc)) ]
-desc_plot = [d / max(desc) for d in desc]
-plt2.plot(desc_times, desc_plot, '-g')
-tdesc_plot = [d / max(desc) for d in tdesc]
-for stamp in onsets: plt2.plot([stamp, stamp], [min(tdesc_plot), max(desc_plot)], '-r')
-plt2.plot(desc_times, tdesc_plot, '-y')
-plt2.axis(ymin = min(tdesc_plot), ymax = max(desc_plot))
-plt.xlabel('time (s)')
-#plt.savefig('/tmp/t.png', dpi=200)
-plt.show()
+if 1:
+    # do plotting
+    from numpy import arange
+    import matplotlib.pyplot as plt
+    allsamples_max = (allsamples_max > 0) * allsamples_max
+    allsamples_max_times = [ float(t) * hop_s / downsample / samplerate for t in range(len(allsamples_max)) ]
+    plt1 = plt.axes([0.1, 0.75, 0.8, 0.19])
+    plt2 = plt.axes([0.1, 0.1, 0.8, 0.65], sharex = plt1)
+    plt.rc('lines',linewidth='.8')
+    plt1.plot(allsamples_max_times,  allsamples_max, '-b')
+    plt1.plot(allsamples_max_times, -allsamples_max, '-b')
+    for stamp in onsets: plt1.plot([stamp, stamp], [-1., 1.], '-r')
+    plt1.axis(xmin = 0., xmax = max(allsamples_max_times) )
+    plt1.xaxis.set_visible(False)
+    plt1.yaxis.set_visible(False)
+    desc_times = [ float(t) * hop_s / samplerate for t in range(len(desc)) ]
+    desc_plot = [d / max(desc) for d in desc]
+    plt2.plot(desc_times, desc_plot, '-g')
+    tdesc_plot = [d / max(desc) for d in tdesc]
+    for stamp in onsets: plt2.plot([stamp, stamp], [min(tdesc_plot), max(desc_plot)], '-r')
+    plt2.plot(desc_times, tdesc_plot, '-y')
+    plt2.axis(ymin = min(tdesc_plot), ymax = max(desc_plot))
+    plt.xlabel('time (s)')
+    #plt.savefig('/tmp/t.png', dpi=200)
+    plt.show()
