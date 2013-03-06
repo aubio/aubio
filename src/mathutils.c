@@ -421,7 +421,7 @@ smpl_t
 aubio_bintofreq (smpl_t bin, smpl_t samplerate, smpl_t fftsize)
 {
   smpl_t freq = samplerate / fftsize;
-  return freq * bin;
+  return freq * MAX(bin, 0);
 }
 
 smpl_t
@@ -435,7 +435,7 @@ smpl_t
 aubio_freqtobin (smpl_t freq, smpl_t samplerate, smpl_t fftsize)
 {
   smpl_t bin = fftsize / samplerate;
-  return freq * bin;
+  return MAX(freq, 0) * bin;
 }
 
 smpl_t
