@@ -1,5 +1,6 @@
 #define AUBIO_UNSTABLE 1
 #include <aubio.h>
+#include "config.h"
 #include "utils_tests.h"
 
 // this file uses the unstable aubio api, please use aubio_sink instead
@@ -26,9 +27,9 @@ int main (int argc, char **argv)
   if ( argc == 4 ) samplerate = atoi(argv[3]);
 
   fvec_t *vec = new_fvec(hop_size);
-  aubio_source_sndfile_t * i = new_aubio_source_sndfile(path, samplerate, hop_size);
+  aubio_source_sndfile_t * i = new_aubio_source_sndfile(source_path, samplerate, hop_size);
   if (samplerate == 0 ) samplerate = aubio_source_sndfile_get_samplerate(i);
-  aubio_sink_sndfile_t *   o = new_aubio_sink_sndfile(outpath, samplerate);
+  aubio_sink_sndfile_t *   o = new_aubio_sink_sndfile(sink_path, samplerate);
 
   if (!i || !o) { err = 1; goto beach; }
 
