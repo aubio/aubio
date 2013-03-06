@@ -31,9 +31,11 @@ while True:
 periods = [60./(b - a) for a,b in zip(beats[:-1],beats[1:])]
 
 from numpy import mean, median
-print 'mean period:', mean(periods), 'bpm'
-print 'median period:', median(periods), 'bpm'
-
-from pylab import plot, show
-plot(beats[1:], periods)
-show()
+if len(periods):
+    print 'mean period:', "%.2f" % mean(periods), 'bpm', 'median', "%.2f" % median(periods), 'bpm'
+    if 0:
+        from pylab import plot, show
+        plot(beats[1:], periods)
+        show()
+else:
+    print 'mean period:', "%.2f" % 0, 'bpm', 'median', "%.2f" % 0, 'bpm'
