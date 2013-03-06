@@ -29,7 +29,7 @@ class aubio_mathutils(TestCase):
 
         try:
             print unwrap2pi(["23.","24.",25.])
-        except TypeError:
+        except Exception, e:
             pass
 
     def test_unwrap2pi_takes_fvec(self):
