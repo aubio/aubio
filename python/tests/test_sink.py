@@ -22,7 +22,7 @@ class aubio_sink_test_case(TestCase):
                 total_frames = 0
                 while True:
                     vec, read = f()
-                    #print g(vec, read)
+                    g(vec, read)
                     total_frames += read
                     if read < f.hop_size: break
                 print "read", "%.2fs" % (total_frames / float(f.samplerate) ),
