@@ -19,7 +19,7 @@
 */
 
 #ifndef _CVEC_H
-#define _CVEC_H_
+#define _CVEC_H
 
 #ifdef __cplusplus
 extern "C" {
