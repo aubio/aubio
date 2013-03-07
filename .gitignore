@@ -30,4 +30,8 @@ doc/devel/
 doc/user/
 doc/examples/
 
+python/gen
+python/dist
+python/MANIFEST
 python/*.db
+python/*.wav
