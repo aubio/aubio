@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-def get_keyboard_edges(firstnote = 21, lastnote = 108, y0 = 0, y1 = 1):
+def get_keyboard_edges(firstnote = 21, lastnote = 108):
     octaves = 10
 
     # build template of white notes
@@ -22,18 +22,7 @@ def get_keyboard_edges(firstnote = 21, lastnote = 108, y0 = 0, y1 = 1):
             if  curnote > firstnote-1 and curnote < lastnote+1:
                 xw = xw + [curnote]
 
-    xwdelta = [1/2. * scalew for i in range(len(xw))]
-    yw      = [y0+(y1-y0)*1/2. for i in range(len(xw))]
-    ywdelta = [(y1-y0)*1/2. for i in range(len(xw))]
-
-    xbdelta = [2/3. * scaleb for i in range(len(xb))]
-    yb      = [y0+(y1-y0)*2/3. for i in range(len(xb))]
-    ybdelta = [(y1-y0)*1/3. for i in range(len(xb))]
-
-    whites,white_height = xw,yw
-    blacks,black_height = xb,yb
-
-    return blacks,whites, 2/3. *scaleb, 1/2. * scalew
+    return xb, xw, 2/3. *scaleb, 1/2. * scalew
 
 def create_keyboard_patches(firstnote, lastnote, ax = None):
     import numpy as np
@@ -69,17 +58,6 @@ def create_keyboard_patches(firstnote, lastnote, ax = None):
 
 if __name__ == '__main__':
 
-    if 0:
-        from aubio.gnuplot import gnuplot_create
-        import Gnuplot
-        whites  = Gnuplot.Data(blacks, yw,xwdelta,ywdelta,with_ = 'boxxyerrorbars')
-        blacks  = Gnuplot.Data(whites, yb,xbdelta,ybdelta,with_ = 'boxxyerrorbars fill solid')
-        g = gnuplot_create('','')
-        #g('set style fill solid .5')
-        #g('set xrange [60-.5:72+.5]')
-        #g('set yrange [-0.1:1.1]')
-        g.plot(whites,blacks)
-    else:
-        import matplotlib.pyplot as plt
-        create_keyboard_patches(firstnote = 61, lastnote = 108)
-        plt.show()
+    import matplotlib.pyplot as plt
+    create_keyboard_patches(firstnote = 58, lastnote = 84)
+    plt.show()
