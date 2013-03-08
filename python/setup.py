@@ -28,7 +28,7 @@ output_path = 'gen'
 generated_object_files = []
 
 if not os.path.isdir(output_path):
-    from generator import generate_object_files
+    from lib.generator import generate_object_files
     generated_object_files = generate_object_files(output_path)
     # define include dirs
 else:

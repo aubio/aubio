@@ -12,10 +12,27 @@ Compiling python aubio
 
 You should be able to build the aubio python module out of the box:
 
-    $ ./build_osx
+    $ python setup.py build
 
-This should work on linux based systems as well as recent versions of OS X
-(10.8.x). Let me know if you have issues on your platforms.
+To use the python module without installing it, set PYTHONPATH:
+
+    $ export PYTHONPATH=$PYTHONPATH:$PWD/`ls -rtd build/lib.* | head -1`:$PWD/tests
+
+And LD_LIBRARY_PATH:
+
+    $ export LD_LIBRARY_PATH=$PWD/../build/src
+
+Or on macosx systems:
+
+    $ export DYLD_LIBRARY_PATH=$PWD/../build/src
+
+The you should be able to run the tests:
+
+    $ ./tests/run_all_tests
+
+And to try out the demos:
+
+    $ ./demos/demo_source.wav ~/test.wav
 
 Additional tools
 ----------------
