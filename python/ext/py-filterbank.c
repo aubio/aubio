@@ -109,7 +109,7 @@ Py_filterbank_set_triangle_bands (Py_filterbank * self, PyObject *args)
         "error when setting filter to A-weighting");
     return NULL;
   }
-  return Py_None;
+  Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -128,7 +128,7 @@ Py_filterbank_set_mel_coeffs_slaney (Py_filterbank * self, PyObject *args)
         "error when setting filter to A-weighting");
     return NULL;
   }
-  return Py_None;
+  Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -158,7 +158,7 @@ Py_filterbank_set_coeffs (Py_filterbank * self, PyObject *args)
         "error when setting filter coefficients");
     return NULL;
   }
-  return Py_None;
+  Py_RETURN_NONE;
 }
 
 static PyObject *

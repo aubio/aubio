@@ -99,7 +99,7 @@ Py_filter_set_c_weighting (Py_filter * self, PyObject *args)
         "error when setting filter to C-weighting");
     return NULL;
   }
-  return Py_None;
+  Py_RETURN_NONE;
 }
 
 static PyObject * 
@@ -117,7 +117,7 @@ Py_filter_set_a_weighting (Py_filter * self, PyObject *args)
         "error when setting filter to A-weighting");
     return NULL;
   }
-  return Py_None;
+  Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -135,7 +135,7 @@ Py_filter_set_biquad(Py_filter * self, PyObject *args)
         "error when setting filter with biquad coefficients");
     return NULL;
   }
-  return Py_None;
+  Py_RETURN_NONE;
 }
 
 static PyMemberDef Py_filter_members[] = {

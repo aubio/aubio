@@ -342,7 +342,7 @@ def gen_do_output_params(outputparams, name):
     else:
       returnval += "  return (PyObject *)" + aubiovectopyobj[p['type']] + " (" + p['name'] + ")"
   else:
-    returnval = "  return Py_None;";
+    returnval += "  Py_RETURN_NONE"
   # end of output strings
   return outputvecs, outputcreate, returnval
 
@@ -473,7 +473,7 @@ Py%(funcname)s (Py_%(objname)s *self, PyObject *args)
         "error running %(funcname)s");
     return NULL;
   }
-  return Py_None;
+  Py_RETURN_NONE;
 }
 """ % {'funcname': method_name, 'objname': name, 
         'out_type': out_type, 'setter_args': setter_args, 'parse_args': parse_args }

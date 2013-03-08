@@ -164,7 +164,7 @@ Py_min_removal(PyObject * self, PyObject * args)
   fvec_min_removal (vec);
 
   // since this function does not return, we could return None
-  //return Py_None;
+  //Py_RETURN_NONE;
   // however it is convenient to return the modified vector
   return (PyObject *) PyAubio_CFvecToArray(vec);
   // or even without converting it back to an array
