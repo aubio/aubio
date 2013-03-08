@@ -78,8 +78,9 @@ classifiers = [
 
 distrib = setup(name='aubio',
     version = __version__,
-    package_dir = {'':'lib'},
     packages = ['aubio'],
+    package_dir = {'aubio':'lib/aubio'},
+    scripts = ['scripts/aubiocut'],
     ext_modules = [aubio_extension],
     description = 'interface to the aubio library',
     long_description = 'interface to the aubio library',

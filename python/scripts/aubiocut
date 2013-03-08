@@ -1,0 +1,163 @@
+#! /usr/bin/env python
+
+""" this file was written by Paul Brossier
+  it is released under the GNU/GPL license.
+"""
+
+import sys
+#from aubio.task import *
+
+usage = "usage: %s [options] -i soundfile" % sys.argv[0]
+
+def parse_args():
+    from optparse import OptionParser
+    parser = OptionParser(usage=usage)
+    parser.add_option("-i", "--input", action = "store", dest = "source_file",
+            help="input sound file to analyse", metavar = "<source_file>")
+    parser.add_option("-m","--method",
+            action="store", dest="onset_method", default='default',
+            metavar = "<onset_method>",
+            help="onset detection method [default=default] \
+                    complexdomain|hfc|phase|specdiff|energy|kl|mkl")
+    # cutting methods
+    """
+    parser.add_option("-b","--beat",
+            action="store_true", dest="beat", default=False,
+            help="use beat locations")
+    parser.add_option("-S","--silencecut",
+            action="store_true", dest="silencecut", default=False,
+            help="use silence locations")
+    parser.add_option("-s","--silence",
+            metavar = "<value>",
+            action="store", dest="silence", default=-70,
+            help="silence threshold [default=-70]")
+            """
+    # algorithm parameters
+    parser.add_option("--samplerate",
+            metavar = "<freq>", type='int',
+            action="store", dest="samplerate", default=0,
+            help="samplerate at which the file should be represented")
+    parser.add_option("-B","--bufsize",
+            action="store", dest="bufsize", default=512,
+            metavar = "<size>",
+            help="buffer size [default=512]")
+    parser.add_option("-H","--hopsize",
+            metavar = "<size>",
+            action="store", dest="hopsize", default=256,
+            help="overlap size [default=256]")
+    parser.add_option("-t","--threshold",
+            metavar = "<value>", type="float",
+            action="store", dest="threshold", default=0.3,
+            help="onset peak picking threshold [default=0.3]")
+    parser.add_option("-c","--cut",
+            action="store_true", dest="cut", default=False,
+            help="cut input sound file at detected labels \
+                    best used with option -L")
+    """
+    parser.add_option("-D","--delay",
+            action = "store", dest = "delay", type = "float",
+            metavar = "<seconds>", default=0,
+            help="number of seconds to take back [default=system]\
+                    default system delay is 3*hopsize/samplerate")
+    parser.add_option("-C","--dcthreshold",
+            metavar = "<value>",
+            action="store", dest="dcthreshold", default=1.,
+            help="onset peak picking DC component [default=1.]")
+    parser.add_option("-M","--mintol",
+            metavar = "<value>",
+            action="store", dest="mintol", default=0.048,
+            help="minimum inter onset interval [default=0.048]")
+    parser.add_option("-L","--localmin",
+            action="store_true", dest="localmin", default=False,
+            help="use local minima after peak detection")
+    parser.add_option("-d","--derivate",
+            action="store_true", dest="derivate", default=False,
+            help="derivate onset detection function")
+    parser.add_option("-z","--zerocross",
+            metavar = "<value>",
+            action="store", dest="zerothres", default=0.008,
+            help="zero-crossing threshold for slicing [default=0.00008]")
+            """
+    # plotting functions
+    """
+    parser.add_option("-p","--plot",
+            action="store_true", dest="plot", default=False,
+            help="draw plot")
+    parser.add_option("-x","--xsize",
+            metavar = "<size>",
+            action="store", dest="xsize", default=1.,
+            type='float', help="define xsize for plot")
+    parser.add_option("-y","--ysize",
+            metavar = "<size>",
+            action="store", dest="ysize", default=1.,
+            type='float', help="define ysize for plot")
+    parser.add_option("-f","--function",
+            action="store_true", dest="func", default=False,
+            help="print detection function")
+    parser.add_option("-n","--no-onsets",
+            action="store_true", dest="nplot", default=False,
+            help="do not plot detected onsets")
+    parser.add_option("-O","--outplot",
+            metavar = "<output_image>",
+            action="store", dest="outplot", default=None,
+            help="save plot to output.{ps,png}")
+    parser.add_option("-F","--spectrogram",
+            action="store_true", dest="spectro", default=False,
+            help="add spectrogram to the plot")
+    """
+    parser.add_option("-v","--verbose",
+            action="store_true", dest="verbose", default=True,
+            help="make lots of noise [default]")
+    parser.add_option("-q","--quiet",
+            action="store_false", dest="verbose", default=True,
+            help="be quiet")
+    (options, args) = parser.parse_args()
+    if not options.source_file:
+        print "no file name given\n", usage
+        sys.exit(1)
+    return options, args
+
+if __name__ == '__main__':
+    options, args = parse_args()
+
+    hopsize = options.hopsize
+    bufsize = options.bufsize
+    samplerate = options.samplerate
+    source_file = options.source_file
+
+    from aubio import onset, source, sink
+
+    s = source(source_file, samplerate, hopsize)
+    if samplerate == 0: samplerate = s.get_samplerate()
+
+    o = onset(options.onset_method, bufsize, hopsize)
+    o.set_threshold(options.threshold)
+
+    slice_number = 0
+    #if options.cut:
+    this_slice = sink('/tmp/t-%02d.wav' % slice_number, samplerate)
+
+    timestamps = []
+    block_read = 0
+    while True:
+        samples, read = s()
+        #ring_buffer = hstack([ring_buffer, samples])
+        is_onset = o(samples)
+        if is_onset:
+            this_onset = (block_read - 4. + is_onset[0]) * hopsize 
+            if options.verbose:
+                print "%.4f" % ( this_onset / samplerate )
+            timestamps.append (this_onset)
+            del this_slice
+            slice_number += 1
+            this_slice = sink('/tmp/t-%02d.wav' % slice_number, samplerate)
+        this_slice(samples, read)
+        block_read += 1
+        if read < hopsize: break
+
+    # print some info
+    duration = float ( block_read * hopsize + read ) / samplerate
+    nstamps = len(timestamps)
+    info = 'found %(nstamps)d timestamps in %(source_file)s' % locals()
+    info += ' (read %(duration).2fs at %(samplerate)dHz)\n' % locals()
+    sys.stderr.write(info)
