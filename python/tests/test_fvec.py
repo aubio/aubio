@@ -5,27 +5,29 @@ from numpy.testing import assert_equal, assert_almost_equal
 from aubio import fvec, zero_crossing_rate, alpha_norm, min_removal
 from numpy import array, shape
 
+default_size = 512
+
 class aubio_fvec_test_case(TestCase):
 
     def test_vector_created_with_zeroes(self):
         a = fvec(10)
-        a
-        shape(a)
-        a[0]
-        #del a
-        assert_equal(array(a), 0.)
+        assert a.dtype == 'float32'
+        assert a.shape == (10,)
+        assert_equal (a, 0)
 
     def test_vector_create_with_list(self):
         a = fvec([0,1,2,3])
+        assert a.dtype == 'float32'
+        assert a.shape == (4,)
         assert_equal (range(4), a)
 
     def test_vector_assign_element(self):
-        a = fvec()
+        a = fvec(default_size)
         a[0] = 1
         assert_equal(a[0], 1)
 
     def test_vector_assign_element_end(self):
-        a = fvec()
+        a = fvec(default_size)
         a[-1] = 1
         assert_equal(a[-1], 1)
         assert_equal(a[len(a)-1], 1)
