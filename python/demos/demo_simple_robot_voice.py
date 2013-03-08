@@ -19,6 +19,7 @@ if __name__ == '__main__':
   while read:
     samples, read = f()
     spectrum = pv(samples)            # compute spectrum
+    #spectrum.norm *= .8               # reduce amplitude a bit
     spectrum.phas[:] = 0.             # zero phase
     new_samples = pv.rdo(spectrum)    # compute modified samples
     g(new_samples, read)              # write to output

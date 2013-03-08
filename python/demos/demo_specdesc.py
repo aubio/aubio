@@ -1,84 +1,84 @@
 #! /usr/bin/env python
 
-from numpy import random, sin, arange, ones, zeros
-from math import pi
-from aubio import fvec, onset
+import sys
+from aubio import fvec, source, pvoc, specdesc
+from numpy import hstack
 
-def build_sinusoid(length, freqs, samplerate):
-  return sin( 2. * pi * arange(length) * freqs / samplerate)
+win_s = 512                 # fft size
+hop_s = win_s / 4           # hop size
 
-def run_onset(p, input_vec):
-  f = fvec (p.hop_size)
-  cands = []
-  count = 0
-  for vec_slice in input_vec.reshape((-1, p.hop_size)):
-    f[:] = vec_slice
-    cands.append(o(f))
-  return cands
+if len(sys.argv) < 2:
+    print "Usage: %s <filename> [samplerate]" % sys.argv[0]
+    sys.exit(1)
 
-methods = ['default',
-           'energy',
-           'complex',
-           'phase',
-           'specdiff',
-           'kl',
-           'mkl',
-           'specflux',
-           'centroid',
-           'spread',
-           'skewness',
-           'kurtosis',
-           'slope',
-           'decrease',
-           'rolloff',
-          ]
+filename = sys.argv[1]
 
-cands = {}
-buf_size = 2048
-hop_size = 512
-samplerate = 44100
-sin_length = (samplerate * 10) % 512 * 512
-freqs = zeros(sin_length)
+samplerate = 0
+if len( sys.argv ) > 2: samplerate = int(sys.argv[2])
 
-partition = sin_length / 8
-pointer = 0
+s = source(filename, samplerate, hop_s)
+samplerate = s.samplerate
 
-pointer += partition
-freqs[pointer: pointer + partition] = 440
+pv = pvoc(win_s, hop_s)
 
-pointer += partition
-pointer += partition
-freqs[ pointer : pointer + partition ] = 740
+methods = ['default', 'energy', 'hfc', 'complex', 'phase', 'specdiff', 'kl', 'mkl',
+    'specflux', 'centroid', 'spread', 'skewness', 'kurtosis', 'slope', 'decrease',
+    'rolloff', ]
 
-pointer += partition
-freqs[ pointer : pointer + partition ] = 1480
-
-pointer += partition
-pointer += partition
-freqs[ pointer : pointer + partition ] = 400 + 5 * random.random(sin_length/8)
-
-a = build_sinusoid(sin_length, freqs, samplerate)
+all_descs = {}
+o = {}
 
 for method in methods:
-  o = onset(method, buf_size, hop_size, samplerate)
-  cands[method] = run_onset(o, a)
+    cands = []
+    all_descs[method] = fvec(0)
+    o[method] = specdesc(method, win_s)
 
-print "done computing"
+total_frames = 0
+downsample = 2
+
+while True:
+    samples, read = s()
+    fftgrain = pv(samples)
+    print "%f" % ( total_frames / float(samplerate) ),
+    for method in methods:
+        specdesc_val = o[method](fftgrain)[0]
+        all_descs[method] = hstack ( [all_descs[method], specdesc_val] )
+        print "%f" % specdesc_val,
+    print
+    total_frames += read
+    if read < hop_s: break
 
 if 1:
-  from pylab import plot, show, xlabel, ylabel, legend, ylim, subplot
-  subplot (211)
-  legend(methods+['ground truth'], 'upper right')
-  xlabel('time (s)')
-  ylabel('amplitude')
-  ramp = arange(0, sin_length).astype('float') / samplerate
-  plot(ramp, a, ':')
-  subplot (212)
-  ramp = arange(0, sin_length / hop_size).astype('float') * hop_size / samplerate
-  for method in methods:
-    plot(ramp, cands[method],'.-')
-    legend(methods, 'upper right')
-    xlabel('time (s)')
-  ylabel('spectral descriptor value')
-  show()
+    print "done computing, now plotting"
+    import matplotlib.pyplot as plt
+    from demo_waveform_plot import get_waveform_plot
+    fig = plt.figure()
+    plt.rc('lines',linewidth='.8')
+    wave = plt.axes([0.1, 0.75, 0.8, 0.19])
+    get_waveform_plot(filename, samplerate, ax = wave )
+    wave.yaxis.set_visible(False)
+    wave.xaxis.set_visible(False)
 
+    all_desc_times = [ x * hop_s  for x in range(len(all_descs["default"])) ]
+    n_methods = len(methods)
+    for i, method in enumerate(methods):
+        #ax = fig.add_subplot (n_methods, 1, i)
+        #plt2 = plt.axes([0.1, 0.1, 0.8, 0.65], sharex = plt1)
+        ax = plt.axes ( [0.1, 0.75 - ((i+1) * 0.65 / n_methods),  0.8, 0.65 / n_methods], sharex = wave )
+        ax.plot(all_desc_times, all_descs[method], '-', label = method)
+        #ax.set_ylabel(method, rotation = 0)
+        ax.xaxis.set_visible(False)
+        ax.yaxis.set_visible(False)
+        ax.axis(xmax = all_desc_times[-1], xmin = all_desc_times[0])
+        ax.annotate(method, xy=(-10, 10),  xycoords='axes points',
+                horizontalalignment='right', verticalalignment='bottom',
+                )
+    if all_desc_times[-1] / float(samplerate) > 60:
+        plt.xlabel('time (mm:ss)')
+        ax.set_xticklabels([ "%02d:%02d" % (t/float(samplerate)/60, (t/float(samplerate))%60) for t in ax.get_xticks()[:-1]], rotation = 50)
+    else:
+        plt.xlabel('time (ss.mm)')
+        ax.set_xticklabels([ "%02d.%02d" % (t/float(samplerate), 100*((t/float(samplerate))%1) ) for t in ax.get_xticks()[:-1]], rotation = 50)
+    #plt.ylabel('spectral descriptor value')
+    ax.xaxis.set_visible(True)
+    plt.show()

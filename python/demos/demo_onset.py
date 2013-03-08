@@ -17,6 +17,7 @@ if len( sys.argv ) > 2: samplerate = int(sys.argv[2])
 
 s = source(filename, samplerate, hop_s)
 samplerate = s.samplerate
+
 o = onset("default", win_s, hop_s, samplerate)
 
 # onset detection delay, in samples
