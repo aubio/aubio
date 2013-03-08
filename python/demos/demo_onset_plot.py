@@ -18,11 +18,13 @@ if len( sys.argv ) > 2: samplerate = int(sys.argv[2])
 
 s = source(filename, samplerate, hop_s)
 samplerate = s.samplerate
-o = onset("default", win_s, hop_s)
+o = onset("default", win_s, hop_s, samplerate)
 
-# onset detection delay, in blocks
+# onset detection delay, in samples
+# default to 4 blocks delay to catch up with
 delay = 4. * hop_s
 
+# list of onsets, in samples
 onsets = []
 
 # storage for plotted data
@@ -31,6 +33,7 @@ tdesc = []
 allsamples_max = zeros(0,)
 downsample = 2  # to plot n samples / hop_s
 
+# total number of frames read
 total_frames = 0
 while True:
     samples, read = s()
@@ -38,7 +41,7 @@ while True:
     if is_onset:
         this_onset = int(total_frames - delay + is_onset[0] * hop_s)
         print "%f" % (this_onset / float(samplerate))
-        onsets.append(this_onset / float(samplerate))
+        onsets.append(this_onset)
     # keep some data to plot it later
     new_maxes = (abs(samples.reshape(hop_s/downsample, downsample))).max(axis=0)
     allsamples_max = hstack([allsamples_max, new_maxes])
@@ -58,7 +61,9 @@ if 1:
     plt.rc('lines',linewidth='.8')
     plt1.plot(allsamples_max_times,  allsamples_max, '-b')
     plt1.plot(allsamples_max_times, -allsamples_max, '-b')
-    for stamp in onsets: plt1.plot([stamp, stamp], [-1., 1.], '-r')
+    for stamp in onsets:
+        stamp /= float(samplerate)
+        plt1.plot([stamp, stamp], [-1., 1.], '-r')
     plt1.axis(xmin = 0., xmax = max(allsamples_max_times) )
     plt1.xaxis.set_visible(False)
     plt1.yaxis.set_visible(False)
@@ -66,7 +71,9 @@ if 1:
     desc_plot = [d / max(desc) for d in desc]
     plt2.plot(desc_times, desc_plot, '-g')
     tdesc_plot = [d / max(desc) for d in tdesc]
-    for stamp in onsets: plt2.plot([stamp, stamp], [min(tdesc_plot), max(desc_plot)], '-r')
+    for stamp in onsets:
+        stamp /= float(samplerate)
+        plt2.plot([stamp, stamp], [min(tdesc_plot), max(desc_plot)], '-r')
     plt2.plot(desc_times, tdesc_plot, '-y')
     plt2.axis(ymin = min(tdesc_plot), ymax = max(desc_plot))
     plt.xlabel('time (s)')
