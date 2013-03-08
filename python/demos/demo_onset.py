@@ -1,8 +1,7 @@
 #! /usr/bin/env python
 
 import sys
-from aubio import onset, source
-from numpy import array, hstack, zeros
+from aubio import source, onset
 
 win_s = 512                 # fft size
 hop_s = win_s / 2           # hop size
