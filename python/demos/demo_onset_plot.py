@@ -6,36 +6,45 @@ from numpy import array, hstack, zeros
 
 win_s = 512                 # fft size
 hop_s = win_s / 2           # hop size
-samplerate = 44100
-downsample = 2              # used to plot n samples / hop_s
 
 if len(sys.argv) < 2:
-    print "Usage: %s <filename>" % sys.argv[0]
+    print "Usage: %s <filename> [samplerate]" % sys.argv[0]
     sys.exit(1)
 
 filename = sys.argv[1]
-onsets = []
+
+samplerate = 0
+if len( sys.argv ) > 2: samplerate = int(sys.argv[2])
 
 s = source(filename, samplerate, hop_s)
+samplerate = s.samplerate
 o = onset("default", win_s, hop_s)
 
+# onset detection delay, in blocks
+delay = 4. * hop_s
+
+onsets = []
+
+# storage for plotted data
 desc = []
 tdesc = []
-
-block_read = 0
 allsamples_max = zeros(0,)
+downsample = 2  # to plot n samples / hop_s
+
+total_frames = 0
 while True:
     samples, read = s()
+    is_onset = o(samples)
+    if is_onset:
+        this_onset = int(total_frames - delay + is_onset[0] * hop_s)
+        print "%f" % (this_onset / float(samplerate))
+        onsets.append(this_onset / float(samplerate))
+    # keep some data to plot it later
     new_maxes = (abs(samples.reshape(hop_s/downsample, downsample))).max(axis=0)
     allsamples_max = hstack([allsamples_max, new_maxes])
-    isbeat = o(samples)
     desc.append(o.get_descriptor())
     tdesc.append(o.get_thresholded_descriptor())
-    if isbeat:
-        thisbeat = (block_read - 4. + isbeat[0]) * hop_s / samplerate
-        print "%.4f" % thisbeat
-        onsets.append (thisbeat)
-    block_read += 1
+    total_frames += read
     if read < hop_s: break
 
 if 1:
