@@ -121,7 +121,7 @@ new_aubio_pitch (char_t * pitch_mode,
   if (strcmp (pitch_mode, "mcomb") == 0)
     pitch_type = aubio_pitcht_mcomb;
   else if (strcmp (pitch_mode, "yinfft") == 0)
-    pitch_type = aubio_pitcht_yin;
+    pitch_type = aubio_pitcht_yinfft;
   else if (strcmp (pitch_mode, "yin") == 0)
     pitch_type = aubio_pitcht_yin;
   else if (strcmp (pitch_mode, "schmitt") == 0)
