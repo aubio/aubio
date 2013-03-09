@@ -142,37 +142,53 @@ def generate_object_files(output_path):
 
 """
 
-  for each in generated_objects:
-      s += "extern PyTypeObject Py_%sType;\n" % \
-              each.replace('aubio_','').replace('_t','')
-
   types_ready = []
   for each in generated_objects:
       types_ready.append("  PyType_Ready (&Py_%sType) < 0" % \
               each.replace('aubio_','').replace('_t','') )
 
+  s = """// generated list of objects created with generator.py
+
+#include "aubio-generated.h"
+"""
+
   s += """
-  int
-  generated_types_ready (void)
-  {
-    return (
-  """
+int generated_types_ready (void)
+{
+  return (
+"""
   s += ('\n     ||').join(types_ready)
   s += """);
-  }
-  """
+}
+"""
 
   s += """
-  void
-  add_generated_objects ( PyObject *m )
-  {"""
+void add_generated_objects ( PyObject *m )
+{"""
   for each in generated_objects:
-      s += """  Py_INCREF (&Py_%(name)sType);
-    PyModule_AddObject (m, "%(name)s", (PyObject *) & Py_%(name)sType);""" % \
-            { 'name': ( each.replace('aubio_','').replace('_t','') ) }
+    s += """
+  Py_INCREF (&Py_%(name)sType);
+  PyModule_AddObject (m, "%(name)s", (PyObject *) & Py_%(name)sType);""" % \
+          { 'name': ( each.replace('aubio_','').replace('_t','') ) }
 
   s += """
-  }"""
+}"""
+
+  fd = open(os.path.join(output_path,'aubio-generated.c'), 'w')
+  fd.write(s)
+
+  s = """// generated list of objects created with generator.py
+
+#include "Python.h"
+
+"""
+
+  for each in generated_objects:
+      s += "extern PyTypeObject Py_%sType;\n" % \
+              each.replace('aubio_','').replace('_t','')
+
+  s+= "int generated_objects ( void );\n"
+  s+= "void add_generated_objects( PyObject *m );\n"
 
   fd = open(os.path.join(output_path,'aubio-generated.h'), 'w')
   fd.write(s)
