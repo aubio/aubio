@@ -139,9 +139,16 @@
 
 /** @file aubio.h Global aubio include file.
 
-  Programmers just need to include this file as:
+  You will want to include this file as:
 
   @code
+    #include <aubio/aubio.h>
+  @endcode
+
+  To access headers with unstable prototypes, use:
+
+  @code
+    #define AUBIO_UNSTABLE 1
     #include <aubio/aubio.h>
   @endcode
 
