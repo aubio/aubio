@@ -1,11 +1,12 @@
 # -*- encoding: utf8 -*-
 
 def note2midi(note):
-    " convert a note name to a midi note value "
-    # from C-2 to G8, though we do accept everything in the upper octave
+    " convert note name to midi note number, e.g. [C-1, G9] -> [0, 127] "
     _valid_notenames = {'C': 0, 'D': 2, 'E': 4, 'F': 5, 'G': 7, 'A': 9, 'B': 11}
     _valid_modifiers = {None: 0, u'♮': 0, '#': +1, u'♯': +1, u'\udd2a': +2, 'b': -1, u'♭': -1, u'\ufffd': -2}
     _valid_octaves = range(-1, 10) 
+    if type(note) not in (str, unicode):
+        raise TypeError, "a string is required, got %s" % note
     if not (1 < len(note) < 5):
         raise ValueError, "string of 2 to 4 characters expected, got %d (%s)" % (len(note), note)
     notename, modifier, octave = [None]*3
