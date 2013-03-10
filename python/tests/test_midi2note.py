@@ -1,4 +1,5 @@
-# -*- encoding: utf8 -*-
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
 
 from aubio import midi2note
 import unittest
@@ -13,14 +14,14 @@ list_of_known_midis = (
         ( 127, 'G9' ),
         )
 
-class TestMidi2NoteGoodValues(unittest.TestCase):
+class midi2note_good_values(unittest.TestCase):
 
     def test_midi2note_known_values(self):
         " known values are correctly converted "
         for midi, note in list_of_known_midis:
             self.assertEqual ( midi2note(midi), note )
 
-class TestNote2MidiWrongValues(unittest.TestCase):
+class midi2note_wrong_values(unittest.TestCase):
 
     def test_midi2note_negative_value(self):
         " fails when passed a negative value "

@@ -1,4 +1,5 @@
-# -*- encoding: utf8 -*-
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
 
 from aubio import note2midi
 import unittest
@@ -22,14 +23,14 @@ list_of_known_notes = (
         ( u'A♮2', 45 ),
         )
 
-class TestNote2MidiGoodValues(unittest.TestCase):
+class note2midi_good_values(unittest.TestCase):
 
     def test_note2midi_known_values(self):
         " known values are correctly converted "
         for note, midi in list_of_known_notes:
             self.assertEqual ( note2midi(note), midi )
 
-class TestNote2MidiWrongValues(unittest.TestCase):
+class note2midi_wrong_values(unittest.TestCase):
 
     def test_note2midi_missing_octave(self):
         " fails when passed only one character"
