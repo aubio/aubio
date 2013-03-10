@@ -36,3 +36,13 @@ def note2midi(note):
     if midi > 127:
         raise ValueError, "%s is outside of the range C-2 to G8" % note
     return midi
+
+def midi2note(midi):
+    " convert midi note number to note name, e.g. [0, 127] -> [C-1, G9] "
+    if type(midi) != int:
+        raise TypeError, "an integer is required, got %s" % midi
+    if not (-1 < midi < 128):
+        raise ValueError, "an integer between 0 and 127 is excepted, got %d" % midi
+    midi = int(midi)
+    _valid_notenames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+    return _valid_notenames[midi % 12] + str( midi / 12 - 1)
