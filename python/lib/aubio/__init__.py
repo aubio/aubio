@@ -1,5 +1,6 @@
 import numpy
 from _aubio import *
+from midiconv import *
 
 class fvec(numpy.ndarray):
 
