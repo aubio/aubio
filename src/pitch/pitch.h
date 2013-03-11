@@ -82,6 +82,16 @@ aubio_pitch_t *new_aubio_pitch (char_t * method,
 */
 uint_t aubio_pitch_set_unit (aubio_pitch_t * o, char_t * mode);
 
+/** get the current confidence
+
+  \param o pitch detection object as returned by new_aubio_pitch()
+  \return the current confidence of the pitch algorithm
+
+The confidence
+
+*/
+smpl_t aubio_pitch_get_confidence (aubio_pitch_t * o);
+
 #ifdef __cplusplus
 }
 #endif
