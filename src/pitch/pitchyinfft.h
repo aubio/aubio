@@ -83,6 +83,14 @@ smpl_t aubio_pitchyinfft_get_tolerance (aubio_pitchyinfft_t * o);
 */
 uint_t aubio_pitchyinfft_set_tolerance (aubio_pitchyinfft_t * o, smpl_t tol);
 
+/** get current confidence of YIN algorithm
+
+  \param o YIN pitch detection object
+  \return confidence parameter
+
+*/
+smpl_t aubio_pitchyinfft_get_confidence (aubio_pitchyinfft_t * o);
+
 #ifdef __cplusplus
 }
 #endif

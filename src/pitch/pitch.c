@@ -61,13 +61,15 @@ typedef void (*aubio_pitch_func_t)
 typedef smpl_t (*aubio_pitch_conv_t)
   (smpl_t value, uint_t srate, uint_t bufsize);
 
+typedef smpl_t (*aubio_conf_cb_t) (void * p);
+
 void aubio_pitch_slideblock (aubio_pitch_t * p, fvec_t * ibuf);
 
-void aubio_pitch_do_mcomb (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf);
-void aubio_pitch_do_yin (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf);
-void aubio_pitch_do_schmitt (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf);
-void aubio_pitch_do_fcomb (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf);
-void aubio_pitch_do_yinfft (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf);
+static void aubio_pitch_do_mcomb (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf);
+static void aubio_pitch_do_yin (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf);
+static void aubio_pitch_do_schmitt (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf);
+static void aubio_pitch_do_fcomb (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf);
+static void aubio_pitch_do_yinfft (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf);
 
 /** generic pitch detection structure */
 struct _aubio_pitch_t
@@ -81,12 +83,14 @@ struct _aubio_pitch_t
   aubio_pitchschmitt_t *schmitt;  /**< schmitt object */
   aubio_pitchyinfft_t *yinfft;    /**< yinfft object */
   aubio_pitchyin_t *yin;    /**< yinfft object */
+  void *pitch;
   aubio_filter_t *filter;         /**< filter */
   aubio_pvoc_t *pv;               /**< phase vocoder for mcomb */
   cvec_t *fftgrain;               /**< spectral frame for mcomb */
   fvec_t *buf;                    /**< temporary buffer for yin */
   aubio_pitch_func_t callback; /**< pointer to current pitch detection method */
   aubio_pitch_conv_t freqconv; /**< pointer to current pitch conversion method */
+  aubio_conf_cb_t confidence_callback; /**< pointer to the current confidence callback */
 };
 
 /* convenience wrapper function for frequency unit conversions 
@@ -139,11 +143,14 @@ new_aubio_pitch (char_t * pitch_mode,
   p->type = pitch_type;
   aubio_pitch_set_unit (p, "default");
   p->bufsize = bufsize;
+  p->confidence_callback = NULL;
   switch (p->type) {
     case aubio_pitcht_yin:
       p->buf = new_fvec (bufsize);
       p->yin = new_aubio_pitchyin (bufsize);
       p->callback = aubio_pitch_do_yin;
+      p->confidence_callback = (aubio_conf_cb_t)aubio_pitchyin_get_confidence;
+      p->pitch = (void*)p->yin;
       aubio_pitchyin_set_tolerance (p->yin, 0.15);
       break;
     case aubio_pitcht_mcomb:
@@ -167,6 +174,8 @@ new_aubio_pitch (char_t * pitch_mode,
       p->buf = new_fvec (bufsize);
       p->yinfft = new_aubio_pitchyinfft (bufsize);
       p->callback = aubio_pitch_do_yinfft;
+      p->confidence_callback = (aubio_conf_cb_t)aubio_pitchyinfft_get_confidence;
+      p->pitch = (void*)p->yin;
       aubio_pitchyinfft_set_tolerance (p->yinfft, 0.85);
       break;
     default:
@@ -343,4 +352,14 @@ aubio_pitch_do_schmitt (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * out)
     pitch = 0.;
   }
   out->data[0] = pitch;
+}
+
+/* confidence callbacks */
+smpl_t
+aubio_pitch_get_confidence (aubio_pitch_t * p)
+{
+  if (p->confidence_callback) {
+    return p->confidence_callback ((void*)(p->pitch));
+  }
+  return 0.;
 }

@@ -36,6 +36,7 @@ struct _aubio_pitchyin_t
 {
   fvec_t *yin;
   smpl_t tol;
+  smpl_t confidence;
 };
 
 /** compute difference function
@@ -156,6 +157,12 @@ aubio_pitchyin_do (aubio_pitchyin_t * o, fvec_t * input, fvec_t * out)
   out->data[0] = fvec_quadint (yin, fvec_min_elem (yin));
 beach:
   return;
+}
+
+smpl_t
+aubio_pitchyin_get_confidence (aubio_pitchyin_t * o) {
+  o->confidence = 1. - fvec_min (o->yin);
+  return o->confidence;
 }
 
 uint_t

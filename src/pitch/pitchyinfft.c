@@ -37,6 +37,7 @@ struct _aubio_pitchyinfft_t
   aubio_fft_t *fft;   /**< fft object to compute square difference function */
   fvec_t *yinfft;     /**< Yin function */
   smpl_t tol;         /**< Yin tolerance */
+  smpl_t confidence;  /**< confidence */
 };
 
 static const smpl_t freqs[] = { 0., 20., 25., 31.5, 40., 50., 63., 80., 100.,
@@ -163,6 +164,12 @@ del_aubio_pitchyinfft (aubio_pitchyinfft_t * p)
   del_fvec (p->winput);
   del_fvec (p->weight);
   AUBIO_FREE (p);
+}
+
+smpl_t
+aubio_pitchyinfft_get_confidence (aubio_pitchyinfft_t * o) {
+  o->confidence = 1. - fvec_min (o->yinfft);
+  return o->confidence;
 }
 
 uint_t
