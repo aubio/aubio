@@ -1,101 +1,102 @@
 #! /usr/bin/env python
 
-from numpy.testing import TestCase
+from unittest import TestCase
 from numpy.testing import assert_equal, assert_almost_equal
-from numpy import random, sin, arange, mean, median
+from numpy import random, sin, arange, mean, median, isnan
 from math import pi
-from aubio import fvec, pitch
+from aubio import fvec, pitch, freqtomidi
 
-class aubio_mathutils_test_case(TestCase):
+class aubio_pitch_Good_Values(TestCase):
 
-  def test_members(self):
-    p = pitch()
-    assert_equal ( [p.method, p.buf_size, p.hop_size, p.samplerate],
-      ['default', 1024, 512, 44100])
+    def skip_test_new_default(self):
+        " creating a pitch object without parameters "
+        p = pitch()
+        assert_equal ( [p.method, p.buf_size, p.hop_size, p.samplerate],
+            ['default', 1024, 512, 44100])
 
-  def test_members_not_default(self):
-    p = pitch('mcomb', 2048, 512, 32000)
-    assert_equal ( [p.method, p.buf_size, p.hop_size, p.samplerate],
-      ['mcomb', 2048, 512, 32000])
+    def test_run_on_silence(self):
+        " creating a pitch object with parameters "
+        p = pitch('default', 2048, 512, 32000)
+        assert_equal ( [p.method, p.buf_size, p.hop_size, p.samplerate],
+            ['default', 2048, 512, 32000])
 
-  def test_run_on_zeros(self):
-    p = pitch('mcomb', 2048, 512, 32000)
-    f = fvec (512)
-    assert_equal ( p(f), 0. )
+    def test_run_on_zeros(self):
+        " running on silence gives 0 "
+        p = pitch('default', 2048, 512, 32000)
+        f = fvec (512)
+        for i in xrange(10): assert_equal (p(f), 0.)
 
-  def test_run_on_ones(self):
-    p = pitch('mcomb', 2048, 512, 32000)
-    f = fvec (512)
-    f[:] = 1
-    assert( p(f) != 0. )
+    def test_run_on_ones(self):
+        " running on ones gives 0 "
+        p = pitch('default', 2048, 512, 32000)
+        f = fvec (512)
+        f[:] = 1
+        for i in xrange(10): assert_equal (p(f), 0.)
 
-  def test_run_default_on_sinusoid(self):
-    method = 'default'
-    buf_size = 2048
-    hop_size = 512
-    samplerate = 32000
-    freq = 450.
-    self.run_pitch_on_sinusoid(method, buf_size, hop_size, samplerate, freq)
+class aubio_pitch_Sinusoid(TestCase):
 
-  def test_run_schmitt_on_sinusoid(self):
-    method = 'schmitt'
-    buf_size = 4096
-    hop_size = 512
-    samplerate = 44100
-    freq = 800.
-    self.run_pitch_on_sinusoid(method, buf_size, hop_size, samplerate, freq)
+    def run_pitch_on_sinusoid(self, method, buf_size, hop_size, samplerate, freq):
+        # create pitch object
+        p = pitch(method, buf_size, hop_size, samplerate)
+        # duration in seconds
+        seconds = .3
+        # duration in samples
+        duration =  seconds * samplerate
+        # increase to the next multiple of hop_size
+        duration = duration - duration % hop_size + hop_size;
+        # build sinusoid
+        sinvec = self.build_sinusoid(duration, freq, samplerate)
 
-  def test_run_mcomb_on_sinusoid(self):
-    method = 'mcomb'
-    buf_size = 2048
-    hop_size = 512
-    samplerate = 44100
-    freq = 10000.
-    self.run_pitch_on_sinusoid(method, buf_size, hop_size, samplerate, freq)
+        self.run_pitch(p, sinvec, freq)
 
-  def test_run_fcomb_on_sinusoid(self):
-    method = 'fcomb'
-    buf_size = 2048
-    hop_size = 512
-    samplerate = 32000
-    freq = 440.
-    self.run_pitch_on_sinusoid(method, buf_size, hop_size, samplerate, freq)
+    def build_sinusoid(self, length, freq, samplerate):
+        return sin( 2. * pi * arange(length).astype('float32') * freq / samplerate)
 
-  def test_run_yin_on_sinusoid(self):
-    method = 'yin'
-    buf_size = 4096
-    hop_size = 512
-    samplerate = 32000
-    freq = 880.
-    self.run_pitch_on_sinusoid(method, buf_size, hop_size, samplerate, freq)
+    def run_pitch(self, p, input_vec, freq):
+        count = 0
+        pitches, errors = [], []
+        input_blocks = input_vec.reshape((-1, p.hop_size))
+        for new_block in input_blocks:
+            pitch = p(new_block)[0]
+            pitches.append(pitch)
+            errors.append(1. - freqtomidi(pitch) / freqtomidi(freq))
+        assert_equal ( len(input_blocks), len(pitches) )
+        assert_equal ( isnan(pitches), False )
+        # cut the first candidates
+        cut = ( p.buf_size - p.hop_size ) / p.hop_size
+        pitches = pitches[2:]
+        errors = errors[2:]
+        # check that the mean of all relative errors is less than 10%
+        assert abs (mean(errors) ) < 0.1, pitches
+        assert abs (mean(errors) ) < 0.1, "error is bigger than 0.1 (%f)" % mean(errors)
+        #print 'len(pitches), cut:', len(pitches), cut
+        #print 'mean errors: ', mean(errors), 'mean pitches: ', mean(pitches)
 
-  def test_run_yinfft_on_sinusoid(self):
-    method = 'yinfft'
-    buf_size = 2048
-    hop_size = 512
-    samplerate = 32000
-    freq = 640.
-    self.run_pitch_on_sinusoid(method, buf_size, hop_size, samplerate, freq)
+pitch_algorithms = [ "default", "yinfft", "yin", "schmitt", "mcomb", "fcomb" ]
 
-  def run_pitch_on_sinusoid(self, method, buf_size, hop_size, samplerate, freq):
-    p = pitch(method, buf_size, hop_size, samplerate)
-    sinvec = self.build_sinusoid(hop_size * 100, freq, samplerate)
-    self.run_pitch(p, sinvec, freq)
+signal_modes = [
+        ( 2048,  512, 44100, 440. ),
+        ( 2048, 1024, 44100, 440. ),
+        ( 2048, 1024, 44100, 440. ),
+        ( 2048, 1024, 32000, 440. ),
+        ( 2048, 1024, 22050, 440. ),
+        ( 1024,  256, 16000, 440. ),
+        ( 1024,  256, 8000,  440. ),
+        ( 1024, 512+256, 8000, 440. ),
+        ]
 
-  def build_sinusoid(self, length, freq, samplerate):
-    return sin( 2. * pi * arange(length).astype('float32') * freq / samplerate)
+def create_test (algo, mode):
+    def do_test_pitch(self):
+        self.run_pitch_on_sinusoid(algo, mode[0], mode[1], mode[2], mode[3])
+    return do_test_pitch
 
-  def run_pitch(self, p, input_vec, freq):
-    count = 0
-    pitches, errors = [], []
-    for vec_slice in input_vec.reshape((-1, p.hop_size)):
-      pitch = p(vec_slice)
-      pitches.append(pitch)
-      errors.append(1. - pitch / freq)
-    # check that the mean of all relative errors is less than 10%
-    assert_almost_equal (mean(errors), 0., decimal = 2)
+for algo in pitch_algorithms:
+    for mode in signal_modes:
+        test_method = create_test (algo, mode)
+        test_method.__name__ = 'test_pitch_%s_%d_%d_%dHz_sin_%.2f' % ( algo,
+                mode[0], mode[1], mode[2], mode[3] )
+        setattr (aubio_pitch_Sinusoid, test_method.__name__, test_method)
 
 if __name__ == '__main__':
-  from unittest import main
-  main()
-
+    from unittest import main
+    main()
