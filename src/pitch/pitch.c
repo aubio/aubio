@@ -56,65 +56,47 @@ typedef enum
   aubio_pitchm_default = aubio_pitchm_freq, /**< the one used when "default" is asked */
 } aubio_pitch_mode;
 
-typedef void (*aubio_pitch_func_t)
-  (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf);
-typedef smpl_t (*aubio_pitch_conv_t)
-  (smpl_t value, uint_t srate, uint_t bufsize);
+/** callback to get pitch candidate, defined below */
+typedef void (*aubio_pitch_detect_t) (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf);
 
-typedef smpl_t (*aubio_conf_cb_t) (void * p);
+/** callback to convert pitch from one unit to another, defined below */
+typedef smpl_t(*aubio_pitch_convert_t) (smpl_t value, uint_t samplerate, uint_t bufsize);
 
-void aubio_pitch_slideblock (aubio_pitch_t * p, fvec_t * ibuf);
+/** callback to fetch the confidence of the algorithm */
+typedef smpl_t (*aubio_pitch_get_conf_t) (void * p);
 
+/** generic pitch detection structure */
+struct _aubio_pitch_t
+{
+  aubio_pitch_type type;          /**< pitch detection mode */
+  aubio_pitch_mode mode;          /**< pitch detection output mode */
+  uint_t samplerate;              /**< samplerate */
+  uint_t bufsize;                 /**< buffer size */
+  void *p_object;                 /**< pointer to pitch object */
+  aubio_filter_t *filter;         /**< filter */
+  aubio_pvoc_t *pv;               /**< phase vocoder for mcomb */
+  cvec_t *fftgrain;               /**< spectral frame for mcomb */
+  fvec_t *buf;                    /**< temporary buffer for yin */
+  aubio_pitch_detect_t detect_cb; /**< callback to get the pitch candidates */
+  aubio_pitch_convert_t conv_cb;  /**< callback to convert it to the desired unit */
+  aubio_pitch_get_conf_t conf_cb; /**< pointer to the current confidence callback */
+};
+
+/* callback functions for pitch detection */
 static void aubio_pitch_do_mcomb (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf);
 static void aubio_pitch_do_yin (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf);
 static void aubio_pitch_do_schmitt (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf);
 static void aubio_pitch_do_fcomb (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf);
 static void aubio_pitch_do_yinfft (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf);
 
-/** generic pitch detection structure */
-struct _aubio_pitch_t
-{
-  aubio_pitch_type type; /**< pitch detection mode */
-  aubio_pitch_mode mode; /**< pitch detection output mode */
-  uint_t srate;                   /**< samplerate */
-  uint_t bufsize;                 /**< buffer size */
-  aubio_pitchmcomb_t *mcomb;      /**< mcomb object */
-  aubio_pitchfcomb_t *fcomb;      /**< fcomb object */
-  aubio_pitchschmitt_t *schmitt;  /**< schmitt object */
-  aubio_pitchyinfft_t *yinfft;    /**< yinfft object */
-  aubio_pitchyin_t *yin;    /**< yinfft object */
-  void *pitch;
-  aubio_filter_t *filter;         /**< filter */
-  aubio_pvoc_t *pv;               /**< phase vocoder for mcomb */
-  cvec_t *fftgrain;               /**< spectral frame for mcomb */
-  fvec_t *buf;                    /**< temporary buffer for yin */
-  aubio_pitch_func_t callback; /**< pointer to current pitch detection method */
-  aubio_pitch_conv_t freqconv; /**< pointer to current pitch conversion method */
-  aubio_conf_cb_t confidence_callback; /**< pointer to the current confidence callback */
-};
+/* conversion functions for frequency conversions */
+smpl_t freqconvbin (smpl_t f, uint_t samplerate, uint_t bufsize);
+smpl_t freqconvmidi (smpl_t f, uint_t samplerate, uint_t bufsize);
+smpl_t freqconvpass (smpl_t f, uint_t samplerate, uint_t bufsize);
 
-/* convenience wrapper function for frequency unit conversions 
- * should probably be rewritten with #defines */
-smpl_t freqconvbin (smpl_t f, uint_t srate, uint_t bufsize);
-smpl_t
-freqconvbin (smpl_t f, uint_t srate, uint_t bufsize)
-{
-  return aubio_freqtobin (f, srate, bufsize);
-}
+/* adapter to stack ibuf new samples at the end of buf, and trim `buf` to `bufsize` */
+void aubio_pitch_slideblock (aubio_pitch_t * p, fvec_t * ibuf);
 
-smpl_t freqconvmidi (smpl_t f, uint_t srate, uint_t bufsize);
-smpl_t
-freqconvmidi (smpl_t f, uint_t srate UNUSED, uint_t bufsize UNUSED)
-{
-  return aubio_freqtomidi (f);
-}
-
-smpl_t freqconvpass (smpl_t f, uint_t srate, uint_t bufsize);
-smpl_t
-freqconvpass (smpl_t f, uint_t srate UNUSED, uint_t bufsize UNUSED)
-{
-  return f;
-}
 
 aubio_pitch_t *
 new_aubio_pitch (char_t * pitch_mode,
@@ -139,44 +121,42 @@ new_aubio_pitch (char_t * pitch_mode,
         pitch_mode);
     pitch_type = aubio_pitcht_default;
   }
-  p->srate = samplerate;
+  p->samplerate = samplerate;
   p->type = pitch_type;
   aubio_pitch_set_unit (p, "default");
   p->bufsize = bufsize;
-  p->confidence_callback = NULL;
+  p->conf_cb = NULL;
   switch (p->type) {
     case aubio_pitcht_yin:
       p->buf = new_fvec (bufsize);
-      p->yin = new_aubio_pitchyin (bufsize);
-      p->callback = aubio_pitch_do_yin;
-      p->confidence_callback = (aubio_conf_cb_t)aubio_pitchyin_get_confidence;
-      p->pitch = (void*)p->yin;
-      aubio_pitchyin_set_tolerance (p->yin, 0.15);
+      p->p_object = new_aubio_pitchyin (bufsize);
+      p->detect_cb = aubio_pitch_do_yin;
+      p->conf_cb = (aubio_pitch_get_conf_t)aubio_pitchyin_get_confidence;
+      aubio_pitchyin_set_tolerance (p->p_object, 0.15);
       break;
     case aubio_pitcht_mcomb:
       p->pv = new_aubio_pvoc (bufsize, hopsize);
       p->fftgrain = new_cvec (bufsize);
-      p->mcomb = new_aubio_pitchmcomb (bufsize, hopsize);
+      p->p_object = new_aubio_pitchmcomb (bufsize, hopsize);
       p->filter = new_aubio_filter_c_weighting (samplerate);
-      p->callback = aubio_pitch_do_mcomb;
+      p->detect_cb = aubio_pitch_do_mcomb;
       break;
     case aubio_pitcht_fcomb:
       p->buf = new_fvec (bufsize);
-      p->fcomb = new_aubio_pitchfcomb (bufsize, hopsize);
-      p->callback = aubio_pitch_do_fcomb;
+      p->p_object = new_aubio_pitchfcomb (bufsize, hopsize);
+      p->detect_cb = aubio_pitch_do_fcomb;
       break;
     case aubio_pitcht_schmitt:
       p->buf = new_fvec (bufsize);
-      p->schmitt = new_aubio_pitchschmitt (bufsize);
-      p->callback = aubio_pitch_do_schmitt;
+      p->p_object = new_aubio_pitchschmitt (bufsize);
+      p->detect_cb = aubio_pitch_do_schmitt;
       break;
     case aubio_pitcht_yinfft:
       p->buf = new_fvec (bufsize);
-      p->yinfft = new_aubio_pitchyinfft (bufsize);
-      p->callback = aubio_pitch_do_yinfft;
-      p->confidence_callback = (aubio_conf_cb_t)aubio_pitchyinfft_get_confidence;
-      p->pitch = (void*)p->yin;
-      aubio_pitchyinfft_set_tolerance (p->yinfft, 0.85);
+      p->p_object = new_aubio_pitchyinfft (bufsize);
+      p->detect_cb = aubio_pitch_do_yinfft;
+      p->conf_cb = (aubio_pitch_get_conf_t)aubio_pitchyinfft_get_confidence;
+      aubio_pitchyinfft_set_tolerance (p->p_object, 0.85);
       break;
     default:
       break;
@@ -190,25 +170,25 @@ del_aubio_pitch (aubio_pitch_t * p)
   switch (p->type) {
     case aubio_pitcht_yin:
       del_fvec (p->buf);
-      del_aubio_pitchyin (p->yin);
+      del_aubio_pitchyin (p->p_object);
       break;
     case aubio_pitcht_mcomb:
       del_aubio_pvoc (p->pv);
       del_cvec (p->fftgrain);
       del_aubio_filter (p->filter);
-      del_aubio_pitchmcomb (p->mcomb);
+      del_aubio_pitchmcomb (p->p_object);
       break;
     case aubio_pitcht_schmitt:
       del_fvec (p->buf);
-      del_aubio_pitchschmitt (p->schmitt);
+      del_aubio_pitchschmitt (p->p_object);
       break;
     case aubio_pitcht_fcomb:
       del_fvec (p->buf);
-      del_aubio_pitchfcomb (p->fcomb);
+      del_aubio_pitchfcomb (p->p_object);
       break;
     case aubio_pitcht_yinfft:
       del_fvec (p->buf);
-      del_aubio_pitchyinfft (p->yinfft);
+      del_aubio_pitchyinfft (p->p_object);
       break;
     default:
       break;
@@ -250,17 +230,17 @@ aubio_pitch_set_unit (aubio_pitch_t * p, char_t * pitch_unit)
   p->mode = pitch_mode;
   switch (p->mode) {
     case aubio_pitchm_freq:
-      p->freqconv = freqconvpass;
+      p->conv_cb = freqconvpass;
       break;
     case aubio_pitchm_midi:
-      p->freqconv = freqconvmidi;
+      p->conv_cb = freqconvmidi;
       break;
     case aubio_pitchm_cent:
       /* bug: not implemented */
-      p->freqconv = freqconvmidi;
+      p->conv_cb = freqconvmidi;
       break;
     case aubio_pitchm_bin:
-      p->freqconv = freqconvbin;
+      p->conv_cb = freqconvbin;
       break;
     default:
       break;
@@ -273,10 +253,10 @@ aubio_pitch_set_tolerance (aubio_pitch_t * p, smpl_t tol)
 {
   switch (p->type) {
     case aubio_pitcht_yin:
-      aubio_pitchyin_set_tolerance (p->yin, tol);
+      aubio_pitchyin_set_tolerance (p->p_object, tol);
       break;
     case aubio_pitcht_yinfft:
-      aubio_pitchyinfft_set_tolerance (p->yinfft, tol);
+      aubio_pitchyinfft_set_tolerance (p->p_object, tol);
       break;
     default:
       break;
@@ -284,20 +264,23 @@ aubio_pitch_set_tolerance (aubio_pitch_t * p, smpl_t tol)
   return AUBIO_OK;
 }
 
+
+/* do method, calling the detection callback, then the conversion callback */
 void
 aubio_pitch_do (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf)
 {
-  p->callback (p, ibuf, obuf);
-  obuf->data[0] = p->freqconv (obuf->data[0], p->srate, p->bufsize);
+  p->detect_cb (p, ibuf, obuf);
+  obuf->data[0] = p->conv_cb (obuf->data[0], p->samplerate, p->bufsize);
 }
 
+/* do method for each algorithm */
 void
 aubio_pitch_do_mcomb (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf)
 {
   aubio_filter_do (p->filter, ibuf);
   aubio_pvoc_do (p->pv, ibuf, p->fftgrain);
-  aubio_pitchmcomb_do (p->mcomb, p->fftgrain, obuf);
-  obuf->data[0] = aubio_bintofreq (obuf->data[0], p->srate, p->bufsize);
+  aubio_pitchmcomb_do (p->p_object, p->fftgrain, obuf);
+  obuf->data[0] = aubio_bintofreq (obuf->data[0], p->samplerate, p->bufsize);
 }
 
 void
@@ -305,10 +288,10 @@ aubio_pitch_do_yin (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf)
 {
   smpl_t pitch = 0.;
   aubio_pitch_slideblock (p, ibuf);
-  aubio_pitchyin_do (p->yin, p->buf, obuf);
+  aubio_pitchyin_do (p->p_object, p->buf, obuf);
   pitch = obuf->data[0];
   if (pitch > 0) {
-    pitch = p->srate / (pitch + 0.);
+    pitch = p->samplerate / (pitch + 0.);
   } else {
     pitch = 0.;
   }
@@ -321,10 +304,10 @@ aubio_pitch_do_yinfft (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf)
 {
   smpl_t pitch = 0.;
   aubio_pitch_slideblock (p, ibuf);
-  aubio_pitchyinfft_do (p->yinfft, p->buf, obuf);
+  aubio_pitchyinfft_do (p->p_object, p->buf, obuf);
   pitch = obuf->data[0];
   if (pitch > 0) {
-    pitch = p->srate / (pitch + 0.);
+    pitch = p->samplerate / (pitch + 0.);
   } else {
     pitch = 0.;
   }
@@ -335,8 +318,8 @@ void
 aubio_pitch_do_fcomb (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * out)
 {
   aubio_pitch_slideblock (p, ibuf);
-  aubio_pitchfcomb_do (p->fcomb, p->buf, out);
-  out->data[0] = aubio_bintofreq (out->data[0], p->srate, p->bufsize);
+  aubio_pitchfcomb_do (p->p_object, p->buf, out);
+  out->data[0] = aubio_bintofreq (out->data[0], p->samplerate, p->bufsize);
 }
 
 void
@@ -344,22 +327,41 @@ aubio_pitch_do_schmitt (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * out)
 {
   smpl_t period, pitch = 0.;
   aubio_pitch_slideblock (p, ibuf);
-  aubio_pitchschmitt_do (p->schmitt, p->buf, out);
+  aubio_pitchschmitt_do (p->p_object, p->buf, out);
   period = out->data[0];
   if (period > 0) {
-    pitch = p->srate / period;
+    pitch = p->samplerate / period;
   } else {
     pitch = 0.;
   }
   out->data[0] = pitch;
 }
 
+/* conversion callbacks */
+smpl_t
+freqconvbin(smpl_t f, uint_t samplerate, uint_t bufsize)
+{
+  return aubio_freqtobin(f, samplerate, bufsize);
+}
+
+smpl_t
+freqconvmidi (smpl_t f, uint_t samplerate UNUSED, uint_t bufsize UNUSED)
+{
+  return aubio_freqtomidi (f);
+}
+
+smpl_t
+freqconvpass (smpl_t f, uint_t samplerate UNUSED, uint_t bufsize UNUSED)
+{
+  return f;
+}
+
 /* confidence callbacks */
 smpl_t
 aubio_pitch_get_confidence (aubio_pitch_t * p)
 {
-  if (p->confidence_callback) {
-    return p->confidence_callback ((void*)(p->pitch));
+  if (p->conf_cb) {
+    return p->conf_cb(p->p_object);
   }
   return 0.;
 }
