@@ -44,11 +44,11 @@ beats = map( lambda x: x / float(samplerate), beats)
 bpms = [60./(b - a) for a,b in zip(beats[:-1],beats[1:])]
 
 if len(bpms):
-    print 'mean period:', "%.2f" % mean(bpms), 'bpm', 'median', "%.2f" % median(bpms), 'bpm'
-    print 'plotting', filename
     # do plotting
     from numpy import array, arange, mean, median
     import matplotlib.pyplot as plt
+    print 'mean period:', "%.2f" % mean(bpms), 'bpm', 'median', "%.2f" % median(bpms), 'bpm'
+    print 'plotting', filename
     plt1 = plt.axes([0.1, 0.75, 0.8, 0.19])
     plt2 = plt.axes([0.1, 0.1, 0.8, 0.65], sharex = plt1)
     plt.rc('lines',linewidth='.8')
