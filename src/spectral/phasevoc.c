@@ -111,30 +111,30 @@ static void aubio_pvoc_swapbuffers(smpl_t * data, smpl_t * dataold,
     const smpl_t * datanew, uint_t win_s, uint_t hop_s)
 {
   uint_t i;
-  for (i=0;i<win_s-hop_s;i++)
+  for (i = 0; i < win_s - hop_s; i++)
     data[i] = dataold[i];
-  for (i=0;i<hop_s;i++)
-    data[win_s-hop_s+i] = datanew[i];
-  for (i=0;i<win_s-hop_s;i++)
-    dataold[i] = data[i+hop_s];
+  for (i = 0; i < hop_s; i++)
+    data[win_s - hop_s + i] = datanew[i];
+  for (i = 0; i < win_s - hop_s; i++)
+    dataold[i] = data[i + hop_s];
 }
 
 static void aubio_pvoc_addsynth(const smpl_t * synth, smpl_t * synthold, 
                 smpl_t * synthnew, uint_t win_s, uint_t hop_s)
 {
   uint_t i;
-  smpl_t scale = 2*hop_s/(win_s+.0);
+  smpl_t scale = 2 * hop_s / (win_s + .0);
   /* add new synth to old one and put result in synthnew */
-  for (i=0;i<hop_s;i++)
-    synthnew[i] = synthold[i]+synth[i]*scale;
+  for (i = 0; i < hop_s; i++)
+    synthnew[i] = synthold[i] + synth[i] * scale;
   /* shift synthold */
-  for (i=0;i<win_s-2*hop_s;i++)
-    synthold[i] = synthold[i+hop_s];
+  for (i = 0; i < win_s - 2 * hop_s; i++)
+    synthold[i] = synthold[i + hop_s];
   /* erase last frame in synthold */
-  for (i=win_s-hop_s;i<win_s;i++)
-    synthold[i-hop_s]=0.;
+  for (i = win_s - hop_s; i < win_s; i++)
+    synthold[i - hop_s] = 0.;
   /* additive synth */
-  for (i=0;i<win_s-hop_s;i++)
-    synthold[i] += synth[i+hop_s]*scale;
+  for (i = 0; i < win_s - hop_s; i++)
+    synthold[i] += synth[i + hop_s] * scale;
 }
 
