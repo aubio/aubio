@@ -65,6 +65,12 @@ void aubio_onset_do (aubio_onset_t *o, fvec_t * input, fvec_t * onset)
       }
     }
   } else {
+    if (wasonset == -1 && aubio_silence_detection(input, o->silence) == 0) {
+      //AUBIO_MSG("beginning of file is not silent, marking as onset\n",
+      //  wasonset, aubio_silence_detection(input, o->silence));
+      isonset = 4;
+      wasonset = 0;
+    }
     wasonset++;
   }
   o->wasonset->data[0] = wasonset;
@@ -107,6 +113,7 @@ aubio_onset_t * new_aubio_onset (char_t * onset_mode,
   o->minioi    = 4;
   o->silence   = -70;
   o->wasonset  = new_fvec(1);
+  o->wasonset->data[0] = -1.;
   o->samplerate = samplerate;
   o->hop_size = hop_size;
   o->pv = new_aubio_pvoc(buf_size, hop_size);
