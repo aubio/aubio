@@ -19,7 +19,7 @@
 */
 
 /** \file
- 
+
   Onset detection object
 
   The following routines compute the onset detection function and detect peaks
@@ -48,49 +48,68 @@ extern "C" {
 typedef struct _aubio_onset_t aubio_onset_t;
 
 /** create onset detection object
-  
+
   \param method onset detection type as specified in specdesc.h
   \param buf_size buffer size for phase vocoder
   \param hop_size hop size for phase vocoder
-  \param samplerate sampling rate of the input signal 
+  \param samplerate sampling rate of the input signal
 
 */
-aubio_onset_t * new_aubio_onset (char_t * method, 
+aubio_onset_t * new_aubio_onset (char_t * method,
     uint_t buf_size, uint_t hop_size, uint_t samplerate);
 
 /** execute onset detection
 
-  \param o onset detection object as returned by new_aubio_onset
+  \param o onset detection object as returned by ::new_aubio_onset
   \param input new audio vector of length hop_size
-  \param onset output vector, 1 if onset is found, 0 otherwise
+  \param onset output vector of length 1, containing 0 if no onset was found,
+  and a value equal or greater than 1 otherwise
+
+  When no onset was detected, the first element of the output vector `onset`
+  is set to 0.
+
+  When an onset is found, the first element of the output vector `onset` is set
+  to `offset = 1 + a` where `a` is a number in the range`[0, 1]`.
+
+  The final onset detection time, in samples, can be obtained with
+  ::aubio_onset_get_last_onset. It can also be derived from `offset` as
+  follows:
+
+  \code
+    t = total_frames + offset * hop_size - delay
+  \endcode
+
+  where `total_frames` is the total number of frames processed so far, and
+  `delay` is the current delay of the onset object, as returned by
+  ::aubio_onset_get_delay.
 
 */
 void aubio_onset_do (aubio_onset_t *o, fvec_t * input, fvec_t * onset);
 
 /** get the time of the latest onset detected, in samples
 
-  \param o onset detection object as returned by new_aubio_onset
+  \param o onset detection object as returned by ::new_aubio_onset
 
 */
 smpl_t aubio_onset_get_last_onset (aubio_onset_t *o);
 
 /** get the time of the latest onset detected, in seconds
 
-  \param o onset detection object as returned by new_aubio_onset
+  \param o onset detection object as returned by ::new_aubio_onset
 
 */
 smpl_t aubio_onset_get_last_onset_s (aubio_onset_t *o);
 
 /** get the time of the latest onset detected, in milliseconds
 
-  \param o onset detection object as returned by new_aubio_onset
+  \param o onset detection object as returned by ::new_aubio_onset
 
 */
 smpl_t aubio_onset_get_last_onset_ms (aubio_onset_t *o);
 
 /** set onset detection silence threshold
 
-  \param o onset detection object as returned by new_aubio_onset
+  \param o onset detection object as returned by ::new_aubio_onset
   \param silence new silence detection threshold
 
 */
@@ -98,7 +117,7 @@ uint_t aubio_onset_set_silence(aubio_onset_t * o, smpl_t silence);
 
 /** get onset detection function
 
-  \param o onset detection object as returned by new_aubio_onset
+  \param o onset detection object as returned by ::new_aubio_onset
   \return the current value of the descriptor
 
 */
@@ -106,32 +125,131 @@ smpl_t aubio_onset_get_descriptor ( aubio_onset_t *o);
 
 /** get thresholded onset detection function
 
-  \param o onset detection object as returned by new_aubio_onset
+  \param o onset detection object as returned by ::new_aubio_onset
   \return the value of the thresholded descriptor
 
 */
 smpl_t aubio_onset_get_thresholded_descriptor ( aubio_onset_t *o);
 
-/** set onset detection peak picking threshold 
+/** set onset detection peak picking threshold
 
-  \param o onset detection object as returned by new_aubio_onset
+  \param o onset detection object as returned by ::new_aubio_onset
   \param threshold new peak-picking threshold
 
 */
 uint_t aubio_onset_set_threshold(aubio_onset_t * o, smpl_t threshold);
 
-/** set minimum inter onset interval
+/** set minimum inter onset interval in samples
 
-  \param o onset detection object as returned by new_aubio_onset
+  \param o onset detection object as returned by ::new_aubio_onset
   \param minioi minimum interval between two consecutive onsets (in
-  milliseconds)
+  samples)
 
 */
 uint_t aubio_onset_set_minioi(aubio_onset_t * o, uint_t minioi);
 
+/** set minimum inter onset interval in seconds
+
+  \param o onset detection object as returned by ::new_aubio_onset
+  \param minioi minimum interval between two consecutive onsets (in
+  seconds)
+
+*/
+uint_t aubio_onset_set_minioi_s(aubio_onset_t * o, smpl_t minioi);
+
+/** set minimum inter onset interval in milliseconds
+
+  \param o onset detection object as returned by ::new_aubio_onset
+  \param minioi minimum interval between two consecutive onsets (in
+  milliseconds)
+
+*/
+uint_t aubio_onset_set_minioi_ms(aubio_onset_t * o, smpl_t minioi);
+
+/** set minimum inter onset interval in samples
+
+  \param o onset detection object as returned by ::new_aubio_onset
+  \param delay constant system delay to take back from detection time
+  (in samples)
+
+*/
+uint_t aubio_onset_set_delay(aubio_onset_t * o, uint_t delay);
+
+/** set minimum inter onset interval in seconds
+
+  \param o onset detection object as returned by ::new_aubio_onset
+  \param delay constant system delay to take back from detection time
+  (in seconds)
+
+*/
+uint_t aubio_onset_set_delay_s(aubio_onset_t * o, smpl_t delay);
+
+/** set minimum inter onset interval in milliseconds
+
+  \param o onset detection object as returned by ::new_aubio_onset
+  \param delay constant system delay to take back from detection time
+  (in milliseconds)
+
+*/
+uint_t aubio_onset_set_delay_ms(aubio_onset_t * o, smpl_t delay);
+
+/** get minimum inter onset interval in samples
+
+  \param o onset detection object as returned by ::new_aubio_onset
+  \return minimum interval between two consecutive onsets (in
+  samples)
+
+*/
+uint_t aubio_onset_get_minioi(aubio_onset_t * o);
+
+/** get minimum inter onset interval in seconds
+
+  \param o onset detection object as returned by ::new_aubio_onset
+  \return minimum interval between two consecutive onsets (in
+  seconds)
+
+*/
+smpl_t aubio_onset_get_minioi_s(aubio_onset_t * o);
+
+/** get minimum inter onset interval in milliseconds
+
+  \param o onset detection object as returned by ::new_aubio_onset
+  \return minimum interval between two consecutive onsets (in
+  milliseconds)
+
+*/
+smpl_t aubio_onset_get_minioi_ms(aubio_onset_t * o);
+
+/** get minimum inter onset interval in samples
+
+  \param o onset detection object as returned by ::new_aubio_onset
+  \return constant system delay to take back from detection time
+  (in samples)
+
+*/
+uint_t aubio_onset_get_delay(aubio_onset_t * o);
+
+/** get minimum inter onset interval in seconds
+
+  \param o onset detection object as returned by ::new_aubio_onset
+  \return constant system delay to take back from detection time
+  (in seconds)
+
+*/
+smpl_t aubio_onset_get_delay_s(aubio_onset_t * o);
+
+/** get minimum inter onset interval in milliseconds
+
+  \param o onset detection object as returned by ::new_aubio_onset
+  \return constant system delay to take back from detection time
+  (in milliseconds)
+
+*/
+smpl_t aubio_onset_get_delay_ms(aubio_onset_t * o);
+
 /** delete onset detection object
 
-  \param o onset detection object to delete 
+  \param o onset detection object to delete
 
 */
 void del_aubio_onset(aubio_onset_t * o);
