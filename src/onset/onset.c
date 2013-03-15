@@ -30,16 +30,20 @@
 /** structure to store object state */
 struct _aubio_onset_t {
   aubio_pvoc_t * pv;            /**< phase vocoder */
-  aubio_specdesc_t * od;  /**< onset detection */ 
+  aubio_specdesc_t * od;        /**< onset description function */
   aubio_peakpicker_t * pp;      /**< peak picker */
   cvec_t * fftgrain;            /**< phase vocoder output */
   fvec_t * of;                  /**< onset detection function */
   smpl_t threshold;             /**< onset peak picking threshold */
   smpl_t silence;               /**< silence threhsold */
   uint_t minioi;                /**< minimum inter onset interval */
-  fvec_t * wasonset;            /**< number of frames since last onset */
+  uint_t delay;                 /**< constant delay, in samples, removed from detected onset times */
+  fvec_t * wasonset;            /**< number of blocks since last onset */
   uint_t samplerate;            /**< sampling rate of the input signal */
-  uint_t hop_size;              /**< number of samples between two runs */ 
+  uint_t hop_size;              /**< number of samples between two runs */
+
+  uint_t total_frames;          /**< total number of frames processed since the beginning */
+  uint_t last_onset;            /**< last detected onset location, in frames */
 };
 
 /* execute onset detection function on iput buffer */
@@ -59,6 +63,7 @@ void aubio_onset_do (aubio_onset_t *o, fvec_t * input, fvec_t * onset)
     } else {
       if (wasonset > o->minioi) {
         wasonset = 0;
+        o->last_onset = o->total_frames + isonset * o->hop_size;
       } else {
         isonset  = 0;
         wasonset++;
@@ -68,23 +73,42 @@ void aubio_onset_do (aubio_onset_t *o, fvec_t * input, fvec_t * onset)
     if (wasonset == -1 && aubio_silence_detection(input, o->silence) == 0) {
       //AUBIO_MSG("beginning of file is not silent, marking as onset\n",
       //  wasonset, aubio_silence_detection(input, o->silence));
-      isonset = 4;
+      isonset = o->delay / o->hop_size;
+      o->last_onset = o->delay;
       wasonset = 0;
     }
     wasonset++;
   }
   o->wasonset->data[0] = wasonset;
+  //onset->data[0] = isonset * o->hop_size - o->delay;
   onset->data[0] = isonset;
+  // also keep a copy of the offset for use in get_last_onset
+  o->total_frames += o->hop_size;
   return;
 }
 
+smpl_t aubio_onset_get_last_onset (aubio_onset_t *o)
+{
+  return o->last_onset - o->delay;
+}
+
+smpl_t aubio_onset_get_last_onset_s (aubio_onset_t *o)
+{
+  return aubio_onset_get_last_onset (o) / (smpl_t) (o->samplerate);
+}
+
+smpl_t aubio_onset_get_last_onset_ms (aubio_onset_t *o)
+{
+  return aubio_onset_get_last_onset_s (o) / 1000.;
+}
+
 smpl_t aubio_onset_get_descriptor(aubio_onset_t * o) {
-    return o->of->data[0];
+  return o->of->data[0];
 }
 
 smpl_t aubio_onset_get_thresholded_descriptor(aubio_onset_t * o) {
-    fvec_t * thresholded = aubio_peakpicker_get_thresholded_input(o->pp);
-    return thresholded->data[0];
+  fvec_t * thresholded = aubio_peakpicker_get_thresholded_input(o->pp);
+  return thresholded->data[0];
 }
 
 uint_t aubio_onset_set_silence(aubio_onset_t * o, smpl_t silence) {
@@ -103,17 +127,49 @@ uint_t aubio_onset_set_minioi(aubio_onset_t * o, uint_t minioi) {
   return AUBIO_OK;
 }
 
+uint_t aubio_onset_get_minioi(aubio_onset_t * o) {
+  return o->minioi;
+}
+
+uint_t aubio_onset_set_delay(aubio_onset_t * o, uint_t delay) {
+  o->delay = delay;
+  return AUBIO_OK;
+}
+
+uint_t aubio_onset_get_delay(aubio_onset_t * o) {
+  return o->delay;
+}
+
+uint_t aubio_onset_set_delay_s(aubio_onset_t * o, smpl_t delay) {
+  return aubio_onset_set_delay (o, delay * o->samplerate);
+}
+
+smpl_t aubio_onset_get_delay_s(aubio_onset_t * o) {
+  return aubio_onset_get_delay (o) / (smpl_t) o->samplerate;
+}
+
+uint_t aubio_onset_set_delay_ms(aubio_onset_t * o, smpl_t delay) {
+  return aubio_onset_set_delay_s (o, delay / 1000.);
+}
+
+smpl_t aubio_onset_get_delay_ms(aubio_onset_t * o) {
+  return aubio_onset_get_delay_s (o) * 1000.;
+}
+
 /* Allocate memory for an onset detection */
 aubio_onset_t * new_aubio_onset (char_t * onset_mode, 
     uint_t buf_size, uint_t hop_size, uint_t samplerate)
 {
   aubio_onset_t * o = AUBIO_NEW(aubio_onset_t);
   /** set some default parameter */
+  o->last_onset = 0;
   o->threshold = 0.3;
-  o->minioi    = 4;
+  o->delay     = 4.3 * hop_size;
+  o->minioi    = 5;
   o->silence   = -70;
   o->wasonset  = new_fvec(1);
   o->wasonset->data[0] = -1.;
+  o->total_frames = 0;
   o->samplerate = samplerate;
   o->hop_size = hop_size;
   o->pv = new_aubio_pvoc(buf_size, hop_size);

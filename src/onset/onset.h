@@ -67,6 +67,27 @@ aubio_onset_t * new_aubio_onset (char_t * method,
 */
 void aubio_onset_do (aubio_onset_t *o, fvec_t * input, fvec_t * onset);
 
+/** get the time of the latest onset detected, in samples
+
+  \param o onset detection object as returned by new_aubio_onset
+
+*/
+smpl_t aubio_onset_get_last_onset (aubio_onset_t *o);
+
+/** get the time of the latest onset detected, in seconds
+
+  \param o onset detection object as returned by new_aubio_onset
+
+*/
+smpl_t aubio_onset_get_last_onset_s (aubio_onset_t *o);
+
+/** get the time of the latest onset detected, in milliseconds
+
+  \param o onset detection object as returned by new_aubio_onset
+
+*/
+smpl_t aubio_onset_get_last_onset_ms (aubio_onset_t *o);
+
 /** set onset detection silence threshold
 
   \param o onset detection object as returned by new_aubio_onset
