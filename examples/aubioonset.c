@@ -60,12 +60,7 @@ process_print (void)
     return;
   smpl_t onset_found = fvec_read_sample (onset, 0);
   if (onset_found) {
-    if (frames >= 4) {
-      outmsg ("%f\n", (frames - frames_delay + onset_found)
-          * overlap_size / (float) samplerate);
-    } else if (frames < frames_delay) {
-      outmsg ("%f\n", 0.);
-    }
+    outmsg ("%f\n", aubio_onset_get_last_onset_s (o) );
   }
 }
 
