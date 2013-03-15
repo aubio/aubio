@@ -20,10 +20,6 @@ samplerate = s.samplerate
 
 o = onset("default", win_s, hop_s, samplerate)
 
-# onset detection delay, in samples
-# default to 4 blocks delay to catch up with
-delay = 4. * hop_s
-
 # list of onsets, in samples
 onsets = []
 
@@ -31,11 +27,9 @@ onsets = []
 total_frames = 0
 while True:
     samples, read = s()
-    is_onset = o(samples)
-    if is_onset:
-        this_onset = int(total_frames - delay + is_onset[0] * hop_s)
-        print "%f" % (this_onset / float(samplerate))
-        onsets.append(this_onset)
+    if o(samples):
+        print "%f" % o.get_last_onset_s()
+        onsets.append(o.get_last_onset())
     total_frames += read
     if read < hop_s: break
 #print len(onsets)

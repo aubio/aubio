@@ -20,10 +20,6 @@ s = source(filename, samplerate, hop_s)
 samplerate = s.samplerate
 o = onset("default", win_s, hop_s, samplerate)
 
-# onset detection delay, in samples
-# default to 4 blocks delay to catch up with
-delay = 4. * hop_s
-
 # list of onsets, in samples
 onsets = []
 
@@ -39,7 +35,7 @@ while True:
     samples, read = s()
     is_onset = o(samples)
     if is_onset:
-        this_onset = int(total_frames - delay + is_onset[0] * hop_s)
+        this_onset = o.get_last_onset()
         print "%f" % (this_onset / float(samplerate))
         onsets.append(this_onset)
     # keep some data to plot it later
