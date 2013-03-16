@@ -23,7 +23,7 @@
 
 /** \file
 
-  Media source 
+  Media source object
 
   \example io/test-source.c
 
@@ -33,10 +33,57 @@
 extern "C" {
 #endif
 
+/** source object structure */
 typedef struct _aubio_source_t aubio_source_t;
+
+/**
+
+  create new ::aubio_source_t
+
+  \param uri the file path or uri to read from
+  \param samplerate the sample rate to read the file at
+  \param hop_size the size of the blocks to read from
+
+  Creates a new source object. If `0` is passed as `samplerate`, the sample
+  rate of the original file is used.
+
+  The samplerate of the current source can be obtained with
+  ::aubio_source_get_samplerate.
+
+*/
 aubio_source_t * new_aubio_source(char_t * uri, uint_t samplerate, uint_t hop_size);
+
+/**
+
+  read monophonic vector of length hop_size from source object
+
+  \param s source object, created with ::new_aubio_source
+  \param read_data ::fvec_t of data to read to
+  \param read number of frames actually read
+
+  Upon returns, `read` contains the number of frames actually read from the
+  source. `hop_size` if enough frames could be read, less otherwise.
+
+*/
 void aubio_source_do(aubio_source_t * s, fvec_t * read_data, uint_t * read);
+
+/**
+
+  get samplerate of source object
+
+  \param s source object, created with ::new_aubio_source
+  \return samplerate, in Hz
+
+*/
 uint_t aubio_source_get_samplerate(aubio_source_t * s);
+
+/**
+
+  destroy source object
+
+  \param s source object, created with ::new_aubio_source
+
+*/
 void del_aubio_source(aubio_source_t * s);
 
 #ifdef __cplusplus
