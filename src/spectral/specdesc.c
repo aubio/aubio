@@ -193,7 +193,7 @@ void aubio_specdesc_kl(aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset){
     onset->data[0] = 0.;
     for (j=0;j<fftgrain->length;j++) {
       onset->data[0] += fftgrain->norm[j]
-        *LOG(1.+fftgrain->norm[j]/(o->oldmag->data[j]+1.e-10));
+        *LOG(1.+fftgrain->norm[j]/(o->oldmag->data[j]+1.e-1));
       o->oldmag->data[j] = fftgrain->norm[j];
     }
     if (isnan(onset->data[0])) onset->data[0] = 0.;
@@ -206,7 +206,7 @@ void aubio_specdesc_mkl(aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * onset){
   uint_t j;
     onset->data[0] = 0.;
     for (j=0;j<fftgrain->length;j++) {
-      onset->data[0] += LOG(1.+fftgrain->norm[j]/(o->oldmag->data[j]+1.e-10));
+      onset->data[0] += LOG(1.+fftgrain->norm[j]/(o->oldmag->data[j]+1.e-1));
       o->oldmag->data[j] = fftgrain->norm[j];
     }
     if (isnan(onset->data[0])) onset->data[0] = 0.;
