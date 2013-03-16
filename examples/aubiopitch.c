@@ -63,7 +63,7 @@ static void process_print (void) {
 int main(int argc, char **argv) {
   examples_common_init(argc,argv);
 
-  o = new_aubio_pitch (onset_mode, buffer_size, overlap_size, samplerate);
+  o = new_aubio_pitch (pitch_mode, buffer_size, overlap_size, samplerate);
   pitch = new_fvec (1);
 
   examples_common_process(aubio_process,process_print);
