@@ -145,23 +145,24 @@ void aubio_source_apple_audio_do(aubio_source_apple_audio_t *s, fvec_t * read_to
   OSStatus err = ExtAudioFileRead(s->audioFile, &loadedPackets, &s->bufferList);
   if (err) { AUBIO_ERROR("error in ExtAudioFileRead, %d\n", (int)err); goto beach;}
 
-  smpl_t *buf = read_to->data;
-
   short *data = (short*)s->bufferList.mBuffers[0].mData;
 
-  if (buf) {
-      for (c = 0; c < s->channels; c++) {
-          for (v = 0; v < s->block_size; v++) {
-              if (v < loadedPackets) {
-                  buf[v * s->channels + c] =
-                      SHORT_TO_FLOAT(data[ v * s->channels + c]);
-              } else {
-                  buf[v * s->channels + c] = 0.f;
-              }
-          }
-      }
+  smpl_t *buf = read_to->data;
+
+  for (v = 0; v < loadedPackets; v++) {
+    buf[v] = 0.;
+    for (c = 0; c < s->channels; c++) {
+      buf[v] += SHORT_TO_FLOAT(data[ v * s->channels + c]);
+    }
+    buf[v] /= (smpl_t)s->channels;
   }
-  //if (loadedPackets < s->block_size) return EOF;
+  // short read, fill with zeros
+  if (loadedPackets < s->block_size) {
+    for (v = loadedPackets; v < s->block_size; v++) {
+      buf[v] = 0.;
+    }
+  }
+
   *read = (uint_t)loadedPackets;
   return;
 beach:
