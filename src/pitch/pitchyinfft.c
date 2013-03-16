@@ -109,17 +109,14 @@ aubio_pitchyinfft_do (aubio_pitchyinfft_t * p, fvec_t * input, fvec_t * output)
     p->winput->data[l] = p->win->data[l] * input->data[l];
   }
   aubio_fft_do (p->fft, p->winput, p->fftout);
-  for (l = 0; l < p->fftout->length; l++) {
+  p->sqrmag->data[0] = SQR (p->fftout->norm[0]);
+  p->sqrmag->data[0] *= p->weight->data[0];
+  for (l = 1; l < p->fftout->length; l++) {
     p->sqrmag->data[l] = SQR (p->fftout->norm[l]);
     p->sqrmag->data[l] *= p->weight->data[l];
+    p->sqrmag->data[p->sqrmag->length - l] = p->sqrmag->data[l];
   }
-  for (l = 1; l < p->fftout->length; l++) {
-    p->sqrmag->data[(p->fftout->length - 1) * 2 - l] =
-        SQR (p->fftout->norm[l]);
-    p->sqrmag->data[(p->fftout->length - 1) * 2 - l] *=
-        p->weight->data[l];
-  }
-  for (l = 0; l < p->sqrmag->length / 2 + 1; l++) {
+  for (l = 0; l < p->fftout->length; l++) {
     sum += p->sqrmag->data[l];
   }
   sum *= 2.;
