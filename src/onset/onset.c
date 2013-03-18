@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2006-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2006-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -30,10 +30,10 @@
 /** structure to store object state */
 struct _aubio_onset_t {
   aubio_pvoc_t * pv;            /**< phase vocoder */
-  aubio_specdesc_t * od;        /**< onset description function */
+  aubio_specdesc_t * od;        /**< spectral descriptor */
   aubio_peakpicker_t * pp;      /**< peak picker */
   cvec_t * fftgrain;            /**< phase vocoder output */
-  fvec_t * of;                  /**< onset detection function */
+  fvec_t * desc;                /**< spectral description */
   smpl_t threshold;             /**< onset peak picking threshold */
   smpl_t silence;               /**< silence threhsold */
   uint_t minioi;                /**< minimum inter onset interval */
@@ -50,17 +50,20 @@ void aubio_onset_do (aubio_onset_t *o, fvec_t * input, fvec_t * onset)
 {
   smpl_t isonset = 0;
   aubio_pvoc_do (o->pv,input, o->fftgrain);
-  aubio_specdesc_do (o->od,o->fftgrain, o->of);
-  aubio_peakpicker_do(o->pp, o->of, onset);
+  aubio_specdesc_do (o->od, o->fftgrain, o->desc);
+  aubio_peakpicker_do(o->pp, o->desc, onset);
   isonset = onset->data[0];
   if (isonset > 0.) {
     if (aubio_silence_detection(input, o->silence)==1) {
+      //AUBIO_DBG ("silent onset, not marking as onset\n");
       isonset  = 0;
     } else {
       uint_t new_onset = o->total_frames + isonset * o->hop_size;
       if (o->last_onset + o->minioi < new_onset) {
+        //AUBIO_DBG ("accepted detection, marking as onset\n");
         o->last_onset = new_onset;
       } else {
+        //AUBIO_DBG ("doubled onset, not marking as onset\n");
         isonset  = 0;
       }
     }
@@ -154,7 +157,7 @@ smpl_t aubio_onset_get_delay_ms(aubio_onset_t * o) {
 }
 
 smpl_t aubio_onset_get_descriptor(aubio_onset_t * o) {
-  return o->of->data[0];
+  return o->desc->data[0];
 }
 
 smpl_t aubio_onset_get_thresholded_descriptor(aubio_onset_t * o) {
@@ -181,7 +184,7 @@ aubio_onset_t * new_aubio_onset (char_t * onset_mode,
   aubio_peakpicker_set_threshold (o->pp, o->threshold);
   o->od = new_aubio_specdesc(onset_mode,buf_size);
   o->fftgrain = new_cvec(buf_size);
-  o->of = new_fvec(1);
+  o->desc = new_fvec(1);
   return o;
 }
 
@@ -190,7 +193,7 @@ void del_aubio_onset (aubio_onset_t *o)
   del_aubio_specdesc(o->od);
   del_aubio_peakpicker(o->pp);
   del_aubio_pvoc(o->pv);
-  del_fvec(o->of);
+  del_fvec(o->desc);
   del_cvec(o->fftgrain);
   AUBIO_FREE(o);
 }
