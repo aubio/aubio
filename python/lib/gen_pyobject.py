@@ -99,6 +99,7 @@ defaultsizes = {
     'beattracking': ['self->hop_size'],
     'tempo':        ['1'],
     'peakpicker':   ['1'],
+    'source':       ['self->hop_size', '1'],
 }
 
 # default value for variables
