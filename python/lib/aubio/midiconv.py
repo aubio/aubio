@@ -28,7 +28,7 @@ def note2midi(note):
     if notename not in _valid_notenames:
         raise ValueError, "%s is not a valid note name" % notename
     if modifier not in _valid_modifiers:
-        raise ValueError, "only # and b are acceptable modifiers, not %s" % modifier
+        raise ValueError, "%s is not a valid modifier" % modifier
     if octave not in _valid_octaves:
         raise ValueError, "%s is not a valid octave" % octave
 
