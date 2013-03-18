@@ -42,7 +42,7 @@ typedef struct _aubio_source_t aubio_source_t;
 
   \param uri the file path or uri to read from
   \param samplerate sampling rate to view the fie at
-  \param block_size the size of the blocks to read from
+  \param hop_size the size of the blocks to read from
 
   Creates a new source object. If `0` is passed as `samplerate`, the sample
   rate of the original file is used.
@@ -51,18 +51,18 @@ typedef struct _aubio_source_t aubio_source_t;
   ::aubio_source_get_samplerate.
 
 */
-aubio_source_t * new_aubio_source(char_t * uri, uint_t samplerate, uint_t block_size);
+aubio_source_t * new_aubio_source(char_t * uri, uint_t samplerate, uint_t hop_size);
 
 /**
 
-  read monophonic vector of length block_size from source object
+  read monophonic vector of length hop_size from source object
 
   \param s source object, created with ::new_aubio_source
   \param read_to ::fvec_t of data to read to
   \param read upon returns, equals to number of frames actually read
 
   Upon returns, `read` contains the number of frames actually read from the
-  source. `block_size` if enough frames could be read, less otherwise.
+  source. `hop_size` if enough frames could be read, less otherwise.
 
 */
 void aubio_source_do(aubio_source_t * s, fvec_t * read_to, uint_t * read);
