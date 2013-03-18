@@ -103,7 +103,7 @@ class aubio_specdesc(TestCase):
         assert_equal( 0., o(c))
         a = arange(c.length, dtype='float32')
         c.norm = a
-        assert_almost_equal( sum(a * log(1.+ a/1.e-10 ) ) / o(c), 1., decimal=6)
+        assert_almost_equal( sum(a * log(1.+ a/1.e-1 ) ) / o(c), 1., decimal=6)
 
     def test_mkl(self):
         o = specdesc("mkl")
@@ -111,7 +111,7 @@ class aubio_specdesc(TestCase):
         assert_equal( 0., o(c))
         a = arange(c.length, dtype='float32')
         c.norm = a
-        assert_almost_equal( sum(log(1.+ a/1.e-10 ) ) / o(c), 1, decimal=6)
+        assert_almost_equal( sum(log(1.+ a/1.e-1 ) ) / o(c), 1, decimal=6)
 
     def test_specflux(self):
         o = specdesc("specflux")
