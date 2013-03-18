@@ -477,7 +477,7 @@ Py%(funcname)s (Py_%(objname)s *self, PyObject *args)
 }
 """ % {'funcname': method_name, 'objname': name, 
         'out_type': out_type, 'setter_args': setter_args, 'parse_args': parse_args }
-        shortname = method_name.split(name+'_')[-1]
+        shortname = method_name.split('aubio_'+name+'_')[-1]
         method_defs += """\
   {"%(shortname)s", (PyCFunction) Py%(method_name)s,
     METH_VARARGS, ""},
@@ -493,7 +493,7 @@ Py%(funcname)s (Py_%(objname)s *self, PyObject *args)
             "get method has more than one parameter %s" % params
         getter_args = "self->o" 
         returnval = "(PyObject *)" + aubiovectopyobj[out_type] + " (tmp)"
-        shortname = method_name.split(name+'_')[-1]
+        shortname = method_name.split('aubio_'+name+'_')[-1]
         method_defs += """\
   {"%(shortname)s", (PyCFunction) Py%(method_name)s,
     METH_NOARGS, ""},
