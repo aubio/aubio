@@ -122,7 +122,10 @@ void aubio_sink_apple_audio_do(aubio_sink_apple_audio_t * s, fvec_t * write_data
 
 void del_aubio_sink_apple_audio(aubio_sink_apple_audio_t * s) {
   OSStatus err = noErr;
-  if (!s || !s->audioFile) { return; }
+  if (!s || !s->audioFile) {
+    AUBIO_ERR("failed erasing sink_apple_audio\n");
+    return;
+  }
   err = ExtAudioFileDispose(s->audioFile);
   if (err) AUBIO_ERROR("error in ExtAudioFileDispose, %d\n", (int)err);
   s->audioFile = NULL;
