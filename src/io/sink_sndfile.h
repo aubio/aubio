@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2012 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2012-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -23,7 +23,12 @@
 
 /** \file
 
-  sndfile sink
+  Write to file using [libsndfile](http://www.mega-nerd.com/libsndfile/)
+
+  Avoid including this file directly! Prefer using ::aubio_sink_t instead to
+  make your code portable.
+
+  To read from file, use ::aubio_source_t.
 
   \example io/test-sink_sndfile.c
 
@@ -34,8 +39,39 @@ extern "C" {
 #endif
 
 typedef struct _aubio_sink_sndfile_t aubio_sink_sndfile_t;
-aubio_sink_sndfile_t * new_aubio_sink_sndfile(char_t * method, uint_t samplerate);
+
+/**
+
+  create new ::aubio_sink_sndfile_t
+
+  \param uri the file path or uri to write to
+  \param samplerate sample rate to write the file at
+
+  \return newly created ::aubio_sink_sndfile_t
+
+  Creates a new sink object.
+
+*/
+aubio_sink_sndfile_t * new_aubio_sink_sndfile(char_t * uri, uint_t samplerate);
+
+/**
+
+  write monophonic vector of length hop_size to sink
+
+  \param s sink, created with ::new_aubio_sink_sndfile
+  \param write_data ::fvec_t samples to write to sink
+  \param write number of frames to write
+
+*/
 void aubio_sink_sndfile_do(aubio_sink_sndfile_t * s, fvec_t * write_data, uint_t write);
+
+/**
+
+  close sink and cleanup memory
+
+  \param s sink, created with ::new_aubio_sink_sndfile
+
+*/
 void del_aubio_sink_sndfile(aubio_sink_sndfile_t * s);
 
 #ifdef __cplusplus

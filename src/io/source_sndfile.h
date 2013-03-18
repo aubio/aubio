@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2012 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2012-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -23,6 +23,13 @@
 
 /** \file
 
+  Read from file using [libsndfile](http://www.mega-nerd.com/libsndfile/)
+
+  Avoid including this file directly! Prefer using ::aubio_source_t instead to
+  make your code portable.
+
+  To write to file, use ::aubio_sink_t.
+
   \example io/test-source_sndfile.c
 
 */
@@ -31,10 +38,57 @@
 extern "C" {
 #endif
 
+/** sndfile media source object */
 typedef struct _aubio_source_sndfile_t aubio_source_sndfile_t;
-aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplerate, uint_t block_size);
+
+/**
+
+  create new ::aubio_source_sndfile_t
+
+  \param uri the file path or uri to read from
+  \param samplerate sampling rate to view the fie at
+  \param block_size the size of the blocks to read from
+
+  Creates a new source object. If `0` is passed as `samplerate`, the sample
+  rate of the original file is used.
+
+  The samplerate of newly created source can be obtained using
+  ::aubio_source_sndfile_get_samplerate.
+
+*/
+aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * uri, uint_t samplerate, uint_t block_size);
+
+/**
+
+  read monophonic vector of length block_size from source object
+
+  \param s source object, created with ::new_aubio_source_sndfile
+  \param read_to ::fvec_t of data to read to
+  \param read upon returns, equals to number of frames actually read
+
+  Upon returns, `read` contains the number of frames actually read from the
+  source. `block_size` if enough frames could be read, less otherwise.
+
+*/
 void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_to, uint_t * read);
+
+/**
+
+  get samplerate of source object
+
+  \param s source object, created with ::new_aubio_source_sndfile
+  \return samplerate, in Hz
+
+*/
 uint_t aubio_source_sndfile_get_samplerate(aubio_source_sndfile_t * s);
+
+/**
+
+  close source and cleanup memory
+
+  \param s source object, created with ::new_aubio_source_sndfile
+
+*/
 void del_aubio_source_sndfile(aubio_source_sndfile_t * s);
 
 #ifdef __cplusplus
