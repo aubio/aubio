@@ -87,13 +87,13 @@ void fvec_weight(fvec_t *s, fvec_t *weight) {
 
 void fvec_copy(fvec_t *s, fvec_t *t) {
   uint_t j;
-  uint_t length = MIN(s->length, t->length);
+  uint_t length = t->length;
   if (s->length != t->length) {
-    AUBIO_WRN("trying to copy %d elements to %d elements \n", 
-            s->length, t->length);
+    AUBIO_WRN("trying to copy %d elements to %d elements \n",
+        s->length, t->length);
+    length = MIN(s->length, t->length);
   }
   for (j=0; j< length; j++) {
     t->data[j] = s->data[j];
   }
 }
-
