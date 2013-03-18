@@ -20,7 +20,7 @@
 
 /** \file 
 
-  Fast Fourier Transform object
+  Fast Fourier Transform
 
   \example src/spectral/test-fft.c
 
