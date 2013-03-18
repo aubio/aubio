@@ -99,7 +99,7 @@ defaultsizes = {
     'beattracking': ['self->hop_size'],
     'tempo':        ['1'],
     'peakpicker':   ['1'],
-    'source':       ['self->hop_size', '1'],
+    'source':       ['self->block_size', '1'],
 }
 
 # default value for variables
@@ -115,6 +115,8 @@ aubiodefvalue = {
     'buf_size': 'Py_default_vector_length', 
     # and here too
     'hop_size': 'Py_default_vector_length / 2', 
+    # add block_size, synonim of hop_size
+    'block_size': 'Py_default_vector_length / 2',
     # these should be alright
     'samplerate': 'Py_aubio_default_samplerate', 
     # now for the non obvious ones
