@@ -72,7 +72,6 @@ aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * uri, uint_t s
 
 */
 void aubio_source_apple_audio_do(aubio_source_apple_audio_t * s, fvec_t * read_to, uint_t * read);
-void aubio_source_apple_audio_do_multi(aubio_source_apple_audio_t * s, fmat_t * read_to, uint_t * read);
 
 /**
 
