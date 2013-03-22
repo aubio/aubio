@@ -176,6 +176,11 @@ uint_t aubio_source_sndfile_get_samplerate(aubio_source_sndfile_t * s) {
   return s->samplerate;
 }
 
+uint_t aubio_source_sndfile_seek (aubio_source_sndfile_t * s, uint_t pos) {
+  uint_t resampled_pos = (uint_t)ROUND(pos * s->input_samplerate * 1. / s->samplerate);
+  return sf_seek (s->handle, resampled_pos, SEEK_SET);
+}
+
 void del_aubio_source_sndfile(aubio_source_sndfile_t * s){
   if (!s) return;
   if (sf_close(s->handle)) {

@@ -79,6 +79,18 @@ uint_t aubio_source_get_samplerate(aubio_source_t * s);
 
 /**
 
+  seek source object
+
+  \param s source object, created with ::new_aubio_source
+  \param pos position to seek to, in frames
+
+  \return 0 if sucessful, non-zero on failure
+
+*/
+uint_t aubio_source_seek (aubio_source_t * s, uint_t pos);
+
+/**
+
   close source and cleanup memory
 
   \param s source object, created with ::new_aubio_source

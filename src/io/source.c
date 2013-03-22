@@ -81,3 +81,12 @@ uint_t aubio_source_get_samplerate(aubio_source_t * s) {
 #endif /* __APPLE__ */
 }
 
+uint_t aubio_source_seek (aubio_source_t * s, uint_t seek ) {
+#ifdef __APPLE__
+  return aubio_source_apple_audio_seek ((aubio_source_apple_audio_t *)s->source, seek);
+#else /* __APPLE__ */
+#if HAVE_SNDFILE
+  return aubio_source_sndfile_seek ((aubio_source_sndfile_t *)s->source, seek);
+#endif /* HAVE_SNDFILE */
+#endif /* __APPLE__ */
+}

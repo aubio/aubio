@@ -36,7 +36,8 @@
 
 struct _aubio_source_apple_audio_t {
   uint_t channels;
-  uint_t samplerate;
+  uint_t samplerate;          //< requested samplerate
+  uint_t source_samplerate;   //< actual source samplerate
   uint_t block_size;
 
   char_t *path;
@@ -80,6 +81,7 @@ aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * path, uint_t 
     //AUBIO_DBG("sampling rate set to 0, automagically adjusting to %d\n", samplerate);
   }
   s->samplerate = samplerate;
+  s->source_samplerate = fileFormat.mSampleRate;
 
   AudioStreamBasicDescription clientFormat;
   propSize = sizeof(clientFormat);
@@ -143,7 +145,7 @@ beach:
 void aubio_source_apple_audio_do(aubio_source_apple_audio_t *s, fvec_t * read_to, uint_t * read) {
   UInt32 c, v, loadedPackets = s->block_size;
   OSStatus err = ExtAudioFileRead(s->audioFile, &loadedPackets, &s->bufferList);
-  if (err) { AUBIO_ERROR("error in ExtAudioFileRead, %d\n", (int)err); goto beach;}
+  if (err) { AUBIO_ERROR("error in ExtAudioFileRead %s %d\n", s->path, (int)err); goto beach;}
 
   short *data = (short*)s->bufferList.mBuffers[0].mData;
 
@@ -179,6 +181,13 @@ void del_aubio_source_apple_audio(aubio_source_apple_audio_t * s){
   freeAudioBufferList(&s->bufferList);
   AUBIO_FREE(s);
   return;
+}
+
+uint_t aubio_source_apple_audio_seek (aubio_source_apple_audio_t * s, uint_t pos) {
+  Float64 ratio = (Float64)(s->source_samplerate) / (Float64)(s->samplerate);
+  OSStatus err = ExtAudioFileSeek(s->audioFile, pos);
+  if (err) AUBIO_ERROR("source_apple_audio: error in ExtAudioFileSeek (%d)\n", (int)err);
+  return err;
 }
 
 uint_t aubio_source_apple_audio_get_samplerate(aubio_source_apple_audio_t * s) {
