@@ -21,9 +21,9 @@ samplerate = s.samplerate
 
 pv = pvoc(win_s, hop_s)
 
-methods = ['default', 'energy', 'hfc', 'complex', 'phase', 'specdiff', 'kl', 'mkl',
-    'specflux', 'centroid', 'spread', 'skewness', 'kurtosis', 'slope', 'decrease',
-    'rolloff', ]
+methods = ['default', 'energy', 'hfc', 'complex', 'phase', 'specdiff', 'kl',
+        'mkl', 'specflux', 'centroid', 'slope', 'rolloff', 'spread', 'skewness',
+        'kurtosis', 'decrease',]
 
 all_descs = {}
 o = {}
@@ -39,12 +39,12 @@ downsample = 2
 while True:
     samples, read = s()
     fftgrain = pv(samples)
-    print "%f" % ( total_frames / float(samplerate) ),
+    #print "%f" % ( total_frames / float(samplerate) ),
     for method in methods:
         specdesc_val = o[method](fftgrain)[0]
         all_descs[method] = hstack ( [all_descs[method], specdesc_val] )
-        print "%f" % specdesc_val,
-    print
+        #print "%f" % specdesc_val,
+    #print
     total_frames += read
     if read < hop_s: break
 
@@ -52,10 +52,11 @@ if 1:
     print "done computing, now plotting"
     import matplotlib.pyplot as plt
     from demo_waveform_plot import get_waveform_plot
+    from demo_waveform_plot import set_xlabels_sample2time
     fig = plt.figure()
     plt.rc('lines',linewidth='.8')
     wave = plt.axes([0.1, 0.75, 0.8, 0.19])
-    get_waveform_plot(filename, samplerate, ax = wave )
+    get_waveform_plot(filename, samplerate, block_size = hop_s, ax = wave )
     wave.yaxis.set_visible(False)
     wave.xaxis.set_visible(False)
 
@@ -73,12 +74,7 @@ if 1:
         ax.annotate(method, xy=(-10, 10),  xycoords='axes points',
                 horizontalalignment='right', verticalalignment='bottom',
                 )
-    if all_desc_times[-1] / float(samplerate) > 60:
-        plt.xlabel('time (mm:ss)')
-        ax.set_xticklabels([ "%02d:%02d" % (t/float(samplerate)/60, (t/float(samplerate))%60) for t in ax.get_xticks()[:-1]], rotation = 50)
-    else:
-        plt.xlabel('time (ss.mm)')
-        ax.set_xticklabels([ "%02d.%02d" % (t/float(samplerate), 100*((t/float(samplerate))%1) ) for t in ax.get_xticks()[:-1]], rotation = 50)
+    set_xlabels_sample2time(ax, all_desc_times[-1], samplerate)
     #plt.ylabel('spectral descriptor value')
     ax.xaxis.set_visible(True)
     plt.show()

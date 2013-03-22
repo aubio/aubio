@@ -3,7 +3,6 @@
 import sys
 from aubio import fvec, source, pvoc, filterbank
 from numpy import vstack, zeros
-from demo_waveform_plot import set_xlabels_sample2time
 
 win_s = 512                 # fft size
 hop_s = win_s / 4           # hop size
@@ -45,6 +44,7 @@ if 1:
     print "done computing, now plotting"
     import matplotlib.pyplot as plt
     from demo_waveform_plot import get_waveform_plot
+    from demo_waveform_plot import set_xlabels_sample2time
     fig = plt.figure()
     plt.rc('lines',linewidth='.8')
     wave = plt.axes([0.1, 0.75, 0.8, 0.19])

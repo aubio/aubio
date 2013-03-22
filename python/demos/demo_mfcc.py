@@ -3,7 +3,6 @@
 import sys
 from aubio import source, pvoc, mfcc
 from numpy import array, vstack, zeros
-from demo_waveform_plot import set_xlabels_sample2time
 
 win_s = 512                 # fft size
 hop_s = win_s / 4           # hop size
@@ -41,6 +40,7 @@ while True:
 # do plotting
 from numpy import arange
 from demo_waveform_plot import get_waveform_plot
+from demo_waveform_plot import set_xlabels_sample2time
 import matplotlib.pyplot as plt
 
 fig = plt.figure()
