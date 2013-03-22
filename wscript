@@ -77,13 +77,14 @@ def configure(ctx):
     ctx.env.CC = 'clang'
     ctx.env.LD = 'clang'
     ctx.env.LINK_CC = 'clang'
+    ctx.define('TARGET_OS_IPHONE', 1)
     SDKVER="6.1"
     DEVROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer"
     SDKROOT="%(DEVROOT)s/SDKs/iPhoneOS%(SDKVER)s.sdk" % locals()
     ctx.env.FRAMEWORK = ['CoreFoundation', 'AudioToolbox']
-    ctx.env.CFLAGS += [ '-miphoneos-version-min=6.1', '-arch', 'armv7',
+    ctx.env.CFLAGS += [ '-miphoneos-version-min=6.1', '-arch', 'armv7', '-arch', 'armv7s',
             '--sysroot=%s' % SDKROOT]
-    ctx.env.LINKFLAGS += ['-std=c99', '-arch', 'armv7', '--sysroot=%s' %
+    ctx.env.LINKFLAGS += ['-std=c99', '-arch', 'armv7', '-arch', 'armv7s', '--sysroot=%s' %
             SDKROOT]
 
   # check for required headers
