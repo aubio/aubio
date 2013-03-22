@@ -21,6 +21,7 @@
 #include "config.h"
 #include "aubio_priv.h"
 #include "fvec.h"
+#include "fmat.h"
 #include "io/source.h"
 #ifdef __APPLE__
 #include "io/source_apple_audio.h"
@@ -59,6 +60,16 @@ void aubio_source_do(aubio_source_t * s, fvec_t * data, uint_t * read) {
 #endif /* __APPLE__ */
 }
 
+void aubio_source_do_multi(aubio_source_t * s, fmat_t * data, uint_t * read) {
+#ifdef __APPLE__
+  aubio_source_apple_audio_do_multi((aubio_source_apple_audio_t *)s->source, data, read);
+#else /* __APPLE__ */
+#if HAVE_SNDFILE
+  aubio_source_sndfile_do_multi((aubio_source_sndfile_t *)s->source, data, read);
+#endif /* HAVE_SNDFILE */
+#endif /* __APPLE__ */
+}
+
 void del_aubio_source(aubio_source_t * s) {
   if (!s) return;
 #ifdef __APPLE__
@@ -81,3 +92,22 @@ uint_t aubio_source_get_samplerate(aubio_source_t * s) {
 #endif /* __APPLE__ */
 }
 
+uint_t aubio_source_get_channels(aubio_source_t * s) {
+#ifdef __APPLE__
+  return aubio_source_apple_audio_get_channels((aubio_source_apple_audio_t *)s->source);
+#else /* __APPLE__ */
+#if HAVE_SNDFILE
+  return aubio_source_sndfile_get_channels((aubio_source_sndfile_t *)s->source);
+#endif /* HAVE_SNDFILE */
+#endif /* __APPLE__ */
+}
+
+uint_t aubio_source_seek (aubio_source_t * s, uint_t seek ) {
+#ifdef __APPLE__
+  return aubio_source_apple_audio_seek ((aubio_source_apple_audio_t *)s->source, seek);
+#else /* __APPLE__ */
+#if HAVE_SNDFILE
+  return aubio_source_sndfile_seek ((aubio_source_sndfile_t *)s->source, seek);
+#endif /* HAVE_SNDFILE */
+#endif /* __APPLE__ */
+}

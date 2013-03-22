@@ -3,9 +3,9 @@
 
 int main (int argc, char **argv)
 {
-  uint_t err = 0;
+  sint_t err = 0;
   if (argc < 2) {
-    err = 2;
+    err = -2;
     PRINT_ERR("not enough arguments\n");
     PRINT_MSG("read a wave file as a mono vector\n");
     PRINT_MSG("usage: %s <source_path> [samplerate] [hop_size]\n", argv[0]);
@@ -27,16 +27,16 @@ int main (int argc, char **argv)
 
   char_t *source_path = argv[1];
 
-  fvec_t *vec = new_fvec(hop_size);
-
   aubio_source_t* s = new_aubio_source(source_path, samplerate, hop_size);
-  if (!s) { err = 1; goto beach; }
+  if (!s) { err = -1; goto beach; }
 
   if (samplerate == 0 ) samplerate = aubio_source_get_samplerate(s);
 
+  fmat_t *mat = new_fmat(hop_size, aubio_source_get_channels(s) );
+
   do {
-    aubio_source_do(s, vec, &read);
-    fvec_print (vec);
+    aubio_source_do_multi (s, mat, &read);
+    fmat_print (mat);
     n_frames += read;
   } while ( read == hop_size );
 
@@ -45,7 +45,7 @@ int main (int argc, char **argv)
 
   del_aubio_source (s);
 beach:
-  del_fvec (vec);
+  del_fmat (mat);
 
   return err;
 }

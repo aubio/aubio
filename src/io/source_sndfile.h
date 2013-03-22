@@ -74,6 +74,20 @@ void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_to, uint_
 
 /**
 
+  read polyphonic vector of length hop_size from source object
+
+  \param s source object, created with ::new_aubio_source_sndfile
+  \param read_to ::fmat_t of data to read to
+  \param read upon returns, equals to number of frames actually read
+
+  Upon returns, `read` contains the number of frames actually read from the
+  source. `hop_size` if enough frames could be read, less otherwise.
+
+*/
+void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_to, uint_t * read);
+
+/**
+
   get samplerate of source object
 
   \param s source object, created with ::new_aubio_source_sndfile
@@ -81,6 +95,28 @@ void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_to, uint_
 
 */
 uint_t aubio_source_sndfile_get_samplerate(aubio_source_sndfile_t * s);
+
+/**
+
+  get number of channels of source object
+
+  \param s source object, created with ::new_aubio_source_sndfile
+  \return number of channels
+
+*/
+uint_t aubio_source_sndfile_get_channels (aubio_source_sndfile_t * s);
+
+/**
+
+  seek source object
+
+  \param s source object, created with ::new_aubio_source_sndfile
+  \param pos position to seek to, in frames
+
+  \return 0 if sucessful, non-zero on failure
+
+*/
+uint_t aubio_source_sndfile_seek (aubio_source_sndfile_t *s, uint_t pos);
 
 /**
 
