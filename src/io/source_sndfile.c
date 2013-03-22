@@ -26,8 +26,9 @@
 #include <sndfile.h>
 
 #include "aubio_priv.h"
-#include "source_sndfile.h"
 #include "fvec.h"
+#include "fmat.h"
+#include "source_sndfile.h"
 
 #include "temporal/resampler.h"
 
@@ -183,7 +184,7 @@ void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_dat
   if (s->ratio != 1) {
     AUBIO_ERR("source_sndfile: no multi channel resampling yet");
     return;
-    data = s->input_data->data;
+    //data = s->input_data->data;
   } else
 #endif /* HAVE_SAMPLERATE */
   {
@@ -199,7 +200,7 @@ void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_dat
 
 #ifdef HAVE_SAMPLERATE
   if (s->resampler) {
-    aubio_resampler_do(s->resampler, s->input_data, read_data);
+    //aubio_resampler_do(s->resampler, s->input_data, read_data);
   }
 #endif /* HAVE_SAMPLERATE */
 

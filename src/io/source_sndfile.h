@@ -84,7 +84,7 @@ void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_to, uint_
   source. `hop_size` if enough frames could be read, less otherwise.
 
 */
-void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fmat_t * read_to, uint_t * read);
+void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_to, uint_t * read);
 
 /**
 
