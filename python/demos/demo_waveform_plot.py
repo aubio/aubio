@@ -36,6 +36,7 @@ def get_waveform_plot(filename, samplerate = 0, block_size = 4096, ax = None):
     return ax
 
 def set_xlabels_sample2time(ax, latest_sample, samplerate):
+    ax.axis(xmin = 0, xmax = latest_sample)
     if latest_sample / float(samplerate) > 60:
         ax.set_xlabel('time (mm:ss)')
         ax.set_xticklabels([ "%02d:%02d" % (t/float(samplerate)/60, (t/float(samplerate))%60) for t in ax.get_xticks()[:-1]], rotation = 50)
