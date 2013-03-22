@@ -158,7 +158,7 @@ void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_data, uin
   for (j = 0; j < read_samples / input_channels; j++) {
     data[j] = 0;
     for (i = 0; i < input_channels; i++) {
-      data[j] += (smpl_t)s->scratch_data[input_channels*j+i];
+      data[j] += s->scratch_data[input_channels*j+i];
     }
     data[j] /= (smpl_t)input_channels;
   }
@@ -172,8 +172,46 @@ void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_data, uin
   *read = (int)FLOOR(s->ratio * read_samples / input_channels + .5);
 }
 
+void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_data, uint_t * read){
+  uint_t i,j, input_channels = s->input_channels;
+  /* do actual reading */
+  sf_count_t read_samples = sf_read_float (s->handle, s->scratch_data, s->scratch_size);
+
+  smpl_t **data;
+
+#ifdef HAVE_SAMPLERATE
+  if (s->ratio != 1) {
+    AUBIO_ERR("source_sndfile: no multi channel resampling yet");
+    return;
+    data = s->input_data->data;
+  } else
+#endif /* HAVE_SAMPLERATE */
+  {
+    data = read_data->data;
+  }
+
+  /* de-interleaving data */
+  for (j = 0; j < read_samples / input_channels; j++) {
+    for (i = 0; i < input_channels; i++) {
+      data[i][j] = (smpl_t)s->scratch_data[input_channels*j+i];
+    }
+  }
+
+#ifdef HAVE_SAMPLERATE
+  if (s->resampler) {
+    aubio_resampler_do(s->resampler, s->input_data, read_data);
+  }
+#endif /* HAVE_SAMPLERATE */
+
+  *read = (int)FLOOR(s->ratio * read_samples / input_channels + .5);
+}
+
 uint_t aubio_source_sndfile_get_samplerate(aubio_source_sndfile_t * s) {
   return s->samplerate;
+}
+
+uint_t aubio_source_sndfile_get_channels(aubio_source_sndfile_t * s) {
+  return s->input_channels;
 }
 
 uint_t aubio_source_sndfile_seek (aubio_source_sndfile_t * s, uint_t pos) {

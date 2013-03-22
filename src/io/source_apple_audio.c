@@ -22,6 +22,7 @@
 #include "config.h"
 #include "aubio_priv.h"
 #include "fvec.h"
+#include "fmat.h"
 #include "io/source_apple_audio.h"
 
 // ExtAudioFileRef, AudioStreamBasicDescription, AudioBufferList, ...
@@ -56,7 +57,6 @@ aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * path, uint_t 
 
   s->path = path;
   s->block_size = block_size;
-  s->channels = 1;
 
   OSStatus err = noErr;
   UInt32 propSize;
@@ -82,6 +82,7 @@ aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * path, uint_t 
   }
   s->samplerate = samplerate;
   s->source_samplerate = fileFormat.mSampleRate;
+  s->channels = fileFormat.mChannelsPerFrame;
 
   AudioStreamBasicDescription clientFormat;
   propSize = sizeof(clientFormat);
@@ -99,9 +100,9 @@ aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * path, uint_t 
   // set the client format description
   err = ExtAudioFileSetProperty(s->audioFile, kExtAudioFileProperty_ClientDataFormat,
       propSize, &clientFormat);
-  if (err) { AUBIO_ERROR("error in ExtAudioFileSetProperty, %d\n", (int)err); goto beach;}
-
-#if 0
+  if (err) {
+      AUBIO_ERROR("error in ExtAudioFileSetProperty, %d\n", (int)err);
+#if 1
   // print client and format descriptions
   AUBIO_DBG("Opened %s\n", s->path);
   AUBIO_DBG("file/client Format.mFormatID:        : %3c%c%c%c / %c%c%c%c\n",
@@ -118,6 +119,8 @@ aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * path, uint_t 
   AUBIO_DBG("file/client Format.mBytesPerPacket   : %6d / %d\n",    (int)fileFormat.mBytesPerPacket  , (int)clientFormat.mBytesPerPacket);
   AUBIO_DBG("file/client Format.mReserved         : %6d / %d\n",    (int)fileFormat.mReserved        , (int)clientFormat.mReserved);
 #endif
+      goto beach;
+  }
 
   // compute the size of the segments needed to read the input file
   UInt32 samples = s->block_size * clientFormat.mChannelsPerFrame;
@@ -128,7 +131,7 @@ aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * path, uint_t 
   } else if (rateRatio > 1.) {
     AUBIO_WRN("up-sampling %s from %0.2fHz to %0.2fHz\n", s->path, fileFormat.mSampleRate, clientFormat.mSampleRate);
   } else {
-    assert (segmentSize == samples );
+    assert ( segmentSize == samples );
     //AUBIO_DBG("not resampling, segmentSize %d, block_size %d\n", segmentSize, s->block_size);
   }
 
@@ -172,6 +175,35 @@ beach:
   return;
 }
 
+void aubio_source_apple_audio_do_multi(aubio_source_apple_audio_t *s, fmat_t * read_to, uint_t * read) {
+  UInt32 c, v, loadedPackets = s->block_size;
+  OSStatus err = ExtAudioFileRead(s->audioFile, &loadedPackets, &s->bufferList);
+  if (err) { AUBIO_ERROR("source_apple_audio: error in ExtAudioFileRead, %d\n", (int)err); goto beach;}
+
+  short *data = (short*)s->bufferList.mBuffers[0].mData;
+
+  smpl_t **buf = read_to->data;
+
+  for (v = 0; v < loadedPackets; v++) {
+    for (c = 0; c < s->channels; c++) {
+      buf[c][v] = SHORT_TO_FLOAT(data[ v * s->channels + c]);
+    }
+  }
+  // short read, fill with zeros
+  if (loadedPackets < s->block_size) {
+    for (v = loadedPackets; v < s->block_size; v++) {
+      for (c = 0; c < s->channels; c++) {
+        buf[c][v] = 0.;
+      }
+    }
+  }
+  *read = (uint_t)loadedPackets;
+  return;
+beach:
+  *read = 0;
+  return;
+}
+
 void del_aubio_source_apple_audio(aubio_source_apple_audio_t * s){
   OSStatus err = noErr;
   if (!s || !s->audioFile) { return; }
@@ -184,14 +216,18 @@ void del_aubio_source_apple_audio(aubio_source_apple_audio_t * s){
 }
 
 uint_t aubio_source_apple_audio_seek (aubio_source_apple_audio_t * s, uint_t pos) {
-  Float64 ratio = (Float64)(s->source_samplerate) / (Float64)(s->samplerate);
-  OSStatus err = ExtAudioFileSeek(s->audioFile, pos);
+  SInt64 resampled_pos = (SInt64)ROUND( pos * s->source_samplerate * 1. / s->samplerate );
+  OSStatus err = ExtAudioFileSeek(s->audioFile, resampled_pos);
   if (err) AUBIO_ERROR("source_apple_audio: error in ExtAudioFileSeek (%d)\n", (int)err);
   return err;
 }
 
 uint_t aubio_source_apple_audio_get_samplerate(aubio_source_apple_audio_t * s) {
   return s->samplerate;
+}
+
+uint_t aubio_source_apple_audio_get_channels(aubio_source_apple_audio_t * s) {
+  return s->channels;
 }
 
 #endif /* __APPLE__ */

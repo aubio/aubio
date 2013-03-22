@@ -84,6 +84,16 @@ uint_t aubio_source_sndfile_get_samplerate(aubio_source_sndfile_t * s);
 
 /**
 
+  get number of channels of source object
+
+  \param s source object, created with ::new_aubio_source_sndfile
+  \return number of channels
+
+*/
+uint_t aubio_source_sndfile_get_channels (aubio_source_sndfile_t * s);
+
+/**
+
   seek source object
 
   \param s source object, created with ::new_aubio_source_sndfile
