@@ -43,9 +43,9 @@ int main (int argc, char **argv)
   PRINT_MSG("read %d frames at %dHz (%d blocks) from %s\n", n_frames, samplerate,
     n_frames / hop_size, source_path);
 
+  del_fmat (mat);
   del_aubio_source (s);
 beach:
-  del_fmat (mat);
 
   return err;
 }
