@@ -7,9 +7,11 @@ from numpy import array, shape
 
 class aubio_pvoc_test_case(TestCase):
 
-  def test_members(self):
+  def test_members_automatic_sizes_default(self):
     f = pvoc()
     assert_equal ([f.win_s, f.hop_s], [1024, 512])
+
+  def test_members_automatic_sizes_not_null(self):
     f = pvoc(2048, 128)
     assert_equal ([f.win_s, f.hop_s], [2048, 128])
 

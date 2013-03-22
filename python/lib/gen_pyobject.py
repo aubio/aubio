@@ -21,6 +21,7 @@ maintaining this bizarre file.
 param_numbers = {
   'source': [0, 2],
   'sink':   [2, 0],
+  'sampler': [1, 1],
 }
 
 # TODO
@@ -100,6 +101,7 @@ defaultsizes = {
     'tempo':        ['1'],
     'peakpicker':   ['1'],
     'source':       ['self->hop_size', '1'],
+    'sampler':      ['self->hop_size'],
 }
 
 # default value for variables

@@ -18,8 +18,8 @@
 
 */
 
-/** \file 
-  
+/** \file
+
   Tempo detection object
 
   This object stores all the memory required for tempo detection algorithm
@@ -39,39 +39,71 @@ extern "C" {
 /** tempo detection structure */
 typedef struct _aubio_tempo_t aubio_tempo_t;
 
-/** create tempo detection object */
-aubio_tempo_t * new_aubio_tempo (char_t * method, 
+/** create tempo detection object
+
+  \param buf_size length of FFT
+  \param hop_size number of frames between two consecutive runs
+  \param samplerate sampling rate of the signal to analyze
+
+  \return newly created ::aubio_tempo_t if successful, `NULL` otherwise
+
+*/
+aubio_tempo_t * new_aubio_tempo (char_t * method,
     uint_t buf_size, uint_t hop_size, uint_t samplerate);
 
-/** execute tempo detection */
+/** execute tempo detection
+
+  \param o beat tracking object
+  \param input new samples
+  \param tempo output beats
+
+*/
 void aubio_tempo_do (aubio_tempo_t *o, fvec_t * input, fvec_t * tempo);
 
-/** set tempo detection silence threshold  */
+/** set tempo detection silence threshold
+
+  \param o beat tracking object
+  \param threshold new silence threshold, in dB
+
+  \return `0` if successful, non-zero otherwise
+
+*/
 uint_t aubio_tempo_set_silence(aubio_tempo_t * o, smpl_t silence);
 
-/** set tempo detection peak picking threshold  */
+/** set tempo detection peak picking threshold
+
+  \param o beat tracking object
+  \param threshold new threshold
+
+  \return `0` if successful, non-zero otherwise
+
+*/
 uint_t aubio_tempo_set_threshold(aubio_tempo_t * o, smpl_t threshold);
 
 /** get current tempo
 
-  \param bt beat tracking object
+  \param o beat tracking object
 
-  Returns the currently observed tempo, or 0 if no consistent value is found
+  \return the currently observed tempo, or `0` if no consistent value is found
 
 */
-smpl_t aubio_tempo_get_bpm(aubio_tempo_t * bt);
+smpl_t aubio_tempo_get_bpm(aubio_tempo_t * o);
 
 /** get current tempo confidence
 
-  \param bt beat tracking object
+  \param o beat tracking object
 
-  Returns the confidence with which the tempo has been observed, 0 if no
+  \return confidence with which the tempo has been observed, `0` if no
   consistent value is found.
 
 */
-smpl_t aubio_tempo_get_confidence(aubio_tempo_t * bt);
+smpl_t aubio_tempo_get_confidence(aubio_tempo_t * o);
 
-/** delete tempo detection object */
+/** delete tempo detection object
+
+  \param o beat tracking object
+
+*/
 void del_aubio_tempo(aubio_tempo_t * o);
 
 #ifdef __cplusplus

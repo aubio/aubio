@@ -27,9 +27,9 @@
   difference function, which allows spectral weighting. Because the difference
   function is tapered, the selection of the period is simplified.
  
-  Paul Brossier, ``Automatic annotation of musical audio for interactive
-  systems'', Chapter 3, Pitch Analysis, PhD thesis, Centre for Digital music,
-  Queen Mary University of London, London, UK, 2006.
+  Paul Brossier, [Automatic annotation of musical audio for interactive
+  systems](http://aubio.org/phd/), Chapter 3, Pitch Analysis, PhD thesis,
+  Centre for Digital music, Queen Mary University of London, London, UK, 2006.
 
   \example pitch/test-pitchyinfft.c
 

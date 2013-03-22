@@ -54,8 +54,12 @@ class aubio_source_test_case(TestCase):
 
     def test_wrong_hop_size(self):
         for p in list_of_sounds:
-            f = source(p, 0, -1)
-            print f.hop_size
+            try:
+                f = source(p, 0, -1)
+            except Exception, e:
+                print e
+            else:
+                self.fail('does not fail with wrong hop_size %d' % f.hop_size)
 
     def test_zero_hop_size(self):
         for p in list_of_sounds:

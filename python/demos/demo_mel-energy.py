@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 
 import sys
-from aubio import fvec, source, pvoc, specdesc
-from numpy import hstack
+from aubio import fvec, source, pvoc, filterbank
+from numpy import vstack, zeros
 
 win_s = 512                 # fft size
 hop_s = win_s / 4           # hop size
@@ -21,17 +21,11 @@ samplerate = s.samplerate
 
 pv = pvoc(win_s, hop_s)
 
-methods = ['default', 'energy', 'hfc', 'complex', 'phase', 'specdiff', 'kl',
-        'mkl', 'specflux', 'centroid', 'slope', 'rolloff', 'spread', 'skewness',
-        'kurtosis', 'decrease',]
+f = filterbank(40, win_s)
+f.set_mel_coeffs_slaney(samplerate)
 
-all_descs = {}
+energies = zeros((40,))
 o = {}
-
-for method in methods:
-    cands = []
-    all_descs[method] = fvec(0)
-    o[method] = specdesc(method, win_s)
 
 total_frames = 0
 downsample = 2
@@ -39,12 +33,10 @@ downsample = 2
 while True:
     samples, read = s()
     fftgrain = pv(samples)
-    #print "%f" % ( total_frames / float(samplerate) ),
-    for method in methods:
-        specdesc_val = o[method](fftgrain)[0]
-        all_descs[method] = hstack ( [all_descs[method], specdesc_val] )
-        #print "%f" % specdesc_val,
-    #print
+    new_energies = f(fftgrain)
+    print '%f' % (total_frames / float(samplerate) ),
+    print ' '.join(['%f' % b for b in new_energies])
+    energies = vstack( [energies, new_energies] )
     total_frames += read
     if read < hop_s: break
 
@@ -60,21 +52,19 @@ if 1:
     wave.yaxis.set_visible(False)
     wave.xaxis.set_visible(False)
 
-    all_desc_times = [ x * hop_s  for x in range(len(all_descs["default"])) ]
-    n_methods = len(methods)
-    for i, method in enumerate(methods):
-        #ax = fig.add_subplot (n_methods, 1, i)
-        #plt2 = plt.axes([0.1, 0.1, 0.8, 0.65], sharex = plt1)
-        ax = plt.axes ( [0.1, 0.75 - ((i+1) * 0.65 / n_methods),  0.8, 0.65 / n_methods], sharex = wave )
-        ax.plot(all_desc_times, all_descs[method], '-', label = method)
+    n_plots = len(energies.T)
+    all_desc_times = [ x * hop_s  for x in range(len(energies)) ]
+    for i, band in enumerate(energies.T):
+        ax = plt.axes ( [0.1, 0.75 - ((i+1) * 0.65 / n_plots),  0.8, 0.65 / n_plots], sharex = wave )
+        ax.plot(all_desc_times, band, '-', label = 'band %d' % i)
         #ax.set_ylabel(method, rotation = 0)
         ax.xaxis.set_visible(False)
         ax.yaxis.set_visible(False)
         ax.axis(xmax = all_desc_times[-1], xmin = all_desc_times[0])
-        ax.annotate(method, xy=(-10, 10),  xycoords='axes points',
+        ax.annotate('band %d' % i, xy=(-10, 10),  xycoords='axes points',
                 horizontalalignment='right', verticalalignment='bottom',
                 )
-    set_xlabels_sample2time(ax, all_desc_times[-1], samplerate)
+    set_xlabels_sample2time( ax, all_desc_times[-1], samplerate) 
     #plt.ylabel('spectral descriptor value')
     ax.xaxis.set_visible(True)
     plt.show()

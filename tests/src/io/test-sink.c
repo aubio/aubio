@@ -33,8 +33,8 @@ int main (int argc, char **argv)
     n_frames += read;
   } while ( read == hop_size );
 
-  PRINT_MSG("%d frames read from %s\n written to %s at %dHz\n",
-      n_frames, source_path, sink_path, samplerate);
+  PRINT_MSG("wrote %d frames at %dHz from %s written to %s\n",
+      n_frames, samplerate, source_path, sink_path);
 
 beach:
   del_aubio_source(i);
