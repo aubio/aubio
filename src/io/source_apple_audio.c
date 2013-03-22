@@ -237,6 +237,13 @@ void del_aubio_source_apple_audio(aubio_source_apple_audio_t * s){
 }
 
 uint_t aubio_source_apple_audio_seek (aubio_source_apple_audio_t * s, uint_t pos) {
+  if (1) {
+    AudioBufferList *bufferList = &s->bufferList;
+    UInt32 samples = s->block_size * s->channels;
+    Float64 rateRatio = s->samplerate / s->source_samplerate;
+    uint_t segmentSize= (uint_t)(samples * rateRatio + .5);
+    bufferList->mBuffers[0].mDataByteSize = segmentSize * sizeof(short);
+  }
   SInt64 resampled_pos = (SInt64)ROUND( pos * s->source_samplerate * 1. / s->samplerate );
   OSStatus err = ExtAudioFileSeek(s->audioFile, resampled_pos);
   if (err) AUBIO_ERROR("source_apple_audio: error in ExtAudioFileSeek (%d)\n", (int)err);
