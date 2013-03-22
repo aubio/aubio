@@ -74,6 +74,20 @@ void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_to, uint_
 
 /**
 
+  read polyphonic vector of length hop_size from source object
+
+  \param s source object, created with ::new_aubio_source_sndfile
+  \param read_to ::fmat_t of data to read to
+  \param read upon returns, equals to number of frames actually read
+
+  Upon returns, `read` contains the number of frames actually read from the
+  source. `hop_size` if enough frames could be read, less otherwise.
+
+*/
+void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fmat_t * read_to, uint_t * read);
+
+/**
+
   get samplerate of source object
 
   \param s source object, created with ::new_aubio_source_sndfile
