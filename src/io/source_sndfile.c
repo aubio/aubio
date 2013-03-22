@@ -171,6 +171,13 @@ void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_data, uin
 #endif /* HAVE_SAMPLERATE */
 
   *read = (int)FLOOR(s->ratio * read_samples / input_channels + .5);
+
+  if (*read < s->hop_size) {
+    for (j = *read; j < s->hop_size; j++) {
+      data[j] = 0;
+    }
+  }
+
 }
 
 void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_data, uint_t * read){
@@ -205,6 +212,15 @@ void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_dat
 #endif /* HAVE_SAMPLERATE */
 
   *read = (int)FLOOR(s->ratio * read_samples / input_channels + .5);
+
+  if (*read < s->hop_size) {
+    for (i = 0; i < input_channels; i++) {
+      for (j = *read; j < s->hop_size; j++) {
+        data[i][j] = 0.;
+      }
+    }
+  }
+
 }
 
 uint_t aubio_source_sndfile_get_samplerate(aubio_source_sndfile_t * s) {
