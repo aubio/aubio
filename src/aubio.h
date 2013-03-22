@@ -184,6 +184,7 @@ extern "C"
 #include "tempo/tempo.h"
 #include "io/source.h"
 #include "io/sink.h"
+#include "io/audio_unit.h"
 
 #if AUBIO_UNSTABLE
 #include "mathutils.h"
