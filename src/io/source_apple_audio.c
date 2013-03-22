@@ -51,15 +51,30 @@ extern int createAubioBufferList(AudioBufferList *bufferList, int channels, int 
 extern void freeAudioBufferList(AudioBufferList *bufferList);
 extern CFURLRef getURLFromPath(const char * path);
 
+uint_t aubio_source_apple_audio_open (aubio_source_apple_audio_t *s, char_t * path);
+
 aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * path, uint_t samplerate, uint_t block_size)
 {
   aubio_source_apple_audio_t * s = AUBIO_NEW(aubio_source_apple_audio_t);
 
-  s->path = path;
   s->block_size = block_size;
+  s->samplerate = samplerate;
 
+  if ( aubio_source_apple_audio_open ( s, path ) ) {
+    goto beach;
+  }
+  return s;
+
+beach:
+  AUBIO_FREE(s);
+  return NULL;
+}
+
+uint_t aubio_source_apple_audio_open (aubio_source_apple_audio_t *s, char_t * path)
+{
   OSStatus err = noErr;
   UInt32 propSize;
+  s->path = path;
 
   // open the resource url
   CFURLRef fileURL = getURLFromPath(path);
@@ -76,11 +91,11 @@ aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * path, uint_t 
       kExtAudioFileProperty_FileDataFormat, &propSize, &fileFormat);
   if (err) { AUBIO_ERROR("error in ExtAudioFileGetProperty, %d\n", (int)err); goto beach;}
 
-  if (samplerate == 0) {
-    samplerate = fileFormat.mSampleRate;
+  if (s->samplerate == 0) {
+    s->samplerate = fileFormat.mSampleRate;
     //AUBIO_DBG("sampling rate set to 0, automagically adjusting to %d\n", samplerate);
   }
-  s->samplerate = samplerate;
+
   s->source_samplerate = fileFormat.mSampleRate;
   s->channels = fileFormat.mChannelsPerFrame;
 
@@ -123,26 +138,26 @@ aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * path, uint_t 
   }
 
   // compute the size of the segments needed to read the input file
-  UInt32 samples = s->block_size * clientFormat.mChannelsPerFrame;
-  Float64 rateRatio = clientFormat.mSampleRate / fileFormat.mSampleRate;
+  UInt32 samples = s->block_size * s->channels;
+  Float64 rateRatio = s->samplerate / s->source_samplerate;
   uint_t segmentSize= (uint_t)(samples * rateRatio + .5);
   if (rateRatio < 1.) {
     segmentSize = (uint_t)(samples / rateRatio + .5);
   } else if (rateRatio > 1.) {
-    AUBIO_WRN("up-sampling %s from %0.2fHz to %0.2fHz\n", s->path, fileFormat.mSampleRate, clientFormat.mSampleRate);
+    AUBIO_WRN("up-sampling %s from %0dHz to %0dHz\n", s->path, s->source_samplerate, s->samplerate);
   } else {
     assert ( segmentSize == samples );
     //AUBIO_DBG("not resampling, segmentSize %d, block_size %d\n", segmentSize, s->block_size);
   }
 
   // allocate the AudioBufferList
-  if (createAubioBufferList(&s->bufferList, s->channels, segmentSize)) err = -1;
+  if (createAubioBufferList(&s->bufferList, s->channels, segmentSize)) {
+    AUBIO_ERR("source_apple_audio: failed creating bufferList\n");
+    goto beach;
+  }
 
-  return s;
- 
 beach:
-  AUBIO_FREE(s);
-  return NULL;
+  return err;
 }
 
 void aubio_source_apple_audio_do(aubio_source_apple_audio_t *s, fvec_t * read_to, uint_t * read) {
@@ -204,12 +219,18 @@ beach:
   return;
 }
 
-void del_aubio_source_apple_audio(aubio_source_apple_audio_t * s){
+uint_t aubio_source_apple_audio_close (aubio_source_apple_audio_t *s)
+{
   OSStatus err = noErr;
-  if (!s || !s->audioFile) { return; }
+  if (!s || !s->audioFile) { return 1; }
   err = ExtAudioFileDispose(s->audioFile);
   if (err) AUBIO_ERROR("error in ExtAudioFileDispose, %d\n", (int)err);
   s->audioFile = NULL;
+  return err;
+}
+
+void del_aubio_source_apple_audio(aubio_source_apple_audio_t * s){
+  aubio_source_apple_audio_close (s);
   freeAudioBufferList(&s->bufferList);
   AUBIO_FREE(s);
   return;

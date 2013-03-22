@@ -25,7 +25,10 @@
 
   Media source to read blocks of consecutive audio samples from file
 
+  To write to file, use ::aubio_sink_t.
+
   \example io/test-source.c
+  \example io/test-source_multi.c
 
 */
 
