@@ -10,11 +10,11 @@ int createAubioBufferList(AudioBufferList *bufferList, int channels, int segment
 void freeAudioBufferList(AudioBufferList *bufferList);
 CFURLRef getURLFromPath(const char * path);
 
-int createAubioBufferList(AudioBufferList * bufferList, int channels, int segmentSize) {
+int createAubioBufferList(AudioBufferList * bufferList, int channels, int max_source_samples) {
   bufferList->mNumberBuffers = 1;
   bufferList->mBuffers[0].mNumberChannels = channels;
-  bufferList->mBuffers[0].mData = AUBIO_ARRAY(short, segmentSize);
-  bufferList->mBuffers[0].mDataByteSize = segmentSize * sizeof(short);
+  bufferList->mBuffers[0].mData = AUBIO_ARRAY(short, max_source_samples);
+  bufferList->mBuffers[0].mDataByteSize = max_source_samples * sizeof(short);
   return 0;
 }
 

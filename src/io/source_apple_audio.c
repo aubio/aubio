@@ -47,7 +47,7 @@ struct _aubio_source_apple_audio_t {
   AudioBufferList bufferList;
 };
 
-extern int createAubioBufferList(AudioBufferList *bufferList, int channels, int segmentSize);
+extern int createAubioBufferList(AudioBufferList *bufferList, int channels, int max_source_samples);
 extern void freeAudioBufferList(AudioBufferList *bufferList);
 extern CFURLRef getURLFromPath(const char * path);
 
@@ -137,21 +137,15 @@ uint_t aubio_source_apple_audio_open (aubio_source_apple_audio_t *s, char_t * pa
       goto beach;
   }
 
-  // compute the size of the segments needed to read the input file
-  UInt32 samples = s->block_size * s->channels;
-  Float64 rateRatio = s->samplerate / s->source_samplerate;
-  uint_t segmentSize= (uint_t)(samples * rateRatio + .5);
-  if (rateRatio < 1.) {
-    segmentSize = (uint_t)(samples / rateRatio + .5);
-  } else if (rateRatio > 1.) {
-    AUBIO_WRN("up-sampling %s from %0dHz to %0dHz\n", s->path, s->source_samplerate, s->samplerate);
-  } else {
-    assert ( segmentSize == samples );
-    //AUBIO_DBG("not resampling, segmentSize %d, block_size %d\n", segmentSize, s->block_size);
+  smpl_t ratio = s->source_samplerate * 1. / s->samplerate;
+  if (ratio < 1.) {
+    AUBIO_WRN("source_apple_audio: up-sampling %s from %0dHz to %0dHz\n",
+        s->path, s->source_samplerate, s->samplerate);
   }
 
   // allocate the AudioBufferList
-  if (createAubioBufferList(&s->bufferList, s->channels, segmentSize)) {
+  freeAudioBufferList(&s->bufferList);
+  if (createAubioBufferList(&s->bufferList, s->channels, s->block_size * s->channels)) {
     AUBIO_ERR("source_apple_audio: failed creating bufferList\n");
     goto beach;
   }
@@ -246,14 +240,12 @@ void del_aubio_source_apple_audio(aubio_source_apple_audio_t * s){
 }
 
 uint_t aubio_source_apple_audio_seek (aubio_source_apple_audio_t * s, uint_t pos) {
-  if (1) {
-    AudioBufferList *bufferList = &s->bufferList;
-    UInt32 samples = s->block_size * s->channels;
-    Float64 rateRatio = s->samplerate / s->source_samplerate;
-    uint_t segmentSize= (uint_t)(samples * rateRatio + .5);
-    bufferList->mBuffers[0].mDataByteSize = segmentSize * sizeof(short);
-  }
-  SInt64 resampled_pos = (SInt64)ROUND( pos * s->source_samplerate * 1. / s->samplerate );
+  // after a short read, the bufferList size needs to resetted to prepare for a full read
+  AudioBufferList *bufferList = &s->bufferList;
+  bufferList->mBuffers[0].mDataByteSize = s->block_size * s->channels * sizeof (short);
+  // compute position in the source file, before resampling
+  smpl_t ratio = s->source_samplerate * 1. / s->samplerate;
+  SInt64 resampled_pos = (SInt64)ROUND( pos * ratio );
   OSStatus err = ExtAudioFileSeek(s->audioFile, resampled_pos);
   if (err) AUBIO_ERROR("source_apple_audio: error in ExtAudioFileSeek (%d)\n", (int)err);
   return err;
