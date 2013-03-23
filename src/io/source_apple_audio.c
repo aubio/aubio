@@ -204,10 +204,19 @@ void aubio_source_apple_audio_do_multi(aubio_source_apple_audio_t *s, fmat_t * r
       buf[c][v] = SHORT_TO_FLOAT(data[ v * s->channels + c]);
     }
   }
+  // if read_data has more channels than the file
+  if (read_to->height > s->channels) {
+    // copy last channel to all additional channels
+    for (v = 0; v < loadedPackets; v++) {
+      for (c = s->channels; c < read_to->height; c++) {
+        buf[c][v] = SHORT_TO_FLOAT(data[ v * s->channels + (s->channels - 1)]);
+      }
+    }
+  }
   // short read, fill with zeros
   if (loadedPackets < s->block_size) {
     for (v = loadedPackets; v < s->block_size; v++) {
-      for (c = 0; c < s->channels; c++) {
+      for (c = 0; c < read_to->height; c++) {
         buf[c][v] = 0.;
       }
     }
