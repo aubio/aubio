@@ -22,6 +22,7 @@ int main (int argc, char **argv)
   uint_t samplerate = 0;
   uint_t hop_size = 256;
   uint_t n_frames = 0, read = 0;
+  uint_t old_n_frames;
   if ( argc == 3 ) samplerate = atoi(argv[2]);
   if ( argc == 4 ) hop_size = atoi(argv[3]);
 
@@ -45,6 +46,8 @@ int main (int argc, char **argv)
 
   aubio_source_seek (s, 0);
 
+  old_n_frames = n_frames;
+
   n_frames = 0;
   do {
     aubio_source_do(s, vec, &read);
@@ -59,5 +62,6 @@ int main (int argc, char **argv)
 beach:
   del_fvec (vec);
 
+  assert ( n_frames == old_n_frames );
   return err;
 }
