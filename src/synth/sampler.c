@@ -82,10 +82,10 @@ void aubio_sampler_do_multi ( aubio_sampler_t * o, fmat_t * input, fmat_t * outp
     aubio_source_do_multi (o->source, o->source_output_multi, &read);
     for (i = 0; i < output->height; i++) {
       for (j = 0; j < output->length; j++) {
-        output->data[i][j] = o->source_output_multi->data[i][j];
+        output->data[i][j] += o->source_output_multi->data[i][j];
       }
     }
-    if (read == 0) o->playing = 0;
+    if ( read < o->blocksize ) o->playing = 0;
   }
   if (input && input != output) {
     for (i = 0; i < output->height; i++) {
