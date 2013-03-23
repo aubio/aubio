@@ -13,7 +13,7 @@ int main (int argc, char **argv)
   }
 
   uint_t samplerate = 0; // default is the samplerate of input_path
-  uint_t hop_size = 512;
+  uint_t hop_size = 256;
   uint_t n_frames = 0, read = 0;
 
   char_t *source_path = argv[1];
@@ -35,7 +35,10 @@ int main (int argc, char **argv)
     if (n_frames / hop_size == 10) {
       aubio_sampler_play ( sampler );
     }
-    if (n_frames / hop_size == 20) {
+    if (n_frames / hop_size == 40) {
+      aubio_sampler_play ( sampler );
+    }
+    if (n_frames / hop_size == 70) {
       aubio_sampler_play ( sampler );
     }
     if (n_frames > 10.0 * samplerate) {
