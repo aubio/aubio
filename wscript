@@ -33,10 +33,10 @@ out = 'build'
 def options(ctx):
   ctx.add_option('--enable-double', action='store_true', default=False,
       help='compile aubio in double precision mode')
-  ctx.add_option('--enable-fftw', action='store_true', default=None,
-      help='compile with ooura instead of fftw')
-  ctx.add_option('--enable-fftw3f', action='store_true', default=None,
-      help='compile with fftw3 instead of fftw3f')
+  ctx.add_option('--enable-fftw3f', action='store_true', default=False,
+      help='compile with fftw3f instead of ooura (recommended)')
+  ctx.add_option('--enable-fftw3', action='store_true', default=False,
+      help='compile with fftw3 instead of ooura (recommended in double precision)')
   ctx.add_option('--enable-complex', action='store_true', default=False,
       help='compile with C99 complex')
   ctx.add_option('--enable-jack', action='store_true', default=None,
@@ -120,7 +120,7 @@ def configure(ctx):
     ctx.define('HAVE_AUBIO_DOUBLE', 0)
 
   # optional dependancies using pkg-config
-  if (Options.options.enable_fftw != False or Options.options.enable_fftw3f != False):
+  if (Options.options.enable_fftw3 != False or Options.options.enable_fftw3f != False):
     # one of fftwf or fftw3f
     if (Options.options.enable_fftw3f != False):
       ctx.check_cfg(package = 'fftw3f', atleast_version = '3.0.0',
