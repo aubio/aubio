@@ -2,16 +2,12 @@
 
 source = ctx.path.ant_glob('*.c **/*.c')
 uselib = []
+uselib += ['FFTW3', 'FFTW3F']
+uselib += ['SAMPLERATE']
+uselib += ['SNDFILE']
+uselib += ['JACK']
+uselib += ['LASH']
 
-if 'HAVE_FFTW3' in conf.get_env():
-  source.filter(lambda x: not x.endswith('ooura_fft8g.c'))
-  uselib += ['FFTW3', 'FFTW3F']
-
-if 'HAVE_SAMPLERATE':
-  uselib += ['SAMPLERATE']
-
-if 'HAVE_SNDFILE':
-  uselib += ['SNDFILE']
 
 # build libaubio
 from waflib import Options

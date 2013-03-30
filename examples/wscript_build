@@ -6,14 +6,13 @@ utilsio = bld(
         features = 'c',
         includes = '../src',
         source = ['utils.c', 'jackio.c'],
-        uselib = ['LASH', 'JACK'],
         target = 'utilsio')
 
 # loop over all *.c filenames in examples to build them all
 for source_file in ctx.path.ant_glob('*.c', excl = ['utils.c', 'jackio.c']):
   bld.program(features = 'c cprogram',
       includes = '../src',
-      use = ['aubio', 'LASH', 'JACK', 'SNDFILE', 'utilsio'],
+      use = ['aubio', 'FFTW3F', 'FFTW3', 'SNDFILE', 'JACK', 'LASH', 'SAMPLERATE', 'utilsio'],
       source = str(source_file),
       target = str(source_file).split('.')[0]
     )

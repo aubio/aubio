@@ -33,22 +33,20 @@ out = 'build'
 def options(ctx):
   ctx.add_option('--enable-double', action='store_true', default=False,
       help='compile aubio in double precision mode')
-  ctx.add_option('--enable-fftw', action='store_true', default=False,
+  ctx.add_option('--enable-fftw', action='store_true', default=None,
       help='compile with ooura instead of fftw')
-  ctx.add_option('--enable-fftw3f', action='store_true', default=False,
+  ctx.add_option('--enable-fftw3f', action='store_true', default=None,
       help='compile with fftw3 instead of fftw3f')
   ctx.add_option('--enable-complex', action='store_true', default=False,
       help='compile with C99 complex')
-  ctx.add_option('--enable-jack', action='store_true', default=False,
+  ctx.add_option('--enable-jack', action='store_true', default=None,
       help='compile with jack support')
-  ctx.add_option('--enable-lash', action='store_true', default=False,
+  ctx.add_option('--enable-lash', action='store_true', default=None,
       help='compile with lash support')
-  ctx.add_option('--enable-sndfile', action='store_true', default=False,
+  ctx.add_option('--enable-sndfile', action='store_true', default=None,
       help='compile with libsndfile support')
-  ctx.add_option('--enable-samplerate', action='store_true', default=False,
+  ctx.add_option('--enable-samplerate', action='store_true', default=None,
       help='compile with libsamplerate support')
-  ctx.add_option('--enable-swig', action='store_true', default=False,
-      help='compile with swig support (obsolete)')
   ctx.add_option('--with-target-platform', type='string',
       help='set target platform for cross-compilation', dest='target_platform')
   ctx.load('compiler_c')
@@ -93,80 +91,6 @@ def configure(ctx):
   ctx.check(header_name='string.h')
   ctx.check(header_name='limits.h')
 
-  # optionally use complex.h
-  if (Options.options.enable_complex == True):
-    ctx.check(header_name='complex.h')
-
-  # check dependencies
-  if (Options.options.enable_sndfile == True):
-    ctx.check_cfg(package = 'sndfile', atleast_version = '1.0.4',
-      args = '--cflags --libs')
-  if (Options.options.enable_samplerate == True):
-      ctx.check_cfg(package = 'samplerate', atleast_version = '0.0.15',
-        args = '--cflags --libs')
-
-  # double precision mode
-  if (Options.options.enable_double == True):
-    ctx.define('HAVE_AUBIO_DOUBLE', 1)
-  else:
-    ctx.define('HAVE_AUBIO_DOUBLE', 0)
-
-  # check if pkg-config is installed, optional
-  try:
-    ctx.find_program('pkg-config', var='PKGCONFIG')
-  except ctx.errors.ConfigurationError:
-    ctx.msg('Could not find pkg-config', 'disabling fftw, jack, and lash')
-    ctx.msg('Could not find fftw', 'using ooura')
-
-  # optional dependancies using pkg-config
-  if ctx.env['PKGCONFIG']:
-
-    if (Options.options.enable_fftw == True or Options.options.enable_fftw3f == True):
-      # one of fftwf or fftw3f
-      if (Options.options.enable_fftw3f == True):
-        ctx.check_cfg(package = 'fftw3f', atleast_version = '3.0.0',
-            args = '--cflags --libs')
-        if (Options.options.enable_double == True):
-          ctx.msg('Warning', 'fftw3f enabled, but aubio compiled in double precision!')
-      else:
-        # fftw3f not enabled, take most sensible one according to enable_double
-        if (Options.options.enable_double == True):
-          ctx.check_cfg(package = 'fftw3', atleast_version = '3.0.0',
-              args = '--cflags --libs')
-        else:
-          ctx.check_cfg(package = 'fftw3f', atleast_version = '3.0.0',
-              args = '--cflags --libs')
-      ctx.define('HAVE_FFTW3', 1)
-    else:
-      # fftw disabled, use ooura
-      ctx.msg('Checking for FFT implementation', 'ooura')
-      pass
-
-    if (Options.options.enable_jack == True):
-      ctx.check_cfg(package = 'jack', atleast_version = '0.15.0',
-      args = '--cflags --libs')
-
-    if (Options.options.enable_lash == True):
-      ctx.check_cfg(package = 'lash-1.0', atleast_version = '0.5.0',
-      args = '--cflags --libs', uselib_store = 'LASH')
-
-  # swig
-  if (Options.options.enable_swig == True):
-    try:
-      ctx.find_program('swig', var='SWIG')
-    except ctx.errors.ConfigurationError:
-      ctx.to_log('swig was not found, not looking for (ignoring)')
-
-    if ctx.env['SWIG']:
-      ctx.check_tool('swig')
-      ctx.check_swig_version()
-
-      # python
-      if ctx.find_program('python'):
-        ctx.check_tool('python')
-        ctx.check_python_version((2,4,2))
-        ctx.check_python_headers()
-
   # check support for C99 __VA_ARGS__ macros
   check_c99_varargs = '''
 #include <stdio.h>
@@ -176,6 +100,54 @@ def configure(ctx):
       type='cstlib',
       msg = 'Checking for C99 __VA_ARGS__ macro'):
     ctx.define('HAVE_C99_VARARGS_MACROS', 1)
+
+  # optionally use complex.h
+  if (Options.options.enable_complex == True):
+    ctx.check(header_name='complex.h')
+
+  # check dependencies
+  if (Options.options.enable_sndfile != False):
+      ctx.check_cfg(package = 'sndfile', atleast_version = '1.0.4',
+        args = '--cflags --libs', mandatory = False)
+  if (Options.options.enable_samplerate != False):
+      ctx.check_cfg(package = 'samplerate', atleast_version = '0.0.15',
+        args = '--cflags --libs', mandatory = False)
+
+  # double precision mode
+  if (Options.options.enable_double == True):
+    ctx.define('HAVE_AUBIO_DOUBLE', 1)
+  else:
+    ctx.define('HAVE_AUBIO_DOUBLE', 0)
+
+  # optional dependancies using pkg-config
+  if (Options.options.enable_fftw != False or Options.options.enable_fftw3f != False):
+    # one of fftwf or fftw3f
+    if (Options.options.enable_fftw3f != False):
+      ctx.check_cfg(package = 'fftw3f', atleast_version = '3.0.0',
+          args = '--cflags --libs', mandatory = False)
+      if (Options.options.enable_double == True):
+        ctx.msg('Warning', 'fftw3f enabled, but aubio compiled in double precision!')
+    else:
+      # fftw3f not enabled, take most sensible one according to enable_double
+      if (Options.options.enable_double == True):
+        ctx.check_cfg(package = 'fftw3', atleast_version = '3.0.0',
+            args = '--cflags --libs', mandatory = False)
+      else:
+        ctx.check_cfg(package = 'fftw3f', atleast_version = '3.0.0',
+            args = '--cflags --libs', mandatory = False)
+    ctx.define('HAVE_FFTW3', 1)
+  else:
+    # fftw disabled, use ooura
+    ctx.msg('Checking for FFT implementation', 'ooura')
+    pass
+
+  if (Options.options.enable_jack != False):
+    ctx.check_cfg(package = 'jack', atleast_version = '0.15.0',
+    args = '--cflags --libs', mandatory = False)
+
+  if (Options.options.enable_lash != False):
+    ctx.check_cfg(package = 'lash-1.0', atleast_version = '0.5.0',
+    args = '--cflags --libs', uselib_store = 'LASH', mandatory = False)
 
   # write configuration header
   ctx.write_config_header('src/config.h')
