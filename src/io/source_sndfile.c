@@ -204,6 +204,15 @@ void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_dat
       data[i][j] = (smpl_t)s->scratch_data[input_channels*j+i];
     }
   }
+  // if read_data has more channels than the file
+  if (read_data->height > input_channels) {
+    // copy last channel to all additional channels
+    for (j = 0; j < read_samples / input_channels; j++) {
+      for (i = input_channels; i < read_to->height; i++) {
+        data[i][v] = s->scratch_data[ j * input_channels + (input_channels - 1)];
+      }
+    }
+  }
 
 #ifdef HAVE_SAMPLERATE
   if (s->resampler) {
