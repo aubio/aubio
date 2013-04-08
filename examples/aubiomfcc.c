@@ -60,18 +60,11 @@ static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
 }
 
 static void process_print (void) {
-      /* output times in seconds
-         write extracted mfccs
-      */
-      
-      uint_t coef_cnt;
-      if (sink_uri == NULL) {
-        outmsg("%f\t",frames*overlap_size/(float)samplerate);
-        for (coef_cnt = 0; coef_cnt < n_coefs; coef_cnt++) {
-            outmsg("%f ", fvec_read_sample (mfcc_out, coef_cnt) );
-        }
-        outmsg("\n");
-      }
+  /* output times in seconds and extracted mfccs */
+  if (sink_uri == NULL) {
+    outmsg("%f\t",frames*overlap_size/(float)samplerate);
+    fvec_print(mfcc_out);
+  }
 }
 
 int main(int argc, char **argv) {
