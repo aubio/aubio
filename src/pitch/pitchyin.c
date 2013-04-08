@@ -99,8 +99,7 @@ void
 aubio_pitchyin_getcum (fvec_t * yin)
 {
   uint_t tau;
-  smpl_t tmp;
-  tmp = 0.;
+  smpl_t tmp = 0.;
   yin->data[0] = 1.;
   //AUBIO_DBG("%f\t",yin->data[0]);
   for (tau = 1; tau < yin->length; tau++) {
@@ -150,11 +149,11 @@ aubio_pitchyin_do (aubio_pitchyin_t * o, fvec_t * input, fvec_t * out)
     period = tau - 3;
     if (tau > 4 && (yin->data[period] < tol) &&
         (yin->data[period] < yin->data[period + 1])) {
-      out->data[0] = fvec_quadint (yin, period);
+      out->data[0] = fvec_quadratic_peak_pos (yin, period);
       goto beach;
     }
   }
-  out->data[0] = fvec_quadint (yin, fvec_min_elem (yin));
+  out->data[0] = fvec_quadratic_peak_pos (yin, fvec_min_elem (yin));
 beach:
   return;
 }
