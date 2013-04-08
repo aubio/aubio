@@ -223,7 +223,7 @@ void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_dat
   *read = (int)FLOOR(s->ratio * read_samples / input_channels + .5);
 
   if (*read < s->hop_size) {
-    for (i = 0; i < input_channels; i++) {
+    for (i = 0; i < read_data->height; i++) {
       for (j = *read; j < s->hop_size; j++) {
         data[i][j] = 0.;
       }
