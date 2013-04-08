@@ -40,8 +40,7 @@ extern "C" {
 /** compute the mean of a vector
 
   \param s vector to compute mean from
-
-  \return the mean of v
+  \return the mean of `v`
 
 */
 smpl_t fvec_mean (fvec_t * s);
@@ -258,7 +257,7 @@ processing'', Vladimir Arnost,
   \param s0,s1,s2 are 3 consecutive samples of a curve 
   \param pf is the floating point index [0;2]
  
-  \return s0 + (pf/2.)*((pf-3.)*s0-2.*(pf-2.)*s1+(pf-1.)*s2);
+  \return \f$ s0 + (pf/2.)*((pf-3.)*s0-2.*(pf-2.)*s1+(pf-1.)*s2); \f$
 
 */
 smpl_t aubio_quadfrac (smpl_t s0, smpl_t s1, smpl_t s2, smpl_t pf);
