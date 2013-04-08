@@ -235,6 +235,21 @@ smpl_t fvec_median (fvec_t * v);
 /** finds exact peak index by quadratic interpolation*/
 smpl_t fvec_quadint (fvec_t * x, uint_t pos);
 
+/** finds exact peak index by quadratic interpolation
+
+  See [Quadratic Interpolation of Spectral
+  Peaks](https://ccrma.stanford.edu/~jos/sasp/Quadratic_Peak_Interpolation.html),
+  by Julius O. Smith III
+
+  \f$ p_{frac} = \frac{1}{2} \frac {x[p-1] - x[p+1]} {x[p-1] - 2 x[p] + x[p+1]} \in [ -.5, .5] \f$
+
+  \param x vector to get the interpolated peak position from
+  \param p index of the peak in vector `x`
+  \return \f$ p + p_{frac} \f$ exact peak position of interpolated maximum or minimum
+
+*/
+smpl_t fvec_quadratic_peak_pos (fvec_t * x, uint_t p);
+
 /** Quadratic interpolation using Lagrange polynomial.
  
   Inspired from ``Comparison of interpolation algorithms in real-time sound
