@@ -293,7 +293,7 @@ aubio_pitchmcomb_quadpick (aubio_spectralpeak_t * spectral_peaks, fvec_t * X)
     if (ispeak) {
       count += ispeak;
       spectral_peaks[count - 1].bin = j;
-      spectral_peaks[count - 1].ebin = fvec_quadint (X, j) - 1.;
+      spectral_peaks[count - 1].ebin = fvec_quadratic_peak_pos (X, j);
     }
   }
   return count;
