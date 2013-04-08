@@ -72,9 +72,12 @@ class aubio_pitch_Sinusoid(TestCase):
         #print 'len(pitches), cut:', len(pitches), cut
         #print 'mean errors: ', mean(errors), 'mean pitches: ', mean(pitches)
 
-pitch_algorithms = [ "default", "yinfft", "yin", "schmitt", "mcomb", "fcomb" ]
+pitch_algorithms = [ "default", "yinfft", "yin", "schmitt", "mcomb", "fcomb" , "specacf" ]
 
 signal_modes = [
+        ( 4096,  512, 44100, 2.*882. ),
+        ( 4096,  512, 44100, 882. ),
+        ( 4096,  512, 44100, 440. ),
         ( 2048,  512, 44100, 440. ),
         ( 2048, 1024, 44100, 440. ),
         ( 2048, 1024, 44100, 440. ),
