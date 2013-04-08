@@ -39,7 +39,7 @@ extern CFURLRef getURLFromPath(const char * path);
 
 #define MAX_SIZE 4096 // the maximum number of frames that can be written at a time
 
-struct _aubio_sink_apple_audio_t { 
+struct _aubio_sink_apple_audio_t {
   uint_t samplerate;
   uint_t channels;
   char_t *path;
@@ -95,10 +95,9 @@ void aubio_sink_apple_audio_do(aubio_sink_apple_audio_t * s, fvec_t * write_data
   UInt32 c, v;
   bool async = true;
   short *data = (short*)s->bufferList.mBuffers[0].mData;
-  if (write > s->max_frames) { 
+  if (write > s->max_frames) {
+    AUBIO_WRN("sink_apple_audio: trying to write %d frames, max %d\n", write, s->max_frames);
     write = s->max_frames;
-    AUBIO_WRN("trying to write %d frames, but only %d can be written at a time",
-      write, s->max_frames);
   }
   smpl_t *buf = write_data->data;
 
