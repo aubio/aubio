@@ -32,6 +32,7 @@
 #include "pitch/pitchfcomb.h"
 #include "pitch/pitchschmitt.h"
 #include "pitch/pitchyinfft.h"
+#include "pitch/pitchspecacf.h"
 #include "pitch/pitch.h"
 
 /** pitch detection algorithms */
@@ -42,6 +43,7 @@ typedef enum
   aubio_pitcht_schmitt,    /**< `schmitt`, Schmitt trigger */
   aubio_pitcht_fcomb,      /**< `fcomb`, Fast comb filter */
   aubio_pitcht_yinfft,     /**< `yinfft`, Spectral YIN */
+  aubio_pitcht_specacf,    /**< `specacf`, Spectral autocorrelation */
   aubio_pitcht_default
     = aubio_pitcht_yinfft, /**< `default` */
 } aubio_pitch_type;
@@ -88,6 +90,7 @@ static void aubio_pitch_do_yin (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf)
 static void aubio_pitch_do_schmitt (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf);
 static void aubio_pitch_do_fcomb (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf);
 static void aubio_pitch_do_yinfft (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf);
+static void aubio_pitch_do_specacf (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf);
 
 /* conversion functions for frequency conversions */
 smpl_t freqconvbin (smpl_t f, uint_t samplerate, uint_t bufsize);
@@ -114,6 +117,8 @@ new_aubio_pitch (char_t * pitch_mode,
     pitch_type = aubio_pitcht_schmitt;
   else if (strcmp (pitch_mode, "fcomb") == 0)
     pitch_type = aubio_pitcht_fcomb;
+  else if (strcmp (pitch_mode, "specacf") == 0)
+    pitch_type = aubio_pitcht_specacf;
   else if (strcmp (pitch_mode, "default") == 0)
     pitch_type = aubio_pitcht_default;
   else {
@@ -158,6 +163,13 @@ new_aubio_pitch (char_t * pitch_mode,
       p->conf_cb = (aubio_pitch_get_conf_t)aubio_pitchyinfft_get_confidence;
       aubio_pitchyinfft_set_tolerance (p->p_object, 0.85);
       break;
+    case aubio_pitcht_specacf:
+      p->buf = new_fvec (bufsize);
+      p->p_object = new_aubio_pitchspecacf (bufsize);
+      p->detect_cb = aubio_pitch_do_specacf;
+      p->conf_cb = (aubio_pitch_get_conf_t)aubio_pitchspecacf_get_tolerance;
+      aubio_pitchspecacf_set_tolerance (p->p_object, 0.85);
+      break;
     default:
       break;
   }
@@ -189,6 +201,10 @@ del_aubio_pitch (aubio_pitch_t * p)
     case aubio_pitcht_yinfft:
       del_fvec (p->buf);
       del_aubio_pitchyinfft (p->p_object);
+      break;
+    case aubio_pitcht_specacf:
+      del_fvec (p->buf);
+      del_aubio_pitchspecacf (p->p_object);
       break;
     default:
       break;
@@ -312,6 +328,21 @@ aubio_pitch_do_yinfft (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf)
     pitch = 0.;
   }
   obuf->data[0] = pitch;
+}
+
+void
+aubio_pitch_do_specacf (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * out)
+{
+  aubio_pitch_slideblock (p, ibuf);
+  aubio_pitchspecacf_do (p->p_object, p->buf, out);
+  //out->data[0] = aubio_bintofreq (out->data[0], p->samplerate, p->bufsize);
+  smpl_t pitch = 0., period = out->data[0];
+  if (period > 0) {
+    pitch = p->samplerate / period;
+  } else {
+    pitch = 0.;
+  }
+  out->data[0] = pitch;
 }
 
 void
