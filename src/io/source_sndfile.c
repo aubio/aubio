@@ -208,8 +208,8 @@ void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_dat
   if (read_data->height > input_channels) {
     // copy last channel to all additional channels
     for (j = 0; j < read_samples / input_channels; j++) {
-      for (i = input_channels; i < read_to->height; i++) {
-        data[i][v] = s->scratch_data[ j * input_channels + (input_channels - 1)];
+      for (i = input_channels; i < read_data->height; i++) {
+        data[i][j] = s->scratch_data[ j * input_channels + (input_channels - 1)];
       }
     }
   }
