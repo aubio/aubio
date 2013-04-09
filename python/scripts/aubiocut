@@ -8,6 +8,7 @@ import sys
 #from aubio.task import *
 
 usage = "usage: %s [options] -i soundfile" % sys.argv[0]
+usage += "\nhelp: %s -h" % sys.argv[0]
 
 def parse_args():
     from optparse import OptionParser
@@ -133,31 +134,64 @@ if __name__ == '__main__':
     o = onset(options.onset_method, bufsize, hopsize)
     o.set_threshold(options.threshold)
 
-    slice_number = 0
-    #if options.cut:
-    this_slice = sink('/tmp/t-%02d.wav' % slice_number, samplerate)
-
     timestamps = []
-    block_read = 0
+    total_frames = 0
+    # analyze pass
     while True:
         samples, read = s()
-        #ring_buffer = hstack([ring_buffer, samples])
-        is_onset = o(samples)
-        if is_onset:
-            this_onset = (block_read - 4. + is_onset[0]) * hopsize 
-            if options.verbose:
-                print "%.4f" % ( this_onset / samplerate )
+        if o(samples):
+            this_onset = o.get_last_onset()
+            if options.verbose: print "%.4f" % o.get_last_onset_s()
             timestamps.append (this_onset)
-            del this_slice
-            slice_number += 1
-            this_slice = sink('/tmp/t-%02d.wav' % slice_number, samplerate)
-        this_slice(samples, read)
-        block_read += 1
+        total_frames += read
         if read < hopsize: break
 
     # print some info
-    duration = float ( block_read * hopsize + read ) / samplerate
     nstamps = len(timestamps)
+    duration = float (total_frames) / float(samplerate)
     info = 'found %(nstamps)d timestamps in %(source_file)s' % locals()
-    info += ' (read %(duration).2fs at %(samplerate)dHz)\n' % locals()
+    info += ' (total %(duration).2fs at %(samplerate)dHz)\n' % locals()
     sys.stderr.write(info)
+
+    # cutting pass
+    if options.cut and nstamps > 0:
+        # generate output filenames
+        import os
+        source_base_name, source_ext = os.path.splitext(os.path.basename(source_file))
+        def new_sink_name(source_base_name, timestamp):
+            return source_base_name + '_%02.3f' % (timestamp) + '.wav'
+        # reopen source file
+        del s
+        s = source(source_file, samplerate, hopsize)
+        # create first sink at 0
+        g = sink(new_sink_name(source_base_name, 0.), samplerate)
+        total_frames = 0
+        # get next region
+        next_onset = int(timestamps.pop(0))
+        while True:
+            vec, read = s()
+            remaining = next_onset - total_frames
+            if remaining <= read:
+                # write remaining samples from current region
+                g(vec[0:remaining], remaining)
+                # close this file
+                del g
+                # create a new file for the new region
+                g = sink(new_sink_name(source_base_name, next_onset / float(samplerate)), samplerate)
+                # write the remaining samples in the new file
+                g(vec[remaining:read], read - remaining)
+                #print "new slice", total_frames_written, "+", remaining, "=", start_of_next_region
+                if len(timestamps):
+                    next_onset = int(timestamps.pop(0))
+                else:
+                    next_onset = 1e120
+            else:
+                g(vec[0:read], read)
+            total_frames += read
+            if read < hopsize: break
+
+        # print some info
+        duration = float (total_frames) / float(samplerate)
+        info = 'created %(nstamps)d slices from %(source_file)s' % locals()
+        info += ' (total %(duration).2fs at %(samplerate)dHz)\n' % locals()
+        sys.stderr.write(info)
