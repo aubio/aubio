@@ -60,6 +60,27 @@ aubio_tempo_t * new_aubio_tempo (char_t * method,
 */
 void aubio_tempo_do (aubio_tempo_t *o, fvec_t * input, fvec_t * tempo);
 
+/** get the time of the latest beat detected, in samples
+
+  \param o tempo detection object as returned by ::new_aubio_tempo
+
+*/
+uint_t aubio_tempo_get_last (aubio_tempo_t *o);
+
+/** get the time of the latest beat detected, in seconds
+
+  \param o tempo detection object as returned by ::new_aubio_tempo
+
+*/
+smpl_t aubio_tempo_get_last_s (aubio_tempo_t *o);
+
+/** get the time of the latest beat detected, in milliseconds
+
+  \param o tempo detection object as returned by ::new_aubio_tempo
+
+*/
+smpl_t aubio_tempo_get_last_ms (aubio_tempo_t *o);
+
 /** set tempo detection silence threshold
 
   \param o beat tracking object

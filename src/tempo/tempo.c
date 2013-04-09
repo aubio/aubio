@@ -45,6 +45,10 @@ struct _aubio_tempo_t {
   uint_t winlen;                 /** dfframe bufsize */
   uint_t step;                   /** dfframe hopsize */ 
   uint_t samplerate;             /** sampling rate of the signal */ 
+  uint_t hop_size;               /** get hop_size */
+  uint_t total_frames;           /** total frames since beginning */
+  uint_t last_beat;              /** time of latest detected beat, in samples */
+  uint_t delay;                  /** delay to remove to last beat, in samples */
 };
 
 /* execute tempo detection function on iput buffer */
@@ -85,10 +89,38 @@ void aubio_tempo_do(aubio_tempo_t *o, fvec_t * input, fvec_t * tempo)
       tempo->data[0] = o->out->data[i] - FLOOR(o->out->data[i]); /* set tactus */
       /* test for silence */
       if (aubio_silence_detection(input, o->silence)==1) {
-        tempo->data[1] = 0; /* unset onset */
+        //tempo->data[0] = 0; /* unset onset */
+      } else {
+        o->last_beat = o->total_frames + (uint_t)ROUND(tempo->data[0] * o->hop_size);
       }
     }
   }
+  o->total_frames += o->hop_size;
+  return;
+}
+
+uint_t aubio_tempo_get_last (aubio_tempo_t *o)
+{
+  return o->last_beat - o->delay;
+}
+
+smpl_t aubio_tempo_get_last_s (aubio_tempo_t *o)
+{
+  return aubio_tempo_get_last (o) / (smpl_t) (o->samplerate);
+}
+
+smpl_t aubio_tempo_get_last_ms (aubio_tempo_t *o)
+{
+  return aubio_tempo_get_last_s (o) / 1000.;
+}
+
+uint_t aubio_tempo_set_delay(aubio_tempo_t * o, uint_t delay) {
+  o->delay = delay;
+  return AUBIO_OK;
+}
+
+uint_t aubio_tempo_get_delay(aubio_tempo_t * o) {
+  return o->delay;
 }
 
 uint_t aubio_tempo_set_silence(aubio_tempo_t * o, smpl_t silence) {
@@ -114,6 +146,10 @@ aubio_tempo_t * new_aubio_tempo (char_t * onset_mode,
   o->threshold = 0.3;
   o->silence = -90.;
   o->blockpos = 0;
+  o->total_frames = 0;
+  o->last_beat = 0;
+  o->delay = 0;
+  o->hop_size = hop_size;
   o->dfframe  = new_fvec(o->winlen);
   o->fftgrain = new_cvec(buf_size);
   o->out      = new_fvec(o->step);
