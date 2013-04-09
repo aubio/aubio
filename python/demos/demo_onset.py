@@ -28,8 +28,8 @@ total_frames = 0
 while True:
     samples, read = s()
     if o(samples):
-        print "%f" % o.get_last_onset_s()
-        onsets.append(o.get_last_onset())
+        print "%f" % o.get_last_s()
+        onsets.append(o.get_last())
     total_frames += read
     if read < hop_s: break
 #print len(onsets)

@@ -58,7 +58,7 @@ void aubio_onset_do (aubio_onset_t *o, fvec_t * input, fvec_t * onset)
       //AUBIO_DBG ("silent onset, not marking as onset\n");
       isonset  = 0;
     } else {
-      uint_t new_onset = o->total_frames + isonset * o->hop_size;
+      uint_t new_onset = o->total_frames + (uint_t)ROUND(isonset * o->hop_size);
       if (o->last_onset + o->minioi < new_onset) {
         //AUBIO_DBG ("accepted detection, marking as onset\n");
         o->last_onset = new_onset;
@@ -80,19 +80,19 @@ void aubio_onset_do (aubio_onset_t *o, fvec_t * input, fvec_t * onset)
   return;
 }
 
-smpl_t aubio_onset_get_last_onset (aubio_onset_t *o)
+uint_t aubio_onset_get_last (aubio_onset_t *o)
 {
   return o->last_onset - o->delay;
 }
 
-smpl_t aubio_onset_get_last_onset_s (aubio_onset_t *o)
+smpl_t aubio_onset_get_last_s (aubio_onset_t *o)
 {
-  return aubio_onset_get_last_onset (o) / (smpl_t) (o->samplerate);
+  return aubio_onset_get_last (o) / (smpl_t) (o->samplerate);
 }
 
-smpl_t aubio_onset_get_last_onset_ms (aubio_onset_t *o)
+smpl_t aubio_onset_get_last_ms (aubio_onset_t *o)
 {
-  return aubio_onset_get_last_onset_s (o) / 1000.;
+  return aubio_onset_get_last_s (o) / 1000.;
 }
 
 uint_t aubio_onset_set_silence(aubio_onset_t * o, smpl_t silence) {

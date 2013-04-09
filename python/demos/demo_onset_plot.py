@@ -33,11 +33,9 @@ downsample = 2  # to plot n samples / hop_s
 total_frames = 0
 while True:
     samples, read = s()
-    is_onset = o(samples)
-    if is_onset:
-        this_onset = o.get_last_onset()
-        print "%f" % (this_onset / float(samplerate))
-        onsets.append(this_onset)
+    if o(samples):
+        print "%f" % (o.get_last_s())
+        onsets.append(o.get_last())
     # keep some data to plot it later
     new_maxes = (abs(samples.reshape(hop_s/downsample, downsample))).max(axis=0)
     allsamples_max = hstack([allsamples_max, new_maxes])
