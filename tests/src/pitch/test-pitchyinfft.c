@@ -13,7 +13,7 @@ int main ()
   fvec_t * in = new_fvec (win_s); // input buffer
   fvec_t * out = new_fvec (1); // output candidates
   // create pitch object
-  aubio_pitchyinfft_t *p  = new_aubio_pitchyinfft(win_s);
+  aubio_pitchyinfft_t *p  = new_aubio_pitchyinfft(44100, win_s);
   aubio_pitchyinfft_set_tolerance (p, 0.2);
 
   while ( n-- ) {

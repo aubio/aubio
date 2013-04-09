@@ -158,7 +158,7 @@ new_aubio_pitch (char_t * pitch_mode,
       break;
     case aubio_pitcht_yinfft:
       p->buf = new_fvec (bufsize);
-      p->p_object = new_aubio_pitchyinfft (bufsize);
+      p->p_object = new_aubio_pitchyinfft (samplerate, bufsize);
       p->detect_cb = aubio_pitch_do_yinfft;
       p->conf_cb = (aubio_pitch_get_conf_t)aubio_pitchyinfft_get_confidence;
       aubio_pitchyinfft_set_tolerance (p->p_object, 0.85);

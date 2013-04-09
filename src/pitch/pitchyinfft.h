@@ -58,7 +58,7 @@ void aubio_pitchyinfft_do (aubio_pitchyinfft_t * o, fvec_t * samples_in, fvec_t 
   \param buf_size size of the input buffer to analyse 
  
 */
-aubio_pitchyinfft_t *new_aubio_pitchyinfft (uint_t buf_size);
+aubio_pitchyinfft_t *new_aubio_pitchyinfft (uint_t samplerate, uint_t buf_size);
 /** deletion of the pitch detection object
  
   \param o pitch detection object as returned by new_aubio_pitchyinfft()

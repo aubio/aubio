@@ -37,6 +37,7 @@ struct _aubio_pitchyinfft_t
   fvec_t *yinfft;     /**< Yin function */
   smpl_t tol;         /**< Yin tolerance */
   smpl_t confidence;  /**< confidence */
+  uint_t short_period; /** shortest period under which to check for octave error */
 };
 
 static const smpl_t freqs[] = { 0., 20., 25., 31.5, 40., 50., 63., 80., 100.,
@@ -52,7 +53,7 @@ static const smpl_t weight[] = { -75.8, -70.1, -60.8, -52.1, -44.2, -37.5,
 };
 
 aubio_pitchyinfft_t *
-new_aubio_pitchyinfft (uint_t bufsize)
+new_aubio_pitchyinfft (uint_t samplerate, uint_t bufsize)
 {
   aubio_pitchyinfft_t *p = AUBIO_NEW (aubio_pitchyinfft_t);
   p->winput = new_fvec (bufsize);
@@ -66,7 +67,7 @@ new_aubio_pitchyinfft (uint_t bufsize)
   uint_t i = 0, j = 1;
   smpl_t freq = 0, a0 = 0, a1 = 0, f0 = 0, f1 = 0;
   for (i = 0; i < p->weight->length; i++) {
-    freq = (smpl_t) i / (smpl_t) bufsize *(smpl_t) 44100.;
+    freq = (smpl_t) i / (smpl_t) bufsize *(smpl_t) samplerate;
     while (freq > freqs[j]) {
       j += 1;
     }
@@ -89,6 +90,8 @@ new_aubio_pitchyinfft (uint_t bufsize)
     p->weight->data[i] = DB2LIN (p->weight->data[i]);
     //p->weight->data[i] = SQRT(DB2LIN(p->weight->data[i]));
   }
+  // check for octave errors above 1300 Hz
+  p->short_period = (uint_t)ROUND(samplerate / 1300.);
   return p;
 }
 
@@ -142,7 +145,7 @@ aubio_pitchyinfft_do (aubio_pitchyinfft_t * p, fvec_t * input, fvec_t * output)
     // 3 point quadratic interpolation
     //return fvec_quadratic_peak_pos (yin,tau,1);
     /* additional check for (unlikely) octave doubling in higher frequencies */
-    if (tau > 35) {
+    if (tau > p->short_period) {
       output->data[0] = fvec_quadratic_peak_pos (yin, tau);
     } else {
       /* should compare the minimum value of each interpolated peaks */
