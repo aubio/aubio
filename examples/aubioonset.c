@@ -60,7 +60,7 @@ process_print (void)
     return;
   smpl_t onset_found = fvec_read_sample (onset, 0);
   if (onset_found) {
-    outmsg ("%f\n", aubio_onset_get_last_onset_s (o) );
+    outmsg ("%f\n", aubio_onset_get_last_s (o) );
   }
 }
 
