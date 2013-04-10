@@ -35,6 +35,8 @@
 #include "pitch/pitchspecacf.h"
 #include "pitch/pitch.h"
 
+#define DEFAULT_PITCH_SILENCE -50.
+
 /** pitch detection algorithms */
 typedef enum
 {
@@ -82,6 +84,7 @@ struct _aubio_pitch_t
   aubio_pitch_detect_t detect_cb; /**< callback to get the pitch candidates */
   aubio_pitch_convert_t conv_cb;  /**< callback to convert it to the desired unit */
   aubio_pitch_get_conf_t conf_cb; /**< pointer to the current confidence callback */
+  smpl_t silence;                 /**< silence threshold */
 };
 
 /* callback functions for pitch detection */
@@ -130,6 +133,7 @@ new_aubio_pitch (char_t * pitch_mode,
   p->type = pitch_type;
   aubio_pitch_set_unit (p, "default");
   p->bufsize = bufsize;
+  p->silence = DEFAULT_PITCH_SILENCE;
   p->conf_cb = NULL;
   switch (p->type) {
     case aubio_pitcht_yin:
@@ -280,12 +284,33 @@ aubio_pitch_set_tolerance (aubio_pitch_t * p, smpl_t tol)
   return AUBIO_OK;
 }
 
+uint_t
+aubio_pitch_set_silence (aubio_pitch_t * p, smpl_t silence)
+{
+  if (silence < 0 && silence > -200) {
+    p->silence = silence;
+    return AUBIO_OK;
+  } else {
+    AUBIO_ERR("pitch: could do set silence to %.2f", silence);
+    return AUBIO_FAIL;
+  }
+}
+
+smpl_t
+aubio_pitch_get_silence (aubio_pitch_t * p)
+{
+  return p->silence;
+}
+
 
 /* do method, calling the detection callback, then the conversion callback */
 void
 aubio_pitch_do (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf)
 {
   p->detect_cb (p, ibuf, obuf);
+  if (aubio_silence_detection(ibuf, p->silence) == 1) {
+    obuf->data[0] = 0.;
+  }
   obuf->data[0] = p->conv_cb (obuf->data[0], p->samplerate, p->bufsize);
 }
 

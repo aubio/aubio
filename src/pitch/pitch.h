@@ -82,6 +82,23 @@ aubio_pitch_t *new_aubio_pitch (char_t * method,
 */
 uint_t aubio_pitch_set_unit (aubio_pitch_t * o, char_t * mode);
 
+/** set the silence threshold of the pitch detection object
+
+  \param o pitch detection object as returned by new_aubio_pitch()
+  \param silence level threshold under which pitch should be ignored, in dB
+
+*/
+uint_t aubio_pitch_set_silence (aubio_pitch_t * o, smpl_t silence);
+
+/** set the silence threshold of the pitch detection object
+
+  \param o pitch detection object as returned by new_aubio_pitch()
+
+  \param return level threshold under which pitch should be ignored, in dB
+
+*/
+smpl_t aubio_pitch_get_silence (aubio_pitch_t * o);
+
 /** get the current confidence
 
   \param o pitch detection object as returned by new_aubio_pitch()
