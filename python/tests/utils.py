@@ -11,3 +11,10 @@ def list_all_sounds(rel_dir):
     import os.path, glob
     datadir = os.path.join(os.path.dirname(__file__), rel_dir)
     return glob.glob(os.path.join(datadir,'*.*'))
+
+def array_from_yaml_file(filename):
+    import yaml
+    f = open(filename)
+    yaml_data = yaml.safe_load(f)
+    f.close()
+    return yaml_data
