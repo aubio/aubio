@@ -24,7 +24,7 @@
 #include "mathutils.h"
 #include "spectral/fft.h"
 
-#ifdef HAVE_FFTW3
+#ifdef HAVE_FFTW3             // using FFTW3
 /* note that <complex.h> is not included here but only in aubio_priv.h, so that
  * c++ projects can still use their own complex definition. */
 #include <fftw3.h>
@@ -77,27 +77,39 @@ typedef FFTW_TYPE fft_data_t;
 // a global mutex for FFTW thread safety
 pthread_mutex_t aubio_fftw_mutex = PTHREAD_MUTEX_INITIALIZER;
 
+#else
+#ifdef HAVE_ACCELERATE        // using ACCELERATE
+// https://developer.apple.com/library/mac/#documentation/Accelerate/Reference/vDSPRef/Reference/reference.html
+#include <Accelerate/Accelerate.h>
+
+#else                         // using OOURA
+// let's use ooura instead
+extern void rdft(int, int, double *, int *, double *);
+
+#endif /* HAVE_ACCELERATE */
 #endif /* HAVE_FFTW3 */
 
 struct _aubio_fft_t {
   uint_t winsize;
   uint_t fft_size;
-#ifdef HAVE_FFTW3
+#ifdef HAVE_FFTW3             // using FFTW3
   real_t *in, *out;
   fftw_plan pfw, pbw;
   fft_data_t * specdata;     /* complex spectral data */
 #else
+#ifdef HAVE_ACCELERATE        // using ACCELERATE
+  int log2fftsize;
+  FFTSetup fftSetup;
+  DSPSplitComplex spec;
+  float *in, *out;
+#else                         // using OOURA
   double *in, *out;
   double *w;
   int *ip;
+#endif /* HAVE_ACCELERATE */
 #endif /* HAVE_FFTW3 */
   fvec_t * compspec;
 };
-
-#ifndef HAVE_FFTW3
-// let's use ooura instead
-extern void rdft(int, int, double *, int *, double *);
-#endif
 
 aubio_fft_t * new_aubio_fft (uint_t winsize) {
   aubio_fft_t * s = AUBIO_NEW(aubio_fft_t);
@@ -130,6 +142,17 @@ aubio_fft_t * new_aubio_fft (uint_t winsize) {
     s->specdata[i] = 0.;
   }
 #else
+#ifdef HAVE_ACCELERATE        // using ACCELERATE
+  s->winsize = winsize;
+  s->fft_size = winsize;
+  s->compspec = new_fvec(winsize);
+  s->log2fftsize = (uint_t)log2f(s->fft_size);
+  s->in = AUBIO_ARRAY(float, s->fft_size);
+  s->out = AUBIO_ARRAY(float, s->fft_size);
+  s->spec.realp = AUBIO_ARRAY(float, s->fft_size/2);
+  s->spec.imagp = AUBIO_ARRAY(float, s->fft_size/2);
+  s->fftSetup = vDSP_create_fftsetup(s->log2fftsize, FFT_RADIX2);
+#else                         // using OOURA
   s->winsize = winsize;
   s->fft_size = winsize / 2 + 1;
   s->compspec = new_fvec(winsize);
@@ -138,20 +161,26 @@ aubio_fft_t * new_aubio_fft (uint_t winsize) {
   s->ip    = AUBIO_ARRAY(int   , s->fft_size);
   s->w     = AUBIO_ARRAY(double, s->fft_size);
   s->ip[0] = 0;
-#endif
+#endif /* HAVE_ACCELERATE */
+#endif /* HAVE_FFTW3 */
   return s;
 }
 
 void del_aubio_fft(aubio_fft_t * s) {
   /* destroy data */
   del_fvec(s->compspec);
-#ifdef HAVE_FFTW3
+#ifdef HAVE_FFTW3             // using FFTW3
   fftw_destroy_plan(s->pfw);
   fftw_destroy_plan(s->pbw);
   fftw_free(s->specdata);
 #else /* HAVE_FFTW3 */
+#ifdef HAVE_ACCELERATE        // using ACCELERATE
+  AUBIO_FREE(s->spec.realp);
+  AUBIO_FREE(s->spec.imagp);
+#else                         // using OOURA
   AUBIO_FREE(s->w);
   AUBIO_FREE(s->ip);
+#endif /* HAVE_ACCELERATE */
 #endif /* HAVE_FFTW3 */
   AUBIO_FREE(s->out);
   AUBIO_FREE(s->in);
@@ -173,7 +202,7 @@ void aubio_fft_do_complex(aubio_fft_t * s, fvec_t * input, fvec_t * compspec) {
   for (i=0; i < s->winsize; i++) {
     s->in[i] = input->data[i];
   }
-#ifdef HAVE_FFTW3
+#ifdef HAVE_FFTW3             // using FFTW3
   fftw_execute(s->pfw);
 #ifdef HAVE_COMPLEX_H
   compspec->data[0] = REAL(s->specdata[0]);
@@ -188,6 +217,22 @@ void aubio_fft_do_complex(aubio_fft_t * s, fvec_t * input, fvec_t * compspec) {
   }
 #endif /* HAVE_COMPLEX_H */
 #else /* HAVE_FFTW3 */
+#ifdef HAVE_ACCELERATE        // using ACCELERATE
+  // convert real data to even/odd format used in vDSP
+  vDSP_ctoz((COMPLEX*)s->in, 2, &s->spec, 1, s->fft_size/2);
+  // compute the FFT
+  vDSP_fft_zrip(s->fftSetup, &s->spec, 1, s->log2fftsize, FFT_FORWARD);
+  // convert from vDSP complex split to [ r0, r1, ..., rN, iN-1, .., i2, i1]
+  compspec->data[0] = s->spec.realp[0];
+  compspec->data[s->fft_size / 2] = s->spec.imagp[0];
+  for (i = 1; i < s->fft_size / 2; i++) {
+    compspec->data[i] = s->spec.realp[i];
+    compspec->data[s->fft_size - i] = s->spec.imagp[i];
+  }
+  // apply scaling
+  smpl_t scale = 1./2.;
+  vDSP_vsmul(compspec->data, 1, &scale, compspec->data, 1, s->fft_size);
+#else                         // using OOURA
   rdft(s->winsize, 1, s->in, s->ip, s->w);
   compspec->data[0] = s->in[0];
   compspec->data[s->winsize / 2] = s->in[1];
@@ -195,6 +240,7 @@ void aubio_fft_do_complex(aubio_fft_t * s, fvec_t * input, fvec_t * compspec) {
     compspec->data[i] = s->in[2 * i];
     compspec->data[s->winsize - i] = - s->in[2 * i + 1];
   }
+#endif /* HAVE_ACCELERATE */
 #endif /* HAVE_FFTW3 */
 }
 
@@ -219,6 +265,25 @@ void aubio_fft_rdo_complex(aubio_fft_t * s, fvec_t * compspec, fvec_t * output) 
     output->data[i] = s->out[i]*renorm;
   }
 #else /* HAVE_FFTW3 */
+#ifdef HAVE_ACCELERATE        // using ACCELERATE
+  // convert from real imag  [ r0, r1, ..., rN, iN-1, .., i2, i1]
+  // to vDSP packed format   [ r0, rN, r1, i1, ..., rN-1, iN-1 ]
+  s->out[0] = compspec->data[0];
+  s->out[1] = compspec->data[s->winsize / 2];
+  for (i = 1; i < s->fft_size / 2; i++) {
+    s->out[2 * i] = compspec->data[i];
+    s->out[2 * i + 1] = compspec->data[s->winsize - i];
+  }
+  // convert to split complex format used in vDSP
+  vDSP_ctoz((COMPLEX*)s->out, 2, &s->spec, 1, s->fft_size/2);
+  // compute the FFT
+  vDSP_fft_zrip(s->fftSetup, &s->spec, 1, s->log2fftsize, FFT_INVERSE);
+  // convert result to real output
+  vDSP_ztoc(&s->spec, 1, (COMPLEX*)output->data, 2, s->fft_size/2);
+  // apply scaling
+  smpl_t scale = 1.0 / s->winsize;
+  vDSP_vsmul(output->data, 1, &scale, output->data, 1, s->fft_size);
+#else                         // using OOURA
   smpl_t scale = 2.0 / s->winsize;
   s->out[0] = compspec->data[0];
   s->out[1] = compspec->data[s->winsize / 2];
@@ -230,6 +295,7 @@ void aubio_fft_rdo_complex(aubio_fft_t * s, fvec_t * compspec, fvec_t * output) 
   for (i=0; i < s->winsize; i++) {
     output->data[i] = s->out[i] * scale;
   }
+#endif /* HAVE_ACCELERATE */
 #endif /* HAVE_FFTW3 */
 }
 

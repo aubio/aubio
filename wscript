@@ -69,7 +69,8 @@ def configure(ctx):
     ctx.env.LINKFLAGS += ['-arch', 'i386', '-arch', 'x86_64']
     ctx.env.CC = 'llvm-gcc-4.2'
     ctx.env.LINK_CC = 'llvm-gcc-4.2'
-    ctx.env.FRAMEWORK = ['CoreFoundation', 'AudioToolbox']
+    ctx.env.FRAMEWORK = ['CoreFoundation', 'AudioToolbox', 'Accelerate']
+    ctx.define('HAVE_ACCELERATE', 1)
 
   if Options.platform == 'ios':
     ctx.env.CC = 'clang'
@@ -78,7 +79,8 @@ def configure(ctx):
     SDKVER="6.1"
     DEVROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer"
     SDKROOT="%(DEVROOT)s/SDKs/iPhoneOS%(SDKVER)s.sdk" % locals()
-    ctx.env.FRAMEWORK = ['CoreFoundation', 'AudioToolbox']
+    ctx.env.FRAMEWORK = ['CoreFoundation', 'AudioToolbox', 'Accelerate']
+    ctx.define('HAVE_ACCELERATE', 1)
     ctx.env.CFLAGS += [ '-miphoneos-version-min=6.1', '-arch', 'armv7',
             '--sysroot=%s' % SDKROOT]
     ctx.env.LINKFLAGS += ['-std=c99', '-arch', 'armv7', '--sysroot=%s' %
@@ -138,7 +140,10 @@ def configure(ctx):
     ctx.define('HAVE_FFTW3', 1)
   else:
     # fftw disabled, use ooura
-    ctx.msg('Checking for FFT implementation', 'ooura')
+    if 'HAVE_ACCELERATE' in ctx.env.define_key:
+        ctx.msg('Checking for FFT implementation', 'vDSP')
+    else:
+        ctx.msg('Checking for FFT implementation', 'ooura')
     pass
 
   if (Options.options.enable_jack != False):
