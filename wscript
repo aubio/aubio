@@ -186,9 +186,14 @@ def build(bld):
     aubiopc.target = 'aubio.pc'
     aubiopc.install_path = '${PREFIX}/lib/pkgconfig'
 
+  # install woodblock sound
+  bld.install_files('${PREFIX}/share/sounds/aubio/',
+      'sounds/woodblock.aiff')
+  """
+
   # build manpages from sgml files
-  if ctx.env['DOCBOOKTOMAN']:
-    import TaskGen
+  if bld.env['DOCBOOKTOMAN']:
+    from waflib import TaskGen
     TaskGen.declare_chain(
         name    = 'docbooktoman',
         rule    = '${DOCBOOKTOMAN} ${SRC} > ${TGT}',
@@ -196,14 +201,10 @@ def build(bld):
         ext_out = '.1',
         reentrant = 0,
     )
-    manpages = ctx.new_task_gen(name = 'docbooktoman',
-        source=ctx.path.ant_glob('doc/*.sgml'))
-    ctx.install_files('${MANDIR}/man1', ctx.path.ant_glob('doc/*.1'))
-
-  # install woodblock sound
-  bld.install_files('${PREFIX}/share/sounds/aubio/',
-      'sounds/woodblock.aiff')
-  """
+    manpages = bld(name = 'docbooktoman',
+            source=bld.path.ant_glob('doc/*.sgml'))
+    bld.install_files('${MANDIR}/man1',
+            bld.path.ant_glob('doc/*.1'))
 
 def shutdown(bld):
     from waflib import Options, Logs
