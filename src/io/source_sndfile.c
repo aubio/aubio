@@ -58,7 +58,7 @@ struct _aubio_source_sndfile_t {
 
   // some temporary memory for sndfile to write at
   uint_t scratch_size;
-  smpl_t *scratch_data;
+  float *scratch_data;
 };
 
 aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplerate, uint_t hop_size) {
@@ -198,18 +198,30 @@ void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_dat
     data = read_data->data;
   }
 
-  /* de-interleaving data */
-  for (j = 0; j < read_samples / input_channels; j++) {
-    for (i = 0; i < input_channels; i++) {
-      data[i][j] = (smpl_t)s->scratch_data[input_channels*j+i];
+  if (read_data->height < input_channels) {
+    // destination matrix has less channels than the file; copy only first
+    // channels of the file, de-interleaving data
+    for (j = 0; j < read_samples / input_channels; j++) {
+      for (i = 0; i < read_data->height; i++) {
+        data[i][j] = (smpl_t)s->scratch_data[j * input_channels + i];
+      }
+    }
+  } else {
+    // destination matrix has as many or more channels than the file; copy each
+    // channel from the file to the destination matrix, de-interleaving data
+    for (j = 0; j < read_samples / input_channels; j++) {
+      for (i = 0; i < input_channels; i++) {
+        data[i][j] = (smpl_t)s->scratch_data[j * input_channels + i];
+      }
     }
   }
-  // if read_data has more channels than the file
+
   if (read_data->height > input_channels) {
-    // copy last channel to all additional channels
+    // destination matrix has more channels than the file; copy last channel
+    // of the file to each additional channels, de-interleaving data
     for (j = 0; j < read_samples / input_channels; j++) {
       for (i = input_channels; i < read_data->height; i++) {
-        data[i][j] = s->scratch_data[ j * input_channels + (input_channels - 1)];
+        data[i][j] = (smpl_t)s->scratch_data[j * input_channels + (input_channels - 1)];
       }
     }
   }
