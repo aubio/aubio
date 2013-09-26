@@ -194,6 +194,8 @@ def build(bld):
       'sounds/woodblock.aiff')
   """
 
+  bld( source = 'aubio.pc.in' )
+
   # build manpages from sgml files
   if bld.env['DOCBOOKTOMAN']:
     from waflib import TaskGen
