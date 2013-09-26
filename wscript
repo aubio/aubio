@@ -138,13 +138,16 @@ def configure(ctx):
         ctx.check_cfg(package = 'fftw3f', atleast_version = '3.0.0',
             args = '--cflags --libs', mandatory = False)
     ctx.define('HAVE_FFTW3', 1)
+
+  # fftw disabled, use ooura
+  if 'HAVE_FFTW3F' in ctx.env.define_key:
+    ctx.msg('Checking for FFT implementation', 'fftw3f')
+  elif 'HAVE_FFTW3' in ctx.env.define_key:
+    ctx.msg('Checking for FFT implementation', 'fftw3')
+  elif 'HAVE_ACCELERATE' in ctx.env.define_key:
+    ctx.msg('Checking for FFT implementation', 'vDSP')
   else:
-    # fftw disabled, use ooura
-    if 'HAVE_ACCELERATE' in ctx.env.define_key:
-        ctx.msg('Checking for FFT implementation', 'vDSP')
-    else:
-        ctx.msg('Checking for FFT implementation', 'ooura')
-    pass
+    ctx.msg('Checking for FFT implementation', 'ooura')
 
   if (Options.options.enable_jack != False):
     ctx.check_cfg(package = 'jack', atleast_version = '0.15.0',
