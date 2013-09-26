@@ -109,7 +109,7 @@
   \endcode
 
   Several examples of C programs are available in the \p examples/ and \p tests/src
-  directory of the source tree.
+  directories of the source tree.
 
   \subsection unstable_api Unstable API
 
