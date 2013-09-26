@@ -182,13 +182,6 @@ def build(bld):
       bld.recurse('tests')
 
   """
-  # create the aubio.pc file for pkg-config
-  if ctx.env['TARGET_PLATFORM'] == 'linux':
-    aubiopc = ctx.new_task_gen('subst')
-    aubiopc.source = 'aubio.pc.in'
-    aubiopc.target = 'aubio.pc'
-    aubiopc.install_path = '${PREFIX}/lib/pkgconfig'
-
   # install woodblock sound
   bld.install_files('${PREFIX}/share/sounds/aubio/',
       'sounds/woodblock.aiff')
@@ -199,17 +192,17 @@ def build(bld):
   # build manpages from sgml files
   if bld.env['DOCBOOKTOMAN']:
     from waflib import TaskGen
+    if 'MANDIR' not in bld.env:
+      bld.env['MANDIR'] = bld.env['PREFIX'] + '/share/man'
     TaskGen.declare_chain(
-        name    = 'docbooktoman',
-        rule    = '${DOCBOOKTOMAN} ${SRC} > ${TGT}',
-        ext_in  = '.sgml',
-        ext_out = '.1',
-        reentrant = 0,
+        name      = 'docbooktoman',
+        rule      = '${DOCBOOKTOMAN} ${SRC} > ${TGT}',
+        ext_in    = '.sgml',
+        ext_out   = '.1',
+        reentrant = False,
+        install_path =  '${MANDIR}/man1',
     )
-    manpages = bld(name = 'docbooktoman',
-            source=bld.path.ant_glob('doc/*.sgml'))
-    bld.install_files('${MANDIR}/man1',
-            bld.path.ant_glob('doc/*.1'))
+    bld( source = bld.path.ant_glob('doc/*.sgml') )
 
 def shutdown(bld):
     from waflib import Options, Logs
