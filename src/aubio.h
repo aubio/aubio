@@ -185,6 +185,7 @@ extern "C"
 #include "io/source.h"
 #include "io/sink.h"
 #include "synth/sampler.h"
+#include "synth/wavetable.h"
 
 #if AUBIO_UNSTABLE
 #include "mathutils.h"
