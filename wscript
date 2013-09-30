@@ -204,6 +204,11 @@ def build(bld):
     )
     bld( source = bld.path.ant_glob('doc/*.sgml') )
 
+  """
+  bld(rule = 'doxygen ${SRC}', source = 'web.cfg') #, target = 'doc/web/index.html')
+  """
+
+
 def shutdown(bld):
     from waflib import Options, Logs
     if Options.platform == 'ios':
