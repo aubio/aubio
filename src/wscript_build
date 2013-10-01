@@ -19,6 +19,7 @@ build_lib_func(
     target = 'aubio',
     lib = 'm',
     uselib = uselib,
+    install_path = '${PREFIX}/lib',
     vnum = ctx.env['LIB_VERSION'])
 
 # install headers, except _priv.h ones
