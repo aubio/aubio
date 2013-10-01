@@ -76,7 +76,7 @@ def configure(ctx):
     ctx.env.CC = 'clang'
     ctx.env.LD = 'clang'
     ctx.env.LINK_CC = 'clang'
-    SDKVER="6.1"
+    SDKVER="7.0"
     DEVROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer"
     SDKROOT="%(DEVROOT)s/SDKs/iPhoneOS%(SDKVER)s.sdk" % locals()
     ctx.env.FRAMEWORK = ['CoreFoundation', 'AudioToolbox', 'Accelerate']
