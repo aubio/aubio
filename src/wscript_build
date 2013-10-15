@@ -11,7 +11,7 @@ uselib += ['LASH']
 
 # build libaubio
 from waflib import Options
-if Options.platform == 'ios':
+if Options.platform in ['ios', 'iosimulator']:
     build_lib_func = ctx.stlib
 else:
     build_lib_func = ctx.shlib
