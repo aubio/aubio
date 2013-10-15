@@ -170,7 +170,7 @@ aubio_beattracking_do (aubio_beattracking_t * bt, fvec_t * dfframe,
 
   /* find non-zero Rayleigh period */
   maxindex = fvec_max_elem (bt->acfout);
-  bt->rp = maxindex ? fvec_quadint (bt->acfout, maxindex) : 1;
+  bt->rp = maxindex ? fvec_quadratic_peak_pos (bt->acfout, maxindex) : 1;
   //rp = (maxindex==127) ? 43 : maxindex; //rayparam
   bt->rp = (maxindex == bt->acfout->length - 1) ? bt->rayparam : maxindex;      //rayparam
 
@@ -203,7 +203,7 @@ aubio_beattracking_do (aubio_beattracking_t * bt, fvec_t * dfframe,
 #endif /* AUBIO_BEAT_WARNINGS */
     phase = step - bt->lastbeat;
   } else {
-    phase = fvec_quadint (bt->phout, maxindex);
+    phase = fvec_quadratic_peak_pos (bt->phout, maxindex);
   }
   /* take back one frame delay */
   phase += 1.;
@@ -305,7 +305,7 @@ aubio_beattracking_checkstate (aubio_beattracking_t * bt)
       }
     }
     fvec_weight (acfout, bt->gwv);
-    gp = fvec_quadint (acfout, fvec_max_elem (acfout));
+    gp = fvec_quadratic_peak_pos (acfout, fvec_max_elem (acfout));
     /*
        while(gp<32) gp =gp*2;
        while(gp>64) gp = gp/2;
@@ -408,8 +408,8 @@ aubio_beattracking_checkstate (aubio_beattracking_t * bt)
 smpl_t
 aubio_beattracking_get_bpm (aubio_beattracking_t * bt)
 {
-  if (bt->timesig != 0 && bt->counter == 0 && bt->flagstep == 0) {
-    return 5168. / fvec_quadint (bt->acfout, bt->bp);
+  if (bt->bp != 0 && bt->timesig != 0 && bt->counter == 0 && bt->flagstep == 0) {
+    return 5168. / fvec_quadratic_peak_pos (bt->acfout, bt->bp);
   } else {
     return 0.;
   }

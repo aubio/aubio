@@ -367,20 +367,9 @@ smpl_t fvec_median (fvec_t * input) {
   }
 }
 
-smpl_t fvec_quadint (fvec_t * x, uint_t pos) {
-  smpl_t s0, s1, s2;
-  uint_t x0 = (pos < 1) ? pos : pos - 1;
-  uint_t x2 = (pos + 1 < x->length) ? pos + 1 : pos;
-  if (x0 == pos) return (x->data[pos] <= x->data[x2]) ? pos : x2;
-  if (x2 == pos) return (x->data[pos] <= x->data[x0]) ? pos : x0;
-  s0 = x->data[x0];
-  s1 = x->data[pos];
-  s2 = x->data[x2];
-  return pos + 0.5 * (s2 - s0 ) / (s2 - 2.* s1 + s0);
-}
-
 smpl_t fvec_quadratic_peak_pos (fvec_t * x, uint_t pos) {
   smpl_t s0, s1, s2;
+  if (pos == 0 || pos == x->length - 1) return pos;
   uint_t x0 = (pos < 1) ? pos : pos - 1;
   uint_t x2 = (pos + 1 < x->length) ? pos + 1 : pos;
   if (x0 == pos) return (x->data[pos] <= x->data[x2]) ? pos : x2;
