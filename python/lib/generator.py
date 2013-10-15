@@ -57,6 +57,7 @@ def generate_object_files(output_path):
       'source_apple_audio',
       'source_sndfile',
       #'sampler',
+      'audio_unit',
       ]
 
   write_msg("-- INFO: %d objects in total" % len(cpp_objects))
