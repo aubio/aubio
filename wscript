@@ -30,23 +30,37 @@ if os.path.exists('src/config.h') or os.path.exists('Makefile'):
 top = '.'
 out = 'build'
 
+def add_option_enable_disable(ctx, name, default = None, help_str = None, help_disable_str = None):
+  if help_str == None:
+      help_str = 'enable ' + name + ' support'
+  if help_disable_str == None:
+      help_disable_str = 'do not ' + help_str
+  ctx.add_option('--enable-' + name, action = 'store_true', default = default,
+          dest = 'enable_' + name,
+          help = help_str)
+  ctx.add_option('--disable-' + name, action = 'store_false',
+          #default = default,
+          dest = 'enable_' + name,
+          help = help_disable_str )
+
 def options(ctx):
-  ctx.add_option('--enable-double', action='store_true', default=False,
-      help='compile aubio in double precision mode')
-  ctx.add_option('--enable-fftw3f', action='store_true', default=False,
-      help='compile with fftw3f instead of ooura (recommended)')
-  ctx.add_option('--enable-fftw3', action='store_true', default=False,
-      help='compile with fftw3 instead of ooura (recommended in double precision)')
-  ctx.add_option('--enable-complex', action='store_true', default=False,
-      help='compile with C99 complex')
-  ctx.add_option('--enable-jack', action='store_true', default=None,
-      help='compile with jack support')
-  ctx.add_option('--enable-lash', action='store_true', default=None,
-      help='compile with lash support')
-  ctx.add_option('--enable-sndfile', action='store_true', default=None,
-      help='compile with libsndfile support')
-  ctx.add_option('--enable-samplerate', action='store_true', default=None,
-      help='compile with libsamplerate support')
+  add_option_enable_disable(ctx, 'double', default = False,
+          help_str = 'compile aubio in double precision mode')
+  add_option_enable_disable(ctx, 'fftw3f', default = False,
+          help_str = 'compile with fftw3f instead of ooura (recommended)', help_disable_str = 'do not compile with fftw3f')
+  add_option_enable_disable(ctx, 'fftw3', default = False,
+          help_str = 'compile with fftw3 instead of ooura', help_disable_str = 'do not compile with fftw3')
+  add_option_enable_disable(ctx, 'complex', default = False,
+          help_str ='compile with C99 complex', help_disable_str = 'do not use C99 complex (default)' )
+  add_option_enable_disable(ctx, 'jack', default = None,
+          help_str = 'compile with jack (auto)', help_disable_str = 'disable jack support')
+  add_option_enable_disable(ctx, 'lash', default = None,
+          help_str = 'compile with LASH (auto)', help_disable_str = 'disable LASH' )
+  add_option_enable_disable(ctx, 'sndfile', default = None,
+          help_str = 'compile with sndfile (auto)', help_disable_str = 'disable sndfile')
+  add_option_enable_disable(ctx, 'samplerate', default = None,
+          help_str = 'compile with samplerate (auto)', help_disable_str = 'disable samplerate')
+
   ctx.add_option('--with-target-platform', type='string',
       help='set target platform for cross-compilation', dest='target_platform')
   ctx.load('compiler_c')
