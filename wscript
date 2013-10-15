@@ -72,19 +72,34 @@ def configure(ctx):
     ctx.env.FRAMEWORK = ['CoreFoundation', 'AudioToolbox', 'Accelerate']
     ctx.define('HAVE_ACCELERATE', 1)
 
-  if Options.platform == 'ios':
+  if Options.platform in [ 'ios', 'iosimulator' ]:
     ctx.env.CC = 'clang'
     ctx.env.LD = 'clang'
     ctx.env.LINK_CC = 'clang'
-    SDKVER="7.0"
-    DEVROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer"
-    SDKROOT="%(DEVROOT)s/SDKs/iPhoneOS%(SDKVER)s.sdk" % locals()
-    ctx.env.FRAMEWORK = ['CoreFoundation', 'AudioToolbox', 'Accelerate']
     ctx.define('HAVE_ACCELERATE', 1)
-    ctx.env.CFLAGS += [ '-miphoneos-version-min=6.1', '-arch', 'armv7',
-            '--sysroot=%s' % SDKROOT]
-    ctx.env.LINKFLAGS += ['-std=c99', '-arch', 'armv7', '--sysroot=%s' %
-            SDKROOT]
+    ctx.define('TARGET_OS_IPHONE', 1)
+    ctx.env.FRAMEWORK = ['CoreFoundation', 'AudioToolbox', 'Accelerate']
+    SDKVER="7.0"
+    MINSDKVER="6.1"
+    if Options.platform == 'ios':
+        DEVROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer"
+        SDKROOT="%(DEVROOT)s/SDKs/iPhoneOS%(SDKVER)s.sdk" % locals()
+        ctx.env.CFLAGS += [ '-arch', 'armv7' ]
+        ctx.env.CFLAGS += [ '-arch', 'armv7s' ]
+        ctx.env.LINKFLAGS += ['-arch', 'armv7']
+        ctx.env.LINKFLAGS += ['-arch', 'armv7s']
+    else:
+        DEVROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer"
+        SDKROOT="%(DEVROOT)s/SDKs/iPhoneSimulator%(SDKVER)s.sdk" % locals()
+        ctx.env.CFLAGS += [ '-arch', 'i386' ]
+        ctx.env.LINKFLAGS += ['-arch', 'i386']
+        ctx.env.CFLAGS += [ '-arch', 'x86_64' ]
+        ctx.env.LINKFLAGS += ['-arch', 'x86_64']
+    ctx.env.CFLAGS += [ '-miphoneos-version-min=' + MINSDKVER ]
+    ctx.env.CFLAGS += [ '--sysroot=%s' % SDKROOT]
+    ctx.env.CFLAGS += ['-std=c99']
+    ctx.env.LINKFLAGS += ['-std=c99']
+    ctx.env.LINKFLAGS += ['--sysroot=%s' % SDKROOT]
 
   # check for required headers
   ctx.check(header_name='stdlib.h')
@@ -177,7 +192,7 @@ def build(bld):
   # add sub directories
   bld.recurse('src')
   from waflib import Options
-  if Options.platform != 'ios':
+  if Options.platform not in ['ios', 'iosimulator']:
       bld.recurse('examples')
       bld.recurse('tests')
 
@@ -211,7 +226,7 @@ def build(bld):
 
 def shutdown(bld):
     from waflib import Options, Logs
-    if Options.platform == 'ios':
+    if Options.platform in ['ios', 'iosimulator']:
           msg ='aubio built for ios, contact the author for a commercial license'
           Logs.pprint('RED', msg)
           msg ='   Paul Brossier <piem@aubio.org>'

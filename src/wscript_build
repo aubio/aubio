@@ -11,8 +11,11 @@ uselib += ['LASH']
 
 # build libaubio
 from waflib import Options
-if Options.platform == 'ios': build_lib_func = ctx.stlib
-else: build_lib_func = ctx.shlib
+if Options.platform == 'ios':
+    build_lib_func = ctx.stlib
+else:
+    build_lib_func = ctx.shlib
+
 build_lib_func(
     includes = ['.'],
     source = source,
@@ -24,6 +27,5 @@ build_lib_func(
 
 # install headers, except _priv.h ones
 ctx.install_files('${PREFIX}/include/aubio/',
-
     ctx.path.ant_glob('**/*.h', excl = ['**_priv.h', 'config.h']),
     relative_trick=True)
