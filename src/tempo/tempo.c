@@ -112,7 +112,7 @@ smpl_t aubio_tempo_get_last_s (aubio_tempo_t *o)
 
 smpl_t aubio_tempo_get_last_ms (aubio_tempo_t *o)
 {
-  return aubio_tempo_get_last_s (o) / 1000.;
+  return aubio_tempo_get_last_s (o) * 1000.;
 }
 
 uint_t aubio_tempo_set_delay(aubio_tempo_t * o, uint_t delay) {

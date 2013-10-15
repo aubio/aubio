@@ -92,7 +92,7 @@ smpl_t aubio_onset_get_last_s (aubio_onset_t *o)
 
 smpl_t aubio_onset_get_last_ms (aubio_onset_t *o)
 {
-  return aubio_onset_get_last_s (o) / 1000.;
+  return aubio_onset_get_last_s (o) * 1000.;
 }
 
 uint_t aubio_onset_set_silence(aubio_onset_t * o, smpl_t silence) {
