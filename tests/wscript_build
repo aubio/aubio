@@ -10,6 +10,7 @@ for target_name in ctx.path.ant_glob('src/**/*.c'):
     extra_source += ['../examples/jackio.c']
 
   bld(features = 'c cprogram test',
+      lib = 'm',
       uselib = uselib,
       source = [target_name] + extra_source,
       target = str(target_name).split('.')[0],
