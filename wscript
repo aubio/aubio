@@ -245,3 +245,12 @@ def shutdown(bld):
           Logs.pprint('RED', msg)
           msg ='   Paul Brossier <piem@aubio.org>'
           Logs.pprint('RED', msg)
+
+
+def dist(ctx):
+    ctx.excl  = ' **/.waf-1* **/*~ **/*.pyc **/*.swp **/.lock-w* **/.git*'
+    ctx.excl += ' **/build/*'
+    ctx.excl += ' **/python/gen **/python/build **/python/dist **/**.tar.bz2'
+    ctx.excl += ' **/doc/full/*'
+    ctx.excl += ' **/python/*.db'
+    ctx.excl += ' **/python.old/*'
