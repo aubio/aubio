@@ -49,6 +49,7 @@ new_aubio_pitchspecacf (uint_t bufsize)
   p->sqrmag = new_fvec (bufsize);
   p->acf = new_fvec (bufsize / 2 + 1);
   p->tol = 1.;
+  p->confidence = 0.;
   return p;
 }
 
@@ -91,7 +92,8 @@ del_aubio_pitchspecacf (aubio_pitchspecacf_t * p)
 
 smpl_t
 aubio_pitchspecacf_get_confidence (aubio_pitchspecacf_t * o) {
-  return 0;
+  // no confidence for now
+  return o->confidence;
 }
 
 uint_t
