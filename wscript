@@ -65,11 +65,13 @@ def options(ctx):
       help='set target platform for cross-compilation', dest='target_platform')
   ctx.load('compiler_c')
   ctx.load('waf_unit_test')
+  ctx.load('gnu_dirs')
 
 def configure(ctx):
   from waflib import Options
   ctx.load('compiler_c')
   ctx.load('waf_unit_test')
+  ctx.load('gnu_dirs')
   ctx.env.CFLAGS += ['-g', '-Wall', '-Wextra']
 
   if Options.options.target_platform:
