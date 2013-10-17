@@ -54,30 +54,30 @@ aubio_filterbank_t *new_aubio_filterbank (uint_t n_filters, uint_t win_s);
 
 /** destroy filterbank object
 
-  \param fb filterbank, as returned by new_aubio_filterbank() method
+  \param f filterbank object, as returned by new_aubio_filterbank()
 
 */
-void del_aubio_filterbank (aubio_filterbank_t * fb);
+void del_aubio_filterbank (aubio_filterbank_t * f);
 
 /** compute filterbank
 
-  \param fb filterbank containing     nfilt x win_s filter coefficients
-  \param in input spectrum containing chans x win_s spectrum
-  \param out output vector containing chans x nfilt output values
+  \param f filterbank object, as returned by new_aubio_filterbank()
+  \param in input spectrum containing an input spectrum of length `win_s`
+  \param out output vector containing the energy found in each band, `nfilt` output values
 
 */
-void aubio_filterbank_do (aubio_filterbank_t * fb, cvec_t * in, fvec_t * out);
+void aubio_filterbank_do (aubio_filterbank_t * f, cvec_t * in, fvec_t * out);
 
-/** return a pointer to the matrix object containing all filter coefficients 
+/** return a pointer to the matrix object containing all filter coefficients
 
-  \param f filterbank object to get coefficients from
+  \param f filterbank object, as returned by new_aubio_filterbank()
 
  */
 fmat_t *aubio_filterbank_get_coeffs (aubio_filterbank_t * f);
 
 /** copy filter coefficients to the filterbank
 
-  \param f filterbank object to set coefficients
+  \param f filterbank object, as returned by new_aubio_filterbank()
   \param filters filter bank coefficients to copy from
 
  */
