@@ -91,7 +91,7 @@ void  fmat_write_sample(fmat_t *s, smpl_t data, uint_t channel, uint_t position)
   \param channel channel to read from
 
 */
-smpl_t * fmat_get_channel(fmat_t *s, uint_t channel);
+void fmat_get_channel (fmat_t *s, uint_t channel, fvec_t *output);
 /** write channel vector into a buffer
 
   Note that this function is not used in the aubio library, since the same

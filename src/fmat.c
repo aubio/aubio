@@ -54,8 +54,10 @@ smpl_t fmat_read_sample(fmat_t *s, uint_t channel, uint_t position) {
 void fmat_put_channel(fmat_t *s, smpl_t * data, uint_t channel) {
   s->data[channel] = data;
 }
-smpl_t * fmat_get_channel(fmat_t *s, uint_t channel) {
-  return s->data[channel];
+void fmat_get_channel(fmat_t *s, uint_t channel, fvec_t *output) {
+  output->data = s->data[channel];
+  output->length = s->length;
+  return;
 }
 
 smpl_t ** fmat_get_data(fmat_t *s) {
