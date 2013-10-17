@@ -109,8 +109,6 @@ def configure(ctx):
         SDKROOT="%(DEVROOT)s/SDKs/iPhoneSimulator%(SDKVER)s.sdk" % locals()
         ctx.env.CFLAGS += [ '-arch', 'i386' ]
         ctx.env.LINKFLAGS += ['-arch', 'i386']
-        ctx.env.CFLAGS += [ '-arch', 'x86_64' ]
-        ctx.env.LINKFLAGS += ['-arch', 'x86_64']
     ctx.env.CFLAGS += [ '-miphoneos-version-min=' + MINSDKVER ]
     ctx.env.CFLAGS += [ '--sysroot=%s' % SDKROOT]
     ctx.env.CFLAGS += ['-std=c99']
