@@ -182,6 +182,10 @@ aubio_beattracking_do (aubio_beattracking_t * bt, fvec_t * dfframe,
   bp = bt->bp;
   /* end of biased filterbank */
 
+  if (bp == 0) {
+    output->data[0] = 0;
+    return;
+  }
 
   /* deliberate integer operation, could be set to 3 max eventually */
   kmax = FLOOR (winlen / bp);
@@ -381,7 +385,7 @@ aubio_beattracking_checkstate (aubio_beattracking_t * bt)
   /* do some further checks on the final bp value */
 
   /* if tempo is > 206 bpm, half it */
-  while (bp < 25) {
+  while (0 < bp && bp < 25) {
 #if AUBIO_BEAT_WARNINGS
     AUBIO_WRN ("doubling from %f (%f bpm) to %f (%f bpm)\n",
         bp, 60.*44100./512./bp, bp/2., 60.*44100./512./bp/2. );
