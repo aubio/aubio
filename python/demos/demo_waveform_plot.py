@@ -4,7 +4,7 @@ import sys
 from aubio import pvoc, source
 from numpy import zeros, hstack
 
-def get_waveform_plot(filename, samplerate = 0, block_size = 4096, ax = None):
+def get_waveform_plot(filename, samplerate = 0, block_size = 4096, ax = None, downsample = 2**4):
     import matplotlib.pyplot as plt
     if not ax:
         fig = plt.figure()
@@ -12,7 +12,7 @@ def get_waveform_plot(filename, samplerate = 0, block_size = 4096, ax = None):
     hop_s = block_size
 
     allsamples_max = zeros(0,)
-    downsample = 2**4  # to plot n samples / hop_s
+    downsample = downsample  # to plot n samples / hop_s
 
     a = source(filename, samplerate, hop_s)            # source file
     if samplerate == 0: samplerate = a.samplerate
