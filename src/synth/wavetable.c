@@ -85,8 +85,10 @@ void aubio_wavetable_do ( aubio_wavetable_t * s, fvec_t * input, fvec_t * output
   if (s->playing) {
     smpl_t pos = s->last_pos;
     for (i = 0; i < output->length; i++) {
-      if (s->freq != s->target_freq)
+      if ( ABS(s->freq - s->target_freq) > ABS(s->inc_freq) )
         s->freq += s->inc_freq;
+      else
+        s->freq = s->target_freq;
       smpl_t inc = s->freq * (smpl_t)(s->wavetable_length) / (smpl_t) (s->samplerate);
       pos += inc;
       while (pos > s->wavetable_length) {
@@ -116,15 +118,21 @@ void aubio_wavetable_do_multi ( aubio_wavetable_t * s, fmat_t * input, fmat_t * 
   if (s->playing) {
     smpl_t pos = s->last_pos;
     for (j = 0; j < output->length; j++) {
-      if (s->freq != s->target_freq)
+      if ( ABS(s->freq - s->target_freq) > ABS(s->inc_freq) )
         s->freq += s->inc_freq;
+      else
+        s->freq = s->target_freq;
       smpl_t inc = s->freq * (smpl_t)(s->wavetable_length) / (smpl_t) (s->samplerate);
       pos += inc;
       while (pos > s->wavetable_length) {
         pos -= s->wavetable_length;
       }
+      if ( ABS(s->amp - s->target_amp) > ABS(s->inc_amp) )
+        s->amp += s->inc_amp;
+      else
+        s->amp = s->target_amp;
       for (i = 0; i < output->height; i++) {
-        output->data[i][j] = interp_2(s->wavetable, pos);
+        output->data[i][j] = s->amp * interp_2(s->wavetable, pos);
       }
     }
     s->last_pos = pos;
