@@ -30,32 +30,48 @@ if os.path.exists('src/config.h') or os.path.exists('Makefile'):
 top = '.'
 out = 'build'
 
+def add_option_enable_disable(ctx, name, default = None, help_str = None, help_disable_str = None):
+  if help_str == None:
+      help_str = 'enable ' + name + ' support'
+  if help_disable_str == None:
+      help_disable_str = 'do not ' + help_str
+  ctx.add_option('--enable-' + name, action = 'store_true', default = default,
+          dest = 'enable_' + name,
+          help = help_str)
+  ctx.add_option('--disable-' + name, action = 'store_false',
+          #default = default,
+          dest = 'enable_' + name,
+          help = help_disable_str )
+
 def options(ctx):
-  ctx.add_option('--enable-double', action='store_true', default=False,
-      help='compile aubio in double precision mode')
-  ctx.add_option('--enable-fftw3f', action='store_true', default=False,
-      help='compile with fftw3f instead of ooura (recommended)')
-  ctx.add_option('--enable-fftw3', action='store_true', default=False,
-      help='compile with fftw3 instead of ooura (recommended in double precision)')
-  ctx.add_option('--enable-complex', action='store_true', default=False,
-      help='compile with C99 complex')
-  ctx.add_option('--enable-jack', action='store_true', default=None,
-      help='compile with jack support')
-  ctx.add_option('--enable-lash', action='store_true', default=None,
-      help='compile with lash support')
-  ctx.add_option('--enable-sndfile', action='store_true', default=None,
-      help='compile with libsndfile support')
-  ctx.add_option('--enable-samplerate', action='store_true', default=None,
-      help='compile with libsamplerate support')
+  add_option_enable_disable(ctx, 'double', default = False,
+          help_str = 'compile aubio in double precision mode')
+  add_option_enable_disable(ctx, 'fftw3f', default = False,
+          help_str = 'compile with fftw3f instead of ooura (recommended)', help_disable_str = 'do not compile with fftw3f')
+  add_option_enable_disable(ctx, 'fftw3', default = False,
+          help_str = 'compile with fftw3 instead of ooura', help_disable_str = 'do not compile with fftw3')
+  add_option_enable_disable(ctx, 'complex', default = False,
+          help_str ='compile with C99 complex', help_disable_str = 'do not use C99 complex (default)' )
+  add_option_enable_disable(ctx, 'jack', default = None,
+          help_str = 'compile with jack (auto)', help_disable_str = 'disable jack support')
+  add_option_enable_disable(ctx, 'lash', default = None,
+          help_str = 'compile with LASH (auto)', help_disable_str = 'disable LASH' )
+  add_option_enable_disable(ctx, 'sndfile', default = None,
+          help_str = 'compile with sndfile (auto)', help_disable_str = 'disable sndfile')
+  add_option_enable_disable(ctx, 'samplerate', default = None,
+          help_str = 'compile with samplerate (auto)', help_disable_str = 'disable samplerate')
+
   ctx.add_option('--with-target-platform', type='string',
       help='set target platform for cross-compilation', dest='target_platform')
   ctx.load('compiler_c')
   ctx.load('waf_unit_test')
+  ctx.load('gnu_dirs')
 
 def configure(ctx):
   from waflib import Options
   ctx.load('compiler_c')
   ctx.load('waf_unit_test')
+  ctx.load('gnu_dirs')
   ctx.env.CFLAGS += ['-g', '-Wall', '-Wextra']
 
   if Options.options.target_platform:
@@ -72,19 +88,32 @@ def configure(ctx):
     ctx.env.FRAMEWORK = ['CoreFoundation', 'AudioToolbox', 'Accelerate']
     ctx.define('HAVE_ACCELERATE', 1)
 
-  if Options.platform == 'ios':
+  if Options.platform in [ 'ios', 'iosimulator' ]:
     ctx.env.CC = 'clang'
     ctx.env.LD = 'clang'
     ctx.env.LINK_CC = 'clang'
-    SDKVER="6.1"
-    DEVROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer"
-    SDKROOT="%(DEVROOT)s/SDKs/iPhoneOS%(SDKVER)s.sdk" % locals()
-    ctx.env.FRAMEWORK = ['CoreFoundation', 'AudioToolbox', 'Accelerate']
     ctx.define('HAVE_ACCELERATE', 1)
-    ctx.env.CFLAGS += [ '-miphoneos-version-min=6.1', '-arch', 'armv7',
-            '--sysroot=%s' % SDKROOT]
-    ctx.env.LINKFLAGS += ['-std=c99', '-arch', 'armv7', '--sysroot=%s' %
-            SDKROOT]
+    ctx.define('TARGET_OS_IPHONE', 1)
+    ctx.env.FRAMEWORK = ['CoreFoundation', 'AudioToolbox', 'Accelerate']
+    SDKVER="7.0"
+    MINSDKVER="6.1"
+    if Options.platform == 'ios':
+        DEVROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer"
+        SDKROOT="%(DEVROOT)s/SDKs/iPhoneOS%(SDKVER)s.sdk" % locals()
+        ctx.env.CFLAGS += [ '-arch', 'armv7' ]
+        ctx.env.CFLAGS += [ '-arch', 'armv7s' ]
+        ctx.env.LINKFLAGS += ['-arch', 'armv7']
+        ctx.env.LINKFLAGS += ['-arch', 'armv7s']
+    else:
+        DEVROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer"
+        SDKROOT="%(DEVROOT)s/SDKs/iPhoneSimulator%(SDKVER)s.sdk" % locals()
+        ctx.env.CFLAGS += [ '-arch', 'i386' ]
+        ctx.env.LINKFLAGS += ['-arch', 'i386']
+    ctx.env.CFLAGS += [ '-miphoneos-version-min=' + MINSDKVER ]
+    ctx.env.CFLAGS += [ '--sysroot=%s' % SDKROOT]
+    ctx.env.CFLAGS += ['-std=c99']
+    ctx.env.LINKFLAGS += ['-std=c99']
+    ctx.env.LINKFLAGS += ['--sysroot=%s' % SDKROOT]
 
   # check for required headers
   ctx.check(header_name='stdlib.h')
@@ -138,13 +167,16 @@ def configure(ctx):
         ctx.check_cfg(package = 'fftw3f', atleast_version = '3.0.0',
             args = '--cflags --libs', mandatory = False)
     ctx.define('HAVE_FFTW3', 1)
+
+  # fftw disabled, use ooura
+  if 'HAVE_FFTW3F' in ctx.env.define_key:
+    ctx.msg('Checking for FFT implementation', 'fftw3f')
+  elif 'HAVE_FFTW3' in ctx.env.define_key:
+    ctx.msg('Checking for FFT implementation', 'fftw3')
+  elif 'HAVE_ACCELERATE' in ctx.env.define_key:
+    ctx.msg('Checking for FFT implementation', 'vDSP')
   else:
-    # fftw disabled, use ooura
-    if 'HAVE_ACCELERATE' in ctx.env.define_key:
-        ctx.msg('Checking for FFT implementation', 'vDSP')
-    else:
-        ctx.msg('Checking for FFT implementation', 'ooura')
-    pass
+    ctx.msg('Checking for FFT implementation', 'ooura')
 
   if (Options.options.enable_jack != False):
     ctx.check_cfg(package = 'jack', atleast_version = '0.15.0',
@@ -174,41 +206,52 @@ def build(bld):
   # add sub directories
   bld.recurse('src')
   from waflib import Options
-  if Options.platform != 'ios':
+  if Options.platform not in ['ios', 'iosimulator']:
       bld.recurse('examples')
       bld.recurse('tests')
 
   """
-  # create the aubio.pc file for pkg-config
-  if ctx.env['TARGET_PLATFORM'] == 'linux':
-    aubiopc = ctx.new_task_gen('subst')
-    aubiopc.source = 'aubio.pc.in'
-    aubiopc.target = 'aubio.pc'
-    aubiopc.install_path = '${PREFIX}/lib/pkgconfig'
-
-  # build manpages from sgml files
-  if ctx.env['DOCBOOKTOMAN']:
-    import TaskGen
-    TaskGen.declare_chain(
-        name    = 'docbooktoman',
-        rule    = '${DOCBOOKTOMAN} ${SRC} > ${TGT}',
-        ext_in  = '.sgml',
-        ext_out = '.1',
-        reentrant = 0,
-    )
-    manpages = ctx.new_task_gen(name = 'docbooktoman',
-        source=ctx.path.ant_glob('doc/*.sgml'))
-    ctx.install_files('${MANDIR}/man1', ctx.path.ant_glob('doc/*.1'))
-
   # install woodblock sound
   bld.install_files('${PREFIX}/share/sounds/aubio/',
       'sounds/woodblock.aiff')
   """
 
+  bld( source = 'aubio.pc.in' )
+
+  # build manpages from sgml files
+  if bld.env['DOCBOOKTOMAN']:
+    from waflib import TaskGen
+    if 'MANDIR' not in bld.env:
+      bld.env['MANDIR'] = bld.env['PREFIX'] + '/share/man'
+    TaskGen.declare_chain(
+        name      = 'docbooktoman',
+        rule      = '${DOCBOOKTOMAN} ${SRC} > ${TGT}',
+        ext_in    = '.sgml',
+        ext_out   = '.1',
+        reentrant = False,
+        install_path =  '${MANDIR}/man1',
+    )
+    bld( source = bld.path.ant_glob('doc/*.sgml') )
+
+  """
+  bld(rule = 'doxygen ${SRC}', source = 'web.cfg') #, target = 'doc/web/index.html')
+  """
+
+
 def shutdown(bld):
     from waflib import Options, Logs
-    if Options.platform == 'ios':
+    if Options.platform in ['ios', 'iosimulator']:
           msg ='aubio built for ios, contact the author for a commercial license'
           Logs.pprint('RED', msg)
           msg ='   Paul Brossier <piem@aubio.org>'
           Logs.pprint('RED', msg)
+
+
+def dist(ctx):
+    ctx.excl  = ' **/.waf-1* **/*~ **/*.pyc **/*.swp **/.lock-w* **/.git*'
+    ctx.excl += ' **/build/*'
+    ctx.excl += ' **/python/gen **/python/build **/python/dist'
+    ctx.excl += ' **/**.zip **/**.tar.bz2'
+    ctx.excl += ' **/doc/full/*'
+    ctx.excl += ' **/python/*.db'
+    ctx.excl += ' **/python.old/*'

@@ -231,9 +231,6 @@ and in the Public Domain.
 */
 smpl_t fvec_median (fvec_t * v);
 
-/** finds exact peak index by quadratic interpolation*/
-smpl_t fvec_quadint (fvec_t * x, uint_t pos);
-
 /** finds exact peak index by quadratic interpolation
 
   See [Quadratic Interpolation of Spectral

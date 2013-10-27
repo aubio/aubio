@@ -17,6 +17,10 @@ int main ()
       mat->data[i][j] = i * 1. + j *.1;
     }
   }
+  fvec_t channel_onstack;
+  fvec_t *channel = &channel_onstack;
+  fmat_get_channel(mat, 1, channel);
+  fvec_print (channel);
   // print out matrix
   fmat_print(mat);
   // destroy it

@@ -22,7 +22,7 @@ int main (int argc, char **argv)
   uint_t samplerate = 0;
   uint_t hop_size = 256;
   uint_t n_frames = 0, read = 0;
-  uint_t old_n_frames;
+  uint_t old_n_frames_1, old_n_frames_2, old_n_frames_3;
   if ( argc == 3 ) samplerate = atoi(argv[2]);
   if ( argc == 4 ) hop_size = atoi(argv[3]);
 
@@ -41,12 +41,14 @@ int main (int argc, char **argv)
     n_frames += read;
   } while ( read == hop_size );
 
-  PRINT_MSG("read %d frames at %dHz (%d blocks) from %s\n", n_frames, samplerate,
-    n_frames / hop_size, source_path);
+  PRINT_MSG("read %.2fs, %d frames at %dHz (%d blocks) from %s\n",
+      n_frames * 1. / samplerate,
+      n_frames, samplerate,
+      n_frames / hop_size, source_path);
+
+  old_n_frames_1 = n_frames;
 
   aubio_source_seek (s, 0);
-
-  old_n_frames = n_frames;
 
   n_frames = 0;
   do {
@@ -55,13 +57,34 @@ int main (int argc, char **argv)
     n_frames += read;
   } while ( read == hop_size );
 
-  PRINT_MSG("read %d frames at %dHz (%d blocks) from %s\n", n_frames, samplerate,
-    n_frames / hop_size, source_path);
+  PRINT_MSG("read %.2fs, %d frames at %dHz (%d blocks) from %s\n",
+      n_frames * 1. / samplerate,
+      n_frames, samplerate,
+      n_frames / hop_size, source_path);
+
+  old_n_frames_2 = n_frames;
+
+  aubio_source_seek (s, n_frames / 2);
+
+  n_frames = 0;
+  do {
+    aubio_source_do(s, vec, &read);
+    //fvec_print (vec);
+    n_frames += read;
+  } while ( read == hop_size );
+
+  PRINT_MSG("read %.2fs, %d frames at %dHz (%d blocks) from %s\n",
+      n_frames * 1. / samplerate,
+      n_frames, samplerate,
+      n_frames / hop_size, source_path);
+
+  old_n_frames_3 = n_frames;
 
   del_aubio_source (s);
 beach:
   del_fvec (vec);
 
-  assert ( n_frames == old_n_frames );
+  assert ( old_n_frames_2 == old_n_frames_1 );
+  assert ( old_n_frames_3 == (uint_t)floor(old_n_frames_1 / 2. + .5) );
   return err;
 }

@@ -124,7 +124,7 @@ aubio_peakpicker_do (aubio_peakpicker_t * p, fvec_t * onset, fvec_t * out)
   onset_peek->data[2] = thresholded->data[0];
   out->data[0] = (p->pickerfn) (onset_peek, 1);
   if (out->data[0]) {
-    out->data[0] = fvec_quadint (onset_peek, 1);
+    out->data[0] = fvec_quadratic_peak_pos (onset_peek, 1);
   }
 }
 

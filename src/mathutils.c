@@ -26,6 +26,9 @@
 #include "musicutils.h"
 #include "config.h"
 
+#ifdef HAVE_ACCELERATE
+#include <Accelerate/Accelerate.h>
+#endif
 
 /** Window types */
 typedef enum
@@ -169,46 +172,84 @@ fvec_sum (fvec_t * s)
 smpl_t
 fvec_max (fvec_t * s)
 {
+#ifndef HAVE_ACCELERATE
   uint_t j;
   smpl_t tmp = 0.0;
   for (j = 0; j < s->length; j++) {
     tmp = (tmp > s->data[j]) ? tmp : s->data[j];
   }
+#else
+  smpl_t tmp = 0.;
+#if !HAVE_AUBIO_DOUBLE
+  vDSP_maxv(s->data, 1, &tmp, s->length);
+#else
+  vDSP_maxvD(s->data, 1, &tmp, s->length);
+#endif
+#endif
   return tmp;
 }
 
 smpl_t
 fvec_min (fvec_t * s)
 {
+#ifndef HAVE_ACCELERATE
   uint_t j;
   smpl_t tmp = s->data[0];
   for (j = 0; j < s->length; j++) {
     tmp = (tmp < s->data[j]) ? tmp : s->data[j];
   }
+#else
+  smpl_t tmp = 0.;
+#if !HAVE_AUBIO_DOUBLE
+  vDSP_minv(s->data, 1, &tmp, s->length);
+#else
+  vDSP_minvD(s->data, 1, &tmp, s->length);
+#endif
+#endif
   return tmp;
 }
 
 uint_t
 fvec_min_elem (fvec_t * s)
 {
+#ifndef HAVE_ACCELERATE
   uint_t j, pos = 0.;
   smpl_t tmp = s->data[0];
   for (j = 0; j < s->length; j++) {
     pos = (tmp < s->data[j]) ? pos : j;
     tmp = (tmp < s->data[j]) ? tmp : s->data[j];
   }
+#else
+  smpl_t tmp = 0.;
+  uint_t pos = 0.;
+#if !HAVE_AUBIO_DOUBLE
+  vDSP_minvi(s->data, 1, &tmp, (vDSP_Length *)&pos, s->length);
+#else
+  vDSP_minviD(s->data, 1, &tmp, (vDSP_Length *)&pos, s->length);
+#endif
+#endif
   return pos;
 }
 
 uint_t
 fvec_max_elem (fvec_t * s)
 {
+#ifndef HAVE_ACCELERATE
   uint_t j, pos = 0;
   smpl_t tmp = 0.0;
   for (j = 0; j < s->length; j++) {
     pos = (tmp > s->data[j]) ? pos : j;
     tmp = (tmp > s->data[j]) ? tmp : s->data[j];
   }
+#else
+  smpl_t tmp = 0.;
+  uint_t pos = 0.;
+#if !HAVE_AUBIO_DOUBLE
+  vDSP_maxvi(s->data, 1, &tmp, (vDSP_Length *)&pos, s->length);
+#else
+  vDSP_maxviD(s->data, 1, &tmp, (vDSP_Length *)&pos, s->length);
+#endif
+#endif
   return pos;
 }
 
@@ -367,20 +408,9 @@ smpl_t fvec_median (fvec_t * input) {
   }
 }
 
-smpl_t fvec_quadint (fvec_t * x, uint_t pos) {
-  smpl_t s0, s1, s2;
-  uint_t x0 = (pos < 1) ? pos : pos - 1;
-  uint_t x2 = (pos + 1 < x->length) ? pos + 1 : pos;
-  if (x0 == pos) return (x->data[pos] <= x->data[x2]) ? pos : x2;
-  if (x2 == pos) return (x->data[pos] <= x->data[x0]) ? pos : x0;
-  s0 = x->data[x0];
-  s1 = x->data[pos];
-  s2 = x->data[x2];
-  return pos + 0.5 * (s2 - s0 ) / (s2 - 2.* s1 + s0);
-}
-
 smpl_t fvec_quadratic_peak_pos (fvec_t * x, uint_t pos) {
   smpl_t s0, s1, s2;
+  if (pos == 0 || pos == x->length - 1) return pos;
   uint_t x0 = (pos < 1) ? pos : pos - 1;
   uint_t x2 = (pos + 1 < x->length) ? pos + 1 : pos;
   if (x0 == pos) return (x->data[pos] <= x->data[x2]) ? pos : x2;

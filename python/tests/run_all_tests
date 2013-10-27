@@ -7,8 +7,12 @@ if __name__ == '__main__':
     curdir = os.path.dirname(sys.argv[0])
     if curdir == '': curdir = '.'
     files = os.listdir(curdir)
-    modfiles = filter (lambda y: y.endswith('.py'), files) 
+    modfiles = filter (lambda y: y.endswith('.py'), files)
     modfiles = filter (lambda f: f.startswith('test_'), modfiles)
+    modfiles = filter (lambda y: not 'beattracking' in y, modfiles)
+    modfiles = filter (lambda y: not 'hist' in y, modfiles)
+    modfiles = filter (lambda y: not 'scale' in y, modfiles)
+    modfiles = filter (lambda y: not 'peakpicker' in y, modfiles)
     # get module names
     modnames = map (lambda x: os.path.splitext(x)[0], modfiles)
     # import them

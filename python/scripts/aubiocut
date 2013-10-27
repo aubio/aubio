@@ -8,7 +8,7 @@ import sys
 #from aubio.task import *
 
 usage = "usage: %s [options] -i soundfile" % sys.argv[0]
-usage += "\nhelp: %s -h" % sys.argv[0]
+usage += "\n help: %s -h" % sys.argv[0]
 
 def parse_args():
     from optparse import OptionParser
@@ -21,10 +21,10 @@ def parse_args():
             help="onset detection method [default=default] \
                     complexdomain|hfc|phase|specdiff|energy|kl|mkl")
     # cutting methods
-    """
     parser.add_option("-b","--beat",
             action="store_true", dest="beat", default=False,
             help="use beat locations")
+    """
     parser.add_option("-S","--silencecut",
             action="store_true", dest="silencecut", default=False,
             help="use silence locations")
@@ -40,10 +40,10 @@ def parse_args():
             help="samplerate at which the file should be represented")
     parser.add_option("-B","--bufsize",
             action="store", dest="bufsize", default=512,
-            metavar = "<size>",
+            metavar = "<size>", type='int',
             help="buffer size [default=512]")
     parser.add_option("-H","--hopsize",
-            metavar = "<size>",
+            metavar = "<size>", type='int',
             action="store", dest="hopsize", default=256,
             help="overlap size [default=256]")
     parser.add_option("-t","--threshold",
@@ -126,12 +126,15 @@ if __name__ == '__main__':
     samplerate = options.samplerate
     source_file = options.source_file
 
-    from aubio import onset, source, sink
+    from aubio import onset, tempo, source, sink
 
     s = source(source_file, samplerate, hopsize)
     if samplerate == 0: samplerate = s.get_samplerate()
 
-    o = onset(options.onset_method, bufsize, hopsize)
+    if options.beat:
+        o = tempo(options.onset_method, bufsize, hopsize)
+    else:
+        o = onset(options.onset_method, bufsize, hopsize)
     o.set_threshold(options.threshold)
 
     timestamps = []
@@ -140,12 +143,11 @@ if __name__ == '__main__':
     while True:
         samples, read = s()
         if o(samples):
-            this_onset = o.get_last_onset()
-            if options.verbose: print "%.4f" % o.get_last_onset_s()
-            timestamps.append (this_onset)
+            timestamps.append (o.get_last())
+            if options.verbose: print "%.4f" % o.get_last_s()
         total_frames += read
         if read < hopsize: break
-
+    del s
     # print some info
     nstamps = len(timestamps)
     duration = float (total_frames) / float(samplerate)
@@ -161,8 +163,8 @@ if __name__ == '__main__':
         def new_sink_name(source_base_name, timestamp):
             return source_base_name + '_%02.3f' % (timestamp) + '.wav'
         # reopen source file
-        del s
         s = source(source_file, samplerate, hopsize)
+        if samplerate == 0: samplerate = s.get_samplerate()
         # create first sink at 0
         g = sink(new_sink_name(source_base_name, 0.), samplerate)
         total_frames = 0

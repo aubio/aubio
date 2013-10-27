@@ -99,9 +99,15 @@ struct _aubio_fft_t {
 #else
 #ifdef HAVE_ACCELERATE        // using ACCELERATE
   int log2fftsize;
+#if !HAVE_AUBIO_DOUBLE
   FFTSetup fftSetup;
   DSPSplitComplex spec;
   float *in, *out;
+#else
+  FFTSetupD fftSetup;
+  DSPDoubleSplitComplex spec;
+  double *in, *out;
+#endif
 #else                         // using OOURA
   double *in, *out;
   double *w;
@@ -147,11 +153,19 @@ aubio_fft_t * new_aubio_fft (uint_t winsize) {
   s->fft_size = winsize;
   s->compspec = new_fvec(winsize);
   s->log2fftsize = (uint_t)log2f(s->fft_size);
+#if !HAVE_AUBIO_DOUBLE
   s->in = AUBIO_ARRAY(float, s->fft_size);
   s->out = AUBIO_ARRAY(float, s->fft_size);
   s->spec.realp = AUBIO_ARRAY(float, s->fft_size/2);
   s->spec.imagp = AUBIO_ARRAY(float, s->fft_size/2);
   s->fftSetup = vDSP_create_fftsetup(s->log2fftsize, FFT_RADIX2);
+#else
+  s->in = AUBIO_ARRAY(double, s->fft_size);
+  s->out = AUBIO_ARRAY(double, s->fft_size);
+  s->spec.realp = AUBIO_ARRAY(double, s->fft_size/2);
+  s->spec.imagp = AUBIO_ARRAY(double, s->fft_size/2);
+  s->fftSetup = vDSP_create_fftsetupD(s->log2fftsize, FFT_RADIX2);
+#endif
 #else                         // using OOURA
   s->winsize = winsize;
   s->fft_size = winsize / 2 + 1;
@@ -218,10 +232,17 @@ void aubio_fft_do_complex(aubio_fft_t * s, fvec_t * input, fvec_t * compspec) {
 #endif /* HAVE_COMPLEX_H */
 #else /* HAVE_FFTW3 */
 #ifdef HAVE_ACCELERATE        // using ACCELERATE
+#if !HAVE_AUBIO_DOUBLE
   // convert real data to even/odd format used in vDSP
-  vDSP_ctoz((COMPLEX*)s->in, 2, &s->spec, 1, s->fft_size/2);
+  vDSP_ctoz((DSPComplex*)s->in, 2, &s->spec, 1, s->fft_size/2);
   // compute the FFT
   vDSP_fft_zrip(s->fftSetup, &s->spec, 1, s->log2fftsize, FFT_FORWARD);
+#else
+  // convert real data to even/odd format used in vDSP
+  vDSP_ctozD((DSPDoubleComplex*)s->in, 2, &s->spec, 1, s->fft_size/2);
+  // compute the FFT
+  vDSP_fft_zripD(s->fftSetup, &s->spec, 1, s->log2fftsize, FFT_FORWARD);
+#endif
   // convert from vDSP complex split to [ r0, r1, ..., rN, iN-1, .., i2, i1]
   compspec->data[0] = s->spec.realp[0];
   compspec->data[s->fft_size / 2] = s->spec.imagp[0];
@@ -231,7 +252,11 @@ void aubio_fft_do_complex(aubio_fft_t * s, fvec_t * input, fvec_t * compspec) {
   }
   // apply scaling
   smpl_t scale = 1./2.;
+#if !HAVE_AUBIO_DOUBLE
   vDSP_vsmul(compspec->data, 1, &scale, compspec->data, 1, s->fft_size);
+#else
+  vDSP_vsmulD(compspec->data, 1, &scale, compspec->data, 1, s->fft_size);
+#endif
 #else                         // using OOURA
   rdft(s->winsize, 1, s->in, s->ip, s->w);
   compspec->data[0] = s->in[0];
@@ -274,15 +299,27 @@ void aubio_fft_rdo_complex(aubio_fft_t * s, fvec_t * compspec, fvec_t * output) 
     s->out[2 * i] = compspec->data[i];
     s->out[2 * i + 1] = compspec->data[s->winsize - i];
   }
+#if !HAVE_AUBIO_DOUBLE
   // convert to split complex format used in vDSP
-  vDSP_ctoz((COMPLEX*)s->out, 2, &s->spec, 1, s->fft_size/2);
+  vDSP_ctoz((DSPComplex*)s->out, 2, &s->spec, 1, s->fft_size/2);
   // compute the FFT
   vDSP_fft_zrip(s->fftSetup, &s->spec, 1, s->log2fftsize, FFT_INVERSE);
   // convert result to real output
-  vDSP_ztoc(&s->spec, 1, (COMPLEX*)output->data, 2, s->fft_size/2);
+  vDSP_ztoc(&s->spec, 1, (DSPComplex*)output->data, 2, s->fft_size/2);
   // apply scaling
   smpl_t scale = 1.0 / s->winsize;
   vDSP_vsmul(output->data, 1, &scale, output->data, 1, s->fft_size);
+#else
+  // convert to split complex format used in vDSP
+  vDSP_ctozD((DSPDoubleComplex*)s->out, 2, &s->spec, 1, s->fft_size/2);
+  // compute the FFT
+  vDSP_fft_zripD(s->fftSetup, &s->spec, 1, s->log2fftsize, FFT_INVERSE);
+  // convert result to real output
+  vDSP_ztocD(&s->spec, 1, (DSPDoubleComplex*)output->data, 2, s->fft_size/2);
+  // apply scaling
+  smpl_t scale = 1.0 / s->winsize;
+  vDSP_vsmulD(output->data, 1, &scale, output->data, 1, s->fft_size);
+#endif
 #else                         // using OOURA
   smpl_t scale = 2.0 / s->winsize;
   s->out[0] = compspec->data[0];

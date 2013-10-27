@@ -109,7 +109,7 @@
   \endcode
 
   Several examples of C programs are available in the \p examples/ and \p tests/src
-  directory of the source tree.
+  directories of the source tree.
 
   \subsection unstable_api Unstable API
 
@@ -184,6 +184,7 @@ extern "C"
 #include "tempo/tempo.h"
 #include "io/source.h"
 #include "io/sink.h"
+#include "io/audio_unit.h"
 #include "synth/sampler.h"
 #include "synth/wavetable.h"
 
