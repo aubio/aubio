@@ -23,7 +23,7 @@
 #include "aubio_priv.h"
 #include "fvec.h"
 #include "fmat.h"
-#include "io/source.h"
+#include "utils/parameter.h"
 #include "synth/wavetable.h"
 
 #define WAVETABLE_LEN 4096
@@ -36,13 +36,8 @@ struct _aubio_wavetable_t {
   uint_t playing;
   smpl_t last_pos;
 
-  smpl_t target_freq;
-  smpl_t freq;
-  smpl_t inc_freq;
-
-  smpl_t target_amp;
-  smpl_t amp;
-  smpl_t inc_amp;
+  aubio_parameter_t *freq;
+  aubio_parameter_t *amp;
 };
 
 aubio_wavetable_t *new_aubio_wavetable(uint_t samplerate, uint_t blocksize)
@@ -61,13 +56,8 @@ aubio_wavetable_t *new_aubio_wavetable(uint_t samplerate, uint_t blocksize)
   s->wavetable->data[s->wavetable_length + 2] = s->wavetable->data[2];
   s->playing = 0;
   s->last_pos = 0.;
-  s->freq = 0.;
-  s->target_freq = 0.;
-  s->inc_freq = 0.;
-
-  s->amp = 0.;
-  s->target_amp = 0.;
-  s->inc_amp = 0.;
+  s->freq = new_aubio_parameter( 0., s->samplerate / 2., 10 );
+  s->amp = new_aubio_parameter( 0., 1., 100 );
   return s;
 }
 
@@ -85,23 +75,21 @@ void aubio_wavetable_do ( aubio_wavetable_t * s, fvec_t * input, fvec_t * output
   if (s->playing) {
     smpl_t pos = s->last_pos;
     for (i = 0; i < output->length; i++) {
-      if ( ABS(s->freq - s->target_freq) > ABS(s->inc_freq) )
-        s->freq += s->inc_freq;
-      else
-        s->freq = s->target_freq;
-      smpl_t inc = s->freq * (smpl_t)(s->wavetable_length) / (smpl_t) (s->samplerate);
+      smpl_t inc = aubio_parameter_get_next_value( s->freq );
+      inc *= (smpl_t)(s->wavetable_length) / (smpl_t) (s->samplerate);
       pos += inc;
       while (pos > s->wavetable_length) {
         pos -= s->wavetable_length;
       }
-      if ( ABS(s->amp - s->target_amp) > ABS(s->inc_amp) )
-        s->amp += s->inc_amp;
-      else
-        s->amp = s->target_amp;
-      output->data[i] = s->amp * interp_2(s->wavetable, pos);
+      output->data[i] = aubio_parameter_get_next_value ( s->amp );
+      output->data[i] *= interp_2(s->wavetable, pos);
     }
     s->last_pos = pos;
   } else {
+    for (i = 0; i < output->length; i++) {
+      aubio_parameter_get_next_value ( s->freq );
+      aubio_parameter_get_next_value ( s->amp );
+    }
     fvec_set(output, 0.);
   }
   // add input to output if needed
@@ -118,28 +106,22 @@ void aubio_wavetable_do_multi ( aubio_wavetable_t * s, fmat_t * input, fmat_t * 
   if (s->playing) {
     smpl_t pos = s->last_pos;
     for (j = 0; j < output->length; j++) {
-      if ( ABS(s->freq - s->target_freq) > ABS(s->inc_freq) )
-        s->freq += s->inc_freq;
-      else
-        s->freq = s->target_freq;
-      smpl_t inc = s->freq * (smpl_t)(s->wavetable_length) / (smpl_t) (s->samplerate);
+      smpl_t inc = aubio_parameter_get_next_value( s->freq );
+      inc *= (smpl_t)(s->wavetable_length) / (smpl_t) (s->samplerate);
       pos += inc;
       while (pos > s->wavetable_length) {
         pos -= s->wavetable_length;
       }
-      if ( ABS(s->amp - s->target_amp) > ABS(s->inc_amp) )
-        s->amp += s->inc_amp;
-      else
-        s->amp = s->target_amp;
+      smpl_t amp = aubio_parameter_get_next_value ( s->amp );
       for (i = 0; i < output->height; i++) {
-        output->data[i][j] = s->amp * interp_2(s->wavetable, pos);
+        output->data[i][j] = amp * interp_2(s->wavetable, pos);
       }
     }
     s->last_pos = pos;
   } else {
     for (j = 0; j < output->length; j++) {
-      if (s->freq != s->target_freq)
-        s->freq += s->inc_freq;
+      aubio_parameter_get_next_value ( s->freq );
+      aubio_parameter_get_next_value ( s->amp );
     }
     fmat_set(output, 0.);
   }
@@ -180,38 +162,20 @@ uint_t aubio_wavetable_stop ( aubio_wavetable_t * s )
 
 uint_t aubio_wavetable_set_freq ( aubio_wavetable_t * s, smpl_t freq )
 {
-  if (freq >= 0 && freq < s->samplerate / 2.) {
-    uint_t steps = 10;
-    s->inc_freq = (freq - s->freq) / steps; 
-    s->target_freq = freq;
-    return 0;
-  } else {
-    return 1;
-  }
+  return aubio_parameter_set_target_value ( s->freq, freq );
 }
 
 smpl_t aubio_wavetable_get_freq ( aubio_wavetable_t * s) {
-  return s->freq;
+  return aubio_parameter_get_current_value ( s->freq);
 }
 
 uint_t aubio_wavetable_set_amp ( aubio_wavetable_t * s, smpl_t amp )
 {
-  AUBIO_MSG("amp: %f, s->amp: %f, target_amp: %f, inc_amp: %f\n",
-      amp, s->amp, s->target_amp, s->inc_amp);
-  if (amp >= 0. && amp < 1.) {
-    uint_t steps = 100;
-    s->inc_amp = (amp - s->amp) / steps; 
-    s->target_amp = amp;
-    AUBIO_ERR("amp: %f, s->amp: %f, target_amp: %f, inc_amp: %f\n",
-        amp, s->amp, s->target_amp, s->inc_amp);
-    return 0;
-  } else {
-    return 1;
-  }
+  return aubio_parameter_set_target_value ( s->amp, amp );
 }
 
 smpl_t aubio_wavetable_get_amp ( aubio_wavetable_t * s) {
-  return s->amp;
+  return aubio_parameter_get_current_value ( s->amp );
 }
 
 void del_aubio_wavetable( aubio_wavetable_t * s )
