@@ -187,6 +187,7 @@ extern "C"
 #include "io/audio_unit.h"
 #include "synth/sampler.h"
 #include "synth/wavetable.h"
+#include "utils/parameter.h"
 
 #if AUBIO_UNSTABLE
 #include "mathutils.h"
