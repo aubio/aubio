@@ -20,9 +20,10 @@
 
 #include "utils.h"
 
-unsigned int pos = 0; /*frames%dspblocksize*/
+uint_t pos = 0; /*frames%dspblocksize*/
 
 aubio_onset_t *o;
+aubio_wavetable_t *wavetable;
 fvec_t *onset;
 
 static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
@@ -37,12 +38,14 @@ static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
     /*time for fft*/
     if (pos == overlap_size-1) {
       /* block loop */
+      fvec_zeros(obuf);
       aubio_onset_do (o, ibuf, onset);
       if ( fvec_read_sample(onset, 0) ) {
-        fvec_copy (woodblock, obuf);
+        aubio_wavetable_play ( wavetable );
       } else {
-        fvec_zeros (obuf);
+        aubio_wavetable_stop ( wavetable );
       }
+      aubio_wavetable_do (wavetable, ibuf, obuf);
       /* end of block loop */
       pos = -1; /* so it will be zero next j loop */
     }
@@ -72,9 +75,14 @@ int main(int argc, char **argv) {
   if (threshold != 0.) aubio_onset_set_threshold (o, threshold);
   onset = new_fvec (1);
 
+  wavetable = new_aubio_wavetable (samplerate, overlap_size);
+  aubio_wavetable_set_freq ( wavetable, 2450.);
+  //aubio_sampler_load (sampler, "/archives/sounds/woodblock.aiff");
+
   examples_common_process(aubio_process,process_print);
 
   del_aubio_onset (o);
+  del_aubio_wavetable (wavetable);
   del_fvec (onset);
 
   examples_common_del();

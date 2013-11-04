@@ -23,6 +23,7 @@
 unsigned int pos = 0; /*frames%dspblocksize*/
 
 aubio_pitch_t *o;
+aubio_wavetable_t *wavetable;
 fvec_t *pitch;
 
 static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
@@ -38,13 +39,15 @@ static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
     if (pos == overlap_size-1) {         
       /* block loop */
       aubio_pitch_do (o, ibuf, pitch);
-      if (fvec_read_sample(pitch, 0)) {
-        for (pos = 0; pos < overlap_size; pos++){
-          // TODO, play sine at this freq
-        }
+      smpl_t freq = fvec_read_sample(pitch, 0);
+      smpl_t amp = powf(10., aubio_db_spl(ibuf)*.05 );
+      aubio_wavetable_set_amp ( wavetable, amp );
+      if (freq != 0.0) {
+        aubio_wavetable_set_freq ( wavetable, freq );
       } else {
-        fvec_zeros (obuf);
+        aubio_wavetable_set_freq ( wavetable, 0.0 );
       }
+      aubio_wavetable_do (wavetable, obuf, obuf);
       /* end of block loop */
       pos = -1; /* so it will be zero next j loop */
     }
@@ -66,9 +69,13 @@ int main(int argc, char **argv) {
   o = new_aubio_pitch (pitch_mode, buffer_size, overlap_size, samplerate);
   pitch = new_fvec (1);
 
+  wavetable = new_aubio_wavetable (samplerate, overlap_size);
+  aubio_wavetable_play ( wavetable );
+
   examples_common_process(aubio_process,process_print);
 
   del_aubio_pitch (o);
+  del_aubio_wavetable (wavetable);
   del_fvec (pitch);
 
   examples_common_del();

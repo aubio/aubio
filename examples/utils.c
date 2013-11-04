@@ -65,7 +65,6 @@ aubio_sink_t *this_sink = NULL;
 
 fvec_t *ibuf;
 fvec_t *obuf;
-fvec_t *woodblock;
 
 /* badly redeclare some things */
 smpl_t threshold;
@@ -245,9 +244,6 @@ examples_common_init (int argc, char **argv)
   }
 #endif /* HAVE_LASH */
 
-  woodblock = new_fvec (overlap_size);
-  //TODO create woodblock sound
-
   ibuf = new_fvec (overlap_size);
   obuf = new_fvec (overlap_size);
 
@@ -258,7 +254,6 @@ examples_common_del (void)
 {
   del_fvec (ibuf);
   del_fvec (obuf);
-  del_fvec (woodblock);
   aubio_cleanup ();
 }
 

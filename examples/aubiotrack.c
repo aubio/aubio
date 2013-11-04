@@ -18,12 +18,12 @@
 
 */
 
-#include <aubio.h>
 #include "utils.h"
 
 uint_t pos = 0;    /* frames%dspblocksize */
-fvec_t * tempo_out = NULL;
 aubio_tempo_t * bt = NULL;
+aubio_wavetable_t *wavetable;
+fvec_t * tempo_out = NULL;
 smpl_t istactus = 0;
 smpl_t isonset = 0;
 
@@ -37,16 +37,18 @@ static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
       output[0][j] = fvec_read_sample(obuf, pos);
     }
     /*time for fft*/
-    if (pos == overlap_size-1) {         
+    if (pos == overlap_size-1) {
       /* block loop */
       aubio_tempo_do (bt,ibuf,tempo_out);
       istactus = fvec_read_sample (tempo_out, 0);
       isonset = fvec_read_sample (tempo_out, 1);
+      fvec_zeros (obuf);
       if (istactus > 0.) {
-        fvec_copy (woodblock, obuf);
+        aubio_wavetable_play ( wavetable );
       } else {
-        fvec_zeros (obuf);
+        aubio_wavetable_stop ( wavetable );
       }
+      aubio_wavetable_do (wavetable, ibuf, obuf);
       /* end of block loop */
       pos = -1; /* so it will be zero next j loop */
     }
@@ -56,13 +58,13 @@ static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
 }
 
 static void process_print (void) {
-        if (sink_uri == NULL) {
-                if (istactus) {
-                        outmsg("%f\n",((smpl_t)(frames*overlap_size)+(istactus-1.)*overlap_size)/(smpl_t)samplerate); 
-                }
-                if (isonset && verbose)
-                        outmsg(" \t \t%f\n",(frames)*overlap_size/(float)samplerate);
-        }
+  if (sink_uri == NULL) {
+    if (istactus) {
+      outmsg("%f\n",((smpl_t)(frames*overlap_size)+(istactus-1.)*overlap_size)/(smpl_t)samplerate);
+    }
+    if (isonset && verbose)
+      outmsg(" \t \t%f\n",(frames)*overlap_size/(float)samplerate);
+  }
 }
 
 int main(int argc, char **argv) {
@@ -76,9 +78,14 @@ int main(int argc, char **argv) {
   bt = new_aubio_tempo(onset_mode,buffer_size,overlap_size, samplerate);
   if (threshold != 0.) aubio_tempo_set_threshold (bt, threshold);
 
+  wavetable = new_aubio_wavetable (samplerate, overlap_size);
+  aubio_wavetable_set_freq ( wavetable, 2450.);
+  //aubio_sampler_load (sampler, "/archives/sounds/woodblock.aiff");
+
   examples_common_process(aubio_process,process_print);
 
   del_aubio_tempo(bt);
+  del_aubio_wavetable (wavetable);
   del_fvec(tempo_out);
 
   examples_common_del();

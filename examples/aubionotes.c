@@ -88,7 +88,7 @@ static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
                       }
 
                       for (pos = 0; pos < overlap_size; pos++){
-                              obuf->data[pos] = woodblock->data[pos];
+                              //obuf->data[pos] = woodblock->data[pos];
                       }
               }
       } else {

@@ -76,4 +76,3 @@ extern uint_t samplerate;
 
 extern fvec_t *ibuf;
 extern fvec_t *obuf;
-extern fvec_t *woodblock;
