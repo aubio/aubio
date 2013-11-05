@@ -42,6 +42,7 @@ def generate_object_files(output_path):
       #'resampler',
       # AUBIO_UNSTABLE
       'hist',
+      'parameter',
       'scale',
       'beattracking',
       'resampler',

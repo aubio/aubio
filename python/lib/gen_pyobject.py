@@ -102,6 +102,7 @@ defaultsizes = {
     'peakpicker':   ['1'],
     'source':       ['self->hop_size', '1'],
     'sampler':      ['self->hop_size'],
+    'wavetable':    ['self->hop_size'],
 }
 
 # default value for variables
