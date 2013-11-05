@@ -90,7 +90,9 @@ new_aubio_jack (uint_t ichan, uint_t ochan,
   char *jack_port_type;
   char name[64];
   /* initial jack client setup */
-  if ((jack_setup->client = jack_client_new (client_name)) == 0) {
+  jack_options_t options = JackNullOption;
+  jack_status_t *status = NULL;
+  if ((jack_setup->client = jack_client_open (client_name, options, status)) == 0) {
     AUBIO_ERR ("jack server not running?\n");
     AUBIO_QUIT (AUBIO_FAIL);
   }
