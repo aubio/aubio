@@ -83,8 +83,6 @@ def configure(ctx):
   if Options.platform == 'darwin':
     ctx.env.CFLAGS += ['-arch', 'i386', '-arch', 'x86_64']
     ctx.env.LINKFLAGS += ['-arch', 'i386', '-arch', 'x86_64']
-    ctx.env.CC = 'llvm-gcc-4.2'
-    ctx.env.LINK_CC = 'llvm-gcc-4.2'
     ctx.env.FRAMEWORK = ['CoreFoundation', 'AudioToolbox', 'Accelerate']
     ctx.define('HAVE_ACCELERATE', 1)
 
