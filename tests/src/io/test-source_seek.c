@@ -22,7 +22,7 @@ int main (int argc, char **argv)
   uint_t samplerate = 0;
   uint_t hop_size = 256;
   uint_t n_frames = 0, read = 0;
-  uint_t old_n_frames_1, old_n_frames_2, old_n_frames_3;
+  uint_t old_n_frames_1 = 0, old_n_frames_2 = 0, old_n_frames_3 = 0;
   if ( argc == 3 ) samplerate = atoi(argv[2]);
   if ( argc == 4 ) hop_size = atoi(argv[3]);
 
