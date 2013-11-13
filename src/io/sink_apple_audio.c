@@ -48,6 +48,7 @@ struct _aubio_sink_apple_audio_t {
 
   AudioBufferList bufferList;
   ExtAudioFileRef audioFile;
+  bool async;
 };
 
 aubio_sink_apple_audio_t * new_aubio_sink_apple_audio(char_t * uri, uint_t samplerate) {
@@ -56,6 +57,7 @@ aubio_sink_apple_audio_t * new_aubio_sink_apple_audio(char_t * uri, uint_t sampl
   s->channels = 1;
   s->path = uri;
   s->max_frames = MAX_SIZE;
+  s->async = true;
 
   AudioStreamBasicDescription clientFormat;
   memset(&clientFormat, 0, sizeof(AudioStreamBasicDescription));
@@ -93,7 +95,6 @@ beach:
 void aubio_sink_apple_audio_do(aubio_sink_apple_audio_t * s, fvec_t * write_data, uint_t write) {
   OSStatus err = noErr;
   UInt32 c, v;
-  bool async = true;
   short *data = (short*)s->bufferList.mBuffers[0].mData;
   if (write > s->max_frames) {
     AUBIO_WRN("sink_apple_audio: trying to write %d frames, max %d\n", write, s->max_frames);
@@ -109,12 +110,24 @@ void aubio_sink_apple_audio_do(aubio_sink_apple_audio_t * s, fvec_t * write_data
           }
       }
   }
-  if (async) {
+  if (s->async) {
     err = ExtAudioFileWriteAsync(s->audioFile, write, &s->bufferList);
-    if (err) { AUBIO_ERROR("error in ExtAudioFileWriteAsync, %d\n", (int)err); }
+
+    if (err) {
+      AUBIO_ERROR("in aubio_sink_apple_audio_do, writing %s\n", s->path);
+      AUBIO_ERROR("ExtAudioFileWriteAsync failed with %d, switching to sync\n", (int)err);
+      s->async = false;
+    } else {
+      return;
+    }
+
   } else {
     err = ExtAudioFileWrite(s->audioFile, write, &s->bufferList);
-    if (err) { AUBIO_ERROR("error in ExtAudioFileWrite, %d\n", (int)err); }
+
+    if (err) {
+      AUBIO_ERROR("in aubio_sink_apple_audio_do, writing %s\n", s->path);
+      AUBIO_ERROR("ExtAudioFileWrite failed with %d, aborting\n", (int)err);
+    }
   }
   return;
 }
