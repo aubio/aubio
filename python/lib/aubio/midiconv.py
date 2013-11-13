@@ -46,3 +46,7 @@ def midi2note(midi):
     midi = int(midi)
     _valid_notenames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
     return _valid_notenames[midi % 12] + str( midi / 12 - 1)
+
+def freq2note(freq):
+    from aubio import freqtomidi
+    return midi2note(int(freqtomidi(freq)))
