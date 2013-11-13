@@ -37,3 +37,4 @@ python/*.db
 python/*.wav
 
 aubio-*.tar.bz2
+aubio-*.zip
