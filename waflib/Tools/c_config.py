@@ -599,7 +599,7 @@ def get_cc_version(conf,cc,gcc=False,icc=False):
 	if gcc:
 		if out.find('__INTEL_COMPILER')>=0:
 			conf.fatal('The intel compiler pretends to be gcc')
-		if out.find('__GNUC__')<0:
+		if out.find('__GNUC__')<0 and out.find('__clang__')<0:
 			conf.fatal('Could not determine the compiler type')
 	if icc and out.find('__INTEL_COMPILER')<0:
 		conf.fatal('Not icc/icpc')
@@ -629,9 +629,9 @@ def get_cc_version(conf,cc,gcc=False,icc=False):
 				conf.env.DEST_OS='generic'
 		if isD('__ELF__'):
 			conf.env.DEST_BINFMT='elf'
-		elif isD('__WINNT__')or isD('__CYGWIN__'):
+		elif isD('__WINNT__')or isD('__CYGWIN__')or isD('_WIN32'):
 			conf.env.DEST_BINFMT='pe'
-			conf.env.LIBDIR=conf.env['PREFIX']+'/bin'
+			conf.env.LIBDIR=conf.env.BINDIR
 		elif isD('__APPLE__'):
 			conf.env.DEST_BINFMT='mac-o'
 		if not conf.env.DEST_BINFMT:
@@ -666,6 +666,22 @@ def get_xlc_version(conf,cc):
 			break
 	else:
 		conf.fatal('Could not determine the XLC version.')
+@conf
+def get_suncc_version(conf,cc):
+	cmd=cc+['-V']
+	try:
+		out,err=conf.cmd_and_log(cmd,output=0)
+	except Errors.WafError:
+		conf.fatal('Could not find suncc %r'%cmd)
+	version=(out or err)
+	version=version.split('\n')[0]
+	version_re=re.compile(r'cc:\s+sun\s+(c\+\+|c)\s+(?P<major>\d*)\.(?P<minor>\d*)',re.I).search
+	match=version_re(version)
+	if match:
+		k=match.groupdict()
+		conf.env['CC_VERSION']=(k['major'],k['minor'])
+	else:
+		conf.fatal('Could not determine the suncc version.')
 @conf
 def add_as_needed(self):
 	if self.env.DEST_BINFMT=='elf'and'gcc'in(self.env.CXX_NAME,self.env.CC_NAME):

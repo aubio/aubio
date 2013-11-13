@@ -164,12 +164,12 @@ def distclean_dir(dirname):
 			if _can_distclean(f):
 				fname=root+os.sep+f
 				try:
-					os.unlink(fname)
+					os.remove(fname)
 				except OSError:
 					Logs.warn('Could not remove %r'%fname)
 	for x in[Context.DBFILE,'config.log']:
 		try:
-			os.unlink(x)
+			os.remove(x)
 		except OSError:
 			pass
 	try:
@@ -325,7 +325,7 @@ class DistCheck(Dist):
 		else:
 			cfg=[x for x in sys.argv if x.startswith('-')]
 		instdir=tempfile.mkdtemp('.inst',self.get_base_name())
-		ret=Utils.subprocess.Popen([sys.argv[0],'configure','install','uninstall','--destdir='+instdir]+cfg,cwd=self.get_base_name()).wait()
+		ret=Utils.subprocess.Popen([sys.executable,sys.argv[0],'configure','install','uninstall','--destdir='+instdir]+cfg,cwd=self.get_base_name()).wait()
 		if ret:
 			raise Errors.WafError('distcheck failed with code %i'%ret)
 		if os.path.exists(instdir):

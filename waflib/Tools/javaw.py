@@ -202,7 +202,7 @@ class javac(Task.Task):
 			ret=self.exec_command(cmd,cwd=wd,env=env.env or None)
 		finally:
 			if tmp:
-				os.unlink(tmp)
+				os.remove(tmp)
 		return ret
 	def post_run(self):
 		for n in self.generator.outdir.ant_glob('**/*.class'):
@@ -270,9 +270,7 @@ def check_java_class(self,classname,with_classpath=None):
 		classpath+=os.pathsep+with_classpath
 	shutil.rmtree(javatestdir,True)
 	os.mkdir(javatestdir)
-	java_file=open(os.path.join(javatestdir,'Test.java'),'w')
-	java_file.write(class_check_source)
-	java_file.close()
+	Utils.writef(os.path.join(javatestdir,'Test.java'),class_check_source)
 	self.exec_command(self.env['JAVAC']+[os.path.join(javatestdir,'Test.java')],shell=False)
 	cmd=self.env['JAVA']+['-cp',classpath,'Test',classname]
 	self.to_log("%s\n"%str(cmd))

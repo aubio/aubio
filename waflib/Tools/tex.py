@@ -78,7 +78,10 @@ class tex(Task.Task):
 						for k in exts_deps_tex:
 							Logs.debug('tex: trying %s%s'%(path,k))
 							found=node.parent.find_resource(path+k)
-							if found and not found in self.outputs:
+							for tsk in self.generator.tasks:
+								if not found or found in tsk.outputs:
+									break
+							else:
 								nodes.append(found)
 								add_name=False
 								for ext in exts_tex:
@@ -96,22 +99,18 @@ class tex(Task.Task):
 		if retcode!=0:
 			raise Errors.WafError("%r command exit status %r"%(msg,retcode))
 	def bibfile(self):
-		need_bibtex=False
-		try:
-			for aux_node in self.aux_nodes:
+		for aux_node in self.aux_nodes:
+			try:
 				ct=aux_node.read()
-				if g_bibtex_re.findall(ct):
-					need_bibtex=True
-					break
-		except(OSError,IOError):
-			Logs.error('error bibtex scan')
-		else:
-			if need_bibtex:
+			except(OSError,IOError):
+				Logs.error('Error reading %s: %r'%aux_node.abspath())
+				continue
+			if g_bibtex_re.findall(ct):
 				Logs.warn('calling bibtex')
 				self.env.env={}
 				self.env.env.update(os.environ)
 				self.env.env.update({'BIBINPUTS':self.TEXINPUTS,'BSTINPUTS':self.TEXINPUTS})
-				self.env.SRCFILE=self.aux_nodes[0].name[:-4]
+				self.env.SRCFILE=aux_node.name[:-4]
 				self.check_status('error when calling bibtex',self.bibtex_fun())
 	def bibunits(self):
 		try:
@@ -138,6 +137,10 @@ class tex(Task.Task):
 			self.env.SRCFILE=self.idx_node.name
 			self.env.env={}
 			self.check_status('error when calling makeindex %s'%idx_path,self.makeindex_fun())
+	def bibtopic(self):
+		p=self.inputs[0].parent.get_bld()
+		if os.path.exists(os.path.join(p.abspath(),'btaux.aux')):
+			self.aux_nodes+=p.ant_glob('*[0-9].aux')
 	def run(self):
 		env=self.env
 		if not env['PROMPT_LATEX']:
@@ -158,6 +161,7 @@ class tex(Task.Task):
 		self.check_status('error when calling latex',fun())
 		self.aux_nodes=self.scan_aux(node.change_ext('.aux'))
 		self.idx_node=node.change_ext('.idx')
+		self.bibtopic()
 		self.bibfile()
 		self.bibunits()
 		self.makeindex()
@@ -229,13 +233,16 @@ def apply_tex(self):
 						lst.append(n)
 			except KeyError:
 				tree.node_deps[task.uid()]=deps_lst
+		v=dict(os.environ)
+		p=node.parent.abspath()+os.pathsep+self.path.abspath()+os.pathsep+self.path.get_bld().abspath()+os.pathsep+v.get('TEXINPUTS','')+os.pathsep
+		v['TEXINPUTS']=p
 		if self.type=='latex':
 			if'ps'in outs:
 				tsk=self.create_task('dvips',task.outputs,node.change_ext('.ps'))
-				tsk.env.env={'TEXINPUTS':node.parent.abspath()+os.pathsep+self.path.abspath()+os.pathsep+self.path.get_bld().abspath()}
+				tsk.env.env=dict(v)
 			if'pdf'in outs:
 				tsk=self.create_task('dvipdf',task.outputs,node.change_ext('.pdf'))
-				tsk.env.env={'TEXINPUTS':node.parent.abspath()+os.pathsep+self.path.abspath()+os.pathsep+self.path.get_bld().abspath()}
+				tsk.env.env=dict(v)
 		elif self.type=='pdflatex':
 			if'ps'in outs:
 				self.create_task('pdf2ps',task.outputs,node.change_ext('.ps'))
