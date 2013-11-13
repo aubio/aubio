@@ -76,6 +76,7 @@ def configure(ctx):
 
   if Options.options.target_platform:
     Options.platform = Options.options.target_platform
+    ctx.env['DEST_OS'] = Options.platform
 
   if Options.platform == 'win32':
     ctx.env['shlib_PATTERN'] = 'lib%s.dll'
@@ -87,14 +88,12 @@ def configure(ctx):
     ctx.define('HAVE_ACCELERATE', 1)
 
   if Options.platform in [ 'ios', 'iosimulator' ]:
-    ctx.env.CC = 'clang'
-    ctx.env.LD = 'clang'
-    ctx.env.LINK_CC = 'clang'
     ctx.define('HAVE_ACCELERATE', 1)
     ctx.define('TARGET_OS_IPHONE', 1)
     ctx.env.FRAMEWORK = ['CoreFoundation', 'AudioToolbox', 'Accelerate']
     SDKVER="7.0"
     MINSDKVER="6.1"
+    ctx.env.CFLAGS += ['-std=c99']
     if Options.platform == 'ios':
         DEVROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer"
         SDKROOT="%(DEVROOT)s/SDKs/iPhoneOS%(SDKVER)s.sdk" % locals()
@@ -102,16 +101,17 @@ def configure(ctx):
         ctx.env.CFLAGS += [ '-arch', 'armv7s' ]
         ctx.env.LINKFLAGS += ['-arch', 'armv7']
         ctx.env.LINKFLAGS += ['-arch', 'armv7s']
+        ctx.env.CFLAGS += [ '-miphoneos-version-min=' + MINSDKVER ]
+        ctx.env.LINKFLAGS += [ '-miphoneos-version-min=' + MINSDKVER ]
     else:
         DEVROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer"
         SDKROOT="%(DEVROOT)s/SDKs/iPhoneSimulator%(SDKVER)s.sdk" % locals()
         ctx.env.CFLAGS += [ '-arch', 'i386' ]
         ctx.env.LINKFLAGS += ['-arch', 'i386']
-    ctx.env.CFLAGS += [ '-miphoneos-version-min=' + MINSDKVER ]
-    ctx.env.CFLAGS += [ '--sysroot=%s' % SDKROOT]
-    ctx.env.CFLAGS += ['-std=c99']
-    ctx.env.LINKFLAGS += ['-std=c99']
-    ctx.env.LINKFLAGS += ['--sysroot=%s' % SDKROOT]
+        ctx.env.CFLAGS += [ '-mios-simulator-version-min=' + MINSDKVER ]
+        ctx.env.LINKFLAGS += [ '-mios-simulator-version-min=' + MINSDKVER ]
+    ctx.env.CFLAGS += [ '-isysroot' , SDKROOT]
+    ctx.env.LINKFLAGS += [ '-isysroot' , SDKROOT]
 
   # check for required headers
   ctx.check(header_name='stdlib.h')
@@ -203,8 +203,7 @@ def build(bld):
 
   # add sub directories
   bld.recurse('src')
-  from waflib import Options
-  if Options.platform not in ['ios', 'iosimulator']:
+  if bld.env['DEST_OS'] not in ['ios', 'iosimulator']:
       bld.recurse('examples')
       bld.recurse('tests')
 
