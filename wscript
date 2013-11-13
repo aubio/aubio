@@ -209,12 +209,6 @@ def build(bld):
       bld.recurse('examples')
       bld.recurse('tests')
 
-  """
-  # install woodblock sound
-  bld.install_files('${PREFIX}/share/sounds/aubio/',
-      'sounds/woodblock.aiff')
-  """
-
   bld( source = 'aubio.pc.in' )
 
   # build manpages from sgml files
