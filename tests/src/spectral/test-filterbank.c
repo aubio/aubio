@@ -23,6 +23,10 @@ int main ()
   coeffs = aubio_filterbank_get_coeffs (o);
   fmat_print (coeffs);
 
+  aubio_filterbank_set_coeffs (o, coeffs);
+  coeffs = aubio_filterbank_get_coeffs (o);
+  fmat_print (coeffs);
+
   //fvec_print (out_filters);
 
   // clean up
