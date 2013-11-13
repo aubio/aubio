@@ -109,19 +109,19 @@ aubio_audio_unit_t * new_aubio_audio_unit(uint_t samplerate,
 
   /* check for some sizes */
   if ( o->hw_output_channels != o->output_frames->height ) {
-    AUBIO_ERR ("got hw_output_channels = %d, but output_frames has %d rows",
+    AUBIO_ERR ("got hw_output_channels = %d, but output_frames has %d rows\n",
         o->hw_output_channels, o->output_frames->height);
   }
   if ( o->blocksize != o->output_frames->length ) {
-    AUBIO_ERR ("got blocksize = %d, but output_frames has length %d",
+    AUBIO_ERR ("got blocksize = %d, but output_frames has length %d\n",
         o->blocksize, o->output_frames->length);
   }
   if ( o->hw_input_channels != o->input_frames->height ) {
-    AUBIO_ERR ("got hw_input_channels = %d, but input_frames has %d rows",
+    AUBIO_ERR ("got hw_input_channels = %d, but input_frames has %d rows\n",
         o->hw_input_channels, o->input_frames->height);
   }
   if ( o->blocksize != o->input_frames->length ) {
-    AUBIO_ERR ("got blocksize = %d, but input_frames has length %d",
+    AUBIO_ERR ("got blocksize = %d, but input_frames has length %d\n",
         o->blocksize, o->input_frames->length);
   }
 
@@ -158,7 +158,7 @@ sint_t aubio_audio_unit_init (aubio_audio_unit_t *o)
 
   /* setting up audio session with interruption listener */
   err = AudioSessionInitialize(NULL, NULL, audio_unit_interruption_listener, o);
-  if (err) { AUBIO_ERR("audio_unit: could not initialize audio session (%ld)", err); goto fail; }
+  if (err) { AUBIO_ERR("audio_unit: could not initialize audio session (%d)\n", (int)err); goto fail; }
 
   audio_unit_set_audio_session_category(o->input_enabled, o->verbose);
   audio_unit_check_audio_route(o);
@@ -166,18 +166,18 @@ sint_t aubio_audio_unit_init (aubio_audio_unit_t *o)
   /* add route change listener */
   err = AudioSessionAddPropertyListener(kAudioSessionProperty_AudioRouteChange,
       audio_unit_route_change_listener, o);
-  if (err) { AUBIO_ERR("audio_unit: could not set route change listener (%ld)", err); goto fail; }
+  if (err) { AUBIO_ERR("audio_unit: could not set route change listener (%d)\n", (int)err); goto fail; }
 
   /* set latency */
   err = AudioSessionSetProperty(kAudioSessionProperty_PreferredHardwareIOBufferDuration,
       sizeof(latency), &latency);
-  if (err) { AUBIO_ERR("audio_unit: could not set preferred latency (%ld)", err); goto fail; }
+  if (err) { AUBIO_ERR("audio_unit: could not set preferred latency (%d)\n", (int)err); goto fail; }
 
 #if 0 // only for iphone OS >= 3.1
   UInt32 val = 1; // set to 0 (default) to use ear speaker in voice application
   err = AudioSessionSetProperty(kAudioSessionProperty_OverrideCategoryDefaultToSpeaker,
       sizeof(UInt32), &val);
-  if (err) { AUBIO_ERR("audio_unit: could not set session property to default to speaker"); }
+  if (err) { AUBIO_ERR("audio_unit: could not set session property to default to speaker\n"); }
 #endif
 
   /* setting up audio unit */
@@ -197,14 +197,14 @@ sint_t aubio_audio_unit_init (aubio_audio_unit_t *o)
   AudioUnit *audio_unit = &(o->audio_unit);
 
   err = AudioComponentInstanceNew(comp, &(o->audio_unit));
-  if (err) { AUBIO_ERR("audio_unit: failed creating the audio unit"); goto fail; }
+  if (err) { AUBIO_ERR("audio_unit: failed creating the audio unit\n"); goto fail; }
 
   /* enable IO */
   UInt32 enabled = 1;
   err = AudioUnitSetProperty (*audio_unit, kAudioOutputUnitProperty_EnableIO,
       kAudioUnitScope_Input, 1, &enabled, sizeof(enabled));
   if (err) {
-    AUBIO_ERR("audio_unit: failed enabling input of audio unit");
+    AUBIO_ERR("audio_unit: failed enabling input of audio unit\n");
     goto fail;
   }
 
@@ -213,21 +213,21 @@ sint_t aubio_audio_unit_init (aubio_audio_unit_t *o)
   err = AudioUnitSetProperty (*audio_unit, kAudioUnitProperty_MaximumFramesPerSlice,
       kAudioUnitScope_Global, 0, &max_fps, sizeof(max_fps));
   if (err) {
-    AUBIO_ERR("audio_unit: could not set maximum frames per slice property (%ld)", err);
+    AUBIO_ERR("audio_unit: could not set maximum frames per slice property (%d)\n", (int)err);
     goto fail;
   }
 
   AudioUnitSetProperty (*audio_unit, kAudioUnitProperty_SetRenderCallback,
       kAudioUnitScope_Input, 0, &(o->au_ios_cb_struct), sizeof(o->au_ios_cb_struct));
-  if (err) { AUBIO_ERR("audio_unit: failed setting audio unit render callback"); goto fail; }
+  if (err) { AUBIO_ERR("audio_unit: failed setting audio unit render callback\n"); goto fail; }
 
 #if 0
   err = AudioUnitSetProperty (*audio_unit, kAudioUnitProperty_SampleRate,
       kAudioUnitScope_Input, 0, &samplerate, sizeof(Float64));
-  if (err) { AUBIO_ERR("audio_unit: could not set audio input sample rate"); goto fail; }
+  if (err) { AUBIO_ERR("audio_unit: could not set audio input sample rate\n"); goto fail; }
   err = AudioUnitSetProperty (*audio_unit, kAudioUnitProperty_SampleRate,
       kAudioUnitScope_Output, 1, &samplerate, sizeof(Float64));
-  if (err) { AUBIO_ERR("audio_unit: could not set audio input sample rate"); goto fail; }
+  if (err) { AUBIO_ERR("audio_unit: could not set audio input sample rate\n"); goto fail; }
 #endif
 
   audioFormat.mSampleRate = (Float64)samplerate;
@@ -246,25 +246,25 @@ sint_t aubio_audio_unit_init (aubio_audio_unit_t *o)
 
   err = AudioUnitSetProperty (*audio_unit, kAudioUnitProperty_StreamFormat,
       kAudioUnitScope_Input, 0, &audioFormat, sizeof(audioFormat));
-  if (err) { AUBIO_ERR("audio_unit: could not set audio output format"); goto fail; }
+  if (err) { AUBIO_ERR("audio_unit: could not set audio output format\n"); goto fail; }
   err = AudioUnitSetProperty (*audio_unit, kAudioUnitProperty_StreamFormat,
       kAudioUnitScope_Output, 1, &audioFormat, sizeof(audioFormat));
-  if (err) { AUBIO_ERR("audio_unit: could not set audio input format"); goto fail; }
+  if (err) { AUBIO_ERR("audio_unit: could not set audio input format\n"); goto fail; }
 
 #if 0
   AudioStreamBasicDescription thruFormat;
   thissize = sizeof(thruFormat);
   err = AudioUnitGetProperty (*audio_unit, kAudioUnitProperty_StreamFormat,
       kAudioUnitScope_Input, 0, &thruFormat, &thissize);
-  if (err) { AUBIO_ERR("audio_unit: could not get speaker output format, err: %d", (int)err); goto fail; }
+  if (err) { AUBIO_ERR("audio_unit: could not get speaker output format, err: %d\n", (int)err); goto fail; }
   err = AudioUnitSetProperty (*audio_unit, kAudioUnitProperty_StreamFormat,
       kAudioUnitScope_Output, 1, &thruFormat, sizeof(thruFormat));
-  if (err) { AUBIO_ERR("audio_unit: could not set input audio format, err: %d", (int)err); goto fail; }
+  if (err) { AUBIO_ERR("audio_unit: could not set input audio format, err: %d\n", (int)err); goto fail; }
 #endif
 
   /* time to initialize the unit */
   err = AudioUnitInitialize(*audio_unit);
-  if (err) { AUBIO_ERR("audio_unit: failed initializing audio, err: %d", (int)err); goto fail; }
+  if (err) { AUBIO_ERR("audio_unit: failed initializing audio, err: %d\n", (int)err); goto fail; }
 
   return 0;
 
@@ -286,7 +286,7 @@ aubio_audio_unit_process(void *closure, AudioUnitRenderActionFlags * action_flag
     err = AudioUnitRender(thisUnit, action_flags, time_stamp, 1,
         inNumber_frames, input_output);
     if (err) {
-      AUBIO_ERR("audio_unit: error performing AudioUnitRender (%d)", err);
+      AUBIO_ERR("audio_unit: error performing AudioUnitRender (%d)\n", err);
       return err;
     }
   }
@@ -296,7 +296,7 @@ aubio_audio_unit_process(void *closure, AudioUnitRenderActionFlags * action_flag
 
   // FIXME find out why this happens
   if (number_frames < 10) {
-    AUBIO_ERR("audio_unit: got number_frames %d", (int)number_frames);
+    AUBIO_ERR("audio_unit: got number_frames %d\n", (int)number_frames);
     return -1;
   }
 
@@ -372,7 +372,7 @@ int aubio_audio_unit_blocking(aubio_audio_unit_t *o)
   if (!sw_input_channels && !sw_output_channels) goto fail;
 
   if (o->dio_error) {
-    AUBIO_WRN("audio_unit: dio error %d", o->total_frames);
+    AUBIO_WRN("audio_unit: dio error %d\n", o->total_frames);
     o->dio_error = 0;
   }
 
@@ -420,7 +420,7 @@ int aubio_audio_unit_blocking(aubio_audio_unit_t *o)
   return 0;
 
 fail:
-  AUBIO_ERR("audio_unit: callback() failed");
+  AUBIO_ERR("audio_unit: callback() failed\n");
   o->total_frames += AU_IOS_MAX_FRAMES;
   return 1;
 }
@@ -438,72 +438,72 @@ sint_t aubio_audio_unit_get_info (aubio_audio_unit_t *o)
   thissize = sizeof(samplerate);
   err = AudioUnitGetProperty (o->audio_unit, kAudioUnitProperty_SampleRate,
       kAudioUnitScope_Output, 1, &samplerate, &thissize);
-  if (err) { AUBIO_ERR("audio_unit: could not get audio unit sample rate (%ld)",
-      err); goto fail; }
+  if (err) { AUBIO_ERR("audio_unit: could not get audio unit sample rate (%d)\n",
+      (int)err); goto fail; }
 
   /* get hardware input channels */
   thissize = sizeof(input_hw_channels);
   err = AudioSessionGetProperty(kAudioSessionProperty_CurrentHardwareInputNumberChannels,
       &thissize, &input_hw_channels);
-  if (err) { AUBIO_ERR("audio_unit: could not get hardware input channels (%ld)",
-      err); goto fail; }
+  if (err) { AUBIO_ERR("audio_unit: could not get hardware input channels (%d)\n",
+      (int)err); goto fail; }
 
   /* get hardware output channels */
   thissize = sizeof(output_hw_channels);
   err = AudioSessionGetProperty(kAudioSessionProperty_CurrentHardwareOutputNumberChannels,
       &thissize, &output_hw_channels);
-  if (err) { AUBIO_ERR("audio_unit: could not get hardware output channels (%ld)",
-      err); goto fail; }
+  if (err) { AUBIO_ERR("audio_unit: could not get hardware output channels (%d)\n",
+      (int)err); goto fail; }
 
   /* get hardware input volume */
   thissize = sizeof(input_hw_volume);
   err = AudioSessionGetProperty(kAudioSessionProperty_InputGainScalar,
       &thissize, &input_hw_volume);
-  if (err) { AUBIO_ERR("audio_unit: could not get hardware input volume (%ld)",
-      err); goto fail; }
+  if (err) { AUBIO_ERR("audio_unit: could not get hardware input volume (%d)\n",
+      (int)err); goto fail; }
 
   /* get hardware output volume */
   thissize = sizeof(output_hw_volume);
   err = AudioSessionGetProperty(kAudioSessionProperty_CurrentHardwareOutputVolume,
       &thissize, &output_hw_volume);
-  if (err) { AUBIO_ERR("audio_unit: could not get hardware output volume (%ld)",
-      err); goto fail; }
+  if (err) { AUBIO_ERR("audio_unit: could not get hardware output volume (%d)\n",
+      (int)err); goto fail; }
 
-  AUBIO_MSG("audio_unit: opened at %.0fHz, sw channels %din/%dout, hw channels %ldin/%ldout, hw vol %.2fin/%.2fout",
+  AUBIO_MSG("audio_unit: opened at %.0fHz, sw channels %din/%dout, hw channels %din/%dout, hw vol %.2fin/%.2fout\n",
       samplerate,
       o->sw_input_channels, o->sw_output_channels,
-      input_hw_channels, output_hw_channels,
+      (unsigned int)input_hw_channels, (unsigned int)output_hw_channels,
       input_hw_volume, output_hw_volume);
 
   /* get max frames per slice */
   thissize = sizeof(max_fps);
   err = AudioUnitGetProperty (o->audio_unit, kAudioUnitProperty_MaximumFramesPerSlice,
       kAudioUnitScope_Global, 0, &max_fps, &thissize);
-  if (err) { AUBIO_ERR("audio_unit: could not get maximum frames per slice property %ld",
-      err); goto fail; }
+  if (err) { AUBIO_ERR("audio_unit: could not get maximum frames per slice property %d\n",
+      (int)err); goto fail; }
 
   /* get hardware latency */
   thissize = sizeof(latency);
   err = AudioSessionGetProperty(kAudioSessionProperty_CurrentHardwareIOBufferDuration,
       &thissize, &latency);
-  if (err) { AUBIO_ERR("audio_unit: could not get hardware latency %ld",
-      err); goto fail; }
+  if (err) { AUBIO_ERR("audio_unit: could not get hardware latency %d\n",
+      (int)err); goto fail; }
 
   /* get input latency */
   thissize = sizeof(input_latency);
   err = AudioSessionGetProperty(kAudioSessionProperty_CurrentHardwareInputLatency,
       &thissize, &input_latency);
-  if (err) { AUBIO_ERR("audio_unit: could not get input latency %ld",
-      err); goto fail; }
+  if (err) { AUBIO_ERR("audio_unit: could not get input latency %d\n",
+      (int)err); goto fail; }
 
   /* get output harlatency */
   thissize = sizeof(output_latency);
   err = AudioSessionGetProperty(kAudioSessionProperty_CurrentHardwareOutputLatency,
       &thissize, &output_latency);
-  if (err) { AUBIO_ERR("audio_unit: could not get output latency %ld",
-      err); goto fail; }
+  if (err) { AUBIO_ERR("audio_unit: could not get output latency %d\n",
+      (int)err); goto fail; }
 
-  AUBIO_MSG("audio_unit: I/O latency: %.2fms, %d frames, (%.2fms, %d frames in, %.2fms %d frames out)",
+  AUBIO_MSG("audio_unit: I/O latency: %.2fms, %d frames, (%.2fms, %d frames in, %.2fms %d frames out)\n",
       latency*1000., (sint_t)round(latency*samplerate),
       input_latency*1000., (sint_t)ROUND(input_latency*samplerate),
       output_latency*1000., (sint_t)ROUND(output_latency*samplerate));
@@ -522,7 +522,7 @@ sint_t aubio_audio_unit_start(aubio_audio_unit_t *o) {
 
   /* time to start the unit */
   err = AudioOutputUnitStart (o->audio_unit);
-  if (err) { AUBIO_ERR("audio_unit: could not start unit (%ld)", err); }
+  if (err) { AUBIO_ERR("audio_unit: could not start unit (%d)\n", (int)err); }
   return err;
 }
 
@@ -530,11 +530,11 @@ sint_t aubio_audio_unit_stop(aubio_audio_unit_t *o)
 {
   if (o->audio_unit == NULL) return -1;
   OSStatus err = AudioOutputUnitStop (o->audio_unit);
-  if (err) { AUBIO_WRN("audio_unit: failed stopping audio unit (%ld)", err); }
+  if (err) { AUBIO_WRN("audio_unit: failed stopping audio unit (%d)\n", (int)err); }
   err = AudioUnitUninitialize (o->audio_unit);
-  if (err) { AUBIO_WRN("audio_unit: failed unitializing audio unit (%ld)", err); }
+  if (err) { AUBIO_WRN("audio_unit: failed unitializing audio unit (%d)\n", (int)err); }
   err = AudioSessionSetActive(false);
-  if (err) { AUBIO_WRN("audio_unit: failed stopping audio session (%ld)", err); }
+  if (err) { AUBIO_WRN("audio_unit: failed stopping audio session (%d)\n", (int)err); }
   return err;
 }
 
@@ -553,28 +553,28 @@ void audio_unit_interruption_listener(void *closure, UInt32 inInterruptionState)
   AudioUnit this_unit = o->audio_unit;
 
   if (inInterruptionState == kAudioSessionEndInterruption) {
-    AUBIO_WRN("audio_unit: session interruption ended");
+    AUBIO_WRN("audio_unit: session interruption ended\n");
     err = AudioSessionSetActive(true);
     if (err) {
-      AUBIO_ERR("audio_unit: could not make session active after interruption (%ld)", err);
+      AUBIO_ERR("audio_unit: could not make session active after interruption (%d)\n", (int)err);
       goto fail;
     }
     err = AudioOutputUnitStart(this_unit);
     if (err) {
-      AUBIO_ERR("audio_unit: failed starting unit (%ld)", err);
+      AUBIO_ERR("audio_unit: failed starting unit (%d)\n", (int)err);
       goto fail;
     }
   }
   if (inInterruptionState == kAudioSessionBeginInterruption) {
-    AUBIO_WRN("audio_unit: session interruption started");
+    AUBIO_WRN("audio_unit: session interruption started\n");
     err = AudioOutputUnitStop(this_unit);
     if (err) {
-      AUBIO_ERR("audio_unit: could not stop unit at interruption (%ld)", err);
+      AUBIO_ERR("audio_unit: could not stop unit at interruption (%d)\n", (int)err);
       goto fail;
     }
     err = AudioSessionSetActive(false);
     if (err) {
-      AUBIO_ERR("audio_unit: could not make session inactive after interruption (%ld)", err);
+      AUBIO_ERR("audio_unit: could not make session inactive after interruption (%d)\n", (int)err);
       goto fail;
     }
   }
@@ -588,21 +588,21 @@ UInt32 audio_unit_get_audio_session_category () {
   OSStatus err = AudioSessionGetProperty(kAudioSessionProperty_AudioCategory,
       &thissize, &category);
   if (err) {
-    AUBIO_ERR("audio_unit: could not get audio category (%ld)", err);
+    AUBIO_ERR("audio_unit: could not get audio category (%d)\n", (int)err);
     return err;
   }
   if (category == kAudioSessionCategory_AmbientSound) {
-    AUBIO_MSG("audio_unit: session category is AmbiantSound");
+    AUBIO_MSG("audio_unit: session category is AmbiantSound\n");
   } else if (category == kAudioSessionCategory_SoloAmbientSound) {
-    AUBIO_MSG("audio_unit: session category is SoloAmbiantSound");
+    AUBIO_MSG("audio_unit: session category is SoloAmbiantSound\n");
   } else if (category == kAudioSessionCategory_MediaPlayback) {
-    AUBIO_MSG("audio_unit: session category is MediaPlayback");
+    AUBIO_MSG("audio_unit: session category is MediaPlayback\n");
   } else if (category == kAudioSessionCategory_RecordAudio) {
-    AUBIO_MSG("audio_unit: session category is RecordAudio");
+    AUBIO_MSG("audio_unit: session category is RecordAudio\n");
   } else if (category == kAudioSessionCategory_PlayAndRecord) {
-    AUBIO_MSG("audio_unit: session category is PlayAndRecord");
+    AUBIO_MSG("audio_unit: session category is PlayAndRecord\n");
   } else if (category == kAudioSessionCategory_AudioProcessing) {
-    AUBIO_MSG("audio_unit: session category is AudioProcessing");
+    AUBIO_MSG("audio_unit: session category is AudioProcessing\n");
   }
   return category;
 }
@@ -614,15 +614,15 @@ OSStatus audio_unit_set_audio_session_category(bool has_input, bool verbose)
   UInt32 category;
   if (has_input) {
     category = kAudioSessionCategory_PlayAndRecord;
-    if (verbose) AUBIO_MSG("audio_unit: setting category to PlayAndRecord");
+    if (verbose) AUBIO_MSG("audio_unit: setting category to PlayAndRecord\n");
   } else {
     category = kAudioSessionCategory_MediaPlayback;
-    if (verbose) AUBIO_MSG("audio_unit: setting category to MediaPlayback");
+    if (verbose) AUBIO_MSG("audio_unit: setting category to MediaPlayback\n");
   }
   err = AudioSessionSetProperty(kAudioSessionProperty_AudioCategory,
       sizeof(category), &category);
   if (err) {
-    AUBIO_ERR("audio_unit: could not set audio category");
+    AUBIO_ERR("audio_unit: could not set audio category\n");
   }
 
   // Audiob.us style
@@ -630,7 +630,7 @@ OSStatus audio_unit_set_audio_session_category(bool has_input, bool verbose)
   AudioSessionSetProperty(kAudioSessionProperty_OverrideCategoryMixWithOthers,
       sizeof (allowMixing), &allowMixing);
   if (err) {
-    AUBIO_ERR("audio_unit: could not set audio session to mix with others");
+    AUBIO_ERR("audio_unit: could not set audio session to mix with others\n");
   }
 
   return err;
@@ -640,7 +640,7 @@ void audio_unit_check_audio_route(aubio_audio_unit_t *o) {
   CFStringRef currentRoute;
   UInt32 val, thissize = sizeof(currentRoute);
   OSStatus err = AudioSessionGetProperty(kAudioSessionProperty_AudioRoute, &thissize, &currentRoute);
-  if (err) { AUBIO_ERR("audio_unit: could not get current route"); goto fail; }
+  if (err) { AUBIO_ERR("audio_unit: could not get current route\n"); goto fail; }
   else {
     char *route = (char *)CFStringGetCStringPtr ( currentRoute, kCFStringEncodingUTF8);
     if (route == NULL) {
@@ -650,7 +650,7 @@ void audio_unit_check_audio_route(aubio_audio_unit_t *o) {
           kCFStringEncodingUTF8);
     }
     if (o->verbose) {
-      AUBIO_MSG ("audio_unit: current route is %s", route);
+      AUBIO_MSG ("audio_unit: current route is %s\n", route);
     }
     free(route);
   }
@@ -676,16 +676,16 @@ void audio_unit_check_audio_route(aubio_audio_unit_t *o) {
       if (o->prevent_feedback) {
         o->input_enabled = false;
         if (o->verbose) {
-          AUBIO_MSG ("audio_unit: disabling input to avoid feedback");
+          AUBIO_MSG ("audio_unit: disabling input to avoid feedback\n");
         }
       } else {
-        AUBIO_WRN ("audio_unit: input not disabled as prevent_feedback set to 0, risking feedback");
+        AUBIO_WRN ("audio_unit: input not disabled as prevent_feedback set to 0, risking feedback\n");
       }
     }
 
     err = AudioSessionSetProperty(kAudioSessionProperty_OverrideAudioRoute,
         sizeof(UInt32), &val);
-    if (err) { AUBIO_ERR("audio_unit: could not set session OverrideAudioRoute to Speaker"); }
+    if (err) { AUBIO_ERR("audio_unit: could not set session OverrideAudioRoute to Speaker\n"); }
 
   }
 
@@ -703,27 +703,27 @@ audio_unit_get_route_change_reason(CFDictionaryRef routeChangeDic) {
   CFNumberGetValue ( routeChangeReasonRef, kCFNumberSInt32Type, &change_reason_number);
   switch (change_reason_number) {
     case kAudioSessionRouteChangeReason_NewDeviceAvailable:
-      AUBIO_MSG("audio_unit: route changed to NewDeviceAvailable");
+      AUBIO_MSG("audio_unit: route changed to NewDeviceAvailable\n");
       break;
     case kAudioSessionRouteChangeReason_OldDeviceUnavailable:
-      AUBIO_MSG("audio_unit: route changed to OldDeviceUnavailable");
+      AUBIO_MSG("audio_unit: route changed to OldDeviceUnavailable\n");
       break;
     case kAudioSessionRouteChangeReason_CategoryChange:
-      AUBIO_MSG("audio_unit: route changed to CategoryChange");
+      AUBIO_MSG("audio_unit: route changed to CategoryChange\n");
       audio_unit_get_audio_session_category();
       break;
     case kAudioSessionRouteChangeReason_Override:
-      AUBIO_MSG("audio_unit: route changed to Override");
+      AUBIO_MSG("audio_unit: route changed to Override\n");
       break;
     case kAudioSessionRouteChangeReason_WakeFromSleep:
-      AUBIO_MSG("audio_unit: route changed to WakeFromSleep");
+      AUBIO_MSG("audio_unit: route changed to WakeFromSleep\n");
       break;
     case kAudioSessionRouteChangeReason_NoSuitableRouteForCategory:
-      AUBIO_MSG("audio_unit: route changed to NoSuitableRouteForCategory");
+      AUBIO_MSG("audio_unit: route changed to NoSuitableRouteForCategory\n");
       break;
     case kAudioSessionRouteChangeReason_Unknown:
     default:
-      AUBIO_ERR("audio_unit: route changed for an unknown reason!?");
+      AUBIO_ERR("audio_unit: route changed for an unknown reason!?\n");
       break;
   }
   return change_reason_number;
