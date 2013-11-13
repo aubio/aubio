@@ -1,6 +1,7 @@
 #define AUBIO_UNSTABLE 1
 
 #include <aubio.h>
+#include <stdio.h>
 
 int main ()
 {
@@ -24,6 +25,7 @@ int main ()
 
     // get bpm and confidence
     bpm = aubio_beattracking_get_bpm(tempo);
+    fprintf(stderr, "found bpm %f\n", bpm);
     confidence = aubio_beattracking_get_confidence(tempo);
     i++;
   };
