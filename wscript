@@ -97,8 +97,10 @@ def configure(ctx):
     if Options.platform == 'ios':
         DEVROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer"
         SDKROOT="%(DEVROOT)s/SDKs/iPhoneOS%(SDKVER)s.sdk" % locals()
+        ctx.env.CFLAGS += [ '-arch', 'arm64' ]
         ctx.env.CFLAGS += [ '-arch', 'armv7' ]
         ctx.env.CFLAGS += [ '-arch', 'armv7s' ]
+        ctx.env.LINKFLAGS += [ '-arch', 'arm64' ]
         ctx.env.LINKFLAGS += ['-arch', 'armv7']
         ctx.env.LINKFLAGS += ['-arch', 'armv7s']
         ctx.env.CFLAGS += [ '-miphoneos-version-min=' + MINSDKVER ]
@@ -107,8 +109,8 @@ def configure(ctx):
         DEVROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer"
         SDKROOT="%(DEVROOT)s/SDKs/iPhoneSimulator%(SDKVER)s.sdk" % locals()
         ctx.env.CFLAGS += [ '-arch', 'i386' ]
-        ctx.env.LINKFLAGS += ['-arch', 'i386']
         ctx.env.CFLAGS += [ '-arch', 'x86_64' ]
+        ctx.env.LINKFLAGS += ['-arch', 'i386']
         ctx.env.LINKFLAGS += ['-arch', 'x86_64']
         ctx.env.CFLAGS += [ '-mios-simulator-version-min=' + MINSDKVER ]
         ctx.env.LINKFLAGS += [ '-mios-simulator-version-min=' + MINSDKVER ]
