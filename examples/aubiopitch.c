@@ -40,8 +40,7 @@ static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
       /* block loop */
       aubio_pitch_do (o, ibuf, pitch);
       smpl_t freq = fvec_read_sample(pitch, 0);
-      smpl_t amp = powf(10., aubio_db_spl(ibuf)*.05 );
-      aubio_wavetable_set_amp ( wavetable, amp );
+      aubio_wavetable_set_amp ( wavetable, aubio_level_lin (ibuf) );
       if (freq != 0.0) {
         aubio_wavetable_set_freq ( wavetable, freq );
       } else {

@@ -108,18 +108,6 @@ void fvec_shift (fvec_t * v);
 */
 smpl_t fvec_sum (fvec_t * v);
 
-/** compute the energy of a vector
-
-  This function compute the sum of the squared elements of a vector, normalised
-  by its length.
- 
-  \param v vector to get the energy from 
-
-  \return the energy of v
- 
-*/
-smpl_t fvec_local_energy (fvec_t * v);
-
 /** compute the High Frequency Content of a vector
 
   The High Frequency Content is defined as \f$ \sum_0^{N-1} (k+1) v[k] \f$.

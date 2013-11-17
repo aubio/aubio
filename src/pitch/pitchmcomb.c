@@ -111,7 +111,7 @@ aubio_pitchmcomb_do (aubio_pitchmcomb_t * p, cvec_t * fftgrain, fvec_t * output)
   for (j = 0; j < newmag->length; j++)
     newmag->data[j] = fftgrain->norm[j];
   /* detect only if local energy > 10. */
-  //if (fvec_local_energy(newmag) * newmag->length > 10.) {
+  //if (aubio_level_lin (newmag) * newmag->length > 10.) {
   //hfc = fvec_local_hfc(newmag); //not used
   aubio_pitchmcomb_spectral_pp (p, newmag);
   aubio_pitchmcomb_combdet (p, newmag);
@@ -146,7 +146,7 @@ aubio_pitch_cands (aubio_pitchmcomb_t * p, cvec_t * fftgrain, smpl_t * cands)
   for (j = 0; j < newmag->length; j++)
     newmag->data[j] = fftgrain->norm[j];
   /* detect only if local energy > 10. */
-  if (fvec_local_energy (newmag) * newmag->length > 10.) {
+  if (aubio_level_lin (newmag) * newmag->length > 10.) {
     /* hfc = fvec_local_hfc(newmag); do not use */
     aubio_pitchmcomb_spectral_pp (p, newmag);
     aubio_pitchmcomb_combdet (p, newmag);

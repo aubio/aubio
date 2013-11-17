@@ -263,7 +263,7 @@ fvec_shift (fvec_t * s)
 }
 
 smpl_t
-fvec_local_energy (fvec_t * f)
+aubio_level_lin (fvec_t * f)
 {
   smpl_t energy = 0.;
   uint_t j;
@@ -508,7 +508,7 @@ aubio_next_power_of_two (uint_t a)
 smpl_t
 aubio_db_spl (fvec_t * o)
 {
-  return 10. * LOG10 (fvec_local_energy (o));
+  return 10. * LOG10 (aubio_level_lin (o));
 }
 
 uint_t
