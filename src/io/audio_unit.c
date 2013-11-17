@@ -652,7 +652,7 @@ void audio_unit_check_audio_route(aubio_audio_unit_t *o) {
     if (o->verbose) {
       AUBIO_MSG ("audio_unit: current route is %s\n", route);
     }
-    free(route);
+    //free(route);
   }
   if( currentRoute ) {
     if( CFStringCompare( currentRoute, CFSTR("Headset"), 0 ) == kCFCompareEqualTo ) {
