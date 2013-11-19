@@ -74,27 +74,28 @@ def configure(ctx):
   ctx.load('gnu_dirs')
   ctx.env.CFLAGS += ['-g', '-Wall', '-Wextra']
 
-  if Options.options.target_platform:
-    Options.platform = Options.options.target_platform
-    ctx.env['DEST_OS'] = Options.platform
+  target_platform = Options.platform
+  if ctx.options.target_platform:
+    target_platform = ctx.options.target_platform
+  ctx.env['DEST_OS'] = target_platform
 
-  if Options.platform == 'win32':
+  if target_platform == 'win32':
     ctx.env['shlib_PATTERN'] = 'lib%s.dll'
 
-  if Options.platform == 'darwin':
+  if target_platform == 'darwin':
     ctx.env.CFLAGS += ['-arch', 'i386', '-arch', 'x86_64']
     ctx.env.LINKFLAGS += ['-arch', 'i386', '-arch', 'x86_64']
     ctx.env.FRAMEWORK = ['CoreFoundation', 'AudioToolbox', 'Accelerate']
     ctx.define('HAVE_ACCELERATE', 1)
 
-  if Options.platform in [ 'ios', 'iosimulator' ]:
+  if target_platform in [ 'ios', 'iosimulator' ]:
     ctx.define('HAVE_ACCELERATE', 1)
     ctx.define('TARGET_OS_IPHONE', 1)
     ctx.env.FRAMEWORK = ['CoreFoundation', 'AudioToolbox', 'Accelerate']
     SDKVER="7.0"
     MINSDKVER="6.1"
     ctx.env.CFLAGS += ['-std=c99']
-    if Options.platform == 'ios':
+    if target_platform == 'ios':
         DEVROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer"
         SDKROOT="%(DEVROOT)s/SDKs/iPhoneOS%(SDKVER)s.sdk" % locals()
         ctx.env.CFLAGS += [ '-arch', 'arm64' ]
@@ -135,34 +136,34 @@ def configure(ctx):
     ctx.define('HAVE_C99_VARARGS_MACROS', 1)
 
   # optionally use complex.h
-  if (Options.options.enable_complex == True):
+  if (ctx.options.enable_complex == True):
     ctx.check(header_name='complex.h')
 
   # check dependencies
-  if (Options.options.enable_sndfile != False):
+  if (ctx.options.enable_sndfile != False):
       ctx.check_cfg(package = 'sndfile', atleast_version = '1.0.4',
         args = '--cflags --libs', mandatory = False)
-  if (Options.options.enable_samplerate != False):
+  if (ctx.options.enable_samplerate != False):
       ctx.check_cfg(package = 'samplerate', atleast_version = '0.0.15',
         args = '--cflags --libs', mandatory = False)
 
   # double precision mode
-  if (Options.options.enable_double == True):
+  if (ctx.options.enable_double == True):
     ctx.define('HAVE_AUBIO_DOUBLE', 1)
   else:
     ctx.define('HAVE_AUBIO_DOUBLE', 0)
 
   # optional dependancies using pkg-config
-  if (Options.options.enable_fftw3 != False or Options.options.enable_fftw3f != False):
+  if (ctx.options.enable_fftw3 != False or ctx.options.enable_fftw3f != False):
     # one of fftwf or fftw3f
-    if (Options.options.enable_fftw3f != False):
+    if (ctx.options.enable_fftw3f != False):
       ctx.check_cfg(package = 'fftw3f', atleast_version = '3.0.0',
           args = '--cflags --libs', mandatory = False)
-      if (Options.options.enable_double == True):
+      if (ctx.options.enable_double == True):
         ctx.msg('Warning', 'fftw3f enabled, but aubio compiled in double precision!')
     else:
       # fftw3f not enabled, take most sensible one according to enable_double
-      if (Options.options.enable_double == True):
+      if (ctx.options.enable_double == True):
         ctx.check_cfg(package = 'fftw3', atleast_version = '3.0.0',
             args = '--cflags --libs', mandatory = False)
       else:
@@ -180,11 +181,11 @@ def configure(ctx):
   else:
     ctx.msg('Checking for FFT implementation', 'ooura')
 
-  if (Options.options.enable_jack != False):
+  if (ctx.options.enable_jack != False):
     ctx.check_cfg(package = 'jack', atleast_version = '0.15.0',
     args = '--cflags --libs', mandatory = False)
 
-  if (Options.options.enable_lash != False):
+  if (ctx.options.enable_lash != False):
     ctx.check_cfg(package = 'lash-1.0', atleast_version = '0.5.0',
     args = '--cflags --libs', uselib_store = 'LASH', mandatory = False)
 
@@ -202,45 +203,46 @@ def configure(ctx):
     ctx.to_log('docbook-to-man was not found (ignoring)')
 
 def build(bld):
-  bld.env['VERSION'] = VERSION
-  bld.env['LIB_VERSION'] = LIB_VERSION
+    bld.env['VERSION'] = VERSION
+    bld.env['LIB_VERSION'] = LIB_VERSION
 
-  # add sub directories
-  bld.recurse('src')
-  if bld.env['DEST_OS'] not in ['ios', 'iosimulator']:
-      bld.recurse('examples')
-      bld.recurse('tests')
+    # add sub directories
+    bld.recurse('src')
+    if bld.env['DEST_OS'] not in ['ios', 'iosimulator']:
+        pass
+    if bld.env['DEST_OS'] not in ['ios', 'iosimulator', 'android']:
+        bld.recurse('examples')
+        bld.recurse('tests')
 
-  bld( source = 'aubio.pc.in' )
+    bld( source = 'aubio.pc.in' )
 
-  # build manpages from sgml files
-  if bld.env['DOCBOOKTOMAN']:
-    from waflib import TaskGen
-    if 'MANDIR' not in bld.env:
-      bld.env['MANDIR'] = bld.env['PREFIX'] + '/share/man'
-    TaskGen.declare_chain(
-        name      = 'docbooktoman',
-        rule      = '${DOCBOOKTOMAN} ${SRC} > ${TGT}',
-        ext_in    = '.sgml',
-        ext_out   = '.1',
-        reentrant = False,
-        install_path =  '${MANDIR}/man1',
-    )
-    bld( source = bld.path.ant_glob('doc/*.sgml') )
+    # build manpages from sgml files
+    if bld.env['DOCBOOKTOMAN']:
+        from waflib import TaskGen
+        if 'MANDIR' not in bld.env:
+            bld.env['MANDIR'] = bld.env['PREFIX'] + '/share/man'
+        TaskGen.declare_chain(
+                name      = 'docbooktoman',
+                rule      = '${DOCBOOKTOMAN} ${SRC} > ${TGT}',
+                ext_in    = '.sgml',
+                ext_out   = '.1',
+                reentrant = False,
+                install_path =  '${MANDIR}/man1',
+                )
+        bld( source = bld.path.ant_glob('doc/*.sgml') )
 
-  """
-  bld(rule = 'doxygen ${SRC}', source = 'web.cfg') #, target = 'doc/web/index.html')
-  """
+    """
+    bld(rule = 'doxygen ${SRC}', source = 'web.cfg') #, target = 'doc/web/index.html')
+    """
 
 
 def shutdown(bld):
-    from waflib import Options, Logs
-    if Options.platform in ['ios', 'iosimulator']:
-          msg ='aubio built for ios, contact the author for a commercial license'
-          Logs.pprint('RED', msg)
-          msg ='   Paul Brossier <piem@aubio.org>'
-          Logs.pprint('RED', msg)
-
+    from waflib import Logs
+    if bld.options.target_platform in ['ios', 'iosimulator']:
+        msg ='building for %s, contact the author for a commercial license' % bld.options.target_platform
+        Logs.pprint('RED', msg)
+        msg ='   Paul Brossier <piem@aubio.org>'
+        Logs.pprint('RED', msg)
 
 def dist(ctx):
     ctx.excl  = ' **/.waf-1* **/*~ **/*.pyc **/*.swp **/.lock-w* **/.git*'

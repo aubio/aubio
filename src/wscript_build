@@ -8,21 +8,25 @@ uselib += ['SNDFILE']
 uselib += ['JACK']
 uselib += ['LASH']
 
+ctx(features = 'c',
+      source = source,
+      includes = ['.'],
+      uselib = uselib,
+      lib = 'm',
+      target = 'lib_objects')
 
-# build libaubio
+# build libaubio.so (cshlib) and/or libaubio.a (cstlib)
 if ctx.env['DEST_OS'] in ['ios', 'iosimulator']:
-    build_lib_func = ctx.stlib
-else:
-    build_lib_func = ctx.shlib
+    build_features = ['cstlib']
+else: #linux, darwin, android, windows, ...
+    build_features = ['cshlib', 'cstlib']
 
-build_lib_func(
-    includes = ['.'],
-    source = source,
-    target = 'aubio',
-    lib = 'm',
-    uselib = uselib,
-    install_path = '${PREFIX}/lib',
-    vnum = ctx.env['LIB_VERSION'])
+for feat in build_features:
+    ctx(features = 'c ' + feat,
+        use = ['lib_objects'], #source = source,
+        target = 'aubio',
+        install_path = '${PREFIX}/lib',
+        vnum = ctx.env['LIB_VERSION'])
 
 # install headers, except _priv.h ones
 ctx.install_files('${PREFIX}/include/aubio/',
