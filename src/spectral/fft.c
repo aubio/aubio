@@ -191,6 +191,11 @@ void del_aubio_fft(aubio_fft_t * s) {
 #ifdef HAVE_ACCELERATE        // using ACCELERATE
   AUBIO_FREE(s->spec.realp);
   AUBIO_FREE(s->spec.imagp);
+#if !HAVE_AUBIO_DOUBLE
+  vDSP_destroy_fftsetup(s->fftSetup);
+#else
+  vDSP_destroy_fftsetupD(s->fftSetup);
+#endif
 #else                         // using OOURA
   AUBIO_FREE(s->w);
   AUBIO_FREE(s->ip);
