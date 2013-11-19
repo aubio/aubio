@@ -4,6 +4,7 @@
 
 extern void add_generated_objects ( PyObject *m );
 extern void add_ufuncs ( PyObject *m );
+extern int generated_types_ready(void);
 
 static char Py_alpha_norm_doc[] = "compute alpha normalisation factor";
 
