@@ -44,8 +44,6 @@ def add_option_enable_disable(ctx, name, default = None, help_str = None, help_d
           help = help_disable_str )
 
 def options(ctx):
-  add_option_enable_disable(ctx, 'double', default = False,
-          help_str = 'compile aubio in double precision mode')
   add_option_enable_disable(ctx, 'fftw3f', default = False,
           help_str = 'compile with fftw3f instead of ooura (recommended)', help_disable_str = 'do not compile with fftw3f')
   add_option_enable_disable(ctx, 'fftw3', default = False,
@@ -60,6 +58,9 @@ def options(ctx):
           help_str = 'compile with sndfile (auto)', help_disable_str = 'disable sndfile')
   add_option_enable_disable(ctx, 'samplerate', default = None,
           help_str = 'compile with samplerate (auto)', help_disable_str = 'disable samplerate')
+  add_option_enable_disable(ctx, 'double', default = False,
+          help_str = 'compile aubio in double precision mode',
+          help_disable_str = 'compile aubio in single precision mode (default)')
 
   ctx.add_option('--with-target-platform', type='string',
       help='set target platform for cross-compilation', dest='target_platform')
