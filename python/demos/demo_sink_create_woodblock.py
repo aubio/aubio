@@ -32,14 +32,18 @@ sinetone = zeros((duration,), dtype = 'float32')
 # compute sinetone at floating point period
 for i in range(duration):
     x = int((i % period) / float(period) * tablelen)
-    sinetone[i] = (sinetable[x] + sinetable[x+1]) / 2
+    idx = int(x)
+    frac = x - idx
+    a = sinetable[idx]
+    b = sinetable[idx + 1]
+    sinetone[i] = a + frac * (b -a)
 
 # apply some envelope
 float_ramp = arange(duration, dtype = 'float32')
 sinetone *= exp( - e * float_ramp / duration / decay)
 sinetone[:attack] *= exp( e * ( float_ramp[:attack] / attack - 1 ) )
 
-if 0:
+if 1:
     import matplotlib.pyplot as plt
     plt.plot(sinetone)
     plt.show()
