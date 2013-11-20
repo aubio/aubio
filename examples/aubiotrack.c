@@ -48,7 +48,7 @@ static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
       } else {
         aubio_wavetable_stop ( wavetable );
       }
-      aubio_wavetable_do (wavetable, ibuf, obuf);
+      aubio_wavetable_do (wavetable, obuf, obuf);
       /* end of block loop */
       pos = -1; /* so it will be zero next j loop */
     }
