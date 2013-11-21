@@ -73,7 +73,7 @@ def configure(ctx):
   ctx.load('compiler_c')
   ctx.load('waf_unit_test')
   ctx.load('gnu_dirs')
-  ctx.env.CFLAGS += ['-g', '-Wall', '-Wextra']
+  ctx.env.CFLAGS += ['-g', '-Wall', '-Wextra', '-fPIC']
 
   target_platform = Options.platform
   if ctx.options.target_platform:
