@@ -170,9 +170,11 @@ aubio_beattracking_do (aubio_beattracking_t * bt, fvec_t * dfframe,
 
   /* find non-zero Rayleigh period */
   maxindex = fvec_max_elem (bt->acfout);
-  bt->rp = maxindex ? fvec_quadratic_peak_pos (bt->acfout, maxindex) : 1;
-  //rp = (maxindex==127) ? 43 : maxindex; //rayparam
-  bt->rp = (maxindex == bt->acfout->length - 1) ? bt->rayparam : maxindex;      //rayparam
+  if (maxindex > 0 && maxindex < bt->acfout->length - 1) {
+    bt->rp = fvec_quadratic_peak_pos (bt->acfout, maxindex);
+  } else {
+    bt->rp = bt->rayparam;
+  }
 
   /* activate biased filterbank */
   aubio_beattracking_checkstate (bt);
