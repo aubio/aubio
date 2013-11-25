@@ -185,7 +185,7 @@ aubio_beattracking_do (aubio_beattracking_t * bt, fvec_t * dfframe,
   /* end of biased filterbank */
 
   if (bp == 0) {
-    output->data[0] = 0;
+    fvec_zeros(output);
     return;
   }
 
