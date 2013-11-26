@@ -66,7 +66,11 @@ void lvec_set(lvec_t *s, smpl_t val) {
 }
 
 void lvec_zeros(lvec_t *s) {
+#if HAVE_MEMCPY_HACKS
+  memset(s->data, 0, s->length * sizeof(lsmp_t));
+#else
   lvec_set(s, 0.);
+#endif
 }
 
 void lvec_ones(lvec_t *s) {

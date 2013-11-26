@@ -63,7 +63,11 @@ void fvec_set(fvec_t *s, smpl_t val) {
 }
 
 void fvec_zeros(fvec_t *s) {
+#if HAVE_MEMCPY_HACKS
+  memset(s->data, 0, s->length * sizeof(smpl_t));
+#else
   fvec_set(s, 0.);
+#endif
 }
 
 void fvec_ones(fvec_t *s) {
@@ -86,14 +90,17 @@ void fvec_weight(fvec_t *s, fvec_t *weight) {
 }
 
 void fvec_copy(fvec_t *s, fvec_t *t) {
-  uint_t j;
-  uint_t length = t->length;
   if (s->length != t->length) {
-    AUBIO_WRN("trying to copy %d elements to %d elements \n",
+    AUBIO_ERR("trying to copy %d elements to %d elements \n",
         s->length, t->length);
-    length = MIN(s->length, t->length);
+    return;
   }
-  for (j=0; j< length; j++) {
+#if HAVE_MEMCPY_HACKS
+  memcpy(t->data, s->data, t->length * sizeof(smpl_t));
+#else
+  uint_t j;
+  for (j=0; j< t->length; j++) {
     t->data[j] = s->data[j];
   }
+#endif
 }

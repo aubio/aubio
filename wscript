@@ -58,6 +58,9 @@ def options(ctx):
           help_str = 'compile with sndfile (auto)', help_disable_str = 'disable sndfile')
   add_option_enable_disable(ctx, 'samplerate', default = None,
           help_str = 'compile with samplerate (auto)', help_disable_str = 'disable samplerate')
+  add_option_enable_disable(ctx, 'memcpy', default = True,
+          help_str = 'use memcpy hacks (default)',
+          help_disable_str = 'do not use memcpy hacks')
   add_option_enable_disable(ctx, 'double', default = False,
           help_str = 'compile aubio in double precision mode',
           help_disable_str = 'compile aubio in single precision mode (default)')
@@ -181,6 +184,12 @@ def configure(ctx):
     ctx.msg('Checking for FFT implementation', 'vDSP')
   else:
     ctx.msg('Checking for FFT implementation', 'ooura')
+
+  # use memcpy hacks
+  if (ctx.options.enable_memcpy == True):
+    ctx.define('HAVE_MEMCPY_HACKS', 1)
+  else:
+    ctx.define('HAVE_MEMCPY_HACKS', 0)
 
   if (ctx.options.enable_jack != False):
     ctx.check_cfg(package = 'jack', atleast_version = '0.15.0',

@@ -86,7 +86,11 @@ void fmat_set(fmat_t *s, smpl_t val) {
 }
 
 void fmat_zeros(fmat_t *s) {
+#if HAVE_MEMCPY_HACKS
+  memset(s->data, 0, s->height * s->length * sizeof(smpl_t));
+#else
   fmat_set(s, 0.);
+#endif
 }
 
 void fmat_ones(fmat_t *s) {
@@ -113,21 +117,25 @@ void fmat_weight(fmat_t *s, fmat_t *weight) {
 }
 
 void fmat_copy(fmat_t *s, fmat_t *t) {
-  uint_t i,j;
-  uint_t height = MIN(s->height, t->height);
-  uint_t length = MIN(s->length, t->length);
   if (s->height != t->height) {
-    AUBIO_ERR("warning, trying to copy %d rows to %d rows \n", 
+    AUBIO_ERR("trying to copy %d rows to %d rows \n",
             s->height, t->height);
+    return;
   }
   if (s->length != t->length) {
-    AUBIO_ERR("warning, trying to copy %d columns to %d columns\n", 
+    AUBIO_ERR("trying to copy %d columns to %d columns\n",
             s->length, t->length);
+    return;
   }
-  for (i=0; i< height; i++) {
-    for (j=0; j< length; j++) {
+#if HAVE_MEMCPY_HACKS
+  memcpy(t->data, s->data, t->height * t->length * sizeof(smpl_t));
+#else
+  uint_t i,j;
+  for (i=0; i< t->height; i++) {
+    for (j=0; j< t->length; j++) {
       t->data[i][j] = s->data[i][j];
     }
   }
+#endif
 }
 
