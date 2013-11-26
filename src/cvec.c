@@ -70,18 +70,63 @@ void cvec_print(cvec_t *s) {
   AUBIO_MSG("\n");
 }
 
-void cvec_set(cvec_t *s, smpl_t val) {
+void cvec_copy(cvec_t *s, cvec_t *t) {
+  if (s->length != t->length) {
+    AUBIO_ERR("trying to copy %d elements to %d elements \n",
+        s->length, t->length);
+    return;
+  }
+#if HAVE_MEMCPY_HACKS
+  memcpy(t->norm, s->norm, t->length * sizeof(smpl_t));
+  memcpy(t->phas, s->phas, t->length * sizeof(smpl_t));
+#else
+  uint_t j;
+  for (j=0; j< t->length; j++) {
+    t->norm[j] = s->norm[j];
+    t->phas[j] = s->phas[j];
+  }
+#endif
+}
+
+void cvec_set_all_norm(cvec_t *s, smpl_t val) {
   uint_t j;
   for (j=0; j< s->length; j++) {
     s->norm[j] = val;
   }
 }
 
+void cvec_zeros_norm(cvec_t *s) {
+#if HAVE_MEMCPY_HACKS
+  memset(s->norm, 0, s->length * sizeof(smpl_t));
+#else
+  cvec_set_all_norm(s, 0.);
+#endif
+}
+
+void cvec_ones_norm(cvec_t *s) {
+  cvec_set_all_norm(s, 1.);
+}
+
+void cvec_set_all_phas(cvec_t *s, smpl_t val) {
+  uint_t j;
+  for (j=0; j< s->length; j++) {
+    s->phas[j] = val;
+  }
+}
+
+void cvec_zeros_phas(cvec_t *s) {
+#if HAVE_MEMCPY_HACKS
+  memset(s->phas, 0, s->length * sizeof(smpl_t));
+#else
+  cvec_set_all_phas(s, 0.);
+#endif
+}
+
+void cvec_ones_phas(cvec_t *s) {
+  cvec_set_all_phas(s, 1.);
+}
+
 void cvec_zeros(cvec_t *s) {
-  cvec_set(s, 0.);
+  cvec_zeros_norm(s);
+  cvec_zeros_phas(s);
 }
-
-void cvec_ones(cvec_t *s) {
-  cvec_set(s, 1.);
-}
-

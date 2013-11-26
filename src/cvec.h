@@ -158,27 +158,64 @@ smpl_t * cvec_get_phas(cvec_t *s);
 */
 void cvec_print(cvec_t *s);
 
-/** set all elements to a given value
+/** make a copy of a vector
+
+  \param s source vector
+  \param t vector to copy to
+
+*/
+void cvec_copy(cvec_t *s, cvec_t *t);
+
+/** set all norm elements to a given value
 
   \param s vector to modify
   \param val value to set elements to
 
 */
-void cvec_set(cvec_t *s, smpl_t val);
+void cvec_set_all_norm(cvec_t *s, smpl_t val);
 
-/** set all elements to zero
+/** set all norm elements to zero
+
+  \param s vector to modify
+
+*/
+void cvec_zeros_norm(cvec_t *s);
+
+/** set all norm elements to one
+
+  \param s vector to modify
+
+*/
+void cvec_ones_norm(cvec_t *s);
+
+/** set all phase elements to a given value
+
+  \param s vector to modify
+  \param val value to set elements to
+
+*/
+void cvec_set_all_phas(cvec_t *s, smpl_t val);
+
+/** set all phase elements to zero
+
+  \param s vector to modify
+
+*/
+void cvec_zeros_phas(cvec_t *s);
+
+/** set all phase elements to one
+
+  \param s vector to modify
+
+*/
+void cvec_ones_phas(cvec_t *s);
+
+/** set all norm and phas elements to zero
 
   \param s vector to modify
 
 */
 void cvec_zeros(cvec_t *s);
-
-/** set all elements to ones
-
-  \param s vector to modify
-
-*/
-void cvec_ones(cvec_t *s);
 
 #ifdef __cplusplus
 }

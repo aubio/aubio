@@ -12,11 +12,11 @@ int main ()
   // create mfcc object
   aubio_mfcc_t *o = new_aubio_mfcc (win_s, n_filters, n_coefs, samplerate);
 
-  cvec_set (in, 1.);
+  cvec_set_all_norm (in, 1.);
   aubio_mfcc_do (o, in, out);
   fvec_print (out);
 
-  cvec_set (in, .5);
+  cvec_set_all_norm (in, .5);
   aubio_mfcc_do (o, in, out);
   fvec_print (out);
 
