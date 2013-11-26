@@ -8,15 +8,16 @@ int main (int argc, char **argv)
     err = 2;
     PRINT_ERR("not enough arguments\n");
     PRINT_MSG("read a wave file as a mono vector\n");
-    PRINT_MSG("usage: %s <source_path> [samplerate] [hop_size]\n", argv[0]);
+    PRINT_MSG("usage: %s <source_path> [samplerate] [win_size] [hop_size]\n", argv[0]);
     return err;
   }
   uint_t samplerate = 0;
-  uint_t win_s = 1024; // window size
-  uint_t hop_size = win_s / 4;
+  if ( argc >= 3 ) samplerate = atoi(argv[2]);
+  uint_t win_size = 1024; // window size
+  if ( argc >= 4 ) win_size = atoi(argv[3]);
+  uint_t hop_size = win_size / 4;
+  if ( argc >= 5 ) hop_size = atoi(argv[4]);
   uint_t n_frames = 0, read = 0;
-  if ( argc == 3 ) samplerate = atoi(argv[2]);
-  if ( argc == 4 ) hop_size = atoi(argv[3]);
 
   char_t *source_path = argv[1];
   aubio_source_t * source = new_aubio_source(source_path, samplerate, hop_size);
@@ -29,7 +30,7 @@ int main (int argc, char **argv)
   fvec_t * out = new_fvec (2); // output position
 
   // create tempo object
-  aubio_tempo_t * o = new_aubio_tempo("default", win_s, hop_size, samplerate);
+  aubio_tempo_t * o = new_aubio_tempo("default", win_size, hop_size, samplerate);
 
   do {
     // put some fresh data in input vector

@@ -31,6 +31,8 @@ void aubio_beattracking_checkstate (aubio_beattracking_t * bt);
 
 struct _aubio_beattracking_t
 {
+  uint_t hop_size;       /** length of one tempo detection function sample, in audio samples */
+  uint_t samplerate;     /** samplerate of the original signal */
   fvec_t *rwv;           /** rayleigh weighting for beat period in general model */
   fvec_t *dfwv;          /** exponential weighting for beat alignment in general model */
   fvec_t *gwv;           /** gaussian weighting for beat period in context dependant model */
@@ -54,14 +56,15 @@ struct _aubio_beattracking_t
 };
 
 aubio_beattracking_t *
-new_aubio_beattracking (uint_t winlen)
+new_aubio_beattracking (uint_t winlen, uint_t hop_size, uint_t samplerate)
 {
 
   aubio_beattracking_t *p = AUBIO_NEW (aubio_beattracking_t);
   uint_t i = 0;
-  /* parameter for rayleigh weight vector - sets preferred tempo to
-   * 120bpm [43] */
-  smpl_t rayparam = 48. / 512. * winlen;
+  p->hop_size = hop_size;
+  p->samplerate = samplerate;
+  /* default value for rayleigh weighting - sets preferred tempo to 120bpm */
+  smpl_t rayparam = 60. * samplerate / 120. / hop_size;
   smpl_t dfwvnorm = EXP ((LOG (2.0) / rayparam) * (winlen + 2));
   /* length over which beat period is found [128] */
   uint_t laglen = winlen / 4;
@@ -414,8 +417,8 @@ aubio_beattracking_checkstate (aubio_beattracking_t * bt)
 smpl_t
 aubio_beattracking_get_bpm (aubio_beattracking_t * bt)
 {
-  if (bt->bp != 0 && bt->timesig != 0 && bt->counter == 0 && bt->flagstep == 0) {
-    return 5168. / fvec_quadratic_peak_pos (bt->acfout, bt->bp);
+  if (bt->bp != 0) {
+    return 60. * bt->samplerate/ bt->bp / bt->hop_size;
   } else {
     return 0.;
   }

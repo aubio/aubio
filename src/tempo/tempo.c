@@ -141,12 +141,12 @@ aubio_tempo_t * new_aubio_tempo (char_t * onset_mode,
 {
   aubio_tempo_t * o = AUBIO_NEW(aubio_tempo_t);
   o->samplerate = samplerate;
-  o->winlen = SQR(512)/hop_size;
+  /* length of observations, worth about 6 seconds */
+  o->winlen = aubio_next_power_of_two(5.8 * samplerate / hop_size);
   o->step = o->winlen/4;
   o->blockpos = 0;
   o->threshold = 0.3;
   o->silence = -90.;
-  o->blockpos = 0;
   o->total_frames = 0;
   o->last_beat = 0;
   o->delay = 0;
@@ -159,7 +159,7 @@ aubio_tempo_t * new_aubio_tempo (char_t * onset_mode,
   aubio_peakpicker_set_threshold (o->pp, o->threshold);
   o->od       = new_aubio_specdesc(onset_mode,buf_size);
   o->of       = new_fvec(1);
-  o->bt       = new_aubio_beattracking(o->winlen);
+  o->bt       = new_aubio_beattracking(o->winlen, o->hop_size, o->samplerate);
   o->onset    = new_fvec(1);
   /*if (usedoubled)    {
     o2 = new_aubio_specdesc(type_onset2,buffer_size);

@@ -51,7 +51,8 @@ typedef struct _aubio_beattracking_t aubio_beattracking_t;
   \param hop_size number of onset detection samples [512] 
 
 */
-aubio_beattracking_t * new_aubio_beattracking(uint_t hop_size);
+aubio_beattracking_t * new_aubio_beattracking(uint_t winlen, uint_t hop_size,
+    uint_t samplerate);
 
 /** track the beat 
 

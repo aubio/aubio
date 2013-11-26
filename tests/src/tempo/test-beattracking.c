@@ -11,7 +11,7 @@ int main ()
   fvec_t * out = new_fvec (win_s / 4); // output beat position
 
   // create beattracking object
-  aubio_beattracking_t * tempo  = new_aubio_beattracking(win_s);
+  aubio_beattracking_t * tempo  = new_aubio_beattracking(win_s, 256, 44100);
 
   smpl_t bpm, confidence;
 
