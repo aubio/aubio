@@ -22,6 +22,9 @@
 #include "fmat.h"
 
 fmat_t * new_fmat (uint_t length, uint_t height) {
+  if ((sint_t)length <= 0 || (sint_t)height <= 0 ) {
+    return NULL;
+  }
   fmat_t * s = AUBIO_NEW(fmat_t);
   uint_t i,j;
   s->height = height;

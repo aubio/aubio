@@ -22,6 +22,9 @@
 #include "lvec.h"
 
 lvec_t * new_lvec( uint_t length) {
+  if ((sint_t)length <= 0) {
+    return NULL;
+  }
   lvec_t * s = AUBIO_NEW(lvec_t);
   s->length = length;
   s->data = AUBIO_ARRAY(lsmp_t, s->length);

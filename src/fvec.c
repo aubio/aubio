@@ -22,6 +22,9 @@
 #include "fvec.h"
 
 fvec_t * new_fvec( uint_t length) {
+  if ((sint_t)length <= 0) {
+    return NULL;
+  }
   fvec_t * s = AUBIO_NEW(fvec_t);
   s->length = length;
   s->data = AUBIO_ARRAY(smpl_t, s->length);
