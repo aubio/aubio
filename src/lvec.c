@@ -23,12 +23,8 @@
 
 lvec_t * new_lvec( uint_t length) {
   lvec_t * s = AUBIO_NEW(lvec_t);
-  uint_t j;
   s->length = length;
   s->data = AUBIO_ARRAY(lsmp_t, s->length);
-  for (j=0; j< s->length; j++) {
-    s->data[j]=0.;
-  }
   return s;
 }
 
