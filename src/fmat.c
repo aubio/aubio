@@ -87,7 +87,10 @@ void fmat_set(fmat_t *s, smpl_t val) {
 
 void fmat_zeros(fmat_t *s) {
 #if HAVE_MEMCPY_HACKS
-  memset(s->data, 0, s->height * s->length * sizeof(smpl_t));
+  uint_t i;
+  for (i=0; i< s->height; i++) {
+    memset(s->data[i], 0, s->length * sizeof(smpl_t));
+  }
 #else
   fmat_set(s, 0.);
 #endif
