@@ -134,7 +134,10 @@ void fmat_copy(fmat_t *s, fmat_t *t) {
     return;
   }
 #if HAVE_MEMCPY_HACKS
-  memcpy(t->data, s->data, t->height * t->length * sizeof(smpl_t));
+  uint_t i;
+  for (i=0; i< s->height; i++) {
+    memcpy(t->data[i], s->data[i], t->length * sizeof(smpl_t));
+  }
 #else
   uint_t i,j;
   for (i=0; i< t->height; i++) {
