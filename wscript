@@ -36,11 +36,11 @@ def add_option_enable_disable(ctx, name, default = None, help_str = None, help_d
   if help_disable_str == None:
       help_disable_str = 'do not ' + help_str
   ctx.add_option('--enable-' + name, action = 'store_true', default = default,
-          dest = 'enable_' + name,
+          dest = 'enable_' + name.replace('-','_'),
           help = help_str)
   ctx.add_option('--disable-' + name, action = 'store_false',
           #default = default,
-          dest = 'enable_' + name,
+          dest = 'enable_' + name.replace('-','_'),
           help = help_disable_str )
 
 def options(ctx):
