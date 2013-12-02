@@ -32,21 +32,16 @@ while True:
     samples, read = s()
     is_beat = o(samples)
     if is_beat:
-        this_beat = int(total_frames - delay + is_beat[0] * hop_s)
-        #print "%f" % (this_beat / float(samplerate))
+        this_beat = o.get_last_s()
         beats.append(this_beat)
     total_frames += read
     if read < hop_s: break
 
-#convert samples to seconds
-beats = map( lambda x: x / float(samplerate), beats)
-
-bpms = [60./(b - a) for a,b in zip(beats[:-1],beats[1:])]
-
-if len(bpms):
+if len(beats) > 1:
     # do plotting
-    from numpy import array, arange, mean, median
+    from numpy import array, arange, mean, median, diff
     import matplotlib.pyplot as plt
+    bpms = 60./ diff(beats)
     print 'mean period:', "%.2f" % mean(bpms), 'bpm', 'median', "%.2f" % median(bpms), 'bpm'
     print 'plotting', filename
     plt1 = plt.axes([0.1, 0.75, 0.8, 0.19])
@@ -80,5 +75,5 @@ if len(bpms):
     plt.show()
 
 else:
-    print 'mean period:', "%.2f" % 0, 'bpm', 'median', "%.2f" % 0, 'bpm', 
+    print 'mean period:', "%.2f" % 0, 'bpm', 'median', "%.2f" % 0, 'bpm',
     print 'nothing to plot, file too short?'
