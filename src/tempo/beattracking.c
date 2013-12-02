@@ -300,11 +300,7 @@ aubio_beattracking_checkstate (aubio_beattracking_t * bt)
   fvec_t *acfout = bt->acfout;
 
   if (gp) {
-    // doshiftfbank again only if context dependent model is in operation
-    //acfout = doshiftfbank(acf,gwv,timesig,laglen,acfout); 
-    //don't need acfout now, so can reuse vector
-    // gwv is, in first loop, definitely all zeros, but will have
-    // proper values when context dependent model is activated
+    // compute shift invariant comb filterbank
     fvec_zeros (acfout);
     for (i = 1; i < laglen - 1; i++) {
       for (a = 1; a <= bt->timesig; a++) {
@@ -313,12 +309,9 @@ aubio_beattracking_checkstate (aubio_beattracking_t * bt)
         }
       }
     }
+    // since gp is set, gwv has been computed in previous checkstate
     fvec_weight (acfout, bt->gwv);
     gp = fvec_quadratic_peak_pos (acfout, fvec_max_elem (acfout));
-    /*
-       while(gp<32) gp =gp*2;
-       while(gp>64) gp = gp/2;
-     */
   } else {
     //still only using general model
     gp = 0;
