@@ -49,7 +49,14 @@ fvec_t *
 new_aubio_window (char_t * window_type, uint_t length)
 {
   fvec_t * win = new_fvec (length);
-  fvec_set_window (win, window_type);
+  if (win == NULL) {
+    return NULL;
+  }
+  uint_t err = fvec_set_window (win, window_type);
+  if (err != 0) {
+    del_fvec(win);
+    return NULL;
+  }
   return win;
 }
 
