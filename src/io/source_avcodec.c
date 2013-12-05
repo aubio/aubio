@@ -91,6 +91,9 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * path, uint_t samplera
     goto beach;
   }
 
+  // try to make sure max_analyze_duration is big enough for most songs
+  avFormatCtx->max_analyze_duration *= 100;
+
   // retrieve stream information
   if ( (err = avformat_find_stream_info(avFormatCtx, NULL)) < 0 ) {
     uint8_t errorstr_len = 128;
