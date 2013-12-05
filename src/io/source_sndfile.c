@@ -73,7 +73,7 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplera
   s->channels = 1;
   s->path = path;
 
-  // try opening the file, geting the info in sfinfo
+  // try opening the file, getting the info in sfinfo
   SF_INFO sfinfo;
   AUBIO_MEMSET(&sfinfo, 0, sizeof (sfinfo));
   s->handle = sf_open (s->path, SFM_READ, &sfinfo);
