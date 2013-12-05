@@ -17,7 +17,7 @@ int main (int argc, char **argv)
   }
 
 #ifdef HAVE_SNDFILE
-  uint_t samplerate = 32000;
+  uint_t samplerate = 0;
   uint_t hop_size = 256;
   uint_t n_frames = 0, read = 0;
   if ( argc == 3 ) samplerate = atoi(argv[2]);
@@ -32,7 +32,7 @@ int main (int argc, char **argv)
 
   do {
     aubio_source_sndfile_do(s, vec, &read);
-    // fvec_print (vec);
+    fvec_print (vec);
     n_frames += read;
   } while ( read == hop_size );
 
