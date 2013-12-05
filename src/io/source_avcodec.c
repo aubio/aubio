@@ -73,11 +73,10 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * path, uint_t samplera
   s->channels = 1;
   s->path = path;
 
-  // try opening the file and get some info about it
   // register all formats and codecs
   av_register_all();
 
-  // open file
+  // try opening the file and get some info about it
   AVFormatContext *avFormatCtx = s->avFormatCtx;
   avFormatCtx = NULL;
   if ( (err = avformat_open_input(&avFormatCtx, s->path, NULL, NULL) ) < 0 ) {
@@ -109,6 +108,7 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * path, uint_t samplera
   // Dump information about file onto standard error
   //av_dump_format(avFormatCtx, 0, s->path, 0);
 
+  // look for the first audio stream, printing a warning if more than one is found
   uint_t i;
   sint_t selected_stream = -1;
   for (i = 0; i < avFormatCtx->nb_streams; i++) {
@@ -124,7 +124,6 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * path, uint_t samplera
     AUBIO_ERR("No audio stream in %s\n", s->path);
     goto beach;
   }
-
   //AUBIO_DBG("Taking stream %d in file %s\n", selected_stream, s->path);
 
   AVCodecContext *avCodecCtx = s->avCodecCtx;
@@ -219,7 +218,6 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
   AVAudioResampleContext *avr = s->avr;
   int16_t *output = s->output;
 
-  uint_t i;
   int err = av_read_frame (avFormatCtx, &avPacket);
   if (err != 0) {
     //AUBIO_ERR("Could not read frame for (%s)\n", s->path);
@@ -278,25 +276,16 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
 void aubio_source_avcodec_do(aubio_source_avcodec_t * s, fvec_t * read_data, uint_t * read){
   uint_t i;
   //AUBIO_DBG("entering 'do' with %d, %d\n", s->read_samples, s->read_index);
-  // begin reading
-  if (s->read_samples == 0) {
-    uint_t avcodec_read = 0;
-    aubio_source_avcodec_readframe(s, &avcodec_read);
-    s->read_samples += avcodec_read;
-    s->read_index = 0;
-  }
   if (s->read_samples < s->hop_size) {
     // write the end of the buffer to the beginning of read_data
     uint_t partial = s->read_samples;
     for (i = 0; i < partial; i++) {
       read_data->data[i] = SHORT_TO_FLOAT(s->output[i + s->read_index]);
     }
-    s->read_samples = 0;
-    s->read_index = 0;
     // get more data
     uint_t avcodec_read = 0;
     aubio_source_avcodec_readframe(s, &avcodec_read);
-    s->read_samples += avcodec_read;
+    s->read_samples = avcodec_read;
     s->read_index = 0;
     // write the beginning of the buffer to the end of read_data
     uint_t end = MIN(s->hop_size, s->read_samples);
@@ -311,8 +300,8 @@ void aubio_source_avcodec_do(aubio_source_avcodec_t * s, fvec_t * read_data, uin
         read_data->data[i] = 0.;
       }
     }
-    s->read_index += partial;
-    s->read_samples -= partial;
+    s->read_index += end - partial;
+    s->read_samples -= end - partial;
     *read = end;
   } else {
     for (i = 0; i < s->hop_size; i++) {
