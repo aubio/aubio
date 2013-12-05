@@ -53,7 +53,6 @@ struct _aubio_source_avcodec_t {
   AVFormatContext *avFormatCtx;
   AVCodecContext *avCodecCtx;
   AVFrame *avFrame;
-  AVPacket avPacket;
   AVAudioResampleContext *avr;
   int16_t *output;
   uint_t read_samples;
@@ -184,8 +183,6 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * path, uint_t samplera
   if (!avFrame) {
     AUBIO_ERR("Could not allocate frame for (%s)\n", s->path);
   }
-  AVPacket avPacket = s->avPacket;
-  av_init_packet(&avPacket);
 
   /* allocate output for avr */
   s->output = (int16_t *)av_malloc(AUBIO_AVCODEC_MIN_BUFFER_SIZE * sizeof(int16_t));
@@ -196,7 +193,6 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * path, uint_t samplera
   s->avFormatCtx = avFormatCtx;
   s->avCodecCtx = avCodecCtx;
   s->avFrame = avFrame;
-  s->avPacket = avPacket;
   s->avr = avr;
 
   //av_log_set_level(AV_LOG_QUIET);
@@ -214,7 +210,8 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
   AVFormatContext *avFormatCtx = s->avFormatCtx;
   AVCodecContext *avCodecCtx = s->avCodecCtx;
   AVFrame *avFrame = s->avFrame;
-  AVPacket avPacket = s->avPacket;
+  AVPacket avPacket;
+  av_init_packet (&avPacket);
   AVAudioResampleContext *avr = s->avr;
   int16_t *output = s->output;
 
@@ -262,10 +259,10 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
   //for (i = 0; i < out_samples; i ++) {
   //  AUBIO_DBG("%f\n", SHORT_TO_FLOAT(output[i]));
   //}
+  av_free_packet(&avPacket);
   s->avFormatCtx = avFormatCtx;
   s->avCodecCtx = avCodecCtx;
   s->avFrame = avFrame;
-  s->avPacket = avPacket;
   s->avr = avr;
   s->output = output;
 
@@ -344,9 +341,6 @@ void del_aubio_source_avcodec(aubio_source_avcodec_t * s){
     avcodec_free_frame( &(s->avFrame) );
   }
   s->avFrame = NULL;
-  if ( &(s->avPacket) != NULL) {
-    av_free_packet( &(s->avPacket) );
-  }
   if (s->avCodecCtx != NULL) {
     avcodec_close ( s->avCodecCtx );
   }
