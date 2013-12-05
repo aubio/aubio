@@ -26,9 +26,8 @@ int main (int argc, char **argv)
 
   fvec_t *vec = new_fvec(hop_size);
   aubio_source_avcodec_t * s = new_aubio_source_avcodec(source_path, samplerate, hop_size);
-  if (samplerate == 0 ) samplerate = aubio_source_avcodec_get_samplerate(s);
-
   if (!s) { err = 1; goto beach; }
+  if (samplerate == 0 ) samplerate = aubio_source_avcodec_get_samplerate(s);
 
   do {
     aubio_source_avcodec_do(s, vec, &read);
@@ -36,8 +35,8 @@ int main (int argc, char **argv)
     n_frames += read;
   } while ( read == hop_size );
 
-beach:
   del_aubio_source_avcodec (s);
+beach:
   del_fvec (vec);
 #else
   err = 3;
