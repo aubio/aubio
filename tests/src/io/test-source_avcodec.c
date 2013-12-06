@@ -1,5 +1,10 @@
+#define AUBIO_UNSTABLE 1
 #include <aubio.h>
 #include "utils_tests.h"
+#include "config.h"
+
+// this file uses the unstable aubio api, please use aubio_source instead
+// see src/io/source.h and tests/src/source/test-source.c
 
 int main (int argc, char **argv)
 {
@@ -19,6 +24,7 @@ int main (int argc, char **argv)
     return err;
   }
 
+#ifdef HAVE_AVCODEC
   uint_t samplerate = 0;
   uint_t hop_size = 256;
   uint_t n_frames = 0, read = 0;
@@ -28,15 +34,15 @@ int main (int argc, char **argv)
   char_t *source_path = argv[1];
 
 
-  aubio_source_t* s =
-    new_aubio_source(source_path, samplerate, hop_size);
+  aubio_source_avcodec_t * s =
+    new_aubio_source_avcodec(source_path, samplerate, hop_size);
   if (!s) { err = 1; goto beach; }
   fvec_t *vec = new_fvec(hop_size);
 
-  if (samplerate == 0 ) samplerate = aubio_source_get_samplerate(s);
+  if (samplerate == 0 ) samplerate = aubio_source_avcodec_get_samplerate(s);
 
   do {
-    aubio_source_do(s, vec, &read);
+    aubio_source_avcodec_do(s, vec, &read);
     fvec_print (vec);
     n_frames += read;
   } while ( read == hop_size );
@@ -45,7 +51,11 @@ int main (int argc, char **argv)
     n_frames / hop_size, source_path);
 
   del_fvec (vec);
-  del_aubio_source (s);
+  del_aubio_source_avcodec (s);
 beach:
+#else
+  err = 3;
+  PRINT_ERR("aubio was not compiled with aubio_source_avcodec\n");
+#endif /* HAVE_AVCODEC */
   return err;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2012-2013 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -18,17 +18,19 @@
 
 */
 
-#ifndef _AUBIO_SOURCE_H
-#define _AUBIO_SOURCE_H
+#ifndef _AUBIO_SOURCE_AVCODEC_H
+#define _AUBIO_SOURCE_AVCODEC_H
 
 /** \file
 
-  Media source to read blocks of consecutive audio samples from file
+  Read from file using [libavcodec](http://libav.org/)
+
+  Avoid including this file directly! Prefer using ::aubio_source_t instead to
+  make your code portable.
 
   To write to file, use ::aubio_sink_t.
 
-  \example io/test-source.c
-  \example io/test-source_multi.c
+  \example io/test-source_avcodec.c
 
 */
 
@@ -36,12 +38,12 @@
 extern "C" {
 #endif
 
-/** media source object */
-typedef struct _aubio_source_t aubio_source_t;
+/** avcodec media source object */
+typedef struct _aubio_source_avcodec_t aubio_source_avcodec_t;
 
 /**
 
-  create new ::aubio_source_t
+  create new ::aubio_source_avcodec_t
 
   \param uri the file path or uri to read from
   \param samplerate sampling rate to view the fie at
@@ -51,82 +53,82 @@ typedef struct _aubio_source_t aubio_source_t;
   rate of the original file is used.
 
   The samplerate of newly created source can be obtained using
-  ::aubio_source_get_samplerate.
+  ::aubio_source_avcodec_get_samplerate.
 
 */
-aubio_source_t * new_aubio_source(char_t * uri, uint_t samplerate, uint_t hop_size);
+aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * uri, uint_t samplerate, uint_t hop_size);
 
 /**
 
   read monophonic vector of length hop_size from source object
 
-  \param s source object, created with ::new_aubio_source
+  \param s source object, created with ::new_aubio_source_avcodec
   \param read_to ::fvec_t of data to read to
-  \param read upon returns, equals to number of frames actually read
-
-  Upon returns, `read` contains the number of frames actually read from the
-  source. `hop_size` if enough frames could be read, less otherwise.
-
-*/
-void aubio_source_do(aubio_source_t * s, fvec_t * read_to, uint_t * read);
-
-/**
-
-  read polyphonic vector of length hop_size from source object
-
-  \param s source object, created with ::new_aubio_source
-  \param read_to ::fmat_t of data to read to
   \param[out] read upon returns, equals to number of frames actually read
 
   Upon returns, `read` contains the number of frames actually read from the
   source. `hop_size` if enough frames could be read, less otherwise.
 
 */
-void aubio_source_do_multi(aubio_source_t * s, fmat_t * read_to, uint_t * read);
+void aubio_source_avcodec_do(aubio_source_avcodec_t * s, fvec_t * read_to, uint_t * read);
+
+/**
+
+  read polyphonic vector of length hop_size from source object
+
+  \param s source object, created with ::new_aubio_source_avcodec
+  \param read_to ::fmat_t of data to read to
+  \param read upon returns, equals to number of frames actually read
+
+  Upon returns, `read` contains the number of frames actually read from the
+  source. `hop_size` if enough frames could be read, less otherwise.
+
+*/
+void aubio_source_avcodec_do_multi(aubio_source_avcodec_t * s, fmat_t * read_to, uint_t * read);
 
 /**
 
   get samplerate of source object
 
-  \param s source object, created with ::new_aubio_source
+  \param s source object, created with ::new_aubio_source_avcodec
   \return samplerate, in Hz
 
 */
-uint_t aubio_source_get_samplerate(aubio_source_t * s);
+uint_t aubio_source_avcodec_get_samplerate(aubio_source_avcodec_t * s);
 
 /**
 
-  get channels of source object
+  get number of channels of source object
 
-  \param s source object, created with ::new_aubio_source
-  \return channels
+  \param s source object, created with ::new_aubio_source_avcodec
+  \return number of channels
 
 */
-uint_t aubio_source_get_channels (aubio_source_t * s);
+uint_t aubio_source_avcodec_get_channels (aubio_source_avcodec_t * s);
 
 /**
 
   seek source object
 
-  \param s source object, created with ::new_aubio_source
+  \param s source object, created with ::new_aubio_source_avcodec
   \param pos position to seek to, in frames
 
   \return 0 if sucessful, non-zero on failure
 
 */
-uint_t aubio_source_seek (aubio_source_t * s, uint_t pos);
+uint_t aubio_source_avcodec_seek (aubio_source_avcodec_t *s, uint_t pos);
 
 /**
 
   close source and cleanup memory
 
-  \param s source object, created with ::new_aubio_source
+  \param s source object, created with ::new_aubio_source_avcodec
 
 */
-void del_aubio_source(aubio_source_t * s);
+void del_aubio_source_avcodec(aubio_source_avcodec_t * s);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* _AUBIO_SOURCE_H */
+#endif /* _AUBIO_SOURCE_AVCODEC_H */
