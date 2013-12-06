@@ -269,7 +269,7 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
   int in_plane_size = 0; //avFrame->linesize[0];
   int out_plane_size = 0; //sizeof(float); //in_samples * sizeof(float);
   int max_out_samples = AUBIO_AVCODEC_MIN_BUFFER_SIZE;
-  uint_t out_samples = avresample_convert ( avr,
+  int out_samples = avresample_convert ( avr,
         (uint8_t **)&output, out_plane_size, max_out_samples,
         (uint8_t **)avFrame->data, in_plane_size, in_samples);
   if (out_samples < 0) {
