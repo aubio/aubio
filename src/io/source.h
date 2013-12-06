@@ -76,7 +76,7 @@ void aubio_source_do(aubio_source_t * s, fvec_t * read_to, uint_t * read);
 
   \param s source object, created with ::new_aubio_source
   \param read_to ::fmat_t of data to read to
-  \param read upon returns, equals to number of frames actually read
+  \param[out] read upon returns, equals to number of frames actually read
 
   Upon returns, `read` contains the number of frames actually read from the
   source. `hop_size` if enough frames could be read, less otherwise.
