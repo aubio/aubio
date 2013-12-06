@@ -19,6 +19,7 @@
 */
 
 #include "utils.h"
+#include "parse_args.h"
 
 /* mfcc objects */
 fvec_t * mfcc_out;

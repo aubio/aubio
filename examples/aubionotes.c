@@ -19,8 +19,10 @@
 */
 
 #define AUBIO_UNSTABLE 1 // for fvec_median
-
 #include "utils.h"
+#define PROG_HAS_PITCH 1
+#define PROG_HAS_ONSET 1
+#include "parse_args.h"
 
 /* pitch objects */
 smpl_t pitch = 0.;
@@ -146,11 +148,11 @@ get_note (fvec_t * note_buffer, fvec_t * note_buffer2)
 int main(int argc, char **argv) {
   examples_common_init(argc,argv);
 
-  o = new_aubio_onset (onset_mode, buffer_size, overlap_size, samplerate);
-  if (threshold != 0.) aubio_onset_set_threshold (o, threshold);
+  o = new_aubio_onset (onset_method, buffer_size, overlap_size, samplerate);
+  if (onset_threshold != 0.) aubio_onset_set_threshold (o, onset_threshold);
   onset = new_fvec (1);
 
-  pitchdet = new_aubio_pitch (pitch_mode, buffer_size * 4,
+  pitchdet = new_aubio_pitch (pitch_method, buffer_size * 4,
           overlap_size, samplerate);
   aubio_pitch_set_tolerance (pitchdet, 0.7);
   pitch_obuf = new_fvec (1);

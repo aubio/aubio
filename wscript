@@ -52,8 +52,6 @@ def options(ctx):
           help_str ='compile with C99 complex', help_disable_str = 'do not use C99 complex (default)' )
   add_option_enable_disable(ctx, 'jack', default = None,
           help_str = 'compile with jack (auto)', help_disable_str = 'disable jack support')
-  add_option_enable_disable(ctx, 'lash', default = None,
-          help_str = 'compile with LASH (auto)', help_disable_str = 'disable LASH' )
   add_option_enable_disable(ctx, 'sndfile', default = None,
           help_str = 'compile with sndfile (auto)', help_disable_str = 'disable sndfile')
   add_option_enable_disable(ctx, 'avcodec', default = None,
@@ -196,10 +194,6 @@ def configure(ctx):
   if (ctx.options.enable_jack != False):
     ctx.check_cfg(package = 'jack', atleast_version = '0.15.0',
     args = '--cflags --libs', mandatory = False)
-
-  if (ctx.options.enable_lash != False):
-    ctx.check_cfg(package = 'lash-1.0', atleast_version = '0.5.0',
-    args = '--cflags --libs', uselib_store = 'LASH', mandatory = False)
 
   if (ctx.options.enable_avcodec != False):
     ctx.check_cfg(package = 'libavcodec', atleast_version = '54.35.0',

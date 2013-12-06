@@ -27,181 +27,46 @@
 */
 
 #include "utils.h"
+#ifdef HAVE_JACK
+#include "jackio.h"
+#endif /* HAVE_JACK */
 
-#ifdef HAVE_LASH
-#include <lash/lash.h>
-#include <pthread.h>
-lash_client_t *aubio_lash_client;
-lash_args_t *lash_args;
-void *lash_thread_main (void *data);
-int lash_main (void);
-void save_data (void);
-void restore_data (lash_config_t * lash_config);
-pthread_t lash_thread;
-#endif /* HAVE_LASH */
-
-/* settings */
-const char *sink_uri = NULL;
-const char *source_uri = NULL;
-int frames = 0;
 int verbose = 0;
-int usejack = 0;
-int frames_delay = 0;
-
-
+// input / output
+char_t *sink_uri = NULL;
+char_t *source_uri = NULL;
+// general stuff
+uint_t samplerate = 0;
+uint_t buffer_size = 512;
+uint_t overlap_size = 256;
+// onset stuff
+char_t * onset_method = "default";
+smpl_t onset_threshold = 0.0; // will be set if != 0.
+// pitch stuff
 char_t * pitch_unit = "default";
-char_t * pitch_mode = "default";
-
-/* energy,specdiff,hfc,complexdomain,phase */
-char_t * onset_mode = "default";
-smpl_t threshold = 0.0;         // leave unset, only set as asked 
+char_t * pitch_method = "default";
+smpl_t pitch_tolerance = 0.0; // will be set if != 0.
+// tempo stuff
+char_t * tempo_method = "default";
+// more general stuff
 smpl_t silence = -90.;
-uint_t buffer_size = 512;       //1024;
-uint_t overlap_size = 256;      //512;
-uint_t samplerate = 44100;
+uint_t mix_input = 0;
 
+//
+// internal memory stuff
 aubio_source_t *this_source = NULL;
 aubio_sink_t *this_sink = NULL;
-
 fvec_t *ibuf;
 fvec_t *obuf;
 
-/* badly redeclare some things */
-smpl_t threshold;
-smpl_t averaging;
-const char *prog_name;
 
-void flush_process (aubio_process_func_t process_func,
-    aubio_print_func_t print);
+/* settings */
+int frames = 0;
+int usejack = 0;
+int frames_delay = 0;
 
-void
-usage (FILE * stream, int exit_code)
-{
-  fprintf (stream, "usage: %s [ options ] \n", prog_name);
-  fprintf (stream,
-      "       -h      --help          Display this message.\n"
-      "       -v      --verbose       Be verbose.\n"
-      "       -j      --jack          Use Jack.\n"
-      "       -o      --output        Output type.\n"
-      "       -i      --input         Input type.\n"
-      "       -O      --onset         Select onset detection algorithm.\n"
-      "       -t      --threshold     Set onset detection threshold.\n"
-      "       -s      --silence       Select silence threshold.\n"
-      "       -p      --pitch         Select pitch detection algorithm.\n"
-      "       -B      --bufsize       Set buffer size.\n"
-      "       -H      --hopsize       Set hopsize.\n"
-      "       -a      --averaging     Use averaging.\n");
-  exit (exit_code);
-}
-
-int
-parse_args (int argc, char **argv)
-{
-  const char *options = "hvjo:i:O:t:s:p:B:H:a";
-  int next_option;
-  struct option long_options[] = {
-    {"help", 0, NULL, 'h'},
-    {"verbose", 0, NULL, 'v'},
-    {"jack", 0, NULL, 'j'},
-    {"output", 1, NULL, 'o'},
-    {"input", 1, NULL, 'i'},
-    {"onset", 1, NULL, 'O'},
-    {"threshold", 1, NULL, 't'},
-    {"silence", 1, NULL, 's'},
-    {"pitch", 1, NULL, 'p'},
-    {"averaging", 0, NULL, 'a'},
-    {"bufsize", 1, NULL, 'B'},
-    {"hopsize", 1, NULL, 'H'},
-    {NULL, 0, NULL, 0}
-  };
-#ifdef HAVE_LASH
-  lash_args = lash_extract_args (&argc, &argv);
-#endif /* HAVE_LASH */
-  prog_name = argv[0];
-  if (argc < 1) {
-    usage (stderr, 1);
-    return -1;
-  }
-  do {
-    next_option = getopt_long (argc, argv, options, long_options, NULL);
-    switch (next_option) {
-      case 'o':
-        sink_uri = optarg;
-        break;
-      case 'i':
-        source_uri = optarg;
-        break;
-      case 'h':                /* help */
-        usage (stdout, 0);
-        return -1;
-      case 'v':                /* verbose */
-        verbose = 1;
-        break;
-      case 'j':
-        usejack = 1;
-        break;
-      case 'O':                /*onset type */
-        onset_mode = optarg;
-        break;
-      case 's':                /* silence value for onset */
-        silence = (smpl_t) atof (optarg);
-        break;
-      case 't':                /* threshold value for onset */
-        threshold = (smpl_t) atof (optarg);
-        break;
-      case 'p':
-        pitch_mode = optarg;
-        break;
-      case 'a':
-        averaging = 1;
-        break;
-      case 'B':
-        buffer_size = atoi (optarg);
-        break;
-      case 'H':
-        overlap_size = atoi (optarg);
-        break;
-      case '?':                /* unknown options */
-        usage (stderr, 1);
-        break;
-      case -1:                 /* done with options */
-        break;
-      default:                 /*something else unexpected */
-        fprintf (stderr, "Error parsing option '%c'\n", next_option);
-        abort ();
-    }
-  }
-  while (next_option != -1);
-
-  if ( source_uri == NULL ) {
-    if (argc - optind == 1) {
-      source_uri = argv[optind];
-    } else if ( argc - optind > 1 ) {
-      errmsg ("Error: too many non-option arguments `%s'\n", argv[argc - 1]);
-      usage ( stderr, 1 );
-    }
-  } else if ( argc - optind > 0 ) {
-    errmsg ("Error: extra non-option argument %s\n", argv[optind]);
-    usage ( stderr, 1 );
-  }
-
-  if (source_uri != NULL) {
-    debug ("Input file : %s\n", source_uri);
-  } else if (source_uri != NULL && sink_uri != NULL) {
-    debug ("Input file : %s\n", source_uri);
-    debug ("Output file : %s\n", sink_uri);
-  } else {
-#if HAVE_JACK
-    debug ("Jack input output\n");
-    usejack = 1;
-#else
-    errmsg("Error: no arguments given (and no available audio input)\n");
-    usage ( stderr, 1 );
-#endif
-  }
-
-  return 0;
-}
+extern void usage (FILE * stream, int exit_code);
+extern int parse_args (int argc, char **argv);
 
 void
 examples_common_init (int argc, char **argv)
@@ -226,24 +91,6 @@ examples_common_init (int argc, char **argv)
       }
     }
   }
-#ifdef HAVE_LASH
-  else {
-    aubio_lash_client = lash_init (lash_args, argv[0],
-        LASH_Config_Data_Set | LASH_Terminal, LASH_PROTOCOL (2, 0));
-    if (!aubio_lash_client) {
-      fprintf (stderr, "%s: could not initialise lash\n", __FUNCTION__);
-    }
-    /* tell the lash server our client id */
-    if (lash_enabled (aubio_lash_client)) {
-      lash_event_t *event =
-          (lash_event_t *) lash_event_new_with_type (LASH_Client_Name);
-      lash_event_set_string (event, "aubio");
-      lash_send_event (aubio_lash_client, event);
-      pthread_create (&lash_thread, NULL, lash_thread_main, NULL);
-    }
-  }
-#endif /* HAVE_LASH */
-
   ibuf = new_fvec (overlap_size);
   obuf = new_fvec (overlap_size);
 
@@ -301,21 +148,9 @@ examples_common_process (aubio_process_func_t process_func,
 
     debug ("Processed %d frames of %d samples.\n", frames, buffer_size);
 
-    flush_process (process_func, print);
     del_aubio_source (this_source);
     del_aubio_sink   (this_sink);
 
-  }
-}
-
-void
-flush_process (aubio_process_func_t process_func, aubio_print_func_t print)
-{
-  uint_t i;
-  fvec_zeros(obuf);
-  for (i = 0; (signed) i < frames_delay; i++) {
-    process_func (&ibuf->data, &obuf->data, overlap_size);
-    print ();
   }
 }
 
@@ -348,81 +183,3 @@ send_noteon (int pitch, int velo)
   }
 }
 
-
-#if HAVE_LASH
-
-void *
-lash_thread_main (void *data __attribute__ ((unused)))
-{
-  printf ("LASH thread running\n");
-
-  while (!lash_main ())
-    usleep (1000);
-
-  printf ("LASH thread finished\n");
-  return NULL;
-}
-
-int
-lash_main (void)
-{
-  lash_event_t *lash_event;
-  lash_config_t *lash_config;
-
-  while ((lash_event = lash_get_event (aubio_lash_client))) {
-    switch (lash_event_get_type (lash_event)) {
-      case LASH_Quit:
-        lash_event_destroy (lash_event);
-        exit (1);
-        return 1;
-      case LASH_Restore_Data_Set:
-        lash_send_event (aubio_lash_client, lash_event);
-        break;
-      case LASH_Save_Data_Set:
-        save_data ();
-        lash_send_event (aubio_lash_client, lash_event);
-        break;
-      case LASH_Server_Lost:
-        return 1;
-      default:
-        printf ("%s: received unknown LASH event of type %d",
-            __FUNCTION__, lash_event_get_type (lash_event));
-        lash_event_destroy (lash_event);
-        break;
-    }
-  }
-
-  while ((lash_config = lash_get_config (aubio_lash_client))) {
-    restore_data (lash_config);
-    lash_config_destroy (lash_config);
-  }
-
-  return 0;
-}
-
-void
-save_data ()
-{
-  lash_config_t *lash_config;
-
-  lash_config = lash_config_new_with_key ("threshold");
-  lash_config_set_value_double (lash_config, threshold);
-  lash_send_config (aubio_lash_client, lash_config);
-
-}
-
-void
-restore_data (lash_config_t * lash_config)
-{
-  const char *lash_key;
-
-  lash_key = lash_config_get_key (lash_config);
-
-  if (strcmp (lash_key, "threshold") == 0) {
-    threshold = lash_config_get_value_double (lash_config);
-    return;
-  }
-
-}
-
-#endif /* HAVE_LASH */

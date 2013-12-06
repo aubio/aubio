@@ -19,6 +19,8 @@
 */
 
 #include "utils.h"
+#define PROG_HAS_ONSET
+#include "parse_args.h"
 
 uint_t pos = 0; /*frames%dspblocksize*/
 
@@ -68,11 +70,10 @@ process_print (void)
 }
 
 int main(int argc, char **argv) {
-  frames_delay = 3;
   examples_common_init(argc,argv);
 
-  o = new_aubio_onset (onset_mode, buffer_size, overlap_size, samplerate);
-  if (threshold != 0.) aubio_onset_set_threshold (o, threshold);
+  o = new_aubio_onset (onset_method, buffer_size, overlap_size, samplerate);
+  if (onset_threshold != 0.) aubio_onset_set_threshold (o, onset_threshold);
   onset = new_fvec (1);
 
   wavetable = new_aubio_wavetable (samplerate, overlap_size);

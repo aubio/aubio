@@ -19,6 +19,8 @@
 */
 
 #include "utils.h"
+#define PROG_HAS_TEMPO 1
+#include "parse_args.h"
 
 uint_t pos = 0;    /* frames%dspblocksize */
 aubio_tempo_t * bt = NULL;
@@ -75,8 +77,8 @@ int main(int argc, char **argv) {
   examples_common_init(argc,argv);
 
   tempo_out = new_fvec(2);
-  bt = new_aubio_tempo(onset_mode,buffer_size,overlap_size, samplerate);
-  if (threshold != 0.) aubio_tempo_set_threshold (bt, threshold);
+  bt = new_aubio_tempo(tempo_method,buffer_size,overlap_size, samplerate);
+  if (onset_threshold != 0.) aubio_tempo_set_threshold (bt, onset_threshold);
 
   wavetable = new_aubio_wavetable (samplerate, overlap_size);
   aubio_wavetable_set_freq ( wavetable, 2450.);

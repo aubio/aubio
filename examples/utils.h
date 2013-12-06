@@ -27,9 +27,6 @@
 #include <string.h>             /* for strcmp */
 #include <aubio.h>
 #include "config.h"
-#ifdef HAVE_JACK
-#include "jackio.h"
-#endif /* HAVE_JACK */
 
 #ifdef HAVE_C99_VARARGS_MACROS
 #define debug(...)              if (verbose) fprintf (stderr, __VA_ARGS__)
@@ -41,38 +38,11 @@
 #define outmsg(format, args...) fprintf(stdout, format , ##args)
 #endif
 
-
-extern int frames;
-extern int verbose;
-extern int usejack;
-extern int frames_delay;
-/* defined in utils.c */
-void usage (FILE * stream, int exit_code);
-int parse_args (int argc, char **argv);
-void examples_common_init (int argc, char **argv);
-void examples_common_del (void);
 typedef void (aubio_print_func_t) (void);
 #ifndef HAVE_JACK
 typedef int (*aubio_process_func_t)
   (smpl_t ** input, smpl_t ** output, int nframes);
 #endif
-void examples_common_process (aubio_process_func_t process_func,
-    aubio_print_func_t print);
-
-extern char_t * pitch_unit;
-extern char_t * pitch_mode;
-
 void send_noteon (int pitch, int velo);
 
-extern const char *sink_uri;
-extern char_t * onset_mode;
-extern smpl_t threshold;
-extern smpl_t silence;
-extern int verbose;
-extern int usejack;
-extern uint_t buffer_size;
-extern uint_t overlap_size;
-extern uint_t samplerate;
 
-extern fvec_t *ibuf;
-extern fvec_t *obuf;

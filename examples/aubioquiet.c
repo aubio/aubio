@@ -19,6 +19,7 @@
 */
 
 #include "utils.h"
+#include "parse_args.h"
 
 unsigned int pos = 0; /*frames%dspblocksize*/
 sint_t wassilence = 1, issilence;

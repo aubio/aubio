@@ -19,6 +19,8 @@
 */
 
 #include "utils.h"
+#define PROG_HAS_PITCH 1
+#include "parse_args.h"
 
 unsigned int pos = 0; /*frames%dspblocksize*/
 
@@ -65,7 +67,7 @@ static void process_print (void) {
 int main(int argc, char **argv) {
   examples_common_init(argc,argv);
 
-  o = new_aubio_pitch (pitch_mode, buffer_size, overlap_size, samplerate);
+  o = new_aubio_pitch (pitch_method, buffer_size, overlap_size, samplerate);
   pitch = new_fvec (1);
 
   wavetable = new_aubio_wavetable (samplerate, overlap_size);

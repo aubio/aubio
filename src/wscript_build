@@ -10,7 +10,6 @@ uselib += ['AVFORMAT']
 uselib += ['AVRESAMPLE']
 uselib += ['AVUTIL']
 uselib += ['JACK']
-uselib += ['LASH']
 
 ctx(features = 'c',
       source = source,
