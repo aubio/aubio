@@ -62,10 +62,17 @@ struct _aubio_source_avcodec_t {
 aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * path, uint_t samplerate, uint_t hop_size) {
   aubio_source_avcodec_t * s = AUBIO_NEW(aubio_source_avcodec_t);
   int err;
-
   if (path == NULL) {
     AUBIO_ERR("Aborted opening null path\n");
-    return NULL;
+    goto beach;
+  }
+  if ((sint_t)samplerate < 0) {
+    AUBIO_ERR("Can not open %s with samplerate %d\n", path, samplerate);
+    goto beach;
+  }
+  if ((sint_t)hop_size <= 0) {
+    AUBIO_ERR("Can not open %s with hop_size %d\n", path, hop_size);
+    goto beach;
   }
 
   s->hop_size = hop_size;
