@@ -70,6 +70,7 @@ aubio_sink_sndfile_t * new_aubio_sink_sndfile(char_t * path, uint_t samplerate) 
   if (s->handle == NULL) {
     /* show libsndfile err msg */
     AUBIO_ERR("Failed opening %s. %s\n", s->path, sf_strerror (NULL));
+    AUBIO_FREE(s);
     return NULL;
   }	
 
@@ -78,6 +79,7 @@ aubio_sink_sndfile_t * new_aubio_sink_sndfile(char_t * path, uint_t samplerate) 
   if (s->scratch_size >= MAX_SIZE * MAX_CHANNELS) {
     AUBIO_ERR("%d x %d exceeds maximum aubio_sink_sndfile buffer size %d\n",
         s->max_size, s->channels, MAX_CHANNELS * MAX_CHANNELS);
+    AUBIO_FREE(s);
     return NULL;
   }
   s->scratch_data = AUBIO_ARRAY(float,s->scratch_size);
