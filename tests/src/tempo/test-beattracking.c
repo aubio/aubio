@@ -25,8 +25,8 @@ int main ()
 
     // get bpm and confidence
     bpm = aubio_beattracking_get_bpm(tempo);
-    fprintf(stderr, "found bpm %f\n", bpm);
     confidence = aubio_beattracking_get_confidence(tempo);
+    fprintf(stderr, "found bpm %f with confidence %f\n", bpm, confidence);
     i++;
   };
 
