@@ -57,6 +57,7 @@ def generate_object_files(output_path):
       'sink_sndfile',
       'source_apple_audio',
       'source_sndfile',
+      'source_avcodec',
       #'sampler',
       'audio_unit',
       ]
