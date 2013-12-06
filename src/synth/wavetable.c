@@ -180,6 +180,8 @@ smpl_t aubio_wavetable_get_amp ( aubio_wavetable_t * s) {
 
 void del_aubio_wavetable( aubio_wavetable_t * s )
 {
+  del_aubio_parameter(s->freq);
+  del_aubio_parameter(s->amp);
   del_fvec(s->wavetable);
   AUBIO_FREE(s);
 }
