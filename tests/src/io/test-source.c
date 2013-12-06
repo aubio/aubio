@@ -27,10 +27,11 @@ int main (int argc, char **argv)
 
   char_t *source_path = argv[1];
 
-  fvec_t *vec = new_fvec(hop_size);
 
-  aubio_source_t* s = new_aubio_source(source_path, samplerate, hop_size);
+  aubio_source_t* s =
+    new_aubio_source(source_path, samplerate, hop_size);
   if (!s) { err = 1; goto beach; }
+  fvec_t *vec = new_fvec(hop_size);
 
   if (samplerate == 0 ) samplerate = aubio_source_get_samplerate(s);
 
@@ -43,9 +44,8 @@ int main (int argc, char **argv)
   PRINT_MSG("read %d frames at %dHz (%d blocks) from %s\n", n_frames, samplerate,
     n_frames / hop_size, source_path);
 
+  del_fvec (vec);
   del_aubio_source (s);
 beach:
-  del_fvec (vec);
-
   return err;
 }

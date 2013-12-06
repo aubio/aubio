@@ -66,7 +66,15 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplera
 
   if (path == NULL) {
     AUBIO_ERR("Aborted opening null path\n");
-    return NULL;
+    goto beach;
+  }
+  if ((sint_t)samplerate < 0) {
+    AUBIO_ERR("Can not open %s with samplerate %d\n", path, samplerate);
+    goto beach;
+  }
+  if ((sint_t)hop_size <= 0) {
+    AUBIO_ERR("Can not open %s with hop_size %d\n", path, hop_size);
+    goto beach;
   }
 
   s->hop_size = hop_size;
@@ -133,8 +141,8 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplera
   return s;
 
 beach:
-  AUBIO_ERR("can not read %s at samplerate %dHz with a hop_size of %d\n",
-      s->path, s->samplerate, s->hop_size);
+  //AUBIO_ERR("can not read %s at samplerate %dHz with a hop_size of %d\n",
+  //    s->path, s->samplerate, s->hop_size);
   del_aubio_source_sndfile(s);
   return NULL;
 }
