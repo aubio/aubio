@@ -100,17 +100,19 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * path, uint_t samplera
     uint8_t errorstr_len = 128;
     char errorstr[errorstr_len];
     if (av_strerror (err, errorstr, errorstr_len) == 0) {
-      AUBIO_ERR("Could not find stream information for %s (%s)\n", s->path, errorstr);
+      AUBIO_ERR("Could not find stream information "
+          "for %s (%s)\n", s->path, errorstr);
     } else {
-      AUBIO_ERR("Could not find stream information for %s (unknown error)\n", s->path);
+      AUBIO_ERR("Could not find stream information "
+          "for %s (unknown error)\n", s->path);
     }
     goto beach;
   }
 
-  // Dump information about file onto standard error
+  // dump information about file onto standard error
   //av_dump_format(avFormatCtx, 0, s->path, 0);
 
-  // look for the first audio stream, printing a warning if more than one is found
+  // look for the first audio stream
   uint_t i;
   sint_t selected_stream = -1;
   for (i = 0; i < avFormatCtx->nb_streams; i++) {
@@ -118,7 +120,8 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * path, uint_t samplera
       if (selected_stream == -1) {
         selected_stream = i;
       } else {
-        AUBIO_WRN("More than one audio stream in %s, taking the first one\n", s->path);
+        AUBIO_WRN("More than one audio stream in %s, "
+            "taking the first one\n", s->path);
       }
     }
   }
@@ -175,9 +178,11 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * path, uint_t samplera
     uint8_t errorstr_len = 128;
     char errorstr[errorstr_len];
     if (av_strerror (err, errorstr, errorstr_len) == 0) {
-      AUBIO_ERR("Could not open AVAudioResampleContext for %s (%s)\n", s->path, errorstr);
+      AUBIO_ERR("Could not open AVAudioResampleContext for %s (%s)\n",
+          s->path, errorstr);
     } else {
-      AUBIO_ERR("Could not open AVAudioResampleContext for %s (unknown error)\n", s->path);
+      AUBIO_ERR("Could not open AVAudioResampleContext for %s (unknown error)\n",
+          s->path);
     }
     goto beach;
   }
@@ -279,10 +284,6 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
   //AUBIO_WRN("max_out_samples is %d for AUBIO_AVCODEC_MIN_BUFFER_SIZE %d\n",
   //    max_out_samples, AUBIO_AVCODEC_MIN_BUFFER_SIZE);
 
-  //AUBIO_WRN("aubio_source_avcodec_readframe converted %d to %d samples\n", in_samples, out_samples);
-  //for (i = 0; i < out_samples; i ++) {
-  //  AUBIO_DBG("%f\n", SHORT_TO_FLOAT(output[i]));
-  //}
   av_free_packet(&avPacket);
   s->avFormatCtx = avFormatCtx;
   s->avCodecCtx = avCodecCtx;
@@ -292,7 +293,6 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
 
   *read_samples = out_samples;
 }
-
 
 void aubio_source_avcodec_do(aubio_source_avcodec_t * s, fvec_t * read_data, uint_t * read){
   uint_t i;
