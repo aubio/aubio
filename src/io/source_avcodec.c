@@ -37,8 +37,6 @@
 
 #define AUBIO_AVCODEC_MIN_BUFFER_SIZE FF_MIN_BUFFER_SIZE
 
-#define SHORT_TO_FLOAT(x) (smpl_t)(x * 3.0517578125e-05)
-
 struct _aubio_source_avcodec_t {
   uint_t hop_size;
   uint_t samplerate;
@@ -54,7 +52,7 @@ struct _aubio_source_avcodec_t {
   AVCodecContext *avCodecCtx;
   AVFrame *avFrame;
   AVAudioResampleContext *avr;
-  int16_t *output;
+  float *output;
   uint_t read_samples;
   uint_t read_index;
   sint_t selected_stream;
@@ -172,7 +170,7 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * path, uint_t samplera
   av_opt_set_int(avr, "in_sample_rate",     s->input_samplerate,    0);
   av_opt_set_int(avr, "out_sample_rate",    s->samplerate,          0);
   av_opt_set_int(avr, "in_sample_fmt",      avCodecCtx->sample_fmt, 0);
-  av_opt_set_int(avr, "out_sample_fmt",     AV_SAMPLE_FMT_S16,      0);
+  av_opt_set_int(avr, "out_sample_fmt",     AV_SAMPLE_FMT_FLTP,     0);
   if ( ( err = avresample_open(avr) ) < 0) {
     uint8_t errorstr_len = 128;
     char errorstr[errorstr_len];
@@ -191,7 +189,7 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * path, uint_t samplera
   }
 
   /* allocate output for avr */
-  s->output = (int16_t *)av_malloc(AUBIO_AVCODEC_MIN_BUFFER_SIZE * sizeof(int16_t));
+  s->output = (float *)av_malloc(AUBIO_AVCODEC_MIN_BUFFER_SIZE * sizeof(float));
 
   s->read_samples = 0;
   s->read_index = 0;
@@ -221,7 +219,7 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
   AVPacket avPacket;
   av_init_packet (&avPacket);
   AVAudioResampleContext *avr = s->avr;
-  int16_t *output = s->output;
+  float *output = s->output;
 
   do
   {
@@ -303,7 +301,7 @@ void aubio_source_avcodec_do(aubio_source_avcodec_t * s, fvec_t * read_data, uin
   while (total_wrote < s->hop_size) {
     end = MIN(s->read_samples - s->read_index, s->hop_size - total_wrote);
     for (i = 0; i < end; i++) {
-      read_data->data[i + total_wrote] = SHORT_TO_FLOAT(s->output[i + s->read_index]);
+      read_data->data[i + total_wrote] = s->output[i + s->read_index];
     }
     total_wrote += end;
     if (total_wrote < s->hop_size) {
