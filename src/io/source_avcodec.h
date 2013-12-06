@@ -64,7 +64,7 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * uri, uint_t samplerat
 
   \param s source object, created with ::new_aubio_source_avcodec
   \param read_to ::fvec_t of data to read to
-  \param read upon returns, equals to number of frames actually read
+  \param[out] read upon returns, equals to number of frames actually read
 
   Upon returns, `read` contains the number of frames actually read from the
   source. `hop_size` if enough frames could be read, less otherwise.
