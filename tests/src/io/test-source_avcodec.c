@@ -34,7 +34,8 @@ int main (int argc, char **argv)
   char_t *source_path = argv[1];
 
 
-  aubio_source_avcodec_t * s = new_aubio_source_avcodec(source_path, samplerate, hop_size);
+  aubio_source_avcodec_t * s =
+    new_aubio_source_avcodec(source_path, samplerate, hop_size);
   if (!s) { err = 1; goto beach; }
   fvec_t *vec = new_fvec(hop_size);
 
