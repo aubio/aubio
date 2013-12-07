@@ -33,6 +33,8 @@
   aubio_onset_do routine using the corresponding functions.
 
   \example onset/test-onset.c
+  \example examples/aubioonset.c
+  \example examples/aubionotes.c
 
 */
 
