@@ -38,19 +38,19 @@ struct _aubio_hist_t {
 /**
  * Object creation/deletion calls
  */
-aubio_hist_t * new_aubio_hist (smpl_t ilow, smpl_t ihig, uint_t nelems){
+aubio_hist_t * new_aubio_hist (smpl_t flow, smpl_t fhig, uint_t nelems){
   aubio_hist_t * s = AUBIO_NEW(aubio_hist_t);
-  smpl_t step = (ihig-ilow)/(smpl_t)(nelems);
+  smpl_t step = (fhig-flow)/(smpl_t)(nelems);
   smpl_t accum = step;
   uint_t i;
   s->nelems = nelems;
   s->hist = new_fvec(nelems);
   s->cent = new_fvec(nelems);
 
-  /* use scale to map ilow/ihig -> 0/nelems */
-  s->scaler = new_aubio_scale(ilow,ihig,0,nelems);
+  /* use scale to map flow/fhig -> 0/nelems */
+  s->scaler = new_aubio_scale(flow,fhig,0,nelems);
   /* calculate centers now once */
-  s->cent->data[0] = ilow + 0.5 * step;
+  s->cent->data[0] = flow + 0.5 * step;
   for (i=1; i < s->nelems; i++, accum+=step )
     s->cent->data[i] = s->cent->data[0] + accum;
 
