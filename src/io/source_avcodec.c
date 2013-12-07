@@ -209,7 +209,6 @@ void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s, uint_t mul
 
     av_opt_set_int(avr, "in_channel_layout",  input_layout,           0);
     av_opt_set_int(avr, "out_channel_layout", output_layout,          0);
-    av_opt_set_int(avr, "out_channel_layout", mono_layout,            0);
     av_opt_set_int(avr, "in_sample_rate",     s->input_samplerate,    0);
     av_opt_set_int(avr, "out_sample_rate",    s->samplerate,          0);
     av_opt_set_int(avr, "in_sample_fmt",      s->avCodecCtx->sample_fmt, 0);
