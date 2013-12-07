@@ -229,5 +229,17 @@ parse_args (int argc, char **argv)
 #endif /* PROG_HAS_JACK */
   }
 
+  if (hop_size < 1) {
+    errmsg("Error: got hop_size %d, but can not be < 1\n", hop_size);
+    usage ( stderr, 1 );
+  } else if (buffer_size < 2) {
+    errmsg("Error: got buffer_size %d, but can not be < 2\n", buffer_size);
+    usage ( stderr, 1 );
+  } else if (buffer_size < hop_size + 1) {
+    errmsg("Error: hop size (%d) is larger than or equal to win size (%d)\n",
+        buffer_size, hop_size);
+    usage ( stderr, 1 );
+  }
+
   return 0;
 }
