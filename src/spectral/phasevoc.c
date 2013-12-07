@@ -75,9 +75,14 @@ aubio_pvoc_t * new_aubio_pvoc (uint_t win_s, uint_t hop_s) {
   } */
 
   if (hop_s < 1) {
-    AUBIO_ERR("Hop size is smaller than 1!\n");
-    AUBIO_ERR("Resetting hop size to half the window size.\n");
-    hop_s = win_s / 2;
+    AUBIO_ERR("got hop_size %d, but can not be < 1\n", hop_s);
+    goto beach;
+  } else if (win_s < 1) {
+    AUBIO_ERR("got buffer_size %d, but can not be < 2\n", win_s);
+    goto beach;
+  } else if (win_s < hop_s + 1) {
+    AUBIO_ERR("hop size (%d) is larger than or equal to win size (%d)\n", win_s, hop_s);
+    goto beach;
   }
 
   pv->fft      = new_aubio_fft (win_s);
@@ -95,6 +100,10 @@ aubio_pvoc_t * new_aubio_pvoc (uint_t win_s, uint_t hop_s) {
   pv->win_s    = win_s;
 
   return pv;
+
+beach:
+  AUBIO_FREE (pv);
+  return NULL;
 }
 
 void del_aubio_pvoc(aubio_pvoc_t *pv) {
