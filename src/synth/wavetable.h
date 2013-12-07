@@ -110,17 +110,15 @@ uint_t aubio_wavetable_set_playing ( aubio_wavetable_t * o, uint_t playing );
 /** play sample from start
 
   \param o wavetable, created by ::new_aubio_wavetable
-  \param playing 0 for not playing, 1 for playing
 
   \return 0 if successful, 1 otherwise
 
 */
 uint_t aubio_wavetable_play ( aubio_wavetable_t * o );
 
-/** stop sample from start
+/** stop sample
 
   \param o wavetable, created by ::new_aubio_wavetable
-  \param playing 0 for not playing, 1 for playing
 
   \return 0 if successful, 1 otherwise
 
@@ -130,7 +128,7 @@ uint_t aubio_wavetable_stop ( aubio_wavetable_t * o );
 /** set wavetable frequency
 
   \param o wavetable, created by ::new_aubio_wavetable
-  \param playing 0 for not playing, 1 for playing
+  \param freq new frequency value for the wavetable
 
   \return 0 if successful, 1 otherwise
 
@@ -149,7 +147,7 @@ smpl_t aubio_wavetable_get_freq ( aubio_wavetable_t * o);
 /** set wavetable amplitude
 
   \param o wavetable, created by ::new_aubio_wavetable
-  \param playing 0 for not playing, 1 for playing
+  \param amp new amplitude value for the wavetable
 
   \return 0 if successful, 1 otherwise
 
