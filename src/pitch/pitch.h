@@ -27,12 +27,73 @@ extern "C" {
 
 /** \file
 
-  Generic method for pitch detection
+  Pitch detection object
 
   This file creates the objects required for the computation of the selected
   pitch detection algorithm and output the results, in midi note or Hz.
 
+  \section pitch Pitch detection methods
+
+  A list of the pitch detection methods currently available follows.
+
+  \b \p default : use the default method
+
+  Currently, the default method is set to \p yinfft .
+
+  \b \p schmitt : Schmitt trigger
+
+  This pitch extraction method implements a Schmitt trigger to estimate the
+  period of a signal.
+
+  This file was derived from the tuneit project, written by Mario Lang to
+  detect the fundamental frequency of a sound.
+
+  See http://delysid.org/tuneit.html
+
+  \b \p fcomb : a fast harmonic comb filter
+
+  This pitch extraction method implements a fast harmonic comb filter to
+  determine the fundamental frequency of a harmonic sound.
+
+  This file was derived from the tuneit project, written by Mario Lang to
+  detect the fundamental frequency of a sound.
+
+  See http://delysid.org/tuneit.html
+
+  \b \p mcomb : multiple-comb filter
+
+  This fundamental frequency estimation algorithm implements spectral
+  flattening, multi-comb filtering and peak histogramming.
+
+  This method was designed by Juan P. Bello and described in:
+
+  Juan-Pablo Bello. ``Towards the Automated Analysis of Simple Polyphonic
+  Music''.  PhD thesis, Centre for Digital Music, Queen Mary University of
+  London, London, UK, 2003.
+
+  \b \p yin : YIN algorithm
+
+  This algorithm was developped by A. de Cheveigne and H. Kawahara and
+  published in:
+
+  De Cheveigné, A., Kawahara, H. (2002) "YIN, a fundamental frequency
+  estimator for speech and music", J. Acoust. Soc. Am. 111, 1917-1930.
+
+  see http://recherche.ircam.fr/equipes/pcm/pub/people/cheveign.html
+
+  \b \p yinfft : Yinfft algorithm
+
+  This algorithm was derived from the YIN algorithm. In this implementation, a
+  Fourier transform is used to compute a tapered square difference function,
+  which allows spectral weighting. Because the difference function is tapered,
+  the selection of the period is simplified.
+
+  Paul Brossier, [Automatic annotation of musical audio for interactive
+  systems](http://aubio.org/phd/), Chapter 3, Pitch Analysis, PhD thesis,
+  Centre for Digital music, Queen Mary University of London, London, UK, 2006.
+
   \example pitch/test-pitch.c
+  \example examples/aubiopitch.c
 
 */
 
@@ -70,11 +131,13 @@ void del_aubio_pitch (aubio_pitch_t * o);
   \param hop_size step size between two consecutive analysis instant
   \param samplerate sampling rate of the signal
 
+  \return newly created ::aubio_pitch_t
+
 */
 aubio_pitch_t *new_aubio_pitch (char_t * method,
     uint_t buf_size, uint_t hop_size, uint_t samplerate);
 
-/** set the output unit of the pitch detection object 
+/** set the output unit of the pitch detection object
 
   \param o pitch detection object as returned by new_aubio_pitch()
   \param mode set pitch units for output
