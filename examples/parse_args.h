@@ -40,6 +40,8 @@ extern char_t * tempo_method;
 extern smpl_t silence;
 extern uint_t mix_input;
 
+typedef int (*aubio_process_func_t)(fvec_t * input, fvec_t * output);
+
 // functions defined in utils.c
 extern void examples_common_init (int argc, char **argv);
 extern void examples_common_del (void);
@@ -51,7 +53,6 @@ extern int blocks;
 
 extern fvec_t *ibuf;
 extern fvec_t *obuf;
-
 
 const char *prog_name;
 

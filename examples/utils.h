@@ -49,6 +49,5 @@
 #endif
 
 typedef void (aubio_print_func_t) (void);
-typedef int (*aubio_process_func_t)(fvec_t * input, fvec_t * output);
 void send_noteon (int pitch, int velo);
 
