@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -35,7 +35,7 @@ typedef jack_default_audio_sample_t jack_sample_t;
 #define RINGBUFFER_SIZE 1024*sizeof(jack_midi_event_t)
 
 /**
- * jack device structure 
+ * jack device structure
  */
 struct _aubio_jack_t
 {
@@ -69,19 +69,23 @@ struct _aubio_jack_t
   uint_t samplerate;
   /** jack processing function */
   aubio_process_func_t callback;
+  /** internal fvec */
+  fvec_t *ibuf;
+  fvec_t *obuf;
+  uint_t hop_size;
+  int pos;
 };
 
 /* static memory management */
 static aubio_jack_t *aubio_jack_alloc (uint_t ichan, uint_t ochan,
     uint_t imidichan, uint_t omidichan);
-static uint_t aubio_jack_free (aubio_jack_t * jack_setup);
 /* jack callback functions */
 static int aubio_jack_process (jack_nframes_t nframes, void *arg);
 static void aubio_jack_shutdown (void *arg);
 
 aubio_jack_t *
-new_aubio_jack (uint_t ichan, uint_t ochan,
-    uint_t imidichan, uint_t omidichan, aubio_process_func_t callback)
+new_aubio_jack (uint_t hop_size, uint_t ichan, uint_t ochan,
+    uint_t imidichan, uint_t omidichan)
 {
   aubio_jack_t *jack_setup = aubio_jack_alloc (ichan, ochan,
       imidichan, omidichan);
@@ -148,8 +152,13 @@ new_aubio_jack (uint_t ichan, uint_t ochan,
     AUBIO_DBG ("%s:%s\n", client_name, name);
   }
 
-  /* set processing callback */
-  jack_setup->callback = callback;
+  /* get sample rate */
+  jack_setup->samplerate = jack_get_sample_rate (jack_setup->client);
+
+  jack_setup->hop_size = hop_size;
+  jack_setup->ibuf = new_fvec(hop_size);
+  jack_setup->obuf = new_fvec(hop_size);
+  jack_setup->pos = 0;
   return jack_setup;
 
 beach:
@@ -159,10 +168,15 @@ beach:
 }
 
 uint_t
-aubio_jack_activate (aubio_jack_t * jack_setup)
+aubio_jack_get_samplerate (aubio_jack_t * jack_setup) {
+  return jack_setup->samplerate;
+}
+
+uint_t
+aubio_jack_activate (aubio_jack_t * jack_setup, aubio_process_func_t callback)
 {
-  /* get sample rate */
-  jack_setup->samplerate = jack_get_sample_rate (jack_setup->client);
+  /* set processing callback */
+  jack_setup->callback = callback;
   /* actual jack process activation */
   if (jack_activate (jack_setup->client)) {
     AUBIO_ERR ("jack client activation failed");
@@ -176,7 +190,6 @@ aubio_jack_close (aubio_jack_t * jack_setup)
 {
   /* bug : should disconnect all ports first */
   jack_client_close (jack_setup->client);
-  aubio_jack_free (jack_setup);
 }
 
 /* memory management */
@@ -208,18 +221,19 @@ aubio_jack_alloc (uint_t ichan, uint_t ochan,
   return jack_setup;
 }
 
-static uint_t
-aubio_jack_free (aubio_jack_t * jack_setup)
+void
+del_aubio_jack (aubio_jack_t * jack_setup)
 {
   if (jack_setup->omidichan && jack_setup->midi_out_ring) {
     jack_ringbuffer_free (jack_setup->midi_out_ring);
   }
+  del_fvec (jack_setup->ibuf);
+  del_fvec (jack_setup->obuf);
   AUBIO_FREE (jack_setup->oports);
   AUBIO_FREE (jack_setup->iports);
   AUBIO_FREE (jack_setup->ibufs);
   AUBIO_FREE (jack_setup->obufs);
   AUBIO_FREE (jack_setup);
-  return AUBIO_OK;
 }
 
 /* jack callback functions */
@@ -231,6 +245,26 @@ aubio_jack_shutdown (void *arg UNUSED)
 }
 
 static void process_midi_output (aubio_jack_t * dev, jack_nframes_t nframes);
+
+static int block_process(aubio_jack_t *dev,
+    smpl_t **input, smpl_t **output, int nframes) {
+  unsigned int j;       /*frames*/
+  for (j=0;j<(unsigned)nframes;j++) {
+    /* put synthnew in output */
+    output[0][j] = fvec_read_sample(dev->obuf, dev->pos);
+    /* write input to datanew */
+    fvec_write_sample(dev->ibuf, input[0][j], dev->pos);
+    /*time for fft*/
+    if (dev->pos == (int)(dev->hop_size) - 1) {
+      /* block loop */
+      dev->callback(dev->ibuf, dev->obuf);
+      /* end of block loop */
+      dev->pos = -1; /* so it will be zero next j loop */
+    }
+    dev->pos++;
+  }
+  return 1;
+}
 
 static int
 aubio_jack_process (jack_nframes_t nframes, void *arg)
@@ -248,7 +282,7 @@ aubio_jack_process (jack_nframes_t nframes, void *arg)
         (jack_sample_t *) jack_port_get_buffer (dev->oports[i], nframes);
   }
 #ifndef AUBIO_JACK_NEEDS_CONVERSION
-  dev->callback (dev->ibufs, dev->obufs, nframes);
+  block_process(dev, dev->ibufs, dev->obufs, nframes);
 #else
   uint_t j;
   for (j = 0; j < MIN (nframes, AUBIO_JACK_MAX_FRAMES); j++) {
@@ -256,7 +290,7 @@ aubio_jack_process (jack_nframes_t nframes, void *arg)
       dev->sibufs[i][j] = (smpl_t) dev->ibufs[i][j];
     }
   }
-  dev->callback (dev->sibufs, dev->sobufs, nframes);
+  block_process(dev, dev->sibufs, dev->sobufs, nframes);
   for (j = 0; j < MIN (nframes, AUBIO_JACK_MAX_FRAMES); j++) {
     for (i = 0; i < dev->ochan; i++) {
       dev->obufs[i][j] = (jack_sample_t) dev->sobufs[i][j];

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -32,13 +32,14 @@
 #endif /* HAVE_JACK */
 
 int verbose = 0;
+int usejack = 0;
 // input / output
 char_t *sink_uri = NULL;
 char_t *source_uri = NULL;
 // general stuff
 uint_t samplerate = 0;
 uint_t buffer_size = 512;
-uint_t overlap_size = 256;
+uint_t hop_size = 256;
 // onset stuff
 char_t * onset_method = "default";
 smpl_t onset_threshold = 0.0; // will be set if != 0.
@@ -59,14 +60,15 @@ aubio_sink_t *this_sink = NULL;
 fvec_t *ibuf;
 fvec_t *obuf;
 
-
 /* settings */
-int frames = 0;
-int usejack = 0;
-int frames_delay = 0;
+int blocks = 0;
 
 extern void usage (FILE * stream, int exit_code);
 extern int parse_args (int argc, char **argv);
+
+#if HAVE_JACK
+aubio_jack_t *jack_setup;
+#endif
 
 void
 examples_common_init (int argc, char **argv)
@@ -77,12 +79,14 @@ examples_common_init (int argc, char **argv)
 
   if (!usejack) {
     debug ("Opening files ...\n");
-    this_source = new_aubio_source ((char_t*)source_uri, 0, overlap_size);
+    this_source = new_aubio_source ((char_t*)source_uri, samplerate, hop_size);
     if (this_source == NULL) {
       outmsg ("Could not open input file %s.\n", source_uri);
       exit (1);
     }
-    samplerate = aubio_source_get_samplerate(this_source);
+    if (samplerate == 0) {
+      samplerate = aubio_source_get_samplerate(this_source);
+    }
     if (sink_uri != NULL) {
       this_sink = new_aubio_sink ((char_t*)sink_uri, samplerate);
       if (this_sink == NULL) {
@@ -90,9 +94,16 @@ examples_common_init (int argc, char **argv)
         exit (1);
       }
     }
+#ifdef HAVE_JACK
+  } else {
+    debug ("Jack init ...\n");
+    jack_setup = new_aubio_jack (hop_size, 1, 1, 0, 1);
+    samplerate = aubio_jack_get_samplerate (jack_setup);
+    source_uri = "jack";
+#endif
   }
-  ibuf = new_fvec (overlap_size);
-  obuf = new_fvec (overlap_size);
+  ibuf = new_fvec (hop_size);
+  obuf = new_fvec (hop_size);
 
 }
 
@@ -102,11 +113,9 @@ examples_common_del (void)
   del_fvec (ibuf);
   del_fvec (obuf);
   aubio_cleanup ();
+  fflush(stderr);
+  fflush(stdout);
 }
-
-#if HAVE_JACK
-aubio_jack_t *jack_setup;
-#endif
 
 void
 examples_common_process (aubio_process_func_t process_func,
@@ -117,11 +126,8 @@ examples_common_process (aubio_process_func_t process_func,
   if (usejack) {
 
 #if HAVE_JACK
-    debug ("Jack init ...\n");
-    jack_setup = new_aubio_jack (1, 1,
-        0, 1, (aubio_process_func_t) process_func);
     debug ("Jack activation ...\n");
-    aubio_jack_activate (jack_setup);
+    aubio_jack_activate (jack_setup, process_func);
     debug ("Processing (Ctrl+C to quit) ...\n");
     pause ();
     aubio_jack_close (jack_setup);
@@ -132,21 +138,25 @@ examples_common_process (aubio_process_func_t process_func,
 
   } else {
     /* phasevoc */
-    debug ("Processing ...\n");
-
-    frames = 0;
+    blocks = 0;
+    uint_t total_read = 0;
 
     do {
       aubio_source_do (this_source, ibuf, &read);
-      process_func (&ibuf->data, &obuf->data, overlap_size);
-      print ();
-      if (this_sink) {
-        aubio_sink_do (this_sink, obuf, overlap_size);
+      process_func (ibuf, obuf);
+      // print to console if verbose or no output given
+      if (verbose || sink_uri == NULL) {
+        print();
       }
-      frames++;
-    } while (read == overlap_size);
+      if (this_sink) {
+        aubio_sink_do (this_sink, obuf, hop_size);
+      }
+      blocks++;
+      total_read += read;
+    } while (read == hop_size);
 
-    debug ("Processed %d frames of %d samples.\n", frames, buffer_size);
+    verbmsg ("read %d samples (%d blocks of %d) from %s at %dHz\n",
+        total_read, blocks, hop_size, source_uri, samplerate);
 
     del_aubio_source (this_source);
     del_aubio_sink   (this_sink);
@@ -174,12 +184,10 @@ send_noteon (int pitch, int velo)
     aubio_jack_midi_event_write (jack_setup, (jack_midi_event_t *) & ev);
   } else
 #endif
-  if (!verbose) {
-    if (velo == 0) {
-      outmsg ("%f\n", frames * overlap_size / (float) samplerate);
-    } else {
-      outmsg ("%f\t%f\t", mpitch, frames * overlap_size / (float) samplerate);
-    }
+  if (velo == 0) {
+    outmsg ("%f\n", blocks * hop_size / (float) samplerate);
+  } else {
+    outmsg ("%f\t%f\t", mpitch, blocks * hop_size / (float) samplerate);
   }
 }
 

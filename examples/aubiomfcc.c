@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2007-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2007-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -21,83 +21,53 @@
 #include "utils.h"
 #include "parse_args.h"
 
-/* mfcc objects */
-fvec_t * mfcc_out;
-aubio_mfcc_t * mfcc;
-aubio_pvoc_t *pv;
-cvec_t *fftgrain;
+aubio_pvoc_t *pv;    // a phase vocoder
+cvec_t *fftgrain;    // outputs a spectrum
+aubio_mfcc_t * mfcc; // which the mfcc will process
+fvec_t * mfcc_out;   // to get the output coefficients
 
 uint_t n_filters = 40;
 uint_t n_coefs = 13;
 
-unsigned int pos = 0; /*frames%dspblocksize*/
-
-static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
-  unsigned int j;       /*frames*/
-  
-  for (j=0;j<(unsigned)nframes;j++) {
-    if(usejack) {
-      /* write input to datanew */
-      fvec_write_sample(ibuf, input[0][j], pos);
-      /* put synthnew in output */
-      output[0][j] = fvec_read_sample(obuf, pos);
-    }
-    /*time for fft*/
-    if (pos == overlap_size-1) {         
-      /* block loop */
-      
-      //compute mag spectrum
-      aubio_pvoc_do (pv, ibuf, fftgrain);
-     
-      //compute mfccs
-      aubio_mfcc_do(mfcc, fftgrain, mfcc_out);
-      
-      /* end of block loop */
-      pos = -1; /* so it will be zero next j loop */
-    }
-    pos++;
-  }
-  return 1;
+static void
+process_block(fvec_t *ibuf, fvec_t *obuf) {
+  fvec_zeros(obuf);
+  //compute mag spectrum
+  aubio_pvoc_do (pv, ibuf, fftgrain);
+  //compute mfccs
+  aubio_mfcc_do(mfcc, fftgrain, mfcc_out);
 }
 
 static void process_print (void) {
   /* output times in seconds and extracted mfccs */
-  if (sink_uri == NULL) {
-    outmsg("%f\t",frames*overlap_size/(float)samplerate);
-    fvec_print(mfcc_out);
-  }
+  outmsg("%f\t",blocks*hop_size/(float)samplerate);
+  fvec_print(mfcc_out);
 }
 
 int main(int argc, char **argv) {
-  // params
+  // change some default params
   buffer_size  = 512;
-  overlap_size = 256;
-  
+  hop_size = 256;
+
   examples_common_init(argc,argv);
 
-  /* phase vocoder */
-  pv = new_aubio_pvoc (buffer_size, overlap_size);
+  verbmsg ("using source: %s at %dHz\n", source_uri, samplerate);
+  verbmsg ("buffer_size: %d, ", buffer_size);
+  verbmsg ("hop_size: %d\n", hop_size);
 
+  pv = new_aubio_pvoc (buffer_size, hop_size);
   fftgrain = new_cvec (buffer_size);
-
-  //populating the filter
   mfcc = new_aubio_mfcc(buffer_size, n_filters, n_coefs, samplerate);
-  
   mfcc_out = new_fvec(n_coefs);
-  
-  //process
-  examples_common_process(aubio_process,process_print);
-  
-  //destroying mfcc 
+
+  examples_common_process((aubio_process_func_t)process_block, process_print);
+
   del_aubio_pvoc (pv);
   del_cvec (fftgrain);
   del_aubio_mfcc(mfcc);
   del_fvec(mfcc_out);
 
   examples_common_del();
-  debug("End of program.\n");
-  fflush(stderr);
-  
   return 0;
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -22,66 +22,54 @@
 #define PROG_HAS_PITCH 1
 #include "parse_args.h"
 
-unsigned int pos = 0; /*frames%dspblocksize*/
-
 aubio_pitch_t *o;
 aubio_wavetable_t *wavetable;
 fvec_t *pitch;
 
-static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
-  unsigned int j;       /*frames*/
-  for (j=0;j<(unsigned)nframes;j++) {
-    if(usejack) {
-      /* write input to datanew */
-      fvec_write_sample(ibuf, input[0][j], pos);
-      /* put synthnew in output */
-      output[0][j] = fvec_read_sample(obuf, pos);
-    }
-    /*time for fft*/
-    if (pos == overlap_size-1) {         
-      /* block loop */
-      aubio_pitch_do (o, ibuf, pitch);
-      smpl_t freq = fvec_read_sample(pitch, 0);
-      aubio_wavetable_set_amp ( wavetable, aubio_level_lin (ibuf) );
-      if (freq != 0.0) {
-        aubio_wavetable_set_freq ( wavetable, freq );
-      } else {
-        aubio_wavetable_set_freq ( wavetable, 0.0 );
-      }
-      aubio_wavetable_do (wavetable, obuf, obuf);
-      /* end of block loop */
-      pos = -1; /* so it will be zero next j loop */
-    }
-    pos++;
+void
+process_block(fvec_t * ibuf, fvec_t * obuf) {
+  fvec_zeros(obuf);
+  aubio_pitch_do (o, ibuf, pitch);
+  smpl_t freq = fvec_read_sample(pitch, 0);
+  aubio_wavetable_set_amp ( wavetable, aubio_level_lin (ibuf) );
+  if (freq != 0.0) {
+    aubio_wavetable_set_freq ( wavetable, freq );
+  } else {
+    aubio_wavetable_set_freq ( wavetable, 0.0 );
   }
-  return 1;
+  aubio_wavetable_do (wavetable, obuf, obuf);
 }
 
-static void process_print (void) {
-      if (!verbose && usejack) return;
-      smpl_t pitch_found = fvec_read_sample(pitch, 0);
-      outmsg("%f %f\n",(frames) 
-              *overlap_size/(float)samplerate, pitch_found);
+void
+process_print (void) {
+  smpl_t pitch_found = fvec_read_sample(pitch, 0);
+  outmsg("%f %f\n",(blocks)
+      *hop_size/(float)samplerate, pitch_found);
 }
 
 int main(int argc, char **argv) {
   examples_common_init(argc,argv);
 
-  o = new_aubio_pitch (pitch_method, buffer_size, overlap_size, samplerate);
+  verbmsg ("using source: %s at %dHz\n", source_uri, samplerate);
+  verbmsg ("pitch method: %s, ", pitch_method);
+  verbmsg ("buffer_size: %d, ", buffer_size);
+  verbmsg ("hop_size: %d, ", hop_size);
+  verbmsg ("tolerance: %f\n", pitch_tolerance);
+
+  o = new_aubio_pitch (pitch_method, buffer_size, hop_size, samplerate);
+  if (pitch_tolerance != 0.) aubio_pitch_set_tolerance (o, pitch_tolerance);
   pitch = new_fvec (1);
 
-  wavetable = new_aubio_wavetable (samplerate, overlap_size);
+  wavetable = new_aubio_wavetable (samplerate, hop_size);
   aubio_wavetable_play ( wavetable );
 
-  examples_common_process(aubio_process,process_print);
+  examples_common_process((aubio_process_func_t)process_block,process_print);
 
   del_aubio_pitch (o);
   del_aubio_wavetable (wavetable);
   del_fvec (pitch);
 
   examples_common_del();
-  debug("End of program.\n");
-  fflush(stderr);
   return 0;
 }
 

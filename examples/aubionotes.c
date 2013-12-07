@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -24,23 +24,16 @@
 #define PROG_HAS_ONSET 1
 #include "parse_args.h"
 
-/* pitch objects */
-smpl_t pitch = 0.;
-
 uint_t median = 6;
-smpl_t curlevel = 0.;
 
-aubio_pitch_t *pitchdet;
-
-fvec_t *note_buffer = NULL;
-fvec_t *note_buffer2 = NULL;
+fvec_t *note_buffer;
+fvec_t *note_buffer2;
 
 smpl_t curnote = 0.;
 smpl_t newnote = 0.;
 uint_t isready = 0;
-unsigned int pos = 0; /*frames%dspblocksize*/
 
-aubio_pitch_t *pitchdet;
+aubio_pitch_t *pitch;
 aubio_onset_t *o;
 fvec_t *onset;
 fvec_t *pitch_obuf;
@@ -50,78 +43,58 @@ fvec_t *pitch_obuf;
 void note_append (fvec_t * note_buffer, smpl_t curnote);
 uint_t get_note (fvec_t * note_buffer, fvec_t * note_buffer2);
 
-static int aubio_process(smpl_t **input, smpl_t **output, int nframes) {
-  unsigned int j;       /*frames*/
-  for (j=0;j<(unsigned)nframes;j++) {
-    if(usejack) {
-      /* write input to datanew */
-      fvec_write_sample(ibuf, input[0][j], pos);
-      /* put synthnew in output */
-      output[0][j] = fvec_read_sample(obuf, pos);
-    }
-    /*time for fft*/
-    if (pos == overlap_size-1) {         
-      /* block loop */
-      aubio_onset_do(o, ibuf, onset);
-      
-      aubio_pitch_do (pitchdet, ibuf, pitch_obuf);
-      pitch = fvec_read_sample(pitch_obuf, 0);
-      if(median){
-              note_append(note_buffer, pitch);
-      }
+static void
+process_block(fvec_t *ibuf, fvec_t *obuf) {
+  fvec_zeros(obuf);
+  aubio_onset_do(o, ibuf, onset);
 
-      /* curlevel is negatif or 1 if silence */
-      curlevel = aubio_level_detection(ibuf, silence);
-      if (fvec_read_sample(onset, 0)) {
-              /* test for silence */
-              if (curlevel == 1.) {
-                      if (median) isready = 0;
-                      /* send note off */
-                      send_noteon(curnote,0);
-              } else {
-                      if (median) {
-                              isready = 1;
-                      } else {
-                              /* kill old note */
-                              send_noteon(curnote,0);
-                              /* get and send new one */
-                              send_noteon(pitch,127+(int)floor(curlevel));
-                              curnote = pitch;
-                      }
-
-                      for (pos = 0; pos < overlap_size; pos++){
-                              //obuf->data[pos] = woodblock->data[pos];
-                      }
-              }
-      } else {
-              if (median) {
-                      if (isready > 0)
-                              isready++;
-                      if (isready == median)
-                      {
-                              /* kill old note */
-                              send_noteon(curnote,0);
-                              newnote = get_note(note_buffer, note_buffer2);
-                              curnote = newnote;
-                              /* get and send new one */
-                              if (curnote>45){
-                                      send_noteon(curnote,127+(int)floor(curlevel));
-                              }
-                      }
-              } // if median
-        for (pos = 0; pos < overlap_size; pos++)
-          obuf->data[pos] = 0.;
-      }
-      /* end of block loop */
-      pos = -1; /* so it will be zero next j loop */
-    }
-    pos++;
+  aubio_pitch_do (pitch, ibuf, pitch_obuf);
+  smpl_t new_pitch = fvec_read_sample(pitch_obuf, 0);
+  if(median){
+    note_append(note_buffer, new_pitch);
   }
-  return 1;
+
+  /* curlevel is negatif or 1 if silence */
+  smpl_t curlevel = aubio_level_detection(ibuf, silence);
+  if (fvec_read_sample(onset, 0)) {
+    /* test for silence */
+    if (curlevel == 1.) {
+      if (median) isready = 0;
+      /* send note off */
+      send_noteon(curnote,0);
+    } else {
+      if (median) {
+        isready = 1;
+      } else {
+        /* kill old note */
+        send_noteon(curnote,0);
+        /* get and send new one */
+        send_noteon(new_pitch,127+(int)floor(curlevel));
+        curnote = new_pitch;
+      }
+    }
+  } else {
+    if (median) {
+      if (isready > 0)
+        isready++;
+      if (isready == median)
+      {
+        /* kill old note */
+        send_noteon(curnote,0);
+        newnote = get_note(note_buffer, note_buffer2);
+        curnote = newnote;
+        /* get and send new one */
+        if (curnote>45){
+          send_noteon(curnote,127+(int)floor(curlevel));
+        }
+      }
+    } // if median
+  }
 }
 
-static void process_print (void) {
-      if (verbose) outmsg("%f\n",pitch);
+static void
+process_print (void) {
+  //if (verbose) outmsg("%f\n",pitch_obuf->data[0]);
 }
 
 void
@@ -148,23 +121,37 @@ get_note (fvec_t * note_buffer, fvec_t * note_buffer2)
 int main(int argc, char **argv) {
   examples_common_init(argc,argv);
 
-  o = new_aubio_onset (onset_method, buffer_size, overlap_size, samplerate);
+  verbmsg ("using source: %s at %dHz\n", source_uri, samplerate);
+
+  verbmsg ("onset method: %s, ", onset_method);
+  verbmsg ("buffer_size: %d, ", buffer_size);
+  verbmsg ("hop_size: %d, ", hop_size);
+  verbmsg ("threshold: %f\n", onset_threshold);
+
+  verbmsg ("pitch method: %s, ", pitch_method);
+  verbmsg ("buffer_size: %d, ", buffer_size * 4);
+  verbmsg ("hop_size: %d, ", hop_size);
+  verbmsg ("tolerance: %f\n", pitch_tolerance);
+
+  o = new_aubio_onset (onset_method, buffer_size, hop_size, samplerate);
   if (onset_threshold != 0.) aubio_onset_set_threshold (o, onset_threshold);
   onset = new_fvec (1);
 
-  pitchdet = new_aubio_pitch (pitch_method, buffer_size * 4,
-          overlap_size, samplerate);
-  aubio_pitch_set_tolerance (pitchdet, 0.7);
+  pitch = new_aubio_pitch (pitch_method, buffer_size * 4, hop_size, samplerate);
+  if (pitch_tolerance != 0.) aubio_pitch_set_tolerance (pitch, pitch_tolerance);
   pitch_obuf = new_fvec (1);
+
   if (median) {
       note_buffer = new_fvec (median);
       note_buffer2 = new_fvec (median);
   }
 
-  examples_common_process(aubio_process, process_print);
+  examples_common_process((aubio_process_func_t)process_block, process_print);
 
+  // send a last note off
   send_noteon (curnote, 0);
-  del_aubio_pitch (pitchdet);
+
+  del_aubio_pitch (pitch);
   if (median) {
       del_fvec (note_buffer);
       del_fvec (note_buffer2);
@@ -172,8 +159,6 @@ int main(int argc, char **argv) {
   del_fvec (pitch_obuf);
 
   examples_common_del();
-  debug("End of program.\n");
-  fflush(stderr);
   return 0;
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -26,7 +26,7 @@ extern char_t *sink_uri;
 // general stuff
 extern uint_t samplerate;
 extern uint_t buffer_size;
-extern uint_t overlap_size;
+extern uint_t hop_size;
 // onset stuff
 extern char_t * onset_method;
 extern smpl_t onset_threshold;
@@ -47,7 +47,7 @@ extern void examples_common_process (aubio_process_func_t process_func,
     aubio_print_func_t print);
 
 // internal stuff
-extern int frames;
+extern int blocks;
 
 extern fvec_t *ibuf;
 extern fvec_t *obuf;
@@ -155,7 +155,7 @@ parse_args (int argc, char **argv)
         buffer_size = atoi (optarg);
         break;
       case 'H':
-        overlap_size = atoi (optarg);
+        hop_size = atoi (optarg);
         break;
       case 'O':                /*onset type */
         onset_method = optarg;

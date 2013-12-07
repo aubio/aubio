@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -29,20 +29,26 @@
 #include "config.h"
 
 #ifdef HAVE_C99_VARARGS_MACROS
-#define debug(...)              if (verbose) fprintf (stderr, __VA_ARGS__)
-#define errmsg(...)             fprintf (stderr, __VA_ARGS__)
-#define outmsg(...)             fprintf (stdout, __VA_ARGS__)
+#ifdef HAVE_DEBUG
+#define debug(...)                fprintf (stderr, __VA_ARGS__)
 #else
-#define debug(format, args...)  if (verbose) fprintf(stderr, format , ##args)
-#define errmsg(format, args...) fprintf(stderr, format , ##args)
-#define outmsg(format, args...) fprintf(stdout, format , ##args)
+#define debug(...)
+#endif
+#define verbmsg(...)              if (verbose) fprintf (stderr, __VA_ARGS__)
+#define errmsg(...)               fprintf (stderr, __VA_ARGS__)
+#define outmsg(...)               fprintf (stdout, __VA_ARGS__)
+#else
+#ifdef HAVE_DEBUG
+#define debug(...)                fprintf (stderr, format , **args)
+#else
+#define debug(...)                ()
+#endif
+#define verbmsg(format, args...)  if (verbose) fprintf(stderr, format , ##args)
+#define errmsg(format, args...)   fprintf(stderr, format , ##args)
+#define outmsg(format, args...)   fprintf(stdout, format , ##args)
 #endif
 
 typedef void (aubio_print_func_t) (void);
-#ifndef HAVE_JACK
-typedef int (*aubio_process_func_t)
-  (smpl_t ** input, smpl_t ** output, int nframes);
-#endif
+typedef int (*aubio_process_func_t)(fvec_t * input, fvec_t * output);
 void send_noteon (int pitch, int velo);
-
 
