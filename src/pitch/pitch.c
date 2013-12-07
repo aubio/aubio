@@ -236,6 +236,12 @@ aubio_pitch_set_unit (aubio_pitch_t * p, char_t * pitch_unit)
   aubio_pitch_mode pitch_mode;
   if (strcmp (pitch_unit, "freq") == 0)
     pitch_mode = aubio_pitchm_freq;
+  else if (strcmp (pitch_unit, "hertz") == 0)
+    pitch_mode = aubio_pitchm_freq;
+  else if (strcmp (pitch_unit, "Hz") == 0)
+    pitch_mode = aubio_pitchm_freq;
+  else if (strcmp (pitch_unit, "f0") == 0)
+    pitch_mode = aubio_pitchm_freq;
   else if (strcmp (pitch_unit, "midi") == 0)
     pitch_mode = aubio_pitchm_midi;
   else if (strcmp (pitch_unit, "cent") == 0)
