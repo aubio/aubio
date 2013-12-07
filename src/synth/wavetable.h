@@ -23,9 +23,9 @@
 
 /** \file
 
-  Load and play sound files.
+  Wavetable synthesis.
 
-  This file loads a sample and gets ready to play it.
+  This file creates a wavetable and plays it at different frequency.
 
   The `_do` function adds the new samples to the input, and write the result as
   the output.
@@ -44,15 +44,16 @@ typedef struct _aubio_wavetable_t aubio_wavetable_t;
 /** create new wavetable object
 
   \param samplerate the sampling rate of the new wavetable
+  \param hop_size the block size of the new wavetable
 
-  \return the newly created ::aubio_wavetable_t
+  \return the newly created aubio_wavetable_t
 
 */
 aubio_wavetable_t * new_aubio_wavetable(uint_t samplerate, uint_t hop_size);
 
 /** load source in wavetable
 
-  \param o wavetable, created by ::new_aubio_wavetable
+  \param o wavetable, created by new_aubio_wavetable()
   \param uri the uri of the source to load
 
   \return 0 if successful, non-zero otherwise
@@ -62,11 +63,11 @@ uint_t aubio_wavetable_load( aubio_wavetable_t * o, char_t * uri );
 
 /** process wavetable function
 
-  \param o wavetable, created by ::new_aubio_wavetable
+  \param o wavetable, created by new_aubio_wavetable()
   \param input input of the wavetable, to be added to the output
   \param output output of the wavetable
 
-This function adds the new samples from the playing sample to the output.
+This function adds the new samples from the playing wavetable to the output.
 
 If `input` is not NULL and different from `output`, then the samples from `input`
 are added to the output.
@@ -76,11 +77,11 @@ void aubio_wavetable_do ( aubio_wavetable_t * o, fvec_t * input, fvec_t * output
 
 /** process wavetable function, multiple channels
 
-  \param o wavetable, created by ::new_aubio_wavetable
+  \param o wavetable, created by new_aubio_wavetable()
   \param input input of the wavetable, to be added to the output
   \param output output of the wavetable
 
-This function adds the new samples from the playing sample to the output.
+This function adds the new samples from the playing wavetable to the output.
 
 If `input` is not NULL and different from `output`, then the samples from `input`
 are added to the output.
@@ -90,7 +91,7 @@ void aubio_wavetable_do_multi ( aubio_wavetable_t * o, fmat_t * input, fmat_t * 
 
 /** get current playing state
 
-  \param o wavetable, created by ::new_aubio_wavetable
+  \param o wavetable, created by new_aubio_wavetable()
 
   \return 0 if not playing, 1 if playing
 
@@ -99,7 +100,7 @@ uint_t aubio_wavetable_get_playing ( aubio_wavetable_t * o );
 
 /** set current playing state
 
-  \param o wavetable, created by ::new_aubio_wavetable
+  \param o wavetable, created by new_aubio_wavetable()
   \param playing 0 for not playing, 1 for playing
 
   \return 0 if successful, 1 otherwise
@@ -109,16 +110,16 @@ uint_t aubio_wavetable_set_playing ( aubio_wavetable_t * o, uint_t playing );
 
 /** play sample from start
 
-  \param o wavetable, created by ::new_aubio_wavetable
+  \param o wavetable, created by new_aubio_wavetable()
 
   \return 0 if successful, 1 otherwise
 
 */
 uint_t aubio_wavetable_play ( aubio_wavetable_t * o );
 
-/** stop sample
+/** stop wavetable
 
-  \param o wavetable, created by ::new_aubio_wavetable
+  \param o wavetable, created by new_aubio_wavetable()
 
   \return 0 if successful, 1 otherwise
 
@@ -127,7 +128,7 @@ uint_t aubio_wavetable_stop ( aubio_wavetable_t * o );
 
 /** set wavetable frequency
 
-  \param o wavetable, created by ::new_aubio_wavetable
+  \param o wavetable, created by new_aubio_wavetable()
   \param freq new frequency value for the wavetable
 
   \return 0 if successful, 1 otherwise
@@ -137,7 +138,7 @@ uint_t aubio_wavetable_set_freq ( aubio_wavetable_t * o, smpl_t freq );
 
 /** get wavetable frequency
 
-  \param o wavetable, created by ::new_aubio_wavetable
+  \param o wavetable, created by new_aubio_wavetable()
 
   \return current frequency, in Hz
 
@@ -146,7 +147,7 @@ smpl_t aubio_wavetable_get_freq ( aubio_wavetable_t * o);
 
 /** set wavetable amplitude
 
-  \param o wavetable, created by ::new_aubio_wavetable
+  \param o wavetable, created by new_aubio_wavetable()
   \param amp new amplitude value for the wavetable
 
   \return 0 if successful, 1 otherwise
@@ -156,16 +157,16 @@ uint_t aubio_wavetable_set_amp ( aubio_wavetable_t * o, smpl_t amp );
 
 /** get wavetable amplitude
 
-  \param o wavetable, created by ::new_aubio_wavetable
+  \param o wavetable, created by new_aubio_wavetable()
 
   \return current amplitude
 
 */
 smpl_t aubio_wavetable_get_amp ( aubio_wavetable_t * o);
 
-/** destroy ::aubio_wavetable_t object
+/** destroy aubio_wavetable_t object
 
-  \param o wavetable, created by ::new_aubio_wavetable
+  \param o wavetable, created by new_aubio_wavetable()
 
 */
 void del_aubio_wavetable( aubio_wavetable_t * o );
