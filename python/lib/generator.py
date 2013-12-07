@@ -51,6 +51,7 @@ def generate_object_files(output_path):
       'pitchfcomb',
       'pitchmcomb',
       'pitchschmitt',
+      'pitchspecacf',
       'pitchyin',
       'pitchyinfft',
       'sink_apple_audio',
