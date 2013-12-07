@@ -41,6 +41,7 @@ typedef struct _aubio_tempo_t aubio_tempo_t;
 
 /** create tempo detection object
 
+  \param method beat tracking method, unused for now (use "default")
   \param buf_size length of FFT
   \param hop_size number of frames between two consecutive runs
   \param samplerate sampling rate of the signal to analyze
