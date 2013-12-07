@@ -89,6 +89,7 @@ void  fmat_write_sample(fmat_t *s, smpl_t data, uint_t channel, uint_t position)
 
   \param s vector to read from
   \param channel channel to read from
+  \param output ::fvec_t to output to
 
 */
 void fmat_get_channel (fmat_t *s, uint_t channel, fvec_t *output);
