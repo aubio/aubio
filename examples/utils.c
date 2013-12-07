@@ -81,7 +81,7 @@ examples_common_init (int argc, char **argv)
     debug ("Opening files ...\n");
     this_source = new_aubio_source ((char_t*)source_uri, samplerate, hop_size);
     if (this_source == NULL) {
-      outmsg ("Could not open input file %s.\n", source_uri);
+      outmsg ("Could not open input file %s\n", source_uri);
       exit (1);
     }
     if (samplerate == 0) {
@@ -90,7 +90,7 @@ examples_common_init (int argc, char **argv)
     if (sink_uri != NULL) {
       this_sink = new_aubio_sink ((char_t*)sink_uri, samplerate);
       if (this_sink == NULL) {
-        outmsg ("Could not open output file %s.\n", sink_uri);
+        outmsg ("Could not open output file %s\n", sink_uri);
         exit (1);
       }
     }
