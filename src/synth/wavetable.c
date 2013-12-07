@@ -43,6 +43,10 @@ struct _aubio_wavetable_t {
 aubio_wavetable_t *new_aubio_wavetable(uint_t samplerate, uint_t blocksize)
 {
   aubio_wavetable_t *s = AUBIO_NEW(aubio_wavetable_t);
+  if ((sint_t)samplerate <= 0) {
+    AUBIO_ERR("Can not create wavetable with samplerate %d\n", samplerate);
+    goto beach;
+  }
   uint_t i = 0;
   s->samplerate = samplerate;
   s->blocksize = blocksize;
@@ -59,6 +63,9 @@ aubio_wavetable_t *new_aubio_wavetable(uint_t samplerate, uint_t blocksize)
   s->freq = new_aubio_parameter( 0., s->samplerate / 2., 10 );
   s->amp = new_aubio_parameter( 0., 1., 100 );
   return s;
+beach:
+  AUBIO_FREE(s);
+  return NULL;
 }
 
 static smpl_t interp_2(fvec_t *input, smpl_t pos) {
