@@ -55,6 +55,7 @@ typedef struct _aubio_pitchyinfft_t aubio_pitchyinfft_t;
 void aubio_pitchyinfft_do (aubio_pitchyinfft_t * o, fvec_t * samples_in, fvec_t * cands_out);
 /** creation of the pitch detection object
  
+  \param samplerate samplerate of the input signal
   \param buf_size size of the input buffer to analyse 
  
 */
