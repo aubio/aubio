@@ -22,10 +22,10 @@
  
   Pitch detection using a spectral implementation of the YIN algorithm
   
-  This algorithm was derived from the YIN algorithm (see pitchyin.c). In this
-  implementation, a Fourier transform is used to compute a tapered square
-  difference function, which allows spectral weighting. Because the difference
-  function is tapered, the selection of the period is simplified.
+  This algorithm was derived from the YIN algorithm. In this implementation, a
+  Fourier transform is used to compute a tapered square difference function,
+  which allows spectral weighting. Because the difference function is tapered,
+  the selection of the period is simplified.
  
   Paul Brossier, [Automatic annotation of musical audio for interactive
   systems](http://aubio.org/phd/), Chapter 3, Pitch Analysis, PhD thesis,
