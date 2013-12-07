@@ -215,13 +215,18 @@ parse_args (int argc, char **argv)
 
   // if no source, show a message
   if (source_uri == NULL) {
+#ifdef PROG_HAS_JACK
 #if HAVE_JACK
     verbmsg("No input source given, using jack\n");
     usejack = 1;
 #else
     errmsg("Error: no arguments given (and no available audio input)\n");
     usage ( stderr, 1 );
-#endif
+#endif /* HAVE_JACK */
+#else
+    errmsg("Error: no arguments given\n");
+    usage ( stderr, 1 );
+#endif /* PROG_HAS_JACK */
   }
 
   return 0;
