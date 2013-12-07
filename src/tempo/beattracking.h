@@ -48,7 +48,9 @@ typedef struct _aubio_beattracking_t aubio_beattracking_t;
 
 /** create beat tracking object
 
+  \param winlen length of the onset detection window
   \param hop_size number of onset detection samples [512] 
+  \param samplerate samplerate of the input signal
 
 */
 aubio_beattracking_t * new_aubio_beattracking(uint_t winlen, uint_t hop_size,
