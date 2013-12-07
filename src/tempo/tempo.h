@@ -26,6 +26,7 @@
   and returns the estimated beat locations.
 
   \example tempo/test-tempo.c
+  \example examples/aubiotrack.c
 
 */
 
