@@ -22,6 +22,8 @@
 #include "utils.h"
 #define PROG_HAS_PITCH 1
 #define PROG_HAS_ONSET 1
+#define PROG_HAS_JACK 1
+// TODO add PROG_HAS_OUTPUT
 #include "parse_args.h"
 
 uint_t median = 6;

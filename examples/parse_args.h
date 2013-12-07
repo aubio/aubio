@@ -62,11 +62,13 @@ usage (FILE * stream, int exit_code)
   fprintf (stream,
       "       -h      --help             display this message\n"
       "       -v      --verbose          be verbose\n"
-#ifdef HAVE_JACK
+#ifdef PROG_HAS_JACK
       "       -j      --jack             use Jack\n"
 #endif
       "       -i      --input            input type\n"
+#ifdef PROG_HAS_OUTPUT
       "       -o      --output           output type\n"
+#endif
       "       -r      --samplerate       select samplerate\n"
       "       -B      --bufsize          set buffer size\n"
       "       -H      --hopsize          set hopsize\n"
@@ -80,7 +82,9 @@ usage (FILE * stream, int exit_code)
       "       -l      --pitch-tolerance  select pitch tolerance\n"
 #endif /* PROG_HAS_PITCH */
       "       -s      --silence          select silence threshold\n"
+#ifdef PROG_HAS_OUTPUT
       "       -m      --mix-input        mix input signal with output signal\n"
+#endif
       );
   exit (exit_code);
 }
@@ -89,10 +93,13 @@ int
 parse_args (int argc, char **argv)
 {
   const char *options = "hv"
-#ifdef HAVE_JACK
+    "i:r:B:H:"
+#ifdef PROG_HAS_JACK
     "j"
-#endif
-    "i:o:r:B:H:"
+#endif /* PROG_HAS_JACK */
+#ifdef PROG_HAS_OUTPUT
+    "o:"
+#endif /* PROG_HAS_OUTPUT */
 #ifdef PROG_HAS_ONSET
     "O:t:"
 #endif /* PROG_HAS_ONSET */
@@ -104,14 +111,16 @@ parse_args (int argc, char **argv)
   struct option long_options[] = {
     {"help",                  0, NULL, 'h'},
     {"verbose",               0, NULL, 'v'},
-#ifdef HAVE_JACK
-    {"jack",                  0, NULL, 'j'},
-#endif
     {"input",                 1, NULL, 'i'},
-    {"output",                1, NULL, 'o'},
     {"samplerate",            1, NULL, 'r'},
     {"bufsize",               1, NULL, 'B'},
     {"hopsize",               1, NULL, 'H'},
+#ifdef PROG_HAS_JACK
+    {"jack",                  0, NULL, 'j'},
+#endif /* PROG_HAS_JACK */
+#ifdef PROG_HAS_OUTPUT
+    {"output",                1, NULL, 'o'},
+#endif /* PROG_HAS_OUTPUT */
 #ifdef PROG_HAS_ONSET
     {"onset",                 1, NULL, 'O'},
     {"onset-threshold",       1, NULL, 't'},
@@ -190,6 +199,7 @@ parse_args (int argc, char **argv)
   }
   while (next_option != -1);
 
+  // if unique, use the non option argument as the source
   if ( source_uri == NULL ) {
     if (argc - optind == 1) {
       source_uri = argv[optind];
@@ -202,14 +212,10 @@ parse_args (int argc, char **argv)
     usage ( stderr, 1 );
   }
 
-  if (source_uri != NULL) {
-    debug ("Input file : %s\n", source_uri);
-  } else if (source_uri != NULL && sink_uri != NULL) {
-    debug ("Input file : %s\n", source_uri);
-    debug ("Output file : %s\n", sink_uri);
-  } else {
+  // if no source, show a message
+  if (source_uri == NULL) {
 #if HAVE_JACK
-    debug ("Jack input output\n");
+    verbmsg("No input source given, using jack\n");
     usejack = 1;
 #else
     errmsg("Error: no arguments given (and no available audio input)\n");

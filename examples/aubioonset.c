@@ -20,6 +20,8 @@
 
 #include "utils.h"
 #define PROG_HAS_ONSET 1
+#define PROG_HAS_OUTPUT 1
+#define PROG_HAS_JACK 1
 #include "parse_args.h"
 
 aubio_onset_t *o;
@@ -35,7 +37,10 @@ process_block(fvec_t *ibuf, fvec_t *obuf) {
   } else {
     aubio_wavetable_stop ( wavetable );
   }
-  aubio_wavetable_do (wavetable, obuf, obuf);
+  if (mix_input)
+    aubio_wavetable_do (wavetable, ibuf, obuf);
+  else
+    aubio_wavetable_do (wavetable, obuf, obuf);
 }
 
 void

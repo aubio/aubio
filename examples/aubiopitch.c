@@ -20,6 +20,8 @@
 
 #include "utils.h"
 #define PROG_HAS_PITCH 1
+#define PROG_HAS_OUTPUT 1
+#define PROG_HAS_JACK 1
 #include "parse_args.h"
 
 aubio_pitch_t *o;
@@ -32,12 +34,12 @@ process_block(fvec_t * ibuf, fvec_t * obuf) {
   aubio_pitch_do (o, ibuf, pitch);
   smpl_t freq = fvec_read_sample(pitch, 0);
   aubio_wavetable_set_amp ( wavetable, aubio_level_lin (ibuf) );
-  if (freq != 0.0) {
-    aubio_wavetable_set_freq ( wavetable, freq );
-  } else {
-    aubio_wavetable_set_freq ( wavetable, 0.0 );
-  }
-  aubio_wavetable_do (wavetable, obuf, obuf);
+  aubio_wavetable_set_freq ( wavetable, freq );
+
+  if (mix_input)
+    aubio_wavetable_do (wavetable, ibuf, obuf);
+  else
+    aubio_wavetable_do (wavetable, obuf, obuf);
 }
 
 void
