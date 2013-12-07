@@ -85,7 +85,7 @@ smpl_t aubio_tempo_get_last_ms (aubio_tempo_t *o);
 /** set tempo detection silence threshold
 
   \param o beat tracking object
-  \param threshold new silence threshold, in dB
+  \param silence new silence threshold, in dB
 
   \return `0` if successful, non-zero otherwise
 
