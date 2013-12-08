@@ -39,8 +39,6 @@ extern "C"
 
 /** jack object */
 typedef struct _aubio_jack_t aubio_jack_t;
-/** jack process function */
-typedef int (*aubio_process_func_t) (fvec_t * input, fvec_t * output);
 
 /** jack device creation function */
 aubio_jack_t *new_aubio_jack (uint_t hop_size,

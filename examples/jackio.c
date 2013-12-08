@@ -22,8 +22,9 @@
 #include "config.h"
 
 #if HAVE_JACK
-#include "aubio_priv.h"
+#include "utils.h" // for aubio_process_func_t
 #include "jackio.h"
+#include "aubio_priv.h"
 
 typedef jack_default_audio_sample_t jack_sample_t;
 
