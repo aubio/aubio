@@ -212,11 +212,11 @@ def configure(ctx):
   ctx.define('AUBIO_PREFIX', ctx.env['PREFIX'])
   ctx.define('PACKAGE', APPNAME)
 
-  # check if docbook-to-man is installed, optional
+  # check if txt2man is installed, optional
   try:
-    ctx.find_program('docbook-to-man', var='DOCBOOKTOMAN')
+    ctx.find_program('txt2man', var='TXT2MAN')
   except ctx.errors.ConfigurationError:
-    ctx.to_log('docbook-to-man was not found (ignoring)')
+    ctx.to_log('txt2man was not found (ignoring)')
 
 def build(bld):
     bld.env['VERSION'] = VERSION
@@ -233,19 +233,24 @@ def build(bld):
     bld( source = 'aubio.pc.in' )
 
     # build manpages from sgml files
-    if bld.env['DOCBOOKTOMAN']:
+    if bld.env['TXT2MAN']:
         from waflib import TaskGen
         if 'MANDIR' not in bld.env:
             bld.env['MANDIR'] = bld.env['PREFIX'] + '/share/man'
+        rule_str = '${TXT2MAN} -t `basename ${TGT} | cut -f 1 -d . | tr a-z A-Z`'
+        rule_str += ' -r ${PACKAGE}\\ ${VERSION} -P ${PACKAGE}'
+        rule_str += ' -v ${PACKAGE}\\ User\\\'s\\ manual'
+        rule_str += ' -s 1 ${SRC} > ${TGT}'
         TaskGen.declare_chain(
-                name      = 'docbooktoman',
-                rule      = '${DOCBOOKTOMAN} ${SRC} > ${TGT}',
-                ext_in    = '.sgml',
+                name      = 'txt2man',
+                rule      = rule_str,
+                #rule      = '${TXT2MAN} -p -P aubio -s 1 -r aubio-0.4.0 ${SRC} > ${TGT}',
+                ext_in    = '.txt',
                 ext_out   = '.1',
                 reentrant = False,
                 install_path =  '${MANDIR}/man1',
                 )
-        bld( source = bld.path.ant_glob('doc/*.sgml') )
+        bld( source = bld.path.ant_glob('doc/*.txt') )
 
     """
     bld(rule = 'doxygen ${SRC}', source = 'web.cfg') #, target = 'doc/web/index.html')
