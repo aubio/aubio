@@ -1,3 +1,77 @@
+2013-12-08  Paul Brossier <piem@aubio.org>
+
+	* Overdue: After more than five years of development behind the curtain,
+	time has come to release a new version of aubio.
+
+	* General: The library has been completely revised since 0.3.2. The API has
+	seen a major clean up, and has been thoroughly tested. The following list of
+	changes is not exhaustive.
+
+	* Memory management: allocation and freeing of memory has been optimized in
+	many ways. Several memory leaks and out of bound access have been fixed.
+
+	* Optimization: the FFT, central to most algorithm, can now be computed
+	using different optimized algorithms, depending on what is available on your
+	platform (FFTW, Ooura, or vDSP). Other simple optimization tricks are
+	included. Most can be deactivated by configuring the build accordingly.
+
+	* python/: The python interface has been completely rewritten to use numpy C
+	interface, making the aubio python module order of magnitudes faster than
+	the previous version. Several demos and tests are included.
+
+	* src/: source and header files are now organized in sub-directories.
+
+	* src/io/source.h: new source readers can now use any or all of libav,
+	CoreAudio, and libsndfile. This means that aubio can now easily read most
+	uncompressed and compressed formats. Compiled with libav, aubio can also
+	read audio from video files, and over the network.
+
+	* src/io/sink.h: a new sink object lets you write wav files with any number
+	of channels, at any samplerate, using libsndfile or CoreAudio.
+
+	* src/onset, src/tempo/, src/pitch: the different methods for onset, tempo,
+	and pitch extraction have seen many bug-fixes and optimizations.
+
+	* src/spectral/specdesc.h: new onset distances and statistical measures have
+	been added.
+
+	* src/spectral/filterbank.h: new filter bank to compute the energy in any
+	custom-defined frequency bands.
+
+	* src/spectral/mfcc.h, examples/aubiomfcc.c: a standard implementation of
+	the Mel-Frequency Cepstrum Coefficients algorithm has been added.
+
+	* src/temporal/{a,c}_weighting.h: standard implementation of the C-weighting
+	and A-weighting pre-processing filters are now provided for most commons
+	sampling rates.
+
+	* src/synth/wavetable.h, src/synth/sampler.h: provide basic ways to generate
+	some sounds.
+
+	* src/fvec.h: fvec_t, the vector object central to most aubio algorithms, is
+	now single channel. This simplifies the code of each algorithm greatly.
+
+	* src/lvec.h: lvec_t provides a double precision vector, required for some
+	operations to avoid floating point overflow
+
+	* src/fmat.h: fmat_t provides a single precision matrix, useful for
+	multi-channel operations and to some algorithms such as the spectral filter
+	bank.
+
+	* examples/: several new options, including new programs, have been
+	included. Refer to the documentation for details.
+
+	* tests/: several tests and examples programs have been added. This should
+	be a good place to look at to understand how to use aubio.
+
+	* doc/web.cfg: a simplified Doxygen configuration produces a simpler html
+	documentation.
+
+	* doc/*.txt: the manpages have been rewritten for txt2man.
+
+	* Build system: the build system has been switched from autotools/automake
+	to waf. Type './waf' or see README.md for instructions on how to use waf.
+
 2006-11-10  Paul Brossier <piem@altern.org>
 	* configure.ac: check c compiler for -Wextra option
 	* examples/*: add lash support to aubioonset, aubiotrack, and aubionotes
