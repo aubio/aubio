@@ -25,7 +25,30 @@
 
   Media source to read blocks of consecutive audio samples from file
 
+  Depending on how aubio was compiled, the following file formats will be
+  available.
+
   To write to file, use ::aubio_sink_t.
+
+  \b \p source_avcodec : libav
+
+  aubio can be optionally compiled with [libav](http://libav.org), which can
+  read from a very large number of audio and video formats, including over
+  different network protocols such as HTTP.
+
+  \b \p source_apple_audio : ExtAudioFileRef
+  
+  On Mac and iOS platforms, aubio should be compiled with CoreAudio [Extended
+  Audio File Services]
+  (https://developer.apple.com/library/mac/documentation/musicaudio/CAAudioTooboxRef/_index.html).
+  This provides access to most common audio file formats, including compressed
+  ones.
+
+  \b \p source_sndfile : libsndfile
+
+  Also optional, aubio can be built against
+  [libsndfile](http://www.mega-nerd.com/libsndfile/), which can read [most
+  uncompressed formats](http://www.mega-nerd.com/libsndfile/#Features).
 
   \example io/test-source.c
   \example io/test-source_multi.c
