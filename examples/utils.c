@@ -163,7 +163,8 @@ examples_common_process (aubio_process_func_t process_func,
       total_read += read;
     } while (read == hop_size);
 
-    verbmsg ("read %d samples (%d blocks of %d) from %s at %dHz\n",
+    verbmsg ("read %.2fs (%d samples in %d blocks of %d) from %s at %dHz\n",
+        total_read * 1. / samplerate,
         total_read, blocks, hop_size, source_uri, samplerate);
 
     del_aubio_source (this_source);
