@@ -80,7 +80,7 @@ usage (FILE * stream, int exit_code)
       "       -s      --silence          select silence threshold\n"
 #ifdef PROG_HAS_OUTPUT
       "       -m      --mix-input        mix input signal with output signal\n"
-      "       -f      --force-overwrite  overwrite output file if\n"
+      "       -f      --force-overwrite  overwrite output file if needed\n"
 #endif
 #ifdef PROG_HAS_JACK
       "       -j      --jack             use Jack\n"
@@ -234,15 +234,20 @@ parse_args (int argc, char **argv)
 #endif /* PROG_HAS_JACK */
   }
 
-  if (hop_size < 1) {
+  if ((sint_t)hop_size < 1) {
     errmsg("Error: got hop_size %d, but can not be < 1\n", hop_size);
     usage ( stderr, 1 );
-  } else if (buffer_size < 2) {
+  } else if ((sint_t)buffer_size < 2) {
     errmsg("Error: got buffer_size %d, but can not be < 2\n", buffer_size);
     usage ( stderr, 1 );
-  } else if (buffer_size < hop_size + 1) {
+  } else if ((sint_t)buffer_size < (sint_t)hop_size + 1) {
     errmsg("Error: hop size (%d) is larger than or equal to win size (%d)\n",
-        buffer_size, hop_size);
+        hop_size, buffer_size);
+    usage ( stderr, 1 );
+  }
+
+  if ((sint_t)samplerate < 0) {
+    errmsg("Error: got samplerate %d, but can not be < 0\n", samplerate);
     usage ( stderr, 1 );
   }
 
