@@ -27,15 +27,18 @@
 aubio_tempo_t * tempo;
 aubio_wavetable_t *wavetable;
 fvec_t * tempo_out;
-smpl_t istactus = 0;
-smpl_t isonset = 0;
+smpl_t is_beat = 0;
+smpl_t is_onset = 0;
+uint_t is_silence = 0.;
 
 void process_block(fvec_t * ibuf, fvec_t *obuf) {
   aubio_tempo_do (tempo, ibuf, tempo_out);
-  istactus = fvec_read_sample (tempo_out, 0);
-  isonset = fvec_read_sample (tempo_out, 1);
+  is_beat = fvec_read_sample (tempo_out, 0);
+  is_onset = fvec_read_sample (tempo_out, 1);
+  if (silence_threshold != -90.)
+    is_silence = aubio_silence_detection(ibuf, silence_threshold);
   fvec_zeros (obuf);
-  if (istactus > 0.) {
+  if ( is_beat && !is_silence ) {
     aubio_wavetable_play ( wavetable );
   } else {
     aubio_wavetable_stop ( wavetable );
@@ -47,10 +50,10 @@ void process_block(fvec_t * ibuf, fvec_t *obuf) {
 }
 
 void process_print (void) {
-  if (istactus) {
+  if ( is_beat && !is_silence ) {
     outmsg("%f\n", aubio_tempo_get_last_s(tempo) );
   }
-  //if (isonset && verbose)
+  //if ( is_onset )
   //  outmsg(" \t \t%f\n",(blocks)*hop_size/(float)samplerate);
 }
 

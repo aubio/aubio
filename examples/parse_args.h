@@ -37,7 +37,7 @@ extern smpl_t pitch_tolerance;
 // tempo stuff
 extern char_t * tempo_method;
 // more general stuff
-extern smpl_t silence;
+extern smpl_t silence_threshold;
 extern uint_t mix_input;
 
 typedef int (*aubio_process_func_t)(fvec_t * input, fvec_t * output);
@@ -183,7 +183,7 @@ parse_args (int argc, char **argv)
         pitch_tolerance = (smpl_t) atof (optarg);
         break;
       case 's':                /* silence threshold */
-        silence = (smpl_t) atof (optarg);
+        silence_threshold = (smpl_t) atof (optarg);
         break;
       case 'm':                /* mix_input flag */
         mix_input = 1;

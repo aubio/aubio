@@ -25,7 +25,7 @@ sint_t wassilence = 1, issilence;
 
 void process_block(fvec_t * ibuf, fvec_t * obuf) {
   fvec_zeros (obuf);
-  if (aubio_silence_detection(ibuf, silence)==1) {
+  if (aubio_silence_detection(ibuf, silence_threshold)==1) {
     if (wassilence==1) issilence = 1;
     else issilence = 2;
     wassilence=1;

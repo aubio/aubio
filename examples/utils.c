@@ -50,7 +50,7 @@ smpl_t pitch_tolerance = 0.0; // will be set if != 0.
 // tempo stuff
 char_t * tempo_method = "default";
 // more general stuff
-smpl_t silence = -90.;
+smpl_t silence_threshold = -90.;
 uint_t mix_input = 0;
 
 //

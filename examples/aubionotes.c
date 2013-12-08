@@ -57,7 +57,7 @@ process_block(fvec_t *ibuf, fvec_t *obuf) {
   }
 
   /* curlevel is negatif or 1 if silence */
-  smpl_t curlevel = aubio_level_detection(ibuf, silence);
+  smpl_t curlevel = aubio_level_detection(ibuf, silence_threshold);
   if (fvec_read_sample(onset, 0)) {
     /* test for silence */
     if (curlevel == 1.) {
