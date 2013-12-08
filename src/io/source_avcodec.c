@@ -161,6 +161,11 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * path, uint_t samplera
   }
   s->samplerate = samplerate;
 
+  if (s->samplerate >  s->input_samplerate) {
+    AUBIO_WRN("upsampling %s from %d to %d\n", s->path,
+        s->input_samplerate, s->samplerate);
+  }
+
   AVFrame *avFrame = s->avFrame;
   avFrame = avcodec_alloc_frame();
   if (!avFrame) {

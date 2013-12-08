@@ -121,10 +121,12 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplera
     if (s->ratio > 1) {
       // we would need to add a ring buffer for these
       if ( (uint_t)(s->input_hop_size * s->ratio + .5)  != s->hop_size ) {
-        AUBIO_ERR("can not upsample from %d to %d\n", s->input_samplerate, s->samplerate);
+        AUBIO_ERR("can not upsample %s from %d to %d\n", s->path,
+            s->input_samplerate, s->samplerate);
         goto beach;
       }
-      AUBIO_WRN("upsampling %s from %d to % d\n", s->path, s->input_samplerate, s->samplerate);
+      AUBIO_WRN("upsampling %s from %d to %d\n", s->path,
+          s->input_samplerate, s->samplerate);
     }
   }
 #else
