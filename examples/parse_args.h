@@ -40,6 +40,8 @@ extern char_t * tempo_method;
 extern smpl_t silence_threshold;
 extern uint_t mix_input;
 
+extern uint_t force_overwrite;
+
 // functions defined in utils.c
 extern void examples_common_init (int argc, char **argv);
 extern void examples_common_del (void);
@@ -78,6 +80,7 @@ usage (FILE * stream, int exit_code)
       "       -s      --silence          select silence threshold\n"
 #ifdef PROG_HAS_OUTPUT
       "       -m      --mix-input        mix input signal with output signal\n"
+      "       -f      --force-overwrite  overwrite output file if\n"
 #endif
 #ifdef PROG_HAS_JACK
       "       -j      --jack             use Jack\n"
@@ -105,7 +108,7 @@ parse_args (int argc, char **argv)
 #ifdef PROG_HAS_PITCH
     "p:u:l:"
 #endif /* PROG_HAS_PITCH */
-    "s:m";
+    "s:mf";
   int next_option;
   struct option long_options[] = {
     {"help",                  0, NULL, 'h'},
@@ -131,6 +134,7 @@ parse_args (int argc, char **argv)
 #endif /* PROG_HAS_PITCH */
     {"silence",               1, NULL, 's'},
     {"mix-input",             0, NULL, 'm'},
+    {"force-overwrite",       0, NULL, 'f'},
     {NULL,                    0, NULL, 0}
   };
   prog_name = argv[0];
@@ -155,6 +159,9 @@ parse_args (int argc, char **argv)
         break;
       case 'o':
         sink_uri = optarg;
+        break;
+      case 'f':                /* force_overwrite flag */
+        force_overwrite = 1;
         break;
       case 'r':
         samplerate = atoi (optarg);

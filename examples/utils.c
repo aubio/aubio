@@ -53,6 +53,8 @@ char_t * tempo_method = "default";
 smpl_t silence_threshold = -90.;
 uint_t mix_input = 0;
 
+uint_t force_overwrite = 0;
+
 //
 // internal memory stuff
 aubio_source_t *this_source = NULL;
@@ -88,6 +90,12 @@ examples_common_init (int argc, char **argv)
       samplerate = aubio_source_get_samplerate(this_source);
     }
     if (sink_uri != NULL) {
+      uint_t sink_exists = (access(sink_uri, F_OK) == 0 );
+      if (!force_overwrite && sink_exists) {
+        outmsg ("Output file %s already exists, use -f to overwrite.\n",
+            sink_uri);
+        exit (1);
+      }
       this_sink = new_aubio_sink ((char_t*)sink_uri, samplerate);
       if (this_sink == NULL) {
         outmsg ("Could not open output file %s\n", sink_uri);
