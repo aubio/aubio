@@ -7,7 +7,7 @@ SYNOPSIS
   aubiopitch [[-i] source] [-o sink]
              [-r rate] [-B win] [-H hop]
              [-p method] [-u unit] [-l thres]
-             [-s sil]
+             [-s sil] [-f]
              [-v] [-h] [-j]
 
 DESCRIPTION
@@ -61,6 +61,8 @@ OPTIONS
 
   -m, --mix-input  Mix source signal to the output signal before writing to
   sink.
+
+  -f, --force-overwrite  Overwrite output file if it already exists.
 
   -j, --jack  Use Jack input/output. You will need a Jack connection
   controller to feed aubio some signal and listen to its output.
