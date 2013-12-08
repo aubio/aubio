@@ -23,7 +23,7 @@
 
 /** \file
 
-  Read from file using Apple AudioToolbox's
+  Read from file using CoreAudio Extended Audio File Services
   [ExtAudioFileRef](https://developer.apple.com/library/ios/#documentation/MusicAudio/Reference/ExtendedAudioFileServicesReference/Reference/reference.html)
 
   Avoid including this file directly! Prefer using ::aubio_source_t instead to
