@@ -13,29 +13,31 @@
 
 APPNAME = 'aubio'
 
-# read from VERSION
+# source VERSION
 for l in open('VERSION').readlines(): exec (l.strip())
 
-VERSION = '.'.join \
-	([str(x) for x in [AUBIO_MAJOR_VERSION, AUBIO_MINOR_VERSION, AUBIO_PATCH_VERSION]]) \
-	+ AUBIO_VERSION_STATUS
-LIB_VERSION = '.'.join \
-	([str(x) for x in [LIBAUBIO_LT_CUR, LIBAUBIO_LT_REV, LIBAUBIO_LT_AGE]])
+VERSION = '.'.join ([str(x) for x in [
+    AUBIO_MAJOR_VERSION,
+    AUBIO_MINOR_VERSION,
+    AUBIO_PATCH_VERSION
+    ]]) + AUBIO_VERSION_STATUS
 
-import os.path, sys
-if os.path.exists('src/config.h') or os.path.exists('Makefile'):
-    print "Please run 'make distclean' to clean-up autotools files before using waf"
-    sys.exit(1)
+LIB_VERSION = '.'.join ([str(x) for x in [
+    LIBAUBIO_LT_CUR,
+    LIBAUBIO_LT_REV,
+    LIBAUBIO_LT_AGE]])
 
 top = '.'
 out = 'build'
 
-def add_option_enable_disable(ctx, name, default = None, help_str = None, help_disable_str = None):
+def add_option_enable_disable(ctx, name, default = None,
+        help_str = None, help_disable_str = None):
   if help_str == None:
       help_str = 'enable ' + name + ' support'
   if help_disable_str == None:
       help_disable_str = 'do not ' + help_str
-  ctx.add_option('--enable-' + name, action = 'store_true', default = default,
+  ctx.add_option('--enable-' + name, action = 'store_true'
+          default = default,
           dest = 'enable_' + name.replace('-','_'),
           help = help_str)
   ctx.add_option('--disable-' + name, action = 'store_false',
@@ -45,19 +47,26 @@ def add_option_enable_disable(ctx, name, default = None, help_str = None, help_d
 
 def options(ctx):
   add_option_enable_disable(ctx, 'fftw3f', default = False,
-          help_str = 'compile with fftw3f instead of ooura (recommended)', help_disable_str = 'do not compile with fftw3f')
+          help_str = 'compile with fftw3f instead of ooura (recommended)',
+          help_disable_str = 'do not compile with fftw3f')
   add_option_enable_disable(ctx, 'fftw3', default = False,
-          help_str = 'compile with fftw3 instead of ooura', help_disable_str = 'do not compile with fftw3')
+          help_str = 'compile with fftw3 instead of ooura',
+          help_disable_str = 'do not compile with fftw3')
   add_option_enable_disable(ctx, 'complex', default = False,
-          help_str ='compile with C99 complex', help_disable_str = 'do not use C99 complex (default)' )
+          help_str ='compile with C99 complex',
+          help_disable_str = 'do not use C99 complex (default)' )
   add_option_enable_disable(ctx, 'jack', default = None,
-          help_str = 'compile with jack (auto)', help_disable_str = 'disable jack support')
+          help_str = 'compile with jack (auto)',
+          help_disable_str = 'disable jack support')
   add_option_enable_disable(ctx, 'sndfile', default = None,
-          help_str = 'compile with sndfile (auto)', help_disable_str = 'disable sndfile')
+          help_str = 'compile with sndfile (auto)',
+          help_disable_str = 'disable sndfile')
   add_option_enable_disable(ctx, 'avcodec', default = None,
-          help_str = 'compile with libavcodec (auto)', help_disable_str = 'disable libavcodec')
+          help_str = 'compile with libavcodec (auto)',
+          help_disable_str = 'disable libavcodec')
   add_option_enable_disable(ctx, 'samplerate', default = None,
-          help_str = 'compile with samplerate (auto)', help_disable_str = 'disable samplerate')
+          help_str = 'compile with samplerate (auto)',
+          help_disable_str = 'disable samplerate')
   add_option_enable_disable(ctx, 'memcpy', default = True,
           help_str = 'use memcpy hacks (default)',
           help_disable_str = 'do not use memcpy hacks')
@@ -100,8 +109,9 @@ def configure(ctx):
     MINSDKVER="6.1"
     ctx.env.CFLAGS += ['-std=c99']
     if target_platform == 'ios':
-        DEVROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer"
-        SDKROOT="%(DEVROOT)s/SDKs/iPhoneOS%(SDKVER)s.sdk" % locals()
+        DEVROOT = "/Applications/Xcode.app/Contents"
+        DEVROOT += "/Developer/Platforms/iPhoneOS.platform/Developer"
+        SDKROOT = "%(DEVROOT)s/SDKs/iPhoneOS%(SDKVER)s.sdk" % locals()
         ctx.env.CFLAGS += [ '-arch', 'arm64' ]
         ctx.env.CFLAGS += [ '-arch', 'armv7' ]
         ctx.env.CFLAGS += [ '-arch', 'armv7s' ]
@@ -111,8 +121,9 @@ def configure(ctx):
         ctx.env.CFLAGS += [ '-miphoneos-version-min=' + MINSDKVER ]
         ctx.env.LINKFLAGS += [ '-miphoneos-version-min=' + MINSDKVER ]
     else:
-        DEVROOT="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer"
-        SDKROOT="%(DEVROOT)s/SDKs/iPhoneSimulator%(SDKVER)s.sdk" % locals()
+        DEVROOT = "/Applications/Xcode.app/Contents"
+        DEVROOT += "/Developer/Platforms/iPhoneSimulator.platform/Developer"
+        SDKROOT = "%(DEVROOT)s/SDKs/iPhoneSimulator%(SDKVER)s.sdk" % locals()
         ctx.env.CFLAGS += [ '-arch', 'i386' ]
         ctx.env.CFLAGS += [ '-arch', 'x86_64' ]
         ctx.env.LINKFLAGS += ['-arch', 'i386']
@@ -164,7 +175,7 @@ def configure(ctx):
       ctx.check_cfg(package = 'fftw3f', atleast_version = '3.0.0',
           args = '--cflags --libs', mandatory = False)
       if (ctx.options.enable_double == True):
-        ctx.msg('Warning', 'fftw3f enabled, but aubio compiled in double precision!')
+        ctx.msg('Warning', 'fftw3f enabled, but compiling in double precision!')
     else:
       # fftw3f not enabled, take most sensible one according to enable_double
       if (ctx.options.enable_double == True):
