@@ -15,7 +15,7 @@ def parse_args():
     parser = OptionParser(usage=usage)
     parser.add_option("-i", "--input", action = "store", dest = "source_file",
             help="input sound file to analyse", metavar = "<source_file>")
-    parser.add_option("-m","--method",
+    parser.add_option("-O","--onset-method",
             action="store", dest="onset_method", default='default',
             metavar = "<onset_method>",
             help="onset detection method [default=default] \
@@ -34,7 +34,7 @@ def parse_args():
             help="silence threshold [default=-70]")
             """
     # algorithm parameters
-    parser.add_option("--samplerate",
+    parser.add_option("-r", "--samplerate",
             metavar = "<freq>", type='int',
             action="store", dest="samplerate", default=0,
             help="samplerate at which the file should be represented")
@@ -46,7 +46,7 @@ def parse_args():
             metavar = "<size>", type='int',
             action="store", dest="hopsize", default=256,
             help="overlap size [default=256]")
-    parser.add_option("-t","--threshold",
+    parser.add_option("-t","--onset-threshold",
             metavar = "<value>", type="float",
             action="store", dest="threshold", default=0.3,
             help="onset peak picking threshold [default=0.3]")
