@@ -26,9 +26,8 @@ doc/*.1
 build/
 
 # doxygen
-doc/devel/
-doc/user/
-doc/examples/
+doc/web/
+doc/full/
 
 python/gen
 python/dist
