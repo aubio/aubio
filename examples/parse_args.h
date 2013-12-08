@@ -61,11 +61,6 @@ usage (FILE * stream, int exit_code)
 {
   fprintf (stream, "usage: %s [ options ] \n", prog_name);
   fprintf (stream,
-      "       -h      --help             display this message\n"
-      "       -v      --verbose          be verbose\n"
-#ifdef PROG_HAS_JACK
-      "       -j      --jack             use Jack\n"
-#endif
       "       -i      --input            input type\n"
 #ifdef PROG_HAS_OUTPUT
       "       -o      --output           output type\n"
@@ -86,6 +81,11 @@ usage (FILE * stream, int exit_code)
 #ifdef PROG_HAS_OUTPUT
       "       -m      --mix-input        mix input signal with output signal\n"
 #endif
+#ifdef PROG_HAS_JACK
+      "       -j      --jack             use Jack\n"
+#endif
+      "       -v      --verbose          be verbose\n"
+      "       -h      --help             display this message\n"
       );
   exit (exit_code);
 }
