@@ -50,6 +50,9 @@ process_print (void) {
 }
 
 int main(int argc, char **argv) {
+
+  buffer_size = 2048;
+
   examples_common_init(argc,argv);
 
   verbmsg ("using source: %s at %dHz\n", source_uri, samplerate);
