@@ -21,6 +21,8 @@ ctx(features = 'c',
 # build libaubio.so (cshlib) and/or libaubio.a (cstlib)
 if ctx.env['DEST_OS'] in ['ios', 'iosimulator']:
     build_features = ['cstlib']
+elif ctx.env['DEST_OS'] in ['win32', 'win64']:
+    build_features = ['cshlib']
 else: #linux, darwin, android, mingw, ...
     build_features = ['cshlib', 'cstlib']
 

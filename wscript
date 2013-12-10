@@ -84,15 +84,19 @@ def configure(ctx):
     ctx.load('compiler_c')
     ctx.load('waf_unit_test')
     ctx.load('gnu_dirs')
-    ctx.env.CFLAGS += ['-g', '-Wall', '-Wextra', '-fPIC']
+
+    ctx.env.CFLAGS += ['-g', '-Wall', '-Wextra']
 
     target_platform = Options.platform
     if ctx.options.target_platform:
         target_platform = ctx.options.target_platform
     ctx.env['DEST_OS'] = target_platform
 
-    if target_platform == 'win32':
-        ctx.env['shlib_PATTERN'] = 'lib%s.dll'
+    if target_platform not in ['win32', 'win64']:
+        ctx.env.CFLAGS += ['-fPIC']
+    else:
+        ctx.define('HAVE_WIN_HACKS', 1)
+        ctx.env['cshlib_PATTERN'] = 'lib%s.dll'
 
     if target_platform == 'darwin':
         ctx.env.CFLAGS += ['-arch', 'i386', '-arch', 'x86_64']
