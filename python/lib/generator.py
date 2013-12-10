@@ -56,6 +56,7 @@ def generate_object_files(output_path):
       'pitchyinfft',
       'sink_apple_audio',
       'sink_sndfile',
+      'source',
       'source_apple_audio',
       'source_sndfile',
       'source_avcodec',

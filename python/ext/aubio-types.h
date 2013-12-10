@@ -30,7 +30,7 @@
 
 #define Py_default_vector_length 1024
 
-#define Py_aubio_default_samplerate 44100
+#define Py_aubio_default_samplerate 0
 
 #if HAVE_AUBIO_DOUBLE
 #error "Ouch! Python interface for aubio has not been much tested yet."
@@ -67,4 +67,6 @@ extern PyTypeObject Py_filterbankType;
 extern PyTypeObject Py_fftType;
 
 extern PyTypeObject Py_pvocType;
+
+extern PyTypeObject Py_sourceType;
 
