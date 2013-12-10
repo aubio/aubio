@@ -1,5 +1,8 @@
 # vim:set syntax=python:
 
+uselib = []
+uselib += ['JACK']
+
 utils_source = ['utils.c', 'jackio.c']
 programs_source = ctx.path.ant_glob('*.c', excl = utils_source)
 
@@ -7,6 +10,7 @@ programs_source = ctx.path.ant_glob('*.c', excl = utils_source)
 bld(features = 'c',
       source = utils_source,
       includes = ['../src'],
+      uselib = uselib,
       target = 'utilsio')
 
 # loop over all *.c filenames in examples to build them all

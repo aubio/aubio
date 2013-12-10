@@ -9,7 +9,6 @@ uselib += ['AVCODEC']
 uselib += ['AVFORMAT']
 uselib += ['AVRESAMPLE']
 uselib += ['AVUTIL']
-uselib += ['JACK']
 
 ctx(features = 'c',
       source = source,
