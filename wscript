@@ -200,7 +200,7 @@ def configure(ctx):
 
     # check for jack
     if (ctx.options.enable_jack != False):
-        ctx.check_cfg(package = 'jack', atleast_version = '0.15.0',
+        ctx.check_cfg(package = 'jack',
                 args = '--cflags --libs', mandatory = False)
 
     # check for libav
