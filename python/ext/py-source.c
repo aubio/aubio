@@ -39,7 +39,7 @@ Py_source_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
     self->uri = uri;
   }
 
-  self->samplerate = Py_aubio_default_samplerate;
+  self->samplerate = 0;
   if (samplerate > 0) {
     self->samplerate = samplerate;
   //} else if (samplerate < 0) {
