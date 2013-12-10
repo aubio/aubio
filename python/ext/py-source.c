@@ -40,21 +40,21 @@ Py_source_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
   }
 
   self->samplerate = 0;
-  if (samplerate > 0) {
+  if ((sint_t)samplerate > 0) {
     self->samplerate = samplerate;
-  //} else if (samplerate < 0) {
-  //  PyErr_SetString (PyExc_ValueError,
-  //      "can not use negative value for samplerate");
-  //  return NULL;
+  } else if ((sint_t)samplerate < 0) {
+    PyErr_SetString (PyExc_ValueError,
+        "can not use negative value for samplerate");
+    return NULL;
   }
 
   self->hop_size = Py_default_vector_length / 2;
-  if (hop_size > 0) {
+  if ((sint_t)hop_size > 0) {
     self->hop_size = hop_size;
-  //} else if (hop_size < 0) {
-  //  PyErr_SetString (PyExc_ValueError,
-  //      "can not use negative value for hop_size");
-  //  return NULL;
+  } else if ((sint_t)hop_size < 0) {
+    PyErr_SetString (PyExc_ValueError,
+        "can not use negative value for hop_size");
+    return NULL;
   }
 
   return (PyObject *) self;
