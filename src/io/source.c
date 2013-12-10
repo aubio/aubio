@@ -23,9 +23,9 @@
 #include "fvec.h"
 #include "fmat.h"
 #include "io/source.h"
-#ifdef HAVE_AVCODEC
+#ifdef HAVE_LIBAV
 #include "io/source_avcodec.h"
-#endif /* HAVE_AVCODEC */
+#endif /* HAVE_LIBAV */
 #ifdef __APPLE__
 #include "io/source_apple_audio.h"
 #endif /* __APPLE__ */
@@ -52,7 +52,7 @@ struct _aubio_source_t {
 
 aubio_source_t * new_aubio_source(char_t * uri, uint_t samplerate, uint_t hop_size) {
   aubio_source_t * s = AUBIO_NEW(aubio_source_t);
-#if HAVE_AVCODEC
+#if HAVE_LIBAV
   s->source = (void *)new_aubio_source_avcodec(uri, samplerate, hop_size);
   if (s->source) {
     s->s_do = (aubio_source_do_t)(aubio_source_avcodec_do);
@@ -63,7 +63,7 @@ aubio_source_t * new_aubio_source(char_t * uri, uint_t samplerate, uint_t hop_si
     s->s_del = (del_aubio_source_t)(del_aubio_source_avcodec);
     return s;
   }
-#endif /* HAVE_AVCODEC */
+#endif /* HAVE_LIBAV */
 #ifdef __APPLE__
   s->source = (void *)new_aubio_source_apple_audio(uri, samplerate, hop_size);
   if (s->source) {

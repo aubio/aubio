@@ -213,6 +213,12 @@ def configure(ctx):
                 args = '--cflags --libs', uselib_store = 'AVUTIL', mandatory = False)
         ctx.check_cfg(package = 'libavresample', atleast_version = '1.0.1',
                 args = '--cflags --libs', uselib_store = 'AVRESAMPLE', mandatory = False)
+        if all ( 'HAVE_' + i in ctx.env.define_key
+                for i in ['AVCODEC', 'AVFORMAT', 'AVUTIL', 'AVRESAMPLE'] ):
+            ctx.define('HAVE_LIBAV', 1)
+            ctx.msg('Checking for all libav libraries', 'yes')
+        else:
+            ctx.msg('Checking for all libav libraries', 'not found', color = 'YELLOW')
 
     # use memcpy hacks
     if (ctx.options.enable_memcpy == True):

@@ -21,7 +21,7 @@
 
 #include "config.h"
 
-#ifdef HAVE_AVCODEC
+#ifdef HAVE_LIBAV
 
 #include <sndfile.h>
 #include <libavcodec/avcodec.h>
@@ -402,4 +402,4 @@ void del_aubio_source_avcodec(aubio_source_avcodec_t * s){
   AUBIO_FREE(s);
 }
 
-#endif /* HAVE_SNDFILE */
+#endif /* HAVE_LIBAV */
