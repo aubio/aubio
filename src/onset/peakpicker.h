@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -26,8 +26,8 @@
   
 */
 
-#ifndef PEAKPICK_H
-#define PEAKPICK_H
+#ifndef _AUBIO_PEAKPICK_H
+#define _AUBIO_PEAKPICK_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,4 +54,4 @@ smpl_t aubio_peakpicker_get_threshold(aubio_peakpicker_t * p);
 }
 #endif
 
-#endif /* PEAKPICK_H */
+#endif /* _AUBIO_PEAKPICK_H */

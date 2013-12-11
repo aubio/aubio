@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -34,8 +34,8 @@
 
 */
 
-#ifndef _PITCHFCOMB_H
-#define _PITCHFCOMB_H
+#ifndef _AUBIO_PITCHFCOMB_H
+#define _AUBIO_PITCHFCOMB_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -73,6 +73,4 @@ void del_aubio_pitchfcomb (aubio_pitchfcomb_t * p);
 }
 #endif
 
-#endif /* _PITCHFCOMB_H */
-
-
+#endif /* _AUBIO_PITCHFCOMB_H */

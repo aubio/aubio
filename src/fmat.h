@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2009-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _FMAT_H
-#define _FMAT_H
+#ifndef _AUBIO__FMAT_H
+#define _AUBIO__FMAT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -175,4 +175,4 @@ void fmat_copy(fmat_t *s, fmat_t *t);
 }
 #endif
 
-#endif /* _FMAT_H */
+#endif /* _AUBIO__FMAT_H */

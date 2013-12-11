@@ -24,8 +24,8 @@
  * This file is for inclusion from _within_ the library only.
  */
 
-#ifndef _AUBIO_PRIV_H
-#define _AUBIO_PRIV_H
+#ifndef _AUBIO__PRIV_H
+#define _AUBIO__PRIV_H
 
 /*********************
  *
@@ -217,4 +217,4 @@ typedef enum {
 
 #define UNUSED __attribute__((unused))
 
-#endif/*_AUBIO_PRIV_H*/
+#endif /* _AUBIO__PRIV_H */

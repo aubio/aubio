@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _CVEC_H
-#define _CVEC_H
+#ifndef _AUBIO__CVEC_H
+#define _AUBIO__CVEC_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -221,5 +221,4 @@ void cvec_zeros(cvec_t *s);
 }
 #endif
 
-#endif /* _CVEC_H */
-
+#endif /* _AUBIO__CVEC_H */

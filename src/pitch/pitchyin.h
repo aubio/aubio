@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -34,8 +34,8 @@
 
 */
 
-#ifndef PITCHYIN_H
-#define PITCHYIN_H
+#ifndef _AUBIO_PITCHYIN_H
+#define _AUBIO_PITCHYIN_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -96,4 +96,4 @@ smpl_t aubio_pitchyin_get_confidence (aubio_pitchyin_t * o);
 }
 #endif
 
-#endif /*PITCHYIN_H*/
+#endif /* _AUBIO_PITCHYIN_H */

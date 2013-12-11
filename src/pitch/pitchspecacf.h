@@ -38,8 +38,8 @@
 
 */
 
-#ifndef AUBIO_PITCHSPECACF_H
-#define AUBIO_PITCHSPECACF_H
+#ifndef _AUBIO_PITCHSPECACF_H
+#define _AUBIO_PITCHSPECACF_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -100,4 +100,4 @@ smpl_t aubio_pitchspecacf_get_confidence (aubio_pitchspecacf_t * o);
 }
 #endif
 
-#endif /*AUBIO_PITCHSPECACF_H*/
+#endif /* _AUBIO_PITCHSPECACF_H */

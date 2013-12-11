@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2007-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2007-2013 Paul Brossier <piem@aubio.org>
                       and Amaury Hazan <ahazan@iua.upf.edu>
 
   This file is part of aubio.
@@ -27,8 +27,8 @@
 
 */
 
-#ifndef MFCC_H
-#define MFCC_H
+#ifndef _AUBIO_MFCC_H
+#define _AUBIO_MFCC_H
 
 #ifdef __cplusplus
 extern "C"
@@ -69,4 +69,4 @@ void aubio_mfcc_do (aubio_mfcc_t * mf, cvec_t * in, fvec_t * out);
 }
 #endif
 
-#endif                          // MFCC_H
+#endif /* _AUBIO_MFCC_H */

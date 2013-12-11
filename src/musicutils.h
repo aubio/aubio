@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -22,8 +22,8 @@
  *  various functions useful in audio signal processing
  */
 
-#ifndef MUSICUTILS_H
-#define MUSICUTILS_H
+#ifndef _AUBIO__MUSICUTILS_H
+#define _AUBIO__MUSICUTILS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -148,5 +148,4 @@ smpl_t aubio_level_detection (fvec_t * v, smpl_t threshold);
 }
 #endif
 
-#endif
-
+#endif /* _AUBIO__MUSICUTILS_H */

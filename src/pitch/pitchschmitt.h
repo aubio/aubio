@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -34,8 +34,8 @@
 
 */
 
-#ifndef _PITCHSCHMITT_H
-#define _PITCHSCHMITT_H
+#ifndef _AUBIO_PITCHSCHMITT_H
+#define _AUBIO_PITCHSCHMITT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -72,5 +72,5 @@ void del_aubio_pitchschmitt (aubio_pitchschmitt_t * p);
 }
 #endif
 
-#endif /* _PITCHSCHMITT_H */
+#endif /* _AUBIO_PITCHSCHMITT_H */
 

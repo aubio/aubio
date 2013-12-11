@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -27,8 +27,8 @@
 
  */
 
-#ifndef MATHUTILS_H
-#define MATHUTILS_H
+#ifndef _AUBIO_MATHUTILS_H
+#define _AUBIO_MATHUTILS_H
 
 #include "fvec.h"
 #include "musicutils.h"
@@ -282,5 +282,4 @@ void aubio_autocorr (fvec_t * input, fvec_t * output);
 }
 #endif
 
-#endif
-
+#endif /* _AUBIO_MATHUTILS_H */

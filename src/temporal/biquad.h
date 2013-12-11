@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -18,8 +18,8 @@
 
 */
 
-#ifndef BIQUAD_H
-#define BIQUAD_H
+#ifndef _AUBIO_FILTER_BIQUAD_H
+#define _AUBIO_FILTER_BIQUAD_H
 
 /** \file 
 
@@ -72,4 +72,4 @@ aubio_filter_t *new_aubio_filter_biquad (lsmp_t b0, lsmp_t b1, lsmp_t b2,
 }
 #endif
 
-#endif /*BIQUAD_H*/
+#endif /* _AUBIO_FILTER_BIQUAD_H */

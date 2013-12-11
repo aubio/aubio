@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -28,8 +28,8 @@
  \f$ y = (x - ilow)*(ohig-olow)/(ihig-ilow) + olow \f$ 
  
 */
-#ifndef SCALE_H
-#define SCALE_H
+#ifndef _AUBIO_SCALE_H
+#define _AUBIO_SCALE_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -77,4 +77,4 @@ uint_t aubio_scale_set_limits (aubio_scale_t *s, smpl_t ilow, smpl_t ihig,
 }
 #endif 
 
-#endif
+#endif /* _AUBIO_SCALE_H */

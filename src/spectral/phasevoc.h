@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -31,8 +31,8 @@
 
 */
 
-#ifndef _PHASEVOC_H
-#define _PHASEVOC_H
+#ifndef _AUBIO_PHASEVOC_H
+#define _AUBIO_PHASEVOC_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -99,4 +99,4 @@ uint_t aubio_pvoc_get_hop(aubio_pvoc_t* pv);
 }
 #endif 
 
-#endif
+#endif /* _AUBIO_PHASEVOC_H */
