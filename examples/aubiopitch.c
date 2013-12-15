@@ -63,8 +63,12 @@ int main(int argc, char **argv) {
   verbmsg ("tolerance: %f\n", pitch_tolerance);
 
   o = new_aubio_pitch (pitch_method, buffer_size, hop_size, samplerate);
-  if (pitch_tolerance != 0.) aubio_pitch_set_tolerance (o, pitch_tolerance);
-  if (pitch_unit != NULL) aubio_pitch_set_unit (o, pitch_unit);
+  if (pitch_tolerance != 0.)
+    aubio_pitch_set_tolerance (o, pitch_tolerance);
+  if (silence_threshold != -90.)
+    aubio_pitch_set_silence (o, silence_threshold);
+  if (pitch_unit != NULL)
+    aubio_pitch_set_unit (o, pitch_unit);
   pitch = new_fvec (1);
 
   wavetable = new_aubio_wavetable (samplerate, hop_size);
