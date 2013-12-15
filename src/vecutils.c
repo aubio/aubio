@@ -16,7 +16,8 @@ void TYPE ## _ ## OPNAME (TYPE ## _t *o) \
 
 #define AUBIO_OP_C_AND_F(OPNAME, OP) \
   AUBIO_OP(OPNAME, OP, fvec, data) \
-  AUBIO_OP(OPNAME, OP, cvec, norm)
+  AUBIO_OP(norm ## _ ## OPNAME, OP, cvec, norm) \
+  AUBIO_OP(phas ## _ ## OPNAME, OP, cvec, phas)
 
 AUBIO_OP_C_AND_F(exp, EXP)
 AUBIO_OP_C_AND_F(cos, COS)

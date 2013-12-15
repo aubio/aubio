@@ -114,70 +114,70 @@ void fvec_pow (fvec_t *s, smpl_t pow);
   \param s vector to modify
 
 */
-void cvec_exp (cvec_t *s);
+void cvec_norm_exp (cvec_t *s);
 
 /** compute \f$cos(x)\f$ of each vector norm elements
 
   \param s vector to modify
 
 */
-void cvec_cos (cvec_t *s);
+void cvec_norm_cos (cvec_t *s);
 
 /** compute \f$sin(x)\f$ of each vector norm elements
 
   \param s vector to modify
 
 */
-void cvec_sin (cvec_t *s);
+void cvec_norm_sin (cvec_t *s);
 
 /** compute the \f$abs(x)\f$ of each vector norm elements
 
   \param s vector to modify
 
 */
-void cvec_abs (cvec_t *s);
+void cvec_norm_abs (cvec_t *s);
 
 /** compute the \f$sqrt(x)\f$ of each vector norm elements
 
   \param s vector to modify
 
 */
-void cvec_sqrt (cvec_t *s);
+void cvec_norm_sqrt (cvec_t *s);
 
 /** compute the \f$log10(x)\f$ of each vector norm elements
 
   \param s vector to modify
 
 */
-void cvec_log10 (cvec_t *s);
+void cvec_norm_log10 (cvec_t *s);
 
 /** compute the \f$log(x)\f$ of each vector norm elements
 
   \param s vector to modify
 
 */
-void cvec_log (cvec_t *s);
+void cvec_norm_log (cvec_t *s);
 
 /** compute the \f$floor(x)\f$ of each vector norm elements
 
   \param s vector to modify
 
 */
-void cvec_floor (cvec_t *s);
+void cvec_norm_floor (cvec_t *s);
 
 /** compute the \f$ceil(x)\f$ of each vector norm elements
 
   \param s vector to modify
 
 */
-void cvec_ceil (cvec_t *s);
+void cvec_norm_ceil (cvec_t *s);
 
 /** compute the \f$round(x)\f$ of each vector norm elements
 
   \param s vector to modify
 
 */
-void cvec_round (cvec_t *s);
+void cvec_norm_round (cvec_t *s);
 
 /** raise each vector norm elements to the power pow
 
@@ -185,7 +185,85 @@ void cvec_round (cvec_t *s);
   \param pow power to raise to
 
 */
-void cvec_pow (cvec_t *s, smpl_t pow);
+void cvec_norm_pow (cvec_t *s, smpl_t pow);
+
+/** compute \f$e^x\f$ of each vector phas elements
+
+  \param s vector to modify
+
+*/
+void cvec_phas_exp (cvec_t *s);
+
+/** compute \f$cos(x)\f$ of each vector phas elements
+
+  \param s vector to modify
+
+*/
+void cvec_phas_cos (cvec_t *s);
+
+/** compute \f$sin(x)\f$ of each vector phas elements
+
+  \param s vector to modify
+
+*/
+void cvec_phas_sin (cvec_t *s);
+
+/** compute the \f$abs(x)\f$ of each vector phas elements
+
+  \param s vector to modify
+
+*/
+void cvec_phas_abs (cvec_t *s);
+
+/** compute the \f$sqrt(x)\f$ of each vector phas elements
+
+  \param s vector to modify
+
+*/
+void cvec_phas_sqrt (cvec_t *s);
+
+/** compute the \f$log10(x)\f$ of each vector phas elements
+
+  \param s vector to modify
+
+*/
+void cvec_phas_log10 (cvec_t *s);
+
+/** compute the \f$log(x)\f$ of each vector phas elements
+
+  \param s vector to modify
+
+*/
+void cvec_phas_log (cvec_t *s);
+
+/** compute the \f$floor(x)\f$ of each vector phas elements
+
+  \param s vector to modify
+
+*/
+void cvec_phas_floor (cvec_t *s);
+
+/** compute the \f$ceil(x)\f$ of each vector phas elements
+
+  \param s vector to modify
+
+*/
+void cvec_phas_ceil (cvec_t *s);
+
+/** compute the \f$round(x)\f$ of each vector phas elements
+
+  \param s vector to modify
+
+*/
+void cvec_phas_round (cvec_t *s);
+
+/** raise each vector phas elements to the power pow
+
+  \param s vector to modify
+  \param pow power to raise to
+
+*/
+void cvec_phas_pow (cvec_t *s, smpl_t pow);
 
 #ifdef __cplusplus
 }
