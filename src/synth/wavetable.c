@@ -97,7 +97,7 @@ void aubio_wavetable_do ( aubio_wavetable_t * s, fvec_t * input, fvec_t * output
       aubio_parameter_get_next_value ( s->freq );
       aubio_parameter_get_next_value ( s->amp );
     }
-    fvec_set(output, 0.);
+    fvec_zeros (output);
   }
   // add input to output if needed
   if (input && input != output) {
@@ -130,7 +130,7 @@ void aubio_wavetable_do_multi ( aubio_wavetable_t * s, fmat_t * input, fmat_t * 
       aubio_parameter_get_next_value ( s->freq );
       aubio_parameter_get_next_value ( s->amp );
     }
-    fmat_set(output, 0.);
+    fmat_zeros (output);
   }
   // add output to input if needed
   if (input && input != output) {
