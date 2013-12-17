@@ -10,7 +10,7 @@
 	* Memory management: allocation and freeing of memory has been optimized in
 	many ways. Several memory leaks and out of bound access have been fixed.
 
-	* Optimization: the FFT, central to most algorithm, can now be computed
+	* Optimization: the FFT, central to most algorithms, can now be computed
 	using different optimized algorithms, depending on what is available on your
 	platform (FFTW, Ooura, or vDSP). Other simple optimization tricks are
 	included. Most can be deactivated by configuring the build accordingly.
