@@ -22,6 +22,11 @@
 
   Fast Fourier Transform
 
+  Depending on how aubio was compiled, FFT are computed using one of:
+    - [Ooura](http://www.kurims.kyoto-u.ac.jp/~ooura/fft.html)
+    - [FFTW3](http://www.fftw.org)
+    - [vDSP](https://developer.apple.com/library/mac/#documentation/Accelerate/Reference/vDSPRef/Reference/reference.html)
+
   \example src/spectral/test-fft.c
 
 */
@@ -35,10 +40,7 @@ extern "C" {
 
 /** FFT object
  
-  This object computes forward and backward FFTs, using the complex type to
-  store the results. The phase vocoder or aubio_mfft_t objects should be
-  preferred to using directly aubio_fft_t. The FFT are computed using FFTW3
-  (although support for another library could be added).
+  This object computes forward and backward FFTs.
 
 */
 typedef struct _aubio_fft_t aubio_fft_t;
