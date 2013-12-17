@@ -30,7 +30,24 @@ extern "C" {
 #endif
 
 /** create window 
+
+  \param window_type type of the window to create
+  \param size length of the window to create (see fvec_set_window())
  
+*/
+fvec_t *new_aubio_window (char_t * window_type, uint_t size);
+
+/** set elements of a vector to window coefficients
+
+  \param window exsting ::fvec_t to use
+  \param window_type type of the window to create
+
+  List of available window types: "rectangle", "hamming", "hanning",
+  "hanningz", "blackman", "blackman_harris", "gaussian", "welch", "parzen",
+  "default".
+
+  "default" is equivalent to "hanningz".
+
   References:
     
     - <a href="http://en.wikipedia.org/wiki/Window_function">Window
@@ -41,11 +58,6 @@ the International Conference on Digital Audio Effects (DAFx-00), pages 37–44,
 Uni- versity of Verona, Italy, 2000.
   (<a href="http://profs.sci.univr.it/%7Edafx/Final-Papers/ps/Bernardini.ps.gz">
   ps.gz</a>)
-
-*/
-fvec_t *new_aubio_window (char_t * window_type, uint_t size);
-
-/** set elements of a vector to window coefficients
 
  */
 uint_t fvec_set_window (fvec_t * window, char_t * window_type);
