@@ -286,8 +286,7 @@ def build(bld):
     if bld.env['DOXYGEN']:
         bld( name = 'doxygen', rule = 'doxygen ${SRC} > /dev/null',
                 source = 'doc/web.cfg',
-                cwd = 'doc',
-                target = 'doc/web/html/index.html')
+                cwd = 'doc')
         bld.install_files( '${PREFIX}' + '/share/doc/libaubio-doc',
                 bld.path.ant_glob('doc/web/html/**'),
                 cwd = bld.path.find_dir ('doc/web'),
