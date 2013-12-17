@@ -85,10 +85,6 @@ void del_fvec(fvec_t *s);
 
 /** read sample value in a buffer
 
-  Note that this function is not used in the aubio library, since the same
-  result can be obtained using vec->data[position]. Its purpose is to
-  access these values from wrappers, as created by swig.
-
   \param s vector to read from
   \param position sample position to read from 
 
@@ -96,10 +92,6 @@ void del_fvec(fvec_t *s);
 smpl_t fvec_get_sample(fvec_t *s, uint_t position);
 
 /** write sample value in a buffer
-
-  Note that this function is not used in the aubio library, since the same
-  result can be obtained by assigning vec->data[position]. Its purpose
-  is to access these values from wrappers, as created by swig.
 
   \param s vector to write to 
   \param data value to write in s->data[position]
@@ -109,10 +101,6 @@ smpl_t fvec_get_sample(fvec_t *s, uint_t position);
 void  fvec_set_sample(fvec_t *s, smpl_t data, uint_t position);
 
 /** read data from a buffer
-
-  Note that this function is not used in the aubio library, since the same
-  result can be obtained with vec->data. Its purpose is to access these values
-  from wrappers, as created by swig.
 
   \param s vector to read from
 
