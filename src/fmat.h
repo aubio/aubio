@@ -49,7 +49,7 @@ typedef struct {
   \param height the height of the matrix to create
 
 */
-fmat_t * new_fmat(uint_t length, uint_t height);
+fmat_t * new_fmat(uint_t height, uint_t length);
 
 /** fmat_t buffer deletion function
 

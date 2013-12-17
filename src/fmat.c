@@ -21,7 +21,7 @@
 #include "aubio_priv.h"
 #include "fmat.h"
 
-fmat_t * new_fmat (uint_t length, uint_t height) {
+fmat_t * new_fmat (uint_t height, uint_t length) {
   if ((sint_t)length <= 0 || (sint_t)height <= 0 ) {
     return NULL;
   }

@@ -42,7 +42,7 @@ aubio_sampler_t *new_aubio_sampler(uint_t samplerate, uint_t blocksize)
   s->samplerate = samplerate;
   s->blocksize = blocksize;
   s->source_output = new_fvec(blocksize);
-  s->source_output_multi = new_fmat(blocksize, 4);
+  s->source_output_multi = new_fmat(4, blocksize);
   s->source = NULL;
   s->playing = 0;
   return s;

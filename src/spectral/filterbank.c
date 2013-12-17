@@ -43,7 +43,7 @@ new_aubio_filterbank (uint_t n_filters, uint_t win_s)
   fb->n_filters = n_filters;
 
   /* allocate filter tables, a matrix of length win_s and of height n_filters */
-  fb->filters = new_fmat (win_s / 2 + 1, n_filters);
+  fb->filters = new_fmat (n_filters, win_s / 2 + 1);
 
   return fb;
 }
