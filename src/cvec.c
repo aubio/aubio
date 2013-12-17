@@ -38,22 +38,27 @@ void del_cvec(cvec_t *s) {
   AUBIO_FREE(s);
 }
 
-void cvec_write_norm(cvec_t *s, smpl_t data, uint_t position) {
+void cvec_norm_set_sample (cvec_t *s, smpl_t data, uint_t position) {
   s->norm[position] = data;
 }
-void cvec_write_phas(cvec_t *s, smpl_t data, uint_t position) {
+
+void cvec_phas_set_sample (cvec_t *s, smpl_t data, uint_t position) {
   s->phas[position] = data;
 }
-smpl_t cvec_read_norm(cvec_t *s, uint_t position) {
+
+smpl_t cvec_norm_get_sample (cvec_t *s, uint_t position) {
   return s->norm[position];
 }
-smpl_t cvec_read_phas(cvec_t *s, uint_t position) {
+
+smpl_t cvec_phas_get_sample (cvec_t *s, uint_t position) {
   return s->phas[position];
 }
-smpl_t * cvec_get_norm(cvec_t *s) {
+
+smpl_t * cvec_norm_get_data (cvec_t *s) {
   return s->norm;
 }
-smpl_t * cvec_get_phas(cvec_t *s) {
+
+smpl_t * cvec_phas_get_data (cvec_t *s) {
   return s->phas;
 }
 
@@ -91,45 +96,45 @@ void cvec_copy(cvec_t *s, cvec_t *t) {
 #endif
 }
 
-void cvec_set_all_norm(cvec_t *s, smpl_t val) {
+void cvec_norm_set_all (cvec_t *s, smpl_t val) {
   uint_t j;
   for (j=0; j< s->length; j++) {
     s->norm[j] = val;
   }
 }
 
-void cvec_zeros_norm(cvec_t *s) {
+void cvec_norm_zeros(cvec_t *s) {
 #if HAVE_MEMCPY_HACKS
   memset(s->norm, 0, s->length * sizeof(smpl_t));
 #else
-  cvec_set_all_norm(s, 0.);
+  cvec_norm_set_all (s, 0.);
 #endif
 }
 
-void cvec_ones_norm(cvec_t *s) {
-  cvec_set_all_norm(s, 1.);
+void cvec_norm_ones(cvec_t *s) {
+  cvec_norm_set_all (s, 1.);
 }
 
-void cvec_set_all_phas(cvec_t *s, smpl_t val) {
+void cvec_phas_set_all (cvec_t *s, smpl_t val) {
   uint_t j;
   for (j=0; j< s->length; j++) {
     s->phas[j] = val;
   }
 }
 
-void cvec_zeros_phas(cvec_t *s) {
+void cvec_phas_zeros(cvec_t *s) {
 #if HAVE_MEMCPY_HACKS
   memset(s->phas, 0, s->length * sizeof(smpl_t));
 #else
-  cvec_set_all_phas(s, 0.);
+  cvec_phas_set_all (s, 0.);
 #endif
 }
 
-void cvec_ones_phas(cvec_t *s) {
-  cvec_set_all_phas(s, 1.);
+void cvec_phas_ones(cvec_t *s) {
+  cvec_phas_set_all (s, 1.);
 }
 
 void cvec_zeros(cvec_t *s) {
-  cvec_zeros_norm(s);
-  cvec_zeros_phas(s);
+  cvec_norm_zeros(s);
+  cvec_phas_zeros(s);
 }

@@ -27,17 +27,17 @@ extern "C" {
 
 /** \file
 
-  Vector of complex-valued data
+  Vector of complex-valued data, stored in polar coordinates
 
   This file specifies the ::cvec_t buffer type, which is used throughout aubio
   to store complex data. Complex values are stored in terms of ::cvec_t.phas
-  and norm, within size/2+1 long vectors of ::smpl_t.
+  and norm, within 2 vectors of ::smpl_t of size (size/2+1) each.
 
   \example test-cvec.c
 
 */
 
-/** Buffer for complex data
+/** Vector of real-valued phase and spectrum data
 
   \code
 
@@ -78,78 +78,91 @@ typedef struct {
 
 */
 cvec_t * new_cvec(uint_t length);
+
 /** cvec_t buffer deletion function
 
   \param s buffer to delete as returned by new_cvec()
 
 */
 void del_cvec(cvec_t *s);
+
 /** write norm value in a complex buffer
 
-  Note that this function is not used in the aubio library, since the same
-  result can be obtained by assigning vec->norm[position]. Its purpose
-  is to access these values from wrappers, as created by swig.
+  This is equivalent to:
+  \code
+  s->norm[position] = val;
+  \endcode
 
   \param s vector to write to
-  \param data norm value to write in s->norm[position]
+  \param val norm value to write in s->norm[position]
   \param position sample position to write to
 
 */
-void cvec_write_norm(cvec_t *s, smpl_t data, uint_t position);
+void cvec_norm_set_sample (cvec_t *s, smpl_t val, uint_t position);
+
 /** write phase value in a complex buffer
 
-  Note that this function is not used in the aubio library, since the same
-  result can be obtained by assigning vec->phas[position]. Its purpose
-  is to access these values from wrappers, as created by swig.
+  This is equivalent to:
+  \code
+  s->phas[position] = val;
+  \endcode
 
   \param s vector to write to
-  \param data phase value to write in s->phas[position]
+  \param val phase value to write in s->phas[position]
   \param position sample position to write to
 
 */
-void cvec_write_phas(cvec_t *s, smpl_t data, uint_t position);
+void cvec_phas_set_sample (cvec_t *s, smpl_t val, uint_t position);
+
 /** read norm value from a complex buffer
 
-  Note that this function is not used in the aubio library, since the same
-  result can be obtained with vec->norm[position]. Its purpose is to
-  access these values from wrappers, as created by swig.
+  This is equivalent to:
+  \code
+  smpl_t foo = s->norm[position];
+  \endcode
 
   \param s vector to read from
   \param position sample position to read from
 
 */
-smpl_t cvec_read_norm(cvec_t *s, uint_t position);
+smpl_t cvec_norm_get_sample (cvec_t *s, uint_t position);
+
 /** read phase value from a complex buffer
 
-  Note that this function is not used in the aubio library, since the same
-  result can be obtained with vec->phas[position]. Its purpose is to
-  access these values from wrappers, as created by swig.
+  This is equivalent to:
+  \code
+  smpl_t foo = s->phas[position];
+  \endcode
 
   \param s vector to read from
   \param position sample position to read from
+  \returns the value of the sample at position
 
 */
-smpl_t cvec_read_phas(cvec_t *s, uint_t position);
+smpl_t cvec_phas_get_sample (cvec_t *s, uint_t position);
+
 /** read norm data from a complex buffer
 
-  Note that this function is not used in the aubio library, since the same
-  result can be obtained with vec->norm. Its purpose is to access these values
-  from wrappers, as created by swig.
+  \code
+  smpl_t *data = s->norm;
+  \endcode
 
   \param s vector to read from
 
 */
-smpl_t * cvec_get_norm(cvec_t *s);
+smpl_t * cvec_norm_get_data (cvec_t *s);
+
 /** read phase data from a complex buffer
 
-  Note that this function is not used in the aubio library, since the same
-  result can be obtained with vec->phas. Its purpose is to access these values
-  from wrappers, as created by swig.
+  This is equivalent to:
+  \code
+  smpl_t *data = s->phas;
+  \endcode
 
   \param s vector to read from
 
 */
-smpl_t * cvec_get_phas(cvec_t *s);
+smpl_t * cvec_phas_get_data (cvec_t *s);
 
 /** print out cvec data
 
@@ -172,21 +185,21 @@ void cvec_copy(cvec_t *s, cvec_t *t);
   \param val value to set elements to
 
 */
-void cvec_set_all_norm(cvec_t *s, smpl_t val);
+void cvec_norm_set_all (cvec_t *s, smpl_t val);
 
 /** set all norm elements to zero
 
   \param s vector to modify
 
 */
-void cvec_zeros_norm(cvec_t *s);
+void cvec_norm_zeros(cvec_t *s);
 
 /** set all norm elements to one
 
   \param s vector to modify
 
 */
-void cvec_ones_norm(cvec_t *s);
+void cvec_norm_ones(cvec_t *s);
 
 /** set all phase elements to a given value
 
@@ -194,21 +207,21 @@ void cvec_ones_norm(cvec_t *s);
   \param val value to set elements to
 
 */
-void cvec_set_all_phas(cvec_t *s, smpl_t val);
+void cvec_phas_set_all (cvec_t *s, smpl_t val);
 
 /** set all phase elements to zero
 
   \param s vector to modify
 
 */
-void cvec_zeros_phas(cvec_t *s);
+void cvec_phas_zeros(cvec_t *s);
 
 /** set all phase elements to one
 
   \param s vector to modify
 
 */
-void cvec_ones_phas(cvec_t *s);
+void cvec_phas_ones(cvec_t *s);
 
 /** set all norm and phas elements to zero
 
