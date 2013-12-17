@@ -75,12 +75,14 @@ typedef struct {
 
 */
 fvec_t * new_fvec(uint_t length);
+
 /** fvec_t buffer deletion function
 
   \param s buffer to delete as returned by new_fvec()
 
 */
 void del_fvec(fvec_t *s);
+
 /** read sample value in a buffer
 
   Note that this function is not used in the aubio library, since the same
@@ -91,7 +93,8 @@ void del_fvec(fvec_t *s);
   \param position sample position to read from 
 
 */
-smpl_t fvec_read_sample(fvec_t *s, uint_t position);
+smpl_t fvec_get_sample(fvec_t *s, uint_t position);
+
 /** write sample value in a buffer
 
   Note that this function is not used in the aubio library, since the same
@@ -103,7 +106,7 @@ smpl_t fvec_read_sample(fvec_t *s, uint_t position);
   \param position sample position to write to 
 
 */
-void  fvec_write_sample(fvec_t *s, smpl_t data, uint_t position);
+void  fvec_set_sample(fvec_t *s, smpl_t data, uint_t position);
 
 /** read data from a buffer
 
@@ -129,7 +132,7 @@ void fvec_print(fvec_t *s);
   \param val value to set elements to
 
 */
-void fvec_set(fvec_t *s, smpl_t val);
+void fvec_set_all (fvec_t *s, smpl_t val);
 
 /** set all elements to zero 
 

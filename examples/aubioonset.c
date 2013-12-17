@@ -33,7 +33,7 @@ void
 process_block(fvec_t *ibuf, fvec_t *obuf) {
   fvec_zeros(obuf);
   aubio_onset_do (o, ibuf, onset);
-  is_onset = fvec_read_sample(onset, 0);
+  is_onset = fvec_get_sample(onset, 0);
   if ( is_onset ) {
     aubio_wavetable_play ( wavetable );
   } else {

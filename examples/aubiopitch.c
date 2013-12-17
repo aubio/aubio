@@ -32,7 +32,7 @@ void
 process_block(fvec_t * ibuf, fvec_t * obuf) {
   fvec_zeros(obuf);
   aubio_pitch_do (o, ibuf, pitch);
-  smpl_t freq = fvec_read_sample(pitch, 0);
+  smpl_t freq = fvec_get_sample(pitch, 0);
   aubio_wavetable_set_amp ( wavetable, aubio_level_lin (ibuf) );
   aubio_wavetable_set_freq ( wavetable, freq );
 
@@ -44,7 +44,7 @@ process_block(fvec_t * ibuf, fvec_t * obuf) {
 
 void
 process_print (void) {
-  smpl_t pitch_found = fvec_read_sample(pitch, 0);
+  smpl_t pitch_found = fvec_get_sample(pitch, 0);
   outmsg("%f %f\n",(blocks)
       *hop_size/(float)samplerate, pitch_found);
 }
@@ -69,6 +69,7 @@ int main(int argc, char **argv) {
     aubio_pitch_set_silence (o, silence_threshold);
   if (pitch_unit != NULL)
     aubio_pitch_set_unit (o, pitch_unit);
+
   pitch = new_fvec (1);
 
   wavetable = new_aubio_wavetable (samplerate, hop_size);

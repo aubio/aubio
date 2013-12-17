@@ -74,9 +74,9 @@ int aubio_process(float **input, float **output, int nframes) {
   for (j=0;j<(unsigned)nframes;j++) {
     for (i=0;i<channels;i++) {
       /* write input to datanew */
-      fvec_write_sample(in[i], input[i][j], pos);
+      fvec_set_sample(in[i], input[i][j], pos);
       /* put synthnew in output */
-      output[i][j] = fvec_read_sample(out[i], pos);
+      output[i][j] = fvec_get_sample(out[i], pos);
     }
     /*time for fft*/
     if (pos == hop_s-1) {

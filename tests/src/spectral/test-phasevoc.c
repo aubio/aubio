@@ -14,7 +14,7 @@ int main ()
   aubio_pvoc_t * pv = new_aubio_pvoc(win_s,hop_s);
 
   // fill input with some data
-  fvec_set (in, 1.);
+  fvec_set_all (in, 1.);
   fvec_print (in);
 
   while ( n-- ) {
