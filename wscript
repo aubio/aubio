@@ -308,3 +308,4 @@ def dist(ctx):
     ctx.excl += ' **/doc/full/* **/doc/web/*'
     ctx.excl += ' **/python/*.db'
     ctx.excl += ' **/python.old/*'
+    ctx.excl += ' **/python/tests/sounds'
