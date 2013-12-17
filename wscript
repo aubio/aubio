@@ -243,6 +243,12 @@ def configure(ctx):
     except ctx.errors.ConfigurationError:
       ctx.to_log('txt2man was not found (ignoring)')
 
+    # check if doxygen is installed, optional
+    try:
+      ctx.find_program('doxygen', var='DOXYGEN')
+    except ctx.errors.ConfigurationError:
+      ctx.to_log('doxygen was not found (ignoring)')
+
 def build(bld):
     bld.env['VERSION'] = VERSION
     bld.env['LIB_VERSION'] = LIB_VERSION
@@ -257,7 +263,7 @@ def build(bld):
 
     bld( source = 'aubio.pc.in' )
 
-    # build manpages from sgml files
+    # build manpages from txt files using txt2man
     if bld.env['TXT2MAN']:
         from waflib import TaskGen
         if 'MANDIR' not in bld.env:
@@ -276,10 +282,16 @@ def build(bld):
                 )
         bld( source = bld.path.ant_glob('doc/*.txt') )
 
-    """
-    bld(rule = 'doxygen ${SRC}', source = 'web.cfg') #, target = 'doc/web/index.html')
-    """
-
+    # build documentation from source files using doxygen
+    if bld.env['DOXYGEN']:
+        bld( name = 'doxygen', rule = 'doxygen ${SRC} > /dev/null',
+                source = 'doc/web.cfg',
+                cwd = 'doc',
+                target = 'doc/web/html/index.html')
+        bld.install_files( '${PREFIX}' + '/share/doc/libaubio-doc',
+                bld.path.ant_glob('doc/web/html/**'),
+                cwd = bld.path.find_dir ('doc/web'),
+                relative_trick = True)
 
 def shutdown(bld):
     from waflib import Logs
