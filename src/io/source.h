@@ -40,7 +40,7 @@
   
   On Mac and iOS platforms, aubio should be compiled with CoreAudio [Extended
   Audio File Services]
-  (https://developer.apple.com/library/mac/documentation/musicaudio/CAAudioTooboxRef/_index.html).
+  (https://developer.apple.com/library/mac/documentation/MusicAudio/Reference/ExtendedAudioFileServicesReference/Reference/reference.html).
   This provides access to most common audio file formats, including compressed
   ones.
 
