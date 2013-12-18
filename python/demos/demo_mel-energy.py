@@ -61,8 +61,9 @@ if 1:
         ax.xaxis.set_visible(False)
         ax.yaxis.set_visible(False)
         ax.axis(xmax = all_desc_times[-1], xmin = all_desc_times[0])
-        ax.annotate('band %d' % i, xy=(-10, 10),  xycoords='axes points',
+        ax.annotate('band %d' % i, xy=(-10, 0),  xycoords='axes points',
                 horizontalalignment='right', verticalalignment='bottom',
+                size = 'xx-small',
                 )
     set_xlabels_sample2time( ax, all_desc_times[-1], samplerate) 
     #plt.ylabel('spectral descriptor value')

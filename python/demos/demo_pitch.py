@@ -56,9 +56,11 @@ confidences = array(confidences[skip:])
 times = [t * hop_s for t in range(len(pitches))]
 
 fig = plt.figure()
+
 ax1 = fig.add_subplot(311)
 ax1 = get_waveform_plot(filename, samplerate = samplerate, block_size = hop_s, ax = ax1)
-ax1.set_xticklabels([])
+plt.setp(ax1.get_xticklabels(), visible = False)
+ax1.set_xlabel('')
 
 def array_from_text_file(filename, dtype = 'float'):
     import os.path
@@ -87,7 +89,8 @@ cleaned_pitches = ma.masked_where(confidences < tolerance, cleaned_pitches)
 ax2.plot(times, cleaned_pitches, '.-')
 #ax2.axis( ymin = 0.9 * cleaned_pitches.min(), ymax = 1.1 * cleaned_pitches.max() )
 #ax2.axis( ymin = 55, ymax = 70 )
-ax2.set_xticklabels([])
+plt.setp(ax2.get_xticklabels(), visible = False)
+ax2.set_ylabel('f0 (Hz)')
 
 # plot confidence
 ax3 = fig.add_subplot(313, sharex = ax1)
@@ -96,6 +99,7 @@ ax3.plot(times, confidences)
 # draw a line at tolerance
 ax3.plot(times, [tolerance]*len(confidences))
 ax3.axis( xmin = times[0], xmax = times[-1])
-plt.show()
+ax3.set_ylabel('condidence')
 set_xlabels_sample2time(ax3, times[-1], samplerate)
-#plt.savefig(os.path.basename(filename) + '.png', dpi=200)
+plt.show()
+#plt.savefig(os.path.basename(filename) + '.svg')
