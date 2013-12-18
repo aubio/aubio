@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2006-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2006-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -39,8 +39,8 @@
 */
 
 
-#ifndef ONSET_H
-#define ONSET_H
+#ifndef _AUBIO_ONSET_H
+#define _AUBIO_ONSET_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -268,4 +268,4 @@ void del_aubio_onset(aubio_onset_t * o);
 }
 #endif
 
-#endif /* ONSET_H */
+#endif /* _AUBIO_ONSET_H */

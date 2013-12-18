@@ -157,4 +157,3 @@ void del_aubio_parameter( aubio_parameter_t * param );
 #endif
 
 #endif /* _AUBIO_PARAMETER_H */
-

@@ -36,11 +36,11 @@ void del_fvec(fvec_t *s) {
   AUBIO_FREE(s);
 }
 
-void fvec_write_sample(fvec_t *s, smpl_t data, uint_t position) {
+void fvec_set_sample(fvec_t *s, smpl_t data, uint_t position) {
   s->data[position] = data;
 }
 
-smpl_t fvec_read_sample(fvec_t *s, uint_t position) {
+smpl_t fvec_get_sample(fvec_t *s, uint_t position) {
   return s->data[position];
 }
 
@@ -58,7 +58,7 @@ void fvec_print(fvec_t *s) {
   AUBIO_MSG("\n");
 }
 
-void fvec_set(fvec_t *s, smpl_t val) {
+void fvec_set_all (fvec_t *s, smpl_t val) {
   uint_t j;
   for (j=0; j< s->length; j++) {
     s->data[j] = val;
@@ -69,12 +69,12 @@ void fvec_zeros(fvec_t *s) {
 #if HAVE_MEMCPY_HACKS
   memset(s->data, 0, s->length * sizeof(smpl_t));
 #else
-  fvec_set(s, 0.);
+  fvec_set_all (s, 0.);
 #endif
 }
 
 void fvec_ones(fvec_t *s) {
-  fvec_set(s, 1.);
+  fvec_set_all (s, 1.);
 }
 
 void fvec_rev(fvec_t *s) {

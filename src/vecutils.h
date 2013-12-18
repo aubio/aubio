@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2009-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -20,12 +20,12 @@
 
 /** \file
 
-  Utility functions for ::fvec_t and ::cvec_t objects
+  Utility functions for ::fvec_t
 
  */
 
-#ifndef _VECUTILS_H
-#define _VECUTILS_H
+#ifndef _AUBIO__VECUTILS_H
+#define _AUBIO__VECUTILS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -109,86 +109,8 @@ void fvec_round (fvec_t *s);
 */
 void fvec_pow (fvec_t *s, smpl_t pow);
 
-/** compute \f$e^x\f$ of each vector norm elements
-
-  \param s vector to modify
-
-*/
-void cvec_exp (cvec_t *s);
-
-/** compute \f$cos(x)\f$ of each vector norm elements
-
-  \param s vector to modify
-
-*/
-void cvec_cos (cvec_t *s);
-
-/** compute \f$sin(x)\f$ of each vector norm elements
-
-  \param s vector to modify
-
-*/
-void cvec_sin (cvec_t *s);
-
-/** compute the \f$abs(x)\f$ of each vector norm elements
-
-  \param s vector to modify
-
-*/
-void cvec_abs (cvec_t *s);
-
-/** compute the \f$sqrt(x)\f$ of each vector norm elements
-
-  \param s vector to modify
-
-*/
-void cvec_sqrt (cvec_t *s);
-
-/** compute the \f$log10(x)\f$ of each vector norm elements
-
-  \param s vector to modify
-
-*/
-void cvec_log10 (cvec_t *s);
-
-/** compute the \f$log(x)\f$ of each vector norm elements
-
-  \param s vector to modify
-
-*/
-void cvec_log (cvec_t *s);
-
-/** compute the \f$floor(x)\f$ of each vector norm elements
-
-  \param s vector to modify
-
-*/
-void cvec_floor (cvec_t *s);
-
-/** compute the \f$ceil(x)\f$ of each vector norm elements
-
-  \param s vector to modify
-
-*/
-void cvec_ceil (cvec_t *s);
-
-/** compute the \f$round(x)\f$ of each vector norm elements
-
-  \param s vector to modify
-
-*/
-void cvec_round (cvec_t *s);
-
-/** raise each vector norm elements to the power pow
-
-  \param s vector to modify
-  \param pow power to raise to
-
-*/
-void cvec_pow (cvec_t *s, smpl_t pow);
-
 #ifdef __cplusplus
 }
 #endif
 
-#endif /*_VECUTILS_H*/
+#endif /* _AUBIO__VECUTILS_H */

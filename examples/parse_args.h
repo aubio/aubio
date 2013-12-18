@@ -61,9 +61,9 @@ usage (FILE * stream, int exit_code)
 {
   fprintf (stream, "usage: %s [ options ] \n", prog_name);
   fprintf (stream,
-      "       -i      --input            input type\n"
+      "       -i      --input            input file\n"
 #ifdef PROG_HAS_OUTPUT
-      "       -o      --output           output type\n"
+      "       -o      --output           output file\n"
 #endif
       "       -r      --samplerate       select samplerate\n"
       "       -B      --bufsize          set buffer size\n"
@@ -172,7 +172,7 @@ parse_args (int argc, char **argv)
       case 'H':
         hop_size = atoi (optarg);
         break;
-      case 'O':                /*onset type */
+      case 'O':                /*onset method */
         onset_method = optarg;
         break;
       case 't':                /* threshold value for onset */

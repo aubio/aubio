@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -36,8 +36,8 @@
 
 */
 
-#ifndef TSS_H
-#define TSS_H
+#ifndef _AUBIO_TSS_H
+#define _AUBIO_TSS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -100,4 +100,4 @@ uint_t aubio_tss_set_beta (aubio_tss_t * o, smpl_t beta);
 }
 #endif
 
-#endif /*TSS_H*/
+#endif /* _AUBIO_TSS_H */

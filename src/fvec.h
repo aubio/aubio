@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _FVEC_H
-#define _FVEC_H
+#ifndef _AUBIO__FVEC_H
+#define _AUBIO__FVEC_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -75,41 +75,32 @@ typedef struct {
 
 */
 fvec_t * new_fvec(uint_t length);
+
 /** fvec_t buffer deletion function
 
   \param s buffer to delete as returned by new_fvec()
 
 */
 void del_fvec(fvec_t *s);
-/** read sample value in a buffer
 
-  Note that this function is not used in the aubio library, since the same
-  result can be obtained using vec->data[position]. Its purpose is to
-  access these values from wrappers, as created by swig.
+/** read sample value in a buffer
 
   \param s vector to read from
   \param position sample position to read from 
 
 */
-smpl_t fvec_read_sample(fvec_t *s, uint_t position);
-/** write sample value in a buffer
+smpl_t fvec_get_sample(fvec_t *s, uint_t position);
 
-  Note that this function is not used in the aubio library, since the same
-  result can be obtained by assigning vec->data[position]. Its purpose
-  is to access these values from wrappers, as created by swig.
+/** write sample value in a buffer
 
   \param s vector to write to 
   \param data value to write in s->data[position]
   \param position sample position to write to 
 
 */
-void  fvec_write_sample(fvec_t *s, smpl_t data, uint_t position);
+void  fvec_set_sample(fvec_t *s, smpl_t data, uint_t position);
 
 /** read data from a buffer
-
-  Note that this function is not used in the aubio library, since the same
-  result can be obtained with vec->data. Its purpose is to access these values
-  from wrappers, as created by swig.
 
   \param s vector to read from
 
@@ -129,7 +120,7 @@ void fvec_print(fvec_t *s);
   \param val value to set elements to
 
 */
-void fvec_set(fvec_t *s, smpl_t val);
+void fvec_set_all (fvec_t *s, smpl_t val);
 
 /** set all elements to zero 
 
@@ -175,4 +166,4 @@ void fvec_copy(fvec_t *s, fvec_t *t);
 }
 #endif
 
-#endif /* _FVEC_H */
+#endif /* _AUBIO__FVEC_H */

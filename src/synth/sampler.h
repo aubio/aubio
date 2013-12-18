@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO_SYNTH_SAMPLER_H
-#define _AUBIO_SYNTH_SAMPLER_H
+#ifndef _AUBIO_SAMPLER_H
+#define _AUBIO_SAMPLER_H
 
 /** \file
 
@@ -137,4 +137,4 @@ void del_aubio_sampler( aubio_sampler_t * o );
 }
 #endif
 
-#endif /* _AUBIO_SYNTH_SAMPLER_H */
+#endif /* _AUBIO_SAMPLER_H */

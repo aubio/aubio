@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _CDESIGN_H
-#define _CDESIGN_H
+#ifndef _AUBIO_FILTER_C_DESIGN_H
+#define _AUBIO_FILTER_C_DESIGN_H
 
 /** \file
 
@@ -85,4 +85,4 @@ uint_t aubio_filter_set_c_weighting (aubio_filter_t * f, uint_t samplerate);
 }
 #endif
 
-#endif /* _CDESIGN_H */
+#endif /* _AUBIO_FILTER_C_DESIGN_H */

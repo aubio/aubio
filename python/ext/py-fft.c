@@ -25,10 +25,6 @@ Py_fft_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
 
   self->win_s = Py_default_vector_length;
 
-  if (self == NULL) {
-    return NULL;
-  }
-
   if (win_s > 0) {
     self->win_s = win_s;
   } else if (win_s < 0) {

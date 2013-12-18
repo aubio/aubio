@@ -14,22 +14,20 @@ void TYPE ## _ ## OPNAME (TYPE ## _t *o) \
   } \
 }
 
-#define AUBIO_OP_C_AND_F(OPNAME, OP) \
-  AUBIO_OP(OPNAME, OP, fvec, data) \
-  AUBIO_OP(OPNAME, OP, cvec, norm)
+#define AUBIO_OP_C(OPNAME, OP) \
+  AUBIO_OP(OPNAME, OP, fvec, data)
 
-AUBIO_OP_C_AND_F(exp, EXP)
-AUBIO_OP_C_AND_F(cos, COS)
-AUBIO_OP_C_AND_F(sin, SIN)
-AUBIO_OP_C_AND_F(abs, ABS)
-AUBIO_OP_C_AND_F(sqrt, SQRT)
-AUBIO_OP_C_AND_F(log10, SAFE_LOG10)
-AUBIO_OP_C_AND_F(log, SAFE_LOG)
-AUBIO_OP_C_AND_F(floor, FLOOR)
-AUBIO_OP_C_AND_F(ceil, CEIL)
-AUBIO_OP_C_AND_F(round, ROUND)
+AUBIO_OP_C(exp, EXP)
+AUBIO_OP_C(cos, COS)
+AUBIO_OP_C(sin, SIN)
+AUBIO_OP_C(abs, ABS)
+AUBIO_OP_C(sqrt, SQRT)
+AUBIO_OP_C(log10, SAFE_LOG10)
+AUBIO_OP_C(log, SAFE_LOG)
+AUBIO_OP_C(floor, FLOOR)
+AUBIO_OP_C(ceil, CEIL)
+AUBIO_OP_C(round, ROUND)
 
-//AUBIO_OP_C_AND_F(pow, POW)
 void fvec_pow (fvec_t *s, smpl_t power)
 {
   uint_t j;
@@ -37,12 +35,3 @@ void fvec_pow (fvec_t *s, smpl_t power)
     s->data[j] = POW(s->data[j], power);
   }
 }
-
-void cvec_pow (cvec_t *s, smpl_t power)
-{
-  uint_t j;
-  for (j = 0; j < s->length; j++) {
-    s->norm[j] = POW(s->norm[j], power);
-  }
-}
-

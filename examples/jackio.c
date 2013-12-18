@@ -252,9 +252,9 @@ static int block_process(aubio_jack_t *dev,
   unsigned int j;       /*frames*/
   for (j=0;j<(unsigned)nframes;j++) {
     /* put synthnew in output */
-    output[0][j] = fvec_read_sample(dev->obuf, dev->pos);
+    output[0][j] = fvec_get_sample(dev->obuf, dev->pos);
     /* write input to datanew */
-    fvec_write_sample(dev->ibuf, input[0][j], dev->pos);
+    fvec_set_sample(dev->ibuf, input[0][j], dev->pos);
     /*time for fft*/
     if (dev->pos == (int)(dev->hop_size) - 1) {
       /* block loop */

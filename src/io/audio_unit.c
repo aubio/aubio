@@ -104,8 +104,8 @@ aubio_audio_unit_t * new_aubio_audio_unit(uint_t samplerate,
   o->au_ios_inbuf = AUBIO_ARRAY(SInt16, AU_IOS_MAX_FRAMES * o->hw_input_channels);
 
   /* the floats coming from and to the device callback */
-  o->output_frames = new_fmat(blocksize, sw_output_channels);
-  o->input_frames = new_fmat(blocksize, sw_input_channels);
+  o->output_frames = new_fmat(sw_output_channels, blocksize);
+  o->input_frames = new_fmat(sw_input_channels, blocksize);
 
   /* check for some sizes */
   if ( o->hw_output_channels != o->output_frames->height ) {

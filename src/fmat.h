@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2009-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _FMAT_H
-#define _FMAT_H
+#ifndef _AUBIO__FMAT_H
+#define _AUBIO__FMAT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,30 +49,25 @@ typedef struct {
   \param height the height of the matrix to create
 
 */
-fmat_t * new_fmat(uint_t length, uint_t height);
+fmat_t * new_fmat(uint_t height, uint_t length);
+
 /** fmat_t buffer deletion function
 
   \param s buffer to delete as returned by new_fmat()
 
 */
 void del_fmat(fmat_t *s);
-/** read sample value in a buffer
 
-  Note that this function is not used in the aubio library, since the same
-  result can be obtained using vec->data[channel][position]. Its purpose is to
-  access these values from wrappers, as created by swig.
+/** read sample value in a buffer
 
   \param s vector to read from
   \param channel channel to read from
   \param position sample position to read from 
 
 */
-smpl_t fmat_read_sample(fmat_t *s, uint_t channel, uint_t position);
-/** write sample value in a buffer
+smpl_t fmat_get_sample(fmat_t *s, uint_t channel, uint_t position);
 
-  Note that this function is not used in the aubio library, since the same
-  result can be obtained by assigning vec->data[channel][position]. Its purpose
-  is to access these values from wrappers, as created by swig.
+/** write sample value in a buffer
 
   \param s vector to write to 
   \param data value to write in s->data[channel][position]
@@ -80,12 +75,9 @@ smpl_t fmat_read_sample(fmat_t *s, uint_t channel, uint_t position);
   \param position sample position to write to 
 
 */
-void  fmat_write_sample(fmat_t *s, smpl_t data, uint_t channel, uint_t position);
-/** read channel vector from a buffer
+void  fmat_set_sample(fmat_t *s, smpl_t data, uint_t channel, uint_t position);
 
-  Note that this function is not used in the aubio library, since the same
-  result can be obtained with vec->data[channel]. Its purpose is to access
-  these values from wrappers, as created by swig.
+/** read channel vector from a buffer
 
   \param s vector to read from
   \param channel channel to read from
@@ -93,23 +85,16 @@ void  fmat_write_sample(fmat_t *s, smpl_t data, uint_t channel, uint_t position)
 
 */
 void fmat_get_channel (fmat_t *s, uint_t channel, fvec_t *output);
-/** write channel vector into a buffer
 
-  Note that this function is not used in the aubio library, since the same
-  result can be obtained by assigning vec->data[channel]. Its purpose is to
-  access these values from wrappers, as created by swig.
+/** get vector buffer from an fmat data
 
-  \param s vector to write to 
-  \param data vector of [length] values to write
-  \param channel channel to write to 
+  \param s vector to read from
+  \param channel channel to read from
 
 */
-void fmat_put_channel(fmat_t *s, smpl_t * data, uint_t channel);
-/** read data from a buffer
+smpl_t * fmat_get_channel_data (fmat_t *s, uint_t channel);
 
-  Note that this function is not used in the aubio library, since the same
-  result can be obtained with vec->data. Its purpose is to access these values
-  from wrappers, as created by swig.
+/** read data from a buffer
 
   \param s vector to read from
 
@@ -175,4 +160,4 @@ void fmat_copy(fmat_t *s, fmat_t *t);
 }
 #endif
 
-#endif /* _FMAT_H */
+#endif /* _AUBIO__FMAT_H */

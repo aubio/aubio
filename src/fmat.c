@@ -21,7 +21,7 @@
 #include "aubio_priv.h"
 #include "fmat.h"
 
-fmat_t * new_fmat (uint_t length, uint_t height) {
+fmat_t * new_fmat (uint_t height, uint_t length) {
   if ((sint_t)length <= 0 || (sint_t)height <= 0 ) {
     return NULL;
   }
@@ -48,19 +48,22 @@ void del_fmat (fmat_t *s) {
   AUBIO_FREE(s);
 }
 
-void fmat_write_sample(fmat_t *s, smpl_t data, uint_t channel, uint_t position) {
+void fmat_set_sample(fmat_t *s, smpl_t data, uint_t channel, uint_t position) {
   s->data[channel][position] = data;
 }
-smpl_t fmat_read_sample(fmat_t *s, uint_t channel, uint_t position) {
+
+smpl_t fmat_get_sample(fmat_t *s, uint_t channel, uint_t position) {
   return s->data[channel][position];
 }
-void fmat_put_channel(fmat_t *s, smpl_t * data, uint_t channel) {
-  s->data[channel] = data;
-}
+
 void fmat_get_channel(fmat_t *s, uint_t channel, fvec_t *output) {
   output->data = s->data[channel];
   output->length = s->length;
   return;
+}
+
+smpl_t * fmat_get_channel_data(fmat_t *s, uint_t channel) {
+  return s->data[channel];
 }
 
 smpl_t ** fmat_get_data(fmat_t *s) {

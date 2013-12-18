@@ -19,7 +19,7 @@ int main ()
   }
 
   // set all vector elements to `0`
-  cvec_zeros_norm(complex_vector);
+  cvec_norm_zeros(complex_vector);
   for ( i = 0; i < complex_vector->length; i++ ) {
     assert( complex_vector->norm[i] == 0. );
     // assert( complex_vector->phas[i] == 0 );
@@ -27,7 +27,7 @@ int main ()
   cvec_print(complex_vector);
 
   // set all vector elements to `1`
-  cvec_ones_norm(complex_vector);
+  cvec_norm_ones(complex_vector);
   for ( i = 0; i < complex_vector->length; i++ ) {
     assert( complex_vector->norm[i] == 1. );
     // assert( complex_vector->phas[i] == 0 );
@@ -35,10 +35,10 @@ int main ()
   cvec_print(complex_vector);
 
   cvec_zeros(complex_vector);
-  cvec_zeros_phas(complex_vector);
-  cvec_zeros_norm(complex_vector);
-  cvec_ones_norm(complex_vector);
-  cvec_ones_phas(complex_vector);
+  cvec_phas_zeros(complex_vector);
+  cvec_norm_zeros(complex_vector);
+  cvec_norm_ones(complex_vector);
+  cvec_phas_ones(complex_vector);
   cvec_copy(complex_vector, complex_vector);
 
   // destroy it

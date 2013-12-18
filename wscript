@@ -84,15 +84,19 @@ def configure(ctx):
     ctx.load('compiler_c')
     ctx.load('waf_unit_test')
     ctx.load('gnu_dirs')
-    ctx.env.CFLAGS += ['-g', '-Wall', '-Wextra', '-fPIC']
+
+    ctx.env.CFLAGS += ['-g', '-Wall', '-Wextra']
 
     target_platform = Options.platform
     if ctx.options.target_platform:
         target_platform = ctx.options.target_platform
     ctx.env['DEST_OS'] = target_platform
 
-    if target_platform == 'win32':
-        ctx.env['shlib_PATTERN'] = 'lib%s.dll'
+    if target_platform not in ['win32', 'win64']:
+        ctx.env.CFLAGS += ['-fPIC']
+    else:
+        ctx.define('HAVE_WIN_HACKS', 1)
+        ctx.env['cshlib_PATTERN'] = 'lib%s.dll'
 
     if target_platform == 'darwin':
         ctx.env.CFLAGS += ['-arch', 'i386', '-arch', 'x86_64']
@@ -200,7 +204,7 @@ def configure(ctx):
 
     # check for jack
     if (ctx.options.enable_jack != False):
-        ctx.check_cfg(package = 'jack', atleast_version = '0.15.0',
+        ctx.check_cfg(package = 'jack',
                 args = '--cflags --libs', mandatory = False)
 
     # check for libav
@@ -213,6 +217,12 @@ def configure(ctx):
                 args = '--cflags --libs', uselib_store = 'AVUTIL', mandatory = False)
         ctx.check_cfg(package = 'libavresample', atleast_version = '1.0.1',
                 args = '--cflags --libs', uselib_store = 'AVRESAMPLE', mandatory = False)
+        if all ( 'HAVE_' + i in ctx.env.define_key
+                for i in ['AVCODEC', 'AVFORMAT', 'AVUTIL', 'AVRESAMPLE'] ):
+            ctx.define('HAVE_LIBAV', 1)
+            ctx.msg('Checking for all libav libraries', 'yes')
+        else:
+            ctx.msg('Checking for all libav libraries', 'not found', color = 'YELLOW')
 
     # use memcpy hacks
     if (ctx.options.enable_memcpy == True):
@@ -233,6 +243,12 @@ def configure(ctx):
     except ctx.errors.ConfigurationError:
       ctx.to_log('txt2man was not found (ignoring)')
 
+    # check if doxygen is installed, optional
+    try:
+      ctx.find_program('doxygen', var='DOXYGEN')
+    except ctx.errors.ConfigurationError:
+      ctx.to_log('doxygen was not found (ignoring)')
+
 def build(bld):
     bld.env['VERSION'] = VERSION
     bld.env['LIB_VERSION'] = LIB_VERSION
@@ -247,7 +263,7 @@ def build(bld):
 
     bld( source = 'aubio.pc.in' )
 
-    # build manpages from sgml files
+    # build manpages from txt files using txt2man
     if bld.env['TXT2MAN']:
         from waflib import TaskGen
         if 'MANDIR' not in bld.env:
@@ -266,10 +282,15 @@ def build(bld):
                 )
         bld( source = bld.path.ant_glob('doc/*.txt') )
 
-    """
-    bld(rule = 'doxygen ${SRC}', source = 'web.cfg') #, target = 'doc/web/index.html')
-    """
-
+    # build documentation from source files using doxygen
+    if bld.env['DOXYGEN']:
+        bld( name = 'doxygen', rule = 'doxygen ${SRC} > /dev/null',
+                source = 'doc/web.cfg',
+                cwd = 'doc')
+        bld.install_files( '${PREFIX}' + '/share/doc/libaubio-doc',
+                bld.path.ant_glob('doc/web/html/**'),
+                cwd = bld.path.find_dir ('doc/web'),
+                relative_trick = True)
 
 def shutdown(bld):
     from waflib import Logs
@@ -287,3 +308,4 @@ def dist(ctx):
     ctx.excl += ' **/doc/full/* **/doc/web/*'
     ctx.excl += ' **/python/*.db'
     ctx.excl += ' **/python.old/*'
+    ctx.excl += ' **/python/tests/sounds'

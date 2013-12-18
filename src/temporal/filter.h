@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -18,8 +18,8 @@
 
 */
 
-#ifndef FILTER_H
-#define FILTER_H
+#ifndef _AUBIO_FILTER_H
+#define _AUBIO_FILTER_H
 
 /** \file 
 
@@ -173,4 +173,4 @@ void del_aubio_filter (aubio_filter_t * f);
 }
 #endif
 
-#endif /*FILTER_H*/
+#endif /* _AUBIO_FILTER_H */

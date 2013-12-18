@@ -35,7 +35,13 @@ PyAubio_ArrayToCFvec (PyObject *input) {
     // vec = new_fvec (vec->length);
     // no need to really allocate fvec, just its struct member
     vec = (fvec_t *)malloc(sizeof(fvec_t));
-    vec->length = PyArray_SIZE ((PyArrayObject *)array);
+    long length = PyArray_SIZE ((PyArrayObject *)array);
+    if (length > 0) {
+      vec->length = (uint_t)length;
+    } else {
+      PyErr_SetString (PyExc_ValueError, "input array size should be greater than 0");
+      goto fail;
+    }
     vec->data = (smpl_t *) PyArray_GETPTR1 ((PyArrayObject *)array, 0);
 
   } else if (PyObject_TypeCheck (input, &PyList_Type)) {
@@ -130,8 +136,20 @@ PyAubio_ArrayToCFmat (PyObject *input) {
 
     // no need to really allocate fvec, just its struct member
     mat = (fmat_t *)malloc(sizeof(fmat_t));
-    mat->length = PyArray_DIM ((PyArrayObject *)array, 1);
-    mat->height = PyArray_DIM ((PyArrayObject *)array, 0);
+    long length = PyArray_DIM ((PyArrayObject *)array, 1);
+    if (length > 0) {
+      mat->length = (uint_t)length;
+    } else {
+      PyErr_SetString (PyExc_ValueError, "input array dimension 1 should be greater than 0");
+      goto fail;
+    }
+    long height = PyArray_DIM ((PyArrayObject *)array, 0);
+    if (height > 0) {
+      mat->height = (uint_t)height;
+    } else {
+      PyErr_SetString (PyExc_ValueError, "input array dimension 0 should be greater than 0");
+      goto fail;
+    }
     mat->data = (smpl_t **)malloc(sizeof(smpl_t*) * mat->height);
     for (i=0; i< mat->height; i++) {
       mat->data[i] = (smpl_t*)PyArray_GETPTR1 ((PyArrayObject *)array, i);

@@ -38,7 +38,7 @@ int main (int argc, char **argv)
 
   if ( n_channels == 0 ) n_channels = aubio_source_get_channels(s);
 
-  fmat_t *mat = new_fmat(hop_size, n_channels);
+  fmat_t *mat = new_fmat(n_channels, hop_size);
 
   do {
     aubio_source_do_multi (s, mat, &read);

@@ -28,16 +28,13 @@ aubio_onset_t *o;
 aubio_wavetable_t *wavetable;
 fvec_t *onset;
 smpl_t is_onset;
-uint_t is_silence = 0.;
 
 void
 process_block(fvec_t *ibuf, fvec_t *obuf) {
   fvec_zeros(obuf);
   aubio_onset_do (o, ibuf, onset);
-  if (silence_threshold != -90.)
-    is_silence = aubio_silence_detection(ibuf, silence_threshold);
-  is_onset = fvec_read_sample(onset, 0);
-  if ( is_onset && !is_silence ) {
+  is_onset = fvec_get_sample(onset, 0);
+  if ( is_onset ) {
     aubio_wavetable_play ( wavetable );
   } else {
     aubio_wavetable_stop ( wavetable );
@@ -51,7 +48,7 @@ process_block(fvec_t *ibuf, fvec_t *obuf) {
 void
 process_print (void)
 {
-  if ( is_onset && !is_silence ) {
+  if ( is_onset ) {
     outmsg ("%f\n", aubio_onset_get_last_s (o) );
   }
 }
@@ -63,11 +60,15 @@ int main(int argc, char **argv) {
   verbmsg ("onset method: %s, ", onset_method);
   verbmsg ("buffer_size: %d, ", buffer_size);
   verbmsg ("hop_size: %d, ", hop_size);
-  verbmsg ("threshold: %f, ", silence_threshold);
+  verbmsg ("silence: %f, ", silence_threshold);
   verbmsg ("threshold: %f\n", onset_threshold);
 
   o = new_aubio_onset (onset_method, buffer_size, hop_size, samplerate);
-  if (onset_threshold != 0.) aubio_onset_set_threshold (o, onset_threshold);
+  if (onset_threshold != 0.)
+    aubio_onset_set_threshold (o, onset_threshold);
+  if (silence_threshold != -90.)
+    aubio_onset_set_silence (o, silence_threshold);
+
   onset = new_fvec (1);
 
   wavetable = new_aubio_wavetable (samplerate, hop_size);

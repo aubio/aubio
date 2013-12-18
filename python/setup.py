@@ -53,6 +53,7 @@ aubio_extension = Extension("aubio._aubio", [
     "ext/py-filterbank.c",
     "ext/py-fft.c",
     "ext/py-phasevoc.c",
+    "ext/py-source.c",
     # generated files
     ] + generated_object_files,
     include_dirs = include_dirs,

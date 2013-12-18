@@ -68,3 +68,5 @@ extern PyTypeObject Py_fftType;
 
 extern PyTypeObject Py_pvocType;
 
+extern PyTypeObject Py_sourceType;
+

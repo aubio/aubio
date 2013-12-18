@@ -51,14 +51,14 @@ process_block(fvec_t *ibuf, fvec_t *obuf) {
   aubio_onset_do(o, ibuf, onset);
 
   aubio_pitch_do (pitch, ibuf, pitch_obuf);
-  smpl_t new_pitch = fvec_read_sample(pitch_obuf, 0);
+  smpl_t new_pitch = fvec_get_sample(pitch_obuf, 0);
   if(median){
     note_append(note_buffer, new_pitch);
   }
 
   /* curlevel is negatif or 1 if silence */
   smpl_t curlevel = aubio_level_detection(ibuf, silence_threshold);
-  if (fvec_read_sample(onset, 0)) {
+  if (fvec_get_sample(onset, 0)) {
     /* test for silence */
     if (curlevel == 1.) {
       if (median) isready = 0;

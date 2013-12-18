@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _RESAMPLE_H
-#define _RESAMPLE_H
+#ifndef _AUBIO_RESAMPLER_H
+#define _AUBIO_RESAMPLER_H
 
 /** \file
  
@@ -62,4 +62,4 @@ void aubio_resampler_do (aubio_resampler_t * s, fvec_t * input,
 }
 #endif
 
-#endif /* _RESAMPLE_H */
+#endif /* _AUBIO_RESAMPLER_H */
