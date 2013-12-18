@@ -39,7 +39,7 @@ void del_lvec(lvec_t *s) {
 void lvec_write_sample(lvec_t *s, lsmp_t data, uint_t position) {
   s->data[position] = data;
 }
-lsmp_t lvec_read_sample(lvec_t *s, uint_t position) {
+lsmp_t lvec_get_sample(lvec_t *s, uint_t position) {
   return s->data[position];
 }
 
@@ -57,7 +57,7 @@ void lvec_print(lvec_t *s) {
   AUBIO_MSG("\n");
 }
 
-void lvec_set(lvec_t *s, smpl_t val) {
+void lvec_set_all (lvec_t *s, smpl_t val) {
   uint_t j;
   for (j=0; j< s->length; j++) {
     s->data[j] = val;
@@ -68,11 +68,11 @@ void lvec_zeros(lvec_t *s) {
 #if HAVE_MEMCPY_HACKS
   memset(s->data, 0, s->length * sizeof(lsmp_t));
 #else
-  lvec_set(s, 0.);
+  lvec_set_all (s, 0.);
 #endif
 }
 
 void lvec_ones(lvec_t *s) {
-  lvec_set(s, 1.);
+  lvec_set_all (s, 1.);
 }
 

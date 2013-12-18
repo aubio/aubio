@@ -57,35 +57,25 @@ lvec_t * new_lvec(uint_t length);
 
 */
 void del_lvec(lvec_t *s);
-/** read sample value in a buffer
 
-  Note that this function is not used in the aubio library, since the same
-  result can be obtained using vec->data[position]. Its purpose is to
-  access these values from wrappers, as created by swig.
+/** read sample value in a buffer
 
   \param s vector to read from
   \param position sample position to read from 
 
 */
-lsmp_t lvec_read_sample(lvec_t *s, uint_t position);
-/** write sample value in a buffer
+lsmp_t lvec_get_sample(lvec_t *s, uint_t position);
 
-  Note that this function is not used in the aubio library, since the same
-  result can be obtained by assigning vec->data[position]. Its purpose
-  is to access these values from wrappers, as created by swig.
+/** write sample value in a buffer
 
   \param s vector to write to 
   \param data value to write in s->data[position]
   \param position sample position to write to 
 
 */
-void  lvec_write_sample(lvec_t *s, lsmp_t data, uint_t position);
+void  lvec_set_sample(lvec_t *s, lsmp_t data, uint_t position);
 
 /** read data from a buffer
-
-  Note that this function is not used in the aubio library, since the same
-  result can be obtained with vec->data. Its purpose is to access these values
-  from wrappers, as created by swig.
 
   \param s vector to read from
 
@@ -105,7 +95,7 @@ void lvec_print(lvec_t *s);
   \param val value to set elements to
 
 */
-void lvec_set(lvec_t *s, smpl_t val);
+void lvec_set_all(lvec_t *s, smpl_t val);
 
 /** set all elements to zero 
 
