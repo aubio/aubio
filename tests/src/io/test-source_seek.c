@@ -84,7 +84,9 @@ int main (int argc, char **argv)
 beach:
   del_fvec (vec);
 
+  // check that we got exactly the same number of frames
   assert ( old_n_frames_2 == old_n_frames_1 );
-  assert ( old_n_frames_3 == (uint_t)floor(old_n_frames_1 / 2. + .5) );
+  // check that we got about half the frames, with 3 decimals
+  assert ( roundf(1.e3 * old_n_frames_1 / old_n_frames_3) / 1.e3 == 2.);
   return err;
 }
