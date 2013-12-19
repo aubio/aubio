@@ -263,7 +263,7 @@ uint_t aubio_source_sndfile_get_channels(aubio_source_sndfile_t * s) {
 }
 
 uint_t aubio_source_sndfile_seek (aubio_source_sndfile_t * s, uint_t pos) {
-  uint_t resampled_pos = (uint_t)ROUND(pos * s->input_samplerate * 1. / s->samplerate);
+  uint_t resampled_pos = (uint_t)ROUND(pos * s->ratio);
   return sf_seek (s->handle, resampled_pos, SEEK_SET);
 }
 
