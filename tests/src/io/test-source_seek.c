@@ -64,7 +64,7 @@ int main (int argc, char **argv)
 
   old_n_frames_2 = n_frames;
 
-  aubio_source_seek (s, n_frames / 2);
+  aubio_source_seek (s, old_n_frames_1 / 2);
 
   n_frames = 0;
   do {
