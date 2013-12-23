@@ -370,9 +370,23 @@ uint_t aubio_source_avcodec_get_channels(aubio_source_avcodec_t * s) {
 }
 
 uint_t aubio_source_avcodec_seek (aubio_source_avcodec_t * s, uint_t pos) {
-  //uint_t resampled_pos = (uint_t)ROUND(pos * s->input_samplerate * 1. / s->samplerate);
-  AUBIO_ERR("Not implemented, _seek(%d) file %s", pos, s->path);
-  return -1; //sf_seek (s->handle, resampled_pos, SEEK_SET);
+  int64_t resampled_pos = (uint_t)ROUND(pos * (s->input_samplerate * 1. / s->samplerate));
+  int64_t min_ts = MAX(resampled_pos - 2000, 0);
+  int64_t max_ts = MIN(resampled_pos + 2000, INT64_MAX);
+  int seek_flags = AVSEEK_FLAG_FRAME | AVSEEK_FLAG_ANY;
+  int ret = avformat_seek_file(s->avFormatCtx, s->selected_stream,
+      min_ts, resampled_pos, max_ts, seek_flags);
+  if (ret < 0) {
+    AUBIO_ERR("Failed seeking to %d in file %s", pos, s->path);
+  }
+  // reset read status
+  s->eof = 0;
+  s->read_index = 0;
+  s->read_samples = 0;
+  // reset the AVAudioResampleContext
+  avresample_close(s->avr);
+  avresample_open(s->avr);
+  return ret;
 }
 
 void del_aubio_source_avcodec(aubio_source_avcodec_t * s){
