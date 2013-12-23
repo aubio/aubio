@@ -84,7 +84,7 @@ pthread_mutex_t aubio_fftw_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 #else                         // using OOURA
 // let's use ooura instead
-extern void rdft(int, int, double *, int *, double *);
+extern void rdft(int, int, smpl_t *, int *, smpl_t *);
 
 #endif /* HAVE_ACCELERATE */
 #endif /* HAVE_FFTW3 */
@@ -109,8 +109,8 @@ struct _aubio_fft_t {
   double *in, *out;
 #endif
 #else                         // using OOURA
-  double *in, *out;
-  double *w;
+  smpl_t *in, *out;
+  smpl_t *w;
   int *ip;
 #endif /* HAVE_ACCELERATE */
 #endif /* HAVE_FFTW3 */
@@ -170,10 +170,10 @@ aubio_fft_t * new_aubio_fft (uint_t winsize) {
   s->winsize = winsize;
   s->fft_size = winsize / 2 + 1;
   s->compspec = new_fvec(winsize);
-  s->in    = AUBIO_ARRAY(double, s->winsize);
-  s->out   = AUBIO_ARRAY(double, s->winsize);
+  s->in    = AUBIO_ARRAY(smpl_t, s->winsize);
+  s->out   = AUBIO_ARRAY(smpl_t, s->winsize);
   s->ip    = AUBIO_ARRAY(int   , s->fft_size);
-  s->w     = AUBIO_ARRAY(double, s->fft_size);
+  s->w     = AUBIO_ARRAY(smpl_t, s->fft_size);
   s->ip[0] = 0;
 #endif /* HAVE_ACCELERATE */
 #endif /* HAVE_FFTW3 */
