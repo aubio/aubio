@@ -1,8 +1,8 @@
-from aubio import fvec, zero_crossing_rate
-
 #! /usr/bin/env python
 
 from numpy.testing import TestCase
+
+from aubio import fvec, zero_crossing_rate
 
 buf_size = 2048
 
@@ -10,10 +10,6 @@ class zero_crossing_rate_test_case(TestCase):
 
     def setUp(self):
         self.vector = fvec(buf_size)
-
-    def test(self):
-        """ create and delete fvec """
-        pass
 
     def test_zeroes(self):
         """ check zero crossing rate on a buffer of 0. """
