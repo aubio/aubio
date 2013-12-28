@@ -30,12 +30,12 @@ fvec_t *pitch;
 
 void
 process_block(fvec_t * ibuf, fvec_t * obuf) {
-  fvec_zeros(obuf);
   aubio_pitch_do (o, ibuf, pitch);
+  if ( !usejack && ! sink_uri ) return;
+  fvec_zeros(obuf);
   smpl_t freq = fvec_get_sample(pitch, 0);
   aubio_wavetable_set_amp ( wavetable, aubio_level_lin (ibuf) );
   aubio_wavetable_set_freq ( wavetable, freq );
-
   if (mix_input)
     aubio_wavetable_do (wavetable, ibuf, obuf);
   else
