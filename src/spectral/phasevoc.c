@@ -119,6 +119,7 @@ void del_aubio_pvoc(aubio_pvoc_t *pv) {
 static void aubio_pvoc_swapbuffers(smpl_t * data, smpl_t * dataold, 
     const smpl_t * datanew, uint_t win_s, uint_t hop_s)
 {
+#if !HAVE_MEMCPY_HACKS
   uint_t i;
   for (i = 0; i < win_s - hop_s; i++)
     data[i] = dataold[i];
@@ -126,6 +127,14 @@ static void aubio_pvoc_swapbuffers(smpl_t * data, smpl_t * dataold,
     data[win_s - hop_s + i] = datanew[i];
   for (i = 0; i < win_s - hop_s; i++)
     dataold[i] = data[i + hop_s];
+#else
+  memcpy(data, dataold, (win_s - hop_s) * sizeof(smpl_t));
+  data += win_s - hop_s;
+  memcpy(data, datanew, hop_s * sizeof(smpl_t));
+  data -= win_s - hop_s;
+  data += hop_s;
+  memcpy(dataold, data, (win_s - hop_s) * sizeof(smpl_t));
+#endif
 }
 
 static void aubio_pvoc_addsynth(const smpl_t * synth, smpl_t * synthold, 
