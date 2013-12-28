@@ -278,7 +278,7 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
         (uint8_t **)&output, out_linesize, max_out_samples,
         (uint8_t **)avFrame->data, in_linesize, in_samples);
   if (out_samples <= 0) {
-    AUBIO_ERR("No sample found while converting frame (%s)\n", s->path);
+    //AUBIO_ERR("No sample found while converting frame (%s)\n", s->path);
     goto beach;
   }
 
