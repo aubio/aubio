@@ -31,9 +31,10 @@ smpl_t is_onset;
 
 void
 process_block(fvec_t *ibuf, fvec_t *obuf) {
-  fvec_zeros(obuf);
   aubio_onset_do (o, ibuf, onset);
   is_onset = fvec_get_sample(onset, 0);
+  if ( !usejack && ! sink_uri ) return;
+  fvec_zeros(obuf);
   if ( is_onset ) {
     aubio_wavetable_play ( wavetable );
   } else {
