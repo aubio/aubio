@@ -41,7 +41,7 @@
 #ifdef HAVE_DEBUG
 #define debug(...)                fprintf (stderr, format , **args)
 #else
-#define debug(...)                ()
+#define debug(...)
 #endif
 #define verbmsg(format, args...)  if (verbose) fprintf(stderr, format , ##args)
 #define errmsg(format, args...)   fprintf(stderr, format , ##args)
