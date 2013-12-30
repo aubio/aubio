@@ -36,9 +36,10 @@ void del_lvec(lvec_t *s) {
   AUBIO_FREE(s);
 }
 
-void lvec_write_sample(lvec_t *s, lsmp_t data, uint_t position) {
+void lvec_set_sample(lvec_t *s, lsmp_t data, uint_t position) {
   s->data[position] = data;
 }
+
 lsmp_t lvec_get_sample(lvec_t *s, uint_t position) {
   return s->data[position];
 }
