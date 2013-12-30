@@ -417,10 +417,10 @@ smpl_t fvec_median (fvec_t * input) {
 }
 
 smpl_t fvec_quadratic_peak_pos (fvec_t * x, uint_t pos) {
-  smpl_t s0, s1, s2;
+  smpl_t s0, s1, s2; uint_t x0, x2;
   if (pos == 0 || pos == x->length - 1) return pos;
-  uint_t x0 = (pos < 1) ? pos : pos - 1;
-  uint_t x2 = (pos + 1 < x->length) ? pos + 1 : pos;
+  x0 = (pos < 1) ? pos : pos - 1;
+  x2 = (pos + 1 < x->length) ? pos + 1 : pos;
   if (x0 == pos) return (x->data[pos] <= x->data[x2]) ? pos : x2;
   if (x2 == pos) return (x->data[pos] <= x->data[x0]) ? pos : x0;
   s0 = x->data[x0];
@@ -448,9 +448,10 @@ aubio_quadfrac (smpl_t s0, smpl_t s1, smpl_t s2, smpl_t pf)
 smpl_t
 aubio_freqtomidi (smpl_t freq)
 {
+  smpl_t midi;
   if (freq < 2. || freq > 100000.) return 0.; // avoid nans and infs
   /* log(freq/A-2)/log(2) */
-  smpl_t midi = freq / 6.875;
+  midi = freq / 6.875;
   midi = LOG (midi) / 0.69314718055995;
   midi *= 12;
   midi -= 3;
@@ -460,8 +461,9 @@ aubio_freqtomidi (smpl_t freq)
 smpl_t
 aubio_miditofreq (smpl_t midi)
 {
+  smpl_t freq;
   if (midi > 140.) return 0.; // avoid infs
-  smpl_t freq = (midi + 3.) / 12.;
+  freq = (midi + 3.) / 12.;
   freq = EXP (freq * 0.69314718055995);
   freq *= 6.875;
   return freq;
