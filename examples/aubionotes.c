@@ -47,17 +47,18 @@ uint_t get_note (fvec_t * note_buffer, fvec_t * note_buffer2);
 
 void process_block (fvec_t *ibuf, fvec_t *obuf)
 {
+  smpl_t new_pitch, curlevel;
   fvec_zeros(obuf);
   aubio_onset_do(o, ibuf, onset);
 
   aubio_pitch_do (pitch, ibuf, pitch_obuf);
-  smpl_t new_pitch = fvec_get_sample(pitch_obuf, 0);
+  new_pitch = fvec_get_sample(pitch_obuf, 0);
   if(median){
     note_append(note_buffer, new_pitch);
   }
 
   /* curlevel is negatif or 1 if silence */
-  smpl_t curlevel = aubio_level_detection(ibuf, silence_threshold);
+  curlevel = aubio_level_detection(ibuf, silence_threshold);
   if (fvec_get_sample(onset, 0)) {
     /* test for silence */
     if (curlevel == 1.) {

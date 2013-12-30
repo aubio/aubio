@@ -148,8 +148,8 @@ void examples_common_process (aubio_process_func_t process_func,
 
   } else {
     /* phasevoc */
-    blocks = 0;
     uint_t total_read = 0;
+    blocks = 0;
 
     do {
       aubio_source_do (this_source, ibuf, &read);
