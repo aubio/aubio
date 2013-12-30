@@ -28,6 +28,27 @@
 #include "mathutils.h"
 #include "tempo/tempo.h"
 
+// TODO implement get/set_delay
+
+/** set current delay
+
+  \param o beat tracking object
+
+  \return current delay, in samples
+
+ */
+uint_t aubio_tempo_get_delay(aubio_tempo_t * o);
+
+/** set current delay
+
+  \param o beat tracking object
+  \param delay delay to set tempo to, in samples
+
+  \return `0` if successful, non-zero otherwise
+
+ */
+uint_t aubio_tempo_set_delay(aubio_tempo_t * o, uint_t delay);
+
 /* structure to store object state */
 struct _aubio_tempo_t {
   aubio_specdesc_t * od;   /** onset detection */

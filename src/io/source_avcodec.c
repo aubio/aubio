@@ -61,6 +61,7 @@ struct _aubio_source_avcodec_t {
 
 // hack to create or re-create the context the first time _do or _do_multi is called
 void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s, uint_t multi);
+void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_samples);
 
 aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * path, uint_t samplerate, uint_t hop_size) {
   aubio_source_avcodec_t * s = AUBIO_NEW(aubio_source_avcodec_t);
