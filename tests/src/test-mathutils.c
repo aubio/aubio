@@ -3,6 +3,11 @@
 #define AUBIO_UNSTABLE 1
 #include <aubio.h>
 
+int test_next_power_of_two (void);
+int test_miditofreq (void);
+int test_freqtomidi (void);
+int test_aubio_window (void);
+
 int test_next_power_of_two (void)
 {
   uint_t a, b;
