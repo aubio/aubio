@@ -151,7 +151,8 @@ def configure(ctx):
 
     if ctx.check_cc(fragment = check_c99_varargs,
             type='cstlib',
-            msg = 'Checking for C99 __VA_ARGS__ macro'):
+            msg = 'Checking for C99 __VA_ARGS__ macro',
+            mandatory = False):
         ctx.define('HAVE_C99_VARARGS_MACROS', 1)
 
     # double precision mode
