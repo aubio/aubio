@@ -34,9 +34,13 @@ aubio_filterbank_set_triangle_bands (aubio_filterbank_t * fb,
 
   fmat_t *filters = aubio_filterbank_get_coeffs (fb);
   uint_t n_filters = filters->height, win_s = filters->length;
+  fvec_t *lower_freqs, *upper_freqs, *center_freqs;
+  fvec_t *triangle_heights, *fft_freqs;
 
   uint_t fn;                    /* filter counter */
   uint_t bin;                   /* bin counter */
+
+  smpl_t riseInc, downInc;
 
   /* freqs define the bands of triangular overlapping windows.
      throw a warning if filterbank object fb is too short. */
@@ -56,15 +60,15 @@ aubio_filterbank_set_triangle_bands (aubio_filterbank_t * fb,
   }
 
   /* convenience reference to lower/center/upper frequency for each triangle */
-  fvec_t *lower_freqs = new_fvec (n_filters);
-  fvec_t *upper_freqs = new_fvec (n_filters);
-  fvec_t *center_freqs = new_fvec (n_filters);
+  lower_freqs = new_fvec (n_filters);
+  upper_freqs = new_fvec (n_filters);
+  center_freqs = new_fvec (n_filters);
 
   /* height of each triangle */
-  fvec_t *triangle_heights = new_fvec (n_filters);
+  triangle_heights = new_fvec (n_filters);
 
   /* lookup table of each bin frequency in hz */
-  fvec_t *fft_freqs = new_fvec (win_s);
+  fft_freqs = new_fvec (win_s);
 
   /* fill up the lower/center/upper */
   for (fn = 0; fn < n_filters; fn++) {
@@ -112,7 +116,7 @@ band (%.2f-%.2fHz). Consider increasing the window size from %d to %d.\n",
     }
 
     /* compute positive slope step size */
-    smpl_t riseInc =
+    riseInc =
         triangle_heights->data[fn] /
         (center_freqs->data[fn] - lower_freqs->data[fn]);
 
@@ -128,7 +132,7 @@ band (%.2f-%.2fHz). Consider increasing the window size from %d to %d.\n",
     }
 
     /* compute negative slope step size */
-    smpl_t downInc =
+    downInc =
         triangle_heights->data[fn] /
         (upper_freqs->data[fn] - center_freqs->data[fn]);
 
@@ -176,6 +180,8 @@ aubio_filterbank_set_mel_coeffs_slaney (aubio_filterbank_t * fb,
 
   uint_t fn;                    /* filter counter */
 
+  smpl_t lastlinearCF;
+
   /* buffers to compute filter frequencies */
   fvec_t *freqs = new_fvec (n_filters + 2);
 
@@ -183,7 +189,7 @@ aubio_filterbank_set_mel_coeffs_slaney (aubio_filterbank_t * fb,
   for (fn = 0; fn < linearFilters; fn++) {
     freqs->data[fn] = lowestFrequency + fn * linearSpacing;
   }
-  smpl_t lastlinearCF = freqs->data[fn - 1];
+  lastlinearCF = freqs->data[fn - 1];
 
   /* second step: fill all the log filter frequencies */
   for (fn = 0; fn < logFilters + 2; fn++) {
