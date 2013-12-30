@@ -36,7 +36,7 @@ void process_block(fvec_t * ibuf, fvec_t * obuf) {
   }
 }
 
-static void process_print (void) {
+void process_print (void) {
   int curblocks = (blocks - 4) > 0 ? blocks - 4 : 0;
   if (issilence == -1) {
     outmsg("NOISY: %f\n",curblocks*hop_size/(float)samplerate);

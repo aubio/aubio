@@ -45,8 +45,8 @@ fvec_t *pitch_obuf;
 void note_append (fvec_t * note_buffer, smpl_t curnote);
 uint_t get_note (fvec_t * note_buffer, fvec_t * note_buffer2);
 
-static void
-process_block(fvec_t *ibuf, fvec_t *obuf) {
+void process_block (fvec_t *ibuf, fvec_t *obuf)
+{
   fvec_zeros(obuf);
   aubio_onset_do(o, ibuf, onset);
 
@@ -94,8 +94,8 @@ process_block(fvec_t *ibuf, fvec_t *obuf) {
   }
 }
 
-static void
-process_print (void) {
+void process_print (void)
+{
   //if (verbose) outmsg("%f\n",pitch_obuf->data[0]);
 }
 

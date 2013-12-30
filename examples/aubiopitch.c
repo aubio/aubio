@@ -28,8 +28,8 @@ aubio_pitch_t *o;
 aubio_wavetable_t *wavetable;
 fvec_t *pitch;
 
-void
-process_block(fvec_t * ibuf, fvec_t * obuf) {
+void process_block(fvec_t * ibuf, fvec_t * obuf)
+{
   aubio_pitch_do (o, ibuf, pitch);
   if ( !usejack && ! sink_uri ) return;
   fvec_zeros(obuf);
@@ -42,8 +42,8 @@ process_block(fvec_t * ibuf, fvec_t * obuf) {
     aubio_wavetable_do (wavetable, obuf, obuf);
 }
 
-void
-process_print (void) {
+void process_print (void)
+{
   smpl_t pitch_found = fvec_get_sample(pitch, 0);
   outmsg("%f %f\n",(blocks)
       *hop_size/(float)samplerate, pitch_found);

@@ -53,3 +53,6 @@ void send_noteon (int pitch, int velo);
 
 /** common process function */
 typedef int (*aubio_process_func_t) (fvec_t * input, fvec_t * output);
+
+void process_block (fvec_t *ibuf, fvec_t *obuf);
+void process_print (void);

@@ -29,8 +29,8 @@ aubio_wavetable_t *wavetable;
 fvec_t *onset;
 smpl_t is_onset;
 
-void
-process_block(fvec_t *ibuf, fvec_t *obuf) {
+void process_block(fvec_t *ibuf, fvec_t *obuf)
+{
   aubio_onset_do (o, ibuf, onset);
   is_onset = fvec_get_sample(onset, 0);
   if ( !usejack && ! sink_uri ) return;
@@ -46,8 +46,7 @@ process_block(fvec_t *ibuf, fvec_t *obuf) {
     aubio_wavetable_do (wavetable, obuf, obuf);
 }
 
-void
-process_print (void)
+void process_print (void)
 {
   if ( is_onset ) {
     outmsg ("%f\n", aubio_onset_get_last_s (o) );
