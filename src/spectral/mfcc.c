@@ -51,6 +51,7 @@ new_aubio_mfcc (uint_t win_s, uint_t n_filters, uint_t n_coefs,
 
   /* allocate space for mfcc object */
   aubio_mfcc_t *mfcc = AUBIO_NEW (aubio_mfcc_t);
+  smpl_t scaling;
 
   uint_t i, j;
 
@@ -70,7 +71,7 @@ new_aubio_mfcc (uint_t win_s, uint_t n_filters, uint_t n_coefs,
 
   /* compute DCT transform dct_coeffs[i][j] as
      cos ( j * (i+.5) * PI / n_filters ) */
-  smpl_t scaling = 1. / SQRT (n_filters / 2.);
+  scaling = 1. / SQRT (n_filters / 2.);
   for (i = 0; i < n_filters; i++) {
     for (j = 0; j < n_coefs; j++) {
       mfcc->dct_coeffs->data[i][j] =
