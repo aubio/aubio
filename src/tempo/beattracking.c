@@ -61,8 +61,6 @@ new_aubio_beattracking (uint_t winlen, uint_t hop_size, uint_t samplerate)
 
   aubio_beattracking_t *p = AUBIO_NEW (aubio_beattracking_t);
   uint_t i = 0;
-  p->hop_size = hop_size;
-  p->samplerate = samplerate;
   /* default value for rayleigh weighting - sets preferred tempo to 120bpm */
   smpl_t rayparam = 60. * samplerate / 120. / hop_size;
   smpl_t dfwvnorm = EXP ((LOG (2.0) / rayparam) * (winlen + 2));
@@ -72,6 +70,8 @@ new_aubio_beattracking (uint_t winlen, uint_t hop_size, uint_t samplerate)
    * 1 onset frame [128] */
   uint_t step = winlen / 4;     /* 1.5 seconds */
 
+  p->hop_size = hop_size;
+  p->samplerate = samplerate;
   p->lastbeat = 0;
   p->counter = 0;
   p->flagstep = 0;

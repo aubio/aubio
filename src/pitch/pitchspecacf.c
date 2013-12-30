@@ -56,7 +56,7 @@ new_aubio_pitchspecacf (uint_t bufsize)
 void
 aubio_pitchspecacf_do (aubio_pitchspecacf_t * p, fvec_t * input, fvec_t * output)
 {
-  uint_t l;
+  uint_t l, tau;
   fvec_t *fftout = p->fftout;
   // window the input
   for (l = 0; l < input->length; l++) {
@@ -74,7 +74,7 @@ aubio_pitchspecacf_do (aubio_pitchspecacf_t * p, fvec_t * input, fvec_t * output
     p->acf->data[l] = fftout->data[l];
   }
   // get the minimum
-  uint_t tau = fvec_min_elem (p->acf);
+  tau = fvec_min_elem (p->acf);
   // get the interpolated minimum
   output->data[0] = fvec_quadratic_peak_pos (p->acf, tau) * 2.;
 }

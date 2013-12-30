@@ -28,11 +28,12 @@
 uint_t
 aubio_filter_set_a_weighting (aubio_filter_t * f, uint_t samplerate)
 {
+  uint_t order; lsmp_t *a, *b; lvec_t *as, *bs;
   aubio_filter_set_samplerate (f, samplerate);
-  lvec_t *bs = aubio_filter_get_feedforward (f);
-  lvec_t *as = aubio_filter_get_feedback (f);
-  lsmp_t *b = bs->data, *a = as->data;
-  uint_t order = aubio_filter_get_order (f);
+  bs = aubio_filter_get_feedforward (f);
+  as = aubio_filter_get_feedback (f);
+  b = bs->data, a = as->data;
+  order = aubio_filter_get_order (f);
 
   if (order != 7) {
     AUBIO_ERROR ("order of A-weighting filter must be 7, not %d\n", order);
