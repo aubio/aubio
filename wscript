@@ -85,12 +85,15 @@ def configure(ctx):
     ctx.load('waf_unit_test')
     ctx.load('gnu_dirs')
 
-    ctx.env.CFLAGS += ['-g', '-Wall', '-Wextra']
-
     target_platform = Options.platform
     if ctx.options.target_platform:
         target_platform = ctx.options.target_platform
     ctx.env['DEST_OS'] = target_platform
+
+    if 'CL.exe' not in ctx.env.CC[0]:
+        ctx.env.CFLAGS += ['-g', '-Wall', '-Wextra']
+    else:
+        ctx.env.CFLAGS += ['-Wall']
 
     if target_platform not in ['win32', 'win64']:
         ctx.env.CFLAGS += ['-fPIC']
