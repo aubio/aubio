@@ -147,7 +147,7 @@ void examples_common_process (aubio_process_func_t process_func,
 #endif
 
   } else {
-    /* phasevoc */
+
     uint_t total_read = 0;
     blocks = 0;
 
