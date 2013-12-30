@@ -63,6 +63,7 @@ struct _aubio_source_sndfile_t {
 
 aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplerate, uint_t hop_size) {
   aubio_source_sndfile_t * s = AUBIO_NEW(aubio_source_sndfile_t);
+  SF_INFO sfinfo;
 
   if (path == NULL) {
     AUBIO_ERR("Aborted opening null path\n");
@@ -82,7 +83,6 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplera
   s->path = path;
 
   // try opening the file, getting the info in sfinfo
-  SF_INFO sfinfo;
   AUBIO_MEMSET(&sfinfo, 0, sizeof (sfinfo));
   s->handle = sf_open (s->path, SFM_READ, &sfinfo);
 
