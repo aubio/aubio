@@ -1,7 +1,7 @@
 #include <aubio.h>
 #include "utils_tests.h"
 
-int main()
+int main (void)
 {
   uint_t win_s = 32; // window size
   lvec_t * sp = new_lvec (win_s); // input buffer

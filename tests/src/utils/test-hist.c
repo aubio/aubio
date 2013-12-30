@@ -2,7 +2,7 @@
 
 #include <aubio.h>
 
-int main ()
+int main (void)
 {
   uint_t length;
   for (length = 1; length < 10; length ++ ) {

@@ -1,6 +1,6 @@
 #include <aubio.h>
 
-int main ()
+int main (void)
 {
   uint_t win_s = 8; // window size
   fvec_t * in = new_fvec (win_s); // input buffer

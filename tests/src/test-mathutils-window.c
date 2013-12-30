@@ -2,7 +2,7 @@
 #include <math.h>
 #include <stdio.h>
 
-int main ()
+int main (void)
 {
   uint_t length = 0;
   uint_t n_length = 4, n_types = 10, i, t;

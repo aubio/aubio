@@ -1,6 +1,6 @@
 #include <aubio.h>
 
-int main ()
+int main (void)
 {
   uint_t win_s = 512; // fft size
   uint_t n_filters = 40; // number of filters

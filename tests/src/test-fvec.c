@@ -1,7 +1,7 @@
 #include <aubio.h>
 #include <assert.h>
 
-int main ()
+int main (void)
 {
   uint_t vec_size = 10, i;
   fvec_t * vec = new_fvec (vec_size);

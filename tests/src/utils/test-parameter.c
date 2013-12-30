@@ -20,7 +20,7 @@ void get_some_steps ( aubio_parameter_t * param )
 
 }
 
-int main ()
+int main (void)
 {
   smpl_t max_value = 100.;
   smpl_t min_value = 0.;

@@ -1,6 +1,6 @@
 #include <aubio.h>
 
-int main ()
+int main (void)
 {
   uint_t win_s = 16; // window size
   uint_t impulse_at = win_s / 2;

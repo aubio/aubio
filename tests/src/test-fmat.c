@@ -4,7 +4,7 @@
 // create a new matrix and fill it with i * 1. + j * .1, where i is the row,
 // and j the column.
 
-int main ()
+int main (void)
 {
   uint_t height = 3, length = 9, i, j;
   // create fmat_t object

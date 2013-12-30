@@ -2,7 +2,7 @@
 
 #include <aubio.h>
 
-int main ()
+int main (void)
 {
   uint_t n = 0;
   uint_t win_s = 1024; // window size
