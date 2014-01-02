@@ -35,6 +35,7 @@ void process_block(fvec_t * ibuf, fvec_t *obuf) {
   is_beat = fvec_get_sample (tempo_out, 0);
   if (silence_threshold != -90.)
     is_silence = aubio_silence_detection(ibuf, silence_threshold);
+  if ( !usejack && ! sink_uri ) return;
   fvec_zeros (obuf);
   if ( is_beat && !is_silence ) {
     aubio_wavetable_play ( wavetable );

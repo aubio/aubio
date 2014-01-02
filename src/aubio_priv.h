@@ -33,9 +33,7 @@
  *
  */
 
-#if 1 //HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #if HAVE_STDLIB_H
 #include <stdlib.h>
@@ -46,23 +44,23 @@
 #endif
 
 /* must be included before fftw3.h */
-#if HAVE_COMPLEX_H
+#ifdef HAVE_COMPLEX_H
 #include <complex.h>
 #endif
 
-#if HAVE_FFTW3 || HAVE_FFTW3F
+#if defined(HAVE_FFTW3) || defined(HAVE_FFTW3F)
 #include <fftw3.h>
 #endif
 
-#if HAVE_MATH_H
+#ifdef HAVE_MATH_H
 #include <math.h>
 #endif
 
-#if HAVE_STRING_H
+#ifdef HAVE_STRING_H
 #include <string.h>
 #endif
 
-#if HAVE_LIMITS_H
+#ifdef HAVE_LIMITS_H
 #include <limits.h> // for CHAR_BIT, in C99 standard
 #endif
 

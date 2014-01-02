@@ -1,6 +1,6 @@
 #include <aubio.h>
 
-int main ()
+int main (void)
 {
   uint_t win_s = 1024; // window size
   smpl_t ratio = 0.5;

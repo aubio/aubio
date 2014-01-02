@@ -1,6 +1,6 @@
 #include <aubio.h>
 
-int main ()
+int main (void)
 {
   uint_t win_s = 1024; // window size
   uint_t n_filters = 13; // number of filters

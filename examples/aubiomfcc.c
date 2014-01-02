@@ -29,8 +29,8 @@ fvec_t * mfcc_out;   // to get the output coefficients
 uint_t n_filters = 40;
 uint_t n_coefs = 13;
 
-static void
-process_block(fvec_t *ibuf, fvec_t *obuf) {
+void process_block (fvec_t *ibuf, fvec_t *obuf)
+{
   fvec_zeros(obuf);
   //compute mag spectrum
   aubio_pvoc_do (pv, ibuf, fftgrain);
@@ -38,7 +38,8 @@ process_block(fvec_t *ibuf, fvec_t *obuf) {
   aubio_mfcc_do(mfcc, fftgrain, mfcc_out);
 }
 
-static void process_print (void) {
+void process_print (void)
+{
   /* output times in seconds and extracted mfccs */
   outmsg("%f\t",blocks*hop_size/(float)samplerate);
   fvec_print(mfcc_out);

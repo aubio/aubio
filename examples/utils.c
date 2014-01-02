@@ -72,8 +72,12 @@ extern int parse_args (int argc, char **argv);
 aubio_jack_t *jack_setup;
 #endif
 
-void
-examples_common_init (int argc, char **argv)
+void examples_common_init (int argc, char **argv);
+void examples_common_del (void);
+void examples_common_process (aubio_process_func_t process_func,
+    aubio_print_func_t print);
+
+void examples_common_init (int argc, char **argv)
 {
 
   /* parse command line arguments */
@@ -115,8 +119,7 @@ examples_common_init (int argc, char **argv)
 
 }
 
-void
-examples_common_del (void)
+void examples_common_del (void)
 {
   del_fvec (ibuf);
   del_fvec (obuf);
@@ -125,8 +128,7 @@ examples_common_del (void)
   fflush(stdout);
 }
 
-void
-examples_common_process (aubio_process_func_t process_func,
+void examples_common_process (aubio_process_func_t process_func,
     aubio_print_func_t print)
 {
 
@@ -145,9 +147,9 @@ examples_common_process (aubio_process_func_t process_func,
 #endif
 
   } else {
-    /* phasevoc */
-    blocks = 0;
+
     uint_t total_read = 0;
+    blocks = 0;
 
     do {
       aubio_source_do (this_source, ibuf, &read);

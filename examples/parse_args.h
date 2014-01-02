@@ -47,6 +47,7 @@ extern void examples_common_init (int argc, char **argv);
 extern void examples_common_del (void);
 extern void examples_common_process (aubio_process_func_t process_func,
     aubio_print_func_t print);
+int parse_args (int argc, char **argv);
 
 // internal stuff
 extern int blocks;
@@ -56,8 +57,9 @@ extern fvec_t *obuf;
 
 const char *prog_name;
 
-void
-usage (FILE * stream, int exit_code)
+void usage (FILE * stream, int exit_code);
+
+void usage (FILE * stream, int exit_code)
 {
   fprintf (stream, "usage: %s [ options ] \n", prog_name);
   fprintf (stream,

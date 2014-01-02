@@ -1,6 +1,8 @@
 #include <aubio.h>
 #include "utils_tests.h"
 
+void get_some_steps ( aubio_parameter_t * param );
+
 void get_some_steps ( aubio_parameter_t * param )
 {
   uint_t i = 0;
@@ -20,7 +22,7 @@ void get_some_steps ( aubio_parameter_t * param )
 
 }
 
-int main ()
+int main (void)
 {
   smpl_t max_value = 100.;
   smpl_t min_value = 0.;

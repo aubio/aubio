@@ -1,6 +1,6 @@
 #include <aubio.h>
 
-int main ()
+int main (void)
 {
   uint_t n = 6; // compute n times
   uint_t win_s = 32; // window size

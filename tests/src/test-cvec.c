@@ -1,7 +1,7 @@
 #include <aubio.h>
 #include "utils_tests.h"
 
-int main ()
+int main (void)
 {
   uint_t i, window_size = 16; // window size
   utils_init_random();

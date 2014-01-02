@@ -1,6 +1,6 @@
 #include <aubio.h>
 
-int main ()
+int main (void)
 {
   // 1. allocate some memory
   uint_t n = 0; // frame counter

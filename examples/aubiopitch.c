@@ -28,22 +28,23 @@ aubio_pitch_t *o;
 aubio_wavetable_t *wavetable;
 fvec_t *pitch;
 
-void
-process_block(fvec_t * ibuf, fvec_t * obuf) {
-  fvec_zeros(obuf);
+void process_block(fvec_t * ibuf, fvec_t * obuf)
+{
+  smpl_t freq;
   aubio_pitch_do (o, ibuf, pitch);
-  smpl_t freq = fvec_get_sample(pitch, 0);
+  if ( !usejack && ! sink_uri ) return;
+  fvec_zeros(obuf);
+  freq = fvec_get_sample(pitch, 0);
   aubio_wavetable_set_amp ( wavetable, aubio_level_lin (ibuf) );
   aubio_wavetable_set_freq ( wavetable, freq );
-
   if (mix_input)
     aubio_wavetable_do (wavetable, ibuf, obuf);
   else
     aubio_wavetable_do (wavetable, obuf, obuf);
 }
 
-void
-process_print (void) {
+void process_print (void)
+{
   smpl_t pitch_found = fvec_get_sample(pitch, 0);
   outmsg("%f %f\n",(blocks)
       *hop_size/(float)samplerate, pitch_found);

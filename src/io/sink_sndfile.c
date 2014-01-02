@@ -46,6 +46,7 @@ struct _aubio_sink_sndfile_t {
 
 aubio_sink_sndfile_t * new_aubio_sink_sndfile(char_t * path, uint_t samplerate) {
   aubio_sink_sndfile_t * s = AUBIO_NEW(aubio_sink_sndfile_t);
+  SF_INFO sfinfo;
 
   if (path == NULL) {
     AUBIO_ERR("Aborted opening null path\n");
@@ -58,7 +59,6 @@ aubio_sink_sndfile_t * new_aubio_sink_sndfile(char_t * path, uint_t samplerate) 
   s->path = path;
 
   /* set output format */
-  SF_INFO sfinfo;
   AUBIO_MEMSET(&sfinfo, 0, sizeof (sfinfo));
   sfinfo.samplerate = s->samplerate;
   sfinfo.channels   = s->channels;
@@ -91,6 +91,7 @@ void aubio_sink_sndfile_do(aubio_sink_sndfile_t *s, fvec_t * write_data, uint_t 
   uint_t i, j,	channels = s->channels;
   int nsamples = channels*write;
   smpl_t *pwrite;
+  sf_count_t written_frames;
 
   if (write > s->max_size) {
     AUBIO_WRN("trying to write %d frames, but only %d can be written at a time",
@@ -106,7 +107,7 @@ void aubio_sink_sndfile_do(aubio_sink_sndfile_t *s, fvec_t * write_data, uint_t 
     }
   }
 
-  sf_count_t written_frames = sf_write_float (s->handle, s->scratch_data, nsamples);
+  written_frames = sf_write_float (s->handle, s->scratch_data, nsamples);
   if (written_frames/channels != write) {
     AUBIO_WRN("trying to write %d frames to %s, but only %d could be written",
       write, s->path, (uint_t)written_frames);

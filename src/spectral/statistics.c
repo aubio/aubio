@@ -22,6 +22,27 @@
 #include "cvec.h"
 #include "spectral/specdesc.h"
 
+void aubio_specdesc_centroid (aubio_specdesc_t * o, cvec_t * spec,
+    fvec_t * desc);
+void aubio_specdesc_spread (aubio_specdesc_t * o, cvec_t * spec,
+    fvec_t * desc);
+void aubio_specdesc_skewness (aubio_specdesc_t * o, cvec_t * spec,
+    fvec_t * desc);
+void aubio_specdesc_kurtosis (aubio_specdesc_t * o, cvec_t * spec,
+    fvec_t * desc);
+void aubio_specdesc_slope (aubio_specdesc_t * o, cvec_t * spec,
+    fvec_t * desc);
+void aubio_specdesc_decrease (aubio_specdesc_t * o, cvec_t * spec,
+    fvec_t * desc);
+void aubio_specdesc_rolloff (aubio_specdesc_t * o, cvec_t * spec,
+    fvec_t * desc);
+
+
+smpl_t cvec_sum (cvec_t * s);
+smpl_t cvec_mean (cvec_t * s);
+smpl_t cvec_centroid (cvec_t * s);
+smpl_t cvec_moment (cvec_t * s, uint_t moment);
+
 smpl_t
 cvec_sum (cvec_t * s)
 {

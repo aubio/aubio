@@ -26,7 +26,9 @@ uint_t random(void) {
 }
 #endif
 
-void utils_init_random () {
+void utils_init_random (void);
+
+void utils_init_random (void) {
   time_t now = time(0);
   struct tm *tm_struct = localtime(&now);
   int seed = tm_struct->tm_sec;

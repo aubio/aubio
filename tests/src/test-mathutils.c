@@ -3,7 +3,12 @@
 #define AUBIO_UNSTABLE 1
 #include <aubio.h>
 
-int test_next_power_of_two()
+int test_next_power_of_two (void);
+int test_miditofreq (void);
+int test_freqtomidi (void);
+int test_aubio_window (void);
+
+int test_next_power_of_two (void)
 {
   uint_t a, b;
   a = 15; b = aubio_next_power_of_two(a); assert(b == 16);
@@ -24,7 +29,7 @@ int test_next_power_of_two()
   return 0;
 }
 
-int test_miditofreq()
+int test_miditofreq (void)
 {
   smpl_t a, b;
   fprintf(stdout, "b = aubio_miditofreq(a): [");
@@ -55,7 +60,7 @@ int test_miditofreq()
   return 0;
 }
 
-int test_freqtomidi()
+int test_freqtomidi (void)
 {
   smpl_t midi, freq;
   fprintf(stdout, "b = aubio_freqtomidi(a): [");
@@ -87,7 +92,7 @@ int test_freqtomidi()
   return 0;
 }
 
-int test_aubio_window()
+int test_aubio_window (void)
 {
   uint_t window_size = 16;
   fvec_t * window = new_aubio_window("default", window_size);
@@ -107,7 +112,7 @@ int test_aubio_window()
   return 0;
 }
 
-int main ()
+int main (void)
 {
   test_next_power_of_two();
   test_miditofreq();

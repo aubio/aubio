@@ -366,10 +366,11 @@ aubio_pitch_do_yinfft (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * obuf)
 void
 aubio_pitch_do_specacf (aubio_pitch_t * p, fvec_t * ibuf, fvec_t * out)
 {
+  smpl_t pitch = 0., period;
   aubio_pitch_slideblock (p, ibuf);
   aubio_pitchspecacf_do (p->p_object, p->buf, out);
   //out->data[0] = aubio_bintofreq (out->data[0], p->samplerate, p->bufsize);
-  smpl_t pitch = 0., period = out->data[0];
+  period = out->data[0];
   if (period > 0) {
     pitch = p->samplerate / period;
   } else {

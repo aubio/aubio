@@ -22,10 +22,11 @@
 #include "cvec.h"
 
 cvec_t * new_cvec( uint_t length) {
+  cvec_t * s;
   if ((sint_t)length <= 0) {
     return NULL;
   }
-  cvec_t * s = AUBIO_NEW(cvec_t);
+  s = AUBIO_NEW(cvec_t);
   s->length = length/2 + 1;
   s->norm = AUBIO_ARRAY(smpl_t,s->length);
   s->phas = AUBIO_ARRAY(smpl_t,s->length);
