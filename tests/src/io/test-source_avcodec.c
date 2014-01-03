@@ -1,7 +1,6 @@
 #define AUBIO_UNSTABLE 1
 #include <aubio.h>
 #include "utils_tests.h"
-#include "config.h"
 
 // this file uses the unstable aubio api, please use aubio_source instead
 // see src/io/source.h and tests/src/source/test-source.c
