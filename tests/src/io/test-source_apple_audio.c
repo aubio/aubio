@@ -38,7 +38,7 @@ int main (int argc, char **argv)
   if (!s) { err = 1; goto beach; }
   fvec_t *vec = new_fvec(hop_size);
 
-  if (samplerate == 0 ) samplerate = aubio_source_apple_audio_get_samplerate(s);
+  samplerate = aubio_source_apple_audio_get_samplerate(s);
 
   do {
     aubio_source_apple_audio_do(s, vec, &read);
