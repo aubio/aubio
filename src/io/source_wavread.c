@@ -180,7 +180,7 @@ aubio_source_wavread_t * new_aubio_source_wavread(char_t * path, uint_t samplera
   s->input_samplerate = sr;
   s->input_channels = channels;
 
-#if 1
+#if 0
   AUBIO_DBG("channels %d\n", channels);
   AUBIO_DBG("sr %d\n", sr);
   AUBIO_DBG("byterate %d\n", byterate);
