@@ -228,6 +228,8 @@ def configure(ctx):
         else:
             ctx.msg('Checking for all libav libraries', 'not found', color = 'YELLOW')
 
+    ctx.define('HAVE_WAVREAD', 1)
+
     # use memcpy hacks
     if (ctx.options.enable_memcpy == True):
         ctx.define('HAVE_MEMCPY_HACKS', 1)
