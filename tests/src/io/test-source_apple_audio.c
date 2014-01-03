@@ -56,5 +56,5 @@ beach:
   err = 3;
   PRINT_ERR("aubio was not compiled with aubio_source_apple_audio\n");
 #endif /* __APPLE__ */
-  return 0;
+  return err;
 }
