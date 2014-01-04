@@ -87,7 +87,7 @@ aubio_source_wavread_t * new_aubio_source_wavread(char_t * path, uint_t samplera
   s->samplerate = samplerate;
   s->hop_size = hop_size;
 
-  s->fid = fopen((const char *)path, "r");
+  s->fid = fopen((const char *)path, "rb");
   if (!s->fid) {
     AUBIO_ERR("source_wavread: could not open %s (%s)\n", s->path, strerror(errno));
     goto beach;
