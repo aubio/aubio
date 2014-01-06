@@ -27,7 +27,7 @@
 #include "fmat.h"
 #include "source_wavread.h"
 
-#include "errno.h"
+#include <errno.h>
 
 #define AUBIO_WAVREAD_BUFSIZE 1024
 
