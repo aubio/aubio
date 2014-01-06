@@ -29,45 +29,55 @@
 #include "io/sink_sndfile.h"
 #endif
 
+typedef void (*aubio_sink_do_t)(aubio_sink_t * s, fvec_t * data, uint_t write);
+#if 0
+typedef void (*aubio_sink_do_multi_t)(aubio_sink_t * s, fmat_t * data, uint_t * read);
+typedef uint_t (*aubio_sink_get_samplerate_t)(aubio_sink_t * s);
+typedef uint_t (*aubio_sink_get_channels_t)(aubio_sink_t * s);
+#endif
+typedef uint_t (*del_aubio_sink_t)(aubio_sink_t * s);
+
 struct _aubio_sink_t { 
   void *sink;
+  aubio_sink_do_t s_do;
+#if 0
+  aubio_sink_do_multi_t s_do_multi;
+  aubio_sink_get_samplerate_t s_get_samplerate;
+  aubio_sink_get_channels_t s_get_channels;
+#endif
+  del_aubio_sink_t s_del;
 };
 
 aubio_sink_t * new_aubio_sink(char_t * uri, uint_t samplerate) {
   aubio_sink_t * s = AUBIO_NEW(aubio_sink_t);
 #ifdef __APPLE__
   s->sink = (void *)new_aubio_sink_apple_audio(uri, samplerate);
-  if (s->sink) return s;
-#else /* __APPLE__ */
+  if (s->sink) {
+    s->s_do = (aubio_sink_do_t)(aubio_sink_apple_audio_do);
+    s->s_del = (del_aubio_sink_t)(del_aubio_sink_apple_audio);
+    return s;
+  }
+#endif /* __APPLE__ */
 #if HAVE_SNDFILE
   s->sink = (void *)new_aubio_sink_sndfile(uri, samplerate);
-  if (s->sink) return s;
+  if (s->sink) {
+    s->s_do = (aubio_sink_do_t)(aubio_sink_sndfile_do);
+    s->s_del = (del_aubio_sink_t)(del_aubio_sink_sndfile);
+    return s;
+  }
 #endif /* HAVE_SNDFILE */
-#endif /* __APPLE__ */
-  AUBIO_ERROR("failed creating aubio sink with %s\n", uri);
+  AUBIO_ERROR("sink: failed creating aubio sink with %s\n", uri);
   AUBIO_FREE(s);
   return NULL;
 }
 
 void aubio_sink_do(aubio_sink_t * s, fvec_t * write_data, uint_t write) {
-#ifdef __APPLE__
-  aubio_sink_apple_audio_do((aubio_sink_apple_audio_t *)s->sink, write_data, write);
-#else /* __APPLE__ */
-#if HAVE_SNDFILE
-  aubio_sink_sndfile_do((aubio_sink_sndfile_t *)s->sink, write_data, write);
-#endif /* HAVE_SNDFILE */
-#endif /* __APPLE__ */
+  s->s_do((void *)s->sink, write_data, write);
 }
 
 void del_aubio_sink(aubio_sink_t * s) {
   if (!s) return;
-#ifdef __APPLE__
-  del_aubio_sink_apple_audio((aubio_sink_apple_audio_t *)s->sink);
-#else /* __APPLE__ */
-#if HAVE_SNDFILE
-  del_aubio_sink_sndfile((aubio_sink_sndfile_t *)s->sink);
-#endif /* HAVE_SNDFILE */
-#endif /* __APPLE__ */
+  s->s_del((void *)s->sink);
   AUBIO_FREE(s);
   return;
 }
