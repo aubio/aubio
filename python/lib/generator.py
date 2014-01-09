@@ -60,6 +60,7 @@ def generate_object_files(output_path):
       'source_apple_audio',
       'source_sndfile',
       'source_avcodec',
+      'source_wavread',
       #'sampler',
       'audio_unit',
       ]
