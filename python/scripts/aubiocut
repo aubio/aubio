@@ -106,6 +106,10 @@ def parse_args():
             action="store_true", dest="spectro", default=False,
             help="add spectrogram to the plot")
     """
+    parser.add_option("-o","--output", type = str,
+            metavar = "<outputdir>",
+            action="store", dest="output_directory", default=None,
+            help="specify path where slices of the original file should be created")
     parser.add_option("-v","--verbose",
             action="store_true", dest="verbose", default=True,
             help="make lots of noise [default]")
@@ -164,6 +168,10 @@ if __name__ == '__main__':
         # generate output filenames
         import os
         source_base_name, source_ext = os.path.splitext(os.path.basename(source_file))
+        if options.output_directory != None:
+            if not os.path.isdir(options.output_directory):
+                os.makedirs(options.output_directory)
+            source_base_name = os.path.join(options.output_directory, source_base_name)
         def new_sink_name(source_base_name, timestamp):
             return source_base_name + '_%02.3f' % (timestamp) + '.wav'
         # reopen source file
