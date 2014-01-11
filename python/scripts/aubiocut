@@ -173,24 +173,24 @@ if __name__ == '__main__':
         g = sink(new_sink_name(source_base_name, 0.), samplerate)
         total_frames = 0
         # get next region
-        next_onset = int(timestamps.pop(0))
+        next_stamp = int(timestamps.pop(0))
         while True:
             vec, read = s()
-            remaining = next_onset - total_frames
+            remaining = next_stamp - total_frames
             if remaining <= read:
                 # write remaining samples from current region
                 g(vec[0:remaining], remaining)
                 # close this file
                 del g
                 # create a new file for the new region
-                g = sink(new_sink_name(source_base_name, next_onset / float(samplerate)), samplerate)
+                g = sink(new_sink_name(source_base_name, next_stamp / float(samplerate)), samplerate)
                 # write the remaining samples in the new file
                 g(vec[remaining:read], read - remaining)
                 #print "new slice", total_frames_written, "+", remaining, "=", start_of_next_region
                 if len(timestamps):
-                    next_onset = int(timestamps.pop(0))
+                    next_stamp = int(timestamps.pop(0))
                 else:
-                    next_onset = 1e120
+                    next_stamp = 1e120
             else:
                 g(vec[0:read], read)
             total_frames += read
