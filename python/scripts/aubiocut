@@ -110,6 +110,15 @@ def parse_args():
             metavar = "<outputdir>",
             action="store", dest="output_directory", default=None,
             help="specify path where slices of the original file should be created")
+    parser.add_option("--cut-until-nsamples", type = int,
+            metavar = "<samples>",
+            action = "store", dest = "cut_until_nsamples", default = None,
+            help="how many extra samples should be added at the end of each slice")
+    parser.add_option("--cut-until-nslices", type = int,
+            metavar = "<slices>",
+            action = "store", dest = "cut_until_nslices", default = None,
+            help="how many extra slices should be added at the end of each slice")
+
     parser.add_option("-v","--verbose",
             action="store_true", dest="verbose", default=True,
             help="make lots of noise [default]")
@@ -165,9 +174,18 @@ if __name__ == '__main__':
 
     # cutting pass
     if options.cut and nstamps > 0:
-        # generate output filenames
+        # generate output files
         from aubio.slicing import slice_source_at_stamps
-        slice_source_at_stamps(source_file, timestamps,
+        timestamps_end = None
+        if options.cut_until_nslices and options.cut_until_nsamples:
+            print "warning: using cut_until_nslices, but cut_until_nsamples is set"
+        if options.cut_until_nsamples:
+            timestamps_end = [t + options.cut_until_nsamples for t in timestamps[1:]]
+            timestamps_end += [ 1e120 ]
+        if options.cut_until_nslices:
+            timestamps_end = [t for t in timestamps[1 + options.cut_until_nslices:]]
+            timestamps_end += [ 1e120 ] * (options.cut_until_nslices + 1)
+        slice_source_at_stamps(source_file, timestamps, timestamps_end = timestamps_end,
                 output_dir = options.output_directory)
 
         # print some info
