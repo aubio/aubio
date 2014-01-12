@@ -18,3 +18,25 @@ def array_from_yaml_file(filename):
     yaml_data = yaml.safe_load(f)
     f.close()
     return yaml_data
+
+def count_samples_in_file(file_path):
+    from aubio import source
+    hopsize = 256
+    s = source(file_path, 0, hopsize)
+    total_frames = 0
+    while True:
+        samples, read = s()
+        total_frames += read
+        if read < hopsize: break
+    return total_frames
+
+def count_samples_in_directory(samples_dir):
+    import os
+    total_frames = 0
+    for f in os.walk(samples_dir):
+        if len(f[2]):
+            for each in f[2]:
+                file_path = os.path.join(f[0], each)
+                if file_path:
+                    total_frames += count_samples_in_file(file_path)
+    return total_frames
