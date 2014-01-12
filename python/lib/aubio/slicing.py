@@ -29,8 +29,6 @@ def slice_source_at_stamps(source_file, timestamps, timestamps_end = None,
     total_frames = 0
     # get next region
     next_stamp = int(timestamps.pop(0))
-    if not next_stamp:
-        next_stamp = int(timestamps.pop(0))
 
     while True:
         # get hopsize new samples from source
