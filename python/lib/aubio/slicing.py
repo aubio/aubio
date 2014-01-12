@@ -31,8 +31,7 @@ def slice_source_at_stamps(source_file, timestamps, timestamps_end = None,
 
     def new_sink_name(source_base_name, timestamp, samplerate):
         timestamp_seconds = timestamp / float(samplerate)
-        #print source_base_name + '_%02.3f' % (timestamp_seconds) + '.wav'
-        return source_base_name + '_%02.3f' % (timestamp_seconds) + '.wav'
+        return source_base_name + "_%011.6f" % timestamp_seconds + '.wav'
 
     # reopen source file
     s = source(source_file, samplerate, hopsize)
