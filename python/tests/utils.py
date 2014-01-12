@@ -47,3 +47,14 @@ def count_samples_in_directory(samples_dir):
                 if file_path:
                     total_frames += count_samples_in_file(file_path)
     return total_frames
+
+def count_files_in_directory(samples_dir):
+    import os
+    total_files = 0
+    for f in os.walk(samples_dir):
+        if len(f[2]):
+            for each in f[2]:
+                file_path = os.path.join(f[0], each)
+                if file_path:
+                    total_files += 1
+    return total_files
