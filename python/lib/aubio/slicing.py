@@ -6,6 +6,12 @@ def slice_source_at_stamps(source_file, timestamps, timestamps_end = None,
         samplerate = 0,
         hopsize = 256):
 
+    if timestamps == None or len(timestamps) == 0:
+        raise ValueError ("no timestamps given")
+
+    if timestamps_end != None and len(timestamps_end) != len(timestamps):
+        raise ValueError ("len(timestamps_end) != len(timestamps)")
+
     source_base_name, source_ext = os.path.splitext(os.path.basename(source_file))
     if output_dir != None:
         if not os.path.isdir(output_dir):

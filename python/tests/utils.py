@@ -12,6 +12,13 @@ def list_all_sounds(rel_dir):
     datadir = os.path.join(os.path.dirname(__file__), rel_dir)
     return glob.glob(os.path.join(datadir,'*.*'))
 
+def get_default_test_sound(TestCase, rel_dir = 'sounds'):
+    all_sounds = list_all_sounds(rel_dir)
+    if len(all_sounds) == 0:
+        TestCase.skipTest("please add some sounds in \'python/tests/sounds\'")
+    else:
+        return all_sounds[0]
+
 def array_from_yaml_file(filename):
     import yaml
     f = open(filename)
