@@ -37,7 +37,7 @@ def slice_source_at_stamps(source_file, timestamps, timestamps_end = None,
         vec, read = s()
         remaining = next_stamp - total_frames
         # not enough frames remaining, time to split
-        if remaining <= read:
+        if remaining < read:
             if remaining != 0:
                 # write remaining samples from current region
                 g(vec[0:remaining], remaining)
@@ -47,9 +47,8 @@ def slice_source_at_stamps(source_file, timestamps, timestamps_end = None,
             new_sink_path = new_sink_name(source_base_name, next_stamp / float(samplerate))
             #print "new slice", total_frames, "+", remaining, "=", next_stamp
             g = sink(new_sink_path, samplerate)
-            if remaining != read:
-                # write the remaining samples in the new file
-                g(vec[remaining:read], read - remaining)
+            # write the remaining samples in the new file
+            g(vec[remaining:read], read - remaining)
             if len(timestamps):
                 next_stamp = int(timestamps.pop(0))
             else:
@@ -59,4 +58,5 @@ def slice_source_at_stamps(source_file, timestamps, timestamps_end = None,
         total_frames += read
         if read < hopsize: break
 
+    # close the last file
     del g
