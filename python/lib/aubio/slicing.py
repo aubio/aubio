@@ -13,6 +13,8 @@ def slice_source_at_stamps(source_file, timestamps, timestamps_end = None,
 
     if timestamps[0] != 0:
         timestamps = [0] + timestamps
+        if timestamps_end != None:
+            timestamps_end = [timestamps[1] - 1] + timestamps_end
 
     if timestamps_end != None:
         if len(timestamps_end) != len(timestamps):
