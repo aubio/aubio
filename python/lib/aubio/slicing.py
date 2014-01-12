@@ -14,10 +14,14 @@ def slice_source_at_stamps(source_file, timestamps, timestamps_end = None,
     if timestamps[0] != 0:
         timestamps = [0] + timestamps
 
-    if timestamps_end != None and len(timestamps_end) != len(timestamps):
-        raise ValueError ("len(timestamps_end) != len(timestamps)")
+    if timestamps_end != None:
+        if len(timestamps_end) != len(timestamps):
+            raise ValueError ("len(timestamps_end) != len(timestamps)")
     else:
         timestamps_end = [t - 1 for t in timestamps[1:] ] + [ max_timestamp ]
+
+    regions = zip(timestamps, timestamps_end)
+    #print regions
 
     source_base_name, source_ext = os.path.splitext(os.path.basename(source_file))
     if output_dir != None:
@@ -32,41 +36,48 @@ def slice_source_at_stamps(source_file, timestamps, timestamps_end = None,
 
     # reopen source file
     s = source(source_file, samplerate, hopsize)
-    if samplerate == 0: samplerate = s.get_samplerate()
-    total_frames = 0
-    # get next region
-    start_stamp = int(timestamps.pop(0))
-    end_stamp = int(timestamps_end.pop(0))
+    samplerate = s.get_samplerate()
 
-    # create first sink
-    new_sink_path = new_sink_name(source_base_name, start_stamp, samplerate)
-    #print "new slice", total_frames, "+", remaining, "=", end_stamp
-    g = sink(new_sink_path, samplerate)
+    total_frames = 0
+    slices = []
 
     while True:
         # get hopsize new samples from source
         vec, read = s()
-        # number of samples until end of region
-        remaining = end_stamp - total_frames
-        # not enough frames remaining, time to split
-        if remaining < read:
-            if remaining != 0:
-                # write remaining samples from current region
-                g(vec[0:remaining], remaining)
-            # close this file
-            del g
-            # get the next region
-            start_stamp = int(timestamps.pop(0))
-            end_stamp = int(timestamps_end.pop(0))
-            # create a new file for the new region
+        # if the total number of frames read will exceed the next region start
+        if len(regions) and total_frames + read >= regions[0][0]:
+            #print "getting", regions[0], "at", total_frames
+            # get next region
+            start_stamp, end_stamp = regions.pop(0)
+            # create a name for the sink
             new_sink_path = new_sink_name(source_base_name, start_stamp, samplerate)
-            #print "new slice", total_frames, "+", remaining, "=", end_stamp
+            # create its sink
             g = sink(new_sink_path, samplerate)
-            # write the remaining samples in the new file
-            g(vec[remaining:read], read - remaining)
-        elif read > 0:
-            # write all the samples
-            g(vec[0:read], read)
+            # create a dictionary containing all this
+            new_slice = {'start_stamp': start_stamp, 'end_stamp': end_stamp, 'sink': g}
+            # append the dictionary to the current list of slices
+            slices.append(new_slice)
+
+        for current_slice in slices:
+            start_stamp = current_slice['start_stamp']
+            end_stamp = current_slice['end_stamp']
+            g = current_slice['sink']
+            # sample index to start writing from new source vector
+            start = max(start_stamp - total_frames, 0)
+            # number of samples yet to written be until end of region
+            remaining = end_stamp - total_frames + 1
+            #print current_slice, remaining, start
+            # not enough frames remaining, time to split
+            if remaining < read:
+                if remaining > start:
+                    # write remaining samples from current region
+                    g(vec[start:remaining], remaining - start)
+                    #print "closing region", "remaining", remaining
+                    # close this file
+                    del g
+            elif read > start:
+                # write all the samples
+                g(vec[start:read], read - start)
         total_frames += read
         if read < hopsize: break
 
