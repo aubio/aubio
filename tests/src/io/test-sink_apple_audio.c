@@ -26,14 +26,14 @@ int main (int argc, char **argv)
   if ( argc == 4 ) samplerate = atoi(argv[3]);
 
   fvec_t *vec = new_fvec(hop_size);
-  aubio_source_apple_audio_t *i = new_aubio_source_apple_audio(source_path, samplerate, hop_size);
-  if (samplerate == 0 ) samplerate = aubio_source_apple_audio_get_samplerate(i);
+  aubio_source_t *i = new_aubio_source(source_path, samplerate, hop_size);
+  if (samplerate == 0 ) samplerate = aubio_source_get_samplerate(i);
   aubio_sink_apple_audio_t *o = new_aubio_sink_apple_audio(sink_path, samplerate);
 
   if (!i || !o) { err = 1; goto beach; }
 
   do {
-    aubio_source_apple_audio_do(i, vec, &read);
+    aubio_source_do(i, vec, &read);
     aubio_sink_apple_audio_do(o, vec, read);
     n_frames += read;
   } while ( read == hop_size );
@@ -42,7 +42,7 @@ int main (int argc, char **argv)
       n_frames, source_path, sink_path, samplerate);
 
 beach:
-  del_aubio_source_apple_audio(i);
+  del_aubio_source(i);
   del_aubio_sink_apple_audio(o);
   del_fvec(vec);
 #else
