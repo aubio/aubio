@@ -229,6 +229,7 @@ def configure(ctx):
             ctx.msg('Checking for all libav libraries', 'not found', color = 'YELLOW')
 
     ctx.define('HAVE_WAVREAD', 1)
+    ctx.define('HAVE_WAVWRITE', 1)
 
     # use memcpy hacks
     if (ctx.options.enable_memcpy == True):

@@ -57,6 +57,7 @@ def generate_object_files(output_path):
       'sink',
       'sink_apple_audio',
       'sink_sndfile',
+      'sink_wavwrite',
       'source',
       'source_apple_audio',
       'source_sndfile',

@@ -28,6 +28,9 @@
 #ifdef HAVE_SNDFILE
 #include "io/sink_sndfile.h"
 #endif
+#ifdef HAVE_WAVWRITE
+#include "io/sink_wavwrite.h"
+#endif
 
 typedef void (*aubio_sink_do_t)(aubio_sink_t * s, fvec_t * data, uint_t write);
 #if 0
@@ -66,6 +69,14 @@ aubio_sink_t * new_aubio_sink(char_t * uri, uint_t samplerate) {
     return s;
   }
 #endif /* HAVE_SNDFILE */
+#if HAVE_WAVWRITE
+  s->sink = (void *)new_aubio_sink_wavwrite(uri, samplerate);
+  if (s->sink) {
+    s->s_do = (aubio_sink_do_t)(aubio_sink_wavwrite_do);
+    s->s_del = (del_aubio_sink_t)(del_aubio_sink_wavwrite);
+    return s;
+  }
+#endif /* HAVE_WAVWRITE */
   AUBIO_ERROR("sink: failed creating aubio sink with %s\n", uri);
   AUBIO_FREE(s);
   return NULL;
