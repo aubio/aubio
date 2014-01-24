@@ -1,6 +1,3 @@
-// WARNING: this file is generated, DO NOT EDIT
-
-// WARNING: if you haven't read the first line yet, please do so
 #include "aubiowraphell.h"
 
 typedef struct
@@ -126,10 +123,20 @@ Pyaubio_source_get_channels (Py_source *self, PyObject *unused)
   return (PyObject *)PyInt_FromLong (tmp);
 }
 
+static PyObject *
+Pyaubio_source_close (Py_source *self, PyObject *unused)
+{
+  del_aubio_source (self->o);
+  self->o = NULL;
+  Py_RETURN_NONE;
+}
+
 static PyMethodDef Py_source_methods[] = {
   {"get_samplerate", (PyCFunction) Pyaubio_source_get_samplerate,
     METH_NOARGS, ""},
   {"get_channels", (PyCFunction) Pyaubio_source_get_channels,
+    METH_NOARGS, ""},
+  {"close", (PyCFunction) Pyaubio_source_close,
     METH_NOARGS, ""},
   {NULL} /* sentinel */
 };

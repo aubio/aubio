@@ -89,8 +89,17 @@ AUBIO_MEMBERS_START(sink)
   {"samplerate", T_INT, offsetof (Py_sink, samplerate), READONLY, ""},
 AUBIO_MEMBERS_STOP(sink)
 
+static PyObject *
+Pyaubio_sink_close (Py_sink *self, PyObject *unused)
+{
+  del_aubio_sink (self->o);
+  self->o = NULL;
+  Py_RETURN_NONE;
+}
 
 static PyMethodDef Py_sink_methods[] = {
+  {"close", (PyCFunction) Pyaubio_sink_close,
+    METH_NOARGS, ""},
   {NULL} /* sentinel */
 };
 
