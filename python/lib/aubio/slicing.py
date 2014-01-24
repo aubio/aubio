@@ -75,12 +75,9 @@ def slice_source_at_stamps(source_file, timestamps, timestamps_end = None,
                     g(vec[start:remaining], remaining - start)
                     #print "closing region", "remaining", remaining
                     # close this file
-                    del g
+                    g.close()
             elif read > start:
                 # write all the samples
                 g(vec[start:read], read - start)
         total_frames += read
         if read < hopsize: break
-
-    # close the last file
-    del g
