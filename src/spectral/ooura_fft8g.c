@@ -2,6 +2,7 @@
 //  - replace all 'double' with 'smpl_t'
 //  - include "aubio_priv.h" (for config.h and types.h)
 //  - add missing prototypes
+//  - use COS and SIN macros
 
 #include "aubio_priv.h"
 
@@ -692,12 +693,12 @@ void makewt(int nw, int *ip, smpl_t *w)
         delta = atan(1.0) / nwh;
         w[0] = 1;
         w[1] = 0;
-        w[nwh] = cos(delta * nwh);
+        w[nwh] = COS(delta * nwh);
         w[nwh + 1] = w[nwh];
         if (nwh > 2) {
             for (j = 2; j < nwh; j += 2) {
-                x = cos(delta * j);
-                y = sin(delta * j);
+                x = COS(delta * j);
+                y = SIN(delta * j);
                 w[j] = x;
                 w[j + 1] = y;
                 w[nw - j] = y;
