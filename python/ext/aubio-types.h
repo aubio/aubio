@@ -70,3 +70,4 @@ extern PyTypeObject Py_pvocType;
 
 extern PyTypeObject Py_sourceType;
 
+extern PyTypeObject Py_sinkType;

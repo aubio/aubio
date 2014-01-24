@@ -199,6 +199,7 @@ init_aubio (void)
       || (PyType_Ready (&Py_fftType) < 0)
       || (PyType_Ready (&Py_pvocType) < 0)
       || (PyType_Ready (&Py_sourceType) < 0)
+      || (PyType_Ready (&Py_sinkType) < 0)
       // generated objects
       || (generated_types_ready() < 0 )
   ) {
@@ -229,6 +230,8 @@ init_aubio (void)
   PyModule_AddObject (m, "pvoc", (PyObject *) & Py_pvocType);
   Py_INCREF (&Py_sourceType);
   PyModule_AddObject (m, "source", (PyObject *) & Py_sourceType);
+  Py_INCREF (&Py_sinkType);
+  PyModule_AddObject (m, "sink", (PyObject *) & Py_sinkType);
 
   // add generated objects
   add_generated_objects(m);

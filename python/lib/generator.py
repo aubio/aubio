@@ -54,6 +54,7 @@ def generate_object_files(output_path):
       'pitchspecacf',
       'pitchyin',
       'pitchyinfft',
+      'sink',
       'sink_apple_audio',
       'sink_sndfile',
       'source',
