@@ -224,8 +224,8 @@ aubio_source_wavread_t * new_aubio_source_wavread(char_t * path, uint_t samplera
   return s;
 
 beach:
-  AUBIO_ERR("source_wavread: can not read %s at samplerate %dHz with a hop_size of %d\n",
-      s->path, s->samplerate, s->hop_size);
+  //AUBIO_ERR("source_wavread: can not read %s at samplerate %dHz with a hop_size of %d\n",
+  //    s->path, s->samplerate, s->hop_size);
   del_aubio_source_wavread(s);
   return NULL;
 }
