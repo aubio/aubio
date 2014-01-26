@@ -38,7 +38,7 @@ typedef void (*aubio_sink_do_multi_t)(aubio_sink_t * s, fmat_t * data, uint_t * 
 typedef uint_t (*aubio_sink_get_samplerate_t)(aubio_sink_t * s);
 typedef uint_t (*aubio_sink_get_channels_t)(aubio_sink_t * s);
 #endif
-typedef uint_t (*del_aubio_sink_t)(aubio_sink_t * s);
+typedef void (*del_aubio_sink_t)(aubio_sink_t * s);
 
 struct _aubio_sink_t { 
   void *sink;

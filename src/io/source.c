@@ -41,7 +41,7 @@ typedef void (*aubio_source_do_multi_t)(aubio_source_t * s, fmat_t * data, uint_
 typedef uint_t (*aubio_source_get_samplerate_t)(aubio_source_t * s);
 typedef uint_t (*aubio_source_get_channels_t)(aubio_source_t * s);
 typedef uint_t (*aubio_source_seek_t)(aubio_source_t * s, uint_t seek);
-typedef uint_t (*del_aubio_source_t)(aubio_source_t * s);
+typedef void (*del_aubio_source_t)(aubio_source_t * s);
 
 struct _aubio_source_t { 
   void *source;
