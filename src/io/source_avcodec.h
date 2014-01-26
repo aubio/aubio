@@ -120,6 +120,17 @@ uint_t aubio_source_avcodec_seek (aubio_source_avcodec_t *s, uint_t pos);
 
 /**
 
+  close source
+
+  \param s source object, created with ::new_aubio_source_avcodec
+
+  \return 0 if sucessful, non-zero on failure
+
+*/
+uint_t aubio_source_avcodec_close (aubio_source_avcodec_t *s);
+
+/**
+
   close source and cleanup memory
 
   \param s source object, created with ::new_aubio_source_avcodec

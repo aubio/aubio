@@ -121,6 +121,17 @@ uint_t aubio_source_apple_audio_seek (aubio_source_apple_audio_t * s, uint_t pos
 
 /**
 
+  close source
+
+  \param s source object, created with ::new_aubio_source_apple_audio
+
+  \return 0 if sucessful, non-zero on failure
+
+*/
+uint_t aubio_source_apple_audio_close(aubio_source_apple_audio_t * s);
+
+/**
+
   close source and cleanup memory
 
   \param s source object, created with ::new_aubio_source_apple_audio

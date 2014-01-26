@@ -257,7 +257,7 @@ beach:
 uint_t aubio_source_apple_audio_close (aubio_source_apple_audio_t *s)
 {
   OSStatus err = noErr;
-  if (!s || !s->audioFile) { return AUBIO_FAIL; }
+  if (!s->audioFile) { return AUBIO_FAIL; }
   err = ExtAudioFileDispose(s->audioFile);
   s->audioFile = NULL;
   if (err) {

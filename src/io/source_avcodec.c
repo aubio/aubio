@@ -390,20 +390,12 @@ uint_t aubio_source_avcodec_seek (aubio_source_avcodec_t * s, uint_t pos) {
   return ret;
 }
 
-void del_aubio_source_avcodec(aubio_source_avcodec_t * s){
-  if (!s) return;
-  if (s->output != NULL) {
-    av_free(s->output);
-  }
+uint_t aubio_source_avcodec_close(aubio_source_avcodec_t * s) {
   if (s->avr != NULL) {
     avresample_close( s->avr );
     av_free ( s->avr );
   }
   s->avr = NULL;
-  if (s->avFrame != NULL) {
-    avcodec_free_frame( &(s->avFrame) );
-  }
-  s->avFrame = NULL;
   if (s->avCodecCtx != NULL) {
     avcodec_close ( s->avCodecCtx );
   }
@@ -411,8 +403,21 @@ void del_aubio_source_avcodec(aubio_source_avcodec_t * s){
   if (s->avFormatCtx != NULL) {
     avformat_close_input ( &(s->avFormatCtx) );
   }
-  s->avFrame = NULL;
   s->avFormatCtx = NULL;
+  return AUBIO_OK;
+}
+
+void del_aubio_source_avcodec(aubio_source_avcodec_t * s){
+  if (!s) return;
+  aubio_source_avcodec_close(s);
+  if (s->output != NULL) {
+    av_free(s->output);
+  }
+  s->output = NULL;
+  if (s->avFrame != NULL) {
+    avcodec_free_frame( &(s->avFrame) );
+  }
+  s->avFrame = NULL;
   AUBIO_FREE(s);
 }
 

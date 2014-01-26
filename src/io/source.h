@@ -141,6 +141,17 @@ uint_t aubio_source_seek (aubio_source_t * s, uint_t pos);
 
 /**
 
+  close source object
+
+  \param s source object, created with ::new_aubio_source
+
+  \return 0 if sucessful, non-zero on failure
+
+ */
+uint_t aubio_source_close (aubio_source_t *s);
+
+/**
+
   close source and cleanup memory
 
   \param s source object, created with ::new_aubio_source

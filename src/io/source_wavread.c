@@ -346,9 +346,16 @@ uint_t aubio_source_wavread_seek (aubio_source_wavread_t * s, uint_t pos) {
   return ret;
 }
 
+uint_t aubio_source_wavread_close (aubio_source_wavread_t * s) {
+  if (!s->fid || fclose(s->fid)) {
+    return AUBIO_FAIL;
+  }
+  return AUBIO_OK;
+}
+
 void del_aubio_source_wavread(aubio_source_wavread_t * s) {
   if (!s) return;
-  if (s->fid) fclose(s->fid);
+  aubio_source_wavread_close(s);
   if (s->short_output) AUBIO_FREE(s->short_output);
   if (s->output) del_fmat(s->output);
   AUBIO_FREE(s);

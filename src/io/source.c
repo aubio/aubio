@@ -41,6 +41,7 @@ typedef void (*aubio_source_do_multi_t)(aubio_source_t * s, fmat_t * data, uint_
 typedef uint_t (*aubio_source_get_samplerate_t)(aubio_source_t * s);
 typedef uint_t (*aubio_source_get_channels_t)(aubio_source_t * s);
 typedef uint_t (*aubio_source_seek_t)(aubio_source_t * s, uint_t seek);
+typedef uint_t (*aubio_source_close_t)(aubio_source_t * s);
 typedef void (*del_aubio_source_t)(aubio_source_t * s);
 
 struct _aubio_source_t { 
@@ -50,6 +51,7 @@ struct _aubio_source_t {
   aubio_source_get_samplerate_t s_get_samplerate;
   aubio_source_get_channels_t s_get_channels;
   aubio_source_seek_t s_seek;
+  aubio_source_close_t s_close;
   del_aubio_source_t s_del;
 };
 
@@ -63,6 +65,7 @@ aubio_source_t * new_aubio_source(char_t * uri, uint_t samplerate, uint_t hop_si
     s->s_get_channels = (aubio_source_get_channels_t)(aubio_source_avcodec_get_channels);
     s->s_get_samplerate = (aubio_source_get_samplerate_t)(aubio_source_avcodec_get_samplerate);
     s->s_seek = (aubio_source_seek_t)(aubio_source_avcodec_seek);
+    s->s_close = (aubio_source_close_t)(aubio_source_avcodec_close);
     s->s_del = (del_aubio_source_t)(del_aubio_source_avcodec);
     return s;
   }
@@ -75,6 +78,7 @@ aubio_source_t * new_aubio_source(char_t * uri, uint_t samplerate, uint_t hop_si
     s->s_get_channels = (aubio_source_get_channels_t)(aubio_source_apple_audio_get_channels);
     s->s_get_samplerate = (aubio_source_get_samplerate_t)(aubio_source_apple_audio_get_samplerate);
     s->s_seek = (aubio_source_seek_t)(aubio_source_apple_audio_seek);
+    s->s_close = (aubio_source_close_t)(aubio_source_apple_audio_close);
     s->s_del = (del_aubio_source_t)(del_aubio_source_apple_audio);
     return s;
   }
@@ -87,6 +91,7 @@ aubio_source_t * new_aubio_source(char_t * uri, uint_t samplerate, uint_t hop_si
     s->s_get_channels = (aubio_source_get_channels_t)(aubio_source_sndfile_get_channels);
     s->s_get_samplerate = (aubio_source_get_samplerate_t)(aubio_source_sndfile_get_samplerate);
     s->s_seek = (aubio_source_seek_t)(aubio_source_sndfile_seek);
+    s->s_close = (aubio_source_close_t)(aubio_source_sndfile_close);
     s->s_del = (del_aubio_source_t)(del_aubio_source_sndfile);
     return s;
   }
@@ -99,6 +104,7 @@ aubio_source_t * new_aubio_source(char_t * uri, uint_t samplerate, uint_t hop_si
     s->s_get_channels = (aubio_source_get_channels_t)(aubio_source_wavread_get_channels);
     s->s_get_samplerate = (aubio_source_get_samplerate_t)(aubio_source_wavread_get_samplerate);
     s->s_seek = (aubio_source_seek_t)(aubio_source_wavread_seek);
+    s->s_close = (aubio_source_close_t)(aubio_source_wavread_close);
     s->s_del = (del_aubio_source_t)(del_aubio_source_wavread);
     return s;
   }
@@ -115,6 +121,10 @@ void aubio_source_do(aubio_source_t * s, fvec_t * data, uint_t * read) {
 
 void aubio_source_do_multi(aubio_source_t * s, fmat_t * data, uint_t * read) {
   s->s_do_multi((void *)s->source, data, read);
+}
+
+uint_t aubio_source_close(aubio_source_t * s) {
+  return s->s_close((void *)s->source);
 }
 
 void del_aubio_source(aubio_source_t * s) {
