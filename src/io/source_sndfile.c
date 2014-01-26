@@ -270,6 +270,7 @@ uint_t aubio_source_sndfile_seek (aubio_source_sndfile_t * s, uint_t pos) {
 uint_t aubio_source_sndfile_close (aubio_source_sndfile_t *s) {
   if (!s->handle) {
     return AUBIO_FAIL;
+  }
   if(sf_close(s->handle)) {
     AUBIO_ERR("Error closing file %s: %s", s->path, sf_strerror (NULL));
     return AUBIO_FAIL;
@@ -279,7 +280,7 @@ uint_t aubio_source_sndfile_close (aubio_source_sndfile_t *s) {
 
 void del_aubio_source_sndfile(aubio_source_sndfile_t * s){
   if (!s) return;
-  aubio_source_sndfile_close(s):
+  aubio_source_sndfile_close(s);
 #ifdef HAVE_SAMPLERATE
   if (s->resampler != NULL) {
     del_aubio_resampler(s->resampler);
