@@ -126,8 +126,7 @@ Pyaubio_source_get_channels (Py_source *self, PyObject *unused)
 static PyObject *
 Pyaubio_source_close (Py_source *self, PyObject *unused)
 {
-  del_aubio_source (self->o);
-  self->o = NULL;
+  aubio_source_close (self->o);
   Py_RETURN_NONE;
 }
 

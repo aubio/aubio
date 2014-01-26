@@ -92,8 +92,7 @@ AUBIO_MEMBERS_STOP(sink)
 static PyObject *
 Pyaubio_sink_close (Py_sink *self, PyObject *unused)
 {
-  del_aubio_sink (self->o);
-  self->o = NULL;
+  aubio_sink_close (self->o);
   Py_RETURN_NONE;
 }
 
