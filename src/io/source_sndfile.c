@@ -66,15 +66,15 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplera
   SF_INFO sfinfo;
 
   if (path == NULL) {
-    AUBIO_ERR("Aborted opening null path\n");
+    AUBIO_ERR("source_sndfile: Aborted opening null path\n");
     goto beach;
   }
   if ((sint_t)samplerate < 0) {
-    AUBIO_ERR("Can not open %s with samplerate %d\n", path, samplerate);
+    AUBIO_ERR("source_sndfile: Can not open %s with samplerate %d\n", path, samplerate);
     goto beach;
   }
   if ((sint_t)hop_size <= 0) {
-    AUBIO_ERR("Can not open %s with hop_size %d\n", path, hop_size);
+    AUBIO_ERR("source_sndfile: Can not open %s with hop_size %d\n", path, hop_size);
     goto beach;
   }
 
@@ -88,7 +88,7 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplera
 
   if (s->handle == NULL) {
     /* show libsndfile err msg */
-    AUBIO_ERR("Failed opening %s: %s\n", s->path, sf_strerror (NULL));
+    AUBIO_ERR("source_sndfile: Failed opening %s: %s\n", s->path, sf_strerror (NULL));
     goto beach;
   }	
 
@@ -107,7 +107,7 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplera
   s->input_hop_size = (uint_t)FLOOR(s->hop_size / s->ratio + .5);
 
   if (s->input_hop_size * s->input_channels > MAX_SAMPLES) {
-    AUBIO_ERR("Not able to process more than %d frames of %d channels\n",
+    AUBIO_ERR("source_sndfile: Not able to process more than %d frames of %d channels\n",
         MAX_SAMPLES / s->input_channels, s->input_channels);
     goto beach;
   }
@@ -121,17 +121,17 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplera
     if (s->ratio > 1) {
       // we would need to add a ring buffer for these
       if ( (uint_t)(s->input_hop_size * s->ratio + .5)  != s->hop_size ) {
-        AUBIO_ERR("can not upsample %s from %d to %d\n", s->path,
+        AUBIO_ERR("source_sndfile: can not upsample %s from %d to %d\n", s->path,
             s->input_samplerate, s->samplerate);
         goto beach;
       }
-      AUBIO_WRN("upsampling %s from %d to %d\n", s->path,
+      AUBIO_WRN("source_sndfile: upsampling %s from %d to %d\n", s->path,
           s->input_samplerate, s->samplerate);
     }
   }
 #else
   if (s->ratio != 1) {
-    AUBIO_ERR("aubio was compiled without aubio_resampler\n");
+    AUBIO_ERR("source_sndfile: aubio was compiled without aubio_resampler\n");
     goto beach;
   }
 #endif /* HAVE_SAMPLERATE */
@@ -272,7 +272,7 @@ uint_t aubio_source_sndfile_close (aubio_source_sndfile_t *s) {
     return AUBIO_FAIL;
   }
   if(sf_close(s->handle)) {
-    AUBIO_ERR("Error closing file %s: %s", s->path, sf_strerror (NULL));
+    AUBIO_ERR("source_sndfile: Error closing file %s: %s", s->path, sf_strerror (NULL));
     return AUBIO_FAIL;
   }
   return AUBIO_OK;

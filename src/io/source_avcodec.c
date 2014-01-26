@@ -67,15 +67,15 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * path, uint_t samplera
   aubio_source_avcodec_t * s = AUBIO_NEW(aubio_source_avcodec_t);
   int err;
   if (path == NULL) {
-    AUBIO_ERR("Aborted opening null path\n");
+    AUBIO_ERR("source_avcodec: Aborted opening null path\n");
     goto beach;
   }
   if ((sint_t)samplerate < 0) {
-    AUBIO_ERR("Can not open %s with samplerate %d\n", path, samplerate);
+    AUBIO_ERR("source_avcodec: Can not open %s with samplerate %d\n", path, samplerate);
     goto beach;
   }
   if ((sint_t)hop_size <= 0) {
-    AUBIO_ERR("Can not open %s with hop_size %d\n", path, hop_size);
+    AUBIO_ERR("source_avcodec: Can not open %s with hop_size %d\n", path, hop_size);
     goto beach;
   }
 
@@ -95,7 +95,7 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * path, uint_t samplera
   if ( (err = avformat_open_input(&avFormatCtx, s->path, NULL, NULL) ) < 0 ) {
     char errorstr[256];
     av_strerror (err, errorstr, sizeof(errorstr));
-    AUBIO_ERR("Failed opening %s (%s)\n", s->path, errorstr);
+    AUBIO_ERR("source_avcodec: Failed opening %s (%s)\n", s->path, errorstr);
     goto beach;
   }
 
@@ -106,7 +106,7 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * path, uint_t samplera
   if ( (err = avformat_find_stream_info(avFormatCtx, NULL)) < 0 ) {
     char errorstr[256];
     av_strerror (err, errorstr, sizeof(errorstr));
-    AUBIO_ERR("Could not find stream information " "for %s (%s)\n", s->path,
+    AUBIO_ERR("source_avcodec: Could not find stream information " "for %s (%s)\n", s->path,
         errorstr);
     goto beach;
   }
@@ -122,13 +122,13 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * path, uint_t samplera
       if (selected_stream == -1) {
         selected_stream = i;
       } else {
-        AUBIO_WRN("More than one audio stream in %s, "
+        AUBIO_WRN("source_avcodec: More than one audio stream in %s, "
             "taking the first one\n", s->path);
       }
     }
   }
   if (selected_stream == -1) {
-    AUBIO_ERR("No audio stream in %s\n", s->path);
+    AUBIO_ERR("source_avcodec: No audio stream in %s\n", s->path);
     goto beach;
   }
   //AUBIO_DBG("Taking stream %d in file %s\n", selected_stream, s->path);
@@ -138,14 +138,14 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * path, uint_t samplera
   avCodecCtx = avFormatCtx->streams[selected_stream]->codec;
   AVCodec *codec = avcodec_find_decoder(avCodecCtx->codec_id);
   if (codec == NULL) {
-    AUBIO_ERR("Could not find decoder for %s", s->path);
+    AUBIO_ERR("source_avcodec: Could not find decoder for %s", s->path);
     goto beach;
   }
 
   if ( ( err = avcodec_open2(avCodecCtx, codec, NULL) ) < 0) {
     char errorstr[256];
     av_strerror (err, errorstr, sizeof(errorstr));
-    AUBIO_ERR("Could not load codec for %s (%s)\n", s->path, errorstr);
+    AUBIO_ERR("source_avcodec: Could not load codec for %s (%s)\n", s->path, errorstr);
     goto beach;
   }
 
@@ -162,14 +162,14 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * path, uint_t samplera
   s->samplerate = samplerate;
 
   if (s->samplerate >  s->input_samplerate) {
-    AUBIO_WRN("upsampling %s from %d to %d\n", s->path,
+    AUBIO_WRN("source_avcodec: upsampling %s from %d to %d\n", s->path,
         s->input_samplerate, s->samplerate);
   }
 
   AVFrame *avFrame = s->avFrame;
   avFrame = avcodec_alloc_frame();
   if (!avFrame) {
-    AUBIO_ERR("Could not allocate frame for (%s)\n", s->path);
+    AUBIO_ERR("source_avcodec: Could not allocate frame for (%s)\n", s->path);
   }
 
   /* allocate output for avr */
@@ -222,7 +222,7 @@ void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s, uint_t mul
     if ( ( err = avresample_open(avr) ) < 0) {
       char errorstr[256];
       av_strerror (err, errorstr, sizeof(errorstr));
-      AUBIO_ERR("Could not open AVAudioResampleContext for %s (%s)\n",
+      AUBIO_ERR("source_avcodec: Could not open AVAudioResampleContext for %s (%s)\n",
           s->path, errorstr);
       //goto beach;
       return;

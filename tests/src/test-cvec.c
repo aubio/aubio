@@ -4,9 +4,10 @@
 int main (void)
 {
   uint_t i, window_size = 16; // window size
-  utils_init_random();
   cvec_t * complex_vector = new_cvec (window_size); // input buffer
   uint_t rand_times = 4;
+
+  utils_init_random();
 
   while (rand_times -- ) {
     // fill with random phas and norm

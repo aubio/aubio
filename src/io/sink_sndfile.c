@@ -49,7 +49,7 @@ aubio_sink_sndfile_t * new_aubio_sink_sndfile(char_t * path, uint_t samplerate) 
   SF_INFO sfinfo;
 
   if (path == NULL) {
-    AUBIO_ERR("Aborted opening null path\n");
+    AUBIO_ERR("sink_sndfile: Aborted opening null path\n");
     return NULL;
   }
 
@@ -69,7 +69,7 @@ aubio_sink_sndfile_t * new_aubio_sink_sndfile(char_t * path, uint_t samplerate) 
 
   if (s->handle == NULL) {
     /* show libsndfile err msg */
-    AUBIO_ERR("Failed opening %s. %s\n", s->path, sf_strerror (NULL));
+    AUBIO_ERR("sink_sndfile: Failed opening %s. %s\n", s->path, sf_strerror (NULL));
     AUBIO_FREE(s);
     return NULL;
   }	
@@ -77,7 +77,7 @@ aubio_sink_sndfile_t * new_aubio_sink_sndfile(char_t * path, uint_t samplerate) 
   s->scratch_size = s->max_size*s->channels;
   /* allocate data for de/interleaving reallocated when needed. */
   if (s->scratch_size >= MAX_SIZE * MAX_CHANNELS) {
-    AUBIO_ERR("%d x %d exceeds maximum aubio_sink_sndfile buffer size %d\n",
+    AUBIO_ERR("sink_sndfile: %d x %d exceeds maximum aubio_sink_sndfile buffer size %d\n",
         s->max_size, s->channels, MAX_CHANNELS * MAX_CHANNELS);
     AUBIO_FREE(s);
     return NULL;
@@ -109,7 +109,7 @@ void aubio_sink_sndfile_do(aubio_sink_sndfile_t *s, fvec_t * write_data, uint_t 
 
   written_frames = sf_write_float (s->handle, s->scratch_data, nsamples);
   if (written_frames/channels != write) {
-    AUBIO_WRN("trying to write %d frames to %s, but only %d could be written",
+    AUBIO_WRN("sink_sndfile: trying to write %d frames to %s, but only %d could be written",
       write, s->path, (uint_t)written_frames);
   }
   return;
@@ -120,7 +120,7 @@ uint_t aubio_sink_sndfile_close (aubio_sink_sndfile_t *s) {
     return AUBIO_FAIL;
   }
   if (sf_close(s->handle)) {
-    AUBIO_ERR("Error closing file %s: %s", s->path, sf_strerror (NULL));
+    AUBIO_ERR("sink_sndfile: Error closing file %s: %s", s->path, sf_strerror (NULL));
     return AUBIO_FAIL;
   }
   s->handle = NULL;
