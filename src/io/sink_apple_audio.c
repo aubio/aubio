@@ -141,11 +141,10 @@ void aubio_sink_apple_audio_do(aubio_sink_apple_audio_t * s, fvec_t * write_data
   return;
 }
 
-void del_aubio_sink_apple_audio(aubio_sink_apple_audio_t * s) {
+uint_t aubio_sink_apple_audio_close(aubio_sink_apple_audio_t * s) {
   OSStatus err = noErr;
-  if (!s || !s->audioFile) {
-    AUBIO_ERR("sink_apple_audio: failed erasing\n");
-    return;
+  if (!s->audioFile) {
+    return AUBIO_FAIL;
   }
   err = ExtAudioFileDispose(s->audioFile);
   if (err) {
@@ -155,6 +154,11 @@ void del_aubio_sink_apple_audio(aubio_sink_apple_audio_t * s) {
         getPrintableOSStatusError(errorstr, err));
   }
   s->audioFile = NULL;
+  return err;
+}
+
+void del_aubio_sink_apple_audio(aubio_sink_apple_audio_t * s) {
+  if (s->audioFile) aubio_sink_apple_audio_close (s);
   freeAudioBufferList(&s->bufferList);
   AUBIO_FREE(s);
   return;

@@ -63,9 +63,20 @@ void aubio_sink_do(aubio_sink_t * s, fvec_t * write_data, uint_t write);
 
 /**
 
+  close sink
+
+  \param s sink object, created with ::new_aubio_sink
+
+  \return 0 on success, non-zero on failure
+
+*/
+uint_t aubio_sink_close(aubio_sink_t * s);
+
+/**
+
   close sink and cleanup memory
 
-  \param s source object, created with ::new_aubio_source
+  \param s sink object, created with ::new_aubio_sink
 
 */
 void del_aubio_sink(aubio_sink_t * s);

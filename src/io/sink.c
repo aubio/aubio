@@ -38,6 +38,7 @@ typedef void (*aubio_sink_do_multi_t)(aubio_sink_t * s, fmat_t * data, uint_t * 
 typedef uint_t (*aubio_sink_get_samplerate_t)(aubio_sink_t * s);
 typedef uint_t (*aubio_sink_get_channels_t)(aubio_sink_t * s);
 #endif
+typedef uint_t (*aubio_sink_close_t)(aubio_sink_t * s);
 typedef void (*del_aubio_sink_t)(aubio_sink_t * s);
 
 struct _aubio_sink_t { 
@@ -48,6 +49,7 @@ struct _aubio_sink_t {
   aubio_sink_get_samplerate_t s_get_samplerate;
   aubio_sink_get_channels_t s_get_channels;
 #endif
+  aubio_sink_close_t s_close;
   del_aubio_sink_t s_del;
 };
 
@@ -57,6 +59,7 @@ aubio_sink_t * new_aubio_sink(char_t * uri, uint_t samplerate) {
   s->sink = (void *)new_aubio_sink_apple_audio(uri, samplerate);
   if (s->sink) {
     s->s_do = (aubio_sink_do_t)(aubio_sink_apple_audio_do);
+    s->s_close = (aubio_sink_close_t)(aubio_sink_apple_audio_close);
     s->s_del = (del_aubio_sink_t)(del_aubio_sink_apple_audio);
     return s;
   }
@@ -65,6 +68,7 @@ aubio_sink_t * new_aubio_sink(char_t * uri, uint_t samplerate) {
   s->sink = (void *)new_aubio_sink_sndfile(uri, samplerate);
   if (s->sink) {
     s->s_do = (aubio_sink_do_t)(aubio_sink_sndfile_do);
+    s->s_close = (aubio_sink_close_t)(aubio_sink_sndfile_close);
     s->s_del = (del_aubio_sink_t)(del_aubio_sink_sndfile);
     return s;
   }
@@ -73,17 +77,23 @@ aubio_sink_t * new_aubio_sink(char_t * uri, uint_t samplerate) {
   s->sink = (void *)new_aubio_sink_wavwrite(uri, samplerate);
   if (s->sink) {
     s->s_do = (aubio_sink_do_t)(aubio_sink_wavwrite_do);
+    s->s_close = (aubio_sink_close_t)(aubio_sink_wavwrite_close);
     s->s_del = (del_aubio_sink_t)(del_aubio_sink_wavwrite);
     return s;
   }
 #endif /* HAVE_WAVWRITE */
-  AUBIO_ERROR("sink: failed creating aubio sink with %s\n", uri);
+  AUBIO_ERROR("sink: failed creating %s with samplerate %dHz\n",
+      uri, samplerate);
   AUBIO_FREE(s);
   return NULL;
 }
 
 void aubio_sink_do(aubio_sink_t * s, fvec_t * write_data, uint_t write) {
   s->s_do((void *)s->sink, write_data, write);
+}
+
+uint_t aubio_sink_close(aubio_sink_t *s) {
+  return s->s_close((void *)s->sink);
 }
 
 void del_aubio_sink(aubio_sink_t * s) {

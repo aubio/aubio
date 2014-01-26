@@ -68,6 +68,17 @@ void aubio_sink_apple_audio_do(aubio_sink_apple_audio_t * s, fvec_t * write_data
 
 /**
 
+  close sink
+
+  \param s sink_apple_audio object, created with ::new_aubio_sink_apple_audio
+
+  \return 0 on success, non-zero on failure
+
+*/
+uint_t aubio_sink_apple_audio_close(aubio_sink_apple_audio_t * s);
+
+/**
+
   close sink and cleanup memory
 
   \param s sink, created with ::new_aubio_sink_apple_audio

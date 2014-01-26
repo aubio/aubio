@@ -115,11 +115,21 @@ void aubio_sink_sndfile_do(aubio_sink_sndfile_t *s, fvec_t * write_data, uint_t 
   return;
 }
 
-void del_aubio_sink_sndfile(aubio_sink_sndfile_t * s){
-  if (!s) return;
+uint_t aubio_sink_sndfile_close (aubio_sink_sndfile_t *s) {
+  if (!s->handle) {
+    return AUBIO_FAIL;
+  }
   if (sf_close(s->handle)) {
     AUBIO_ERR("Error closing file %s: %s", s->path, sf_strerror (NULL));
+    return AUBIO_FAIL;
   }
+  s->handle = NULL;
+  return AUBIO_OK;
+}
+
+void del_aubio_sink_sndfile(aubio_sink_sndfile_t * s){
+  if (!s) return;
+  aubio_sink_sndfile_close(s);
   AUBIO_FREE(s->scratch_data);
   AUBIO_FREE(s);
 }

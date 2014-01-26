@@ -67,6 +67,17 @@ void aubio_sink_sndfile_do(aubio_sink_sndfile_t * s, fvec_t * write_data, uint_t
 
 /**
 
+  close sink
+
+  \param s sink_sndfile object, created with ::new_aubio_sink_sndfile
+
+  \return 0 on success, non-zero on failure
+
+*/
+uint_t aubio_sink_sndfile_close(aubio_sink_sndfile_t * s);
+
+/**
+
   close sink and cleanup memory
 
   \param s sink, created with ::new_aubio_sink_sndfile

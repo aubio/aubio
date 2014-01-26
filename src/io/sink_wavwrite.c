@@ -152,8 +152,8 @@ aubio_sink_wavwrite_t * new_aubio_sink_wavwrite(char_t * path, uint_t samplerate
   return s;
 
 beach:
-  AUBIO_ERR("sink_wavwrite: can not write %s at samplerate %dHz\n",
-      s->path, s->samplerate);
+  //AUBIO_ERR("sink_wavwrite: failed creating %s with samplerate %dHz\n",
+  //    s->path, s->samplerate);
   del_aubio_sink_wavwrite(s);
   return NULL;
 }
@@ -181,10 +181,10 @@ void aubio_sink_wavwrite_do(aubio_sink_wavwrite_t *s, fvec_t * write_data, uint_
   return;
 }
 
-void aubio_sink_wavwrite_close(aubio_sink_wavwrite_t * s) {
+uint_t aubio_sink_wavwrite_close(aubio_sink_wavwrite_t * s) {
   uint_t data_size = s->total_frames_written * s->bitspersample * s->channels / 8;
   unsigned char buf[5];
-  if (!s->fid) return;
+  if (!s->fid) return AUBIO_FAIL;
   // ChunkSize
   fseek(s->fid, 4, SEEK_SET);
   fwrite(write_little_endian(data_size + 36, buf, 4), 4, 1, s->fid);
@@ -196,6 +196,7 @@ void aubio_sink_wavwrite_close(aubio_sink_wavwrite_t * s) {
     AUBIO_ERR("sink_wavwrite: Error closing file %s (%s)\n", s->path, strerror(errno));
   }
   s->fid = NULL;
+  return AUBIO_OK;
 }
 
 void del_aubio_sink_wavwrite(aubio_sink_wavwrite_t * s){

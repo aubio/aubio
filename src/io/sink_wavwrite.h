@@ -67,6 +67,17 @@ void aubio_sink_wavwrite_do(aubio_sink_wavwrite_t * s, fvec_t * write_data, uint
 
 /**
 
+  close sink
+
+  \param s sink_wavwrite object, create with ::new_aubio_sink_wavwrite
+
+  \return 0 on success, non-zero on failure
+
+*/
+uint_t aubio_sink_wavwrite_close(aubio_sink_wavwrite_t * s);
+
+/**
+
   close sink and cleanup memory
 
   \param s sink, created with ::new_aubio_sink_wavwrite
