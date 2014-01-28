@@ -51,6 +51,7 @@ int main (int argc, char **argv)
       n_frames / hop_size, source_path);
 
   // clean up memory
+  del_aubio_source(source);
   del_aubio_onset(o);
   del_fvec(in);
   del_fvec(out);
