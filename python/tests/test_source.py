@@ -47,19 +47,19 @@ class aubio_source_test_case(TestCase):
         for p in list_of_sounds:
             try:
                 f = source(p, -1)
-            except Exception, e:
-                print e
+            except ValueError, e:
+                pass
             else:
-                self.fail('does not fail with wrong samplerate')
+                self.fail('negative samplerate does not raise ValueError')
 
     def test_wrong_hop_size(self):
         for p in list_of_sounds:
             try:
                 f = source(p, 0, -1)
-            except Exception, e:
-                print e
+            except ValueError, e:
+                pass
             else:
-                self.fail('does not fail with wrong hop_size %d' % f.hop_size)
+                self.fail('negative hop_size does not raise ValueError')
 
     def test_zero_hop_size(self):
         for p in list_of_sounds:
