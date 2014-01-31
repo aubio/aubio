@@ -68,6 +68,21 @@ class aubio_source_test_case(TestCase):
             assert f.hop_size != 0
             self.read_from_sink(f)
 
+    def test_close_file(self):
+        samplerate = 0 # use native samplerate
+        hop_size = 256
+        for p in list_of_sounds:
+            f = source(p, samplerate, hop_size)
+            f.close()
+
+    def test_close_file_twice(self):
+        samplerate = 0 # use native samplerate
+        hop_size = 256
+        for p in list_of_sounds:
+            f = source(p, samplerate, hop_size)
+            f.close()
+            f.close()
+
 if __name__ == '__main__':
     from unittest import main
     main()

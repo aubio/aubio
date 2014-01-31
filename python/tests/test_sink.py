@@ -41,6 +41,17 @@ class aubio_sink_test_case(TestCase):
                 print "to", g.uri
                 #del f, g
 
+    def test_close_file(self):
+        samplerate = 44100
+        g = sink('/tmp/f.wav', samplerate)
+        g.close()
+
+    def test_close_file_twice(self):
+        samplerate = 44100
+        g = sink('/tmp/f.wav', samplerate)
+        g.close()
+        g.close()
+
 if __name__ == '__main__':
     from unittest import main
     main()
