@@ -186,7 +186,8 @@ if __name__ == '__main__':
             timestamps_end = [t for t in timestamps[1 + options.cut_until_nslices:]]
             timestamps_end += [ 1e120 ] * (options.cut_until_nslices + 1)
         slice_source_at_stamps(source_file, timestamps, timestamps_end = timestamps_end,
-                output_dir = options.output_directory)
+                output_dir = options.output_directory,
+                samplerate = samplerate)
 
         # print some info
         duration = float (total_frames) / float(samplerate)
