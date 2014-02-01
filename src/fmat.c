@@ -129,7 +129,7 @@ void fmat_weight(fmat_t *s, fmat_t *weight) {
 void fmat_copy(fmat_t *s, fmat_t *t) {
   uint_t i;
 #if !HAVE_MEMCPY_HACKS
-  uint_t i,j;
+  uint_t j;
 #endif
   if (s->height != t->height) {
     AUBIO_ERR("trying to copy %d rows to %d rows \n",
