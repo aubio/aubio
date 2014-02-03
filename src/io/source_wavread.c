@@ -347,9 +347,14 @@ uint_t aubio_source_wavread_seek (aubio_source_wavread_t * s, uint_t pos) {
 }
 
 uint_t aubio_source_wavread_close (aubio_source_wavread_t * s) {
-  if (!s->fid || fclose(s->fid)) {
+  if (!s->fid) {
     return AUBIO_FAIL;
   }
+  if (fclose(s->fid)) {
+    AUBIO_ERR("source_wavread: could not close %s (%s)\n", s->path, strerror(errno));
+    return AUBIO_FAIL;
+  }
+  s->fid = NULL;
   return AUBIO_OK;
 }
 
