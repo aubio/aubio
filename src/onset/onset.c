@@ -34,7 +34,6 @@ struct _aubio_onset_t {
   aubio_peakpicker_t * pp;      /**< peak picker */
   cvec_t * fftgrain;            /**< phase vocoder output */
   fvec_t * desc;                /**< spectral description */
-  smpl_t threshold;             /**< onset peak picking threshold */
   smpl_t silence;               /**< silence threhsold */
   uint_t minioi;                /**< minimum inter onset interval */
   uint_t delay;                 /**< constant delay, in samples, removed from detected onset times */
@@ -101,8 +100,7 @@ uint_t aubio_onset_set_silence(aubio_onset_t * o, smpl_t silence) {
 }
 
 uint_t aubio_onset_set_threshold(aubio_onset_t * o, smpl_t threshold) {
-  o->threshold = threshold;
-  aubio_peakpicker_set_threshold(o->pp, o->threshold);
+  aubio_peakpicker_set_threshold(o->pp, threshold);
   return AUBIO_OK;
 }
 
@@ -170,21 +168,26 @@ aubio_onset_t * new_aubio_onset (char_t * onset_mode,
     uint_t buf_size, uint_t hop_size, uint_t samplerate)
 {
   aubio_onset_t * o = AUBIO_NEW(aubio_onset_t);
-  /** set some default parameter */
+  /* store creation parameters */
   o->samplerate = samplerate;
   o->hop_size = hop_size;
-  o->last_onset = 0;
-  o->threshold = 0.3;
-  o->delay     = 4.3 * hop_size;
-  o->minioi    = 5 * hop_size;
-  o->silence   = -70;
-  o->total_frames = 0;
+
+  /* allocate memory */
   o->pv = new_aubio_pvoc(buf_size, o->hop_size);
   o->pp = new_aubio_peakpicker();
-  aubio_peakpicker_set_threshold (o->pp, o->threshold);
   o->od = new_aubio_specdesc(onset_mode,buf_size);
   o->fftgrain = new_cvec(buf_size);
   o->desc = new_fvec(1);
+
+  /* set some default parameter */
+  aubio_onset_set_threshold (o, 0.3);
+  aubio_onset_set_delay_ms(o, 50.);
+  aubio_onset_set_minioi_ms(o, 20.);
+  aubio_onset_set_silence(o, -70.);
+
+  /* initialize internal variables */
+  o->last_onset = 0;
+  o->total_frames = 0;
   return o;
 }
 
