@@ -257,6 +257,14 @@ smpl_t aubio_onset_get_delay_s(aubio_onset_t * o);
 */
 smpl_t aubio_onset_get_delay_ms(aubio_onset_t * o);
 
+/** get onset peak picking threshold
+
+  \param o onset detection object as returned by new_aubio_onset()
+  \return current onset detection threshold
+
+*/
+smpl_t aubio_onset_get_threshold(aubio_onset_t * o);
+
 /** delete onset detection object
 
   \param o onset detection object to delete

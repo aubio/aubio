@@ -104,6 +104,10 @@ uint_t aubio_onset_set_threshold(aubio_onset_t * o, smpl_t threshold) {
   return AUBIO_OK;
 }
 
+smpl_t aubio_onset_get_threshold(aubio_onset_t * o) {
+  return aubio_peakpicker_get_threshold(o->pp);
+}
+
 uint_t aubio_onset_set_minioi(aubio_onset_t * o, uint_t minioi) {
   o->minioi = minioi;
   return AUBIO_OK;
