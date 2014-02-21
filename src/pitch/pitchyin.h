@@ -29,6 +29,7 @@
   estimator for speech and music", J. Acoust. Soc. Am. 111, 1917-1930.
 
   see http://recherche.ircam.fr/equipes/pcm/pub/people/cheveign.html
+      http://recherche.ircam.fr/equipes/pcm/cheveign/ps/2002_JASA_YIN_proof.pdf
 
   \example pitch/test-pitchyin.c
 
