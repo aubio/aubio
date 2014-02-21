@@ -185,7 +185,7 @@ aubio_onset_t * new_aubio_onset (char_t * onset_mode,
 
   /* set some default parameter */
   aubio_onset_set_threshold (o, 0.3);
-  aubio_onset_set_delay_ms(o, 50.);
+  aubio_onset_set_delay(o, 4.3 * hop_size);
   aubio_onset_set_minioi_ms(o, 20.);
   aubio_onset_set_silence(o, -70.);
 
