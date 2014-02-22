@@ -7,9 +7,10 @@ if __name__ == '__main__':
   if len(sys.argv) < 2:
     print 'usage: %s <inputfile>' % sys.argv[0]
     sys.exit(1)
-  f = source(sys.argv[1], 0, 256)
-  samplerate = f.get_samplerate()
-  total_frames, read = 0, 256
+  hop_size = 512
+  f = source(sys.argv[1], 0, hop_size)
+  samplerate = f.samplerate
+  total_frames, read = 0, hop_size
   while read:
     vec, read = f()
     total_frames += read
