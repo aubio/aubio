@@ -242,8 +242,8 @@ parse_args (int argc, char **argv)
   } else if ((sint_t)buffer_size < 2) {
     errmsg("Error: got buffer_size %d, but can not be < 2\n", buffer_size);
     usage ( stderr, 1 );
-  } else if ((sint_t)buffer_size < (sint_t)hop_size + 1) {
-    errmsg("Error: hop size (%d) is larger than or equal to win size (%d)\n",
+  } else if ((sint_t)buffer_size < (sint_t)hop_size) {
+    errmsg("Error: hop size (%d) is larger than win size (%d)\n",
         hop_size, buffer_size);
     usage ( stderr, 1 );
   }
