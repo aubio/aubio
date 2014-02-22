@@ -54,6 +54,13 @@ def parse_args():
             action="store_true", dest="cut", default=False,
             help="cut input sound file at detected labels \
                     best used with option -L")
+
+    # minioi
+    parser.add_option("-M","--minioi",
+            metavar = "<value>", type='string',
+            action="store", dest="minioi", default="12ms",
+            help="minimum inter onset interval [default=12ms]")
+
     """
     parser.add_option("-D","--delay",
             action = "store", dest = "delay", type = "float",
@@ -64,10 +71,6 @@ def parse_args():
             metavar = "<value>",
             action="store", dest="dcthreshold", default=1.,
             help="onset peak picking DC component [default=1.]")
-    parser.add_option("-M","--mintol",
-            metavar = "<value>",
-            action="store", dest="mintol", default=0.048,
-            help="minimum inter onset interval [default=0.048]")
     parser.add_option("-L","--localmin",
             action="store_true", dest="localmin", default=False,
             help="use local minima after peak detection")
@@ -152,6 +155,13 @@ if __name__ == '__main__':
         o = tempo(options.onset_method, bufsize, hopsize)
     else:
         o = onset(options.onset_method, bufsize, hopsize)
+        if options.minioi:
+            if options.minioi.endswith('ms'):
+                o.set_minioi_ms(int(options.minioi[:-2]))
+            elif options.minioi.endswith('s'):
+                o.set_minioi_s(int(options.minioi[:-1]))
+            else:
+                o.set_minioi(int(options.minioi))
     o.set_threshold(options.threshold)
 
     timestamps = []
