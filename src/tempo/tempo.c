@@ -157,10 +157,11 @@ uint_t aubio_tempo_set_threshold(aubio_tempo_t * o, smpl_t threshold) {
 }
 
 /* Allocate memory for an tempo detection */
-aubio_tempo_t * new_aubio_tempo (char_t * onset_mode, 
+aubio_tempo_t * new_aubio_tempo (char_t * tempo_mode,
     uint_t buf_size, uint_t hop_size, uint_t samplerate)
 {
   aubio_tempo_t * o = AUBIO_NEW(aubio_tempo_t);
+  char_t specdesc_func[20];
   o->samplerate = samplerate;
   /* length of observations, worth about 6 seconds */
   o->winlen = aubio_next_power_of_two(5.8 * samplerate / hop_size);
@@ -178,7 +179,12 @@ aubio_tempo_t * new_aubio_tempo (char_t * onset_mode,
   o->pv       = new_aubio_pvoc(buf_size, hop_size);
   o->pp       = new_aubio_peakpicker();
   aubio_peakpicker_set_threshold (o->pp, o->threshold);
-  o->od       = new_aubio_specdesc(onset_mode,buf_size);
+  if ( strcmp(tempo_mode, "default") == 0 ) {
+    strcpy(specdesc_func, "specflux");
+  } else {
+    strcpy(specdesc_func, tempo_mode);
+  }
+  o->od       = new_aubio_specdesc(specdesc_func,buf_size);
   o->of       = new_fvec(1);
   o->bt       = new_aubio_beattracking(o->winlen, o->hop_size, o->samplerate);
   o->onset    = new_fvec(1);
