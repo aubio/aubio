@@ -12,10 +12,6 @@ many_files = 300 # 256 opened files is too much
 
 class aubio_sink_test_case(TestCase):
 
-    def setUp(self):
-        if not len(list_of_sounds):
-            self.skipTest('add some sound files in \'python/tests/sounds\'')
-
     def test_many_sinks(self):
         from tempfile import mkdtemp
         import os.path
@@ -56,7 +52,11 @@ class aubio_sink_test_case(TestCase):
             g.close()
         shutil.rmtree(tmpdir)
 
-    def test_read(self):
+    def test_read_and_write(self):
+
+        if not len(list_of_sounds):
+            self.skipTest('add some sound files in \'python/tests/sounds\'')
+
         for path in list_of_sounds:
             for samplerate, hop_size in zip([0, 44100, 8000, 32000], [512, 1024, 64, 256]):
                 f = source(path, samplerate, hop_size)
