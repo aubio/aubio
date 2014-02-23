@@ -26,8 +26,9 @@
 #include <sndfile.h>
 
 #include "aubio_priv.h"
-#include "sink_sndfile.h"
 #include "fvec.h"
+#include "fmat.h"
+#include "io/sink_sndfile.h"
 
 #define MAX_CHANNELS 6
 #define MAX_SIZE 4096
@@ -153,6 +154,34 @@ void aubio_sink_sndfile_do(aubio_sink_sndfile_t *s, fvec_t * write_data, uint_t 
   /* interleaving data  */
   for ( i = 0; i < channels; i++) {
     pwrite = (smpl_t *)write_data->data;
+    for (j = 0; j < write; j++) {
+      s->scratch_data[channels*j+i] = pwrite[j];
+    }
+  }
+
+  written_frames = sf_write_float (s->handle, s->scratch_data, nsamples);
+  if (written_frames/channels != write) {
+    AUBIO_WRN("sink_sndfile: trying to write %d frames to %s, but only %d could be written",
+      write, s->path, (uint_t)written_frames);
+  }
+  return;
+}
+
+void aubio_sink_sndfile_do_multi(aubio_sink_sndfile_t *s, fmat_t * write_data, uint_t write){
+  uint_t i, j,	channels = s->channels;
+  int nsamples = channels*write;
+  smpl_t *pwrite;
+  sf_count_t written_frames;
+
+  if (write > s->max_size) {
+    AUBIO_WRN("trying to write %d frames, but only %d can be written at a time",
+      write, s->max_size);
+    write = s->max_size;
+  }
+
+  /* interleaving data  */
+  for ( i = 0; i < write_data->height; i++) {
+    pwrite = (smpl_t *)write_data->data[i];
     for (j = 0; j < write; j++) {
       s->scratch_data[channels*j+i] = pwrite[j];
     }
