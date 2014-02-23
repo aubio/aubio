@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2012 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2012-2014 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -44,21 +44,74 @@ struct _aubio_sink_sndfile_t {
   smpl_t *scratch_data;
 };
 
+uint_t aubio_sink_sndfile_open(aubio_sink_sndfile_t *s);
+
 aubio_sink_sndfile_t * new_aubio_sink_sndfile(char_t * path, uint_t samplerate) {
   aubio_sink_sndfile_t * s = AUBIO_NEW(aubio_sink_sndfile_t);
-  SF_INFO sfinfo;
+  s->max_size = MAX_SIZE;
+  s->path = path;
 
   if (path == NULL) {
     AUBIO_ERR("sink_sndfile: Aborted opening null path\n");
     return NULL;
   }
 
-  s->samplerate = samplerate;
-  s->max_size = MAX_SIZE;
-  s->channels = 1;
-  s->path = path;
+  s->samplerate = 0;
+  s->channels = 0;
 
+  // negative samplerate given, abort
+  if ((sint_t)samplerate < 0) goto beach;
+  // zero samplerate given. do not open yet
+  if ((sint_t)samplerate == 0) return s;
+
+  s->samplerate = samplerate;
+  s->channels = 1;
+
+  if (aubio_sink_sndfile_open(s) != AUBIO_OK) {;
+    goto beach;
+  }
+  return s;
+
+beach:
+  del_aubio_sink_sndfile(s);
+  return NULL;
+}
+
+uint_t aubio_sink_sndfile_preset_samplerate(aubio_sink_sndfile_t *s, uint_t samplerate)
+{
+  if ((sint_t)(samplerate) <= 0) return AUBIO_FAIL;
+  s->samplerate = samplerate;
+  // automatically open when both samplerate and channels have been set
+  if (s->samplerate != 0 && s->channels != 0) {
+    return aubio_sink_sndfile_open(s);
+  }
+  return AUBIO_OK;
+}
+
+uint_t aubio_sink_sndfile_preset_channels(aubio_sink_sndfile_t *s, uint_t channels)
+{
+  if ((sint_t)(channels) <= 0) return AUBIO_FAIL;
+  s->channels = channels;
+  // automatically open when both samplerate and channels have been set
+  if (s->samplerate != 0 && s->channels != 0) {
+    return aubio_sink_sndfile_open(s);
+  }
+  return AUBIO_OK;
+}
+
+uint_t aubio_sink_sndfile_get_samplerate(aubio_sink_sndfile_t *s)
+{
+  return s->samplerate;
+}
+
+uint_t aubio_sink_sndfile_get_channels(aubio_sink_sndfile_t *s)
+{
+  return s->channels;
+}
+
+uint_t aubio_sink_sndfile_open(aubio_sink_sndfile_t *s) {
   /* set output format */
+  SF_INFO sfinfo;
   AUBIO_MEMSET(&sfinfo, 0, sizeof (sfinfo));
   sfinfo.samplerate = s->samplerate;
   sfinfo.channels   = s->channels;
@@ -70,8 +123,7 @@ aubio_sink_sndfile_t * new_aubio_sink_sndfile(char_t * path, uint_t samplerate) 
   if (s->handle == NULL) {
     /* show libsndfile err msg */
     AUBIO_ERR("sink_sndfile: Failed opening %s. %s\n", s->path, sf_strerror (NULL));
-    AUBIO_FREE(s);
-    return NULL;
+    return AUBIO_FAIL;
   }	
 
   s->scratch_size = s->max_size*s->channels;
@@ -79,12 +131,11 @@ aubio_sink_sndfile_t * new_aubio_sink_sndfile(char_t * path, uint_t samplerate) 
   if (s->scratch_size >= MAX_SIZE * MAX_CHANNELS) {
     AUBIO_ERR("sink_sndfile: %d x %d exceeds maximum aubio_sink_sndfile buffer size %d\n",
         s->max_size, s->channels, MAX_CHANNELS * MAX_CHANNELS);
-    AUBIO_FREE(s);
-    return NULL;
+    return AUBIO_FAIL;
   }
   s->scratch_data = AUBIO_ARRAY(float,s->scratch_size);
 
-  return s;
+  return AUBIO_OK;
 }
 
 void aubio_sink_sndfile_do(aubio_sink_sndfile_t *s, fvec_t * write_data, uint_t write){
