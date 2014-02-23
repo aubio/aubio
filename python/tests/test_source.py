@@ -8,10 +8,29 @@ from utils import list_all_sounds
 list_of_sounds = list_all_sounds('sounds')
 path = None
 
-class aubio_source_test_case(TestCase):
+class aubio_source_test_case_base(TestCase):
 
     def setUp(self):
         if not len(list_of_sounds): self.skipTest('add some sound files in \'python/tests/sounds\'')
+
+class aubio_source_test_case(aubio_source_test_case_base):
+
+    def test_close_file(self):
+        samplerate = 0 # use native samplerate
+        hop_size = 256
+        for p in list_of_sounds:
+            f = source(p, samplerate, hop_size)
+            f.close()
+
+    def test_close_file_twice(self):
+        samplerate = 0 # use native samplerate
+        hop_size = 256
+        for p in list_of_sounds:
+            f = source(p, samplerate, hop_size)
+            f.close()
+            f.close()
+
+class aubio_source_read_test_case(aubio_source_test_case_base):
 
     def read_from_sink(self, f):
         total_frames = 0
@@ -68,20 +87,19 @@ class aubio_source_test_case(TestCase):
             assert f.hop_size != 0
             self.read_from_sink(f)
 
-    def test_close_file(self):
-        samplerate = 0 # use native samplerate
-        hop_size = 256
-        for p in list_of_sounds:
-            f = source(p, samplerate, hop_size)
-            f.close()
+class aubio_source_readmulti_test_case(aubio_source_read_test_case):
 
-    def test_close_file_twice(self):
-        samplerate = 0 # use native samplerate
-        hop_size = 256
-        for p in list_of_sounds:
-            f = source(p, samplerate, hop_size)
-            f.close()
-            f.close()
+    def read_from_sink(self, f):
+        total_frames = 0
+        while True:
+            vec, read = f.do_multi()
+            total_frames += read
+            if read < f.hop_size: break
+        print "read", "%.2fs" % (total_frames / float(f.samplerate) ),
+        print "(", total_frames, "frames", "in",
+        print f.channels, "channels and",
+        print total_frames / f.hop_size, "blocks", "at", "%dHz" % f.samplerate, ")",
+        print "from", f.uri
 
 if __name__ == '__main__':
     from unittest import main
