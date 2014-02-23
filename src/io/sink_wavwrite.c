@@ -24,8 +24,9 @@
 #ifdef HAVE_WAVWRITE
 
 #include "aubio_priv.h"
-#include "sink_wavwrite.h"
 #include "fvec.h"
+#include "fmat.h"
+#include "io/sink_wavwrite.h"
 
 #include <errno.h>
 
@@ -45,6 +46,8 @@
 #else
 #define HTOLES(x) SWAPS(htons(x))
 #endif
+
+uint_t aubio_sink_wavwrite_open(aubio_sink_wavwrite_t *s);
 
 struct _aubio_sink_wavwrite_t {
   char_t *path;
@@ -72,8 +75,6 @@ unsigned char *write_little_endian (unsigned int s, unsigned char *str, unsigned
 
 aubio_sink_wavwrite_t * new_aubio_sink_wavwrite(char_t * path, uint_t samplerate) {
   aubio_sink_wavwrite_t * s = AUBIO_NEW(aubio_sink_wavwrite_t);
-  unsigned char buf[5];
-  uint_t byterate, blockalign;
 
   if (path == NULL) {
     AUBIO_ERR("sink_wavwrite: Aborted opening null path\n");
@@ -85,14 +86,72 @@ aubio_sink_wavwrite_t * new_aubio_sink_wavwrite(char_t * path, uint_t samplerate
   }
 
   s->path = path;
-  s->samplerate = samplerate;
   s->max_size = MAX_SIZE;
-  s->channels = 1;
   s->bitspersample = 16;
   s->total_frames_written = 0;
 
-  /* set output format */
-  s->fid = fopen((const char *)path, "wb");
+  s->samplerate = 0;
+  s->channels = 0;
+
+  // negative samplerate given, abort
+  if ((sint_t)samplerate < 0) goto beach;
+  // zero samplerate given. do not open yet
+  if ((sint_t)samplerate == 0) return s;
+
+  s->samplerate = samplerate;
+  s->channels = 1;
+
+  if (aubio_sink_wavwrite_open(s) != AUBIO_OK) {
+    // open failed, abort
+    goto beach;
+  }
+
+  return s;
+beach:
+  //AUBIO_ERR("sink_wavwrite: failed creating %s with samplerate %dHz\n",
+  //    s->path, s->samplerate);
+  del_aubio_sink_wavwrite(s);
+  return NULL;
+}
+
+uint_t aubio_sink_wavwrite_preset_samplerate(aubio_sink_wavwrite_t *s, uint_t samplerate)
+{
+  if ((sint_t)(samplerate) <= 0) return AUBIO_FAIL;
+  s->samplerate = samplerate;
+  // automatically open when both samplerate and channels have been set
+  if (s->samplerate != 0 && s->channels != 0) {
+    return aubio_sink_wavwrite_open(s);
+  }
+  return AUBIO_OK;
+}
+
+uint_t aubio_sink_wavwrite_preset_channels(aubio_sink_wavwrite_t *s, uint_t channels)
+{
+  if ((sint_t)(channels) <= 0) return AUBIO_FAIL;
+  s->channels = channels;
+  // automatically open when both samplerate and channels have been set
+  if (s->samplerate != 0 && s->channels != 0) {
+    return aubio_sink_wavwrite_open(s);
+  }
+  return AUBIO_OK;
+}
+
+uint_t aubio_sink_wavwrite_get_samplerate(aubio_sink_wavwrite_t *s)
+{
+  return s->samplerate;
+}
+
+uint_t aubio_sink_wavwrite_get_channels(aubio_sink_wavwrite_t *s)
+{
+  return s->channels;
+}
+
+uint_t aubio_sink_wavwrite_open(aubio_sink_wavwrite_t *s) {
+  unsigned char buf[5];
+  uint_t byterate, blockalign;
+
+  /* open output file */
+  s->fid = fopen((const char *)s->path, "wb");
   if (!s->fid) {
     AUBIO_ERR("sink_wavwrite: could not open %s (%s)\n", s->path, strerror(errno));
     goto beach;
@@ -142,20 +201,16 @@ aubio_sink_wavwrite_t * new_aubio_sink_wavwrite(char_t * path, uint_t samplerate
   s->scratch_size = s->max_size * s->channels;
   /* allocate data for de/interleaving reallocated when needed. */
   if (s->scratch_size >= MAX_SIZE * MAX_CHANNELS) {
-    AUBIO_ERR("sink_wavwrite: %d x %d exceeds maximum buffer size %d\n",
-        s->max_size, s->channels, MAX_CHANNELS * MAX_CHANNELS);
-    AUBIO_FREE(s);
-    return NULL;
+    AUBIO_ERR("sink_wavwrite: %d x %d exceeds SIZE maximum buffer size %d\n",
+        s->max_size, s->channels, MAX_SIZE * MAX_CHANNELS);
+    goto beach;
   }
   s->scratch_data = AUBIO_ARRAY(unsigned short,s->scratch_size);
 
-  return s;
+  return AUBIO_OK;
 
 beach:
-  //AUBIO_ERR("sink_wavwrite: failed creating %s with samplerate %dHz\n",
-  //    s->path, s->samplerate);
-  del_aubio_sink_wavwrite(s);
-  return NULL;
+  return AUBIO_FAIL;
 }
 
 
@@ -176,6 +231,30 @@ void aubio_sink_wavwrite_do(aubio_sink_wavwrite_t *s, fvec_t * write_data, uint_
   if (written_frames != write) {
     AUBIO_WRN("sink_wavwrite: trying to write %d frames to %s, "
         "but only %d could be written\n", write, s->path, written_frames);
+  }
+  s->total_frames_written += written_frames;
+  return;
+}
+
+void aubio_sink_wavwrite_do_multi(aubio_sink_wavwrite_t *s, fmat_t * write_data, uint_t write){
+  uint_t c = 0, i = 0, written_frames = 0;
+
+  if (write > s->max_size) {
+    AUBIO_WRN("sink_wavwrite: trying to write %d frames to %s, "
+        "but only %d can be written at a time\n", write, s->path, s->max_size);
+    write = s->max_size;
+  }
+
+  for (c = 0; c < s->channels; c++) {
+    for (i = 0; i < write; i++) {
+      s->scratch_data[i * s->channels + c] = HTOLES(FLOAT_TO_SHORT(write_data->data[c][i]));
+    }
+  }
+  written_frames = fwrite(s->scratch_data, 2, write * s->channels, s->fid);
+
+  if (written_frames != write * s->channels) {
+    AUBIO_WRN("sink_wavwrite: trying to write %d frames to %s, "
+        "but only %d could be written\n", write, s->path, written_frames / s->channels);
   }
   s->total_frames_written += written_frames;
   return;
