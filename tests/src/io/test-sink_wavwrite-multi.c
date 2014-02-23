@@ -16,7 +16,7 @@ int main (int argc, char **argv)
     return err;
   }
 
-#ifdef __APPLE__
+#ifdef HAVE_WAVWRITE
   uint_t samplerate = 0;
   uint_t channels = 0;
   uint_t hop_size = 512;
@@ -73,6 +73,6 @@ beach_source:
 #else
   err = 3;
   PRINT_ERR("aubio was not compiled with aubio_sink_wavwrite\n");
-#endif /* __APPLE__ */
+#endif /* HAVE_WAVWRITE */
   return err;
 }
