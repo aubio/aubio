@@ -44,7 +44,7 @@ def slice_source_at_stamps(source_file, timestamps, timestamps_end = None,
 
     while True:
         # get hopsize new samples from source
-        vec, read = s()
+        vec, read = s.do_multi()
         # if the total number of frames read will exceed the next region start
         if len(regions) and total_frames + read >= regions[0][0]:
             #print "getting", regions[0], "at", total_frames
@@ -53,7 +53,7 @@ def slice_source_at_stamps(source_file, timestamps, timestamps_end = None,
             # create a name for the sink
             new_sink_path = new_sink_name(source_base_name, start_stamp, samplerate)
             # create its sink
-            g = sink(new_sink_path, samplerate)
+            g = sink(new_sink_path, samplerate, s.channels)
             # create a dictionary containing all this
             new_slice = {'start_stamp': start_stamp, 'end_stamp': end_stamp, 'sink': g}
             # append the dictionary to the current list of slices
@@ -72,12 +72,12 @@ def slice_source_at_stamps(source_file, timestamps, timestamps_end = None,
             if remaining < read:
                 if remaining > start:
                     # write remaining samples from current region
-                    g(vec[start:remaining], remaining - start)
+                    g.do_multi(vec[:,start:remaining], remaining - start)
                     #print "closing region", "remaining", remaining
                     # close this file
                     g.close()
             elif read > start:
                 # write all the samples
-                g(vec[start:read], read - start)
+                g.do_multi(vec[:,start:read], read - start)
         total_frames += read
         if read < hopsize: break
