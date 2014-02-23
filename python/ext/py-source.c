@@ -6,6 +6,7 @@ typedef struct
   aubio_source_t * o;
   char_t* uri;
   uint_t samplerate;
+  uint_t channels;
   uint_t hop_size;
 } Py_source;
 
@@ -66,6 +67,7 @@ Py_source_init (Py_source * self, PyObject * args, PyObject * kwds)
     return -1;
   }
   self->samplerate = aubio_source_get_samplerate ( self->o );
+  self->channels = aubio_source_get_channels ( self->o );
 
   return 0;
 }
@@ -73,7 +75,7 @@ Py_source_init (Py_source * self, PyObject * args, PyObject * kwds)
 AUBIO_DEL(source)
 
 /* function Py_source_do */
-static PyObject * 
+static PyObject *
 Py_source_do(Py_source * self, PyObject * args)
 {
 
@@ -86,7 +88,7 @@ Py_source_do(Py_source * self, PyObject * args)
 
 
 
-  
+
   /* creating output read_to as a new_fvec of length self->hop_size */
   read_to = new_fvec (self->hop_size);
   read = 0;
@@ -102,9 +104,40 @@ Py_source_do(Py_source * self, PyObject * args)
   return outputs;
 }
 
+/* function Py_source_do_multi */
+static PyObject *
+Py_source_do_multi(Py_source * self, PyObject * args)
+{
+
+
+  /* output vectors prototypes */
+  fmat_t* read_to;
+  uint_t read;
+
+
+
+
+
+
+  /* creating output read_to as a new_fvec of length self->hop_size */
+  read_to = new_fmat (self->channels, self->hop_size);
+  read = 0;
+
+
+  /* compute _do function */
+  aubio_source_do_multi (self->o, read_to, &read);
+
+  PyObject *outputs = PyList_New(0);
+  PyList_Append( outputs, (PyObject *)PyAubio_CFmatToArray (read_to));
+  //del_fvec (read_to);
+  PyList_Append( outputs, (PyObject *)PyInt_FromLong (read));
+  return outputs;
+}
+
 AUBIO_MEMBERS_START(source)
   {"uri", T_STRING, offsetof (Py_source, uri), READONLY, ""},
   {"samplerate", T_INT, offsetof (Py_source, samplerate), READONLY, ""},
+  {"channels", T_INT, offsetof (Py_source, channels), READONLY, ""},
   {"hop_size", T_INT, offsetof (Py_source, hop_size), READONLY, ""},
 AUBIO_MEMBERS_STOP(source)
 
@@ -134,6 +167,8 @@ static PyMethodDef Py_source_methods[] = {
   {"get_samplerate", (PyCFunction) Pyaubio_source_get_samplerate,
     METH_NOARGS, ""},
   {"get_channels", (PyCFunction) Pyaubio_source_get_channels,
+    METH_NOARGS, ""},
+  {"do_multi", (PyCFunction) Py_source_do_multi,
     METH_NOARGS, ""},
   {"close", (PyCFunction) Pyaubio_source_close,
     METH_NOARGS, ""},
