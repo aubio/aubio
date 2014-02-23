@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2012-2013 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2012-2014 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -39,6 +39,7 @@
 extern "C" {
 #endif
 
+/** sink_apple_audio object */
 typedef struct _aubio_sink_apple_audio_t aubio_sink_apple_audio_t;
 
 /**
@@ -52,8 +53,66 @@ typedef struct _aubio_sink_apple_audio_t aubio_sink_apple_audio_t;
 
   Creates a new sink object.
 
+  If samplerate is set to 0, the creation of the file will be delayed until
+  both ::aubio_sink_preset_samplerate and ::aubio_sink_preset_channels have
+  been called.
+
 */
 aubio_sink_apple_audio_t * new_aubio_sink_apple_audio(char_t * uri, uint_t samplerate);
+
+/**
+
+  preset sink samplerate
+
+  \param s sink, created with ::new_aubio_sink_apple_audio
+  \param samplerate samplerate to preset the sink to, in Hz
+
+  \return 0 on success, 1 on error
+
+  Preset the samplerate of the sink. The file should have been created using a
+  samplerate of 0.
+
+  The file will be opened only when both samplerate and channels have been set.
+
+*/
+uint_t aubio_sink_apple_audio_preset_samplerate(aubio_sink_apple_audio_t *s, uint_t samplerate);
+
+/**
+
+  preset sink channels
+
+  \param s sink, created with ::new_aubio_sink_apple_audio
+  \param channels number of channels to preset the sink to
+
+  \return 0 on success, 1 on error
+
+  Preset the samplerate of the sink. The file should have been created using a
+  samplerate of 0.
+
+  The file will be opened only when both samplerate and channels have been set.
+
+*/
+uint_t aubio_sink_apple_audio_preset_channels(aubio_sink_apple_audio_t *s, uint_t channels);
+
+/**
+
+  get samplerate of sink object
+
+  \param s sink object, created with ::new_aubio_sink_apple_audio
+  \return samplerate, in Hz
+
+*/
+uint_t aubio_sink_apple_audio_get_samplerate(aubio_sink_apple_audio_t *s);
+
+/**
+
+  get channels of sink object
+
+  \param s sink object, created with ::new_aubio_sink_apple_audio
+  \return number of channels
+
+*/
+uint_t aubio_sink_apple_audio_get_channels(aubio_sink_apple_audio_t *s);
 
 /**
 
@@ -65,6 +124,17 @@ aubio_sink_apple_audio_t * new_aubio_sink_apple_audio(char_t * uri, uint_t sampl
 
 */
 void aubio_sink_apple_audio_do(aubio_sink_apple_audio_t * s, fvec_t * write_data, uint_t write);
+
+/**
+
+  write polyphonic vector of length hop_size to sink
+
+  \param s sink, created with ::new_aubio_sink_apple_audio
+  \param write_data ::fmat_t samples to write to sink
+  \param write number of frames to write
+
+*/
+void aubio_sink_apple_audio_do_multi(aubio_sink_apple_audio_t * s, fmat_t * write_data, uint_t write);
 
 /**
 
