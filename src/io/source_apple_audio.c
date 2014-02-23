@@ -226,7 +226,7 @@ void aubio_source_apple_audio_do_multi(aubio_source_apple_audio_t *s, fmat_t * r
   smpl_t **buf = read_to->data;
 
   for (v = 0; v < loadedPackets; v++) {
-    for (c = 0; c < s->channels; c++) {
+    for (c = 0; c < read_to->height; c++) {
       buf[c][v] = SHORT_TO_FLOAT(data[ v * s->channels + c]);
     }
   }
