@@ -12,11 +12,13 @@ int main (int argc, char **argv)
     return err;
   }
 
+  uint_t samplerate = 0;
+  uint_t hop_size = 512;
+  uint_t n_frames = 0, read = 0;
+
   char_t *source_path = argv[1];
   char_t *sink_path = argv[2];
 
-  uint_t samplerate = 0;
-  uint_t hop_size = 256;
   if ( argc >= 4 ) samplerate = atoi(argv[3]);
   if ( argc >= 5 ) hop_size = atoi(argv[4]);
   if ( argc >= 6 ) {
@@ -35,8 +37,6 @@ int main (int argc, char **argv)
 
   aubio_sink_t *o = new_aubio_sink(sink_path, samplerate);
   if (!o) { err = 1; goto beach_sink; }
-
-  uint_t n_frames = 0, read = 0;
 
   do {
     aubio_source_do(i, vec, &read);
