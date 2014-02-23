@@ -17,7 +17,7 @@ int main (int argc, char **argv)
   }
 
 #ifdef __APPLE__
-  uint_t samplerate = 44100;
+  uint_t samplerate = 0;
   uint_t hop_size = 512;
   uint_t n_frames = 0, read = 0;
 
