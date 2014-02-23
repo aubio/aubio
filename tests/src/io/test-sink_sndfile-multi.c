@@ -1,5 +1,6 @@
 #define AUBIO_UNSTABLE 1
 #include <aubio.h>
+#include "config.h"
 #include "utils_tests.h"
 
 // this file uses the unstable aubio api, please use aubio_sink instead
@@ -16,7 +17,7 @@ int main (int argc, char **argv)
     return err;
   }
 
-#ifdef __APPLE__
+#ifdef HAVE_SNDFILE
   uint_t samplerate = 0;
   uint_t channels = 0;
   uint_t hop_size = 512;
@@ -73,6 +74,6 @@ beach_source:
 #else
   err = 3;
   PRINT_ERR("aubio was not compiled with aubio_sink_sndfile\n");
-#endif /* __APPLE__ */
+#endif /* HAVE_SNDFILE */
   return err;
 }
