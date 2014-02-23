@@ -19,12 +19,16 @@ def get_default_test_sound(TestCase, rel_dir = 'sounds'):
     else:
         return all_sounds[0]
 
-def get_tmp_sink_name():
+def get_tmp_sink_path():
     from tempfile import mkstemp
     import os
-    fd, name = mkstemp()
+    fd, path = mkstemp()
     os.close(fd)
-    return name
+    return path
+
+def del_tmp_sink_path(path):
+    import os
+    os.unlink(path)
 
 def array_from_yaml_file(filename):
     import yaml
