@@ -77,6 +77,33 @@ class aubio_sink_test_case(TestCase):
                     print "to", g.uri
                 del_tmp_sink_path(sink_path)
 
+    def test_read_and_write_multi(self):
+
+        if not len(list_of_sounds):
+            self.skipTest('add some sound files in \'python/tests/sounds\'')
+
+        for path in list_of_sounds:
+            for samplerate, hop_size in zip([0, 44100, 8000, 32000], [512, 1024, 64, 256]):
+                f = source(path, samplerate, hop_size)
+                if samplerate == 0: samplerate = f.samplerate
+                sink_path = get_tmp_sink_path()
+                g = sink(sink_path, samplerate, channels = f.channels)
+                total_frames = 0
+                while True:
+                    vec, read = f.do_multi()
+                    g.do_multi(vec, read)
+                    total_frames += read
+                    if read < f.hop_size: break
+                if 0:
+                    print "read", "%.2fs" % (total_frames / float(f.samplerate) ),
+                    print "(", total_frames, "frames", "in",
+                    print f.channels, "channels", "in",
+                    print total_frames / f.hop_size, "blocks", "at", "%dHz" % f.samplerate, ")",
+                    print "from", f.uri,
+                    print "to", g.uri,
+                    print "in", g.channels, "channels"
+                del_tmp_sink_path(sink_path)
+
     def test_close_file(self):
         samplerate = 44100
         sink_path = get_tmp_sink_path()
