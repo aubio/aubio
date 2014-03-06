@@ -1,18 +1,17 @@
 # vim:set syntax=python:
 
 for target_name in ctx.path.ant_glob('src/**/*.c'):
-  uselib = []
-  includes = ['../src', '.']
-  extra_source = []
+    uselib = []
+    includes = ['../src', '.']
+    extra_source = []
 
-  bld(features = 'c cprogram test',
-      lib = 'm',
-      uselib = uselib,
-      source = [target_name] + extra_source,
-      target = str(target_name).split('.')[0],
-      includes = includes,
-      install_path = None,
-      defines = 'AUBIO_UNSTABLE_API=1',
-      cflags = ['-g'],
-      use = 'aubio')
-
+    bld(features = 'c cprogram test',
+            lib = 'm',
+            uselib = uselib,
+            source = [target_name] + extra_source,
+            target = str(target_name).split('.')[0],
+            includes = includes,
+            install_path = None,
+            defines = 'AUBIO_UNSTABLE_API=1',
+            cflags = ['-g'],
+            use = 'aubio')
