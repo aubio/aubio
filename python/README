@@ -65,7 +65,7 @@ you should be able to run the tests:
 
 And to try out the demos:
 
-    $ ./demos/demo_source.wav ~/test.wav
+    $ ./demos/demo_source.wav /path/to/sound/sample.wav
 
 You need to install additional modules to run some of the demos. For
 instance, several demos use [matplotlib](http://matplotlib.org/) to draw plots.
