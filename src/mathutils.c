@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2014 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -427,6 +427,17 @@ smpl_t fvec_quadratic_peak_pos (fvec_t * x, uint_t pos) {
   s1 = x->data[pos];
   s2 = x->data[x2];
   return pos + 0.5 * (s0 - s2 ) / (s0 - 2.* s1 + s2);
+}
+
+smpl_t fvec_quadratic_peak_mag (fvec_t *x, smpl_t pos) {
+  smpl_t x0, x1, x2;
+  uint_t index = (uint_t)(pos - .5) + 1;
+  if (pos >= x->length || pos < 0.) return 0.;
+  if ((smpl_t)index == pos) return x->data[index];
+  x0 = x->data[index - 1];
+  x1 = x->data[index];
+  x2 = x->data[index + 1];
+  return x1 - .25 * (x0 - x2) * (pos - index);
 }
 
 uint_t fvec_peakpick(fvec_t * onset, uint_t pos) {

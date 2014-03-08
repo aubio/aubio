@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2014 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -233,6 +233,19 @@ smpl_t fvec_median (fvec_t * v);
 
 */
 smpl_t fvec_quadratic_peak_pos (fvec_t * x, uint_t p);
+
+/** finds magnitude of peak by quadratic interpolation
+
+  See [Quadratic Interpolation of Spectral
+  Peaks](https://ccrma.stanford.edu/~jos/sasp/Quadratic_Peak_Interpolation.html),
+  by Julius O. Smith III
+
+  \param x vector to get the magnitude of the interpolated peak position from
+  \param p index of the peak in vector `x`
+  \return magnitude of interpolated peak
+
+*/
+smpl_t fvec_quadratic_peak_mag (fvec_t * x, smpl_t p);
 
 /** Quadratic interpolation using Lagrange polynomial.
  
