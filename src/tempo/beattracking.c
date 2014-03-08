@@ -421,8 +421,10 @@ smpl_t
 aubio_beattracking_get_confidence (aubio_beattracking_t * bt)
 {
   if (bt->gp) {
-    return fvec_max (bt->acfout) / fvec_sum(bt->acfout);
-  } else {
-    return 0.;
+    smpl_t acf_sum = fvec_sum(bt->acfout);
+    if (acf_sum != 0.) {
+      return fvec_quadratic_peak_mag (bt->acfout, bt->gp) / acf_sum;
+    }
   }
+  return 0.;
 }
