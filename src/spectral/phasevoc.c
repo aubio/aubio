@@ -111,7 +111,8 @@ aubio_pvoc_t * new_aubio_pvoc (uint_t win_s, uint_t hop_s) {
   /* less than 50% overlap, reset latest grain trail */
   else pv->start = win_s - hop_s - hop_s;
 
-  pv->end = MAX(0, win_s - hop_s);
+  if (win_s > hop_s) pv->end = win_s - hop_s;
+  else pv->end = 0;
 
   pv->end_datasize = pv->end * sizeof(smpl_t);
   pv->hop_datasize = pv->hop_s * sizeof(smpl_t);
