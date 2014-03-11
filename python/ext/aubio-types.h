@@ -1,7 +1,7 @@
 #include <Python.h>
 #include <structmember.h>
 
-#define NPY_NO_DEPRECATED_API NPY_1_8_API_VERSION
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 
 // define numpy unique symbols for aubio
 #define PY_ARRAY_UNIQUE_SYMBOL PYAUBIO_ARRAY_API
