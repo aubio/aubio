@@ -50,6 +50,10 @@
   [libsndfile](http://www.mega-nerd.com/libsndfile/), which can read [most
   uncompressed formats](http://www.mega-nerd.com/libsndfile/#Features).
 
+  \b \p source_wavread : native WAV reader
+
+  A simple source to read from 16-bits PCM RIFF encoded WAV files.
+
   \example io/test-source.c
   \example io/test-source_multi.c
 
