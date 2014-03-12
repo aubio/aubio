@@ -1,7 +1,6 @@
-#include <stdio.h>
-#include <assert.h>
 #define AUBIO_UNSTABLE 1
-#include <aubio.h>
+#include "aubio.h"
+#include "utils_tests.h"
 
 int test_next_power_of_two (void);
 int test_miditofreq (void);

@@ -1,6 +1,5 @@
-#include <aubio.h>
-#include <math.h>
-#include <stdio.h>
+#include "aubio.h"
+#include "utils_tests.h"
 
 int main (void)
 {

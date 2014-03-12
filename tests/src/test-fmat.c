@@ -1,5 +1,5 @@
-#include <aubio.h>
-#include <assert.h>
+#include "aubio.h"
+#include "utils_tests.h"
 
 // create a new matrix and fill it with i * 1. + j * .1, where i is the row,
 // and j the column.

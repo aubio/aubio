@@ -1,5 +1,5 @@
-#include <aubio.h>
-#include <assert.h>
+#include "aubio.h"
+#include "utils_tests.h"
 
 int main (void)
 {
