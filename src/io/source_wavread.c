@@ -52,6 +52,8 @@ struct _aubio_source_wavread_t {
   uint_t read_index;
   uint_t eof;
 
+  size_t seek_start;
+
   unsigned char *short_output;
   fmat_t *output;
 };
@@ -67,6 +69,7 @@ unsigned int read_little_endian (unsigned char *buf, unsigned int length) {
 
 aubio_source_wavread_t * new_aubio_source_wavread(char_t * path, uint_t samplerate, uint_t hop_size) {
   aubio_source_wavread_t * s = AUBIO_NEW(aubio_source_wavread_t);
+  size_t bytes_read = 0, bytes_expected = 44;
   unsigned char buf[5];
   unsigned int format, channels, sr, byterate, blockalign, bitspersample;//, data_size;
 
@@ -94,7 +97,7 @@ aubio_source_wavread_t * new_aubio_source_wavread(char_t * path, uint_t samplera
   }
 
   // ChunkID
-  fread(buf, 4, 1, s->fid);
+  bytes_read += fread(buf, 1, 4, s->fid);
   buf[4] = '\0';
   if ( strcmp((const char *)buf, "RIFF") != 0 ) {
     AUBIO_ERR("source_wavread: could not find RIFF header in %s\n", s->path);
@@ -102,10 +105,10 @@ aubio_source_wavread_t * new_aubio_source_wavread(char_t * path, uint_t samplera
   }
 
   // ChunkSize
-  fread(buf, 4, 1, s->fid);
+  bytes_read += fread(buf, 1, 4, s->fid);
 
   // Format
-  fread(buf, 4, 1, s->fid);
+  bytes_read += fread(buf, 1, 4, s->fid);
   buf[4] = '\0';
   if ( strcmp((const char *)buf, "WAVE") != 0 ) {
     AUBIO_ERR("source_wavread: wrong format in RIFF header in %s\n", s->path);
@@ -113,7 +116,7 @@ aubio_source_wavread_t * new_aubio_source_wavread(char_t * path, uint_t samplera
   }
 
   // Subchunk1ID
-  fread(buf, 4, 1, s->fid);
+  bytes_read += fread(buf, 1, 4, s->fid);
   buf[4] = '\0';
   if ( strcmp((const char *)buf, "fmt ") != 0 ) {
     AUBIO_ERR("source_wavread: fmt RIFF header in %s\n", s->path);
@@ -121,7 +124,7 @@ aubio_source_wavread_t * new_aubio_source_wavread(char_t * path, uint_t samplera
   }
 
   // Subchunk1Size
-  fread(buf, 4, 1, s->fid);
+  bytes_read += fread(buf, 1, 4, s->fid);
   format = read_little_endian(buf, 4);
   if ( format != 16 ) {
     // TODO accept format 18
@@ -134,30 +137,30 @@ aubio_source_wavread_t * new_aubio_source_wavread(char_t * path, uint_t samplera
   }
 
   // AudioFormat
-  fread(buf, 2, 1, s->fid);
+  bytes_read += fread(buf, 1, 2, s->fid);
   if ( buf[0] != 1 || buf[1] != 0) {
     AUBIO_ERR("source_wavread: AudioFormat should be PCM, in %s\n", s->path);
     goto beach;
   }
 
   // NumChannels
-  fread(buf, 2, 1, s->fid);
+  bytes_read += fread(buf, 1, 2, s->fid);
   channels = read_little_endian(buf, 2);
 
   // SampleRate
-  fread(buf, 4, 1, s->fid);
+  bytes_read += fread(buf, 1, 4, s->fid);
   sr = read_little_endian(buf, 4);
 
   // ByteRate
-  fread(buf, 4, 1, s->fid);
+  bytes_read += fread(buf, 1, 4, s->fid);
   byterate = read_little_endian(buf, 4);
 
   // BlockAlign
-  fread(buf, 2, 1, s->fid);
+  bytes_read += fread(buf, 1, 2, s->fid);
   blockalign = read_little_endian(buf, 2);
 
   // BitsPerSample
-  fread(buf, 2, 1, s->fid);
+  bytes_read += fread(buf, 1, 2, s->fid);
   bitspersample = read_little_endian(buf, 2);
 #if 0
   if ( bitspersample != 16 ) {
@@ -200,7 +203,7 @@ aubio_source_wavread_t * new_aubio_source_wavread(char_t * path, uint_t samplera
   }
 
   // Subchunk2ID
-  fread(buf, 4, 1, s->fid);
+  bytes_read += fread(buf, 1, 4, s->fid);
   buf[4] = '\0';
   if ( strcmp((const char *)buf, "data") != 0 ) {
     AUBIO_ERR("source_wavread: data RIFF header not found in %s\n", s->path);
@@ -208,9 +211,17 @@ aubio_source_wavread_t * new_aubio_source_wavread(char_t * path, uint_t samplera
   }
 
   // Subchunk2Size
-  fread(buf, 4, 1, s->fid);
+  bytes_read += fread(buf, 1, 4, s->fid);
   //data_size = buf[0] + (buf[1] << 8) + (buf[2] << 16) + (buf[3] << 24);
   //AUBIO_MSG("found %d frames in %s\n", 8 * data_size / bitspersample / channels, s->path);
+
+  // check the total number of bytes read is correct
+  if ( bytes_read != bytes_expected ) {
+    AUBIO_ERR("source_wavread: short read (%zd instead of %zd) in %s\n",
+        bytes_read, bytes_expected, s->path);
+    goto beach;
+  }
+  s->seek_start = bytes_read;
 
   s->output = new_fmat(s->input_channels, AUBIO_WAVREAD_BUFSIZE);
   s->blockalign= blockalign;
@@ -340,7 +351,7 @@ uint_t aubio_source_wavread_get_channels(aubio_source_wavread_t * s) {
 }
 
 uint_t aubio_source_wavread_seek (aubio_source_wavread_t * s, uint_t pos) {
-  uint_t ret = fseek(s->fid, 44 + pos * s->blockalign, SEEK_SET);
+  uint_t ret = fseek(s->fid, s->seek_start + pos * s->blockalign, SEEK_SET);
   s->eof = 0;
   s->read_index = 0;
   return ret;
