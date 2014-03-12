@@ -1,3 +1,40 @@
+2014-01-31 Paul Brossier <piem@aubio.org>
+
+	[ Interface ]
+	* src/io/{source_wavread,sink_wavwrite}.h: new source and sink objects to
+	read and write simple wav files when building with no external dependencies
+	* src/io/{source,sink}*.h: added close functions to explicitly close file
+	* src/io/sink*.h: added do_multi, preset_channels, preset_samplerate,
+	get_channels and get_samplerate functions
+	* src/onset/onset.h: added aubio_onset_get_threshold
+	* src/mathutils.h: add fvec_quadratic_peak_mag to find the magnitude of
+	interpolated peaks
+
+	[ Library ]
+	* src/io/source_avcodec.c: implement _seek function
+	* src/io/source_sndfile.c: fixed _seek when signal is resampled
+	* src/spectral/ooura_fft8g.c: use float when double is not needed
+	* src/io/{source,sink}_apple_audio.c: improve error messages
+	* src/spectral/phasevoc.c: optimize swapbuffers by using memcpy
+	* src/lvec.c: add missing lvec_set_sample, improve test
+	* src/tempo/beattracking.c: improve confidence values by using interpolated
+	peak magnitude and avoiding nan
+	* src/tempo/tempo_davies.c: set default novelty function to specflux
+
+	[ Python module ]
+	* python/ext/py-{sink,source}.c: add do_multi and close functions
+	* python/ext/aubio-types.h: set NPY_NO_DEPRECATED_API to version 1.7
+	* python/lib/aubio/slicing.py: new function to slice a source into a list of
+	arbitrary regions
+	* python/scripts/aubiocut: add options --cut-until-nsamples and
+	--cut-until-nsclices, thanks to Mark Suppes for requesting, sponsoring,
+	and testing this feature
+
+	[ General code ]
+	* src/aubio_priv.h: use ifdefs to avoid checking undefined defines
+	* src/**.c: add missing prototypes, avoid some declarations after statement
+	* waf, waflib: update to 1.7.15
+
 2013-12-08  Paul Brossier <piem@aubio.org>
 
 	* Overdue: After more than five years of development behind the curtain,
