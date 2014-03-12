@@ -23,12 +23,16 @@
 
 /** \file
 
-  Media source to read blocks of consecutive audio samples from file
-
-  Depending on how aubio was compiled, the following file formats will be
-  available.
+  Media source to read blocks of consecutive audio samples from file.
 
   To write to file, use ::aubio_sink_t.
+
+  Depending on how aubio was compiled, the following sources will be available.
+
+  When creating a new source using ::new_aubio_source, the new function of each
+  of the compiled-in sources will be used, in the following order, until one of
+  them gets successfully created. If all sources returned NULL,
+  ::new_aubio_source will return NULL.
 
   \b \p source_avcodec : libav
 
@@ -37,7 +41,7 @@
   different network protocols such as HTTP.
 
   \b \p source_apple_audio : ExtAudioFileRef
-  
+
   On Mac and iOS platforms, aubio should be compiled with CoreAudio [Extended
   Audio File Services]
   (https://developer.apple.com/library/mac/documentation/MusicAudio/Reference/ExtendedAudioFileServicesReference/Reference/reference.html).
