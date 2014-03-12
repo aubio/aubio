@@ -27,6 +27,28 @@
 
   To read from file, use ::aubio_source_t.
 
+  Depending on how aubio was compiled, the following sinks will be available.
+
+  When creating a new sink using ::new_aubio_sink, the new function of each of
+  the compiled-in sinks will be attempted, in the following order, until one of
+  them gets successfully created. If all sinks returned NULL, ::new_aubio_sink
+  will return NULL.
+
+  \b \p sink_apple_audio : ExtAudioFileRef
+
+  This sink uses CoreAudio [Extended Audio File Services]
+  (https://developer.apple.com/library/mac/documentation/MusicAudio/Reference/ExtendedAudioFileServicesReference/Reference/reference.html)
+  to write 16-bits encoded WAV files.
+
+  \b \p sink_sndfile : libsndfile
+
+  This sink uses [libsndfile](http://www.mega-nerd.com/libsndfile/) to write
+  16-bits encoded WAV files.
+
+  \b \p sink_wavwrite : native WAV write
+
+  A simple sink to write 16-bits PCM RIFF encoded WAV files.
+
   \example io/test-sink.c
 
 */
