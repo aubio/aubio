@@ -1,13 +1,14 @@
 #! /usr/bin/python
 #
-# waf build system, see http://code.google.com/p/waf/
-#
 # usage:
-#     $ ./waf distclean configure build
+#   $ python waf --help
 #
-# TODO
-#  - doc: add doxygen
-#  - tests: move to new unit test system
+# example:
+#   $ ./waf distclean configure build
+#
+# Note: aubio uses the waf build system, which relies on Python. Provided you
+# have Python installed, you do *not* need to install anything to build aubio.
+# For more info about waf, see http://code.google.com/p/waf/ .
 
 APPNAME = 'aubio'
 
