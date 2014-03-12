@@ -5,9 +5,9 @@
 import os,imp,sys
 from waflib import Utils,Errors,Logs
 import waflib.Node
-HEXVERSION=0x1070d00
-WAFVERSION="1.7.13"
-WAFREVISION="daa91dba4b881d86bc25eec90a3745ebaeece835"
+HEXVERSION=0x1070f00
+WAFVERSION="1.7.15"
+WAFREVISION="f63ac9793de2d4eaae884e55d4ff70a761dcbab2"
 ABI=98
 DBFILE='.wafpickle-%s-%d-%d'%(sys.platform,sys.hexversion,ABI)
 APPNAME='APPNAME'
@@ -60,11 +60,8 @@ class Context(ctx):
 		except KeyError:
 			global run_dir
 			rd=run_dir
-		class node_class(waflib.Node.Node):
-			pass
-		self.node_class=node_class
+		self.node_class=type("Nod3",(waflib.Node.Node,),{})
 		self.node_class.__module__="waflib.Node"
-		self.node_class.__name__="Nod3"
 		self.node_class.ctx=self
 		self.root=self.node_class('',None)
 		self.cur_script=None

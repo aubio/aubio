@@ -162,6 +162,13 @@ def exec_cfg(self,kw):
 		defi=self.env.PKG_CONFIG_DEFINES or{}
 	for key,val in defi.items():
 		lst.append('--define-variable=%s=%s'%(key,val))
+	static=False
+	if'args'in kw:
+		args=Utils.to_list(kw['args'])
+		if'--static'in args or'--static-libs'in args:
+			static=True
+		lst+=args
+	lst.extend(Utils.to_list(kw['package']))
 	if'variables'in kw:
 		env=kw.get('env',self.env)
 		uselib=kw.get('uselib_store',kw['package'].upper())
@@ -173,13 +180,6 @@ def exec_cfg(self,kw):
 		if not'okmsg'in kw:
 			kw['okmsg']='yes'
 		return
-	static=False
-	if'args'in kw:
-		args=Utils.to_list(kw['args'])
-		if'--static'in args or'--static-libs'in args:
-			static=True
-		lst+=args
-	lst.extend(Utils.to_list(kw['package']))
 	ret=self.cmd_and_log(lst)
 	if not'okmsg'in kw:
 		kw['okmsg']='yes'
@@ -327,7 +327,8 @@ def validate_c(self,kw):
 	if not kw.get('success'):kw['success']=None
 	if'define_name'in kw:
 		self.undefine(kw['define_name'])
-	assert'msg'in kw,'invalid parameters, read http://freehackers.org/~tnagy/wafbook/single.html#config_helpers_c'
+	if not'msg'in kw:
+		self.fatal('missing "msg" in conf.check(...)')
 @conf
 def post_check(self,*k,**kw):
 	is_success=0
@@ -358,13 +359,11 @@ def post_check(self,*k,**kw):
 				_vars|=ccroot.USELIB_VARS[x]
 		for k in _vars:
 			lk=k.lower()
-			if k=='INCLUDES':lk='includes'
-			if k=='DEFINES':lk='defines'
 			if lk in kw:
 				val=kw[lk]
 				if isinstance(val,str):
 					val=val.rstrip(os.path.sep)
-				self.env.append_unique(k+'_'+kw['uselib_store'],val)
+				self.env.append_unique(k+'_'+kw['uselib_store'],Utils.to_list(val))
 	return is_success
 @conf
 def check(self,*k,**kw):
@@ -671,8 +670,11 @@ def get_suncc_version(conf,cc):
 	cmd=cc+['-V']
 	try:
 		out,err=conf.cmd_and_log(cmd,output=0)
-	except Errors.WafError:
-		conf.fatal('Could not find suncc %r'%cmd)
+	except Errors.WafError ,e:
+		if not(hasattr(e,'returncode')and hasattr(e,'stdout')and hasattr(e,'stderr')):
+			conf.fatal('Could not find suncc %r'%cmd)
+		out=e.stdout
+		err=e.stderr
 	version=(out or err)
 	version=version.split('\n')[0]
 	version_re=re.compile(r'cc:\s+sun\s+(c\+\+|c)\s+(?P<major>\d*)\.(?P<minor>\d*)',re.I).search

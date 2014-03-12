@@ -202,8 +202,10 @@ def distclean(ctx):
 				except OSError ,e:
 					if e.errno!=errno.ENOENT:
 						Logs.warn('file %r cannot be removed'%f)
-		if f.startswith('.waf')and not Options.commands:
-			shutil.rmtree(f,ignore_errors=True)
+		if not Options.commands:
+			for x in'.waf-1. waf-1. .waf3-1. waf3-1.'.split():
+				if f.startswith(x):
+					shutil.rmtree(f,ignore_errors=True)
 class Dist(Context.Context):
 	'''creates an archive containing the project source code'''
 	cmd='dist'
@@ -362,7 +364,7 @@ def autoconfigure(execute_method):
 			else:
 				h=0
 				for f in env['files']:
-					h=hash((h,Utils.readf(f,'rb')))
+					h=Utils.h_list((h,Utils.readf(f,'rb')))
 				do_config=h!=env.hash
 		if do_config:
 			Options.commands.insert(0,self.cmd)

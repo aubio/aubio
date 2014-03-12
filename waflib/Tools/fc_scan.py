@@ -6,7 +6,7 @@ import re
 from waflib import Utils,Task,TaskGen,Logs
 from waflib.TaskGen import feature,before_method,after_method,extension
 from waflib.Configure import conf
-INC_REGEX="""(?:^|['">]\s*;)\s*INCLUDE\s+(?:\w+_)?[<"'](.+?)(?=["'>])"""
+INC_REGEX="""(?:^|['">]\s*;)\s*(?:|#\s*)INCLUDE\s+(?:\w+_)?[<"'](.+?)(?=["'>])"""
 USE_REGEX="""(?:^|;)\s*USE(?:\s+|(?:(?:\s*,\s*(?:NON_)?INTRINSIC)?\s*::))\s*(\w+)"""
 MOD_REGEX="""(?:^|;)\s*MODULE(?!\s*PROCEDURE)(?:\s+|(?:(?:\s*,\s*(?:NON_)?INTRINSIC)?\s*::))\s*(\w+)"""
 re_inc=re.compile(INC_REGEX,re.I)

@@ -322,7 +322,8 @@ class subst_pc(Task.Task):
 				lst.append(g(1))
 				return"%%(%s)s"%g(1)
 			return''
-		code=re_m4.sub(repl,code)
+		global re_m4
+		code=getattr(self.generator,'re_m4',re_m4).sub(repl,code)
 		try:
 			d=self.generator.dct
 		except AttributeError:
