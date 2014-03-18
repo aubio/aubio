@@ -167,7 +167,7 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * path, uint_t samplera
   }
 
   AVFrame *avFrame = s->avFrame;
-  avFrame = avcodec_alloc_frame();
+  avFrame = av_frame_alloc();
   if (!avFrame) {
     AUBIO_ERR("source_avcodec: Could not allocate frame for (%s)\n", s->path);
   }
@@ -415,7 +415,7 @@ void del_aubio_source_avcodec(aubio_source_avcodec_t * s){
   }
   s->output = NULL;
   if (s->avFrame != NULL) {
-    avcodec_free_frame( &(s->avFrame) );
+    av_frame_free( &(s->avFrame) );
   }
   s->avFrame = NULL;
   AUBIO_FREE(s);
