@@ -22,7 +22,7 @@
 
   Pitch detection using the YIN algorithm
 
-  This algorithm was developped by A. de Cheveigne and H. Kawahara and
+  This algorithm was developed by A. de Cheveigne and H. Kawahara and
   published in:
 
   De Cheveigné, A., Kawahara, H. (2002) "YIN, a fundamental frequency

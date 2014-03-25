@@ -18,7 +18,7 @@
 
 */
 
-/* This algorithm was developped by A. de Cheveigné and H. Kawahara and
+/* This algorithm was developed by A. de Cheveigné and H. Kawahara and
  * published in:
  * 
  * de Cheveigné, A., Kawahara, H. (2002) "YIN, a fundamental frequency
