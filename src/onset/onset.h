@@ -176,7 +176,7 @@ uint_t aubio_onset_set_minioi_s(aubio_onset_t * o, smpl_t minioi);
 */
 uint_t aubio_onset_set_minioi_ms(aubio_onset_t * o, smpl_t minioi);
 
-/** set minimum inter onset interval in samples
+/** set delay in samples
 
   \param o onset detection object as returned by new_aubio_onset()
   \param delay constant system delay to take back from detection time
@@ -185,7 +185,7 @@ uint_t aubio_onset_set_minioi_ms(aubio_onset_t * o, smpl_t minioi);
 */
 uint_t aubio_onset_set_delay(aubio_onset_t * o, uint_t delay);
 
-/** set minimum inter onset interval in seconds
+/** set delay in seconds
 
   \param o onset detection object as returned by new_aubio_onset()
   \param delay constant system delay to take back from detection time
@@ -194,7 +194,7 @@ uint_t aubio_onset_set_delay(aubio_onset_t * o, uint_t delay);
 */
 uint_t aubio_onset_set_delay_s(aubio_onset_t * o, smpl_t delay);
 
-/** set minimum inter onset interval in milliseconds
+/** set delay in milliseconds
 
   \param o onset detection object as returned by new_aubio_onset()
   \param delay constant system delay to take back from detection time
@@ -230,7 +230,7 @@ smpl_t aubio_onset_get_minioi_s(aubio_onset_t * o);
 */
 smpl_t aubio_onset_get_minioi_ms(aubio_onset_t * o);
 
-/** get minimum inter onset interval in samples
+/** get delay in samples
 
   \param o onset detection object as returned by new_aubio_onset()
   \return constant system delay to take back from detection time
@@ -239,7 +239,7 @@ smpl_t aubio_onset_get_minioi_ms(aubio_onset_t * o);
 */
 uint_t aubio_onset_get_delay(aubio_onset_t * o);
 
-/** get minimum inter onset interval in seconds
+/** get delay in seconds
 
   \param o onset detection object as returned by new_aubio_onset()
   \return constant system delay to take back from detection time
@@ -248,7 +248,7 @@ uint_t aubio_onset_get_delay(aubio_onset_t * o);
 */
 smpl_t aubio_onset_get_delay_s(aubio_onset_t * o);
 
-/** get minimum inter onset interval in milliseconds
+/** get delay in milliseconds
 
   \param o onset detection object as returned by new_aubio_onset()
   \return constant system delay to take back from detection time
