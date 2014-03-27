@@ -1,4 +1,6 @@
-#ifdef __APPLE__
+#include "config.h"
+
+#if defined(HAVE_SOURCE_APPLE_AUDIO) || defined(HAVE_SINK_APPLE_AUDIO)
 
 // CFURLRef, CFURLCreateWithFileSystemPath, ...
 #include <CoreFoundation/CoreFoundation.h>
@@ -52,4 +54,4 @@ char_t *getPrintableOSStatusError(char_t *str, OSStatus error)
     return str;
 }
 
-#endif /* __APPLE__ */
+#endif /* defined(HAVE_SOURCE_APPLE_AUDIO) || defined(HAVE_SINK_APPLE_AUDIO) */

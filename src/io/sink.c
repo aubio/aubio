@@ -23,9 +23,9 @@
 #include "fvec.h"
 #include "fmat.h"
 #include "io/sink.h"
-#ifdef __APPLE__
+#ifdef HAVE_SINK_APPLE_AUDIO
 #include "io/sink_apple_audio.h"
-#endif /* __APPLE__ */
+#endif /* HAVE_SINK_APPLE_AUDIO */
 #ifdef HAVE_SNDFILE
 #include "io/sink_sndfile.h"
 #endif
@@ -56,7 +56,7 @@ struct _aubio_sink_t {
 
 aubio_sink_t * new_aubio_sink(char_t * uri, uint_t samplerate) {
   aubio_sink_t * s = AUBIO_NEW(aubio_sink_t);
-#ifdef __APPLE__
+#ifdef HAVE_SINK_APPLE_AUDIO
   s->sink = (void *)new_aubio_sink_apple_audio(uri, samplerate);
   if (s->sink) {
     s->s_do = (aubio_sink_do_t)(aubio_sink_apple_audio_do);
@@ -69,7 +69,7 @@ aubio_sink_t * new_aubio_sink(char_t * uri, uint_t samplerate) {
     s->s_del = (del_aubio_sink_t)(del_aubio_sink_apple_audio);
     return s;
   }
-#endif /* __APPLE__ */
+#endif /* HAVE_SINK_APPLE_AUDIO */
 #if HAVE_SNDFILE
   s->sink = (void *)new_aubio_sink_sndfile(uri, samplerate);
   if (s->sink) {
