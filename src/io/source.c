@@ -26,9 +26,9 @@
 #ifdef HAVE_LIBAV
 #include "io/source_avcodec.h"
 #endif /* HAVE_LIBAV */
-#ifdef __APPLE__
+#ifdef HAVE_SOURCE_APPLE_AUDIO
 #include "io/source_apple_audio.h"
-#endif /* __APPLE__ */
+#endif /* HAVE_SOURCE_APPLE_AUDIO */
 #ifdef HAVE_SNDFILE
 #include "io/source_sndfile.h"
 #endif /* HAVE_SNDFILE */
@@ -70,7 +70,7 @@ aubio_source_t * new_aubio_source(char_t * uri, uint_t samplerate, uint_t hop_si
     return s;
   }
 #endif /* HAVE_LIBAV */
-#ifdef __APPLE__
+#ifdef HAVE_SOURCE_APPLE_AUDIO
   s->source = (void *)new_aubio_source_apple_audio(uri, samplerate, hop_size);
   if (s->source) {
     s->s_do = (aubio_source_do_t)(aubio_source_apple_audio_do);
@@ -82,7 +82,7 @@ aubio_source_t * new_aubio_source(char_t * uri, uint_t samplerate, uint_t hop_si
     s->s_del = (del_aubio_source_t)(del_aubio_source_apple_audio);
     return s;
   }
-#endif /* __APPLE__ */
+#endif /* HAVE_SOURCE_APPLE_AUDIO */
 #if HAVE_SNDFILE
   s->source = (void *)new_aubio_source_sndfile(uri, samplerate, hop_size);
   if (s->source) {

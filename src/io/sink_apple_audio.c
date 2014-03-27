@@ -20,7 +20,7 @@
 
 #include "config.h"
 
-#ifdef __APPLE__
+#ifdef HAVE_SINK_APPLE_AUDIO
 
 #include "aubio_priv.h"
 #include "fvec.h"
@@ -266,4 +266,4 @@ void del_aubio_sink_apple_audio(aubio_sink_apple_audio_t * s) {
   return;
 }
 
-#endif /* __APPLE__ */
+#endif /* HAVE_SINK_APPLE_AUDIO */

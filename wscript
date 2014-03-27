@@ -105,13 +105,15 @@ def configure(ctx):
     if target_platform == 'darwin':
         ctx.env.CFLAGS += ['-arch', 'i386', '-arch', 'x86_64']
         ctx.env.LINKFLAGS += ['-arch', 'i386', '-arch', 'x86_64']
+
+    if target_platform in [ 'darwin', 'ios', 'iosimulator']:
         ctx.env.FRAMEWORK = ['CoreFoundation', 'AudioToolbox', 'Accelerate']
+        ctx.define('HAVE_SOURCE_APPLE_AUDIO', 1)
+        ctx.define('HAVE_SINK_APPLE_AUDIO', 1)
         ctx.define('HAVE_ACCELERATE', 1)
 
     if target_platform in [ 'ios', 'iosimulator' ]:
-        ctx.define('HAVE_ACCELERATE', 1)
         ctx.define('TARGET_OS_IPHONE', 1)
-        ctx.env.FRAMEWORK = ['CoreFoundation', 'AudioToolbox', 'Accelerate']
         SDKVER="7.0"
         MINSDKVER="6.1"
         ctx.env.CFLAGS += ['-std=c99']

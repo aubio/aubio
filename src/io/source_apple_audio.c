@@ -18,8 +18,10 @@
 
 */
 
-#ifdef __APPLE__
 #include "config.h"
+
+#ifdef HAVE_SOURCE_APPLE_AUDIO
+
 #include "aubio_priv.h"
 #include "fvec.h"
 #include "fmat.h"
@@ -302,4 +304,4 @@ uint_t aubio_source_apple_audio_get_channels(aubio_source_apple_audio_t * s) {
   return s->channels;
 }
 
-#endif /* __APPLE__ */
+#endif /* HAVE_SOURCE_APPLE_AUDIO */
