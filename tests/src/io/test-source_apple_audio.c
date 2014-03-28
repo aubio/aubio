@@ -23,7 +23,7 @@ int main (int argc, char **argv)
     return err;
   }
 
-#if __APPLE__
+#if HAVE_SOURCE_APPLE_AUDIO
   uint_t samplerate = 0;
   uint_t hop_size = 256;
   uint_t n_frames = 0, read = 0;
@@ -52,9 +52,9 @@ int main (int argc, char **argv)
   del_fvec (vec);
   del_aubio_source_apple_audio (s);
 beach:
-#else
+#else /* HAVE_SOURCE_APPLE_AUDIO */
   err = 3;
   PRINT_ERR("aubio was not compiled with aubio_source_apple_audio\n");
-#endif /* __APPLE__ */
+#endif /* HAVE_SOURCE_APPLE_AUDIO */
   return err;
 }
