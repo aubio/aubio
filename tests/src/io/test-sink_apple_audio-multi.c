@@ -16,7 +16,7 @@ int main (int argc, char **argv)
     return err;
   }
 
-#ifdef __APPLE__
+#ifdef HAVE_SINK_APPLE_AUDIO
   uint_t samplerate = 0;
   uint_t channels = 0;
   uint_t hop_size = 512;
@@ -70,9 +70,9 @@ beach_sink:
 beach_fmat:
   del_aubio_source(i);
 beach_source:
-#else
+#else /* HAVE_SINK_APPLE_AUDIO */
   err = 3;
   PRINT_ERR("aubio was not compiled with aubio_sink_apple_audio\n");
-#endif /* __APPLE__ */
+#endif /* HAVE_SINK_APPLE_AUDIO */
   return err;
 }
