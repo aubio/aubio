@@ -163,6 +163,23 @@ Pyaubio_source_close (Py_source *self, PyObject *unused)
   Py_RETURN_NONE;
 }
 
+static PyObject *
+Pyaubio_source_seek (Py_source * self, PyObject * args)
+{
+  uint_t tmp;
+
+  if (!PyArg_ParseTuple (args, "i", &tmp)) {
+    return NULL;
+  }
+
+  if (aubio_source_seek (self->o, tmp) != 0) {
+    PyErr_SetString (PyExc_StandardError, "error seeking to position");
+    return NULL;
+  }
+
+  Py_RETURN_NONE;
+}
+
 static PyMethodDef Py_source_methods[] = {
   {"get_samplerate", (PyCFunction) Pyaubio_source_get_samplerate,
     METH_NOARGS, ""},
@@ -172,6 +189,8 @@ static PyMethodDef Py_source_methods[] = {
     METH_NOARGS, ""},
   {"close", (PyCFunction) Pyaubio_source_close,
     METH_NOARGS, ""},
+  {"seek", (PyCFunction) Pyaubio_source_seek,
+    METH_VARARGS, ""},
   {NULL} /* sentinel */
 };
 
