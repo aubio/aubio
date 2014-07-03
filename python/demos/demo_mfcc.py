@@ -24,7 +24,7 @@ samplerate = s.samplerate
 p = pvoc(win_s, hop_s)
 m = mfcc(win_s, n_filters, n_coeffs, samplerate)
 
-mfccs = zeros([13,])
+mfccs = zeros([n_coeffs,])
 frames_read = 0
 while True:
     samples, read = s()
