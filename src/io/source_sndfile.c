@@ -184,7 +184,7 @@ void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_data, uin
 
   if (*read < s->hop_size) {
     for (j = *read; j < s->hop_size; j++) {
-      data[j] = 0;
+      read_data->data[j] = 0;
     }
   }
 
@@ -247,7 +247,7 @@ void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_dat
   if (*read < s->hop_size) {
     for (i = 0; i < read_data->height; i++) {
       for (j = *read; j < s->hop_size; j++) {
-        data[i][j] = 0.;
+        read_data->data[i][j] = 0.;
       }
     }
   }
