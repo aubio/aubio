@@ -60,8 +60,26 @@ aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * path, uint_t 
 {
   aubio_source_apple_audio_t * s = AUBIO_NEW(aubio_source_apple_audio_t);
 
+  if (path == NULL) {
+    AUBIO_ERROR("source_apple_audio: Aborted opening null path\n");
+    goto beach;
+  }
+
+  if ( (sint_t)block_size <= 0 ) {
+    AUBIO_ERROR("source_apple_audio: Can not open %s with null or negative block_size %d\n",
+        path, block_size);
+    goto beach;
+  }
+
+  if ( (sint_t)samplerate < 0 ) {
+    AUBIO_ERROR("source_apple_audio: Can not open %s with negative samplerate %d\n",
+        path, samplerate);
+    goto beach;
+  }
+
   s->block_size = block_size;
   s->samplerate = samplerate;
+  s->path = path;
 
   if ( aubio_source_apple_audio_open ( s, path ) ) {
     goto beach;
@@ -139,7 +157,7 @@ uint_t aubio_source_apple_audio_open (aubio_source_apple_audio_t *s, char_t * pa
     AUBIO_ERROR("source_apple_audio: Failed opening %s, "
         "error in ExtAudioFileSetProperty (%s)\n", s->path,
         getPrintableOSStatusError(errorstr, err));
-#if 1
+#if 0
   // print client and format descriptions
   AUBIO_DBG("Opened %s\n", s->path);
   AUBIO_DBG("file/client Format.mFormatID:        : %3c%c%c%c / %c%c%c%c\n",
