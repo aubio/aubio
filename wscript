@@ -117,17 +117,17 @@ def configure(ctx):
 
     if target_platform in [ 'ios', 'iosimulator' ]:
         ctx.define('TARGET_OS_IPHONE', 1)
-        SDKVER="7.0"
+        SDKVER="7.1"
         MINSDKVER="6.1"
         ctx.env.CFLAGS += ['-std=c99']
         if target_platform == 'ios':
             DEVROOT = "/Applications/Xcode.app/Contents"
             DEVROOT += "/Developer/Platforms/iPhoneOS.platform/Developer"
             SDKROOT = "%(DEVROOT)s/SDKs/iPhoneOS%(SDKVER)s.sdk" % locals()
-            ctx.env.CFLAGS += [ '-arch', 'arm64' ]
+            #ctx.env.CFLAGS += [ '-arch', 'arm64' ]
             ctx.env.CFLAGS += [ '-arch', 'armv7' ]
             ctx.env.CFLAGS += [ '-arch', 'armv7s' ]
-            ctx.env.LINKFLAGS += [ '-arch', 'arm64' ]
+            #ctx.env.LINKFLAGS += [ '-arch', 'arm64' ]
             ctx.env.LINKFLAGS += ['-arch', 'armv7']
             ctx.env.LINKFLAGS += ['-arch', 'armv7s']
             ctx.env.CFLAGS += [ '-miphoneos-version-min=' + MINSDKVER ]
