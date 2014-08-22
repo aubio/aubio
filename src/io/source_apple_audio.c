@@ -298,19 +298,56 @@ void del_aubio_source_apple_audio(aubio_source_apple_audio_t * s){
 }
 
 uint_t aubio_source_apple_audio_seek (aubio_source_apple_audio_t * s, uint_t pos) {
-  // after a short read, the bufferList size needs to resetted to prepare for a full read
-  AudioBufferList *bufferList = &s->bufferList;
-  bufferList->mBuffers[0].mDataByteSize = s->block_size * s->channels * sizeof (short);
+  OSStatus err = noErr;
+  if ((sint_t)pos < 0) {
+    AUBIO_ERROR("source_apple_audio: error while seeking in %s "
+        "(can not seek at negative position %d)\n",
+        s->path, pos);
+    err = -1;
+    goto beach;
+  }
+  // check if we are not seeking out of the file
+  SInt64 fileLengthFrames = 0;
+  UInt32 propSize = sizeof(fileLengthFrames);
+  ExtAudioFileGetProperty(s->audioFile,
+      kExtAudioFileProperty_FileLengthFrames, &propSize, &fileLengthFrames);
   // compute position in the source file, before resampling
   smpl_t ratio = s->source_samplerate * 1. / s->samplerate;
   SInt64 resampled_pos = (SInt64)ROUND( pos * ratio );
-  OSStatus err = ExtAudioFileSeek(s->audioFile, resampled_pos);
+  if (resampled_pos > fileLengthFrames) {
+    AUBIO_ERR("source_apple_audio: trying to seek in %s at pos %d, "
+        "but file has only %d frames\n",
+        s->path, pos, (uint_t)(fileLengthFrames / ratio));
+    err = -1;
+    goto beach;
+  }
+  // after a short read, the bufferList size needs to resetted to prepare for a full read
+  AudioBufferList *bufferList = &s->bufferList;
+  bufferList->mBuffers[0].mDataByteSize = s->block_size * s->channels * sizeof (short);
+  // do the actual seek
+  err = ExtAudioFileSeek(s->audioFile, resampled_pos);
   if (err) {
     char_t errorstr[20];
     AUBIO_ERROR("source_apple_audio: error while seeking %s at %d "
         "in ExtAudioFileSeek (%s)\n", s->path, pos,
         getPrintableOSStatusError(errorstr, err));
   }
+#if 0
+  // check position after seek
+  {
+    SInt64 outFrameOffset = 0;
+    err = ExtAudioFileTell(s->audioFile, &outFrameOffset);
+    if (err) {
+      char_t errorstr[20];
+      AUBIO_ERROR("source_apple_audio: error while seeking %s at %d "
+          "in ExtAudioFileTell (%s)\n", s->path, pos,
+          getPrintableOSStatusError(errorstr, err));
+    }
+    AUBIO_DBG("source_apple_audio: asked seek at %d, tell got %d\n",
+        pos, (uint_t)(outFrameOffset / ratio + .5));
+  }
+#endif
+beach:
   return err;
 }
 
