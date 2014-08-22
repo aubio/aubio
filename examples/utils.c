@@ -196,9 +196,9 @@ send_noteon (int pitch, int velo)
   } else
 #endif
   if (velo == 0) {
-    verbmsg ("%f\n", blocks * hop_size / (float) samplerate);
+    outmsg ("%f\n", blocks * hop_size / (float) samplerate);
   } else {
-    verbmsg ("%f\t%f\t", mpitch, blocks * hop_size / (float) samplerate);
+    outmsg ("%f\t%f\t", mpitch, blocks * hop_size / (float) samplerate);
   }
 }
 
