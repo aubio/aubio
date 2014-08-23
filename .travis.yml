@@ -4,11 +4,18 @@ compiler:
   - gcc
   - clang
 
+env:
+  - ARCH=i386
+  - ARCH=x86_64
+  - ARCH=i386 USE_CHROOT=1 DIST=trusty
+  - ARCH=x86_64 USE_CHROOT=1 DIST=trusty
+
 before_install:
-  - sudo apt-get update
-  - sudo apt-get install libsndfile1-dev libsamplerate-dev
-  - sudo apt-get install libjack-dev libasound2-dev
-  - sudo apt-get install libfftw3-dev
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq libsndfile1-dev libsamplerate-dev
+  - sudo apt-get install -qq libjack-dev libasound2-dev
+  - if [ "$DIST" == "trusty" ]; then sudo apt-get install -qq libavcodec-dev libavformat-dev libavresample-dev libavutil-dev; fi
+  - sudo apt-get install -qq libfftw3-dev
 
 script:
   - ./waf distclean configure build --alltests
