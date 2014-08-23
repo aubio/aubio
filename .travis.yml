@@ -1,0 +1,15 @@
+language: c
+
+compiler:
+  - gcc
+  - clang
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install libavcodec-dev libavformat-dev libavresample-dev libavutil-dev
+  - sudo apt-get install libsndfile1-dev libsamplerate-dev
+  - sudo apt-get install libjack-dev libasound2-dev
+  - sudo apt-get install libfftw3-dev
+
+script:
+  - ./waf distclean configure build --alltests
