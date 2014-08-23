@@ -68,21 +68,33 @@ void usage (FILE * stream, int exit_code)
       "       -o      --output           output file\n"
 #endif
       "       -r      --samplerate       select samplerate\n"
+      "                 use 0 to use input source samplerate, or 32000 to force 32kHz\n"
       "       -B      --bufsize          set buffer size\n"
+      "                 number of frames to run the analysis on\n"
       "       -H      --hopsize          set hopsize\n"
+      "                 number of frames to read from source before each analysis\n"
 #ifdef PROG_HAS_ONSET
       "       -O      --onset            select onset detection algorithm\n"
+      "                 <default|energy|hfc|complex|phase|specdiff|kl|mkl|specflux>;\n"
+      "                 default=hfc\n"
       "       -t      --onset-threshold  set onset detection threshold\n"
+      "                 a value between 0.1 (more detections) and 1 (less); default=0.3\n"
 #endif /* PROG_HAS_ONSET */
 #ifdef PROG_HAS_PITCH
       "       -p      --pitch            select pitch detection algorithm\n"
+      "                 <default|yinfft|yin|mcomb|fcomb|schmitt>; default=yinfft\n"
       "       -u      --pitch-unit       select pitch output unit\n"
+      "                 <default|freq|hertz|Hz|midi|cent|bin>; default=freq\n"
       "       -l      --pitch-tolerance  select pitch tolerance\n"
+      "                 (yin, yinfft only) a value between 0.1 and 0.7; default=0.3\n"
 #endif /* PROG_HAS_PITCH */
       "       -s      --silence          select silence threshold\n"
+      "                 a value in dB, for instance -70, or -100; default=-90\n"
 #ifdef PROG_HAS_OUTPUT
       "       -m      --mix-input        mix input signal with output signal\n"
+      "                 input signal will be added to output synthesis\n"
       "       -f      --force-overwrite  overwrite output file if needed\n"
+      "                 do not fail if output file already exists\n"
 #endif
 #ifdef PROG_HAS_JACK
       "       -j      --jack             use Jack\n"
