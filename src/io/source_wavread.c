@@ -92,7 +92,7 @@ aubio_source_wavread_t * new_aubio_source_wavread(char_t * path, uint_t samplera
 
   s->fid = fopen((const char *)path, "rb");
   if (!s->fid) {
-    AUBIO_ERR("source_wavread: could not open %s (%s)\n", s->path, strerror(errno));
+    AUBIO_ERR("source_wavread: Failed opening %s (System error: %s)\n", s->path, strerror(errno));
     goto beach;
   }
 
