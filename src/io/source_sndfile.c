@@ -151,27 +151,27 @@ beach:
 
 void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_data, uint_t * read){
   uint_t i,j, input_channels = s->input_channels;
-  /* do actual reading */
+  /* read from file into scratch_data */
   sf_count_t read_samples = sf_read_float (s->handle, s->scratch_data, s->scratch_size);
 
-  smpl_t *data;
-
+  /* where to store de-interleaved data */
+  smpl_t *ptr_data;
 #ifdef HAVE_SAMPLERATE
   if (s->ratio != 1) {
-    data = s->input_data->data;
+    ptr_data = s->input_data->data;
   } else
 #endif /* HAVE_SAMPLERATE */
   {
-    data = read_data->data;
+    ptr_data = read_data->data;
   }
 
   /* de-interleaving and down-mixing data  */
   for (j = 0; j < read_samples / input_channels; j++) {
-    data[j] = 0;
+    ptr_data[j] = 0;
     for (i = 0; i < input_channels; i++) {
-      data[j] += s->scratch_data[input_channels*j+i];
+      ptr_data[j] += s->scratch_data[input_channels*j+i];
     }
-    data[j] /= (smpl_t)input_channels;
+    ptr_data[j] /= (smpl_t)input_channels;
   }
 
 #ifdef HAVE_SAMPLERATE
@@ -195,17 +195,17 @@ void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_dat
   /* do actual reading */
   sf_count_t read_samples = sf_read_float (s->handle, s->scratch_data, s->scratch_size);
 
-  smpl_t **data;
-
+  /* where to store de-interleaved data */
+  smpl_t **ptr_data;
 #ifdef HAVE_SAMPLERATE
   if (s->ratio != 1) {
     AUBIO_ERR("source_sndfile: no multi channel resampling yet");
     return;
-    //data = s->input_data->data;
+    //ptr_data = s->input_data->data;
   } else
 #endif /* HAVE_SAMPLERATE */
   {
-    data = read_data->data;
+    ptr_data = read_data->data;
   }
 
   if (read_data->height < input_channels) {
@@ -213,7 +213,7 @@ void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_dat
     // channels of the file, de-interleaving data
     for (j = 0; j < read_samples / input_channels; j++) {
       for (i = 0; i < read_data->height; i++) {
-        data[i][j] = (smpl_t)s->scratch_data[j * input_channels + i];
+        ptr_data[i][j] = (smpl_t)s->scratch_data[j * input_channels + i];
       }
     }
   } else {
@@ -221,7 +221,7 @@ void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_dat
     // channel from the file to the destination matrix, de-interleaving data
     for (j = 0; j < read_samples / input_channels; j++) {
       for (i = 0; i < input_channels; i++) {
-        data[i][j] = (smpl_t)s->scratch_data[j * input_channels + i];
+        ptr_data[i][j] = (smpl_t)s->scratch_data[j * input_channels + i];
       }
     }
   }
@@ -231,7 +231,7 @@ void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_dat
     // of the file to each additional channels, de-interleaving data
     for (j = 0; j < read_samples / input_channels; j++) {
       for (i = input_channels; i < read_data->height; i++) {
-        data[i][j] = (smpl_t)s->scratch_data[j * input_channels + (input_channels - 1)];
+        ptr_data[i][j] = (smpl_t)s->scratch_data[j * input_channels + (input_channels - 1)];
       }
     }
   }
