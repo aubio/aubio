@@ -39,6 +39,10 @@ struct _aubio_sampler_t {
 aubio_sampler_t *new_aubio_sampler(uint_t samplerate, uint_t blocksize)
 {
   aubio_sampler_t *s = AUBIO_NEW(aubio_sampler_t);
+  if ((sint_t)blocksize < 1) {
+    AUBIO_ERR("sampler: got blocksize %d, but can not be < 1\n", blocksize);
+    goto beach;
+  }
   s->samplerate = samplerate;
   s->blocksize = blocksize;
   s->source_output = new_fvec(blocksize);
@@ -46,6 +50,9 @@ aubio_sampler_t *new_aubio_sampler(uint_t samplerate, uint_t blocksize)
   s->source = NULL;
   s->playing = 0;
   return s;
+beach:
+  AUBIO_FREE(s);
+  return NULL;
 }
 
 uint_t aubio_sampler_load( aubio_sampler_t * o, char_t * uri )
