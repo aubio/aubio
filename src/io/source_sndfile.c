@@ -199,7 +199,7 @@ void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_dat
   smpl_t **ptr_data;
 #ifdef HAVE_SAMPLERATE
   if (s->ratio != 1) {
-    AUBIO_ERR("source_sndfile: no multi channel resampling yet");
+    AUBIO_ERR("source_sndfile: no multi channel resampling yet\n");
     return;
     //ptr_data = s->input_data->data;
   } else
@@ -264,7 +264,17 @@ uint_t aubio_source_sndfile_get_channels(aubio_source_sndfile_t * s) {
 
 uint_t aubio_source_sndfile_seek (aubio_source_sndfile_t * s, uint_t pos) {
   uint_t resampled_pos = (uint_t)ROUND(pos / s->ratio);
-  return sf_seek (s->handle, resampled_pos, SEEK_SET);
+  sf_count_t sf_ret = sf_seek (s->handle, resampled_pos, SEEK_SET);
+  if (sf_ret == -1) {
+    AUBIO_ERR("source_sndfile: Failed seeking %s at %d: %s\n", s->path, pos, sf_strerror (NULL));
+    return AUBIO_FAIL;
+  }
+  if (sf_ret != resampled_pos) {
+    AUBIO_ERR("source_sndfile: Tried seeking %s at %d, but got %lld: %s\n",
+        s->path, resampled_pos, sf_ret, sf_strerror (NULL));
+    return AUBIO_FAIL;
+  }
+  return AUBIO_OK;
 }
 
 uint_t aubio_source_sndfile_close (aubio_source_sndfile_t *s) {
@@ -272,7 +282,7 @@ uint_t aubio_source_sndfile_close (aubio_source_sndfile_t *s) {
     return AUBIO_FAIL;
   }
   if(sf_close(s->handle)) {
-    AUBIO_ERR("source_sndfile: Error closing file %s: %s", s->path, sf_strerror (NULL));
+    AUBIO_ERR("source_sndfile: Error closing file %s: %s\n", s->path, sf_strerror (NULL));
     return AUBIO_FAIL;
   }
   return AUBIO_OK;
