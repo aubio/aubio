@@ -355,10 +355,19 @@ uint_t aubio_source_wavread_get_channels(aubio_source_wavread_t * s) {
 }
 
 uint_t aubio_source_wavread_seek (aubio_source_wavread_t * s, uint_t pos) {
-  uint_t ret = fseek(s->fid, s->seek_start + pos * s->blockalign, SEEK_SET);
+  uint_t ret = 0;
+  if ((sint_t)pos < 0) {
+    return AUBIO_FAIL;
+  }
+  ret = fseek(s->fid, s->seek_start + pos * s->blockalign, SEEK_SET);
+  if (ret != 0) {
+    AUBIO_ERR("source_wavread: could not seek %s at %d (%s)\n", s->path, pos, strerror(errno));
+    return AUBIO_FAIL;
+  }
+  // reset some values
   s->eof = 0;
   s->read_index = 0;
-  return ret;
+  return AUBIO_OK;
 }
 
 uint_t aubio_source_wavread_close (aubio_source_wavread_t * s) {
