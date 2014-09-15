@@ -30,6 +30,32 @@ class aubio_source_test_case(aubio_source_test_case_base):
             f.close()
             f.close()
 
+class aubio_source_seek_test_case(aubio_source_test_case_base):
+
+    def test_seek_to_position(self):
+        samplerate = 0 # use native samplerate
+        hop_size = 256
+        for p in list_of_sounds:
+            f = source(p, samplerate, hop_size)
+            f.seek(0)
+            total_frames1 = 0
+
+            while True:
+                vec, read = f()
+                total_frames1 += read
+                if read < f.hop_size: break
+
+            f.seek(0)
+            total_frames2 = 0
+
+            while True:
+                vec, read = f()
+                total_frames2 += read
+                if read < f.hop_size: break
+
+            assert total_frames1 == total_frames2
+            f.close()
+
 class aubio_source_read_test_case(aubio_source_test_case_base):
 
     def read_from_sink(self, f):
