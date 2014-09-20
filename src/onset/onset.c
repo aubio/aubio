@@ -99,6 +99,10 @@ uint_t aubio_onset_set_silence(aubio_onset_t * o, smpl_t silence) {
   return AUBIO_OK;
 }
 
+smpl_t aubio_onset_get_silence(aubio_onset_t * o) {
+  return o->silence;
+}
+
 uint_t aubio_onset_set_threshold(aubio_onset_t * o, smpl_t threshold) {
   aubio_peakpicker_set_threshold(o->pp, threshold);
   return AUBIO_OK;
