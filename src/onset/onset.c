@@ -172,6 +172,22 @@ aubio_onset_t * new_aubio_onset (char_t * onset_mode,
     uint_t buf_size, uint_t hop_size, uint_t samplerate)
 {
   aubio_onset_t * o = AUBIO_NEW(aubio_onset_t);
+
+  /* check parameters are valid */
+  if ((sint_t)hop_size < 1) {
+    AUBIO_ERR("onset: got hop_size %d, but can not be < 1\n", hop_size);
+    goto beach;
+  } else if ((sint_t)buf_size < 1) {
+    AUBIO_ERR("onset: got buffer_size %d, but can not be < 1\n", buf_size);
+    goto beach;
+  } else if (buf_size < hop_size) {
+    AUBIO_ERR("onset: hop size (%d) is larger than win size (%d)\n", buf_size, hop_size);
+    goto beach;
+  } else if ((sint_t)samplerate < 1) {
+    AUBIO_ERR("onset: samplerate (%d) can not be < 1\n", samplerate);
+    goto beach;
+  }
+
   /* store creation parameters */
   o->samplerate = samplerate;
   o->hop_size = hop_size;
@@ -193,6 +209,10 @@ aubio_onset_t * new_aubio_onset (char_t * onset_mode,
   o->last_onset = 0;
   o->total_frames = 0;
   return o;
+
+beach:
+  AUBIO_FREE(o);
+  return NULL;
 }
 
 void del_aubio_onset (aubio_onset_t *o)
