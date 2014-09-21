@@ -9,7 +9,54 @@ typedef struct
   uint_t channels;
 } Py_sink;
 
-static char Py_sink_doc[] = "sink object";
+static char Py_sink_doc[] = ""
+"  __new__(path, samplerate = 44100, channels = 1)\n"
+"\n"
+"      Create a new sink, opening the given path for writing.\n"
+"\n"
+"      Examples\n"
+"      --------\n"
+"\n"
+"      Create a new sink at 44100Hz, mono:\n"
+"\n"
+"      >>> sink('/tmp/t.wav')\n"
+"\n"
+"      Create a new sink at 8000Hz, mono:\n"
+"\n"
+"      >>> sink('/tmp/t.wav', samplerate = 8000)\n"
+"\n"
+"      Create a new sink at 32000Hz, stereo:\n"
+"\n"
+"      >>> sink('/tmp/t.wav', samplerate = 32000, channels = 2)\n"
+"\n"
+"      Create a new sink at 32000Hz, 5 channels:\n"
+"\n"
+"      >>> sink('/tmp/t.wav', channels = 5, samplerate = 32000)\n"
+"\n"
+"  __call__(vec, write)\n"
+"      x(vec,write) <==> x.do(vec, write)\n"
+"\n"
+"      Write vector to sink.\n"
+"\n"
+"      See also\n"
+"      --------\n"
+"      aubio.sink.do\n"
+"\n";
+
+static char Py_sink_do_doc[] = ""
+"x.do(vec, write) <==> x(vec, write)\n"
+"\n"
+"write monophonic vector to sink";
+
+static char Py_sink_do_multi_doc[] = ""
+"x.do_multi(mat, write)\n"
+"\n"
+"write polyphonic vector to sink";
+
+static char Py_sink_close_doc[] = ""
+"x.close()\n"
+"\n"
+"close this sink now";
 
 static PyObject *
 Py_sink_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
@@ -113,7 +160,7 @@ Py_sink_do(Py_sink * self, PyObject * args)
   Py_RETURN_NONE;
 }
 
-/* function Py_sink_do */
+/* function Py_sink_do_multi */
 static PyObject *
 Py_sink_do_multi(Py_sink * self, PyObject * args)
 {
@@ -147,9 +194,12 @@ Py_sink_do_multi(Py_sink * self, PyObject * args)
 }
 
 AUBIO_MEMBERS_START(sink)
-  {"uri", T_STRING, offsetof (Py_sink, uri), READONLY, ""},
-  {"samplerate", T_INT, offsetof (Py_sink, samplerate), READONLY, ""},
-  {"channels", T_INT, offsetof (Py_sink, channels), READONLY, ""},
+  {"uri", T_STRING, offsetof (Py_sink, uri), READONLY,
+    "path at which the sink was created"},
+  {"samplerate", T_INT, offsetof (Py_sink, samplerate), READONLY,
+    "samplerate at which the sink was created"},
+  {"channels", T_INT, offsetof (Py_sink, channels), READONLY,
+    "number of channels with which the sink was created"},
 AUBIO_MEMBERS_STOP(sink)
 
 static PyObject *
@@ -160,20 +210,9 @@ Pyaubio_sink_close (Py_sink *self, PyObject *unused)
 }
 
 static PyMethodDef Py_sink_methods[] = {
-  {"__call__", (PyCFunction) Py_sink_do, METH_VARARGS,
-    "x.__call__(vec, write)\n"
-    "write monophonic vector to sink"
-    ""},
-  {"do", (PyCFunction) Py_sink_do, METH_VARARGS,
-    "x.do(vec, write)\n"
-    "write monophonic vector to sink"
-    ""},
-  {"do_multi", (PyCFunction) Py_sink_do_multi, METH_VARARGS,
-    "x.do_multi(mat, write)\n"
-    "write polyphonic vector to sink"},
-  {"close", (PyCFunction) Pyaubio_sink_close, METH_NOARGS,
-    "x.close()\n"
-    "close this sink now"},
+  {"do", (PyCFunction) Py_sink_do, METH_VARARGS, Py_sink_do_doc},
+  {"do_multi", (PyCFunction) Py_sink_do_multi, METH_VARARGS, Py_sink_do_multi_doc},
+  {"close", (PyCFunction) Pyaubio_sink_close, METH_NOARGS, Py_sink_close_doc},
   {NULL} /* sentinel */
 };
 
