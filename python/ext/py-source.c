@@ -76,10 +76,11 @@ Py_source_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
   char_t* uri = NULL;
   uint_t samplerate = 0;
   uint_t hop_size = 0;
-  static char *kwlist[] = { "uri", "samplerate", "hop_size", NULL };
+  uint_t channels = 0;
+  static char *kwlist[] = { "uri", "samplerate", "hop_size", "channels", NULL };
 
-  if (!PyArg_ParseTupleAndKeywords (args, kwds, "|sII", kwlist,
-          &uri, &samplerate, &hop_size)) {
+  if (!PyArg_ParseTupleAndKeywords (args, kwds, "|sIII", kwlist,
+          &uri, &samplerate, &hop_size, &channels)) {
     return NULL;
   }
 
@@ -112,6 +113,15 @@ Py_source_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
     return NULL;
   }
 
+  self->channels = 1;
+  if ((sint_t)channels >= 0) {
+    self->channels = channels;
+  } else if ((sint_t)channels < 0) {
+    PyErr_SetString (PyExc_ValueError,
+        "can not use negative value for channels");
+    return NULL;
+  }
+
   return (PyObject *) self;
 }
 
@@ -120,11 +130,15 @@ Py_source_init (Py_source * self, PyObject * args, PyObject * kwds)
 {
   self->o = new_aubio_source ( self->uri, self->samplerate, self->hop_size );
   if (self->o == NULL) {
-    PyErr_SetString (PyExc_StandardError, "error creating object");
+    char_t errstr[30 + strlen(self->uri)];
+    sprintf(errstr, "error creating source with %s", self->uri);
+    PyErr_SetString (PyExc_StandardError, errstr);
     return -1;
   }
   self->samplerate = aubio_source_get_samplerate ( self->o );
-  self->channels = aubio_source_get_channels ( self->o );
+  if (self->channels == 0) {
+    self->channels = aubio_source_get_channels ( self->o );
+  }
 
   return 0;
 }
