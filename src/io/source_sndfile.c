@@ -270,8 +270,8 @@ uint_t aubio_source_sndfile_seek (aubio_source_sndfile_t * s, uint_t pos) {
     return AUBIO_FAIL;
   }
   if (sf_ret != resampled_pos) {
-    AUBIO_ERR("source_sndfile: Tried seeking %s at %d, but got %lld: %s\n",
-        s->path, resampled_pos, sf_ret, sf_strerror (NULL));
+    AUBIO_ERR("source_sndfile: Tried seeking %s at %d, but got %d: %s\n",
+        s->path, resampled_pos, (uint_t)sf_ret, sf_strerror (NULL));
     return AUBIO_FAIL;
   }
   return AUBIO_OK;
