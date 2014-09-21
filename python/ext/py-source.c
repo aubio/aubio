@@ -69,6 +69,11 @@ static char Py_source_close_doc[] = ""
 "\n"
 "Close this source now.";
 
+static char Py_source_seek_doc[] = ""
+"x.seek(position)\n"
+"\n"
+"Seek to resampled frame position.";
+
 static PyObject *
 Py_source_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
 {
@@ -238,6 +243,25 @@ Pyaubio_source_close (Py_source *self, PyObject *unused)
   Py_RETURN_NONE;
 }
 
+static PyObject *
+Pyaubio_source_seek (Py_source *self, PyObject *args)
+{
+  uint_t err = 0;
+
+  uint_t position;
+  if (!PyArg_ParseTuple (args, "I", &position)) {
+    return NULL;
+  }
+
+  err = aubio_source_seek(self->o, position);
+  if (err != 0) {
+    PyErr_SetString (PyExc_ValueError,
+        "error when seeking in source");
+    return NULL;
+  }
+  Py_RETURN_NONE;
+}
+
 static PyMethodDef Py_source_methods[] = {
   {"get_samplerate", (PyCFunction) Pyaubio_source_get_samplerate,
     METH_NOARGS, Py_source_get_samplerate_doc},
@@ -249,6 +273,8 @@ static PyMethodDef Py_source_methods[] = {
     METH_NOARGS, Py_source_do_multi_doc},
   {"close", (PyCFunction) Pyaubio_source_close,
     METH_NOARGS, Py_source_close_doc},
+  {"seek", (PyCFunction) Pyaubio_source_seek,
+    METH_VARARGS, Py_source_seek_doc},
   {NULL} /* sentinel */
 };
 
