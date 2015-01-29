@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-from distutils.core import setup, Extension
+from setuptools import setup, Extension
 
 import sys
 import os.path
@@ -94,4 +94,5 @@ distrib = setup(name='aubio',
     url = 'http://aubio.org/',
     platforms = 'any',
     classifiers = classifiers,
+    install_requires = ['numpy'],
     )
