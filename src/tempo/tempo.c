@@ -163,8 +163,24 @@ aubio_tempo_t * new_aubio_tempo (char_t * tempo_mode,
   aubio_tempo_t * o = AUBIO_NEW(aubio_tempo_t);
   char_t specdesc_func[20];
   o->samplerate = samplerate;
+  // check parameters are valid
+  if ((sint_t)hop_size < 1) {
+    AUBIO_ERR("tempo: got hop size %d, but can not be < 1\n", hop_size);
+    goto beach;
+  } else if ((sint_t)buf_size < 1) {
+    AUBIO_ERR("tempo: got window size %d, but can not be < 1\n", buf_size);
+    goto beach;
+  } else if (buf_size < hop_size) {
+    AUBIO_ERR("tempo: hop size (%d) is larger than window size (%d)\n", buf_size, hop_size);
+    goto beach;
+  } else if ((sint_t)samplerate < 1) {
+    AUBIO_ERR("tempo: samplerate (%d) can not be < 1\n", samplerate);
+    goto beach;
+  }
+
   /* length of observations, worth about 6 seconds */
   o->winlen = aubio_next_power_of_two(5.8 * samplerate / hop_size);
+  if (o->winlen < 4) o->winlen = 4;
   o->step = o->winlen/4;
   o->blockpos = 0;
   o->threshold = 0.3;
@@ -193,6 +209,10 @@ aubio_tempo_t * new_aubio_tempo (char_t * tempo_mode,
     onset2 = new_fvec(1);
   }*/
   return o;
+
+beach:
+  AUBIO_FREE(o);
+  return NULL;
 }
 
 smpl_t aubio_tempo_get_bpm(aubio_tempo_t *o) {
