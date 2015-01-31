@@ -101,6 +101,8 @@ aubio_sink_wavwrite_t * new_aubio_sink_wavwrite(char_t * path, uint_t samplerate
   if ((sint_t)samplerate < 0) goto beach;
   // zero samplerate given. do not open yet
   if ((sint_t)samplerate == 0) return s;
+  // samplerate way too large, fail
+  if ((sint_t)samplerate > 192000 * 4) goto beach;
 
   s->samplerate = samplerate;
   s->channels = 1;
