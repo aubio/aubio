@@ -44,7 +44,11 @@
 #elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
 #define HTOLES(x) x
 #else
+#ifdef HAVE_WIN_HACKS
+#define HTOLES(x) x
+#else
 #define HTOLES(x) SWAPS(htons(x))
+#endif
 #endif
 
 uint_t aubio_sink_wavwrite_open(aubio_sink_wavwrite_t *s);
