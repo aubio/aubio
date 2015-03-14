@@ -14,7 +14,6 @@ def find_irixcc(conf):
 	elif'CC'in conf.environ:cc=conf.environ['CC']
 	if not cc:cc=conf.find_program('cc',var='CC')
 	if not cc:conf.fatal('irixcc was not found')
-	cc=conf.cmd_to_list(cc)
 	try:
 		conf.cmd_and_log(cc+['-version'])
 	except Exception:

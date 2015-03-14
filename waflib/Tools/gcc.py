@@ -2,15 +2,15 @@
 # encoding: utf-8
 # WARNING! Do not edit! http://waf.googlecode.com/git/docs/wafbook/single.html#_obtaining_the_waf_file
 
+import os,sys
+from waflib import Configure,Options,Utils
 from waflib.Tools import ccroot,ar
 from waflib.Configure import conf
 @conf
 def find_gcc(conf):
 	cc=conf.find_program(['gcc','cc'],var='CC')
-	cc=conf.cmd_to_list(cc)
 	conf.get_cc_version(cc,gcc=True)
 	conf.env.CC_NAME='gcc'
-	conf.env.CC=cc
 @conf
 def gcc_common_flags(conf):
 	v=conf.env

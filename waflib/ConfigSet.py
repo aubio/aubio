@@ -89,9 +89,9 @@ class ConfigSet(object):
 		self.table[key]=value
 		return value
 	def append_value(self,var,val):
-		current_value=self._get_list_value_for_modification(var)
 		if isinstance(val,str):
 			val=[val]
+		current_value=self._get_list_value_for_modification(var)
 		current_value.extend(val)
 	def prepend_value(self,var,val):
 		if isinstance(val,str):

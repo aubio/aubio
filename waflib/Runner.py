@@ -109,10 +109,6 @@ class Parallel(object):
 		self.count-=1
 		self.dirty=True
 		return tsk
-	def error_handler(self,tsk):
-		if not self.bld.keep:
-			self.stop=True
-		self.error.append(tsk)
 	def add_task(self,tsk):
 		try:
 			self.pool
@@ -143,6 +139,31 @@ class Parallel(object):
 			for x in pool:
 				put_pool(x)
 			self.pool=[]
+	def skip(self,tsk):
+		tsk.hasrun=Task.SKIPPED
+	def error_handler(self,tsk):
+		if not self.bld.keep:
+			self.stop=True
+		self.error.append(tsk)
+	def task_status(self,tsk):
+		try:
+			return tsk.runnable_status()
+		except Exception:
+			self.processed+=1
+			tsk.err_msg=Utils.ex_stack()
+			if not self.stop and self.bld.keep:
+				self.skip(tsk)
+				if self.bld.keep==1:
+					if Logs.verbose>1 or not self.error:
+						self.error.append(tsk)
+					self.stop=True
+				else:
+					if Logs.verbose>1:
+						self.error.append(tsk)
+				return Task.EXCEPTION
+			tsk.hasrun=Task.EXCEPTION
+			self.error_handler(tsk)
+			return Task.EXCEPTION
 	def start(self):
 		self.total=self.bld.total()
 		while not self.stop:
@@ -158,31 +179,8 @@ class Parallel(object):
 				continue
 			if self.stop:
 				break
-			try:
-				st=tsk.runnable_status()
-			except Exception:
-				self.processed+=1
-				tsk.err_msg=Utils.ex_stack()
-				if not self.stop and self.bld.keep:
-					tsk.hasrun=Task.SKIPPED
-					if self.bld.keep==1:
-						if Logs.verbose>1 or not self.error:
-							self.error.append(tsk)
-						self.stop=True
-					else:
-						if Logs.verbose>1:
-							self.error.append(tsk)
-					continue
-				tsk.hasrun=Task.EXCEPTION
-				self.error_handler(tsk)
-				continue
-			if st==Task.ASK_LATER:
-				self.postpone(tsk)
-			elif st==Task.SKIP_ME:
-				self.processed+=1
-				tsk.hasrun=Task.SKIPPED
-				self.add_more_tasks(tsk)
-			else:
+			st=self.task_status(tsk)
+			if st==Task.RUN_ME:
 				tsk.position=(self.processed,self.total)
 				self.count+=1
 				tsk.master=self
@@ -191,6 +189,12 @@ class Parallel(object):
 					tsk.process()
 				else:
 					self.add_task(tsk)
+			if st==Task.ASK_LATER:
+				self.postpone(tsk)
+			elif st==Task.SKIP_ME:
+				self.processed+=1
+				self.skip(tsk)
+				self.add_more_tasks(tsk)
 		while self.error and self.count:
 			self.get_out()
 		assert(self.count==0 or self.stop)

@@ -2,17 +2,21 @@
 # encoding: utf-8
 # WARNING! Do not edit! http://waf.googlecode.com/git/docs/wafbook/single.html#_obtaining_the_waf_file
 
-import os,sys,imp,types
+import os,sys,imp,types,re
 from waflib.Tools import ccroot
 from waflib import Utils,Configure
 from waflib.Logs import debug
-c_compiler={'win32':['msvc','gcc'],'cygwin':['gcc'],'darwin':['gcc'],'aix':['xlc','gcc'],'linux':['gcc','icc'],'sunos':['suncc','gcc'],'irix':['gcc','irixcc'],'hpux':['gcc'],'gnu':['gcc'],'java':['gcc','msvc','icc'],'default':['gcc'],}
+c_compiler={'win32':['msvc','gcc','clang'],'cygwin':['gcc'],'darwin':['clang','gcc'],'aix':['xlc','gcc','clang'],'linux':['gcc','clang','icc'],'sunos':['suncc','gcc'],'irix':['gcc','irixcc'],'hpux':['gcc'],'gnu':['gcc','clang'],'java':['gcc','msvc','clang','icc'],'default':['gcc','clang'],}
+def default_compilers():
+	build_platform=Utils.unversioned_sys_platform()
+	possible_compiler_list=c_compiler.get(build_platform,c_compiler['default'])
+	return' '.join(possible_compiler_list)
 def configure(conf):
-	try:test_for_compiler=conf.options.check_c_compiler
+	try:test_for_compiler=conf.options.check_c_compiler or default_compilers()
 	except AttributeError:conf.fatal("Add options(opt): opt.load('compiler_c')")
-	for compiler in test_for_compiler.split():
+	for compiler in re.split('[ ,]+',test_for_compiler):
 		conf.env.stash()
-		conf.start_msg('Checking for %r (c compiler)'%compiler)
+		conf.start_msg('Checking for %r (C compiler)'%compiler)
 		try:
 			conf.load(compiler)
 		except conf.errors.ConfigurationError ,e:
@@ -26,14 +30,11 @@ def configure(conf):
 				break
 			conf.end_msg(False)
 	else:
-		conf.fatal('could not configure a c compiler!')
+		conf.fatal('could not configure a C compiler!')
 def options(opt):
+	test_for_compiler=default_compilers()
 	opt.load_special_tools('c_*.py',ban=['c_dumbpreproc.py'])
-	global c_compiler
-	build_platform=Utils.unversioned_sys_platform()
-	possible_compiler_list=c_compiler[build_platform in c_compiler and build_platform or'default']
-	test_for_compiler=' '.join(possible_compiler_list)
-	cc_compiler_opts=opt.add_option_group("C Compiler Options")
-	cc_compiler_opts.add_option('--check-c-compiler',default="%s"%test_for_compiler,help='On this platform (%s) the following C-Compiler will be checked by default: "%s"'%(build_platform,test_for_compiler),dest="check_c_compiler")
+	cc_compiler_opts=opt.add_option_group('Configuration options')
+	cc_compiler_opts.add_option('--check-c-compiler',default=None,help='list of C compilers to try [%s]'%test_for_compiler,dest="check_c_compiler")
 	for x in test_for_compiler.split():
 		opt.load('%s'%x)

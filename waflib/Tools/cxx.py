@@ -11,7 +11,7 @@ def cxx_hook(self,node):
 if not'.c'in TaskGen.task_gen.mappings:
 	TaskGen.task_gen.mappings['.c']=TaskGen.task_gen.mappings['.cpp']
 class cxx(Task.Task):
-	run_str='${CXX} ${ARCH_ST:ARCH} ${CXXFLAGS} ${CPPFLAGS} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
+	run_str='${CXX} ${ARCH_ST:ARCH} ${CXXFLAGS} ${CPPFLAGS} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT[0].abspath()}'
 	vars=['CXXDEPS']
 	ext_in=['.h']
 	scan=c_preproc.scan

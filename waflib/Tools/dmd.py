@@ -8,9 +8,9 @@ from waflib.Configure import conf
 @conf
 def find_dmd(conf):
 	conf.find_program(['dmd','dmd2','ldc'],var='D')
-	out=conf.cmd_and_log([conf.env.D,'--help'])
+	out=conf.cmd_and_log(conf.env.D+['--help'])
 	if out.find("D Compiler v")==-1:
-		out=conf.cmd_and_log([conf.env.D,'-version'])
+		out=conf.cmd_and_log(conf.env.D+['-version'])
 		if out.find("based on DMD v1.")==-1:
 			conf.fatal("detected compiler is not dmd/ldc")
 @conf
@@ -40,7 +40,7 @@ def common_flags_dmd(conf):
 def configure(conf):
 	conf.find_dmd()
 	if sys.platform=='win32':
-		out=conf.cmd_and_log([conf.env.D,'--help'])
+		out=conf.cmd_and_log(conf.env.D+['--help'])
 		if out.find("D Compiler v2.")>-1:
 			conf.fatal('dmd2 on Windows is not supported, use gdc or ldc2 instead')
 	conf.load('ar')

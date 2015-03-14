@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # encoding: ISO8859-1
-# Thomas Nagy, 2005-2012
+# Thomas Nagy, 2005-2015
 
 """
 Redistribution and use in source and binary forms, with or without
@@ -30,13 +30,15 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 """
 
-import os, sys
+import os, sys, inspect
 
-VERSION="1.7.15"
-REVISION="de1cb53b86321cda764be4b3c38c3d20"
+VERSION="1.8.7"
+REVISION="073060339ba56c09e143ed641610cbec"
+GIT="x"
 INSTALL=''
-C1='#+'
-C2='#&'
+C1='#/'
+C2='#-'
+C3='#+'
 cwd = os.getcwd()
 join = os.path.join
 
@@ -53,8 +55,8 @@ def err(m):
 	print(('\033[91mError: %s\033[0m' % m))
 	sys.exit(1)
 
-def unpack_wafdir(dir):
-	f = open(sys.argv[0],'rb')
+def unpack_wafdir(dir, src):
+	f = open(src,'rb')
 	c = 'corrupt archive (%d)'
 	while 1:
 		line = f.readline()
@@ -65,13 +67,13 @@ def unpack_wafdir(dir):
 			if f.readline() != b('#<==\n'): err(c % 2)
 			break
 	if not txt: err(c % 3)
-	txt = txt[1:-1].replace(b(C1), b('\n')).replace(b(C2), b('\r'))
+	txt = txt[1:-1].replace(b(C1), b('\n')).replace(b(C2), b('\r')).replace(b(C3), b('\x00'))
 
 	import shutil, tarfile
 	try: shutil.rmtree(dir)
 	except OSError: pass
 	try:
-		for x in ['Tools', 'extras']:
+		for x in ('Tools', 'extras'):
 			os.makedirs(join(dir, 'waflib', x))
 	except OSError:
 		err("Cannot unpack waf lib into %s\nMove waf in a writable directory" % dir)
@@ -100,7 +102,7 @@ def unpack_wafdir(dir):
 	finally:
 		t.close()
 
-	for x in ['Tools', 'extras']:
+	for x in ('Tools', 'extras'):
 		os.chmod(join('waflib',x), 493)
 
 	if sys.hexversion<0x300000f:
@@ -127,8 +129,8 @@ def test(dir):
 		pass
 
 def find_lib():
-	name = sys.argv[0]
-	base = os.path.dirname(os.path.abspath(name))
+	src = os.path.abspath(inspect.getfile(inspect.getmodule(err)))
+	base, name = os.path.split(src)
 
 	#devs use $WAFDIR
 	w=test(os.environ.get('WAFDIR', ''))
@@ -141,7 +143,7 @@ def find_lib():
 		err('waf-light requires waflib -> export WAFDIR=/folder')
 
 	dirname = '%s-%s-%s' % (WAF, VERSION, REVISION)
-	for i in [INSTALL,'/usr','/usr/local','/opt']:
+	for i in (INSTALL,'/usr','/usr/local','/opt'):
 		w = test(i + '/lib/' + dirname)
 		if w: return w
 
@@ -151,7 +153,7 @@ def find_lib():
 	if w: return w
 
 	#unpack
-	unpack_wafdir(dir)
+	unpack_wafdir(dir, src)
 	return dir
 
 wafdir = find_lib()

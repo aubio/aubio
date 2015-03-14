@@ -2,7 +2,7 @@
 # encoding: utf-8
 # WARNING! Do not edit! http://waf.googlecode.com/git/docs/wafbook/single.html#_obtaining_the_waf_file
 
-import os,sys,errno,re,shutil
+import os,sys,errno,re,shutil,stat
 try:
 	import cPickle
 except ImportError:
@@ -31,7 +31,7 @@ class BuildContext(Context.Context):
 		self.out_dir=kw.get('out_dir',Context.out_dir)
 		self.cache_dir=kw.get('cache_dir',None)
 		if not self.cache_dir:
-			self.cache_dir=self.out_dir+os.sep+CACHE_DIR
+			self.cache_dir=os.path.join(self.out_dir,CACHE_DIR)
 		self.all_envs={}
 		self.task_sigs={}
 		self.node_deps={}
@@ -42,8 +42,6 @@ class BuildContext(Context.Context):
 		self.jobs=Options.options.jobs
 		self.targets=Options.options.targets
 		self.keep=Options.options.keep
-		self.cache_global=Options.cache_global
-		self.nocache=Options.options.nocache
 		self.progress_bar=Options.options.progress_bar
 		self.deps_man=Utils.defaultdict(list)
 		self.current_group=0
@@ -109,23 +107,19 @@ class BuildContext(Context.Context):
 		self.recurse([self.run_dir])
 		self.pre_build()
 		self.timer=Utils.Timer()
-		if self.progress_bar:
-			sys.stderr.write(Logs.colors.cursor_off)
 		try:
 			self.compile()
 		finally:
-			if self.progress_bar==1:
+			if self.progress_bar==1 and sys.stderr.isatty():
 				c=len(self.returned_tasks)or 1
-				self.to_log(self.progress_line(c,c,Logs.colors.BLUE,Logs.colors.NORMAL))
-				print('')
-				sys.stdout.flush()
-				sys.stderr.write(Logs.colors.cursor_on)
+				m=self.progress_line(c,c,Logs.colors.BLUE,Logs.colors.NORMAL)
+				Logs.info(m,extra={'stream':sys.stderr,'c1':Logs.colors.cursor_off,'c2':Logs.colors.cursor_on})
 			Logs.info("Waf: Leaving directory `%s'"%self.variant_dir)
 		self.post_build()
 	def restore(self):
 		try:
 			env=ConfigSet.ConfigSet(os.path.join(self.cache_dir,'build.config.py'))
-		except(IOError,OSError):
+		except EnvironmentError:
 			pass
 		else:
 			if env['version']<Context.HEXVERSION:
@@ -253,6 +247,8 @@ class BuildContext(Context.Context):
 		except KeyError:
 			raise Errors.WafError('Could not find a task generator for the name %r'%name)
 	def progress_line(self,state,total,col1,col2):
+		if not sys.stderr.isatty():
+			return''
 		n=len(str(total))
 		Utils.rot_idx+=1
 		ind=Utils.rot_chr[Utils.rot_idx%4]
@@ -265,7 +261,7 @@ class BuildContext(Context.Context):
 		if cols<7:cols=7
 		ratio=((cols*state)//total)-1
 		bar=('='*ratio+'>').ljust(cols)
-		msg=Utils.indicator%(left,bar,right)
+		msg=Logs.indicator%(left,bar,right)
 		return msg
 	def declare_chain(self,*k,**kw):
 		return TaskGen.declare_chain(*k,**kw)
@@ -325,6 +321,7 @@ class BuildContext(Context.Context):
 			for i in range(len(self.groups)):
 				if id(g)==id(self.groups[i]):
 					self.current_group=i
+					break
 		else:
 			self.current_group=idx
 	def total(self):
@@ -473,16 +470,16 @@ class inst(Task.Task):
 				destfile=os.path.join(destpath,y.path_from(self.path))
 			else:
 				destfile=os.path.join(destpath,y.name)
-			self.generator.bld.do_install(y.abspath(),destfile,self.chmod)
+			self.generator.bld.do_install(y.abspath(),destfile,chmod=self.chmod,tsk=self)
 	def exec_install_as(self):
 		destfile=self.get_install_path()
-		self.generator.bld.do_install(self.inputs[0].abspath(),destfile,self.chmod)
+		self.generator.bld.do_install(self.inputs[0].abspath(),destfile,chmod=self.chmod,tsk=self)
 	def exec_symlink_as(self):
 		destfile=self.get_install_path()
 		src=self.link
 		if self.relative_trick:
 			src=os.path.relpath(src,os.path.dirname(destfile))
-		self.generator.bld.do_link(src,destfile)
+		self.generator.bld.do_link(src,destfile,tsk=self)
 class InstallContext(BuildContext):
 	'''installs the targets on the system'''
 	cmd='install'
@@ -490,7 +487,12 @@ class InstallContext(BuildContext):
 		super(InstallContext,self).__init__(**kw)
 		self.uninstall=[]
 		self.is_install=INSTALL
-	def do_install(self,src,tgt,chmod=Utils.O644):
+	def copy_fun(self,src,tgt,**kw):
+		if Utils.is_win32 and len(tgt)>259 and not tgt.startswith('\\\\?\\'):
+			tgt='\\\\?\\'+tgt
+		shutil.copy2(src,tgt)
+		os.chmod(tgt,kw.get('chmod',Utils.O644))
+	def do_install(self,src,tgt,**kw):
 		d,_=os.path.split(tgt)
 		if not d:
 			raise Errors.WafError('Invalid installation given %r->%r'%(src,tgt))
@@ -510,19 +512,22 @@ class InstallContext(BuildContext):
 		if not self.progress_bar:
 			Logs.info('+ install %s (from %s)'%(tgt,srclbl))
 		try:
+			os.chmod(tgt,Utils.O644|stat.S_IMODE(os.stat(tgt).st_mode))
+		except EnvironmentError:
+			pass
+		try:
 			os.remove(tgt)
 		except OSError:
 			pass
 		try:
-			shutil.copy2(src,tgt)
-			os.chmod(tgt,chmod)
+			self.copy_fun(src,tgt,**kw)
 		except IOError:
 			try:
 				os.stat(src)
-			except(OSError,IOError):
+			except EnvironmentError:
 				Logs.error('File %r does not exist'%src)
 			raise Errors.WafError('Could not install the file %r'%tgt)
-	def do_link(self,src,tgt):
+	def do_link(self,src,tgt,**kw):
 		d,_=os.path.split(tgt)
 		Utils.check_dir(d)
 		link=False
@@ -545,11 +550,12 @@ class InstallContext(BuildContext):
 			if tsk.runnable_status()==Task.ASK_LATER:
 				raise self.WafError('cannot post the task %r'%tsk)
 			tsk.run()
-	def install_files(self,dest,files,env=None,chmod=Utils.O644,relative_trick=False,cwd=None,add=True,postpone=True):
+	def install_files(self,dest,files,env=None,chmod=Utils.O644,relative_trick=False,cwd=None,add=True,postpone=True,task=None):
 		tsk=inst(env=env or self.env)
 		tsk.bld=self
 		tsk.path=cwd or self.path
 		tsk.chmod=chmod
+		tsk.task=task
 		if isinstance(files,waflib.Node.Node):
 			tsk.source=[files]
 		else:
@@ -560,18 +566,19 @@ class InstallContext(BuildContext):
 		if add:self.add_to_group(tsk)
 		self.run_task_now(tsk,postpone)
 		return tsk
-	def install_as(self,dest,srcfile,env=None,chmod=Utils.O644,cwd=None,add=True,postpone=True):
+	def install_as(self,dest,srcfile,env=None,chmod=Utils.O644,cwd=None,add=True,postpone=True,task=None):
 		tsk=inst(env=env or self.env)
 		tsk.bld=self
 		tsk.path=cwd or self.path
 		tsk.chmod=chmod
 		tsk.source=[srcfile]
+		tsk.task=task
 		tsk.dest=dest
 		tsk.exec_task=tsk.exec_install_as
 		if add:self.add_to_group(tsk)
 		self.run_task_now(tsk,postpone)
 		return tsk
-	def symlink_as(self,dest,src,env=None,cwd=None,add=True,postpone=True,relative_trick=False):
+	def symlink_as(self,dest,src,env=None,cwd=None,add=True,postpone=True,relative_trick=False,task=None):
 		if Utils.is_win32:
 			return
 		tsk=inst(env=env or self.env)
@@ -579,6 +586,7 @@ class InstallContext(BuildContext):
 		tsk.dest=dest
 		tsk.path=cwd or self.path
 		tsk.source=[]
+		tsk.task=task
 		tsk.link=src
 		tsk.relative_trick=relative_trick
 		tsk.exec_task=tsk.exec_symlink_as
@@ -591,7 +599,14 @@ class UninstallContext(InstallContext):
 	def __init__(self,**kw):
 		super(UninstallContext,self).__init__(**kw)
 		self.is_install=UNINSTALL
-	def do_install(self,src,tgt,chmod=Utils.O644):
+	def rm_empty_dirs(self,tgt):
+		while tgt:
+			tgt=os.path.dirname(tgt)
+			try:
+				os.rmdir(tgt)
+			except OSError:
+				break
+	def do_install(self,src,tgt,**kw):
 		if not self.progress_bar:
 			Logs.info('- remove %s'%tgt)
 		self.uninstall.append(tgt)
@@ -604,25 +619,15 @@ class UninstallContext(InstallContext):
 					Logs.warn('build: some files could not be uninstalled (retry with -vv to list them)')
 				if Logs.verbose>1:
 					Logs.warn('Could not remove %s (error code %r)'%(e.filename,e.errno))
-		while tgt:
-			tgt=os.path.dirname(tgt)
-			try:
-				os.rmdir(tgt)
-			except OSError:
-				break
-	def do_link(self,src,tgt):
+		self.rm_empty_dirs(tgt)
+	def do_link(self,src,tgt,**kw):
 		try:
 			if not self.progress_bar:
 				Logs.info('- remove %s'%tgt)
 			os.remove(tgt)
 		except OSError:
 			pass
-		while tgt:
-			tgt=os.path.dirname(tgt)
-			try:
-				os.rmdir(tgt)
-			except OSError:
-				break
+		self.rm_empty_dirs(tgt)
 	def execute(self):
 		try:
 			def runnable_status(self):
@@ -754,5 +759,3 @@ class StepContext(BuildContext):
 			else:
 				return pattern.match(node.abspath())
 		return match
-BuildContext.store=Utils.nogc(BuildContext.store)
-BuildContext.restore=Utils.nogc(BuildContext.restore)

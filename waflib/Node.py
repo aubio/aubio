@@ -46,15 +46,19 @@ def split_path_cygwin(path):
 re_sp=re.compile('[/\\\\]')
 def split_path_win32(path):
 	if path.startswith('\\\\'):
-		ret=re.split(re_sp,path)[2:]
-		ret[0]='\\'+ret[0]
-		return ret
+		if path.startswith('\\\\?'):
+			path=path[4:]
+		else:
+			ret=re.split(re_sp,path)[2:]
+			ret[0]='\\\\'+ret[0]
+			return ret
 	return re.split(re_sp,path)
 if sys.platform=='cygwin':
 	split_path=split_path_cygwin
 elif Utils.is_win32:
 	split_path=split_path_win32
 class Node(object):
+	dict_class=dict
 	__slots__=('name','sig','children','parent','cache_abspath','cache_isdir','cache_sig')
 	def __init__(self,name,parent):
 		self.name=name
@@ -67,7 +71,7 @@ class Node(object):
 		self.name=data[0]
 		self.parent=data[1]
 		if data[2]is not None:
-			self.children=data[2]
+			self.children=self.dict_class(data[2])
 		if data[3]is not None:
 			self.sig=data[3]
 	def __getstate__(self):
@@ -90,13 +94,16 @@ class Node(object):
 		os.chmod(self.abspath(),val)
 	def delete(self):
 		try:
-			if hasattr(self,'children'):
-				shutil.rmtree(self.abspath())
-			else:
-				os.remove(self.abspath())
-		except OSError:
-			pass
-		self.evict()
+			try:
+				if hasattr(self,'children'):
+					shutil.rmtree(self.abspath())
+				else:
+					os.remove(self.abspath())
+			except OSError ,e:
+				if os.path.exists(self.abspath()):
+					raise e
+		finally:
+			self.evict()
 	def evict(self):
 		del self.parent.children[self.name]
 	def suffix(self):
@@ -130,7 +137,7 @@ class Node(object):
 			try:
 				self.children
 			except AttributeError:
-				self.children={}
+				self.children=self.dict_class()
 		self.cache_isdir=True
 	def find_node(self,lst):
 		if isinstance(lst,str):
@@ -143,7 +150,7 @@ class Node(object):
 			try:
 				ch=cur.children
 			except AttributeError:
-				cur.children={}
+				cur.children=self.dict_class()
 			else:
 				try:
 					cur=cur.children[x]
@@ -182,7 +189,7 @@ class Node(object):
 					cur=cur.children[x]
 					continue
 			else:
-				cur.children={}
+				cur.children=self.dict_class()
 			cur=self.__class__(x,cur)
 		return cur
 	def search_node(self,lst):
@@ -218,8 +225,12 @@ class Node(object):
 			up+=1
 			c1=c1.parent
 			c2=c2.parent
-		for i in range(up):
-			lst.append('..')
+		if c1.parent:
+			for i in range(up):
+				lst.append('..')
+		else:
+			if os.sep=='/'and lst:
+				lst.append('')
 		lst.reverse()
 		return os.sep.join(lst)or'.'
 	def abspath(self):
@@ -256,7 +267,7 @@ class Node(object):
 		try:
 			lst=set(self.children.keys())
 		except AttributeError:
-			self.children={}
+			self.children=self.dict_class()
 		else:
 			if remove:
 				for x in lst-set(dircont):
@@ -433,8 +444,6 @@ class Node(object):
 		else:
 			name=name[:-len(ext_in)]+ext
 		return self.parent.find_or_declare([name])
-	def nice_path(self,env=None):
-		return self.path_from(self.ctx.launch_node())
 	def bldpath(self):
 		return self.path_from(self.ctx.bldnode)
 	def srcpath(self):
@@ -449,9 +458,6 @@ class Node(object):
 		return self.srcpath()
 	def bld_dir(self):
 		return self.parent.bldpath()
-	def bld_base(self):
-		s=os.path.splitext(self.name)[0]
-		return self.bld_dir()+os.sep+s
 	def get_bld_sig(self):
 		try:
 			return self.cache_sig
@@ -461,7 +467,6 @@ class Node(object):
 			self.sig=Utils.h_file(self.abspath())
 		self.cache_sig=ret=self.sig
 		return ret
-	search=search_node
 pickle_lock=Utils.threading.Lock()
 class Nod3(Node):
 	pass

@@ -9,7 +9,6 @@ from waflib.Configure import conf
 @conf
 def find_gfortran(conf):
 	fc=conf.find_program(['gfortran','g77'],var='FC')
-	fc=conf.cmd_to_list(fc)
 	conf.get_gfortran_version(fc)
 	conf.env.FC_NAME='GFORTRAN'
 @conf

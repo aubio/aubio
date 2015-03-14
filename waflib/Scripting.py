@@ -18,14 +18,20 @@ def waf_entry_point(current_directory,version,wafdir):
 		ctx.curdir=current_directory
 		ctx.parse_args()
 		sys.exit(0)
+	if len(sys.argv)>1:
+		potential_wscript=os.path.join(current_directory,sys.argv[1])
+		if os.path.basename(potential_wscript)=='wscript'and os.path.isfile(potential_wscript):
+			current_directory=os.path.normpath(os.path.dirname(potential_wscript))
+			sys.argv.pop(1)
 	Context.waf_dir=wafdir
 	Context.launch_dir=current_directory
 	no_climb=os.environ.get('NOCLIMB',None)
 	if not no_climb:
 		for k in no_climb_commands:
-			if k in sys.argv:
-				no_climb=True
-				break
+			for y in sys.argv:
+				if y.startswith(k):
+					no_climb=True
+					break
 	cur=current_directory
 	while cur:
 		lst=os.listdir(cur)
@@ -37,7 +43,7 @@ def waf_entry_point(current_directory,version,wafdir):
 			except Exception:
 				pass
 			else:
-				for x in[env.run_dir,env.top_dir,env.out_dir]:
+				for x in(env.run_dir,env.top_dir,env.out_dir):
 					if Utils.is_win32:
 						if cur==x:
 							load=True
@@ -84,7 +90,7 @@ def waf_entry_point(current_directory,version,wafdir):
 		Logs.error('Waf: The folder %r is unreadable'%Context.run_dir)
 		sys.exit(1)
 	try:
-		set_main_module(Context.run_dir+os.sep+Context.WSCRIPT_FILE)
+		set_main_module(os.path.join(Context.run_dir,Context.WSCRIPT_FILE))
 	except Errors.WafError ,e:
 		Logs.pprint('RED',e.verbose_msg)
 		Logs.error(str(e))
@@ -115,7 +121,7 @@ def set_main_module(file_path):
 		name=obj.__name__
 		if not name in Context.g_module.__dict__:
 			setattr(Context.g_module,name,obj)
-	for k in[update,dist,distclean,distcheck,update]:
+	for k in(update,dist,distclean,distcheck,update):
 		set_def(k)
 	if not'init'in Context.g_module.__dict__:
 		Context.g_module.init=Utils.nada
@@ -125,11 +131,13 @@ def set_main_module(file_path):
 		Context.g_module.options=Utils.nada
 def parse_options():
 	Context.create_context('options').execute()
+	for var in Options.envvars:
+		(name,value)=var.split('=',1)
+		os.environ[name.strip()]=value
 	if not Options.commands:
 		Options.commands=[default_cmd]
 	Options.commands=[x for x in Options.commands if x!='options']
 	Logs.verbose=Options.options.verbose
-	Logs.init_log()
 	if Options.options.zones:
 		Logs.zones=Options.options.zones.split(',')
 		if not Logs.verbose:
@@ -143,7 +151,10 @@ def run_command(cmd_name):
 	ctx.log_timer=Utils.Timer()
 	ctx.options=Options.options
 	ctx.cmd=cmd_name
-	ctx.execute()
+	try:
+		ctx.execute()
+	finally:
+		ctx.finalize()
 	return ctx
 def run_commands():
 	parse_options()
@@ -162,12 +173,12 @@ def distclean_dir(dirname):
 	for(root,dirs,files)in os.walk(dirname):
 		for f in files:
 			if _can_distclean(f):
-				fname=root+os.sep+f
+				fname=os.path.join(root,f)
 				try:
 					os.remove(fname)
 				except OSError:
 					Logs.warn('Could not remove %r'%fname)
-	for x in[Context.DBFILE,'config.log']:
+	for x in(Context.DBFILE,'config.log'):
 		try:
 			os.remove(x)
 		except OSError:
@@ -193,15 +204,16 @@ def distclean(ctx):
 					pass
 				except OSError ,e:
 					if e.errno!=errno.ENOENT:
-						Logs.warn('project %r cannot be removed'%proj[Context.OUT])
+						Logs.warn('Could not remove %r'%proj['out_dir'])
 			else:
 				distclean_dir(proj['out_dir'])
 			for k in(proj['out_dir'],proj['top_dir'],proj['run_dir']):
+				p=os.path.join(k,Options.lockfile)
 				try:
-					os.remove(os.path.join(k,Options.lockfile))
+					os.remove(p)
 				except OSError ,e:
 					if e.errno!=errno.ENOENT:
-						Logs.warn('file %r cannot be removed'%f)
+						Logs.warn('Could not remove %r'%p)
 		if not Options.commands:
 			for x in'.waf-1. waf-1. .waf3-1. waf3-1.'.split():
 				if f.startswith(x):
@@ -225,7 +237,7 @@ class Dist(Context.Context):
 		node=self.base_path.make_node(arch_name)
 		try:
 			node.delete()
-		except Exception:
+		except OSError:
 			pass
 		files=self.get_files()
 		if self.algo.startswith('tar.'):
@@ -241,7 +253,7 @@ class Dist(Context.Context):
 				zip.write(x.abspath(),archive_name,zipfile.ZIP_DEFLATED)
 			zip.close()
 		else:
-			self.fatal('Valid algo types are tar.bz2, tar.gz or zip')
+			self.fatal('Valid algo types are tar.bz2, tar.gz, tar.xz or zip')
 		try:
 			from hashlib import sha1 as sha
 		except ImportError:
@@ -290,10 +302,11 @@ class Dist(Context.Context):
 		try:
 			return self.excl
 		except AttributeError:
-			self.excl=Node.exclude_regs+' **/waf-1.7.* **/.waf-1.7* **/waf3-1.7.* **/.waf3-1.7* **/*~ **/*.rej **/*.orig **/*.pyc **/*.pyo **/*.bak **/*.swp **/.lock-w*'
-			nd=self.root.find_node(Context.out_dir)
-			if nd:
-				self.excl+=' '+nd.path_from(self.base_path)
+			self.excl=Node.exclude_regs+' **/waf-1.8.* **/.waf-1.8* **/waf3-1.8.* **/.waf3-1.8* **/*~ **/*.rej **/*.orig **/*.pyc **/*.pyo **/*.bak **/*.swp **/.lock-w*'
+			if Context.out_dir:
+				nd=self.root.find_node(Context.out_dir)
+				if nd:
+					self.excl+=' '+nd.path_from(self.base_path)
 			return self.excl
 	def get_files(self):
 		try:
@@ -369,6 +382,8 @@ def autoconfigure(execute_method):
 		if do_config:
 			Options.commands.insert(0,self.cmd)
 			Options.commands.insert(0,'configure')
+			if Configure.autoconfig=='clobber':
+				Options.options.__dict__=env.options
 			return
 		return execute_method(self)
 	return execute

@@ -5,8 +5,9 @@
 import copy,re,os
 from waflib import Task,Utils,Logs,Errors,ConfigSet,Node
 feats=Utils.defaultdict(set)
+HEADER_EXTS=['.h','.hpp','.hxx','.hh']
 class task_gen(object):
-	mappings={}
+	mappings=Utils.ordered_iter_dict()
 	prec=Utils.defaultdict(list)
 	def __init__(self,*k,**kw):
 		self.source=''
@@ -36,7 +37,7 @@ class task_gen(object):
 	def __repr__(self):
 		lst=[]
 		for x in self.__dict__.keys():
-			if x not in['env','bld','compiled_tasks','tasks']:
+			if x not in('env','bld','compiled_tasks','tasks'):
 				lst.append("%s=%s"%(x,repr(getattr(self,x))))
 		return"bld(%s) in %s"%(", ".join(lst),self.path.abspath())
 	def get_name(self):
@@ -111,27 +112,29 @@ class task_gen(object):
 		return True
 	def get_hook(self,node):
 		name=node.name
-		for k in self.mappings:
-			if name.endswith(k):
-				return self.mappings[k]
+		if self.mappings:
+			for k in self.mappings:
+				if name.endswith(k):
+					return self.mappings[k]
 		for k in task_gen.mappings:
 			if name.endswith(k):
 				return task_gen.mappings[k]
-		raise Errors.WafError("File %r has no mapping in %r (did you forget to load a waf tool?)"%(node,task_gen.mappings.keys()))
-	def create_task(self,name,src=None,tgt=None):
+		raise Errors.WafError("File %r has no mapping in %r (have you forgotten to load a waf tool?)"%(node,task_gen.mappings.keys()))
+	def create_task(self,name,src=None,tgt=None,**kw):
 		task=Task.classes[name](env=self.env.derive(),generator=self)
 		if src:
 			task.set_inputs(src)
 		if tgt:
 			task.set_outputs(tgt)
+		task.__dict__.update(kw)
 		self.tasks.append(task)
 		return task
 	def clone(self,env):
 		newobj=self.bld()
 		for x in self.__dict__:
-			if x in['env','bld']:
+			if x in('env','bld'):
 				continue
-			elif x in['path','features']:
+			elif x in('path','features'):
 				setattr(newobj,x,getattr(self,x))
 			else:
 				setattr(newobj,x,copy.copy(getattr(self,x)))
@@ -153,7 +156,7 @@ def declare_chain(name='',rule=None,reentrant=None,color='BLUE',ext_in=[],ext_ou
 			_ext_in=ext_in[0]
 		tsk=self.create_task(name,node)
 		cnt=0
-		keys=list(self.mappings.keys())+list(self.__class__.mappings.keys())
+		keys=set(self.mappings.keys())|set(self.__class__.mappings.keys())
 		for x in ext:
 			k=node.change_ext(x,ext_in=_ext_in)
 			tsk.outputs.append(k)
@@ -212,7 +215,7 @@ def to_nodes(self,lst,path=None):
 	tmp=[]
 	path=path or self.path
 	find=path.find_resource
-	if isinstance(lst,self.path.__class__):
+	if isinstance(lst,Node.Node):
 		lst=[lst]
 	for x in Utils.to_list(lst):
 		if isinstance(x,str):
@@ -262,7 +265,7 @@ def process_rule(self):
 			Task.update_outputs(cls)
 		if getattr(self,'always',None):
 			Task.always_run(cls)
-		for x in['after','before','ext_in','ext_out']:
+		for x in('after','before','ext_in','ext_out'):
 			setattr(cls,x,getattr(self,x,[]))
 		if getattr(self,'cache_rule','True'):
 			cache[(name,self.rule)]=cls
@@ -307,11 +310,11 @@ class subst_pc(Task.Task):
 				os.chmod(self.outputs[0].abspath(),self.generator.chmod)
 			return None
 		if getattr(self.generator,'fun',None):
-			self.generator.fun(self)
+			return self.generator.fun(self)
 		code=self.inputs[0].read(encoding=getattr(self.generator,'encoding','ISO8859-1'))
 		if getattr(self.generator,'subst_fun',None):
 			code=self.generator.subst_fun(self,code)
-			if code:
+			if code is not None:
 				self.outputs[0].write(code,encoding=getattr(self.generator,'encoding','ISO8859-1'))
 			return
 		code=code.replace('%','%%')
@@ -329,8 +332,12 @@ class subst_pc(Task.Task):
 		except AttributeError:
 			d={}
 			for x in lst:
-				tmp=getattr(self.generator,x,'')or self.env.get_flat(x)or self.env.get_flat(x.upper())
-				d[x]=str(tmp)
+				tmp=getattr(self.generator,x,'')or self.env[x]or self.env[x.upper()]
+				try:
+					tmp=''.join(tmp)
+				except TypeError:
+					tmp=str(tmp)
+				d[x]=tmp
 		code=code%d
 		self.outputs[0].write(code,encoding=getattr(self.generator,'encoding','ISO8859-1'))
 		self.generator.bld.raw_deps[self.uid()]=self.dep_vars=lst
@@ -397,8 +404,12 @@ def process_subst(self):
 			if val:
 				has_constraints=True
 				setattr(tsk,k,val)
-		if not has_constraints and b.name.endswith('.h'):
-			tsk.before=[k for k in('c','cxx')if k in Task.classes]
+		if not has_constraints:
+			global HEADER_EXTS
+			for xt in HEADER_EXTS:
+				if b.name.endswith(xt):
+					tsk.before=[k for k in('c','cxx')if k in Task.classes]
+					break
 		inst_to=getattr(self,'install_path',None)
 		if inst_to:
 			self.bld.install_files(inst_to,b,chmod=getattr(self,'chmod',Utils.O644))

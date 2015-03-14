@@ -2,8 +2,8 @@
 # encoding: utf-8
 # WARNING! Do not edit! http://waf.googlecode.com/git/docs/wafbook/single.html#_obtaining_the_waf_file
 
-import os,sys
-from waflib.TaskGen import feature,after_method
+import os
+from waflib.TaskGen import feature,after_method,taskgen_method
 from waflib import Utils,Task,Logs,Options
 testlock=Utils.threading.Lock()
 @feature('test')
@@ -11,6 +11,14 @@ testlock=Utils.threading.Lock()
 def make_test(self):
 	if getattr(self,'link_task',None):
 		self.create_task('utest',self.link_task.outputs)
+@taskgen_method
+def add_test_results(self,tup):
+	Logs.debug("ut: %r",tup)
+	self.utest_result=tup
+	try:
+		self.bld.utest_results.append(tup)
+	except AttributeError:
+		self.bld.utest_results=[tup]
 class utest(Task.Task):
 	color='PINK'
 	after=['vnum','inst']
@@ -23,11 +31,9 @@ class utest(Task.Task):
 			if getattr(Options.options,'all_tests',False):
 				return Task.RUN_ME
 		return ret
-	def run(self):
-		filename=self.inputs[0].abspath()
-		self.ut_exec=getattr(self.generator,'ut_exec',[filename])
-		if getattr(self.generator,'ut_fun',None):
-			self.generator.ut_fun(self)
+	def add_path(self,dct,path,var):
+		dct[var]=os.pathsep.join(Utils.to_list(path)+[os.environ.get(var,'')])
+	def get_test_env(self):
 		try:
 			fu=getattr(self.generator.bld,'all_test_paths')
 		except AttributeError:
@@ -39,32 +45,30 @@ class utest(Task.Task):
 						s=tg.link_task.outputs[0].parent.abspath()
 						if s not in lst:
 							lst.append(s)
-			def add_path(dct,path,var):
-				dct[var]=os.pathsep.join(Utils.to_list(path)+[os.environ.get(var,'')])
 			if Utils.is_win32:
-				add_path(fu,lst,'PATH')
+				self.add_path(fu,lst,'PATH')
 			elif Utils.unversioned_sys_platform()=='darwin':
-				add_path(fu,lst,'DYLD_LIBRARY_PATH')
-				add_path(fu,lst,'LD_LIBRARY_PATH')
+				self.add_path(fu,lst,'DYLD_LIBRARY_PATH')
+				self.add_path(fu,lst,'LD_LIBRARY_PATH')
 			else:
-				add_path(fu,lst,'LD_LIBRARY_PATH')
+				self.add_path(fu,lst,'LD_LIBRARY_PATH')
 			self.generator.bld.all_test_paths=fu
+		return fu
+	def run(self):
+		filename=self.inputs[0].abspath()
+		self.ut_exec=getattr(self.generator,'ut_exec',[filename])
+		if getattr(self.generator,'ut_fun',None):
+			self.generator.ut_fun(self)
 		cwd=getattr(self.generator,'ut_cwd','')or self.inputs[0].parent.abspath()
-		testcmd=getattr(Options.options,'testcmd',False)
+		testcmd=getattr(self.generator,'ut_cmd',False)or getattr(Options.options,'testcmd',False)
 		if testcmd:
 			self.ut_exec=(testcmd%self.ut_exec[0]).split(' ')
-		proc=Utils.subprocess.Popen(self.ut_exec,cwd=cwd,env=fu,stderr=Utils.subprocess.PIPE,stdout=Utils.subprocess.PIPE)
+		proc=Utils.subprocess.Popen(self.ut_exec,cwd=cwd,env=self.get_test_env(),stderr=Utils.subprocess.PIPE,stdout=Utils.subprocess.PIPE)
 		(stdout,stderr)=proc.communicate()
 		tup=(filename,proc.returncode,stdout,stderr)
-		self.generator.utest_result=tup
 		testlock.acquire()
 		try:
-			bld=self.generator.bld
-			Logs.debug("ut: %r",tup)
-			try:
-				bld.utest_results.append(tup)
-			except AttributeError:
-				bld.utest_results=[tup]
+			return self.generator.add_test_results(tup)
 		finally:
 			testlock.release()
 def summary(bld):

@@ -7,58 +7,26 @@ from waflib import Logs,Utils,Context
 cmds='distclean configure build install clean uninstall check dist distcheck'.split()
 options={}
 commands=[]
+envvars=[]
 lockfile=os.environ.get('WAFLOCK','.lock-waf_%s_build'%sys.platform)
-try:cache_global=os.path.abspath(os.environ['WAFCACHE'])
-except KeyError:cache_global=''
 platform=Utils.unversioned_sys_platform()
 class opt_parser(optparse.OptionParser):
 	def __init__(self,ctx):
 		optparse.OptionParser.__init__(self,conflict_handler="resolve",version='waf %s (%s)'%(Context.WAFVERSION,Context.WAFREVISION))
 		self.formatter.width=Logs.get_term_cols()
-		p=self.add_option
 		self.ctx=ctx
-		jobs=ctx.jobs()
-		p('-j','--jobs',dest='jobs',default=jobs,type='int',help='amount of parallel jobs (%r)'%jobs)
-		p('-k','--keep',dest='keep',default=0,action='count',help='keep running happily even if errors are found')
-		p('-v','--verbose',dest='verbose',default=0,action='count',help='verbosity level -v -vv or -vvv [default: 0]')
-		p('--nocache',dest='nocache',default=False,action='store_true',help='ignore the WAFCACHE (if set)')
-		p('--zones',dest='zones',default='',action='store',help='debugging zones (task_gen, deps, tasks, etc)')
-		gr=optparse.OptionGroup(self,'configure options')
-		self.add_option_group(gr)
-		gr.add_option('-o','--out',action='store',default='',help='build dir for the project',dest='out')
-		gr.add_option('-t','--top',action='store',default='',help='src dir for the project',dest='top')
-		default_prefix=os.environ.get('PREFIX')
-		if not default_prefix:
-			if platform=='win32':
-				d=tempfile.gettempdir()
-				default_prefix=d[0].upper()+d[1:]
-			else:
-				default_prefix='/usr/local/'
-		gr.add_option('--prefix',dest='prefix',default=default_prefix,help='installation prefix [default: %r]'%default_prefix)
-		gr.add_option('--download',dest='download',default=False,action='store_true',help='try to download the tools if missing')
-		gr=optparse.OptionGroup(self,'build and install options')
-		self.add_option_group(gr)
-		gr.add_option('-p','--progress',dest='progress_bar',default=0,action='count',help='-p: progress bar; -pp: ide output')
-		gr.add_option('--targets',dest='targets',default='',action='store',help='task generators, e.g. "target1,target2"')
-		gr=optparse.OptionGroup(self,'step options')
-		self.add_option_group(gr)
-		gr.add_option('--files',dest='files',default='',action='store',help='files to process, by regexp, e.g. "*/main.c,*/test/main.o"')
-		default_destdir=os.environ.get('DESTDIR','')
-		gr=optparse.OptionGroup(self,'install/uninstall options')
-		self.add_option_group(gr)
-		gr.add_option('--destdir',help='installation root [default: %r]'%default_destdir,default=default_destdir,dest='destdir')
-		gr.add_option('-f','--force',dest='force',default=False,action='store_true',help='force file installation')
-		gr.add_option('--distcheck-args',help='arguments to pass to distcheck',default=None,action='store')
+	def print_usage(self,file=None):
+		return self.print_help(file)
 	def get_usage(self):
 		cmds_str={}
 		for cls in Context.classes:
-			if not cls.cmd or cls.cmd=='options':
+			if not cls.cmd or cls.cmd=='options'or cls.cmd.startswith('_'):
 				continue
 			s=cls.__doc__ or''
 			cmds_str[cls.cmd]=s
 		if Context.g_module:
 			for(k,v)in Context.g_module.__dict__.items():
-				if k in['options','init','shutdown']:
+				if k in('options','init','shutdown'):
 					continue
 				if type(v)is type(Context.create_context):
 					if v.__doc__ and not k.startswith('_'):
@@ -81,6 +49,41 @@ class OptionsContext(Context.Context):
 		super(OptionsContext,self).__init__(**kw)
 		self.parser=opt_parser(self)
 		self.option_groups={}
+		jobs=self.jobs()
+		p=self.add_option
+		color=os.environ.get('NOCOLOR','')and'no'or'auto'
+		p('-c','--color',dest='colors',default=color,action='store',help='whether to use colors (yes/no/auto) [default: auto]',choices=('yes','no','auto'))
+		p('-j','--jobs',dest='jobs',default=jobs,type='int',help='amount of parallel jobs (%r)'%jobs)
+		p('-k','--keep',dest='keep',default=0,action='count',help='continue despite errors (-kk to try harder)')
+		p('-v','--verbose',dest='verbose',default=0,action='count',help='verbosity level -v -vv or -vvv [default: 0]')
+		p('--zones',dest='zones',default='',action='store',help='debugging zones (task_gen, deps, tasks, etc)')
+		gr=self.add_option_group('Configuration options')
+		self.option_groups['configure options']=gr
+		gr.add_option('-o','--out',action='store',default='',help='build dir for the project',dest='out')
+		gr.add_option('-t','--top',action='store',default='',help='src dir for the project',dest='top')
+		default_prefix=getattr(Context.g_module,'default_prefix',os.environ.get('PREFIX'))
+		if not default_prefix:
+			if platform=='win32':
+				d=tempfile.gettempdir()
+				default_prefix=d[0].upper()+d[1:]
+			else:
+				default_prefix='/usr/local/'
+		gr.add_option('--prefix',dest='prefix',default=default_prefix,help='installation prefix [default: %r]'%default_prefix)
+		gr.add_option('--bindir',dest='bindir',help='bindir')
+		gr.add_option('--libdir',dest='libdir',help='libdir')
+		gr=self.add_option_group('Build and installation options')
+		self.option_groups['build and install options']=gr
+		gr.add_option('-p','--progress',dest='progress_bar',default=0,action='count',help='-p: progress bar; -pp: ide output')
+		gr.add_option('--targets',dest='targets',default='',action='store',help='task generators, e.g. "target1,target2"')
+		gr=self.add_option_group('Step options')
+		self.option_groups['step options']=gr
+		gr.add_option('--files',dest='files',default='',action='store',help='files to process, by regexp, e.g. "*/main.c,*/test/main.o"')
+		default_destdir=os.environ.get('DESTDIR','')
+		gr=self.add_option_group('Installation and uninstallation options')
+		self.option_groups['install/uninstall options']=gr
+		gr.add_option('--destdir',help='installation root [default: %r]'%default_destdir,default=default_destdir,dest='destdir')
+		gr.add_option('-f','--force',dest='force',default=False,action='store_true',help='force file installation')
+		gr.add_option('--distcheck-args',metavar='ARGS',help='arguments to pass to distcheck',default=None,action='store')
 	def jobs(self):
 		count=int(os.environ.get('JOBS',0))
 		if count<1:
@@ -123,13 +126,19 @@ class OptionsContext(Context.Context):
 					return group
 			return None
 	def parse_args(self,_args=None):
-		global options,commands
+		global options,commands,envvars
 		(options,leftover_args)=self.parser.parse_args(args=_args)
-		commands=leftover_args
+		for arg in leftover_args:
+			if'='in arg:
+				envvars.append(arg)
+			else:
+				commands.append(arg)
 		if options.destdir:
 			options.destdir=os.path.abspath(os.path.expanduser(options.destdir))
 		if options.verbose>=1:
 			self.load('errcheck')
+		colors={'yes':2,'auto':1,'no':0}[options.colors]
+		Logs.enable_colors(colors)
 	def execute(self):
 		super(OptionsContext,self).execute()
 		self.parse_args()

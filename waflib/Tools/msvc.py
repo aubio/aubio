@@ -59,7 +59,11 @@ def setup_msvc(conf,versions,arch=False):
 @conf
 def get_msvc_version(conf,compiler,version,target,vcvars):
 	debug('msvc: get_msvc_version: %r %r %r',compiler,version,target)
-	batfile=conf.bldnode.make_node('waf-print-msvc.bat')
+	try:
+		conf.msvc_cnt+=1
+	except AttributeError:
+		conf.msvc_cnt=1
+	batfile=conf.bldnode.make_node('waf-print-msvc-%d.bat'%conf.msvc_cnt)
 	batfile.write("""@echo off
 set INCLUDE=
 set LIB=
@@ -68,7 +72,7 @@ echo PATH=%%PATH%%
 echo INCLUDE=%%INCLUDE%%
 echo LIB=%%LIB%%;%%LIBPATH%%
 """%(vcvars,target))
-	sout=conf.cmd_and_log(['cmd','/E:on','/V:on','/C',batfile.abspath()])
+	sout=conf.cmd_and_log(['cmd.exe','/E:on','/V:on','/C',batfile.abspath()])
 	lines=sout.splitlines()
 	if not lines[0]:
 		lines.pop(0)
@@ -87,7 +91,6 @@ echo LIB=%%LIB%%;%%LIBPATH%%
 	env.update(PATH=path)
 	compiler_name,linker_name,lib_name=_get_prog_names(conf,compiler)
 	cxx=conf.find_program(compiler_name,path_list=MSVC_PATH)
-	cxx=conf.cmd_to_list(cxx)
 	if'CL'in env:
 		del(env['CL'])
 	try:
@@ -175,7 +178,7 @@ def gather_wince_supported_platforms():
 def gather_msvc_detected_versions():
 	version_pattern=re.compile('^(\d\d?\.\d\d?)(Exp)?$')
 	detected_versions=[]
-	for vcver,vcvar in[('VCExpress','Exp'),('VisualStudio','')]:
+	for vcver,vcvar in(('VCExpress','Exp'),('VisualStudio','')):
 		try:
 			prefix='SOFTWARE\\Wow6432node\\Microsoft\\'+vcver
 			all_versions=Utils.winreg.OpenKey(Utils.winreg.HKEY_LOCAL_MACHINE,prefix)
@@ -372,7 +375,7 @@ def gather_intel_composer_versions(conf,versions):
 					setattr(conf,compilervars_warning_attr,False)
 					patch_url='http://software.intel.com/en-us/forums/topic/328487'
 					compilervars_arch=os.path.join(path,'bin','compilervars_arch.bat')
-					for vscomntool in['VS110COMNTOOLS','VS100COMNTOOLS']:
+					for vscomntool in('VS110COMNTOOLS','VS100COMNTOOLS'):
 						if vscomntool in os.environ:
 							vs_express_path=os.environ[vscomntool]+r'..\IDE\VSWinExpress.exe'
 							dev_env_path=os.environ[vscomntool]+r'..\IDE\devenv.exe'
@@ -528,7 +531,6 @@ def find_msvc(conf):
 	if v['CXX']:cxx=v['CXX']
 	elif'CXX'in conf.environ:cxx=conf.environ['CXX']
 	cxx=conf.find_program(compiler_name,var='CXX',path_list=path)
-	cxx=conf.cmd_to_list(cxx)
 	env=dict(conf.environ)
 	if path:env.update(PATH=';'.join(path))
 	if not conf.cmd_and_log(cxx+['/nologo','/help'],env=env):
@@ -618,10 +620,8 @@ def apply_flags_msvc(self):
 			if d[1:]=='debug':
 				pdbnode=self.link_task.outputs[0].change_ext('.pdb')
 				self.link_task.outputs.append(pdbnode)
-				try:
-					self.install_task.source.append(pdbnode)
-				except AttributeError:
-					pass
+				if getattr(self,'install_task',None):
+					self.pdb_install_task=self.bld.install_files(self.install_task.dest,pdbnode,env=self.env)
 				break
 @feature('cprogram','cshlib','cxxprogram','cxxshlib')
 @after_method('apply_link')
@@ -651,13 +651,11 @@ def exec_mf(self):
 	elif'cshlib'in self.generator.features or'cxxshlib'in self.generator.features:
 		mode='2'
 	debug('msvc: embedding manifest in mode %r'%mode)
-	lst=[]
-	lst.append(env['MT'])
+	lst=[]+mtool
 	lst.extend(Utils.to_list(env['MTFLAGS']))
 	lst.extend(['-manifest',manifest])
 	lst.append('-outputresource:%s;%s'%(outfile,mode))
-	lst=[lst]
-	return self.exec_command(*lst)
+	return self.exec_command(lst)
 def quote_response_command(self,flag):
 	if flag.find(' ')>-1:
 		for x in('/LIBPATH:','/IMPLIB:','/OUT:','/I'):
@@ -725,6 +723,8 @@ def wrap_class(class_name):
 	derived_class.quote_response_command=quote_response_command
 	derived_class.exec_command_msvc=exec_command_msvc
 	derived_class.exec_mf=exec_mf
+	if hasattr(cls,'hcode'):
+		derived_class.hcode=cls.hcode
 	return derived_class
 for k in'c cxx cprogram cxxprogram cshlib cxxshlib cstlib cxxstlib'.split():
 	wrap_class(k)

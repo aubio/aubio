@@ -28,5 +28,5 @@ waflib.TaskGen.declare_chain(name='flex',rule=flexfun,ext_in='.l',decider=decide
 def configure(conf):
 	conf.find_program('flex',var='FLEX')
 	conf.env.FLEXFLAGS=['-t']
-	if re.search(r"\\msys\\[0-9.]+\\bin\\flex.exe$",conf.env.FLEX):
+	if re.search(r"\\msys\\[0-9.]+\\bin\\flex.exe$",conf.env.FLEX[0]):
 		conf.env.FLEX_MSYS=True

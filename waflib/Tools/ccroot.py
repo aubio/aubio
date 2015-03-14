@@ -75,12 +75,15 @@ class link_task(Task.Task):
 				if self.env.DEST_BINFMT=='pe':
 					name=name+'-'+nums[0]
 				elif self.env.DEST_OS=='openbsd':
-					pattern='%s.%s.%s'%(pattern,nums[0],nums[1])
+					pattern='%s.%s'%(pattern,nums[0])
+					if len(nums)>=2:
+						pattern+='.%s'%nums[1]
 			tmp=folder+os.sep+pattern%name
 			target=self.generator.path.find_or_declare(tmp)
 		self.set_outputs(target)
 class stlink_task(link_task):
 	run_str='${AR} ${ARFLAGS} ${AR_TGT_F}${TGT} ${AR_SRC_F}${SRC}'
+	chmod=Utils.O644
 def rm_tgt(cls):
 	old=cls.run
 	def wrap(self):
@@ -111,7 +114,7 @@ def apply_link(self):
 	except AttributeError:
 		inst_to=self.link_task.__class__.inst_to
 	if inst_to:
-		self.install_task=self.bld.install_files(inst_to,self.link_task.outputs[:],env=self.env,chmod=self.link_task.chmod)
+		self.install_task=self.bld.install_files(inst_to,self.link_task.outputs[:],env=self.env,chmod=self.link_task.chmod,task=self.link_task)
 @taskgen_method
 def use_rec(self,name,**kw):
 	if name in self.tmp_use_not or name in self.tmp_use_seen:
@@ -139,6 +142,8 @@ def use_rec(self,name,**kw):
 			y.tmp_use_var='STLIB'
 	p=self.tmp_use_prec
 	for x in self.to_list(getattr(y,'use',[])):
+		if self.env["STLIB_"+x]:
+			continue
 		try:
 			p[x].append(name)
 		except KeyError:
@@ -190,11 +195,11 @@ def process_use(self):
 		y=self.bld.get_tgen_by_name(x)
 		var=y.tmp_use_var
 		if var and link_task:
-			if var=='LIB'or y.tmp_use_stlib:
+			if var=='LIB'or y.tmp_use_stlib or x in names:
 				self.env.append_value(var,[y.target[y.target.rfind(os.sep)+1:]])
 				self.link_task.dep_nodes.extend(y.link_task.outputs)
 				tmp_path=y.link_task.outputs[0].parent.path_from(self.bld.bldnode)
-				self.env.append_value(var+'PATH',[tmp_path])
+				self.env.append_unique(var+'PATH',[tmp_path])
 		else:
 			if y.tmp_use_objects:
 				self.add_objects_from_tgen(y)
@@ -205,11 +210,11 @@ def process_use(self):
 	for x in names:
 		try:
 			y=self.bld.get_tgen_by_name(x)
-		except Exception:
+		except Errors.WafError:
 			if not self.env['STLIB_'+x]and not x in self.uselib:
 				self.uselib.append(x)
 		else:
-			for k in self.to_list(getattr(y,'uselib',[])):
+			for k in self.to_list(getattr(y,'use',[])):
 				if not self.env['STLIB_'+k]and not k in self.uselib:
 					self.uselib.append(k)
 @taskgen_method
@@ -238,16 +243,17 @@ def get_uselib_vars(self):
 def propagate_uselib_vars(self):
 	_vars=self.get_uselib_vars()
 	env=self.env
-	for x in _vars:
-		y=x.lower()
-		env.append_unique(x,self.to_list(getattr(self,y,[])))
-	for x in self.features:
-		for var in _vars:
-			compvar='%s_%s'%(var,x)
-			env.append_value(var,env[compvar])
-	for x in self.to_list(getattr(self,'uselib',[])):
-		for v in _vars:
-			env.append_value(v,env[v+'_'+x])
+	app=env.append_value
+	feature_uselib=self.features+self.to_list(getattr(self,'uselib',[]))
+	for var in _vars:
+		y=var.lower()
+		val=getattr(self,y,[])
+		if val:
+			app(var,self.to_list(val))
+		for x in feature_uselib:
+			val=env['%s_%s'%(var,x)]
+			if val:
+				app(var,val)
 @feature('cshlib','cxxshlib','fcshlib')
 @after_method('apply_link')
 def apply_implib(self):
@@ -271,14 +277,19 @@ def apply_implib(self):
 			self.link_task.dep_nodes.append(node)
 		else:
 			self.link_task.inputs.append(node)
-	try:
-		inst_to=self.install_path
-	except AttributeError:
-		inst_to=self.link_task.__class__.inst_to
-	if not inst_to:
-		return
-	self.implib_install_task=self.bld.install_as('${LIBDIR}/%s'%implib.name,implib,self.env)
-re_vnum=re.compile('^([1-9]\\d*|0)[.]([1-9]\\d*|0)[.]([1-9]\\d*|0)$')
+	if getattr(self,'install_task',None):
+		try:
+			inst_to=self.install_path_implib
+		except AttributeError:
+			try:
+				inst_to=self.install_path
+			except AttributeError:
+				inst_to='${IMPLIBDIR}'
+				self.install_task.dest='${BINDIR}'
+				if not self.env.IMPLIBDIR:
+					self.env.IMPLIBDIR=self.env.LIBDIR
+		self.implib_install_task=self.bld.install_files(inst_to,implib,env=self.env,chmod=self.link_task.chmod,task=self.link_task)
+re_vnum=re.compile('^([1-9]\\d*|0)([.]([1-9]\\d*|0)[.]([1-9]\\d*|0))?$')
 @feature('cshlib','cxxshlib','dshlib','fcshlib','vnum')
 @after_method('apply_link','propagate_uselib_vars')
 def apply_vnum(self):
@@ -300,7 +311,10 @@ def apply_vnum(self):
 		v=self.env.SONAME_ST%name2
 		self.env.append_value('LINKFLAGS',v.split())
 	if self.env.DEST_OS!='openbsd':
-		self.create_task('vnum',node,[node.parent.find_or_declare(name2),node.parent.find_or_declare(name3)])
+		outs=[node.parent.find_or_declare(name3)]
+		if name2!=name3:
+			outs.append(node.parent.find_or_declare(name2))
+		self.create_task('vnum',node,outs)
 	if getattr(self,'install_task',None):
 		self.install_task.hasrun=Task.SKIP_ME
 		bld=self.bld
@@ -311,9 +325,12 @@ def apply_vnum(self):
 			self.vnum_install_task=(t1,)
 		else:
 			t1=bld.install_as(path+os.sep+name3,node,env=self.env,chmod=self.link_task.chmod)
-			t2=bld.symlink_as(path+os.sep+name2,name3)
 			t3=bld.symlink_as(path+os.sep+libname,name3)
-			self.vnum_install_task=(t1,t2,t3)
+			if name2!=name3:
+				t2=bld.symlink_as(path+os.sep+name2,name3)
+				self.vnum_install_task=(t1,t2,t3)
+			else:
+				self.vnum_install_task=(t1,t3)
 	if'-dynamiclib'in self.env['LINKFLAGS']:
 		try:
 			inst_to=self.install_path
@@ -327,6 +344,8 @@ class vnum(Task.Task):
 	color='CYAN'
 	quient=True
 	ext_in=['.bin']
+	def keyword(self):
+		return'Symlinking'
 	def run(self):
 		for x in self.outputs:
 			path=x.abspath()

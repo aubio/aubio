@@ -2,65 +2,83 @@
 # encoding: utf-8
 # WARNING! Do not edit! http://waf.googlecode.com/git/docs/wafbook/single.html#_obtaining_the_waf_file
 
-import sys,os
+import os,re,sys
+from waflib.Utils import threading
+wlock=threading.Lock()
 try:
-	if not(sys.stderr.isatty()and sys.stdout.isatty()):
-		raise ValueError('not a tty')
-	from ctypes import Structure,windll,c_short,c_ushort,c_ulong,c_int,byref,POINTER,c_long,c_char
+	from ctypes import Structure,windll,c_short,c_ushort,c_ulong,c_int,byref,c_wchar,POINTER,c_long
+except ImportError:
+	class AnsiTerm(object):
+		def __init__(self,stream):
+			self.stream=stream
+			try:
+				self.errors=self.stream.errors
+			except AttributeError:
+				pass
+			self.encoding=self.stream.encoding
+		def write(self,txt):
+			try:
+				wlock.acquire()
+				self.stream.write(txt)
+				self.stream.flush()
+			finally:
+				wlock.release()
+		def fileno(self):
+			return self.stream.fileno()
+		def flush(self):
+			self.stream.flush()
+		def isatty(self):
+			return self.stream.isatty()
+else:
 	class COORD(Structure):
 		_fields_=[("X",c_short),("Y",c_short)]
 	class SMALL_RECT(Structure):
 		_fields_=[("Left",c_short),("Top",c_short),("Right",c_short),("Bottom",c_short)]
 	class CONSOLE_SCREEN_BUFFER_INFO(Structure):
-		_fields_=[("Size",COORD),("CursorPosition",COORD),("Attributes",c_short),("Window",SMALL_RECT),("MaximumWindowSize",COORD)]
+		_fields_=[("Size",COORD),("CursorPosition",COORD),("Attributes",c_ushort),("Window",SMALL_RECT),("MaximumWindowSize",COORD)]
 	class CONSOLE_CURSOR_INFO(Structure):
 		_fields_=[('dwSize',c_ulong),('bVisible',c_int)]
+	try:
+		_type=unicode
+	except NameError:
+		_type=str
+	to_int=lambda number,default:number and int(number)or default
+	STD_OUTPUT_HANDLE=-11
+	STD_ERROR_HANDLE=-12
 	windll.kernel32.GetStdHandle.argtypes=[c_ulong]
 	windll.kernel32.GetStdHandle.restype=c_ulong
 	windll.kernel32.GetConsoleScreenBufferInfo.argtypes=[c_ulong,POINTER(CONSOLE_SCREEN_BUFFER_INFO)]
 	windll.kernel32.GetConsoleScreenBufferInfo.restype=c_long
 	windll.kernel32.SetConsoleTextAttribute.argtypes=[c_ulong,c_ushort]
 	windll.kernel32.SetConsoleTextAttribute.restype=c_long
-	windll.kernel32.FillConsoleOutputCharacterA.argtypes=[c_ulong,c_char,c_ulong,POINTER(COORD),POINTER(c_ulong)]
-	windll.kernel32.FillConsoleOutputCharacterA.restype=c_long
+	windll.kernel32.FillConsoleOutputCharacterW.argtypes=[c_ulong,c_wchar,c_ulong,POINTER(COORD),POINTER(c_ulong)]
+	windll.kernel32.FillConsoleOutputCharacterW.restype=c_long
 	windll.kernel32.FillConsoleOutputAttribute.argtypes=[c_ulong,c_ushort,c_ulong,POINTER(COORD),POINTER(c_ulong)]
 	windll.kernel32.FillConsoleOutputAttribute.restype=c_long
 	windll.kernel32.SetConsoleCursorPosition.argtypes=[c_ulong,POINTER(COORD)]
 	windll.kernel32.SetConsoleCursorPosition.restype=c_long
 	windll.kernel32.SetConsoleCursorInfo.argtypes=[c_ulong,POINTER(CONSOLE_CURSOR_INFO)]
 	windll.kernel32.SetConsoleCursorInfo.restype=c_long
-	sbinfo=CONSOLE_SCREEN_BUFFER_INFO()
-	csinfo=CONSOLE_CURSOR_INFO()
-	hconsole=windll.kernel32.GetStdHandle(-11)
-	windll.kernel32.GetConsoleScreenBufferInfo(hconsole,byref(sbinfo))
-	if sbinfo.Size.X<9 or sbinfo.Size.Y<9:raise ValueError('small console')
-	windll.kernel32.GetConsoleCursorInfo(hconsole,byref(csinfo))
-except Exception:
-	pass
-else:
-	import re,threading
-	is_vista=getattr(sys,"getwindowsversion",None)and sys.getwindowsversion()[0]>=6
-	try:
-		_type=unicode
-	except NameError:
-		_type=str
-	to_int=lambda number,default:number and int(number)or default
-	wlock=threading.Lock()
-	STD_OUTPUT_HANDLE=-11
-	STD_ERROR_HANDLE=-12
 	class AnsiTerm(object):
-		def __init__(self):
-			self.encoding=sys.stdout.encoding
-			self.hconsole=windll.kernel32.GetStdHandle(STD_OUTPUT_HANDLE)
+		def __init__(self,s):
+			self.stream=s
+			try:
+				self.errors=s.errors
+			except AttributeError:
+				pass
+			self.encoding=s.encoding
 			self.cursor_history=[]
-			self.orig_sbinfo=CONSOLE_SCREEN_BUFFER_INFO()
-			self.orig_csinfo=CONSOLE_CURSOR_INFO()
-			windll.kernel32.GetConsoleScreenBufferInfo(self.hconsole,byref(self.orig_sbinfo))
-			windll.kernel32.GetConsoleCursorInfo(hconsole,byref(self.orig_csinfo))
+			handle=(s.fileno()==2)and STD_ERROR_HANDLE or STD_OUTPUT_HANDLE
+			self.hconsole=windll.kernel32.GetStdHandle(handle)
+			self._sbinfo=CONSOLE_SCREEN_BUFFER_INFO()
+			self._csinfo=CONSOLE_CURSOR_INFO()
+			windll.kernel32.GetConsoleCursorInfo(self.hconsole,byref(self._csinfo))
+			self._orig_sbinfo=CONSOLE_SCREEN_BUFFER_INFO()
+			r=windll.kernel32.GetConsoleScreenBufferInfo(self.hconsole,byref(self._orig_sbinfo))
+			self._isatty=r==1
 		def screen_buffer_info(self):
-			sbinfo=CONSOLE_SCREEN_BUFFER_INFO()
-			windll.kernel32.GetConsoleScreenBufferInfo(self.hconsole,byref(sbinfo))
-			return sbinfo
+			windll.kernel32.GetConsoleScreenBufferInfo(self.hconsole,byref(self._sbinfo))
+			return self._sbinfo
 		def clear_line(self,param):
 			mode=param and int(param)or 0
 			sbinfo=self.screen_buffer_info()
@@ -74,7 +92,7 @@ else:
 				line_start=sbinfo.CursorPosition
 				line_length=sbinfo.Size.X-sbinfo.CursorPosition.X
 			chars_written=c_ulong()
-			windll.kernel32.FillConsoleOutputCharacterA(self.hconsole,c_char(' '),line_length,line_start,byref(chars_written))
+			windll.kernel32.FillConsoleOutputCharacterW(self.hconsole,c_wchar(' '),line_length,line_start,byref(chars_written))
 			windll.kernel32.FillConsoleOutputAttribute(self.hconsole,sbinfo.Attributes,line_length,line_start,byref(chars_written))
 		def clear_screen(self,param):
 			mode=to_int(param,0)
@@ -90,7 +108,7 @@ else:
 				clear_start=sbinfo.CursorPosition
 				clear_length=((sbinfo.Size.X-sbinfo.CursorPosition.X)+sbinfo.Size.X*(sbinfo.Size.Y-sbinfo.CursorPosition.Y))
 			chars_written=c_ulong()
-			windll.kernel32.FillConsoleOutputCharacterA(self.hconsole,c_char(' '),clear_length,clear_start,byref(chars_written))
+			windll.kernel32.FillConsoleOutputCharacterW(self.hconsole,c_wchar(' '),clear_length,clear_start,byref(chars_written))
 			windll.kernel32.FillConsoleOutputAttribute(self.hconsole,sbinfo.Attributes,clear_length,clear_start,byref(chars_written))
 		def push_cursor(self,param):
 			sbinfo=self.screen_buffer_info()
@@ -133,20 +151,16 @@ else:
 			return((c&1)<<2)|(c&2)|((c&4)>>2)
 		def set_color(self,param):
 			cols=param.split(';')
-			sbinfo=CONSOLE_SCREEN_BUFFER_INFO()
-			windll.kernel32.GetConsoleScreenBufferInfo(self.hconsole,byref(sbinfo))
+			sbinfo=self.screen_buffer_info()
 			attr=sbinfo.Attributes
 			for c in cols:
-				if is_vista:
-					c=int(c)
-				else:
-					c=to_int(c,0)
+				c=to_int(c,0)
 				if 29<c<38:
 					attr=(attr&0xfff0)|self.rgb2bgr(c-30)
 				elif 39<c<48:
 					attr=(attr&0xff0f)|(self.rgb2bgr(c-40)<<4)
 				elif c==0:
-					attr=self.orig_sbinfo.Attributes
+					attr=self._orig_sbinfo.Attributes
 				elif c==1:
 					attr|=0x08
 				elif c==4:
@@ -155,23 +169,26 @@ else:
 					attr=(attr&0xff88)|((attr&0x70)>>4)|((attr&0x07)<<4)
 			windll.kernel32.SetConsoleTextAttribute(self.hconsole,attr)
 		def show_cursor(self,param):
-			csinfo.bVisible=1
-			windll.kernel32.SetConsoleCursorInfo(self.hconsole,byref(csinfo))
+			self._csinfo.bVisible=1
+			windll.kernel32.SetConsoleCursorInfo(self.hconsole,byref(self._csinfo))
 		def hide_cursor(self,param):
-			csinfo.bVisible=0
-			windll.kernel32.SetConsoleCursorInfo(self.hconsole,byref(csinfo))
+			self._csinfo.bVisible=0
+			windll.kernel32.SetConsoleCursorInfo(self.hconsole,byref(self._csinfo))
 		ansi_command_table={'A':move_up,'B':move_down,'C':move_right,'D':move_left,'E':next_line,'F':prev_line,'G':set_column,'H':set_cursor,'f':set_cursor,'J':clear_screen,'K':clear_line,'h':show_cursor,'l':hide_cursor,'m':set_color,'s':push_cursor,'u':pop_cursor,}
 		ansi_tokens=re.compile('(?:\x1b\[([0-9?;]*)([a-zA-Z])|([^\x1b]+))')
 		def write(self,text):
 			try:
 				wlock.acquire()
-				for param,cmd,txt in self.ansi_tokens.findall(text):
-					if cmd:
-						cmd_func=self.ansi_command_table.get(cmd)
-						if cmd_func:
-							cmd_func(self,param)
-					else:
-						self.writeconsole(txt)
+				if self._isatty:
+					for param,cmd,txt in self.ansi_tokens.findall(text):
+						if cmd:
+							cmd_func=self.ansi_command_table.get(cmd)
+							if cmd_func:
+								cmd_func(self,param)
+						else:
+							self.writeconsole(txt)
+				else:
+					self.stream.write(text)
 			finally:
 				wlock.release()
 		def writeconsole(self,txt):
@@ -179,13 +196,43 @@ else:
 			writeconsole=windll.kernel32.WriteConsoleA
 			if isinstance(txt,_type):
 				writeconsole=windll.kernel32.WriteConsoleW
-			TINY_STEP=3000
-			for x in range(0,len(txt),TINY_STEP):
-				tiny=txt[x:x+TINY_STEP]
-				writeconsole(self.hconsole,tiny,len(tiny),byref(chars_written),None)
+			done=0
+			todo=len(txt)
+			chunk=32<<10
+			while todo!=0:
+				doing=min(chunk,todo)
+				buf=txt[done:done+doing]
+				r=writeconsole(self.hconsole,buf,doing,byref(chars_written),None)
+				if r==0:
+					chunk>>=1
+					continue
+				done+=doing
+				todo-=doing
+		def fileno(self):
+			return self.stream.fileno()
 		def flush(self):
 			pass
 		def isatty(self):
-			return True
-	sys.stderr=sys.stdout=AnsiTerm()
-	os.environ['TERM']='vt100'
+			return self._isatty
+	if sys.stdout.isatty()or sys.stderr.isatty():
+		handle=sys.stdout.isatty()and STD_OUTPUT_HANDLE or STD_ERROR_HANDLE
+		console=windll.kernel32.GetStdHandle(handle)
+		sbinfo=CONSOLE_SCREEN_BUFFER_INFO()
+		def get_term_cols():
+			windll.kernel32.GetConsoleScreenBufferInfo(console,byref(sbinfo))
+			return sbinfo.Size.X-1
+try:
+	import struct,fcntl,termios
+except ImportError:
+	pass
+else:
+	if(sys.stdout.isatty()or sys.stderr.isatty())and os.environ.get('TERM','')not in('dumb','emacs'):
+		FD=sys.stdout.isatty()and sys.stdout.fileno()or sys.stderr.fileno()
+		def fun():
+			return struct.unpack("HHHH",fcntl.ioctl(FD,termios.TIOCGWINSZ,struct.pack("HHHH",0,0,0,0)))[1]
+		try:
+			fun()
+		except Exception ,e:
+			pass
+		else:
+			get_term_cols=fun

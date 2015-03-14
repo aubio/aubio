@@ -2,7 +2,7 @@
 # encoding: utf-8
 # WARNING! Do not edit! http://waf.googlecode.com/git/docs/wafbook/single.html#_obtaining_the_waf_file
 
-import os,shutil,re,tempfile
+import os,re,sys
 from waflib import Utils,Logs,Errors
 NOT_RUN=0
 MISSING=1
@@ -37,24 +37,6 @@ def f(tsk):
 	lst = [x for x in lst if x]
 	return tsk.exec_command(lst, cwd=wd, env=env.env or None)
 '''
-def cache_outputs(cls):
-	m1=cls.run
-	def run(self):
-		bld=self.generator.bld
-		if bld.cache_global and not bld.nocache:
-			if self.can_retrieve_cache():
-				return 0
-		return m1(self)
-	cls.run=run
-	m2=cls.post_run
-	def post_run(self):
-		bld=self.generator.bld
-		ret=m2(self)
-		if bld.cache_global and not bld.nocache:
-			self.put_files_cache()
-		return ret
-	cls.post_run=post_run
-	return cls
 classes={}
 class store_task_type(type):
 	def __init__(cls,name,bases,dict):
@@ -67,14 +49,15 @@ class store_task_type(type):
 			if getattr(cls,'run_str',None):
 				(f,dvars)=compile_fun(cls.run_str,cls.shell)
 				cls.hcode=cls.run_str
+				cls.orig_run_str=cls.run_str
 				cls.run_str=None
 				cls.run=f
 				cls.vars=list(set(cls.vars+dvars))
 				cls.vars.sort()
 			elif getattr(cls,'run',None)and not'hcode'in cls.__dict__:
 				cls.hcode=Utils.h_fun(cls.run)
-			if not getattr(cls,'nocache',None):
-				cls=cache_outputs(cls)
+			if sys.hexversion>0x3000000:
+				cls.hcode=cls.hcode.encode('iso8859-1','xmlcharrefreplace')
 			getattr(cls,'register',classes)[name]=cls
 evil=store_task_type('evil',(object,),{})
 class TaskBase(evil):
@@ -94,10 +77,14 @@ class TaskBase(evil):
 		return'\n\t{task %r: %s %s}'%(self.__class__.__name__,id(self),str(getattr(self,'fun','')))
 	def __str__(self):
 		if hasattr(self,'fun'):
-			return'executing: %s\n'%self.fun.__name__
-		return self.__class__.__name__+'\n'
+			return self.fun.__name__
+		return self.__class__.__name__
 	def __hash__(self):
 		return id(self)
+	def keyword(self):
+		if hasattr(self,'fun'):
+			return'Function'
+		return'Processing'
 	def exec_command(self,cmd,**kw):
 		bld=self.generator.bld
 		try:
@@ -150,7 +137,20 @@ class TaskBase(evil):
 	def post_run(self):
 		pass
 	def log_display(self,bld):
-		bld.to_log(self.display())
+		if self.generator.bld.progress_bar==3:
+			return
+		s=self.display()
+		if s:
+			if bld.logger:
+				logger=bld.logger
+			else:
+				logger=Logs
+			if self.generator.bld.progress_bar==1:
+				c1=Logs.colors.cursor_off
+				c2=Logs.colors.cursor_on
+				logger.info(s,extra={'stream':sys.stderr,'terminator':'','c1':c1,'c2':c2})
+			else:
+				logger.info(s,extra={'terminator':'','c1':'','c2':''})
 	def display(self):
 		col1=Logs.colors(self.color)
 		col2=Logs.colors.NORMAL
@@ -178,8 +178,11 @@ class TaskBase(evil):
 			return None
 		total=master.total
 		n=len(str(total))
-		fs='[%%%dd/%%%dd] %%s%%s%%s'%(n,n)
-		return fs%(cur(),total,col1,s,col2)
+		fs='[%%%dd/%%%dd] %%s%%s%%s%%s\n'%(n,n)
+		kw=self.keyword()
+		if kw:
+			kw+=' '
+		return fs%(cur(),total,kw,col1,s,col2)
 	def attr(self,att,default=None):
 		ret=getattr(self,att,self)
 		if ret is self:return getattr(self.__class__,att,default)
@@ -207,6 +210,8 @@ class TaskBase(evil):
 			return'invalid status for task in %r: %r'%(name,self.hasrun)
 	def colon(self,var1,var2):
 		tmp=self.env[var1]
+		if not tmp:
+			return[]
 		if isinstance(var2,str):
 			it=self.env[var2]
 		else:
@@ -214,8 +219,6 @@ class TaskBase(evil):
 		if isinstance(tmp,str):
 			return[tmp%x for x in it]
 		else:
-			if Logs.verbose and not tmp and it:
-				Logs.warn('Missing env variable %r for task %r (generator %r)'%(var1,self,self.generator))
 			lst=[]
 			for y in it:
 				lst.extend(tmp)
@@ -232,12 +235,33 @@ class Task(TaskBase):
 		self.dep_nodes=[]
 		self.run_after=set([])
 	def __str__(self):
-		env=self.env
-		src_str=' '.join([a.nice_path()for a in self.inputs])
-		tgt_str=' '.join([a.nice_path()for a in self.outputs])
+		name=self.__class__.__name__
+		if self.outputs:
+			if(name.endswith('lib')or name.endswith('program'))or not self.inputs:
+				node=self.outputs[0]
+				return node.path_from(node.ctx.launch_node())
+		if not(self.inputs or self.outputs):
+			return self.__class__.__name__
+		if len(self.inputs)==1:
+			node=self.inputs[0]
+			return node.path_from(node.ctx.launch_node())
+		src_str=' '.join([a.path_from(a.ctx.launch_node())for a in self.inputs])
+		tgt_str=' '.join([a.path_from(a.ctx.launch_node())for a in self.outputs])
 		if self.outputs:sep=' -> '
 		else:sep=''
-		return'%s: %s%s%s\n'%(self.__class__.__name__.replace('_task',''),src_str,sep,tgt_str)
+		return'%s: %s%s%s'%(self.__class__.__name__.replace('_task',''),src_str,sep,tgt_str)
+	def keyword(self):
+		name=self.__class__.__name__
+		if name.endswith('lib')or name.endswith('program'):
+			return'Linking'
+		if len(self.inputs)==1 and len(self.outputs)==1:
+			return'Compiling'
+		if not self.inputs:
+			if self.outputs:
+				return'Creating'
+			else:
+				return'Running'
+		return'Processing'
 	def __repr__(self):
 		try:
 			ins=",".join([x.name for x in self.inputs])
@@ -361,9 +385,11 @@ class Task(TaskBase):
 			try:
 				if prev==self.compute_sig_implicit_deps():
 					return prev
-			except Exception:
+			except Errors.TaskNotReady:
+				raise
+			except EnvironmentError:
 				for x in bld.node_deps.get(self.uid(),[]):
-					if x.is_child_of(bld.srcnode):
+					if not x.is_bld():
 						try:
 							os.stat(x.abspath())
 						except OSError:
@@ -419,71 +445,20 @@ class Task(TaskBase):
 			for tsk in self.run_after:
 				if not tsk.hasrun:
 					raise Errors.TaskNotReady('not ready')
-	def can_retrieve_cache(self):
-		if not getattr(self,'outputs',None):
-			return None
-		sig=self.signature()
-		ssig=Utils.to_hex(self.uid())+Utils.to_hex(sig)
-		dname=os.path.join(self.generator.bld.cache_global,ssig)
+if sys.hexversion>0x3000000:
+	def uid(self):
 		try:
-			t1=os.stat(dname).st_mtime
-		except OSError:
-			return None
-		for node in self.outputs:
-			orig=os.path.join(dname,node.name)
-			try:
-				shutil.copy2(orig,node.abspath())
-				os.utime(orig,None)
-			except(OSError,IOError):
-				Logs.debug('task: failed retrieving file')
-				return None
-		try:
-			t2=os.stat(dname).st_mtime
-		except OSError:
-			return None
-		if t1!=t2:
-			return None
-		for node in self.outputs:
-			node.sig=sig
-			if self.generator.bld.progress_bar<1:
-				self.generator.bld.to_log('restoring from cache %r\n'%node.abspath())
-		self.cached=True
-		return True
-	def put_files_cache(self):
-		if getattr(self,'cached',None):
-			return None
-		if not getattr(self,'outputs',None):
-			return None
-		sig=self.signature()
-		ssig=Utils.to_hex(self.uid())+Utils.to_hex(sig)
-		dname=os.path.join(self.generator.bld.cache_global,ssig)
-		tmpdir=tempfile.mkdtemp(prefix=self.generator.bld.cache_global+os.sep+'waf')
-		try:
-			shutil.rmtree(dname)
-		except Exception:
-			pass
-		try:
-			for node in self.outputs:
-				dest=os.path.join(tmpdir,node.name)
-				shutil.copy2(node.abspath(),dest)
-		except(OSError,IOError):
-			try:
-				shutil.rmtree(tmpdir)
-			except Exception:
-				pass
-		else:
-			try:
-				os.rename(tmpdir,dname)
-			except OSError:
-				try:
-					shutil.rmtree(tmpdir)
-				except Exception:
-					pass
-			else:
-				try:
-					os.chmod(dname,Utils.O755)
-				except Exception:
-					pass
+			return self.uid_
+		except AttributeError:
+			m=Utils.md5()
+			up=m.update
+			up(self.__class__.__name__.encode('iso8859-1','xmlcharrefreplace'))
+			for x in self.inputs+self.outputs:
+				up(x.abspath().encode('iso8859-1','xmlcharrefreplace'))
+			self.uid_=m.digest()
+			return self.uid_
+	uid.__doc__=Task.uid.__doc__
+	Task.uid=uid
 def is_before(t1,t2):
 	to_list=Utils.to_list
 	for k in to_list(t2.ext_in):
@@ -578,6 +553,7 @@ def compile_fun_noshell(line):
 	def repl(match):
 		g=match.group
 		if g('dollar'):return"$"
+		elif g('backslash'):return'\\'
 		elif g('subst'):extr.append((g('var'),g('code')));return"<<|@|>>"
 		return None
 	line2=reg_act.sub(repl,line)

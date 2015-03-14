@@ -89,8 +89,6 @@ class fcprogram(ccroot.link_task):
 class fcshlib(fcprogram):
 	inst_to='${LIBDIR}'
 class fcprogram_test(fcprogram):
-	def can_retrieve_cache(self):
-		return False
 	def runnable_status(self):
 		ret=super(fcprogram_test,self).runnable_status()
 		if ret==Task.SKIP_ME:

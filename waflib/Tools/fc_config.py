@@ -2,10 +2,10 @@
 # encoding: utf-8
 # WARNING! Do not edit! http://waf.googlecode.com/git/docs/wafbook/single.html#_obtaining_the_waf_file
 
-import re,shutil,os,sys,string,shlex
+import re,os,sys,shlex
 from waflib.Configure import conf
-from waflib.TaskGen import feature,after_method,before_method
-from waflib import Build,Utils
+from waflib.TaskGen import feature,before_method
+from waflib import Utils
 FC_FRAGMENT='        program main\n        end     program main\n'
 FC_FRAGMENT2='        PROGRAM MAIN\n        END\n'
 @conf
@@ -115,7 +115,7 @@ def is_link_verbose(self,txt):
 @conf
 def check_fortran_verbose_flag(self,*k,**kw):
 	self.start_msg('fortran link verbose flag')
-	for x in['-v','--verbose','-verbose','-V']:
+	for x in('-v','--verbose','-verbose','-V'):
 		try:
 			self.check_cc(features='fc fcprogram_test',fragment=FC_FRAGMENT2,compile_filename='test.f',linkflags=[x],mandatory=True)
 		except self.errors.ConfigurationError:
@@ -148,32 +148,32 @@ def parse_fortran_link(lines):
 	return final_flags
 SPACE_OPTS=re.compile('^-[LRuYz]$')
 NOSPACE_OPTS=re.compile('^-[RL]')
+def _parse_flink_token(lexer,token,tmp_flags):
+	if _match_ignore(token):
+		pass
+	elif token.startswith('-lkernel32')and sys.platform=='cygwin':
+		tmp_flags.append(token)
+	elif SPACE_OPTS.match(token):
+		t=lexer.get_token()
+		if t.startswith('P,'):
+			t=t[2:]
+		for opt in t.split(os.pathsep):
+			tmp_flags.append('-L%s'%opt)
+	elif NOSPACE_OPTS.match(token):
+		tmp_flags.append(token)
+	elif POSIX_LIB_FLAGS.match(token):
+		tmp_flags.append(token)
+	else:
+		pass
+	t=lexer.get_token()
+	return t
 def _parse_flink_line(line,final_flags):
 	lexer=shlex.shlex(line,posix=True)
 	lexer.whitespace_split=True
 	t=lexer.get_token()
 	tmp_flags=[]
 	while t:
-		def parse(token):
-			if _match_ignore(token):
-				pass
-			elif token.startswith('-lkernel32')and sys.platform=='cygwin':
-				tmp_flags.append(token)
-			elif SPACE_OPTS.match(token):
-				t=lexer.get_token()
-				if t.startswith('P,'):
-					t=t[2:]
-				for opt in t.split(os.pathsep):
-					tmp_flags.append('-L%s'%opt)
-			elif NOSPACE_OPTS.match(token):
-				tmp_flags.append(token)
-			elif POSIX_LIB_FLAGS.match(token):
-				tmp_flags.append(token)
-			else:
-				pass
-			t=lexer.get_token()
-			return t
-		t=parse(t)
+		t=_parse_flink_token(lexer,t,tmp_flags)
 	final_flags.extend(tmp_flags)
 	return final_flags
 @conf
@@ -240,9 +240,9 @@ def link_main_routines_tg_method(self):
 	bld(features='fc fcstlib',source='test.f',target='test')
 	bld(features='c fcprogram',source='main.c',target='app',use='test')
 def mangling_schemes():
-	for u in['_','']:
-		for du in['','_']:
-			for c in["lower","upper"]:
+	for u in('_',''):
+		for du in('','_'):
+			for c in("lower","upper"):
 				yield(u,du,c)
 def mangle_name(u,du,c,name):
 	return getattr(name,c)()+u+(name.find('_')!=-1 and du or'')
@@ -274,7 +274,7 @@ def set_lib_pat(self):
 	self.env['fcshlib_PATTERN']=self.env['pyext_PATTERN']
 @conf
 def detect_openmp(self):
-	for x in['-fopenmp','-openmp','-mp','-xopenmp','-omp','-qsmp=omp']:
+	for x in('-fopenmp','-openmp','-mp','-xopenmp','-omp','-qsmp=omp'):
 		try:
 			self.check_fc(msg='Checking for OpenMP flag %s'%x,fragment='program main\n  call omp_get_num_threads()\nend program main',fcflags=x,linkflags=x,uselib_store='OPENMP')
 		except self.errors.ConfigurationError:

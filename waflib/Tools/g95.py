@@ -9,7 +9,6 @@ from waflib.Configure import conf
 @conf
 def find_g95(conf):
 	fc=conf.find_program('g95',var='FC')
-	fc=conf.cmd_to_list(fc)
 	conf.get_g95_version(fc)
 	conf.env.FC_NAME='G95'
 @conf

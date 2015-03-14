@@ -3,40 +3,56 @@
 # WARNING! Do not edit! http://waf.googlecode.com/git/docs/wafbook/single.html#_obtaining_the_waf_file
 
 import os,re
-from waflib import Configure,TaskGen,Task,Utils,Runner,Options,Build,Logs
+from waflib import Configure,Context,TaskGen,Task,Utils,Runner,Options,Build,Logs
 import waflib.Tools.ccroot
-from waflib.TaskGen import feature,before_method
+from waflib.TaskGen import feature,before_method,taskgen_method
 from waflib.Logs import error
+from waflib.Configure import conf
+_style_flags={'ba':'-b','desktop':'-d','keys':'-k','quoted':'--quoted-style','quotedxml':'--quotedxml-style','rfc822deb':'-r','schemas':'-s','xml':'-x',}
+@taskgen_method
+def ensure_localedir(self):
+	if not self.env.LOCALEDIR:
+		if self.env.DATAROOTDIR:
+			self.env.LOCALEDIR=os.path.join(self.env.DATAROOTDIR,'locale')
+		else:
+			self.env.LOCALEDIR=os.path.join(self.env.PREFIX,'share','locale')
 @before_method('process_source')
 @feature('intltool_in')
 def apply_intltool_in_f(self):
 	try:self.meths.remove('process_source')
 	except ValueError:pass
-	if not self.env.LOCALEDIR:
-		self.env.LOCALEDIR=self.env.PREFIX+'/share/locale'
+	self.ensure_localedir()
+	podir=getattr(self,'podir','.')
+	podirnode=self.path.find_dir(podir)
+	if not podirnode:
+		error("could not find the podir %r"%podir)
+		return
+	cache=getattr(self,'intlcache','.intlcache')
+	self.env.INTLCACHE=[os.path.join(str(self.path.get_bld()),podir,cache)]
+	self.env.INTLPODIR=podirnode.bldpath()
+	self.env.append_value('INTLFLAGS',getattr(self,'flags',self.env.INTLFLAGS_DEFAULT))
+	if'-c'in self.env.INTLFLAGS:
+		self.bld.fatal('Redundant -c flag in intltool task %r'%self)
+	style=getattr(self,'style',None)
+	if style:
+		try:
+			style_flag=_style_flags[style]
+		except KeyError:
+			self.bld.fatal('intltool_in style "%s" is not valid'%style)
+		self.env.append_unique('INTLFLAGS',[style_flag])
 	for i in self.to_list(self.source):
 		node=self.path.find_resource(i)
-		podir=getattr(self,'podir','po')
-		podirnode=self.path.find_dir(podir)
-		if not podirnode:
-			error("could not find the podir %r"%podir)
-			continue
-		cache=getattr(self,'intlcache','.intlcache')
-		self.env['INTLCACHE']=os.path.join(self.path.bldpath(),podir,cache)
-		self.env['INTLPODIR']=podirnode.bldpath()
-		self.env['INTLFLAGS']=getattr(self,'flags',['-q','-u','-c'])
 		task=self.create_task('intltool',node,node.change_ext(''))
-		inst=getattr(self,'install_path','${LOCALEDIR}')
+		inst=getattr(self,'install_path',None)
 		if inst:
 			self.bld.install_files(inst,task.outputs)
 @feature('intltool_po')
 def apply_intltool_po(self):
 	try:self.meths.remove('process_source')
 	except ValueError:pass
-	if not self.env.LOCALEDIR:
-		self.env.LOCALEDIR=self.env.PREFIX+'/share/locale'
-	appname=getattr(self,'appname','set_your_app_name')
-	podir=getattr(self,'podir','')
+	self.ensure_localedir()
+	appname=getattr(self,'appname',getattr(Context.g_module,Context.APPNAME,'set_your_app_name'))
+	podir=getattr(self,'podir','.')
 	inst=getattr(self,'install_path','${LOCALEDIR}')
 	linguas=self.path.find_node(os.path.join(podir,'LINGUAS'))
 	if linguas:
@@ -62,16 +78,20 @@ class po(Task.Task):
 	run_str='${MSGFMT} -o ${TGT} ${SRC}'
 	color='BLUE'
 class intltool(Task.Task):
-	run_str='${INTLTOOL} ${INTLFLAGS} ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}'
+	run_str='${INTLTOOL} ${INTLFLAGS} ${INTLCACHE_ST:INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}'
 	color='BLUE'
-def configure(conf):
+@conf
+def find_msgfmt(conf):
 	conf.find_program('msgfmt',var='MSGFMT')
-	conf.find_perl_program('intltool-merge',var='INTLTOOL')
-	prefix=conf.env.PREFIX
-	datadir=conf.env.DATADIR
-	if not datadir:
-		datadir=os.path.join(prefix,'share')
-	conf.define('LOCALEDIR',os.path.join(datadir,'locale').replace('\\','\\\\'))
-	conf.define('DATADIR',datadir.replace('\\','\\\\'))
+@conf
+def find_intltool_merge(conf):
+	if not conf.env.PERL:
+		conf.find_program('perl',var='PERL')
+	conf.env.INTLCACHE_ST='--cache=%s'
+	conf.env.INTLFLAGS_DEFAULT=['-q','-u']
+	conf.find_program('intltool-merge',interpreter='PERL',var='INTLTOOL')
+def configure(conf):
+	conf.find_msgfmt()
+	conf.find_intltool_merge()
 	if conf.env.CC or conf.env.CXX:
 		conf.check(header_name='locale.h')

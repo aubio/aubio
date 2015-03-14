@@ -6,14 +6,12 @@ import os,sys
 from waflib.Tools import ccroot,ar,gcc
 from waflib.Configure import conf
 @conf
-def find_icc(conf):
-	if sys.platform=='cygwin':
-		conf.fatal('The Intel compiler does not work on Cygwin')
-	cc=conf.find_program(['icc','ICL'],var='CC')
-	conf.get_cc_version(cc,icc=True)
-	conf.env.CC_NAME='icc'
+def find_clang(conf):
+	cc=conf.find_program('clang',var='CC')
+	conf.get_cc_version(cc,clang=True)
+	conf.env.CC_NAME='clang'
 def configure(conf):
-	conf.find_icc()
+	conf.find_clang()
 	conf.find_ar()
 	conf.gcc_common_flags()
 	conf.gcc_modifier_platform()

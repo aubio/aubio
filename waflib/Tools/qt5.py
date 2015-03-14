@@ -19,8 +19,45 @@ from waflib import Logs
 MOC_H=['.h','.hpp','.hxx','.hh']
 EXT_RCC=['.qrc']
 EXT_UI=['.ui']
-EXT_QT4=['.cpp','.cc','.cxx','.C']
-QT4_LIBS="QtCore QtGui QtUiTools QtNetwork QtOpenGL QtSql QtSvg QtTest QtXml QtXmlPatterns QtWebKit Qt3Support QtHelp QtScript QtDeclarative QtDesigner"
+EXT_QT5=['.cpp','.cc','.cxx','.C']
+QT5_LIBS='''
+qtmain
+Qt5Bluetooth
+Qt5CLucene
+Qt5Concurrent
+Qt5Core
+Qt5DBus
+Qt5Declarative
+Qt5DesignerComponents
+Qt5Designer
+Qt5Gui
+Qt5Help
+Qt5MultimediaQuick_p
+Qt5Multimedia
+Qt5MultimediaWidgets
+Qt5Network
+Qt5Nfc
+Qt5OpenGL
+Qt5Positioning
+Qt5PrintSupport
+Qt5Qml
+Qt5QuickParticles
+Qt5Quick
+Qt5QuickTest
+Qt5Script
+Qt5ScriptTools
+Qt5Sensors
+Qt5SerialPort
+Qt5Sql
+Qt5Svg
+Qt5Test
+Qt5WebKit
+Qt5WebKitWidgets
+Qt5Widgets
+Qt5WinExtras
+Qt5X11Extras
+Qt5XmlPatterns
+Qt5Xml'''
 class qxx(Task.classes['cxx']):
 	def __init__(self,*k,**kw):
 		Task.Task.__init__(self,*k,**kw)
@@ -51,6 +88,8 @@ class qxx(Task.classes['cxx']):
 			gen.outstanding.insert(0,tsk)
 			gen.total+=1
 			return tsk
+		else:
+			delattr(self,'cache_sig')
 	def moc_h_ext(self):
 		try:
 			ext=Options.options.qt_header_ext.split()
@@ -88,7 +127,7 @@ class qxx(Task.classes['cxx']):
 					m_node=h_node.change_ext('.moc')
 					break
 			else:
-				for k in EXT_QT4:
+				for k in EXT_QT5:
 					if base2.endswith(k):
 						for x in include_nodes:
 							h_node=x.find_node(base2)
@@ -131,21 +170,21 @@ def create_rcc_task(self,node):
 	return cpptask
 @extension(*EXT_UI)
 def create_uic_task(self,node):
-	uictask=self.create_task('ui4',node)
+	uictask=self.create_task('ui5',node)
 	uictask.outputs=[self.path.find_or_declare(self.env['ui_PATTERN']%node.name[:-3])]
 @extension('.ts')
 def add_lang(self,node):
 	self.lang=self.to_list(getattr(self,'lang',[]))+[node]
-@feature('qt4')
+@feature('qt5')
 @after_method('apply_link')
-def apply_qt4(self):
+def apply_qt5(self):
 	if getattr(self,'lang',None):
 		qmtasks=[]
 		for x in self.to_list(self.lang):
 			if isinstance(x,str):
 				x=self.path.find_resource(x+'.ts')
 			qmtasks.append(self.create_task('ts2qm',x,x.change_ext('.qm')))
-		if getattr(self,'update',None)and Options.options.trans_qt4:
+		if getattr(self,'update',None)and Options.options.trans_qt5:
 			cxxnodes=[a.inputs[0]for a in self.compiled_tasks]+[a.inputs[0]for a in self.tasks if getattr(a,'inputs',None)and a.inputs[0].name.endswith('.ui')]
 			for x in qmtasks:
 				self.create_task('trans_update',cxxnodes,x.inputs)
@@ -167,7 +206,7 @@ def apply_qt4(self):
 			else:
 				lst.append(flag)
 	self.env.append_value('MOC_FLAGS',lst)
-@extension(*EXT_QT4)
+@extension(*EXT_QT5)
 def cxx_hook(self,node):
 	return self.create_compiled_task('qxx',node)
 class rcc(Task.Task):
@@ -199,11 +238,7 @@ class rcc(Task.Task):
 class moc(Task.Task):
 	color='BLUE'
 	run_str='${QT_MOC} ${MOC_FLAGS} ${MOCCPPPATH_ST:INCPATHS} ${MOCDEFINES_ST:DEFINES} ${SRC} ${MOC_ST} ${TGT}'
-	def keyword(self):
-		return"Creating"
-	def __str__(self):
-		return self.outputs[0].path_from(self.generator.bld.launch_node())
-class ui4(Task.Task):
+class ui5(Task.Task):
 	color='BLUE'
 	run_str='${QT_UIC} ${SRC} -o ${TGT}'
 	ext_out=['.h']
@@ -218,14 +253,14 @@ class qm2rcc(Task.Task):
 		code='<!DOCTYPE RCC><RCC version="1.0">\n<qresource>\n%s\n</qresource>\n</RCC>'%txt
 		self.outputs[0].write(code)
 def configure(self):
-	self.find_qt4_binaries()
-	self.set_qt4_libs_to_check()
-	self.set_qt4_defines()
-	self.find_qt4_libraries()
-	self.add_qt4_rpath()
-	self.simplify_qt4_libs()
+	self.find_qt5_binaries()
+	self.set_qt5_libs_to_check()
+	self.set_qt5_defines()
+	self.find_qt5_libraries()
+	self.add_qt5_rpath()
+	self.simplify_qt5_libs()
 @conf
-def find_qt4_binaries(self):
+def find_qt5_binaries(self):
 	env=self.env
 	opt=Options.options
 	qtdir=getattr(opt,'qtdir','')
@@ -234,13 +269,13 @@ def find_qt4_binaries(self):
 	if qtdir:
 		qtbin=os.path.join(qtdir,'bin')
 	if not qtdir:
-		qtdir=os.environ.get('QT4_ROOT','')
-		qtbin=os.environ.get('QT4_BIN',None)or os.path.join(qtdir,'bin')
+		qtdir=os.environ.get('QT5_ROOT','')
+		qtbin=os.environ.get('QT5_BIN',None)or os.path.join(qtdir,'bin')
 	if qtbin:
 		paths=[qtbin]
 	if not qtdir:
 		paths=os.environ.get('PATH','').split(os.pathsep)
-		paths.append('/usr/share/qt4/bin/')
+		paths.append('/usr/share/qt5/bin/')
 		try:
 			lst=Utils.listdir('/usr/local/Trolltech/')
 		except OSError:
@@ -253,8 +288,8 @@ def find_qt4_binaries(self):
 				qtbin=os.path.join(qtdir,'bin')
 				paths.append(qtbin)
 	cand=None
-	prev_ver=['4','0','0']
-	for qmk in('qmake-qt4','qmake4','qmake'):
+	prev_ver=['5','0','0']
+	for qmk in('qmake-qt5','qmake5','qmake'):
 		try:
 			qmake=self.find_program(qmk,path_list=paths)
 		except self.errors.ConfigurationError:
@@ -270,11 +305,25 @@ def find_qt4_binaries(self):
 					if new_ver>prev_ver:
 						cand=qmake
 						prev_ver=new_ver
+	if not cand:
+		try:
+			self.find_program('qtchooser')
+		except self.errors.ConfigurationError:
+			pass
+		else:
+			cmd=self.env.QTCHOOSER+['-qt=5','-run-tool=qmake']
+			try:
+				version=self.cmd_and_log(cmd+['-query','QT_VERSION'])
+			except self.errors.WafError:
+				pass
+			else:
+				cand=cmd
 	if cand:
 		self.env.QMAKE=cand
 	else:
-		self.fatal('Could not find qmake for qt4')
-	qtbin=self.cmd_and_log(self.env.QMAKE+['-query','QT_INSTALL_BINS']).strip()+os.sep
+		self.fatal('Could not find qmake for qt5')
+	self.env.QT_INSTALL_BINS=qtbin=self.cmd_and_log(self.env.QMAKE+['-query','QT_INSTALL_BINS']).strip()+os.sep
+	paths.insert(0,qtbin)
 	def find_bin(lst,var):
 		if var in env:
 			return
@@ -286,22 +335,20 @@ def find_qt4_binaries(self):
 			else:
 				env[var]=ret
 				break
-	find_bin(['uic-qt3','uic3'],'QT_UIC3')
-	find_bin(['uic-qt4','uic'],'QT_UIC')
+	find_bin(['uic-qt5','uic'],'QT_UIC')
 	if not env.QT_UIC:
-		self.fatal('cannot find the uic compiler for qt4')
+		self.fatal('cannot find the uic compiler for qt5')
 	self.start_msg('Checking for uic version')
-	uicver=self.cmd_and_log(env.QT_UIC+["-version"],output=Context.BOTH)
+	uicver=self.cmd_and_log(env.QT_UIC+['-version'],output=Context.BOTH)
 	uicver=''.join(uicver).strip()
 	uicver=uicver.replace('Qt User Interface Compiler ','').replace('User Interface Compiler for Qt','')
 	self.end_msg(uicver)
-	if uicver.find(' 3.')!=-1:
-		self.fatal('this uic compiler is for qt3, add uic for qt4 to your path')
-	find_bin(['moc-qt4','moc'],'QT_MOC')
-	find_bin(['rcc-qt4','rcc'],'QT_RCC')
-	find_bin(['lrelease-qt4','lrelease'],'QT_LRELEASE')
-	find_bin(['lupdate-qt4','lupdate'],'QT_LUPDATE')
-	env['UIC3_ST']='%s -o %s'
+	if uicver.find(' 3.')!=-1 or uicver.find(' 4.')!=-1:
+		self.fatal('this uic compiler is for qt3 or qt5, add uic for qt5 to your path')
+	find_bin(['moc-qt5','moc'],'QT_MOC')
+	find_bin(['rcc-qt5','rcc'],'QT_RCC')
+	find_bin(['lrelease-qt5','lrelease'],'QT_LRELEASE')
+	find_bin(['lupdate-qt5','lupdate'],'QT_LUPDATE')
 	env['UIC_ST']='%s -o %s'
 	env['MOC_ST']='-o'
 	env['ui_PATTERN']='ui_%s.h'
@@ -309,25 +356,25 @@ def find_qt4_binaries(self):
 	env.MOCCPPPATH_ST='-I%s'
 	env.MOCDEFINES_ST='-D%s'
 @conf
-def find_qt4_libraries(self):
-	qtlibs=getattr(Options.options,'qtlibs',None)or os.environ.get("QT4_LIBDIR",None)
+def find_qt5_libraries(self):
+	qtlibs=getattr(Options.options,'qtlibs',None)or os.environ.get("QT5_LIBDIR",None)
 	if not qtlibs:
 		try:
 			qtlibs=self.cmd_and_log(self.env.QMAKE+['-query','QT_INSTALL_LIBS']).strip()
 		except Errors.WafError:
 			qtdir=self.cmd_and_log(self.env.QMAKE+['-query','QT_INSTALL_PREFIX']).strip()+os.sep
 			qtlibs=os.path.join(qtdir,'lib')
-	self.msg('Found the Qt4 libraries in',qtlibs)
-	qtincludes=os.environ.get("QT4_INCLUDES",None)or self.cmd_and_log(self.env.QMAKE+['-query','QT_INSTALL_HEADERS']).strip()
+	self.msg('Found the Qt5 libraries in',qtlibs)
+	qtincludes=os.environ.get("QT5_INCLUDES",None)or self.cmd_and_log(self.env.QMAKE+['-query','QT_INSTALL_HEADERS']).strip()
 	env=self.env
 	if not'PKG_CONFIG_PATH'in os.environ:
-		os.environ['PKG_CONFIG_PATH']='%s:%s/pkgconfig:/usr/lib/qt4/lib/pkgconfig:/opt/qt4/lib/pkgconfig:/usr/lib/qt4/lib:/opt/qt4/lib'%(qtlibs,qtlibs)
+		os.environ['PKG_CONFIG_PATH']='%s:%s/pkgconfig:/usr/lib/qt5/lib/pkgconfig:/opt/qt5/lib/pkgconfig:/usr/lib/qt5/lib:/opt/qt5/lib'%(qtlibs,qtlibs)
 	try:
-		if os.environ.get("QT4_XCOMPILE",None):
+		if os.environ.get("QT5_XCOMPILE",None):
 			raise self.errors.ConfigurationError()
 		self.check_cfg(atleast_pkgconfig_version='0.1')
 	except self.errors.ConfigurationError:
-		for i in self.qt4_vars:
+		for i in self.qt5_vars:
 			uselib=i.upper()
 			if Utils.unversioned_sys_platform()=="darwin":
 				frameworkName=i+".framework"
@@ -353,7 +400,7 @@ def find_qt4_libraries(self):
 				env.append_unique('INCLUDES_'+uselib,qtincludes)
 				env.append_unique('INCLUDES_'+uselib,os.path.join(qtincludes,i))
 			else:
-				for k in("lib%s.a","lib%s4.a","%s.lib","%s4.lib"):
+				for k in("lib%s.a","lib%s5.a","%s.lib","%s5.lib"):
 					lib=os.path.join(qtlibs,k%i)
 					if os.path.exists(lib):
 						env.append_unique('LIB_'+uselib,i+k[k.find("%s")+2:k.find('.')])
@@ -365,7 +412,7 @@ def find_qt4_libraries(self):
 				env.append_unique('INCLUDES_'+uselib,qtincludes)
 				env.append_unique('INCLUDES_'+uselib,os.path.join(qtincludes,i))
 				uselib=i.upper()+"_debug"
-				for k in("lib%sd.a","lib%sd4.a","%sd.lib","%sd4.lib"):
+				for k in("lib%sd.a","lib%sd5.a","%sd.lib","%sd5.lib"):
 					lib=os.path.join(qtlibs,k%i)
 					if os.path.exists(lib):
 						env.append_unique('LIB_'+uselib,i+k[k.find("%s")+2:k.find('.')])
@@ -377,10 +424,10 @@ def find_qt4_libraries(self):
 				env.append_unique('INCLUDES_'+uselib,qtincludes)
 				env.append_unique('INCLUDES_'+uselib,os.path.join(qtincludes,i))
 	else:
-		for i in self.qt4_vars_debug+self.qt4_vars:
+		for i in self.qt5_vars_debug+self.qt5_vars:
 			self.check_cfg(package=i,args='--cflags --libs',mandatory=False)
 @conf
-def simplify_qt4_libs(self):
+def simplify_qt5_libs(self):
 	env=self.env
 	def process_lib(vars_,coreval):
 		for d in vars_:
@@ -396,10 +443,10 @@ def simplify_qt4_libs(self):
 						continue
 					accu.append(lib)
 				env['LIBPATH_'+var]=accu
-	process_lib(self.qt4_vars,'LIBPATH_QTCORE')
-	process_lib(self.qt4_vars_debug,'LIBPATH_QTCORE_DEBUG')
+	process_lib(self.qt5_vars,'LIBPATH_QTCORE')
+	process_lib(self.qt5_vars_debug,'LIBPATH_QTCORE_DEBUG')
 @conf
-def add_qt4_rpath(self):
+def add_qt5_rpath(self):
 	env=self.env
 	if getattr(Options.options,'want_rpath',False):
 		def process_rpath(vars_,coreval):
@@ -415,21 +462,21 @@ def add_qt4_rpath(self):
 								continue
 						accu.append('-Wl,--rpath='+lib)
 					env['RPATH_'+var]=accu
-		process_rpath(self.qt4_vars,'LIBPATH_QTCORE')
-		process_rpath(self.qt4_vars_debug,'LIBPATH_QTCORE_DEBUG')
+		process_rpath(self.qt5_vars,'LIBPATH_QTCORE')
+		process_rpath(self.qt5_vars_debug,'LIBPATH_QTCORE_DEBUG')
 @conf
-def set_qt4_libs_to_check(self):
-	if not hasattr(self,'qt4_vars'):
-		self.qt4_vars=QT4_LIBS
-	self.qt4_vars=Utils.to_list(self.qt4_vars)
-	if not hasattr(self,'qt4_vars_debug'):
-		self.qt4_vars_debug=[a+'_debug'for a in self.qt4_vars]
-	self.qt4_vars_debug=Utils.to_list(self.qt4_vars_debug)
+def set_qt5_libs_to_check(self):
+	if not hasattr(self,'qt5_vars'):
+		self.qt5_vars=QT5_LIBS
+	self.qt5_vars=Utils.to_list(self.qt5_vars)
+	if not hasattr(self,'qt5_vars_debug'):
+		self.qt5_vars_debug=[a+'_debug'for a in self.qt5_vars]
+	self.qt5_vars_debug=Utils.to_list(self.qt5_vars_debug)
 @conf
-def set_qt4_defines(self):
+def set_qt5_defines(self):
 	if sys.platform!='win32':
 		return
-	for x in self.qt4_vars:
+	for x in self.qt5_vars:
 		y=x[2:].upper()
 		self.env.append_unique('DEFINES_%s'%x.upper(),'QT_%s_LIB'%y)
 		self.env.append_unique('DEFINES_%s_DEBUG'%x.upper(),'QT_%s_LIB'%y)
@@ -438,4 +485,4 @@ def options(opt):
 	opt.add_option('--header-ext',type='string',default='',help='header extension for moc files',dest='qt_header_ext')
 	for i in'qtdir qtbin qtlibs'.split():
 		opt.add_option('--'+i,type='string',default='',dest=i)
-	opt.add_option('--translate',action="store_true",help="collect translation strings",dest="trans_qt4",default=False)
+	opt.add_option('--translate',action="store_true",help="collect translation strings",dest="trans_qt5",default=False)

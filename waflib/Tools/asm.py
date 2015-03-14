@@ -9,7 +9,7 @@ from waflib.Tools.ccroot import link_task,stlink_task
 from waflib.TaskGen import extension,feature
 class asm(Task.Task):
 	color='BLUE'
-	run_str='${AS} ${ASFLAGS} ${ASMPATH_ST:INCPATHS} ${AS_SRC_F}${SRC} ${AS_TGT_F}${TGT}'
+	run_str='${AS} ${ASFLAGS} ${ASMPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${AS_SRC_F}${SRC} ${AS_TGT_F}${TGT}'
 @extension('.s','.S','.asm','.ASM','.spp','.SPP')
 def asm_hook(self,node):
 	return self.create_compiled_task('asm',node)

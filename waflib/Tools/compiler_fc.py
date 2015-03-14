@@ -2,21 +2,20 @@
 # encoding: utf-8
 # WARNING! Do not edit! http://waf.googlecode.com/git/docs/wafbook/single.html#_obtaining_the_waf_file
 
-import os,sys,imp,types
+import os,sys,imp,types,re
 from waflib import Utils,Configure,Options,Logs,Errors
 from waflib.Tools import fc
 fc_compiler={'win32':['gfortran','ifort'],'darwin':['gfortran','g95','ifort'],'linux':['gfortran','g95','ifort'],'java':['gfortran','g95','ifort'],'default':['gfortran'],'aix':['gfortran']}
-def __list_possible_compiler(platform):
-	try:
-		return fc_compiler[platform]
-	except KeyError:
-		return fc_compiler["default"]
+def default_compilers():
+	build_platform=Utils.unversioned_sys_platform()
+	possible_compiler_list=fc_compiler.get(build_platform,fc_compiler['default'])
+	return' '.join(possible_compiler_list)
 def configure(conf):
-	try:test_for_compiler=conf.options.check_fc
+	try:test_for_compiler=conf.options.check_fortran_compiler or default_compilers()
 	except AttributeError:conf.fatal("Add options(opt): opt.load('compiler_fc')")
-	for compiler in test_for_compiler.split():
+	for compiler in re.split('[ ,]+',test_for_compiler):
 		conf.env.stash()
-		conf.start_msg('Checking for %r (fortran compiler)'%compiler)
+		conf.start_msg('Checking for %r (Fortran compiler)'%compiler)
 		try:
 			conf.load(compiler)
 		except conf.errors.ConfigurationError ,e:
@@ -30,14 +29,11 @@ def configure(conf):
 				break
 			conf.end_msg(False)
 	else:
-		conf.fatal('could not configure a fortran compiler!')
+		conf.fatal('could not configure a Fortran compiler!')
 def options(opt):
+	test_for_compiler=default_compilers()
 	opt.load_special_tools('fc_*.py')
-	build_platform=Utils.unversioned_sys_platform()
-	detected_platform=Options.platform
-	possible_compiler_list=__list_possible_compiler(detected_platform)
-	test_for_compiler=' '.join(possible_compiler_list)
-	fortran_compiler_opts=opt.add_option_group("Fortran Compiler Options")
-	fortran_compiler_opts.add_option('--check-fortran-compiler',default="%s"%test_for_compiler,help='On this platform (%s) the following Fortran Compiler will be checked by default: "%s"'%(detected_platform,test_for_compiler),dest="check_fc")
-	for compiler in test_for_compiler.split():
-		opt.load('%s'%compiler)
+	fortran_compiler_opts=opt.add_option_group('Configuration options')
+	fortran_compiler_opts.add_option('--check-fortran-compiler',default=None,help='list of Fortran compiler to try [%s]'%test_for_compiler,dest="check_fortran_compiler")
+	for x in test_for_compiler.split():
+		opt.load('%s'%x)

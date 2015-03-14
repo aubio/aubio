@@ -10,7 +10,7 @@ class valac(Task.Task):
 	vars=["VALAC","VALAC_VERSION","VALAFLAGS"]
 	ext_out=['.h']
 	def run(self):
-		cmd=[self.env['VALAC']]+self.env['VALAFLAGS']
+		cmd=self.env.VALAC+self.env.VALAFLAGS
 		cmd.extend([a.abspath()for a in self.inputs])
 		ret=self.exec_command(cmd,cwd=self.outputs[0].parent.abspath())
 		if ret:
@@ -159,7 +159,7 @@ def vala_file(self,node):
 def find_valac(self,valac_name,min_version):
 	valac=self.find_program(valac_name,var='VALAC')
 	try:
-		output=self.cmd_and_log(valac+' --version')
+		output=self.cmd_and_log(valac+['--version'])
 	except Exception:
 		valac_version=None
 	else:

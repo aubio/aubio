@@ -8,4 +8,6 @@ def find_ar(conf):
 	conf.load('ar')
 def configure(conf):
 	conf.find_program('ar',var='AR')
-	conf.env.ARFLAGS='rcs'
+	conf.add_os_flags('ARFLAGS')
+	if not conf.env.ARFLAGS:
+		conf.env.ARFLAGS=['rcs']

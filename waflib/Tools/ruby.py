@@ -27,7 +27,7 @@ def check_ruby_version(self,minver=()):
 		self.find_program('ruby',var='RUBY')
 	ruby=self.env.RUBY
 	try:
-		version=self.cmd_and_log([ruby,'-e','puts defined?(VERSION) ? VERSION : RUBY_VERSION']).strip()
+		version=self.cmd_and_log(ruby+['-e','puts defined?(VERSION) ? VERSION : RUBY_VERSION']).strip()
 	except Exception:
 		self.fatal('could not determine ruby version')
 	self.env.RUBY_VERSION=version
@@ -51,9 +51,9 @@ def check_ruby_ext_devel(self):
 		self.fatal('load a c/c++ compiler first')
 	version=tuple(map(int,self.env.RUBY_VERSION.split(".")))
 	def read_out(cmd):
-		return Utils.to_list(self.cmd_and_log([self.env.RUBY,'-rrbconfig','-e',cmd]))
+		return Utils.to_list(self.cmd_and_log(self.env.RUBY+['-rrbconfig','-e',cmd]))
 	def read_config(key):
-		return read_out('puts Config::CONFIG[%r]'%key)
+		return read_out('puts RbConfig::CONFIG[%r]'%key)
 	ruby=self.env['RUBY']
 	archdir=read_config('archdir')
 	cpppath=archdir
@@ -87,7 +87,7 @@ def check_ruby_ext_devel(self):
 def check_ruby_module(self,module_name):
 	self.start_msg('Ruby module %s'%module_name)
 	try:
-		self.cmd_and_log([self.env['RUBY'],'-e','require \'%s\';puts 1'%module_name])
+		self.cmd_and_log(self.env.RUBY+['-e','require \'%s\';puts 1'%module_name])
 	except Exception:
 		self.end_msg(False)
 		self.fatal('Could not find the ruby module %r'%module_name)

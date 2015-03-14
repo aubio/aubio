@@ -2,12 +2,12 @@
 # encoding: utf-8
 # WARNING! Do not edit! http://waf.googlecode.com/git/docs/wafbook/single.html#_obtaining_the_waf_file
 
-import os,imp,sys
+import os,re,imp,sys
 from waflib import Utils,Errors,Logs
 import waflib.Node
-HEXVERSION=0x1070f00
-WAFVERSION="1.7.15"
-WAFREVISION="f63ac9793de2d4eaae884e55d4ff70a761dcbab2"
+HEXVERSION=0x1080700
+WAFVERSION="1.8.7"
+WAFREVISION="e5056b9ade7bb224f53baab13a0ce136344ab602"
 ABI=98
 DBFILE='.wafpickle-%s-%d-%d'%(sys.platform,sys.hexversion,ABI)
 APPNAME='APPNAME'
@@ -71,6 +71,14 @@ class Context(ctx):
 		self.logger=None
 	def __hash__(self):
 		return id(self)
+	def finalize(self):
+		try:
+			logger=self.logger
+		except AttributeError:
+			pass
+		else:
+			Logs.free_logger(logger)
+			delattr(self,'logger')
 	def load(self,tool_list,*k,**kw):
 		tools=Utils.to_list(tool_list)
 		path=Utils.to_list(kw.get('tooldir',''))
@@ -90,7 +98,7 @@ class Context(ctx):
 		self.cur_script=self.stack_path.pop()
 		if self.cur_script:
 			self.path=self.cur_script.parent
-	def recurse(self,dirs,name=None,mandatory=True,once=True):
+	def recurse(self,dirs,name=None,mandatory=True,once=True,encoding=None):
 		try:
 			cache=self.recurse_cache
 		except AttributeError:
@@ -105,7 +113,7 @@ class Context(ctx):
 				cache[node]=True
 				self.pre_recurse(node)
 				try:
-					function_code=node.read('rU')
+					function_code=node.read('rU',encoding)
 					exec(compile(function_code,node.abspath(),'exec'),self.exec_dict)
 				finally:
 					self.post_recurse(node)
@@ -116,7 +124,7 @@ class Context(ctx):
 					cache[tup]=True
 					self.pre_recurse(node)
 					try:
-						wscript_module=load_module(node.abspath())
+						wscript_module=load_module(node.abspath(),encoding=encoding)
 						user_function=getattr(wscript_module,(name or self.fun),None)
 						if not user_function:
 							if not mandatory:
@@ -140,6 +148,8 @@ class Context(ctx):
 			kw['stdout']=subprocess.PIPE
 		if'stderr'not in kw:
 			kw['stderr']=subprocess.PIPE
+		if Logs.verbose and not kw['shell']and not Utils.check_exe(cmd[0]):
+			raise Errors.WafError("Program %s not found!"%cmd[0])
 		try:
 			if kw['stdout']or kw['stderr']:
 				p=subprocess.Popen(cmd,**kw)
@@ -156,14 +166,14 @@ class Context(ctx):
 			if self.logger:
 				self.logger.debug('out: %s'%out)
 			else:
-				sys.stdout.write(out)
+				Logs.info(out,extra={'stream':sys.stdout,'c1':''})
 		if err:
 			if not isinstance(err,str):
 				err=err.decode(sys.stdout.encoding or'iso8859-1')
 			if self.logger:
 				self.logger.error('err: %s'%err)
 			else:
-				sys.stderr.write(err)
+				Logs.info(err,extra={'stream':sys.stderr,'c1':''})
 		return ret
 	def cmd_and_log(self,cmd,**kw):
 		subprocess=Utils.subprocess
@@ -179,6 +189,8 @@ class Context(ctx):
 			del kw['output']
 		else:
 			to_ret=STDOUT
+		if Logs.verbose and not kw['shell']and not Utils.check_exe(cmd[0]):
+			raise Errors.WafError("Program %s not found!"%cmd[0])
 		kw['stdout']=kw['stderr']=subprocess.PIPE
 		if quiet is None:
 			self.to_log(cmd)
@@ -222,12 +234,24 @@ class Context(ctx):
 		else:
 			sys.stderr.write(str(msg))
 			sys.stderr.flush()
-	def msg(self,msg,result,color=None):
-		self.start_msg(msg)
+	def msg(self,*k,**kw):
+		try:
+			msg=kw['msg']
+		except KeyError:
+			msg=k[0]
+		self.start_msg(msg,**kw)
+		try:
+			result=kw['result']
+		except KeyError:
+			result=k[1]
+		color=kw.get('color',None)
 		if not isinstance(color,str):
 			color=result and'GREEN'or'YELLOW'
-		self.end_msg(result,color)
-	def start_msg(self,msg):
+		self.end_msg(result,color,**kw)
+	def start_msg(self,*k,**kw):
+		if kw.get('quiet',None):
+			return
+		msg=kw.get('msg',None)or k[0]
 		try:
 			if self.in_msg:
 				self.in_msg+=1
@@ -242,10 +266,13 @@ class Context(ctx):
 		for x in(self.line_just*'-',msg):
 			self.to_log(x)
 		Logs.pprint('NORMAL',"%s :"%msg.ljust(self.line_just),sep='')
-	def end_msg(self,result,color=None):
+	def end_msg(self,*k,**kw):
+		if kw.get('quiet',None):
+			return
 		self.in_msg-=1
 		if self.in_msg:
 			return
+		result=kw.get('result',None)or k[0]
 		defcolor='GREEN'
 		if result==True:
 			msg='ok'
@@ -255,23 +282,47 @@ class Context(ctx):
 		else:
 			msg=str(result)
 		self.to_log(msg)
-		Logs.pprint(color or defcolor,msg)
+		try:
+			color=kw['color']
+		except KeyError:
+			if len(k)>1 and k[1]in Logs.colors_lst:
+				color=k[1]
+			else:
+				color=defcolor
+		Logs.pprint(color,msg)
 	def load_special_tools(self,var,ban=[]):
 		global waf_dir
-		lst=self.root.find_node(waf_dir).find_node('waflib/extras').ant_glob(var)
-		for x in lst:
-			if not x.name in ban:
-				load_tool(x.name.replace('.py',''))
+		if os.path.isdir(waf_dir):
+			lst=self.root.find_node(waf_dir).find_node('waflib/extras').ant_glob(var)
+			for x in lst:
+				if not x.name in ban:
+					load_tool(x.name.replace('.py',''))
+		else:
+			from zipfile import PyZipFile
+			waflibs=PyZipFile(waf_dir)
+			lst=waflibs.namelist()
+			for x in lst:
+				if not re.match("waflib/extras/%s"%var.replace("*",".*"),var):
+					continue
+				f=os.path.basename(x)
+				doban=False
+				for b in ban:
+					r=b.replace("*",".*")
+					if re.match(b,f):
+						doban=True
+				if not doban:
+					f=f.replace('.py','')
+					load_tool(f)
 cache_modules={}
-def load_module(path):
+def load_module(path,encoding=None):
 	try:
 		return cache_modules[path]
 	except KeyError:
 		pass
 	module=imp.new_module(WSCRIPT_FILE)
 	try:
-		code=Utils.readf(path,m='rU')
-	except(IOError,OSError):
+		code=Utils.readf(path,m='rU',encoding=encoding)
+	except EnvironmentError:
 		raise Errors.WafError('Could not read the file %r'%path)
 	module_dir=os.path.dirname(path)
 	sys.path.insert(0,module_dir)
@@ -279,11 +330,9 @@ def load_module(path):
 	sys.path.remove(module_dir)
 	cache_modules[path]=module
 	return module
-def load_tool(tool,tooldir=None):
+def load_tool(tool,tooldir=None,ctx=None):
 	if tool=='java':
 		tool='javaw'
-	elif tool=='compiler_cc':
-		tool='compiler_c'
 	else:
 		tool=tool.replace('++','xx')
 	if tooldir:
@@ -298,19 +347,14 @@ def load_tool(tool,tooldir=None):
 			for d in tooldir:
 				sys.path.remove(d)
 	else:
-		global waf_dir
-		try:
-			os.stat(os.path.join(waf_dir,'waflib','extras',tool+'.py'))
-		except OSError:
+		for x in('waflib.Tools.%s','waflib.extras.%s','waflib.%s','%s'):
 			try:
-				os.stat(os.path.join(waf_dir,'waflib','Tools',tool+'.py'))
-			except OSError:
-				d=tool
-			else:
-				d='waflib.Tools.%s'%tool
-		else:
-			d='waflib.extras.%s'%tool
-		__import__(d)
-		ret=sys.modules[d]
+				__import__(x%tool)
+				break
+			except ImportError:
+				x=None
+		if x is None:
+			__import__(tool)
+		ret=sys.modules[x%tool]
 		Context.tools[tool]=ret
 		return ret

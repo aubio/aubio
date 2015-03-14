@@ -19,7 +19,7 @@ class msgfmt(Task.Task):
 	run_str='${MSGFMT} ${SRC} -o ${TGT}'
 def configure(self):
 	kdeconfig=self.find_program('kde4-config')
-	prefix=self.cmd_and_log('%s --prefix'%kdeconfig).strip()
+	prefix=self.cmd_and_log(kdeconfig+['--prefix']).strip()
 	fname='%s/share/apps/cmake/modules/KDELibsDependencies.cmake'%prefix
 	try:os.stat(fname)
 	except OSError:
@@ -28,7 +28,7 @@ def configure(self):
 		except OSError:self.fatal('could not open %s'%fname)
 	try:
 		txt=Utils.readf(fname)
-	except(OSError,IOError):
+	except EnvironmentError:
 		self.fatal('could not read %s'%fname)
 	txt=txt.replace('\\\n','\n')
 	fu=re.compile('#(.*)\n')

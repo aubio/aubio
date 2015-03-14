@@ -2,14 +2,8 @@
 # encoding: utf-8
 # WARNING! Do not edit! http://waf.googlecode.com/git/docs/wafbook/single.html#_obtaining_the_waf_file
 
-import os,shlex,sys,time
+import os,shlex,sys,time,re,shutil
 from waflib import ConfigSet,Utils,Options,Logs,Context,Build,Errors
-try:
-	from urllib import request
-except ImportError:
-	from urllib import urlopen
-else:
-	urlopen=request.urlopen
 BREAK='break'
 CONTINUE='continue'
 WAF_CONFIG_LOG='config.log'
@@ -18,37 +12,6 @@ conf_template='''# project %(app)s configured on %(now)s by
 # waf %(wafver)s (abi %(abi)s, python %(pyver)x on %(systype)s)
 # using %(args)s
 #'''
-def download_check(node):
-	pass
-def download_tool(tool,force=False,ctx=None):
-	for x in Utils.to_list(Context.remote_repo):
-		for sub in Utils.to_list(Context.remote_locs):
-			url='/'.join((x,sub,tool+'.py'))
-			try:
-				web=urlopen(url)
-				try:
-					if web.getcode()!=200:
-						continue
-				except AttributeError:
-					pass
-			except Exception:
-				continue
-			else:
-				tmp=ctx.root.make_node(os.sep.join((Context.waf_dir,'waflib','extras',tool+'.py')))
-				tmp.write(web.read(),'wb')
-				Logs.warn('Downloaded %s from %s'%(tool,url))
-				download_check(tmp)
-				try:
-					module=Context.load_tool(tool)
-				except Exception:
-					Logs.warn('The tool %s from %s is unusable'%(tool,url))
-					try:
-						tmp.delete()
-					except Exception:
-						pass
-					continue
-				return module
-	raise Errors.WafError('Could not load the Waf tool')
 class ConfigurationContext(Context.Context):
 	'''configures the project'''
 	cmd='configure'
@@ -96,6 +59,7 @@ class ConfigurationContext(Context.Context):
 			out=getattr(Context.g_module,Context.OUT,None)
 		if not out:
 			out=Options.lockfile.replace('.lock-waf_%s_'%sys.platform,'').replace('.lock-waf','')
+		out=os.path.realpath(out)
 		self.bldnode=(os.path.isabs(out)and self.root or self.path).make_node(out)
 		self.bldnode.mkdir()
 		if not os.path.isdir(self.bldnode.abspath()):
@@ -139,11 +103,11 @@ class ConfigurationContext(Context.Context):
 		env['files']=self.files
 		env['environ']=dict(self.environ)
 		if not self.env.NO_LOCK_IN_RUN:
-			env.store(Context.run_dir+os.sep+Options.lockfile)
+			env.store(os.path.join(Context.run_dir,Options.lockfile))
 		if not self.env.NO_LOCK_IN_TOP:
-			env.store(Context.top_dir+os.sep+Options.lockfile)
+			env.store(os.path.join(Context.top_dir,Options.lockfile))
 		if not self.env.NO_LOCK_IN_OUT:
-			env.store(Context.out_dir+os.sep+Options.lockfile)
+			env.store(os.path.join(Context.out_dir,Options.lockfile))
 	def prepare_env(self,env):
 		if not env.PREFIX:
 			if Options.options.prefix or Utils.is_win32:
@@ -151,9 +115,15 @@ class ConfigurationContext(Context.Context):
 			else:
 				env.PREFIX=''
 		if not env.BINDIR:
-			env.BINDIR=Utils.subst_vars('${PREFIX}/bin',env)
+			if Options.options.bindir:
+				env.BINDIR=os.path.abspath(os.path.expanduser(Options.options.bindir))
+			else:
+				env.BINDIR=Utils.subst_vars('${PREFIX}/bin',env)
 		if not env.LIBDIR:
-			env.LIBDIR=Utils.subst_vars('${PREFIX}/lib',env)
+			if Options.options.libdir:
+				env.LIBDIR=os.path.abspath(os.path.expanduser(Options.options.libdir))
+			else:
+				env.LIBDIR=Utils.subst_vars('${PREFIX}/lib%s'%Utils.lib64(),env)
 	def store(self):
 		n=self.cachedir.make_node('build.config.py')
 		n.write('version = 0x%x\ntools = %r\n'%(Context.HEXVERSION,self.tools))
@@ -162,7 +132,7 @@ class ConfigurationContext(Context.Context):
 		for key in self.all_envs:
 			tmpenv=self.all_envs[key]
 			tmpenv.store(os.path.join(self.cachedir.abspath(),key+Build.CACHE_SUFFIX))
-	def load(self,input,tooldir=None,funs=None,download=True):
+	def load(self,input,tooldir=None,funs=None):
 		tools=Utils.to_list(input)
 		if tooldir:tooldir=Utils.to_list(tooldir)
 		for tool in tools:
@@ -173,14 +143,9 @@ class ConfigurationContext(Context.Context):
 			self.tool_cache.append(mag)
 			module=None
 			try:
-				module=Context.load_tool(tool,tooldir)
+				module=Context.load_tool(tool,tooldir,ctx=self)
 			except ImportError ,e:
-				if Options.options.download:
-					module=download_tool(tool,ctx=self)
-					if not module:
-						self.fatal('Could not load the Waf tool %r or download a suitable replacement from the repository (sys.path %r)\n%s'%(tool,sys.path,e))
-				else:
-					self.fatal('Could not load the Waf tool %r from %r (try the --download option?):\n%s'%(tool,sys.path,e))
+				self.fatal('Could not load the Waf tool %r from %r\n%s'%(tool,sys.path,e))
 			except Exception ,e:
 				self.to_log('imp %r (%r & %r)'%(tool,tooldir,funs))
 				self.to_log(Utils.ex_stack())
@@ -243,14 +208,14 @@ def cmd_to_list(self,cmd):
 			return[cmd]
 	return cmd
 @conf
-def check_waf_version(self,mini='1.6.99',maxi='1.8.0'):
-	self.start_msg('Checking for waf version in %s-%s'%(str(mini),str(maxi)))
+def check_waf_version(self,mini='1.7.99',maxi='1.9.0',**kw):
+	self.start_msg('Checking for waf version in %s-%s'%(str(mini),str(maxi)),**kw)
 	ver=Context.HEXVERSION
 	if Utils.num2ver(mini)>ver:
 		self.fatal('waf version should be at least %r (%r found)'%(Utils.num2ver(mini),ver))
 	if Utils.num2ver(maxi)<ver:
 		self.fatal('waf version should be at most %r (%r found)'%(Utils.num2ver(maxi),ver))
-	self.end_msg('ok')
+	self.end_msg('ok',**kw)
 @conf
 def find_file(self,filename,path_list=[]):
 	for n in Utils.to_list(filename):
@@ -262,56 +227,153 @@ def find_file(self,filename,path_list=[]):
 @conf
 def find_program(self,filename,**kw):
 	exts=kw.get('exts',Utils.is_win32 and'.exe,.com,.bat,.cmd'or',.sh,.pl,.py')
-	environ=kw.get('environ',os.environ)
+	environ=kw.get('environ',getattr(self,'environ',os.environ))
 	ret=''
 	filename=Utils.to_list(filename)
+	msg=kw.get('msg',', '.join(filename))
 	var=kw.get('var','')
 	if not var:
-		var=filename[0].upper()
-	if self.env[var]:
-		ret=self.env[var]
-	elif var in environ:
-		ret=environ[var]
+		var=re.sub(r'[-.]','_',filename[0].upper())
 	path_list=kw.get('path_list','')
-	if not ret:
-		if path_list:
-			path_list=Utils.to_list(path_list)
+	if path_list:
+		path_list=Utils.to_list(path_list)
+	else:
+		path_list=environ.get('PATH','').split(os.pathsep)
+	if var in environ:
+		filename=environ[var]
+		if os.path.isfile(filename):
+			ret=[filename]
 		else:
-			path_list=environ.get('PATH','').split(os.pathsep)
-		if not isinstance(filename,list):
-			filename=[filename]
-		for a in exts.split(','):
-			if ret:
-				break
-			for b in filename:
-				if ret:
-					break
-				for c in path_list:
-					if ret:
-						break
-					x=os.path.expanduser(os.path.join(c,b+a))
-					if os.path.isfile(x):
-						ret=x
-	if not ret and Utils.winreg:
-		ret=Utils.get_registry_app_path(Utils.winreg.HKEY_CURRENT_USER,filename)
-	if not ret and Utils.winreg:
-		ret=Utils.get_registry_app_path(Utils.winreg.HKEY_LOCAL_MACHINE,filename)
-	self.msg('Checking for program '+','.join(filename),ret or False)
-	self.to_log('find program=%r paths=%r var=%r -> %r'%(filename,path_list,var,ret))
+			ret=self.cmd_to_list(filename)
+	elif self.env[var]:
+		ret=self.env[var]
+		ret=self.cmd_to_list(ret)
+	else:
+		if not ret:
+			ret=self.find_binary(filename,exts.split(','),path_list)
+		if not ret and Utils.winreg:
+			ret=Utils.get_registry_app_path(Utils.winreg.HKEY_CURRENT_USER,filename)
+		if not ret and Utils.winreg:
+			ret=Utils.get_registry_app_path(Utils.winreg.HKEY_LOCAL_MACHINE,filename)
+		ret=self.cmd_to_list(ret)
+	if ret:
+		if len(ret)==1:
+			retmsg=ret[0]
+		else:
+			retmsg=ret
+	else:
+		retmsg=False
+	self.msg("Checking for program '%s'"%msg,retmsg,**kw)
+	if not kw.get('quiet',None):
+		self.to_log('find program=%r paths=%r var=%r -> %r'%(filename,path_list,var,ret))
 	if not ret:
-		self.fatal(kw.get('errmsg','')or'Could not find the program %s'%','.join(filename))
-	if var:
+		self.fatal(kw.get('errmsg','')or'Could not find the program %r'%filename)
+	interpreter=kw.get('interpreter',None)
+	if interpreter is None:
+		if not Utils.check_exe(ret[0],env=environ):
+			self.fatal('Program %r is not executable'%ret)
 		self.env[var]=ret
+	else:
+		self.env[var]=self.env[interpreter]+ret
 	return ret
 @conf
-def find_perl_program(self,filename,path_list=[],var=None,environ=None,exts=''):
+def find_binary(self,filenames,exts,paths):
+	for f in filenames:
+		for ext in exts:
+			exe_name=f+ext
+			if os.path.isabs(exe_name):
+				if os.path.isfile(exe_name):
+					return exe_name
+			else:
+				for path in paths:
+					x=os.path.expanduser(os.path.join(path,exe_name))
+					if os.path.isfile(x):
+						return x
+	return None
+@conf
+def run_build(self,*k,**kw):
+	lst=[str(v)for(p,v)in kw.items()if p!='env']
+	h=Utils.h_list(lst)
+	dir=self.bldnode.abspath()+os.sep+(not Utils.is_win32 and'.'or'')+'conf_check_'+Utils.to_hex(h)
 	try:
-		app=self.find_program(filename,path_list=path_list,var=var,environ=environ,exts=exts)
-	except Exception:
-		self.find_program('perl',var='PERL')
-		app=self.find_file(filename,os.environ['PATH'].split(os.pathsep))
-		if not app:
+		os.makedirs(dir)
+	except OSError:
+		pass
+	try:
+		os.stat(dir)
+	except OSError:
+		self.fatal('cannot use the configuration test folder %r'%dir)
+	cachemode=getattr(Options.options,'confcache',None)
+	if cachemode==1:
+		try:
+			proj=ConfigSet.ConfigSet(os.path.join(dir,'cache_run_build'))
+		except OSError:
+			pass
+		except IOError:
+			pass
+		else:
+			ret=proj['cache_run_build']
+			if isinstance(ret,str)and ret.startswith('Test does not build'):
+				self.fatal(ret)
+			return ret
+	bdir=os.path.join(dir,'testbuild')
+	if not os.path.exists(bdir):
+		os.makedirs(bdir)
+	self.test_bld=bld=Build.BuildContext(top_dir=dir,out_dir=bdir)
+	bld.init_dirs()
+	bld.progress_bar=0
+	bld.targets='*'
+	bld.logger=self.logger
+	bld.all_envs.update(self.all_envs)
+	bld.env=kw['env']
+	bld.kw=kw
+	bld.conf=self
+	kw['build_fun'](bld)
+	ret=-1
+	try:
+		try:
+			bld.compile()
+		except Errors.WafError:
+			ret='Test does not build: %s'%Utils.ex_stack()
+			self.fatal(ret)
+		else:
+			ret=getattr(bld,'retval',0)
+	finally:
+		if cachemode==1:
+			proj=ConfigSet.ConfigSet()
+			proj['cache_run_build']=ret
+			proj.store(os.path.join(dir,'cache_run_build'))
+		else:
+			shutil.rmtree(dir)
+	return ret
+@conf
+def ret_msg(self,msg,args):
+	if isinstance(msg,str):
+		return msg
+	return msg(args)
+@conf
+def test(self,*k,**kw):
+	if not'env'in kw:
+		kw['env']=self.env.derive()
+	if kw.get('validate',None):
+		kw['validate'](kw)
+	self.start_msg(kw['msg'],**kw)
+	ret=None
+	try:
+		ret=self.run_build(*k,**kw)
+	except self.errors.ConfigurationError:
+		self.end_msg(kw['errmsg'],'YELLOW',**kw)
+		if Logs.verbose>1:
 			raise
-		if var:
-			self.env[var]=Utils.to_list(self.env['PERL'])+[app]
-	self.msg('Checking for %r'%filename,app)
+		else:
+			self.fatal('The configuration failed')
+	else:
+		kw['success']=ret
+	if kw.get('post_check',None):
+		ret=kw['post_check'](kw)
+	if ret:
+		self.end_msg(kw['errmsg'],'YELLOW',**kw)
+		self.fatal('The configuration failed %r'%ret)
+	else:
+		self.end_msg(self.ret_msg(kw['okmsg'],kw),**kw)
+	return ret

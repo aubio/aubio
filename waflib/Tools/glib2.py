@@ -3,8 +3,9 @@
 # WARNING! Do not edit! http://waf.googlecode.com/git/docs/wafbook/single.html#_obtaining_the_waf_file
 
 import os
-from waflib import Task,Utils,Options,Errors,Logs
-from waflib.TaskGen import taskgen_method,before_method,after_method,feature
+from waflib import Context,Task,Utils,Options,Errors,Logs
+from waflib.TaskGen import taskgen_method,before_method,after_method,feature,extension
+from waflib.Configure import conf
 @taskgen_method
 def add_marshal_file(self,filename,prefix):
 	if not hasattr(self,'marshal_list'):
@@ -98,14 +99,6 @@ def add_settings_enums(self,namespace,filename_list):
 	if type(filename_list)!='list':
 		filename_list=[filename_list]
 	self.settings_enum_files=filename_list
-def r_change_ext(self,ext):
-	name=self.name
-	k=name.rfind('.')
-	if k>=0:
-		name=name[:k]+ext
-	else:
-		name=name+ext
-	return self.parent.find_or_declare([name])
 @feature('glib2')
 def process_settings(self):
 	enums_tgt_node=[]
@@ -136,7 +129,7 @@ def process_settings(self):
 		source_list=enums_tgt_node+[schema_node]
 		schema_task.set_inputs(source_list)
 		schema_task.env['GLIB_COMPILE_SCHEMAS_OPTIONS']=[("--schema-file="+k.abspath())for k in source_list]
-		target_node=r_change_ext(schema_node,'.xml.valid')
+		target_node=schema_node.change_ext('.xml.valid')
 		schema_task.set_outputs(target_node)
 		schema_task.env['GLIB_VALIDATE_SCHEMA_OUTPUT']=target_node.abspath()
 	def compile_schemas_callback(bld):
@@ -155,10 +148,69 @@ def process_settings(self):
 class glib_validate_schema(Task.Task):
 	run_str='rm -f ${GLIB_VALIDATE_SCHEMA_OUTPUT} && ${GLIB_COMPILE_SCHEMAS} --dry-run ${GLIB_COMPILE_SCHEMAS_OPTIONS} && touch ${GLIB_VALIDATE_SCHEMA_OUTPUT}'
 	color='PINK'
-def configure(conf):
+@extension('.gresource.xml')
+def process_gresource_source(self,node):
+	if not self.env['GLIB_COMPILE_RESOURCES']:
+		raise Errors.WafError("Unable to process GResource file - glib-compile-resources was not found during configure")
+	if'gresource'in self.features:
+		return
+	h_node=node.change_ext('_xml.h')
+	c_node=node.change_ext('_xml.c')
+	self.create_task('glib_gresource_source',node,[h_node,c_node])
+	self.source.append(c_node)
+@feature('gresource')
+def process_gresource_bundle(self):
+	for i in self.to_list(self.source):
+		node=self.path.find_resource(i)
+		task=self.create_task('glib_gresource_bundle',node,node.change_ext(''))
+		inst_to=getattr(self,'install_path',None)
+		if inst_to:
+			self.bld.install_files(inst_to,task.outputs)
+class glib_gresource_base(Task.Task):
+	color='BLUE'
+	base_cmd='${GLIB_COMPILE_RESOURCES} --sourcedir=${SRC[0].parent.srcpath()} --sourcedir=${SRC[0].bld_dir()}'
+	def scan(self):
+		bld=self.generator.bld
+		kw={}
+		try:
+			if not kw.get('cwd',None):
+				kw['cwd']=bld.cwd
+		except AttributeError:
+			bld.cwd=kw['cwd']=bld.variant_dir
+		kw['quiet']=Context.BOTH
+		cmd=Utils.subst_vars('${GLIB_COMPILE_RESOURCES} --sourcedir=%s --sourcedir=%s --generate-dependencies %s'%(self.inputs[0].parent.srcpath(),self.inputs[0].bld_dir(),self.inputs[0].bldpath()),self.env)
+		output=bld.cmd_and_log(cmd,**kw)
+		nodes=[]
+		names=[]
+		for dep in output.splitlines():
+			if dep:
+				node=bld.bldnode.find_node(dep)
+				if node:
+					nodes.append(node)
+				else:
+					names.append(dep)
+		return(nodes,names)
+class glib_gresource_source(glib_gresource_base):
+	vars=['GLIB_COMPILE_RESOURCES']
+	fun_h=Task.compile_fun_shell(glib_gresource_base.base_cmd+' --target=${TGT[0].abspath()} --generate-header ${SRC}')
+	fun_c=Task.compile_fun_shell(glib_gresource_base.base_cmd+' --target=${TGT[1].abspath()} --generate-source ${SRC}')
+	ext_out=['.h']
+	def run(self):
+		return self.fun_h[0](self)or self.fun_c[0](self)
+class glib_gresource_bundle(glib_gresource_base):
+	run_str=glib_gresource_base.base_cmd+' --target=${TGT} ${SRC}'
+	shell=True
+@conf
+def find_glib_genmarshal(conf):
 	conf.find_program('glib-genmarshal',var='GLIB_GENMARSHAL')
-	conf.find_perl_program('glib-mkenums',var='GLIB_MKENUMS')
-	conf.find_program('glib-compile-schemas',var='GLIB_COMPILE_SCHEMAS',mandatory=False)
+@conf
+def find_glib_mkenums(conf):
+	if not conf.env.PERL:
+		conf.find_program('perl',var='PERL')
+	conf.find_program('glib-mkenums',interpreter='PERL',var='GLIB_MKENUMS')
+@conf
+def find_glib_compile_schemas(conf):
+	conf.find_program('glib-compile-schemas',var='GLIB_COMPILE_SCHEMAS')
 	def getstr(varname):
 		return getattr(Options.options,varname,getattr(conf.env,varname,''))
 	gsettingsschemadir=getstr('GSETTINGSSCHEMADIR')
@@ -169,5 +221,14 @@ def configure(conf):
 			datadir=os.path.join(prefix,'share')
 		gsettingsschemadir=os.path.join(datadir,'glib-2.0','schemas')
 	conf.env['GSETTINGSSCHEMADIR']=gsettingsschemadir
+@conf
+def find_glib_compile_resources(conf):
+	conf.find_program('glib-compile-resources',var='GLIB_COMPILE_RESOURCES')
+def configure(conf):
+	conf.find_glib_genmarshal()
+	conf.find_glib_mkenums()
+	conf.find_glib_compile_schemas(mandatory=False)
+	conf.find_glib_compile_resources(mandatory=False)
 def options(opt):
-	opt.add_option('--gsettingsschemadir',help='GSettings schema location [Default: ${datadir}/glib-2.0/schemas]',default='',dest='GSETTINGSSCHEMADIR')
+	gr=opt.add_option_group('Installation directories')
+	gr.add_option('--gsettingsschemadir',help='GSettings schema location [DATADIR/glib-2.0/schemas]',default='',dest='GSETTINGSSCHEMADIR')

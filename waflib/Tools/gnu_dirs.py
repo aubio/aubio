@@ -2,29 +2,30 @@
 # encoding: utf-8
 # WARNING! Do not edit! http://waf.googlecode.com/git/docs/wafbook/single.html#_obtaining_the_waf_file
 
-import os
+import os,re
 from waflib import Utils,Options,Context
-_options=[x.split(', ')for x in'''
-bindir, user executables, ${EXEC_PREFIX}/bin
-sbindir, system admin executables, ${EXEC_PREFIX}/sbin
-libexecdir, program executables, ${EXEC_PREFIX}/libexec
-sysconfdir, read-only single-machine data, ${PREFIX}/etc
-sharedstatedir, modifiable architecture-independent data, ${PREFIX}/com
-localstatedir, modifiable single-machine data, ${PREFIX}/var
-libdir, object code libraries, ${EXEC_PREFIX}/lib
-includedir, C header files, ${PREFIX}/include
-oldincludedir, C header files for non-gcc, /usr/include
-datarootdir, read-only arch.-independent data root, ${PREFIX}/share
-datadir, read-only architecture-independent data, ${DATAROOTDIR}
-infodir, info documentation, ${DATAROOTDIR}/info
+gnuopts='''
+bindir, user commands, ${EXEC_PREFIX}/bin
+sbindir, system binaries, ${EXEC_PREFIX}/sbin
+libexecdir, program-specific binaries, ${EXEC_PREFIX}/libexec
+sysconfdir, host-specific configuration, ${PREFIX}/etc
+sharedstatedir, architecture-independent variable data, ${PREFIX}/com
+localstatedir, variable data, ${PREFIX}/var
+libdir, object code libraries, ${EXEC_PREFIX}/lib%s
+includedir, header files, ${PREFIX}/include
+oldincludedir, header files for non-GCC compilers, /usr/include
+datarootdir, architecture-independent data root, ${PREFIX}/share
+datadir, architecture-independent data, ${DATAROOTDIR}
+infodir, GNU "info" documentation, ${DATAROOTDIR}/info
 localedir, locale-dependent data, ${DATAROOTDIR}/locale
-mandir, man documentation, ${DATAROOTDIR}/man
+mandir, manual pages, ${DATAROOTDIR}/man
 docdir, documentation root, ${DATAROOTDIR}/doc/${PACKAGE}
-htmldir, html documentation, ${DOCDIR}
-dvidir, dvi documentation, ${DOCDIR}
-pdfdir, pdf documentation, ${DOCDIR}
-psdir, ps documentation, ${DOCDIR}
-'''.split('\n')if x]
+htmldir, HTML documentation, ${DOCDIR}
+dvidir, DVI documentation, ${DOCDIR}
+pdfdir, PDF documentation, ${DOCDIR}
+psdir, PostScript documentation, ${DOCDIR}
+'''%Utils.lib64()
+_options=[x.split(', ')for x in gnuopts.splitlines()if x]
 def configure(conf):
 	def get_param(varname,default):
 		return getattr(Options.options,varname,'')or default
@@ -45,10 +46,10 @@ def configure(conf):
 				except TypeError:
 					complete=False
 	if not complete:
-		lst=[name for name,_,_ in _options if not env[name.upper()]]
+		lst=[x for x,_,_ in _options if not env[x.upper()]]
 		raise conf.errors.WafError('Variable substitution failure %r'%lst)
 def options(opt):
-	inst_dir=opt.add_option_group('Installation directories','By default, "waf install" will put the files in\
+	inst_dir=opt.add_option_group('Installation prefix','By default, "waf install" will put the files in\
  "/usr/local/bin", "/usr/local/lib" etc. An installation prefix other\
  than "/usr/local" can be given using "--prefix", for example "--prefix=$HOME"')
 	for k in('--prefix','--destdir'):
@@ -56,10 +57,10 @@ def options(opt):
 		if option:
 			opt.parser.remove_option(k)
 			inst_dir.add_option(option)
-	inst_dir.add_option('--exec-prefix',help='installation prefix [Default: ${PREFIX}]',default='',dest='EXEC_PREFIX')
-	dirs_options=opt.add_option_group('Pre-defined installation directories','')
+	inst_dir.add_option('--exec-prefix',help='installation prefix for binaries [PREFIX]',default='',dest='EXEC_PREFIX')
+	dirs_options=opt.add_option_group('Installation directories')
 	for name,help,default in _options:
 		option_name='--'+name
 		str_default=default
-		str_help='%s [Default: %s]'%(help,str_default)
+		str_help='%s [%s]'%(help,re.sub(r'\$\{([^}]+)\}',r'\1',str_default))
 		dirs_options.add_option(option_name,help=str_help,default='',dest=name.upper())
