@@ -1,6 +1,13 @@
 # vim:set syntax=python:
 
 uselib = []
+uselib += ['FFTW3', 'FFTW3F']
+uselib += ['SAMPLERATE']
+uselib += ['SNDFILE']
+uselib += ['AVCODEC']
+uselib += ['AVFORMAT']
+uselib += ['AVRESAMPLE']
+uselib += ['AVUTIL']
 uselib += ['JACK']
 
 utils_source = ['utils.c', 'jackio.c']

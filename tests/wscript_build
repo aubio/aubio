@@ -2,6 +2,14 @@
 
 for target_name in ctx.path.ant_glob('src/**/*.c'):
     uselib = []
+    uselib += ['FFTW3', 'FFTW3F']
+    uselib += ['SAMPLERATE']
+    uselib += ['SNDFILE']
+    uselib += ['AVCODEC']
+    uselib += ['AVFORMAT']
+    uselib += ['AVRESAMPLE']
+    uselib += ['AVUTIL']
+    uselib += ['JACK']
     includes = ['../src', '.']
     extra_source = []
 
