@@ -44,6 +44,11 @@ int main (int argc, char **argv)
   PRINT_MSG("read %d frames at %dHz (%d blocks) from %s\n", n_frames, samplerate,
     n_frames / hop_size, source_path);
 
+  // close the file (optional)
+  aubio_source_close(s);
+  // test closing the file a second time
+  aubio_source_close(s);
+
   del_fvec (vec);
   del_aubio_source (s);
 beach:
