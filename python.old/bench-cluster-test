@@ -1,9 +1,0 @@
-#! /usr/bin/python
-
-from aubio.bench.broadcast import *
-
-run_broadcast(remote_sync,'/home/testing')
-run_broadcast(remote_sync,'/home/testing','-n')
-run_broadcast(fetch_results,'/home/testing','-n')
-
-run_broadcast(remote_queue,'echo coucou')

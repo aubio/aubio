@@ -1,6 +1,0 @@
-# vim:set syntax=python:
-
-ctx.add_subdirs('aubio')
-# install headers
-for file in ['aubiocut', 'aubiopitch']:
-  ctx.install_as('${PREFIX}/bin/' + file, file, chmod = 0755)
