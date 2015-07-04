@@ -111,4 +111,3 @@ Contents
 
    installing
    python_module
-   python_api
