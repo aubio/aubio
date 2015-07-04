@@ -45,7 +45,7 @@ A few simple command line tools are included along with the library:
  - `aubionotes` emits midi-like notes, with an onset, a pitch, and a duration
  - `aubioquiet` extracts quiet and loud regions
 
-Additionaly, the python module comes with the following script:
+Additionally, the python module comes with the following script:
 
  - `aubiocut` slices sound files at onset or beat timestamps
 
