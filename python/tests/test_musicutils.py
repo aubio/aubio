@@ -1,8 +1,13 @@
 #! /usr/bin/env python
 
 from numpy.testing import TestCase
-from numpy.testing.utils import assert_almost_equal
-from aubio import window
+from numpy.testing.utils import assert_equal, assert_almost_equal
+from numpy import cos, arange
+from math import pi
+
+from aubio import window, level_lin
+
+from aubio import fvec
 
 class aubio_window(TestCase):
 
@@ -26,12 +31,29 @@ class aubio_window(TestCase):
             self.fail('non-integer window length does not raise a ValueError')
 
     def test_compute_hanning_1024(self):
-        from numpy import cos, arange
-        from math import pi
         size = 1024
         aubio_window = window("hanning", size)
         numpy_window = .5 - .5 * cos(2. * pi * arange(size) / size)
         assert_almost_equal(aubio_window, numpy_window)
+
+class aubio_level_lin(TestCase):
+    def test_accept_fvec(self):
+        level_lin(fvec(1024))
+
+    def test_fail_not_fvec(self):
+        try:
+            level_lin("default")
+        except ValueError, e:
+            pass
+        else:
+            self.fail('non-number input phase does not raise a TypeError')
+
+    def test_zeros_is_zeros(self):
+        assert_equal(level_lin(fvec(1024)), 0.)
+
+    def test_minus_ones_is_one(self):
+        from numpy import ones
+        assert_equal(level_lin(-ones(1024, dtype="float32")), 1.)
 
 if __name__ == '__main__':
     from unittest import main

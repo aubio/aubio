@@ -20,3 +20,33 @@ Py_aubio_window(PyObject *self, PyObject *args)
 
   return (PyObject *) PyAubio_CFvecToArray(window);
 }
+
+PyObject *
+Py_aubio_level_lin(PyObject *self, PyObject *args)
+{
+  PyObject *input;
+  fvec_t *vec;
+  PyObject *level_lin;
+
+  if (!PyArg_ParseTuple (args, "O:level_lin", &input)) {
+    PyErr_SetString (PyExc_ValueError, "failed parsing arguments");
+    return NULL;
+  }
+
+  if (input == NULL) {
+    return NULL;
+  }
+
+  vec = PyAubio_ArrayToCFvec (input);
+  if (vec == NULL) {
+    return NULL;
+  }
+
+  level_lin = Py_BuildValue("f", aubio_level_lin(vec));
+  if (level_lin == NULL) {
+    PyErr_SetString (PyExc_ValueError, "failed computing level_lin");
+    return NULL;
+  }
+
+  return level_lin;
+}
