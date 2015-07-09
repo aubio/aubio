@@ -46,6 +46,7 @@ aubio_extension = Extension("aubio._aubio", [
     "ext/aubiomodule.c",
     "ext/aubioproxy.c",
     "ext/ufuncs.c",
+    "ext/py-musicutils.c",
     "ext/py-cvec.c",
     # example without macro
     "ext/py-filter.c",

@@ -1,6 +1,7 @@
 #define PY_AUBIO_MODULE_MAIN
 #include "aubio-types.h"
 #include "aubio-generated.h"
+#include "py-musicutils.h"
 
 static char aubio_module_doc[] = "Python module for the aubio library";
 
@@ -239,6 +240,7 @@ static PyMethodDef aubio_methods[] = {
   {"alpha_norm", Py_alpha_norm, METH_VARARGS, Py_alpha_norm_doc},
   {"zero_crossing_rate", Py_zero_crossing_rate, METH_VARARGS, Py_zero_crossing_rate_doc},
   {"min_removal", Py_min_removal, METH_VARARGS, Py_min_removal_doc},
+  {"window", Py_aubio_window, METH_VARARGS, Py_aubio_window_doc},
   {NULL, NULL} /* Sentinel */
 };
 
