@@ -59,4 +59,16 @@ static char Py_aubio_silence_detection_doc[] = ""
 
 PyObject * Py_aubio_silence_detection(PyObject *self, PyObject *args);
 
+static char Py_aubio_level_detection_doc[] = ""
+"Get buffer level in dB SPL if over a given threshold, 1. otherwise.\n"
+"\n"
+"Example\n"
+"-------\n"
+"\n"
+">>> import numpy\n"""
+">>> level_detection(0.7*numpy.ones(1024, dtype=\"float32\"), -80)\n"
+"0";
+
+PyObject * Py_aubio_level_detection(PyObject *self, PyObject *args);
+
 #endif /* _PY_AUBIO_MUSICUTILS_H_ */

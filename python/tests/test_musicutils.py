@@ -5,7 +5,7 @@ from numpy.testing.utils import assert_equal, assert_almost_equal
 from numpy import cos, arange
 from math import pi
 
-from aubio import window, level_lin, db_spl, silence_detection
+from aubio import window, level_lin, db_spl, silence_detection, level_detection
 
 from aubio import fvec
 
@@ -94,6 +94,26 @@ class aubio_silence_detection(TestCase):
     def test_minus_ones_is_zero(self):
         from numpy import ones
         assert silence_detection(ones(1024, dtype="float32"), -70) == 0
+
+class aubio_level_detection(TestCase):
+    def test_accept_fvec(self):
+        level_detection(fvec(1024), -70.)
+
+    def test_fail_not_fvec(self):
+        try:
+            level_detection("default", -70)
+        except ValueError, e:
+            pass
+        else:
+            self.fail('non-number input phase does not raise a TypeError')
+
+    def test_zeros_is_one(self):
+        from math import isinf
+        assert level_detection(fvec(1024), -70) == 1
+
+    def test_minus_ones_is_zero(self):
+        from numpy import ones
+        assert level_detection(ones(1024, dtype="float32"), -70) == 0
 
 if __name__ == '__main__':
     from unittest import main

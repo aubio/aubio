@@ -111,3 +111,34 @@ Py_aubio_silence_detection(PyObject *self, PyObject *args)
 
   return silence_detection;
 }
+
+PyObject *
+Py_aubio_level_detection(PyObject *self, PyObject *args)
+{
+  PyObject *input;
+  fvec_t *vec;
+  PyObject *level_detection;
+  smpl_t threshold;
+
+  if (!PyArg_ParseTuple (args, "Of:level_detection", &input, &threshold)) {
+    PyErr_SetString (PyExc_ValueError, "failed parsing arguments");
+    return NULL;
+  }
+
+  if (input == NULL) {
+    return NULL;
+  }
+
+  vec = PyAubio_ArrayToCFvec (input);
+  if (vec == NULL) {
+    return NULL;
+  }
+
+  level_detection = Py_BuildValue("f", aubio_level_detection(vec, threshold));
+  if (level_detection == NULL) {
+    PyErr_SetString (PyExc_ValueError, "failed computing level_detection");
+    return NULL;
+  }
+
+  return level_detection;
+}
