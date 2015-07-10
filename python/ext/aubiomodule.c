@@ -241,6 +241,7 @@ static PyMethodDef aubio_methods[] = {
   {"zero_crossing_rate", Py_zero_crossing_rate, METH_VARARGS, Py_zero_crossing_rate_doc},
   {"min_removal", Py_min_removal, METH_VARARGS, Py_min_removal_doc},
   {"level_lin", Py_aubio_level_lin, METH_VARARGS, Py_aubio_level_lin_doc},
+  {"db_spl", Py_aubio_db_spl, METH_VARARGS, Py_aubio_db_spl_doc},
   {"window", Py_aubio_window, METH_VARARGS, Py_aubio_window_doc},
   {NULL, NULL} /* Sentinel */
 };

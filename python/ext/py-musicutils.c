@@ -50,3 +50,33 @@ Py_aubio_level_lin(PyObject *self, PyObject *args)
 
   return level_lin;
 }
+
+PyObject *
+Py_aubio_db_spl(PyObject *self, PyObject *args)
+{
+  PyObject *input;
+  fvec_t *vec;
+  PyObject *db_spl;
+
+  if (!PyArg_ParseTuple (args, "O:db_spl", &input)) {
+    PyErr_SetString (PyExc_ValueError, "failed parsing arguments");
+    return NULL;
+  }
+
+  if (input == NULL) {
+    return NULL;
+  }
+
+  vec = PyAubio_ArrayToCFvec (input);
+  if (vec == NULL) {
+    return NULL;
+  }
+
+  db_spl = Py_BuildValue("f", aubio_db_spl(vec));
+  if (db_spl == NULL) {
+    PyErr_SetString (PyExc_ValueError, "failed computing db_spl");
+    return NULL;
+  }
+
+  return db_spl;
+}

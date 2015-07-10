@@ -5,7 +5,7 @@ from numpy.testing.utils import assert_equal, assert_almost_equal
 from numpy import cos, arange
 from math import pi
 
-from aubio import window, level_lin
+from aubio import window, level_lin, db_spl
 
 from aubio import fvec
 
@@ -54,6 +54,26 @@ class aubio_level_lin(TestCase):
     def test_minus_ones_is_one(self):
         from numpy import ones
         assert_equal(level_lin(-ones(1024, dtype="float32")), 1.)
+
+class aubio_db_spl(TestCase):
+    def test_accept_fvec(self):
+        db_spl(fvec(1024))
+
+    def test_fail_not_fvec(self):
+        try:
+            db_spl("default")
+        except ValueError, e:
+            pass
+        else:
+            self.fail('non-number input phase does not raise a TypeError')
+
+    def test_zeros_is_inf(self):
+        from math import isinf
+        assert isinf(db_spl(fvec(1024)))
+
+    def test_minus_ones_is_zero(self):
+        from numpy import ones
+        assert_equal(db_spl(-ones(1024, dtype="float32")), 0.)
 
 if __name__ == '__main__':
     from unittest import main
