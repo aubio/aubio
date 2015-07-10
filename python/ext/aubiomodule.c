@@ -242,6 +242,7 @@ static PyMethodDef aubio_methods[] = {
   {"min_removal", Py_min_removal, METH_VARARGS, Py_min_removal_doc},
   {"level_lin", Py_aubio_level_lin, METH_VARARGS, Py_aubio_level_lin_doc},
   {"db_spl", Py_aubio_db_spl, METH_VARARGS, Py_aubio_db_spl_doc},
+  {"silence_detection", Py_aubio_silence_detection, METH_VARARGS, Py_aubio_silence_detection_doc},
   {"window", Py_aubio_window, METH_VARARGS, Py_aubio_window_doc},
   {NULL, NULL} /* Sentinel */
 };

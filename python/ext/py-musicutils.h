@@ -45,4 +45,18 @@ static char Py_aubio_db_spl_doc[] = ""
 
 PyObject * Py_aubio_db_spl(PyObject *self, PyObject *args);
 
+static char Py_aubio_silence_detection_doc[] = ""
+"Check if buffer level in dB SPL is under a given threshold\n"
+"\n"
+"Return 0 if level is under the given threshold, 1 otherwise.\n"
+"\n"
+"Example\n"
+"-------\n"
+"\n"
+">>> import numpy\n"""
+">>> silence_detection(numpy.ones(1024, dtype=\"float32\"), -80)\n"
+"0";
+
+PyObject * Py_aubio_silence_detection(PyObject *self, PyObject *args);
+
 #endif /* _PY_AUBIO_MUSICUTILS_H_ */
