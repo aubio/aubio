@@ -77,14 +77,13 @@ A number of distributions already include aubio. Check your favorite package
 management system, or have a look at the [download
 page](http://aubio.org/download).
 
-aubio uses [waf](https://code.google.com/p/waf/) to configure, compile, and
-test the source:
+aubio uses [waf](https://waf.io/) to configure, compile, and test the source:
 
     ./waf configure
     ./waf build
     sudo ./waf install
 
-aubio compiles on Linux, Mac OS X, Cygwin, and iPhone.
+aubio compiles on Linux, Mac OS X, Cygwin, and iOS.
 
 Credits and Publications
 ------------------------
