@@ -109,11 +109,9 @@ void aubio_tempo_do(aubio_tempo_t *o, fvec_t * input, fvec_t * tempo)
     if (o->blockpos == FLOOR(o->out->data[i])) {
       tempo->data[0] = o->out->data[i] - FLOOR(o->out->data[i]); /* set tactus */
       /* test for silence */
-      /*
       if (aubio_silence_detection(input, o->silence)==1) {
         tempo->data[0] = 0; // unset beat if silent
       }
-      */
       o->last_beat = o->total_frames + (uint_t)ROUND(tempo->data[0] * o->hop_size);
     }
   }
