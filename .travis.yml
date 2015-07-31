@@ -15,4 +15,4 @@ before_install:
   - sudo apt-get install -qq libfftw3-dev
 
 script:
-  - ./waf distclean configure build --alltests
+  - make distcheck
