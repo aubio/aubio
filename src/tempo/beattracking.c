@@ -330,7 +330,7 @@ aubio_beattracking_checkstate (aubio_beattracking_t * bt)
   //i.e. 3rd frame after flagstep initially set
   if (counter == 1 && flagstep == 1) {
     //check for consistency between previous beatperiod values
-    if (ABS (2. * rp - rp1 - rp2) < bt->g_var) {
+    if (ABS (2 * rp - rp1 - rp2) < bt->g_var) {
       //if true, can activate context dependent model
       flagconst = 1;
       counter = 0;              // reset counter and flagstep
