@@ -135,7 +135,11 @@ aubio_pitchyinfft_do (aubio_pitchyinfft_t * p, fvec_t * input, fvec_t * output)
     yin->data[tau] = sum - fftout->data[tau];
     // and the cumulative mean normalized difference function
     tmp += yin->data[tau];
-    yin->data[tau] *= tau / tmp;
+    if (tmp != 0) {
+      yin->data[tau] *= tau / tmp;
+    } else {
+      yin->data[tau] = 1.;
+    }
   }
   // find best candidates
   tau = fvec_min_elem (yin);
