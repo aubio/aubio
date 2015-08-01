@@ -16,4 +16,6 @@ before_install:
   - sudo apt-get install -qq libfftw3-dev
 
 script:
+  - make build
+  - make clean
   - make distcheck
