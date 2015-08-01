@@ -15,6 +15,9 @@ build: checkwaf
 	./waf configure
 	./waf build
 
+clean:
+	./waf clean
+
 distcheck: build
 	./waf distcheck
 
