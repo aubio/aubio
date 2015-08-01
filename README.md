@@ -83,6 +83,10 @@ aubio uses [waf](https://waf.io/) to configure, compile, and test the source:
     ./waf build
     sudo ./waf install
 
+If waf is not found in the directory, you can download and install it with:
+
+    make getwaf
+
 aubio compiles on Linux, Mac OS X, Cygwin, and iOS.
 
 Credits and Publications
