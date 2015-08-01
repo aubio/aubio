@@ -266,6 +266,7 @@ fvec_gettimesig (fvec_t * acf, uint_t acflen, uint_t gp)
 {
   sint_t k = 0;
   smpl_t three_energy = 0., four_energy = 0.;
+  if (gp < 2) return 4;
   if (acflen > 6 * gp + 2) {
     for (k = -2; k < 2; k++) {
       three_energy += acf->data[3 * gp + k];
