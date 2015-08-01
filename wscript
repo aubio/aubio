@@ -117,13 +117,12 @@ def configure(ctx):
 
     if target_platform in [ 'ios', 'iosimulator' ]:
         ctx.define('TARGET_OS_IPHONE', 1)
-        SDKVER="7.1"
         MINSDKVER="6.1"
         ctx.env.CFLAGS += ['-std=c99']
         if target_platform == 'ios':
             DEVROOT = "/Applications/Xcode.app/Contents"
             DEVROOT += "/Developer/Platforms/iPhoneOS.platform/Developer"
-            SDKROOT = "%(DEVROOT)s/SDKs/iPhoneOS%(SDKVER)s.sdk" % locals()
+            SDKROOT = "%(DEVROOT)s/SDKs/iPhoneOS.sdk" % locals()
             #ctx.env.CFLAGS += [ '-arch', 'arm64' ]
             ctx.env.CFLAGS += [ '-arch', 'armv7' ]
             ctx.env.CFLAGS += [ '-arch', 'armv7s' ]
@@ -135,7 +134,7 @@ def configure(ctx):
         else:
             DEVROOT = "/Applications/Xcode.app/Contents"
             DEVROOT += "/Developer/Platforms/iPhoneSimulator.platform/Developer"
-            SDKROOT = "%(DEVROOT)s/SDKs/iPhoneSimulator%(SDKVER)s.sdk" % locals()
+            SDKROOT = "%(DEVROOT)s/SDKs/iPhoneSimulator.sdk" % locals()
             ctx.env.CFLAGS += [ '-arch', 'i386' ]
             ctx.env.CFLAGS += [ '-arch', 'x86_64' ]
             ctx.env.LINKFLAGS += ['-arch', 'i386']
