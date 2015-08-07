@@ -15,6 +15,12 @@ build: checkwaf
 	./waf configure
 	./waf build
 
+build_python:
+	cd python && ./setup.py build
+
+clean_python:
+	cd python && ./setup.py clean
+
 clean:
 	./waf clean
 
