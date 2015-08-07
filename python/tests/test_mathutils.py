@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 
-from numpy.testing import TestCase, run_module_suite
-from numpy.testing import assert_equal, assert_almost_equal
+from numpy.testing import TestCase, assert_equal
 from numpy import array, arange, isnan, isinf
 from aubio import bintomidi, miditobin, freqtobin, bintofreq, freqtomidi, miditofreq
 from aubio import unwrap2pi
