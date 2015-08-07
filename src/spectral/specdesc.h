@@ -157,7 +157,7 @@ typedef struct _aubio_specdesc_t aubio_specdesc_t;
 
 /** execute spectral description function on a spectral frame
 
-  Generic function to compute spectral detescription.
+  Generic function to compute spectral description.
 
   \param o spectral description object as returned by new_aubio_specdesc()
   \param fftgrain input signal spectrum as computed by aubio_pvoc_do
