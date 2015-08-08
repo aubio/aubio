@@ -112,11 +112,11 @@ void aubio_cleanup (void);
 */
 smpl_t aubio_zero_crossing_rate (fvec_t * v);
 
-/** compute sound level on a linear
+/** compute sound level on a linear scale
 
   This gives the average of the square amplitudes.
 
-  \param v vector to compute dB SPL from
+  \param v vector to compute level from
 
   \return level of v
 
