@@ -317,11 +317,11 @@ aubio_pitch_set_tolerance (aubio_pitch_t * p, smpl_t tol)
 uint_t
 aubio_pitch_set_silence (aubio_pitch_t * p, smpl_t silence)
 {
-  if (silence < 0 && silence > -200) {
+  if (silence <= 0 && silence >= -200) {
     p->silence = silence;
     return AUBIO_OK;
   } else {
-    AUBIO_ERR("pitch: could do set silence to %.2f", silence);
+    AUBIO_ERR("pitch: could not set silence to %.2f", silence);
     return AUBIO_FAIL;
   }
 }
