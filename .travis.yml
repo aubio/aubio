@@ -1,5 +1,7 @@
 language: c
 
+sudo: false
+
 compiler:
   - gcc
   - clang
@@ -8,13 +10,16 @@ env:
   - ARCH=i386
   - ARCH=x86_64
 
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq bzip2
-  - sudo apt-get install -qq libsndfile1-dev libsamplerate-dev
-  - sudo apt-get install -qq libjack-dev libasound2-dev
-  - sudo apt-get install -qq libfftw3-dev
-  - sudo apt-get install -qq python-dev python-numpy
+addons:
+  apt:
+    packages:
+    - bzip2
+    - libsndfile1-dev
+    - libsamplerate-dev
+    - libjack-dev
+    - libasound2-dev
+    - libfftw3-dev
+    - python-dev python-numpy
 
 script:
   - make build
