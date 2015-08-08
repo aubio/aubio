@@ -19,7 +19,8 @@ addons:
     - libjack-dev
     - libasound2-dev
     - libfftw3-dev
-    - python-dev python-numpy
+    - python-dev
+    - python-numpy
 
 script:
   - make build
