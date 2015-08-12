@@ -48,7 +48,7 @@ char_t * pitch_unit = "default";
 char_t * pitch_method = "default";
 smpl_t pitch_tolerance = 0.0; // will be set if != 0.
 // time stuff
-char_t * time_format = "seconds";
+uint_t time_format = 0; // for "seconds", 1 for "ms", 2 for "samples"
 // tempo stuff
 char_t * tempo_method = "default";
 // more general stuff
@@ -209,9 +209,9 @@ send_noteon (int pitch, int velo)
 
 void print_time (uint_t time_in_samples) {
   /* output times in selected format */
-  if (strcmp (time_format, "samples") == 0) {
+  if (time_format == 2) {
     outmsg ("%d", time_in_samples);
-  } else if (strcmp (time_format, "ms") == 0) {
+  } else if (time_format == 1) {
     outmsg ("%f", 1000. * time_in_samples / (float) samplerate);
   } else {
     outmsg ("%f", time_in_samples / (float) samplerate);

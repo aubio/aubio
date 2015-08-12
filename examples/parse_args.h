@@ -35,7 +35,7 @@ extern char_t * pitch_method;
 extern char_t * pitch_unit;
 extern smpl_t pitch_tolerance;
 // time stuff
-extern char_t * time_format;
+extern uint_t time_format;
 // tempo stuff
 extern char_t * tempo_method;
 // more general stuff
@@ -208,7 +208,15 @@ parse_args (int argc, char **argv)
         pitch_tolerance = (smpl_t) atof (optarg);
         break;
       case 'T':
-        time_format = optarg;
+        if (strcmp (optarg, "samples") == 0) {
+          time_format = 2;
+        } else if (strcmp (optarg, "ms") == 0) {
+          time_format = 1;
+        } else if (strcmp (optarg, "seconds") == 0) {
+          time_format = 0;
+        } else {
+          errmsg ("Warning: did not get '%s' time-format string\n", optarg);
+        }
         break;
       case 's':                /* silence threshold */
         silence_threshold = (smpl_t) atof (optarg);
