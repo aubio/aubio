@@ -34,6 +34,8 @@ extern smpl_t onset_threshold;
 extern char_t * pitch_method;
 extern char_t * pitch_unit;
 extern smpl_t pitch_tolerance;
+// time stuff
+extern char_t * time_format;
 // tempo stuff
 extern char_t * tempo_method;
 // more general stuff
@@ -90,6 +92,8 @@ void usage (FILE * stream, int exit_code)
 #endif /* PROG_HAS_PITCH */
       "       -s      --silence          select silence threshold\n"
       "                 a value in dB, for instance -70, or -100; default=-90\n"
+      "       -T      --time-format      select time values output format\n"
+      "                 (samples, ms, seconds) default=seconds\n"
 #ifdef PROG_HAS_OUTPUT
       "       -m      --mix-input        mix input signal with output signal\n"
       "                 input signal will be added to output synthesis\n"
@@ -122,6 +126,7 @@ parse_args (int argc, char **argv)
 #ifdef PROG_HAS_PITCH
     "p:u:l:"
 #endif /* PROG_HAS_PITCH */
+    "T:"
     "s:mf";
   int next_option;
   struct option long_options[] = {
@@ -147,6 +152,7 @@ parse_args (int argc, char **argv)
     {"pitch-tolerance",       1, NULL, 'l'},
 #endif /* PROG_HAS_PITCH */
     {"silence",               1, NULL, 's'},
+    {"time-format",           1, NULL, 'T'},
     {"mix-input",             0, NULL, 'm'},
     {"force-overwrite",       0, NULL, 'f'},
     {NULL,                    0, NULL, 0}
@@ -200,6 +206,9 @@ parse_args (int argc, char **argv)
         break;
       case 'l':
         pitch_tolerance = (smpl_t) atof (optarg);
+        break;
+      case 'T':
+        time_format = optarg;
         break;
       case 's':                /* silence threshold */
         silence_threshold = (smpl_t) atof (optarg);

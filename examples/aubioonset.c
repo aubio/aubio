@@ -49,7 +49,13 @@ void process_block(fvec_t *ibuf, fvec_t *obuf)
 void process_print (void)
 {
   if ( is_onset ) {
-    outmsg ("%f\n", aubio_onset_get_last_s (o) );
+    if (strcmp (time_format, "samples") == 0) {
+      outmsg ("%d\n", aubio_onset_get_last (o) );
+    } else if (strcmp (time_format, "ms") == 0) {
+      outmsg ("%f\n", aubio_onset_get_last_ms (o) );
+    } else {
+      outmsg ("%f\n", aubio_onset_get_last_s (o) );
+    }
   }
 }
 

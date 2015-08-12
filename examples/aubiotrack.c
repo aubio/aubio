@@ -50,7 +50,8 @@ void process_block(fvec_t * ibuf, fvec_t *obuf) {
 
 void process_print (void) {
   if ( is_beat && !is_silence ) {
-    outmsg("%f\n", aubio_tempo_get_last_s(tempo) );
+    print_time (aubio_tempo_get_last (tempo));
+    outmsg ("\n");
   }
 }
 

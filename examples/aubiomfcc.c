@@ -40,9 +40,11 @@ void process_block (fvec_t *ibuf, fvec_t *obuf)
 
 void process_print (void)
 {
-  /* output times in seconds and extracted mfccs */
-  outmsg("%f\t",blocks*hop_size/(float)samplerate);
-  fvec_print(mfcc_out);
+  /* output times in selected format */
+  print_time (blocks * hop_size);
+  outmsg ("\t");
+  /* output extracted mfcc */
+  fvec_print (mfcc_out);
 }
 
 int main(int argc, char **argv) {
