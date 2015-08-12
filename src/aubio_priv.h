@@ -217,6 +217,11 @@ typedef enum {
 #define SAFE_LOG10(f) LOG10(CEIL_DENORMAL(f))
 #define SAFE_LOG(f)   LOG(CEIL_DENORMAL(f))
 
+/** silence unused parameter warning by adding an attribute */
+#if defined(__GNUC__)
 #define UNUSED __attribute__((unused))
+#else
+#define UNUSED
+#endif
 
 #endif /* _AUBIO__PRIV_H */
