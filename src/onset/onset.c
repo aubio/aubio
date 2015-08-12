@@ -23,6 +23,7 @@
 #include "cvec.h"
 #include "spectral/specdesc.h"
 #include "spectral/phasevoc.h"
+#include "spectral/awhitening.h"
 #include "onset/peakpicker.h"
 #include "mathutils.h"
 #include "onset/onset.h"
@@ -42,6 +43,9 @@ struct _aubio_onset_t {
 
   uint_t total_frames;          /**< total number of frames processed since the beginning */
   uint_t last_onset;            /**< last detected onset location, in frames */
+
+  uint_t apply_adaptive_whitening;
+  aubio_spectral_whitening_t *spectral_whitening;
 };
 
 /* execute onset detection function on iput buffer */
@@ -49,6 +53,15 @@ void aubio_onset_do (aubio_onset_t *o, fvec_t * input, fvec_t * onset)
 {
   smpl_t isonset = 0;
   aubio_pvoc_do (o->pv,input, o->fftgrain);
+  /*
+  if (apply_filtering) {
+  }
+  if (apply_compression) {
+  }
+  */
+  if (o->apply_adaptive_whitening) {
+    aubio_spectral_whitening_do(o->spectral_whitening, o->fftgrain);
+  }
   aubio_specdesc_do (o->od, o->fftgrain, o->desc);
   aubio_peakpicker_do(o->pp, o->desc, onset);
   isonset = onset->data[0];
@@ -209,6 +222,9 @@ aubio_onset_t * new_aubio_onset (char_t * onset_mode,
   aubio_onset_set_minioi_ms(o, 20.);
   aubio_onset_set_silence(o, -70.);
 
+  o->spectral_whitening = new_aubio_spectral_whitening(buf_size, hop_size, samplerate);
+  o->apply_adaptive_whitening = 1;
+
   /* initialize internal variables */
   o->last_onset = 0;
   o->total_frames = 0;
@@ -221,6 +237,7 @@ beach:
 
 void del_aubio_onset (aubio_onset_t *o)
 {
+  del_aubio_spectral_whitening(o->spectral_whitening);
   del_aubio_specdesc(o->od);
   del_aubio_peakpicker(o->pp);
   del_aubio_pvoc(o->pv);
