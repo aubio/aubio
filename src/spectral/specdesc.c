@@ -118,7 +118,7 @@ void aubio_specdesc_complex (aubio_specdesc_t *o, cvec_t * fftgrain, fvec_t * on
     // sqrt ( r_1^2 + r_2^2 - 2 * r_1 * r_2 * \cos ( \phi_1 - \phi_2 ) )
     onset->data[0] +=
       SQRT (ABS (SQR (o->oldmag->data[j]) + SQR (fftgrain->norm[j])
-            - 2. * o->oldmag->data[j] * fftgrain->norm[j]
+            - 2 * o->oldmag->data[j] * fftgrain->norm[j]
             * COS (o->dev1->data[j] - fftgrain->phas[j])));
     /* swap old phase data (need to remember 2 frames behind)*/
     o->theta2->data[j] = o->theta1->data[j];

@@ -1,6 +1,13 @@
 # vim:set syntax=python:
 
 uselib = []
+uselib += ['FFTW3', 'FFTW3F']
+uselib += ['SAMPLERATE']
+uselib += ['SNDFILE']
+uselib += ['AVCODEC']
+uselib += ['AVFORMAT']
+uselib += ['AVRESAMPLE']
+uselib += ['AVUTIL']
 uselib += ['JACK']
 
 utils_source = ['utils.c', 'jackio.c']
@@ -19,6 +26,7 @@ for source_file in programs_source:
             includes = '../src',
             lib = 'm',
             use = ['aubio', 'utilsio'],
+            uselib = uselib,
             source = source_file,
             target = str(source_file).split('.')[0]
             )

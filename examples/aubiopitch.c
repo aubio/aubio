@@ -46,8 +46,8 @@ void process_block(fvec_t * ibuf, fvec_t * obuf)
 void process_print (void)
 {
   smpl_t pitch_found = fvec_get_sample(pitch, 0);
-  outmsg("%f %f\n",(blocks)
-      *hop_size/(float)samplerate, pitch_found);
+  print_time(blocks * hop_size);
+  outmsg(" %f\n", pitch_found);
 }
 
 int main(int argc, char **argv) {

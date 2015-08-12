@@ -141,15 +141,17 @@ uint_t aubio_sink_sndfile_open(aubio_sink_sndfile_t *s) {
 
 void aubio_sink_sndfile_do(aubio_sink_sndfile_t *s, fvec_t * write_data, uint_t write){
   uint_t i, j,	channels = s->channels;
-  int nsamples = channels*write;
+  int nsamples = 0;
   smpl_t *pwrite;
   sf_count_t written_frames;
 
   if (write > s->max_size) {
-    AUBIO_WRN("trying to write %d frames, but only %d can be written at a time",
+    AUBIO_WRN("sink_sndfile: trying to write %d frames, but only %d can be written at a time\n",
       write, s->max_size);
     write = s->max_size;
   }
+
+  nsamples = channels * write;
 
   /* interleaving data  */
   for ( i = 0; i < channels; i++) {
@@ -161,7 +163,7 @@ void aubio_sink_sndfile_do(aubio_sink_sndfile_t *s, fvec_t * write_data, uint_t 
 
   written_frames = sf_write_float (s->handle, s->scratch_data, nsamples);
   if (written_frames/channels != write) {
-    AUBIO_WRN("sink_sndfile: trying to write %d frames to %s, but only %d could be written",
+    AUBIO_WRN("sink_sndfile: trying to write %d frames to %s, but only %d could be written\n",
       write, s->path, (uint_t)written_frames);
   }
   return;
@@ -169,15 +171,17 @@ void aubio_sink_sndfile_do(aubio_sink_sndfile_t *s, fvec_t * write_data, uint_t 
 
 void aubio_sink_sndfile_do_multi(aubio_sink_sndfile_t *s, fmat_t * write_data, uint_t write){
   uint_t i, j,	channels = s->channels;
-  int nsamples = channels*write;
+  int nsamples = 0;
   smpl_t *pwrite;
   sf_count_t written_frames;
 
   if (write > s->max_size) {
-    AUBIO_WRN("trying to write %d frames, but only %d can be written at a time",
+    AUBIO_WRN("sink_sndfile: trying to write %d frames, but only %d can be written at a time\n",
       write, s->max_size);
     write = s->max_size;
   }
+
+  nsamples = channels * write;
 
   /* interleaving data  */
   for ( i = 0; i < write_data->height; i++) {
@@ -189,7 +193,7 @@ void aubio_sink_sndfile_do_multi(aubio_sink_sndfile_t *s, fmat_t * write_data, u
 
   written_frames = sf_write_float (s->handle, s->scratch_data, nsamples);
   if (written_frames/channels != write) {
-    AUBIO_WRN("sink_sndfile: trying to write %d frames to %s, but only %d could be written",
+    AUBIO_WRN("sink_sndfile: trying to write %d frames to %s, but only %d could be written\n",
       write, s->path, (uint_t)written_frames);
   }
   return;

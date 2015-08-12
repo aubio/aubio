@@ -92,7 +92,7 @@ aubio_source_wavread_t * new_aubio_source_wavread(char_t * path, uint_t samplera
 
   s->fid = fopen((const char *)path, "rb");
   if (!s->fid) {
-    AUBIO_ERR("source_wavread: could not open %s (%s)\n", s->path, strerror(errno));
+    AUBIO_ERR("source_wavread: Failed opening %s (System error: %s)\n", s->path, strerror(errno));
     goto beach;
   }
 
@@ -219,10 +219,11 @@ aubio_source_wavread_t * new_aubio_source_wavread(char_t * path, uint_t samplera
   if ( bytes_read != bytes_expected ) {
 #ifndef HAVE_WIN_HACKS
     AUBIO_ERR("source_wavread: short read (%zd instead of %zd) in %s\n",
+        bytes_read, bytes_expected, s->path);
 #else // mingw does not know about %zd...
     AUBIO_ERR("source_wavread: short read (%d instead of %d) in %s\n",
+        (int)bytes_read, (int)bytes_expected, s->path);
 #endif
-        bytes_read, bytes_expected, s->path);
     goto beach;
   }
   s->seek_start = bytes_read;
@@ -355,10 +356,19 @@ uint_t aubio_source_wavread_get_channels(aubio_source_wavread_t * s) {
 }
 
 uint_t aubio_source_wavread_seek (aubio_source_wavread_t * s, uint_t pos) {
-  uint_t ret = fseek(s->fid, s->seek_start + pos * s->blockalign, SEEK_SET);
+  uint_t ret = 0;
+  if ((sint_t)pos < 0) {
+    return AUBIO_FAIL;
+  }
+  ret = fseek(s->fid, s->seek_start + pos * s->blockalign, SEEK_SET);
+  if (ret != 0) {
+    AUBIO_ERR("source_wavread: could not seek %s at %d (%s)\n", s->path, pos, strerror(errno));
+    return AUBIO_FAIL;
+  }
+  // reset some values
   s->eof = 0;
   s->read_index = 0;
-  return ret;
+  return AUBIO_OK;
 }
 
 uint_t aubio_source_wavread_close (aubio_source_wavread_t * s) {

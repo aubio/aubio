@@ -233,14 +233,14 @@ sint_t aubio_audio_unit_init (aubio_audio_unit_t *o)
   audioFormat.mSampleRate = (Float64)samplerate;
   audioFormat.mChannelsPerFrame = 2;
   audioFormat.mFormatID = kAudioFormatLinearPCM;
-  audioFormat.mFormatFlags = kAudioFormatFlagsCanonical;
+  audioFormat.mFormatFlags = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagsNativeEndian | kAudioFormatFlagIsPacked;
   audioFormat.mFramesPerPacket = 1;
-  audioFormat.mBitsPerChannel = 8 * sizeof(AudioSampleType);
+  audioFormat.mBitsPerChannel = 8 * sizeof(SInt16);
 #if 1  // interleaving
-  audioFormat.mBytesPerFrame = 2 * sizeof(AudioSampleType);
-  audioFormat.mBytesPerPacket = 2 * sizeof(AudioSampleType);
+  audioFormat.mBytesPerFrame = 2 * sizeof(SInt16);
+  audioFormat.mBytesPerPacket = 2 * sizeof(SInt16);
 #else
-  audioFormat.mBytesPerPacket = audioFormat.mBytesPerFrame = sizeof(AudioUnitSampleType);
+  audioFormat.mBytesPerPacket = audioFormat.mBytesPerFrame = sizeof(SInt32);
   audioFormat.mFormatFlags |= kAudioFormatFlagIsNonInterleaved;
 #endif
 

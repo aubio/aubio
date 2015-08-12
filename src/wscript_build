@@ -20,7 +20,7 @@ ctx(features = 'c',
 
 # build libaubio.so (cshlib) and/or libaubio.a (cstlib)
 if ctx.env['DEST_OS'] in ['ios', 'iosimulator']:
-    build_features = ['cstlib']
+    build_features = ['cstlib', 'cshlib']
 elif ctx.env['DEST_OS'] in ['win32', 'win64']:
     build_features = ['cshlib']
 else: #linux, darwin, android, mingw, ...
@@ -29,9 +29,9 @@ else: #linux, darwin, android, mingw, ...
 for target in build_features:
     ctx(features = 'c ' + target,
             use = ['lib_objects'],
+            uselib = uselib,
             lib = 'm',
             target = 'aubio',
-            install_path = '${PREFIX}/lib',
             vnum = ctx.env['LIB_VERSION'])
 
 # install headers, except _priv.h ones

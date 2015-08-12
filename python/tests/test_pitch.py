@@ -67,13 +67,35 @@ class aubio_pitch_Sinusoid(TestCase):
         pitches = pitches[2:]
         errors = errors[2:]
         # check that the mean of all relative errors is less than 10%
-        assert abs (mean(errors) ) < 0.1, pitches
-        assert abs (mean(errors) ) < 0.1, "error is bigger than 0.1 (%f)" % mean(errors)
+        #assert abs (mean(errors) ) < 0.1, pitches
+        assert abs (median(errors) ) < 0.06, "median of relative errors is bigger than 0.06 (%f)\n found %s\n errors %s" % (mean(errors), pitches, errors)
         #print 'len(pitches), cut:', len(pitches), cut
-        #print 'mean errors: ', mean(errors), 'mean pitches: ', mean(pitches)
+        #print 'median errors: ', median(errors), 'median pitches: ', median(pitches)
 
 pitch_algorithms = [ "default", "yinfft", "yin", "schmitt", "mcomb", "fcomb" , "specacf" ]
+pitch_algorithms = [ "default", "yinfft", "yin", "schmitt", "mcomb", "fcomb" ]
 
+#freqs = [ 27.5, 55., 110., 220., 440., 880., 1760., 3520. ]
+freqs = [             110., 220., 440., 880., 1760., 3520. ]
+signal_modes = []
+for freq in freqs:
+    signal_modes += [
+        ( 4096,  2048, 44100, freq ),
+        ( 2048,  512, 44100, freq ),
+        ( 2048, 1024, 44100, freq ),
+        ( 2048, 1024, 32000, freq ),
+        ]
+
+freqs = [ ] #55., 110., 220., 440., 880., 1760., 3520. ]
+for freq in freqs:
+    signal_modes += [
+        ( 2048, 1024, 22050, freq ),
+        ( 1024,  256, 16000, freq ),
+        ( 1024,  256, 8000,  freq ),
+        ( 1024, 512+256, 8000, freq ),
+        ]
+
+"""
 signal_modes = [
         ( 4096,  512, 44100, 2.*882. ),
         ( 4096,  512, 44100, 882. ),
@@ -87,6 +109,7 @@ signal_modes = [
         ( 1024,  256, 8000,  440. ),
         ( 1024, 512+256, 8000, 440. ),
         ]
+"""
 
 def create_test (algo, mode):
     def do_test_pitch(self):
@@ -96,7 +119,7 @@ def create_test (algo, mode):
 for algo in pitch_algorithms:
     for mode in signal_modes:
         test_method = create_test (algo, mode)
-        test_method.__name__ = 'test_pitch_%s_%d_%d_%dHz_sin_%.2f' % ( algo,
+        test_method.__name__ = 'test_pitch_%s_%d_%d_%dHz_sin_%.0f' % ( algo,
                 mode[0], mode[1], mode[2], mode[3] )
         setattr (aubio_pitch_Sinusoid, test_method.__name__, test_method)
 

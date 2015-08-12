@@ -1,12 +1,83 @@
 #define PY_AUBIO_MODULE_MAIN
 #include "aubio-types.h"
 #include "aubio-generated.h"
+#include "py-musicutils.h"
+
+static char aubio_module_doc[] = "Python module for the aubio library";
+
+static char Py_alpha_norm_doc[] = ""
+"alpha_norm(fvec, integer) -> float\n"
+"\n"
+"Compute alpha normalisation factor on vector, given alpha\n"
+"\n"
+"Example\n"
+"-------\n"
+"\n"
+">>> b = alpha_norm(a, 9)";
+
+static char Py_bintomidi_doc[] = ""
+"bintomidi(float, samplerate = integer, fftsize = integer) -> float\n"
+"\n"
+"Convert bin (float) to midi (float), given the sampling rate and the FFT size\n"
+"\n"
+"Example\n"
+"-------\n"
+"\n"
+">>> midi = bintomidi(float, samplerate = 44100, fftsize = 1024)";
+
+static char Py_miditobin_doc[] = ""
+"miditobin(float, samplerate = integer, fftsize = integer) -> float\n"
+"\n"
+"Convert midi (float) to bin (float), given the sampling rate and the FFT size\n"
+"\n"
+"Example\n"
+"-------\n"
+"\n"
+">>> bin = miditobin(midi, samplerate = 44100, fftsize = 1024)";
+
+static char Py_bintofreq_doc[] = ""
+"bintofreq(float, samplerate = integer, fftsize = integer) -> float\n"
+"\n"
+"Convert bin number (float) in frequency (Hz), given the sampling rate and the FFT size\n"
+"\n"
+"Example\n"
+"-------\n"
+"\n"
+">>> freq = bintofreq(bin, samplerate = 44100, fftsize = 1024)";
+
+static char Py_freqtobin_doc[] = ""
+"freqtobin(float, samplerate = integer, fftsize = integer) -> float\n"
+"\n"
+"Convert frequency (Hz) in bin number (float), given the sampling rate and the FFT size\n"
+"\n"
+"Example\n"
+"-------\n"
+"\n"
+">>> bin = freqtobin(freq, samplerate = 44100, fftsize = 1024)";
+
+static char Py_zero_crossing_rate_doc[] = ""
+"zero_crossing_rate(fvec) -> float\n"
+"\n"
+"Compute Zero crossing rate of a vector\n"
+"\n"
+"Example\n"
+"-------\n"
+"\n"
+">>> z = zero_crossing_rate(a)";
+
+static char Py_min_removal_doc[] = ""
+"min_removal(fvec) -> float\n"
+"\n"
+"Remove the minimum value of a vector, in-place modification\n"
+"\n"
+"Example\n"
+"-------\n"
+"\n"
+">>> min_removal(a)";
 
 extern void add_generated_objects ( PyObject *m );
 extern void add_ufuncs ( PyObject *m );
 extern int generated_types_ready(void);
-
-static char Py_alpha_norm_doc[] = "compute alpha normalisation factor";
 
 static PyObject *
 Py_alpha_norm (PyObject * self, PyObject * args)
@@ -39,8 +110,6 @@ Py_alpha_norm (PyObject * self, PyObject * args)
   return result;
 }
 
-static char Py_bintomidi_doc[] = "convert bin to midi";
-
 static PyObject *
 Py_bintomidi (PyObject * self, PyObject * args)
 {
@@ -55,8 +124,6 @@ Py_bintomidi (PyObject * self, PyObject * args)
 
   return (PyObject *)PyFloat_FromDouble (output);
 }
-
-static char Py_miditobin_doc[] = "convert midi to bin";
 
 static PyObject *
 Py_miditobin (PyObject * self, PyObject * args)
@@ -73,8 +140,6 @@ Py_miditobin (PyObject * self, PyObject * args)
   return (PyObject *)PyFloat_FromDouble (output);
 }
 
-static char Py_bintofreq_doc[] = "convert bin to freq";
-
 static PyObject *
 Py_bintofreq (PyObject * self, PyObject * args)
 {
@@ -90,8 +155,6 @@ Py_bintofreq (PyObject * self, PyObject * args)
   return (PyObject *)PyFloat_FromDouble (output);
 }
 
-static char Py_freqtobin_doc[] = "convert freq to bin";
-
 static PyObject *
 Py_freqtobin (PyObject * self, PyObject * args)
 {
@@ -106,8 +169,6 @@ Py_freqtobin (PyObject * self, PyObject * args)
 
   return (PyObject *)PyFloat_FromDouble (output);
 }
-
-static char Py_zero_crossing_rate_doc[] = "compute zero crossing rate";
 
 static PyObject *
 Py_zero_crossing_rate (PyObject * self, PyObject * args)
@@ -138,8 +199,6 @@ Py_zero_crossing_rate (PyObject * self, PyObject * args)
 
   return result;
 }
-
-static char Py_min_removal_doc[] = "compute zero crossing rate";
 
 static PyObject *
 Py_min_removal(PyObject * self, PyObject * args)
@@ -181,10 +240,13 @@ static PyMethodDef aubio_methods[] = {
   {"alpha_norm", Py_alpha_norm, METH_VARARGS, Py_alpha_norm_doc},
   {"zero_crossing_rate", Py_zero_crossing_rate, METH_VARARGS, Py_zero_crossing_rate_doc},
   {"min_removal", Py_min_removal, METH_VARARGS, Py_min_removal_doc},
+  {"level_lin", Py_aubio_level_lin, METH_VARARGS, Py_aubio_level_lin_doc},
+  {"db_spl", Py_aubio_db_spl, METH_VARARGS, Py_aubio_db_spl_doc},
+  {"silence_detection", Py_aubio_silence_detection, METH_VARARGS, Py_aubio_silence_detection_doc},
+  {"level_detection", Py_aubio_level_detection, METH_VARARGS, Py_aubio_level_detection_doc},
+  {"window", Py_aubio_window, METH_VARARGS, Py_aubio_window_doc},
   {NULL, NULL} /* Sentinel */
 };
-
-static char aubio_module_doc[] = "Python module for the aubio library";
 
 PyMODINIT_FUNC
 init_aubio (void)

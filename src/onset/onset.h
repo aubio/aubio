@@ -125,6 +125,15 @@ smpl_t aubio_onset_get_last_ms (aubio_onset_t *o);
 */
 uint_t aubio_onset_set_silence(aubio_onset_t * o, smpl_t silence);
 
+/** get onset detection silence threshold
+
+  \param o onset detection object as returned by new_aubio_onset()
+
+  \return current silence threshold
+
+*/
+smpl_t aubio_onset_get_silence(aubio_onset_t * o);
+
 /** get onset detection function
 
   \param o onset detection object as returned by new_aubio_onset()

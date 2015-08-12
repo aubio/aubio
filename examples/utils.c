@@ -47,6 +47,8 @@ smpl_t onset_threshold = 0.0; // will be set if != 0.
 char_t * pitch_unit = "default";
 char_t * pitch_method = "default";
 smpl_t pitch_tolerance = 0.0; // will be set if != 0.
+// time stuff
+uint_t time_format = 0; // for "seconds", 1 for "ms", 2 for "samples"
 // tempo stuff
 char_t * tempo_method = "default";
 // more general stuff
@@ -196,9 +198,22 @@ send_noteon (int pitch, int velo)
   } else
 #endif
   if (velo == 0) {
-    outmsg ("%f\n", blocks * hop_size / (float) samplerate);
+    print_time (blocks * hop_size);
+    outmsg ("\n");
   } else {
-    outmsg ("%f\t%f\t", mpitch, blocks * hop_size / (float) samplerate);
+    outmsg ("%f\t", mpitch);
+    print_time (blocks * hop_size);
+    outmsg ("\t");
   }
 }
 
+void print_time (uint_t time_in_samples) {
+  /* output times in selected format */
+  if (time_format == 2) {
+    outmsg ("%d", time_in_samples);
+  } else if (time_format == 1) {
+    outmsg ("%f", 1000. * time_in_samples / (float) samplerate);
+  } else {
+    outmsg ("%f", time_in_samples / (float) samplerate);
+  }
+}

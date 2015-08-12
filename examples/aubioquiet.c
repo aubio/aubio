@@ -38,10 +38,14 @@ void process_block(fvec_t * ibuf, fvec_t * obuf) {
 
 void process_print (void) {
   int curblocks = (blocks - 4) > 0 ? blocks - 4 : 0;
-  if (issilence == -1) {
-    outmsg("NOISY: %f\n",curblocks*hop_size/(float)samplerate);
-  } else if (issilence == 2) {
-    outmsg("QUIET: %f\n",curblocks*hop_size/(float)samplerate);
+  if (issilence == -1 || issilence == 2) {
+    if (issilence == -1) {
+      outmsg ("NOISY: ");
+    } else { // if (issilence == 2) {
+      outmsg ("QUIET: ");
+    }
+    print_time (curblocks * hop_size);
+    outmsg ("\n");
   }
 }
 

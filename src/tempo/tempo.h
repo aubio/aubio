@@ -93,6 +93,15 @@ smpl_t aubio_tempo_get_last_ms (aubio_tempo_t *o);
 */
 uint_t aubio_tempo_set_silence(aubio_tempo_t * o, smpl_t silence);
 
+/** get tempo detection silence threshold
+
+  \param o tempo detection object as returned by new_aubio_tempo()
+
+  \return current silence threshold
+
+*/
+smpl_t aubio_tempo_get_silence(aubio_tempo_t * o);
+
 /** set tempo detection peak picking threshold
 
   \param o beat tracking object
@@ -102,6 +111,15 @@ uint_t aubio_tempo_set_silence(aubio_tempo_t * o, smpl_t silence);
 
 */
 uint_t aubio_tempo_set_threshold(aubio_tempo_t * o, smpl_t threshold);
+
+/** get tempo peak picking threshold
+
+  \param o tempo detection object as returned by new_aubio_tempo()
+
+  \return current tempo detection threshold
+
+*/
+smpl_t aubio_tempo_get_threshold(aubio_tempo_t * o);
 
 /** get current tempo
 

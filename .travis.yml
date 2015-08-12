@@ -1,0 +1,30 @@
+language: c
+
+sudo: false
+
+compiler:
+  - gcc
+  - clang
+
+env:
+  - ARCH=i386
+  - ARCH=x86_64
+
+addons:
+  apt:
+    packages:
+    - bzip2
+    - libsndfile1-dev
+    - libsamplerate-dev
+    - libjack-dev
+    - libasound2-dev
+    - libfftw3-dev
+    - python-dev
+    - python-numpy
+
+script:
+  - make build
+  - make build_python
+  - make clean_python
+  - make clean
+  - make distcheck

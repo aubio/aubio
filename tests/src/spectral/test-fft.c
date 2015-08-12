@@ -2,7 +2,8 @@
 
 int main (void)
 {
-  uint_t win_s = 8; // window size
+  uint_t i, n_iters = 100; // number of iterations
+  uint_t win_s = 500; // window size
   fvec_t * in = new_fvec (win_s); // input buffer
   cvec_t * fftgrain = new_cvec (win_s); // fft norm and phase
   fvec_t * out = new_fvec (win_s); // output buffer
@@ -18,17 +19,19 @@ int main (void)
   in->data[5] = 6;
   in->data[6] = 5;
   in->data[7] = 6;
-  fvec_print(in);
+  //fvec_print(in);
 
-  // execute stft
-  aubio_fft_do (fft,in,fftgrain);
-  cvec_print(fftgrain);
+  for (i = 0; i < n_iters; i++) {
+    // execute stft
+    aubio_fft_do (fft,in,fftgrain);
+    cvec_print(fftgrain);
 
-  // execute inverse fourier transform
-  aubio_fft_rdo(fft,fftgrain,out);
+    // execute inverse fourier transform
+    aubio_fft_rdo(fft,fftgrain,out);
+  }
 
   // cleam up
-  fvec_print(out);
+  //fvec_print(out);
   del_aubio_fft(fft);
   del_fvec(in);
   del_cvec(fftgrain);

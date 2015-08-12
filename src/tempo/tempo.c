@@ -109,11 +109,9 @@ void aubio_tempo_do(aubio_tempo_t *o, fvec_t * input, fvec_t * tempo)
     if (o->blockpos == FLOOR(o->out->data[i])) {
       tempo->data[0] = o->out->data[i] - FLOOR(o->out->data[i]); /* set tactus */
       /* test for silence */
-      /*
       if (aubio_silence_detection(input, o->silence)==1) {
         tempo->data[0] = 0; // unset beat if silent
       }
-      */
       o->last_beat = o->total_frames + (uint_t)ROUND(tempo->data[0] * o->hop_size);
     }
   }
@@ -150,10 +148,18 @@ uint_t aubio_tempo_set_silence(aubio_tempo_t * o, smpl_t silence) {
   return AUBIO_OK;
 }
 
+smpl_t aubio_tempo_get_silence(aubio_tempo_t * o) {
+  return o->silence;
+}
+
 uint_t aubio_tempo_set_threshold(aubio_tempo_t * o, smpl_t threshold) {
   o->threshold = threshold;
   aubio_peakpicker_set_threshold(o->pp, o->threshold);
   return AUBIO_OK;
+}
+
+smpl_t aubio_tempo_get_threshold(aubio_tempo_t * o) {
+  return o->threshold;
 }
 
 /* Allocate memory for an tempo detection */
@@ -163,8 +169,24 @@ aubio_tempo_t * new_aubio_tempo (char_t * tempo_mode,
   aubio_tempo_t * o = AUBIO_NEW(aubio_tempo_t);
   char_t specdesc_func[20];
   o->samplerate = samplerate;
+  // check parameters are valid
+  if ((sint_t)hop_size < 1) {
+    AUBIO_ERR("tempo: got hop size %d, but can not be < 1\n", hop_size);
+    goto beach;
+  } else if ((sint_t)buf_size < 1) {
+    AUBIO_ERR("tempo: got window size %d, but can not be < 1\n", buf_size);
+    goto beach;
+  } else if (buf_size < hop_size) {
+    AUBIO_ERR("tempo: hop size (%d) is larger than window size (%d)\n", buf_size, hop_size);
+    goto beach;
+  } else if ((sint_t)samplerate < 1) {
+    AUBIO_ERR("tempo: samplerate (%d) can not be < 1\n", samplerate);
+    goto beach;
+  }
+
   /* length of observations, worth about 6 seconds */
   o->winlen = aubio_next_power_of_two(5.8 * samplerate / hop_size);
+  if (o->winlen < 4) o->winlen = 4;
   o->step = o->winlen/4;
   o->blockpos = 0;
   o->threshold = 0.3;
@@ -193,6 +215,10 @@ aubio_tempo_t * new_aubio_tempo (char_t * tempo_mode,
     onset2 = new_fvec(1);
   }*/
   return o;
+
+beach:
+  AUBIO_FREE(o);
+  return NULL;
 }
 
 smpl_t aubio_tempo_get_bpm(aubio_tempo_t *o) {

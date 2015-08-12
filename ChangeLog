@@ -1,3 +1,62 @@
+2015-08-01 Paul Brossier <piem@aubio.org>
+
+	[ Interface ]
+	* src/onset/onset.h: add aubio_onset_get_silence(), fix description of
+	aubio_onset_get/set_delay functions
+	* src/tempo/tempo.h: add aubio_tempo_get_silence and aubio_tempo_get_threshold
+
+	[ Library ]
+	* src/io/audio_unit.c: fix deprecation warning (closes #16)
+	* src/io/sink_apple_audio.c: avoid opening null path
+	* src/io/sink_sndfile.c: improve error messages, set nsamples after write
+	* src/io/sink_wavwrite.c: fail if samplerate is way too large, assume
+	windows is little endian to build with mingw32
+	* src/io/source_apple_audio.c: check out of bounds _seek, set s->path, quiet
+	* src/io/source_avcodec.c: update to libav10, libavcodec 55.34.1
+	* src/io/source_sndfile.c: cast to uint_t for now, clarify some variables
+	names, fix crash, zero-pad output vector when upsampling, improve seek errors and strings
+	* src/io/source_wavread.c: avoid orphan parenthesis , cast size_t to int to
+	avoid warning on win64 , improve seek errors processing , sync error message
+	* src/onset/onset.c: avoid doubled onset at start, check parameters
+	* src/pitch/pitch.c: add Hertz as valid unit string, check parameters
+	* src/pitch/pitchyin.c, src/pitch/pitchyinfft.c: avoid producing NaN on silence (closes #7)
+	* src/pitch/pitchyin.{c,h}: fix typo, developed
+	* src/spectral/phasevoc.c: fix argument checks, improve error messages
+	* src/synth/sampler.c: make sure blocksize > 0
+	* src/tempo/beattracking.c: avoid segfault on silence (closes #24)
+	* src/tempo/tempo.c: add silence detection (closes #23), add old behavior in
+	examples/aubiotrack.c, check parameters
+	* src/*.c: fix some useless float conversion
+
+	[ Python ]
+	* python/ext/aubiomodule.c: improve documentation
+	* python/ext/py-musicutils.c: add silence_detection (closes #21),
+	level_detection, db_spl, level_lin, complete window implementation
+	* python/ext/py-source.c: add channels, add seek (closes #9)
+	* python/demos/demo_a_weighting.py: add simple demo for a_weighting
+	* python/demos/demo_sink_multi.py: add multi channel version
+	* python/demos/, python/demos/: minor improvements, improve syntax (closes #19)
+	* python/setup.py: use setuptools, add numpy to install_requires
+
+	[ Build ]
+	* waf: removed, now automatically downloaded with make, updated to 1.8.12
+	* Makefile: add target to fetch waf and basic instructions
+	* .travis.yml: added template for travis continuous integration
+	* {examples,src,tests}/wscript_build: add external libs and uselib to targets 
+	* src/wscript_build: do not hardocode install path
+	* wscript, src/io/*.c: use custom defines instead of __APPLE__
+	* wscript: make fat build optional, remove iOS sdk versioning
+
+	[ General ]
+	* examples/: use outmsg to print notes (fixes #8)
+	* examples/parse_args.h: improve short documentation (closes #12)
+	* doc/*.cfg: remove html timestamps to make build reproducible (see debian bug #779216)
+	* doc/aubiocut.txt: improve documentation
+	* doc/*.rst: add sphinx documentation basis with Makefile and conf.py
+	* README.md: minor updates
+	* python.old: removed old code
+	* tests/: minor bug fixing
+
 2014-01-31 Paul Brossier <piem@aubio.org>
 
 	[ Interface ]

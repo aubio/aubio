@@ -16,10 +16,10 @@ int main (int argc, char **argv)
     PRINT_MSG("examples:\n");
     PRINT_MSG(" - read file.wav at original samplerate\n");
     PRINT_MSG("       %s file.wav\n", argv[0]);
-    PRINT_MSG(" - read file.wav at 32000Hz\n");
+    PRINT_MSG(" - read file.aif at 32000Hz\n");
     PRINT_MSG("       %s file.aif 32000\n", argv[0]);
-    PRINT_MSG(" - read file.wav at original samplerate with 4096 blocks\n");
-    PRINT_MSG("       %s file.wav 0 4096 \n", argv[0]);
+    PRINT_MSG(" - read file.mp3 at original samplerate with 4096 blocks\n");
+    PRINT_MSG("       %s file.mp3 0 4096 \n", argv[0]);
     return err;
   }
 

@@ -50,7 +50,8 @@ void process_block(fvec_t * ibuf, fvec_t *obuf) {
 
 void process_print (void) {
   if ( is_beat && !is_silence ) {
-    outmsg("%f\n", aubio_tempo_get_last_s(tempo) );
+    print_time (aubio_tempo_get_last (tempo));
+    outmsg ("\n");
   }
 }
 
@@ -70,6 +71,8 @@ int main(int argc, char **argv) {
 
   tempo_out = new_fvec(2);
   tempo = new_aubio_tempo(tempo_method, buffer_size, hop_size, samplerate);
+  // set silence threshold very low to output beats even during silence
+  // aubio_tempo_set_silence(tempo, -1000.);
   if (onset_threshold != 0.) aubio_tempo_set_threshold (tempo, onset_threshold);
 
   wavetable = new_aubio_wavetable (samplerate, hop_size);

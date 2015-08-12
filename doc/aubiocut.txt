@@ -19,8 +19,8 @@ OPTIONS
   compressed are supported, depending on how aubio was built.
 
   -r, --samplerate rate  Fetch the input source, resampled at the given
-  sampling rate. The rate should be specified in Hertz as an integer. If 0,
-  the sampling rate of the original source will be used. Defaults to 0.
+  sampling rate. The rate should be specified in Hertz as an integer. If set
+  to 0, the sampling rate of the original source will be used. Defaults to 0.
 
   -B, --bufsize win  The size of the buffer to analyze, that is the length
   of the window used for spectral and temporal computations. Defaults to 512.
@@ -39,7 +39,16 @@ OPTIONS
   over-detections. Defaults to 0.3.
 
   -c, --cut  Cut input sound file at detected labels. A new sound files for
-  each slice will be created in the current directory. 
+  each slice will be created in the current directory.
+
+  -o, --output directory  Specify the directory path where slices of the
+  original source should be created.
+
+  --cut-until-nsamples n  How many extra samples should be added at the end of
+  each slice (default 0).
+
+  --cut-until-nslices n  How many extra slices should be added at the end of
+  each slice (default 0).
 
   -h, --help  Print a short help message and exit.
 

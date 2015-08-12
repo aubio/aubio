@@ -6,7 +6,7 @@ from numpy import array, vstack, zeros
 
 win_s = 512                 # fft size
 hop_s = win_s / 4           # hop size
-n_filters = 40
+n_filters = 40              # must be 40 for mfcc
 n_coeffs = 13
 samplerate = 44100
 

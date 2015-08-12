@@ -266,6 +266,7 @@ fvec_gettimesig (fvec_t * acf, uint_t acflen, uint_t gp)
 {
   sint_t k = 0;
   smpl_t three_energy = 0., four_energy = 0.;
+  if (gp < 2) return 4;
   if (acflen > 6 * gp + 2) {
     for (k = -2; k < 2; k++) {
       three_energy += acf->data[3 * gp + k];
@@ -330,7 +331,7 @@ aubio_beattracking_checkstate (aubio_beattracking_t * bt)
   //i.e. 3rd frame after flagstep initially set
   if (counter == 1 && flagstep == 1) {
     //check for consistency between previous beatperiod values
-    if (ABS (2. * rp - rp1 - rp2) < bt->g_var) {
+    if (ABS (2 * rp - rp1 - rp2) < bt->g_var) {
       //if true, can activate context dependent model
       flagconst = 1;
       counter = 0;              // reset counter and flagstep

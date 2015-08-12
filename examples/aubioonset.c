@@ -49,7 +49,8 @@ void process_block(fvec_t *ibuf, fvec_t *obuf)
 void process_print (void)
 {
   if ( is_onset ) {
-    outmsg ("%f\n", aubio_onset_get_last_s (o) );
+    print_time(aubio_onset_get_last (o));
+    outmsg ("\n");
   }
 }
 

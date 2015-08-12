@@ -140,7 +140,7 @@ uint_t fvec_set_window (fvec_t *win, char_t *window_type) {
       break;
     case aubio_win_parzen:
       for (i=0;i<size;i++)
-        w[i] = 1.0 - ABS((2.*i-size)/(size+1.0));
+        w[i] = 1.0 - ABS((2.f*i-size)/(size+1.0f));
       break;
     default:
       break;

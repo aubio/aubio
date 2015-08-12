@@ -45,7 +45,7 @@ A few simple command line tools are included along with the library:
  - `aubionotes` emits midi-like notes, with an onset, a pitch, and a duration
  - `aubioquiet` extracts quiet and loud regions
 
-Additionaly, the python module comes with the following script:
+Additionally, the python module comes with the following script:
 
  - `aubiocut` slices sound files at onset or beat timestamps
 
@@ -77,14 +77,17 @@ A number of distributions already include aubio. Check your favorite package
 management system, or have a look at the [download
 page](http://aubio.org/download).
 
-aubio uses [waf](https://code.google.com/p/waf/) to configure, compile, and
-test the source:
+aubio uses [waf](https://waf.io/) to configure, compile, and test the source:
 
     ./waf configure
     ./waf build
     sudo ./waf install
 
-aubio compiles on Linux, Mac OS X, Cygwin, and iPhone.
+If waf is not found in the directory, you can download and install it with:
+
+    make getwaf
+
+aubio compiles on Linux, Mac OS X, Cygwin, and iOS.
 
 Credits and Publications
 ------------------------

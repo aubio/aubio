@@ -68,7 +68,7 @@ void aubio_onset_do (aubio_onset_t *o, fvec_t * input, fvec_t * onset)
     }
   } else {
     // we are at the beginning of the file, and we don't find silence
-    if (o->total_frames == 0 && aubio_silence_detection(input, o->silence) == 0) {
+    if (o->total_frames <= o->delay && o->last_onset < o ->minioi && aubio_silence_detection(input, o->silence) == 0) {
       //AUBIO_DBG ("beginning of file is not silent, marking as onset\n");
       isonset = o->delay / o->hop_size;
       o->last_onset = o->delay;
@@ -97,6 +97,10 @@ smpl_t aubio_onset_get_last_ms (aubio_onset_t *o)
 uint_t aubio_onset_set_silence(aubio_onset_t * o, smpl_t silence) {
   o->silence = silence;
   return AUBIO_OK;
+}
+
+smpl_t aubio_onset_get_silence(aubio_onset_t * o) {
+  return o->silence;
 }
 
 uint_t aubio_onset_set_threshold(aubio_onset_t * o, smpl_t threshold) {
@@ -172,6 +176,22 @@ aubio_onset_t * new_aubio_onset (char_t * onset_mode,
     uint_t buf_size, uint_t hop_size, uint_t samplerate)
 {
   aubio_onset_t * o = AUBIO_NEW(aubio_onset_t);
+
+  /* check parameters are valid */
+  if ((sint_t)hop_size < 1) {
+    AUBIO_ERR("onset: got hop_size %d, but can not be < 1\n", hop_size);
+    goto beach;
+  } else if ((sint_t)buf_size < 1) {
+    AUBIO_ERR("onset: got buffer_size %d, but can not be < 1\n", buf_size);
+    goto beach;
+  } else if (buf_size < hop_size) {
+    AUBIO_ERR("onset: hop size (%d) is larger than win size (%d)\n", buf_size, hop_size);
+    goto beach;
+  } else if ((sint_t)samplerate < 1) {
+    AUBIO_ERR("onset: samplerate (%d) can not be < 1\n", samplerate);
+    goto beach;
+  }
+
   /* store creation parameters */
   o->samplerate = samplerate;
   o->hop_size = hop_size;
@@ -193,6 +213,10 @@ aubio_onset_t * new_aubio_onset (char_t * onset_mode,
   o->last_onset = 0;
   o->total_frames = 0;
   return o;
+
+beach:
+  AUBIO_FREE(o);
+  return NULL;
 }
 
 void del_aubio_onset (aubio_onset_t *o)

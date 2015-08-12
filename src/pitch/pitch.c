@@ -129,6 +129,22 @@ new_aubio_pitch (char_t * pitch_mode,
         pitch_mode);
     pitch_type = aubio_pitcht_default;
   }
+
+  // check parameters are valid
+  if ((sint_t)hopsize < 1) {
+    AUBIO_ERR("onset: got hopsize %d, but can not be < 1\n", hopsize);
+    goto beach;
+  } else if ((sint_t)bufsize < 1) {
+    AUBIO_ERR("onset: got buffer_size %d, but can not be < 1\n", bufsize);
+    goto beach;
+  } else if (bufsize < hopsize) {
+    AUBIO_ERR("onset: hop size (%d) is larger than win size (%d)\n", bufsize, hopsize);
+    goto beach;
+  } else if ((sint_t)samplerate < 1) {
+    AUBIO_ERR("onset: samplerate (%d) can not be < 1\n", samplerate);
+    goto beach;
+  }
+
   p->samplerate = samplerate;
   p->type = pitch_type;
   aubio_pitch_set_unit (p, "default");
@@ -178,6 +194,10 @@ new_aubio_pitch (char_t * pitch_mode,
       break;
   }
   return p;
+
+beach:
+  AUBIO_FREE(p);
+  return NULL;
 }
 
 void
@@ -238,6 +258,8 @@ aubio_pitch_set_unit (aubio_pitch_t * p, char_t * pitch_unit)
     pitch_mode = aubio_pitchm_freq;
   else if (strcmp (pitch_unit, "hertz") == 0)
     pitch_mode = aubio_pitchm_freq;
+  else if (strcmp (pitch_unit, "Hertz") == 0)
+    pitch_mode = aubio_pitchm_freq;
   else if (strcmp (pitch_unit, "Hz") == 0)
     pitch_mode = aubio_pitchm_freq;
   else if (strcmp (pitch_unit, "f0") == 0)
@@ -295,11 +317,11 @@ aubio_pitch_set_tolerance (aubio_pitch_t * p, smpl_t tol)
 uint_t
 aubio_pitch_set_silence (aubio_pitch_t * p, smpl_t silence)
 {
-  if (silence < 0 && silence > -200) {
+  if (silence <= 0 && silence >= -200) {
     p->silence = silence;
     return AUBIO_OK;
   } else {
-    AUBIO_ERR("pitch: could do set silence to %.2f", silence);
+    AUBIO_ERR("pitch: could not set silence to %.2f", silence);
     return AUBIO_FAIL;
   }
 }
