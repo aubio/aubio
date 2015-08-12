@@ -128,8 +128,12 @@ typedef enum {
 #define AUBIO_QUIT(_s)               exit(_s)
 #define AUBIO_SPRINTF                sprintf
 
-/* Libc shortcuts */
+/* pi and 2*pi */
+#ifndef M_PI
+#define PI         (3.14159265358979323846)
+#else
 #define PI         (M_PI)
+#endif
 #define TWO_PI     (PI*2.)
 
 /* aliases to math.h functions */
