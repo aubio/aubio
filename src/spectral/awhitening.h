@@ -81,7 +81,7 @@ void aubio_spectral_whitening_reset (aubio_spectral_whitening_t * o);
   \param relax_time relaxation time in seconds
 
   */
-void aubio_spectral_whitening_set_relax_time (aubio_spectral_whitening_t * o,
+uint_t aubio_spectral_whitening_set_relax_time (aubio_spectral_whitening_t * o,
     smpl_t relax_time);
 
 /** get relaxation time of spectral whitening

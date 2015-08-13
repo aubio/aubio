@@ -77,12 +77,13 @@ beach:
   return NULL;
 }
 
-void
+uint_t
 aubio_spectral_whitening_set_relax_time (aubio_spectral_whitening_t * o, smpl_t relax_time)
 {
   o->relax_time = relax_time;
   o->r_decay = POW (aubio_spectral_whitening_default_decay,
       (o->hop_size / (float) o->samplerate) / o->relax_time);
+  return AUBIO_OK;
 }
 
 smpl_t
