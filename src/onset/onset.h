@@ -117,6 +117,23 @@ smpl_t aubio_onset_get_last_s (aubio_onset_t *o);
 */
 smpl_t aubio_onset_get_last_ms (aubio_onset_t *o);
 
+/** set onset detection adaptive whitening
+
+  \param o onset detection object as returned by new_aubio_onset()
+  \param apply_adaptive_whitening 1 to enable, 0 to disable
+
+*/
+uint_t aubio_onset_set_adaptive_whitening(aubio_onset_t * o, uint_t apply_adaptive_whitening);
+
+/** get onset detection silence threshold
+
+  \param o onset detection object as returned by new_aubio_onset()
+
+  \return adaptive whitening mode, 1 if enabled, 0 otherwise
+
+*/
+uint_t aubio_onset_get_adaptive_whitening(aubio_onset_t * o);
+
 /** set onset detection silence threshold
 
   \param o onset detection object as returned by new_aubio_onset()

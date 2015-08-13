@@ -112,6 +112,17 @@ smpl_t aubio_onset_get_last_ms (aubio_onset_t *o)
   return aubio_onset_get_last_s (o) * 1000.;
 }
 
+uint_t aubio_onset_set_adaptive_whitening (aubio_onset_t *o, uint_t apply_adaptive_whitening)
+{
+  o->apply_adaptive_whitening = apply_adaptive_whitening;
+  return AUBIO_OK;
+}
+
+uint_t aubio_onset_get_adaptive_whitening (aubio_onset_t *o)
+{
+  return o->apply_adaptive_whitening;
+}
+
 uint_t aubio_onset_set_silence(aubio_onset_t * o, smpl_t silence) {
   o->silence = silence;
   return AUBIO_OK;
@@ -228,7 +239,7 @@ aubio_onset_t * new_aubio_onset (char_t * onset_mode,
   aubio_onset_set_silence(o, -70.);
 
   o->spectral_whitening = new_aubio_spectral_whitening(buf_size, hop_size, samplerate);
-  o->apply_adaptive_whitening = 1;
+  o->apply_adaptive_whitening = 0;
 
   /* initialize internal variables */
   o->last_onset = 0;
