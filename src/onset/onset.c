@@ -28,6 +28,8 @@
 #include "mathutils.h"
 #include "onset/onset.h"
 
+void aubio_onset_default_parameters (aubio_onset_t *o, char_t * method);
+
 /** structure to store object state */
 struct _aubio_onset_t {
   aubio_pvoc_t * pv;            /**< phase vocoder */
@@ -232,14 +234,9 @@ aubio_onset_t * new_aubio_onset (char_t * onset_mode,
   o->fftgrain = new_cvec(buf_size);
   o->desc = new_fvec(1);
 
-  /* set some default parameter */
-  aubio_onset_set_threshold (o, 0.3);
-  aubio_onset_set_delay(o, 4.3 * hop_size);
-  aubio_onset_set_minioi_ms(o, 20.);
-  aubio_onset_set_silence(o, -70.);
-
   o->spectral_whitening = new_aubio_spectral_whitening(buf_size, hop_size, samplerate);
-  o->apply_adaptive_whitening = 0;
+
+  aubio_onset_default_parameters (o, onset_mode);
 
   /* initialize internal variables */
   o->last_onset = 0;
@@ -249,6 +246,39 @@ aubio_onset_t * new_aubio_onset (char_t * onset_mode,
 beach:
   AUBIO_FREE(o);
   return NULL;
+}
+
+void aubio_onset_default_parameters (aubio_onset_t * o, char_t * onset_mode)
+{
+  /* set some default parameter */
+  aubio_onset_set_threshold (o, 0.3);
+  aubio_onset_set_delay (o, 4.3 * o->hop_size);
+  aubio_onset_set_minioi_ms (o, 50.);
+  aubio_onset_set_silence (o, -70.);
+  aubio_onset_set_adaptive_whitening (o, 1);
+
+  /* method specific optimisations */
+  if (strcmp (onset_mode, "energy") == 0) {
+  } else if (strcmp (onset_mode, "hfc") == 0) {
+    aubio_onset_set_adaptive_whitening (o, 0);
+  } else if (strcmp (onset_mode, "complexdomain") == 0
+             || strcmp (onset_mode, "complex") == 0) {
+    aubio_onset_set_delay (o, 4.6 * o->hop_size);
+    aubio_onset_set_threshold (o, 0.15);
+  } else if (strcmp (onset_mode, "phase") == 0) {
+    aubio_onset_set_adaptive_whitening (o, 0);
+  } else if (strcmp (onset_mode, "mkl") == 0) {
+    aubio_onset_set_threshold (o, 0.05);
+  } else if (strcmp (onset_mode, "kl") == 0) {
+    aubio_onset_set_threshold (o, 0.35);
+  } else if (strcmp (onset_mode, "specflux") == 0) {
+    aubio_onset_set_threshold (o, 0.4);
+  } else if (strcmp (onset_mode, "specdiff") == 0) {
+  } else if (strcmp (onset_mode, "default") == 0) {
+  } else {
+    AUBIO_ERR ("onset: unknown spectral descriptor type %s, "
+               "using default parameters.\n", onset_mode);
+  }
 }
 
 void del_aubio_onset (aubio_onset_t *o)
