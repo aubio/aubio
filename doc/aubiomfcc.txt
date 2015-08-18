@@ -1,5 +1,5 @@
 NAME
-  aubiomfcc - a command line tool to compute Mel-frequency Cepstrum Coefficients
+  aubiomfcc - a command line tool to compute Mel-Frequency Cepstrum Coefficients
 
 SYNOPSIS
 
@@ -10,7 +10,11 @@ SYNOPSIS
 
 DESCRIPTION
 
-  aubiomfcc compute the Mel Frequency Cepstrum Coefficients (MFCC).
+  aubiomfcc compute the Mel-Frequency Cepstrum Coefficients (MFCC).
+
+  MFCCs are coefficients that make up for the mel-frequency spectrum, a
+  representation of the short-term power spectrum of a sound. By default, 13
+  coefficents are computed using 40 filters.
 
   When started with an input source (-i/--input), the coefficients are given on
   the console, prefixed by their timestamps in seconds.
