@@ -3,7 +3,7 @@ package:
   version: 0.4.3
 
 source:
-  path: ../../
+  path: .
   #fn: aubio-0.4.2.tar.bz2
   #url: http://aubio.org/pub/aubio-0.4.2.tar.bz2
   #md5: c0f6d8355e92669722501c3a762ba548
