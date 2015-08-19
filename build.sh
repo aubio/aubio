@@ -1,3 +1,4 @@
+make checkwaf
 python waf configure --prefix=$PREFIX
 python waf build
 python waf install
