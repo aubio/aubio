@@ -75,6 +75,9 @@ def options(ctx):
     add_option_enable_disable(ctx, 'fat', default = False,
             help_str = 'build fat binaries (darwin only)',
             help_disable_str = 'do not build fat binaries (default)')
+    add_option_enable_disable(ctx, 'accelerate', default = None,
+            help_str = 'use Accelerate framework (darwin only) (auto)',
+            help_disable_str = 'do not use Accelerate framework')
 
     ctx.add_option('--with-target-platform', type='string',
             help='set target platform for cross-compilation', dest='target_platform')
@@ -110,10 +113,12 @@ def configure(ctx):
         ctx.env.LINKFLAGS += ['-arch', 'i386', '-arch', 'x86_64']
 
     if target_platform in [ 'darwin', 'ios', 'iosimulator']:
-        ctx.env.FRAMEWORK = ['CoreFoundation', 'AudioToolbox', 'Accelerate']
+        ctx.env.FRAMEWORK = ['CoreFoundation', 'AudioToolbox']
         ctx.define('HAVE_SOURCE_APPLE_AUDIO', 1)
         ctx.define('HAVE_SINK_APPLE_AUDIO', 1)
-        ctx.define('HAVE_ACCELERATE', 1)
+        if (ctx.options.enable_accelerate != False):
+            ctx.define('HAVE_ACCELERATE', 1)
+            ctx.env.FRAMEWORK += ['Accelerate']
 
     if target_platform in [ 'ios', 'iosimulator' ]:
         ctx.define('TARGET_OS_IPHONE', 1)
