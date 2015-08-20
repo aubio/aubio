@@ -167,6 +167,11 @@ aubio_fft_t * new_aubio_fft (uint_t winsize) {
   s->fftSetup = vDSP_create_fftsetupD(s->log2fftsize, FFT_RADIX2);
 #endif
 #else                         // using OOURA
+  if (aubio_is_power_of_two(winsize) != 1) {
+    AUBIO_ERR("fft: can only create with sizes power of two,"
+              " requested %d\n", winsize);
+    return NULL;
+  }
   s->winsize = winsize;
   s->fft_size = winsize / 2 + 1;
   s->compspec = new_fvec(winsize);
