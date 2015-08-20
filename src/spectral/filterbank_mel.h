@@ -58,7 +58,7 @@ uint_t aubio_filterbank_set_triangle_bands (aubio_filterbank_t * fb,
   \param samplerate audio sampling rate
 
   The filter coefficients are built according to Malcolm Slaney's Auditory
-  Toolbox, available at http://cobweb.ecn.purdue.edu/~malcolm/interval/1998-010/
+  Toolbox, available at http://engineering.purdue.edu/~malcolm/interval/1998-010/
   (see file mfcc.m).
 
 */
