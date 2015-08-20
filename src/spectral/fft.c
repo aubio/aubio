@@ -119,6 +119,10 @@ struct _aubio_fft_t {
 
 aubio_fft_t * new_aubio_fft (uint_t winsize) {
   aubio_fft_t * s = AUBIO_NEW(aubio_fft_t);
+  if ((sint_t)winsize < 1) {
+    AUBIO_ERR("fft: got winsize %d, but can not be < 1\n", winsize);
+    goto beach;
+  }
 #ifdef HAVE_FFTW3
   uint_t i;
   s->winsize  = winsize;
@@ -170,7 +174,7 @@ aubio_fft_t * new_aubio_fft (uint_t winsize) {
   if (aubio_is_power_of_two(winsize) != 1) {
     AUBIO_ERR("fft: can only create with sizes power of two,"
               " requested %d\n", winsize);
-    return NULL;
+    goto beach;
   }
   s->winsize = winsize;
   s->fft_size = winsize / 2 + 1;
@@ -183,6 +187,9 @@ aubio_fft_t * new_aubio_fft (uint_t winsize) {
 #endif /* HAVE_ACCELERATE */
 #endif /* HAVE_FFTW3 */
   return s;
+beach:
+  AUBIO_FREE(s);
+  return NULL;
 }
 
 void del_aubio_fft(aubio_fft_t * s) {
