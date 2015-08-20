@@ -1,2 +1,0 @@
-package: aubio
-build_targets: conda
