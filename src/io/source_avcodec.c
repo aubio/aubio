@@ -23,6 +23,9 @@
 
 #ifdef HAVE_LIBAV
 
+// determine whether we use libavformat from ffmpe or libav
+#define FFMPEG_LIBAVFORMAT (LIBAVFORMAT_VERSION_MICRO > 99)
+
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libavresample/avresample.h>
@@ -100,7 +103,11 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * path, uint_t samplera
   }
 
   // try to make sure max_analyze_duration is big enough for most songs
+#if FFMPEG_LIBAVFORMAT
+  avFormatCtx->max_analyze_duration2 *= 100;
+#else
   avFormatCtx->max_analyze_duration *= 100;
+#endif
 
   // retrieve stream information
   if ( (err = avformat_find_stream_info(avFormatCtx, NULL)) < 0 ) {
