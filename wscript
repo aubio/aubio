@@ -243,7 +243,7 @@ def configure(ctx):
         ctx.check_cfg(package = 'libavresample', atleast_version = '1.0.1',
                 args = '--cflags --libs', uselib_store = 'AVRESAMPLE',
                 mandatory = ctx.options.enable_avcodec)
-        if all ( 'HAVE_' + i in ctx.env.define_key
+        if all ( 'HAVE_' + i in ctx.env
                 for i in ['AVCODEC', 'AVFORMAT', 'AVUTIL', 'AVRESAMPLE'] ):
             ctx.define('HAVE_LIBAV', 1)
             ctx.msg('Checking for all libav libraries', 'yes')
