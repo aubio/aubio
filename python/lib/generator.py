@@ -3,14 +3,14 @@
 """ This file generates a c file from a list of cpp prototypes. """
 
 import os, sys, shutil
-from gen_pyobject import write_msg, gen_new_init, gen_do, gen_members, gen_methods, gen_finish
+from .gen_pyobject import write_msg, gen_new_init, gen_do, gen_members, gen_methods, gen_finish
 
 def get_cpp_objects():
 
   cpp_output = [l.strip() for l in os.popen('cpp -DAUBIO_UNSTABLE=1 -I../build/src ../src/aubio.h').readlines()]
 
-  cpp_output = filter(lambda y: len(y) > 1, cpp_output)
-  cpp_output = filter(lambda y: not y.startswith('#'), cpp_output)
+  cpp_output = [y for y in cpp_output if len(y) > 1]
+  cpp_output = [y for y in cpp_output if not y.startswith('#')]
 
   i = 1
   while 1:
@@ -21,7 +21,7 @@ def get_cpp_objects():
       else:
           i += 1
 
-  typedefs = filter(lambda y: y.startswith ('typedef struct _aubio'), cpp_output)
+  typedefs = [y for y in cpp_output if y.startswith ('typedef struct _aubio')]
 
   cpp_objects = [a.split()[3][:-1] for a in typedefs]
 
@@ -82,12 +82,12 @@ def generate_object_files(output_path):
           write_msg("-- WARNING: %s does not start n aubio_" % this_object)
 
       write_msg("-- INFO: looking at", object_name)
-      object_methods = filter(lambda x: this_object in x, cpp_output)
+      object_methods = [x for x in cpp_output if this_object in x]
       object_methods = [a.strip() for a in object_methods]
-      object_methods = filter(lambda x: not x.startswith('typedef'), object_methods)
+      object_methods = [x for x in object_methods if not x.startswith('typedef')]
       #for method in object_methods:
       #    write_msg(method)
-      new_methods = filter(lambda x: 'new_'+object_name in x, object_methods)
+      new_methods = [x for x in object_methods if 'new_'+object_name in x]
       if len(new_methods) > 1:
           write_msg("-- WARNING: more than one new method for", object_name)
           for method in new_methods:
@@ -98,7 +98,7 @@ def generate_object_files(output_path):
           for method in new_methods:
               write_msg(method)
 
-      del_methods = filter(lambda x: 'del_'+object_name in x, object_methods)
+      del_methods = [x for x in object_methods if 'del_'+object_name in x]
       if len(del_methods) > 1:
           write_msg("-- WARNING: more than one del method for", object_name)
           for method in del_methods:
@@ -106,7 +106,7 @@ def generate_object_files(output_path):
       elif len(del_methods) < 1:
           write_msg("-- WARNING: no del method for", object_name)
 
-      do_methods = filter(lambda x: object_name+'_do' in x, object_methods)
+      do_methods = [x for x in object_methods if object_name+'_do' in x]
       if len(do_methods) > 1:
           pass
           #write_msg("-- WARNING: more than one do method for", object_name)
@@ -123,18 +123,18 @@ def generate_object_files(output_path):
           if (method.split()[0] != 'void'):
               write_msg("-- ERROR: _do method does not return void:", method )
 
-      get_methods = filter(lambda x: object_name+'_get_' in x, object_methods)
+      get_methods = [x for x in object_methods if object_name+'_get_' in x]
 
-      set_methods = filter(lambda x: object_name+'_set_' in x, object_methods)
+      set_methods = [x for x in object_methods if object_name+'_set_' in x]
       for method in set_methods:
           if (method.split()[0] != 'uint_t'):
               write_msg("-- ERROR: _set method does not return uint_t:", method )
 
-      other_methods = filter(lambda x: x not in new_methods, object_methods)
-      other_methods = filter(lambda x: x not in del_methods, other_methods)
-      other_methods = filter(lambda x: x not in    do_methods, other_methods)
-      other_methods = filter(lambda x: x not in get_methods, other_methods)
-      other_methods = filter(lambda x: x not in set_methods, other_methods)
+      other_methods = [x for x in object_methods if x not in new_methods]
+      other_methods = [x for x in other_methods if x not in del_methods]
+      other_methods = [x for x in other_methods if x not in    do_methods]
+      other_methods = [x for x in other_methods if x not in get_methods]
+      other_methods = [x for x in other_methods if x not in set_methods]
 
       if len(other_methods) > 0:
           write_msg("-- WARNING: some methods for", object_name, "were unidentified")
@@ -218,7 +218,7 @@ void add_generated_objects ( PyObject *m )
 
   from os import listdir
   generated_files = listdir(output_path)
-  generated_files = filter(lambda x: x.endswith('.c'), generated_files)
+  generated_files = [x for x in generated_files if x.endswith('.c')]
   generated_files = [output_path+'/'+f for f in generated_files]
   return generated_files
 

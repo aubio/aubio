@@ -44,7 +44,7 @@ class aubio_sink_test_case(TestCase):
                 for n in range(200):
                     vec = fvec(write)
                     g(vec, write)
-        except StandardError:
+        except Exception:
             pass
         else:
             self.fail("does not fail on too many files open")
@@ -70,11 +70,11 @@ class aubio_sink_test_case(TestCase):
                     total_frames += read
                     if read < f.hop_size: break
                 if 0:
-                    print "read", "%.2fs" % (total_frames / float(f.samplerate) ),
-                    print "(", total_frames, "frames", "in",
-                    print total_frames / f.hop_size, "blocks", "at", "%dHz" % f.samplerate, ")",
-                    print "from", f.uri,
-                    print "to", g.uri
+                    print("read", "%.2fs" % (total_frames / float(f.samplerate) ), end=' ')
+                    print("(", total_frames, "frames", "in", end=' ')
+                    print(total_frames / f.hop_size, "blocks", "at", "%dHz" % f.samplerate, ")", end=' ')
+                    print("from", f.uri, end=' ')
+                    print("to", g.uri)
                 del_tmp_sink_path(sink_path)
 
     def test_read_and_write_multi(self):
@@ -95,13 +95,13 @@ class aubio_sink_test_case(TestCase):
                     total_frames += read
                     if read < f.hop_size: break
                 if 0:
-                    print "read", "%.2fs" % (total_frames / float(f.samplerate) ),
-                    print "(", total_frames, "frames", "in",
-                    print f.channels, "channels", "in",
-                    print total_frames / f.hop_size, "blocks", "at", "%dHz" % f.samplerate, ")",
-                    print "from", f.uri,
-                    print "to", g.uri,
-                    print "in", g.channels, "channels"
+                    print("read", "%.2fs" % (total_frames / float(f.samplerate) ), end=' ')
+                    print("(", total_frames, "frames", "in", end=' ')
+                    print(f.channels, "channels", "in", end=' ')
+                    print(total_frames / f.hop_size, "blocks", "at", "%dHz" % f.samplerate, ")", end=' ')
+                    print("from", f.uri, end=' ')
+                    print("to", g.uri, end=' ')
+                    print("in", g.channels, "channels")
                 del_tmp_sink_path(sink_path)
 
     def test_close_file(self):

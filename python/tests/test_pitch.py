@@ -24,14 +24,14 @@ class aubio_pitch_Good_Values(TestCase):
         " running on silence gives 0 "
         p = pitch('default', 2048, 512, 32000)
         f = fvec (512)
-        for i in xrange(10): assert_equal (p(f), 0.)
+        for i in range(10): assert_equal (p(f), 0.)
 
     def test_run_on_ones(self):
         " running on ones gives 0 "
         p = pitch('default', 2048, 512, 32000)
         f = fvec (512)
         f[:] = 1
-        for i in xrange(10): assert_equal (p(f), 0.)
+        for i in range(10): assert_equal (p(f), 0.)
 
 class aubio_pitch_Sinusoid(TestCase):
 

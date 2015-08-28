@@ -137,7 +137,7 @@ Py_source_init (Py_source * self, PyObject * args, PyObject * kwds)
   if (self->o == NULL) {
     char_t errstr[30 + strlen(self->uri)];
     sprintf(errstr, "error creating source with %s", self->uri);
-    PyErr_SetString (PyExc_StandardError, errstr);
+    PyErr_SetString (PyExc_Exception, errstr);
     return -1;
   }
   self->samplerate = aubio_source_get_samplerate ( self->o );
@@ -176,7 +176,7 @@ Py_source_do(Py_source * self, PyObject * args)
   PyObject *outputs = PyList_New(0);
   PyList_Append( outputs, (PyObject *)PyAubio_CFvecToArray (read_to));
   //del_fvec (read_to);
-  PyList_Append( outputs, (PyObject *)PyInt_FromLong (read));
+  PyList_Append( outputs, (PyObject *)PyLong_FromLong (read));
   return outputs;
 }
 
@@ -206,7 +206,7 @@ Py_source_do_multi(Py_source * self, PyObject * args)
   PyObject *outputs = PyList_New(0);
   PyList_Append( outputs, (PyObject *)PyAubio_CFmatToArray (read_to));
   //del_fvec (read_to);
-  PyList_Append( outputs, (PyObject *)PyInt_FromLong (read));
+  PyList_Append( outputs, (PyObject *)PyLong_FromLong (read));
   return outputs;
 }
 
@@ -226,14 +226,14 @@ static PyObject *
 Pyaubio_source_get_samplerate (Py_source *self, PyObject *unused)
 {
   uint_t tmp = aubio_source_get_samplerate (self->o);
-  return (PyObject *)PyInt_FromLong (tmp);
+  return (PyObject *)PyLong_FromLong (tmp);
 }
 
 static PyObject *
 Pyaubio_source_get_channels (Py_source *self, PyObject *unused)
 {
   uint_t tmp = aubio_source_get_channels (self->o);
-  return (PyObject *)PyInt_FromLong (tmp);
+  return (PyObject *)PyLong_FromLong (tmp);
 }
 
 static PyObject *

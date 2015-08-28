@@ -63,7 +63,7 @@ class aubio_pvoc_test_case(TestCase):
         sigin = fvec(hop_s)
         zeros = fvec(hop_s)
         f = pvoc(buf_s, hop_s)
-        for i in xrange(hop_s):
+        for i in range(hop_s):
             sigin[i] = random() * 2. - 1.
         t2 = f.rdo( f(sigin) )
         t2 = f.rdo( f(zeros) )

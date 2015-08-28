@@ -1,9 +1,9 @@
 #! /usr/bin/env python
 
 import numpy
-from _aubio import *
-from midiconv import *
-from slicing import *
+from ._aubio import *
+from .midiconv import *
+from .slicing import *
 
 class fvec(numpy.ndarray):
     " a simple numpy array holding a vector of float32 "

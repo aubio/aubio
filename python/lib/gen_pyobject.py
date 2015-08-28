@@ -70,7 +70,7 @@ def get_params_types_names(proto):
     example: proto = "int main (int argc, char ** argv)"
     returns: [['int', 'argc'], ['char **','argv']]
     """
-    return map(split_type, get_params(proto)) 
+    return list(map(split_type, get_params(proto)))
 
 def get_return_type(proto):
     import re
@@ -148,7 +148,7 @@ aubio2pytypes = {
 aubiovecfrompyobj = {
     'fvec_t*': 'PyAubio_ArrayToCFvec',
     'cvec_t*': 'PyAubio_ArrayToCCvec',
-    'uint_t': '(uint_t)PyInt_AsLong',
+    'uint_t': '(uint_t)PyLong_AsLong',
 }
 
 # aubio to python
@@ -156,8 +156,8 @@ aubiovectopyobj = {
     'fvec_t*': 'PyAubio_CFvecToArray',
     'cvec_t*': 'PyAubio_CCvecToPyCvec',
     'smpl_t': 'PyFloat_FromDouble',
-    'uint_t*': 'PyInt_FromLong',
-    'uint_t': 'PyInt_FromLong',
+    'uint_t*': 'PyLong_FromLong',
+    'uint_t': 'PyLong_FromLong',
 }
 
 def gen_new_init(newfunc, name):
@@ -169,7 +169,7 @@ def gen_new_init(newfunc, name):
         selfparams = '' 
     # "param1", "param2", "param3"
     paramnames = ", ".join(["\""+p['name']+"\"" for p in newparams])
-    pyparams = "".join(map(lambda p: aubio2pytypes[p['type']], newparams))
+    pyparams = "".join([aubio2pytypes[p['type']] for p in newparams])
     paramrefs = ", ".join(["&" + p['name'] for p in newparams])
     s = """\
 // WARNING: this file is generated, DO NOT EDIT
@@ -286,7 +286,7 @@ def gen_do_input_params(inputparams):
         inputdefs += "  PyObject * " + p['name'] + "_obj;\n"
 
     inputvecs = "  /* input vectors prototypes */\n  "
-    inputvecs += "\n  ".join(map(lambda p: p['type'] + ' ' + p['name'] + ";", inputparams))
+    inputvecs += "\n  ".join([p['type'] + ' ' + p['name'] + ";" for p in inputparams])
 
     parseinput = "  /* input vectors parsing */\n  "
     for p in inputparams:
@@ -360,7 +360,7 @@ def gen_do(dofunc, name):
 
     n_param = len(doparams)
 
-    if name in param_numbers.keys():
+    if name in list(param_numbers.keys()):
       n_input_param, n_output_param = param_numbers[name]
     else:
       n_input_param, n_output_param = 1, n_param - 1

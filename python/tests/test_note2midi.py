@@ -14,13 +14,13 @@ list_of_known_notes = (
         ( 'A4', 69 ),
         ( 'A#4', 70 ),
         ( 'Bb4', 70 ),
-        ( u'B♭4', 70 ),
+        ( 'B♭4', 70 ),
         ( 'G8', 115 ),
-        ( u'G♯8', 116 ),
+        ( 'G♯8', 116 ),
         ( 'G9', 127 ),
-        ( u'G\udd2a2', 45 ),
-        ( u'B\ufffd2', 45 ),
-        ( u'A♮2', 45 ),
+        ( 'G\udd2a2', 45 ),
+        ( 'B\ufffd2', 45 ),
+        ( 'A♮2', 45 ),
         )
 
 class note2midi_good_values(unittest.TestCase):

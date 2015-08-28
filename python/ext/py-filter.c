@@ -55,7 +55,7 @@ static void
 Py_filter_del (Py_filter * self)
 {
   del_aubio_filter (self->o);
-  self->ob_type->tp_free ((PyObject *) self);
+  Py_TYPE(self)->tp_free ((PyObject *) self);
 }
 
 static PyObject * 
@@ -156,8 +156,7 @@ static PyMethodDef Py_filter_methods[] = {
 };
 
 PyTypeObject Py_filterType = {
-  PyObject_HEAD_INIT (NULL)
-  0,                            /* ob_size           */
+  PyVarObject_HEAD_INIT (NULL, 0) /* ob_size           */
   "aubio.digital_filter",       /* tp_name           */
   sizeof (Py_filter),           /* tp_basicsize      */
   0,                            /* tp_itemsize       */
