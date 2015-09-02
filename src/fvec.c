@@ -21,6 +21,10 @@
 #include "aubio_priv.h"
 #include "fvec.h"
 
+#ifdef HAVE_ACCELERATE
+#include <Accelerate/Accelerate.h>
+#endif
+
 fvec_t * new_fvec( uint_t length) {
   fvec_t * s;
   if ((sint_t)length <= 0) {
@@ -60,17 +64,33 @@ void fvec_print(fvec_t *s) {
 }
 
 void fvec_set_all (fvec_t *s, smpl_t val) {
+#ifndef HAVE_ACCELERATE
   uint_t j;
   for (j=0; j< s->length; j++) {
     s->data[j] = val;
   }
+#else
+#if !HAVE_AUBIO_DOUBLE
+  vDSP_vfill(&val, s->data, 1, s->length);
+#else /* HAVE_AUBIO_DOUBLE */
+  vDSP_vfillD(&val, s->data, 1, s->length);
+#endif /* HAVE_AUBIO_DOUBLE */
+#endif
 }
 
 void fvec_zeros(fvec_t *s) {
+#ifndef HAVE_ACCELERATE
 #if HAVE_MEMCPY_HACKS
   memset(s->data, 0, s->length * sizeof(smpl_t));
 #else
   fvec_set_all (s, 0.);
+#endif
+#else
+#if !HAVE_AUBIO_DOUBLE
+  vDSP_vclr(s->data, 1, s->length);
+#else /* HAVE_AUBIO_DOUBLE */
+  vDSP_vclrD(s->data, 1, s->length);
+#endif /* HAVE_AUBIO_DOUBLE */
 #endif
 }
 
@@ -86,11 +106,19 @@ void fvec_rev(fvec_t *s) {
 }
 
 void fvec_weight(fvec_t *s, fvec_t *weight) {
+#ifndef HAVE_ACCELERATE
   uint_t j;
   uint_t length = MIN(s->length, weight->length);
   for (j=0; j< length; j++) {
     s->data[j] *= weight->data[j];
   }
+#else
+#if !HAVE_AUBIO_DOUBLE
+  vDSP_vmul(s->data, 1, weight->data, 1, s->data, 1, s->length);
+#else /* HAVE_AUBIO_DOUBLE */
+  vDSP_vmulD(s->data, 1, weight->data, 1, s->data, 1, s->length);
+#endif /* HAVE_AUBIO_DOUBLE */
+#endif /* HAVE_ACCELERATE */
 }
 
 void fvec_copy(fvec_t *s, fvec_t *t) {
@@ -99,6 +127,7 @@ void fvec_copy(fvec_t *s, fvec_t *t) {
         s->length, t->length);
     return;
   }
+#ifndef HAVE_ACCELERATE
 #if HAVE_MEMCPY_HACKS
   memcpy(t->data, s->data, t->length * sizeof(smpl_t));
 #else
@@ -107,4 +136,11 @@ void fvec_copy(fvec_t *s, fvec_t *t) {
     t->data[j] = s->data[j];
   }
 #endif
+#else
+#if !HAVE_AUBIO_DOUBLE
+  vDSP_mmov(s->data, t->data, 1, s->length, 1, 1);
+#else /* HAVE_AUBIO_DOUBLE */
+  vDSP_mmovD(s->data, t->data, 1, s->length, 1, 1);
+#endif /* HAVE_AUBIO_DOUBLE */
+#endif /* HAVE_ACCELERATE */
 }
