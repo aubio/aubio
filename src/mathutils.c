@@ -158,22 +158,39 @@ aubio_unwrap2pi (smpl_t phase)
 smpl_t
 fvec_mean (fvec_t * s)
 {
-  uint_t j;
   smpl_t tmp = 0.0;
+#ifndef HAVE_ACCELERATE
+  uint_t j;
   for (j = 0; j < s->length; j++) {
     tmp += s->data[j];
   }
   return tmp / (smpl_t) (s->length);
+#else
+#if !HAVE_AUBIO_DOUBLE
+  vDSP_meanv(s->data, 1, &tmp, s->length);
+#else /* HAVE_AUBIO_DOUBLE */
+  vDSP_meanvD(s->data, 1, &tmp, s->length);
+#endif /* HAVE_AUBIO_DOUBLE */
+  return tmp;
+#endif /* HAVE_ACCELERATE */
 }
 
 smpl_t
 fvec_sum (fvec_t * s)
 {
-  uint_t j;
   smpl_t tmp = 0.0;
+#ifndef HAVE_ACCELERATE
+  uint_t j;
   for (j = 0; j < s->length; j++) {
     tmp += s->data[j];
   }
+#else
+#if !HAVE_AUBIO_DOUBLE
+  vDSP_sve(s->data, 1, &tmp, s->length);
+#else /* HAVE_AUBIO_DOUBLE */
+  vDSP_sveD(s->data, 1, &tmp, s->length);
+#endif /* HAVE_AUBIO_DOUBLE */
+#endif /* HAVE_ACCELERATE */
   return tmp;
 }
 
