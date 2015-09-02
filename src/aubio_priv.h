@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2015 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -20,7 +20,7 @@
 
 /** @file
  * Private include file
- * 
+ *
  * This file is for inclusion from _within_ the library only.
  */
 
@@ -29,7 +29,7 @@
 
 /*********************
  *
- * External includes 
+ * External includes
  *
  */
 
@@ -71,7 +71,7 @@
 #include "mathutils.h"
 
 /****
- * 
+ *
  * SYSTEM INTERFACE
  *
  */

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2015 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -22,9 +22,9 @@
 #define _AUBIO__TYPES_H
 
 /** \file
- 
+
   Definition of data types used in aubio
- 
+
 */
 
 #ifdef __cplusplus
