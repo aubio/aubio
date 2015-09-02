@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2015 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -21,12 +21,12 @@
 #ifndef _AUBIO_FILTER_BIQUAD_H
 #define _AUBIO_FILTER_BIQUAD_H
 
-/** \file 
+/** \file
 
   Second order Infinite Impulse Response filter
 
   This file implements a normalised biquad filter (second order IIR):
- 
+
   \f$ y[n] = b_0 x[n] + b_1 x[n-1] + b_2 x[n-2] - a_1 y[n-1] - a_2 y[n-2] \f$
 
   The filtfilt version runs the filter twice, forward and backward, to
