@@ -18,7 +18,7 @@
 
 */
 
-/** \file 
+/** \file
 
   Fast Fourier Transform
 
@@ -39,7 +39,7 @@ extern "C" {
 #endif
 
 /** FFT object
- 
+
   This object computes forward and backward FFTs.
 
 */
@@ -51,7 +51,7 @@ typedef struct _aubio_fft_t aubio_fft_t;
 
 */
 aubio_fft_t * new_aubio_fft (uint_t size);
-/** delete FFT object 
+/** delete FFT object
 
   \param s fft object as returned by new_aubio_fft
 
@@ -61,16 +61,16 @@ void del_aubio_fft(aubio_fft_t * s);
 /** compute forward FFT
 
   \param s fft object as returned by new_aubio_fft
-  \param input input signal 
-  \param spectrum output spectrum 
+  \param input input signal
+  \param spectrum output spectrum
 
 */
 void aubio_fft_do (aubio_fft_t *s, fvec_t * input, cvec_t * spectrum);
 /** compute backward (inverse) FFT
 
   \param s fft object as returned by new_aubio_fft
-  \param spectrum input spectrum 
-  \param output output signal 
+  \param spectrum input spectrum
+  \param output output signal
 
 */
 void aubio_fft_rdo (aubio_fft_t *s, cvec_t * spectrum, fvec_t * output);
@@ -78,7 +78,7 @@ void aubio_fft_rdo (aubio_fft_t *s, cvec_t * spectrum, fvec_t * output);
 /** compute forward FFT
 
   \param s fft object as returned by new_aubio_fft
-  \param input real input signal 
+  \param input real input signal
   \param compspec complex output fft real/imag
 
 */
@@ -86,53 +86,53 @@ void aubio_fft_do_complex (aubio_fft_t *s, fvec_t * input, fvec_t * compspec);
 /** compute backward (inverse) FFT from real/imag
 
   \param s fft object as returned by new_aubio_fft
-  \param compspec real/imag input fft array 
-  \param output real output array 
+  \param compspec real/imag input fft array
+  \param output real output array
 
 */
 void aubio_fft_rdo_complex (aubio_fft_t *s, fvec_t * compspec, fvec_t * output);
 
-/** convert real/imag spectrum to norm/phas spectrum 
+/** convert real/imag spectrum to norm/phas spectrum
 
-  \param compspec real/imag input fft array 
-  \param spectrum cvec norm/phas output array 
+  \param compspec real/imag input fft array
+  \param spectrum cvec norm/phas output array
 
 */
 void aubio_fft_get_spectrum(fvec_t * compspec, cvec_t * spectrum);
-/** convert real/imag spectrum to norm/phas spectrum 
+/** convert real/imag spectrum to norm/phas spectrum
 
-  \param compspec real/imag input fft array 
-  \param spectrum cvec norm/phas output array 
+  \param compspec real/imag input fft array
+  \param spectrum cvec norm/phas output array
 
 */
 void aubio_fft_get_realimag(cvec_t * spectrum, fvec_t * compspec);
 
-/** compute phas spectrum from real/imag parts 
+/** compute phas spectrum from real/imag parts
 
-  \param compspec real/imag input fft array 
-  \param spectrum cvec norm/phas output array 
+  \param compspec real/imag input fft array
+  \param spectrum cvec norm/phas output array
 
 */
 void aubio_fft_get_phas(fvec_t * compspec, cvec_t * spectrum);
-/** compute imaginary part from the norm/phas cvec 
+/** compute imaginary part from the norm/phas cvec
 
-  \param spectrum norm/phas input array 
-  \param compspec real/imag output fft array 
+  \param spectrum norm/phas input array
+  \param compspec real/imag output fft array
 
 */
 void aubio_fft_get_imag(cvec_t * spectrum, fvec_t * compspec);
 
-/** compute norm component from real/imag parts 
+/** compute norm component from real/imag parts
 
-  \param compspec real/imag input fft array 
-  \param spectrum cvec norm/phas output array 
+  \param compspec real/imag input fft array
+  \param spectrum cvec norm/phas output array
 
 */
 void aubio_fft_get_norm(fvec_t * compspec, cvec_t * spectrum);
-/** compute real part from norm/phas components 
+/** compute real part from norm/phas components
 
-  \param spectrum norm/phas input array 
-  \param compspec real/imag output fft array 
+  \param spectrum norm/phas input array
+  \param compspec real/imag output fft array
 
 */
 void aubio_fft_get_real(cvec_t * spectrum, fvec_t * compspec);
