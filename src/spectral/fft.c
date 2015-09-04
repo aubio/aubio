@@ -66,12 +66,12 @@ typedef FFTW_TYPE fft_data_t;
 #if HAVE_AUBIO_DOUBLE
 #warning "Using aubio in double precision with fftw3 in single precision"
 #endif /* HAVE_AUBIO_DOUBLE */
-#define real_t float 
+#define real_t float
 #else /* HAVE_FFTW3F */
 #if !HAVE_AUBIO_DOUBLE
 #warning "Using aubio in single precision with fftw3 in double precision"
 #endif /* HAVE_AUBIO_DOUBLE */
-#define real_t double 
+#define real_t double
 #endif /* HAVE_FFTW3F */
 
 // a global mutex for FFTW thread safety
@@ -95,7 +95,7 @@ struct _aubio_fft_t {
 #ifdef HAVE_FFTW3             // using FFTW3
   real_t *in, *out;
   fftw_plan pfw, pbw;
-  fft_data_t * specdata;     /* complex spectral data */
+  fft_data_t * specdata;      /* complex spectral data */
 #else
 #ifdef HAVE_ACCELERATE        // using ACCELERATE
   int log2fftsize;
@@ -403,7 +403,7 @@ void aubio_fft_get_imag(cvec_t * spectrum, fvec_t * compspec) {
 void aubio_fft_get_real(cvec_t * spectrum, fvec_t * compspec) {
   uint_t i;
   for (i = 0; i < compspec->length / 2 + 1; i++) {
-    compspec->data[i] = 
+    compspec->data[i] =
       spectrum->norm[i]*COS(spectrum->phas[i]);
   }
 }
