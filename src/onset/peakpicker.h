@@ -18,12 +18,12 @@
 
 */
 
-/** \file 
- 
+/** \file
+
   Peak picking utilities function
 
   \example onset/test-peakpicker.c
-  
+
 */
 
 #ifndef _AUBIO_PEAKPICK_H

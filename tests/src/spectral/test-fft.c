@@ -2,6 +2,7 @@
 
 int main (void)
 {
+  int return_code = 0;
   uint_t i, n_iters = 100; // number of iterations
   uint_t win_s = 500; // window size
   fvec_t * in = new_fvec (win_s); // input buffer
@@ -9,6 +10,11 @@ int main (void)
   fvec_t * out = new_fvec (win_s); // output buffer
   // create fft object
   aubio_fft_t * fft = new_aubio_fft(win_s);
+
+  if (!fft) {
+    return_code = 1;
+    goto beach;
+  }
 
   // fill input with some data
   in->data[0] = 1;
@@ -33,9 +39,10 @@ int main (void)
   // cleam up
   //fvec_print(out);
   del_aubio_fft(fft);
+beach:
   del_fvec(in);
   del_cvec(fftgrain);
   del_fvec(out);
   aubio_cleanup();
-  return 0;
+  return return_code;
 }

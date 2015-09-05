@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2015 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -24,25 +24,25 @@
 /** \file
 
   A-weighting filter coefficients
-  
+
   This file creates an A-weighting digital filter, which reduces low and high
   frequencies and enhance the middle ones to reflect the ability of the human
   hearing.
-  
+
   The implementation is based on the following standard:
 
     - IEC/CD 1672: Electroacoustics-Sound Level Meters, IEC, Geneva, Nov.  1996,
   for A- and C-weighting filters.
-  
+
   See also:
-  
+
     - <a href="http://en.wikipedia.org/wiki/A-weighting">A-Weighting on
   Wikipedia</a>
     - <a href="http://en.wikipedia.org/wiki/Weighting_filter">Weighting filter on
   Wikipedia</a>
     - <a href="http://www.mathworks.com/matlabcentral/fileexchange/69">Christophe
   Couvreur's 'octave' toolbox</a>
-  
+
   The coefficients in this file have been computed using Christophe Couvreur's
   scripts in octave 3.0 (debian package 1:3.0.5-6+b2 with octave-signal
   1.0.9-1+b1 on i386), with <pre> [b, a] = adsign(1/Fs) </pre> for various
@@ -62,7 +62,7 @@ extern "C" {
 
 /** create new A-design filter
 
-  \param samplerate sampling frequency of the signal to filter. Should be one of 
+  \param samplerate sampling frequency of the signal to filter. Should be one of
   8000, 11025, 16000, 22050, 24000, 32000, 44100, 48000, 88200, 96000, and
   192000 Hz
 
@@ -74,7 +74,7 @@ aubio_filter_t *new_aubio_filter_a_weighting (uint_t samplerate);
 /** set feedback and feedforward coefficients of a A-weighting filter
 
   \param f filter object to get coefficients from
-  \param samplerate sampling frequency of the signal to filter. Should be one of 
+  \param samplerate sampling frequency of the signal to filter. Should be one of
   8000, 11025, 16000, 22050, 24000, 32000, 44100, 48000, 88200, 96000, and
   192000 Hz
 

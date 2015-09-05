@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2009-2013 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2009-2015 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -62,17 +62,17 @@ void del_fmat(fmat_t *s);
 
   \param s vector to read from
   \param channel channel to read from
-  \param position sample position to read from 
+  \param position sample position to read from
 
 */
 smpl_t fmat_get_sample(fmat_t *s, uint_t channel, uint_t position);
 
 /** write sample value in a buffer
 
-  \param s vector to write to 
+  \param s vector to write to
   \param data value to write in s->data[channel][position]
-  \param channel channel to write to 
-  \param position sample position to write to 
+  \param channel channel to write to
+  \param position sample position to write to
 
 */
 void  fmat_set_sample(fmat_t *s, smpl_t data, uint_t channel, uint_t position);
@@ -101,9 +101,9 @@ smpl_t * fmat_get_channel_data (fmat_t *s, uint_t channel);
 */
 smpl_t ** fmat_get_data(fmat_t *s);
 
-/** print out fmat data 
+/** print out fmat data
 
-  \param s vector to print out 
+  \param s vector to print out
 
 */
 void fmat_print(fmat_t *s);
@@ -116,14 +116,14 @@ void fmat_print(fmat_t *s);
 */
 void fmat_set(fmat_t *s, smpl_t val);
 
-/** set all elements to zero 
+/** set all elements to zero
 
   \param s vector to modify
 
 */
 void fmat_zeros(fmat_t *s);
 
-/** set all elements to ones 
+/** set all elements to ones
 
   \param s vector to modify
 
@@ -148,7 +148,7 @@ void fmat_rev(fmat_t *s);
 */
 void fmat_weight(fmat_t *s, fmat_t *weight);
 
-/** make a copy of a matrix 
+/** make a copy of a matrix
 
   \param s source vector
   \param t vector to copy to

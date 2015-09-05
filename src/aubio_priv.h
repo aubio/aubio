@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2015 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -20,7 +20,7 @@
 
 /** @file
  * Private include file
- * 
+ *
  * This file is for inclusion from _within_ the library only.
  */
 
@@ -29,7 +29,7 @@
 
 /*********************
  *
- * External includes 
+ * External includes
  *
  */
 
@@ -71,7 +71,7 @@
 #include "mathutils.h"
 
 /****
- * 
+ *
  * SYSTEM INTERFACE
  *
  */
@@ -196,10 +196,14 @@ typedef enum {
 /* handy shortcuts */
 #define DB2LIN(g) (POW(10.0,(g)*0.05f))
 #define LIN2DB(v) (20.0*LOG10(v))
-#define SQR(_a)   (_a*_a)
+#define SQR(_a)   ((_a)*(_a))
 
-#define MAX(a,b)  ( a > b ? a : b)
-#define MIN(a,b)  ( a < b ? a : b)
+#ifndef MAX
+#define MAX(a,b)  (((a)>(b))?(a):(b))
+#endif /* MAX */
+#ifndef MIN
+#define MIN(a,b)  (((a)<(b))?(a):(b))
+#endif /* MIN */
 
 #define ELEM_SWAP(a,b) { register smpl_t t=(a);(a)=(b);(b)=t; }
 

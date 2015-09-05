@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2015 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -61,16 +61,16 @@ void del_lvec(lvec_t *s);
 /** read sample value in a buffer
 
   \param s vector to read from
-  \param position sample position to read from 
+  \param position sample position to read from
 
 */
 lsmp_t lvec_get_sample(lvec_t *s, uint_t position);
 
 /** write sample value in a buffer
 
-  \param s vector to write to 
+  \param s vector to write to
   \param data value to write in s->data[position]
-  \param position sample position to write to 
+  \param position sample position to write to
 
 */
 void  lvec_set_sample(lvec_t *s, lsmp_t data, uint_t position);
@@ -82,9 +82,9 @@ void  lvec_set_sample(lvec_t *s, lsmp_t data, uint_t position);
 */
 lsmp_t * lvec_get_data(lvec_t *s);
 
-/** print out lvec data 
+/** print out lvec data
 
-  \param s vector to print out 
+  \param s vector to print out
 
 */
 void lvec_print(lvec_t *s);
@@ -97,14 +97,14 @@ void lvec_print(lvec_t *s);
 */
 void lvec_set_all(lvec_t *s, smpl_t val);
 
-/** set all elements to zero 
+/** set all elements to zero
 
   \param s vector to modify
 
 */
 void lvec_zeros(lvec_t *s);
 
-/** set all elements to ones 
+/** set all elements to ones
 
   \param s vector to modify
 

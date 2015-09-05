@@ -67,11 +67,16 @@ void aubio_onset_do (aubio_onset_t *o, fvec_t * input, fvec_t * onset)
       }
     }
   } else {
-    // we are at the beginning of the file, and we don't find silence
-    if (o->total_frames <= o->delay && o->last_onset < o ->minioi && aubio_silence_detection(input, o->silence) == 0) {
-      //AUBIO_DBG ("beginning of file is not silent, marking as onset\n");
-      isonset = o->delay / o->hop_size;
-      o->last_onset = o->delay;
+    // we are at the beginning of the file
+    if (o->total_frames <= o->delay) {
+      // and we don't find silence
+      if (aubio_silence_detection(input, o->silence) == 0) {
+        uint_t new_onset = o->total_frames;
+        if (o->total_frames == 0 || o->last_onset + o->minioi < new_onset) {
+          isonset = o->delay / o->hop_size;
+          o->last_onset = o->total_frames + o->delay;
+        }
+      }
     }
   }
   onset->data[0] = isonset;

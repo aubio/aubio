@@ -60,7 +60,7 @@ aubio_parameter_t * new_aubio_parameter(smpl_t min_value, smpl_t max_value, uint
 */
 uint_t aubio_parameter_set_target_value ( aubio_parameter_t * param, smpl_t value );
 
-/** get next parameter 
+/** get next parameter
 
   \param param parameter, created by ::new_aubio_parameter
 

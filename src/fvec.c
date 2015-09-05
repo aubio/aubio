@@ -21,6 +21,19 @@
 #include "aubio_priv.h"
 #include "fvec.h"
 
+#ifdef HAVE_ACCELERATE
+#include <Accelerate/Accelerate.h>
+#if !HAVE_AUBIO_DOUBLE
+#define aubio_vDSP_mmov       vDSP_mmov
+#define aubio_vDSP_vmul       vDSP_vmul
+#define aubio_vDSP_vfill      vDSP_vfill
+#else /* HAVE_AUBIO_DOUBLE */
+#define aubio_vDSP_mmov       vDSP_mmovD
+#define aubio_vDSP_vmul       vDSP_vmulD
+#define aubio_vDSP_vfill      vDSP_vfillD
+#endif /* HAVE_AUBIO_DOUBLE */
+#endif
+
 fvec_t * new_fvec( uint_t length) {
   fvec_t * s;
   if ((sint_t)length <= 0) {
@@ -60,17 +73,25 @@ void fvec_print(fvec_t *s) {
 }
 
 void fvec_set_all (fvec_t *s, smpl_t val) {
+#ifndef HAVE_ACCELERATE
   uint_t j;
   for (j=0; j< s->length; j++) {
     s->data[j] = val;
   }
+#else
+  aubio_vDSP_vfill(&val, s->data, 1, s->length);
+#endif
 }
 
 void fvec_zeros(fvec_t *s) {
-#if HAVE_MEMCPY_HACKS
+#if !defined(HAVE_MEMCPY_HACKS) && !defined(HAVE_ACCELERATE)
+  fvec_set_all (s, 0.);
+#else
+#if defined(HAVE_MEMCPY_HACKS)
   memset(s->data, 0, s->length * sizeof(smpl_t));
 #else
-  fvec_set_all (s, 0.);
+  aubio_vDSP_vclr(s->data, 1, s->length);
+#endif
 #endif
 }
 
@@ -86,11 +107,15 @@ void fvec_rev(fvec_t *s) {
 }
 
 void fvec_weight(fvec_t *s, fvec_t *weight) {
+#ifndef HAVE_ACCELERATE
   uint_t j;
   uint_t length = MIN(s->length, weight->length);
   for (j=0; j< length; j++) {
     s->data[j] *= weight->data[j];
   }
+#else
+  aubio_vDSP_vmul(s->data, 1, weight->data, 1, s->data, 1, s->length);
+#endif /* HAVE_ACCELERATE */
 }
 
 void fvec_copy(fvec_t *s, fvec_t *t) {
@@ -99,12 +124,16 @@ void fvec_copy(fvec_t *s, fvec_t *t) {
         s->length, t->length);
     return;
   }
-#if HAVE_MEMCPY_HACKS
-  memcpy(t->data, s->data, t->length * sizeof(smpl_t));
-#else
+#if !defined(HAVE_MEMCPY_HACKS) && !defined(HAVE_ACCELERATE)
   uint_t j;
   for (j=0; j< t->length; j++) {
     t->data[j] = s->data[j];
   }
+#else
+#if defined(HAVE_MEMCPY_HACKS)
+  memcpy(t->data, s->data, t->length * sizeof(smpl_t));
+#else
+  aubio_vDSP_mmov(s->data, t->data, 1, s->length, 1, 1);
+#endif
 #endif
 }

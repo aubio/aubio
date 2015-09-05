@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2015 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -18,18 +18,18 @@
 
 */
 
-/** \mainpage 
- 
+/** \mainpage
+
   \section introduction Introduction
- 
+
   aubio is a library to extract annotations from audio signals: it provides a
   set of functions that take an input audio signal, and output pitch estimates,
   attack times (onset), beat location estimates, and other annotation tasks.
- 
-  \section basics Basics 
- 
+
+  \section basics Basics
+
   All object structures in aubio share the same function prefixes and suffixes:
-  
+
     - \p new_aubio_foo creates the object \p foo
     - \p aubio_foo_do executes the object \p foo
     - \p del_aubio_foo destroys the object \p foo
@@ -37,7 +37,7 @@
   All memory allocation and deallocation take place in the \p new_ and \p del_
   functions. Optionally, more than one \p _do methods are available.
   Additional parameters can be adjusted and observed using:
-  
+
     - \p aubio_foo_get_param, getter function, gets the value of a parameter
     - \p aubio_foo_set_param, setter function, changes the value of a parameter
 
