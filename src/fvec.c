@@ -121,6 +121,18 @@ void fvec_weight(fvec_t *s, fvec_t *weight) {
 #endif /* HAVE_ACCELERATE */
 }
 
+void fvec_weighted_copy(fvec_t *in, fvec_t *weight, fvec_t *out) {
+#ifndef HAVE_ACCELERATE
+  uint_t j;
+  uint_t length = MIN(s->length, weight->length);
+  for (j=0; j< length; j++) {
+    out->data[j] = in->data[j] * weight->data[j];
+  }
+#else
+  aubio_vDSP_vmul(in->data, 1, weight->data, 1, out->data, 1, out->length);
+#endif /* HAVE_ACCELERATE */
+}
+
 void fvec_copy(fvec_t *s, fvec_t *t) {
   if (s->length != t->length) {
     AUBIO_ERR("trying to copy %d elements to %d elements \n",

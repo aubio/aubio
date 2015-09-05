@@ -162,6 +162,15 @@ void fvec_weight(fvec_t *s, fvec_t *weight);
 */
 void fvec_copy(fvec_t *s, fvec_t *t);
 
+/** make a copy of a vector, applying weights to each element
+
+  \param in input vector
+  \param weight weights vector
+  \param out output vector
+
+*/
+void fvec_weighted_copy(fvec_t *in, fvec_t *weight, fvec_t *out);
+
 #ifdef __cplusplus
 }
 #endif
