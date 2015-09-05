@@ -20,13 +20,13 @@
 
 /** \file
 
- Vector scaling function 
- 
+ Vector scaling function
+
  This object, inspired from the scale object in FTS, the jMax engine, scales
  the values of a vector according to an affine function defined as follow:
- 
- \f$ y = (x - ilow)*(ohig-olow)/(ihig-ilow) + olow \f$ 
- 
+
+ \f$ y = (x - ilow)*(ohig-olow)/(ihig-ilow) + olow \f$
+
 */
 #ifndef _AUBIO_SCALE_H
 #define _AUBIO_SCALE_H
@@ -39,7 +39,7 @@ extern "C" {
 typedef struct _aubio_scale_t aubio_scale_t;
 
 /** create a scale object
- 
+
   \param flow lower value of output function
   \param fhig higher value of output function
   \param ilow lower value of input function
@@ -48,7 +48,7 @@ typedef struct _aubio_scale_t aubio_scale_t;
 */
 aubio_scale_t * new_aubio_scale(smpl_t flow, smpl_t fhig,
     smpl_t ilow, smpl_t ihig);
-/** delete a scale object 
+/** delete a scale object
 
   \param s scale object as returned by new_aubio_scale
 
@@ -75,6 +75,6 @@ uint_t aubio_scale_set_limits (aubio_scale_t *s, smpl_t ilow, smpl_t ihig,
 
 #ifdef __cplusplus
 }
-#endif 
+#endif
 
 #endif /* _AUBIO_SCALE_H */
