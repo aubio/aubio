@@ -230,9 +230,13 @@ void aubio_fft_rdo(aubio_fft_t * s, cvec_t * spectrum, fvec_t * output) {
 
 void aubio_fft_do_complex(aubio_fft_t * s, fvec_t * input, fvec_t * compspec) {
   uint_t i;
+#ifndef HAVE_MEMCPY_HACKS
   for (i=0; i < s->winsize; i++) {
     s->in[i] = input->data[i];
   }
+#else
+  memcpy(s->in, input->data, s->winsize * sizeof(smpl_t));
+#endif /* HAVE_MEMCPY_HACKS */
 #ifdef HAVE_FFTW3             // using FFTW3
   fftw_execute(s->pfw);
 #ifdef HAVE_COMPLEX_H
