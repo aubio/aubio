@@ -125,7 +125,7 @@ uint_t aubio_sink_sndfile_open(aubio_sink_sndfile_t *s) {
     /* show libsndfile err msg */
     AUBIO_ERR("sink_sndfile: Failed opening %s. %s\n", s->path, sf_strerror (NULL));
     return AUBIO_FAIL;
-  }	
+  }
 
   s->scratch_size = s->max_size*s->channels;
   /* allocate data for de/interleaving reallocated when needed. */
@@ -140,7 +140,7 @@ uint_t aubio_sink_sndfile_open(aubio_sink_sndfile_t *s) {
 }
 
 void aubio_sink_sndfile_do(aubio_sink_sndfile_t *s, fvec_t * write_data, uint_t write){
-  uint_t i, j,	channels = s->channels;
+  uint_t i, j, channels = s->channels;
   int nsamples = 0;
   smpl_t *pwrite;
   sf_count_t written_frames;
@@ -170,7 +170,7 @@ void aubio_sink_sndfile_do(aubio_sink_sndfile_t *s, fvec_t * write_data, uint_t 
 }
 
 void aubio_sink_sndfile_do_multi(aubio_sink_sndfile_t *s, fmat_t * write_data, uint_t write){
-  uint_t i, j,	channels = s->channels;
+  uint_t i, j, channels = s->channels;
   int nsamples = 0;
   smpl_t *pwrite;
   sf_count_t written_frames;
