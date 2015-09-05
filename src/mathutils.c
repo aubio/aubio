@@ -30,6 +30,14 @@
 #include <Accelerate/Accelerate.h>
 #endif
 
+#if !HAVE_AUBIO_DOUBLE
+#define aubio_cblas_xswap cblas_sswap
+#define aubio_cblas_dot   cblas_sdot
+#else
+#define aubio_cblas_xswap cblas_dswap
+#define aubio_cblas_dot   cblas_ddot
+#endif
+
 /** Window types */
 typedef enum
 {
@@ -281,20 +289,29 @@ fvec_max_elem (fvec_t * s)
 void
 fvec_shift (fvec_t * s)
 {
+#ifndef HAVE_ACCELERATE
   uint_t j;
   for (j = 0; j < s->length / 2; j++) {
     ELEM_SWAP (s->data[j], s->data[j + s->length / 2]);
   }
+#else
+  uint_t half = s->length / 2;
+  aubio_cblas_xswap(half, s->data, 1, s->data + half, 1);
+#endif
 }
 
 smpl_t
 aubio_level_lin (fvec_t * f)
 {
   smpl_t energy = 0.;
+#ifndef HAVE_ACCELERATE
   uint_t j;
   for (j = 0; j < f->length; j++) {
     energy += SQR (f->data[j]);
   }
+#else
+  energy = aubio_cblas_dot(f->length, f->data, 1, f->data, 1);
+#endif
   return energy / f->length;
 }
 
