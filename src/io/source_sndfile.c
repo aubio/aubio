@@ -90,7 +90,7 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplera
     /* show libsndfile err msg */
     AUBIO_ERR("source_sndfile: Failed opening %s: %s\n", s->path, sf_strerror (NULL));
     goto beach;
-  }	
+  }
 
   /* get input specs */
   s->input_samplerate = sfinfo.samplerate;
