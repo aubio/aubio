@@ -27,10 +27,12 @@
 #define aubio_vDSP_mmov       vDSP_mmov
 #define aubio_vDSP_vmul       vDSP_vmul
 #define aubio_vDSP_vfill      vDSP_vfill
+#define aubio_catlas_set      catlas_sset
 #else /* HAVE_AUBIO_DOUBLE */
 #define aubio_vDSP_mmov       vDSP_mmovD
 #define aubio_vDSP_vmul       vDSP_vmulD
 #define aubio_vDSP_vfill      vDSP_vfillD
+#define aubio_catlas_set      catlas_dset
 #endif /* HAVE_AUBIO_DOUBLE */
 #endif
 
@@ -79,6 +81,7 @@ void fvec_set_all (fvec_t *s, smpl_t val) {
     s->data[j] = val;
   }
 #else
+  //aubio_catlas_set(s->length, val, s->data, 1);
   aubio_vDSP_vfill(&val, s->data, 1, s->length);
 #endif
 }
