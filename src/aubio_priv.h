@@ -76,6 +76,7 @@
 
 #ifdef HAVE_ACCELERATE
 #include <Accelerate/Accelerate.h>
+#if !HAVE_AUBIO_DOUBLE
 #define aubio_vDSP_mmov       vDSP_mmov
 #define aubio_vDSP_vmul       vDSP_vmul
 #define aubio_vDSP_vfill      vDSP_vfill
@@ -84,7 +85,7 @@
 #define aubio_vDSP_vmul       vDSP_vmulD
 #define aubio_vDSP_vfill      vDSP_vfillD
 #endif /* HAVE_AUBIO_DOUBLE */
-#endif
+#endif /* HAVE_ACCELERATE */
 
 #ifdef HAVE_ATLAS
 #if !HAVE_AUBIO_DOUBLE
@@ -94,6 +95,7 @@
 #define aubio_catlas_set      catlas_dset
 #define aubio_cblas_copy      cblas_dcopy
 #endif /* HAVE_AUBIO_DOUBLE */
+#endif /* HAVE_ATLAS */
 
 #if !defined(HAVE_MEMCPY_HACKS) && !defined(HAVE_ACCELERATE) && !defined(HAVE_ATLAS)
 #define HAVE_NOOPT 1
