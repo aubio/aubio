@@ -1,0 +1,305 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tga;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Sources">
+      <UniqueIdentifier>{5da0c8cf-9a52-49b8-9ccc-0e6f961353ee}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="..\..\..\..\src\pitch\pitch.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\pitch\pitchfcomb.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\pitch\pitchmcomb.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\pitch\pitchschmitt.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\pitch\pitchspecacf.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\pitch\pitchyin.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\pitch\pitchyinfft.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\spectral\fft.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\spectral\filterbank.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\spectral\filterbank_mel.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\spectral\mfcc.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\spectral\ooura_fft8g.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\spectral\phasevoc.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\spectral\specdesc.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\spectral\statistics.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\spectral\tss.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\synth\sampler.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\synth\wavetable.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\tempo\beattracking.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\tempo\tempo.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\temporal\a_weighting.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\temporal\biquad.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\temporal\c_weighting.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\temporal\filter.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\temporal\resampler.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\utils\hist.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\utils\parameter.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\utils\scale.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\cvec.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\fmat.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\fvec.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\lvec.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\mathutils.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\vecutils.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\io\audio_unit.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\io\sink.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\io\sink_apple_audio.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\io\sink_sndfile.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\io\sink_wavwrite.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\io\source.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\io\source_apple_audio.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\io\source_avcodec.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\io\source_sndfile.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\io\source_wavread.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\io\utils_apple_audio.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\onset\onset.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\onset\peakpicker.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="config.h" />
+    <ClInclude Include="..\..\..\..\src\pitch\pitch.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\pitch\pitchfcomb.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\pitch\pitchmcomb.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\pitch\pitchschmitt.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\pitch\pitchspecacf.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\pitch\pitchyin.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\pitch\pitchyinfft.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\spectral\fft.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\spectral\filterbank.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\spectral\filterbank_mel.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\spectral\mfcc.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\spectral\phasevoc.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\spectral\specdesc.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\spectral\tss.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\synth\sampler.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\synth\wavetable.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\tempo\beattracking.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\tempo\tempo.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\temporal\a_weighting.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\temporal\biquad.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\temporal\c_weighting.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\temporal\filter.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\temporal\resampler.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\utils\hist.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\utils\parameter.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\utils\scale.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\aubio.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\aubio_priv.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\cvec.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\fmat.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\fvec.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\lvec.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\mathutils.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\musicutils.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\types.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\vecutils.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\io\audio_unit.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\io\sink.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\io\sink_apple_audio.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\io\sink_sndfile.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\io\sink_wavwrite.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\io\source.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\io\source_apple_audio.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\io\source_avcodec.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\io\source_sndfile.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\io\source_wavread.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\onset\onset.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\onset\peakpicker.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
