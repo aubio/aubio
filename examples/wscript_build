@@ -9,6 +9,7 @@ uselib += ['AVFORMAT']
 uselib += ['AVRESAMPLE']
 uselib += ['AVUTIL']
 uselib += ['JACK']
+uselib += ['BLAS']
 
 utils_source = ['utils.c', 'jackio.c']
 programs_source = ctx.path.ant_glob('*.c', excl = utils_source)
