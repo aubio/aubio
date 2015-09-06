@@ -1,0 +1,44 @@
+﻿<Page
+    x:Class="AubioComponent.Example.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Pivot Title="Aubio example">
+
+            <PivotItem Header="Getting started">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Button Content="Pick an audio file" HorizontalAlignment="Center"   Padding="20"  Click="Button_Click"/>
+                    <StackPanel x:Name="ProgressPanel" Visibility="Collapsed" HorizontalAlignment="Center" >
+                        <TextBlock HorizontalAlignment="Center" Margin="5" x:Name="ProgressText" />
+                        <ProgressBar HorizontalAlignment="Center" Height="10" VerticalAlignment="Top" Width="150" x:Name="ProgressBar"/>
+                    </StackPanel>
+                </StackPanel>
+            </PivotItem>
+
+            <PivotItem Header="Detected tempos">
+                <ListView x:Name="ListViewTempo">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Bpm}" />
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </PivotItem>
+
+            <PivotItem Header="Detected onsets">
+                <ListView x:Name="ListViewOnset">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Seconds}" />
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </PivotItem>
+
+        </Pivot>
+    </Grid>
+</Page>
