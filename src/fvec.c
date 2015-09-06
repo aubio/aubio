@@ -21,21 +21,6 @@
 #include "aubio_priv.h"
 #include "fvec.h"
 
-#ifdef HAVE_ACCELERATE
-#include <Accelerate/Accelerate.h>
-#if !HAVE_AUBIO_DOUBLE
-#define aubio_vDSP_mmov       vDSP_mmov
-#define aubio_vDSP_vmul       vDSP_vmul
-#define aubio_vDSP_vfill      vDSP_vfill
-#define aubio_catlas_set      catlas_sset
-#else /* HAVE_AUBIO_DOUBLE */
-#define aubio_vDSP_mmov       vDSP_mmovD
-#define aubio_vDSP_vmul       vDSP_vmulD
-#define aubio_vDSP_vfill      vDSP_vfillD
-#define aubio_catlas_set      catlas_dset
-#endif /* HAVE_AUBIO_DOUBLE */
-#endif
-
 fvec_t * new_fvec( uint_t length) {
   fvec_t * s;
   if ((sint_t)length <= 0) {
@@ -75,13 +60,14 @@ void fvec_print(fvec_t *s) {
 }
 
 void fvec_set_all (fvec_t *s, smpl_t val) {
-#ifndef HAVE_ACCELERATE
+#if !defined(HAVE_ACCELERATE) && !defined(HAVE_ATLAS)
   uint_t j;
   for (j=0; j< s->length; j++) {
     s->data[j] = val;
   }
-#else
-  //aubio_catlas_set(s->length, val, s->data, 1);
+#elif defined(HAVE_ATLAS)
+  aubio_catlas_set(s->length, val, s->data, 1);
+#elif defined(HAVE_ACCELERATE)
   aubio_vDSP_vfill(&val, s->data, 1, s->length);
 #endif
 }
@@ -139,16 +125,16 @@ void fvec_copy(fvec_t *s, fvec_t *t) {
         s->length, t->length);
     return;
   }
-#if !defined(HAVE_MEMCPY_HACKS) && !defined(HAVE_ACCELERATE)
+#if HAVE_NOOPT
   uint_t j;
   for (j=0; j< t->length; j++) {
     t->data[j] = s->data[j];
   }
-#else
-#if defined(HAVE_MEMCPY_HACKS)
+#elif defined(HAVE_MEMCPY_HACKS)
   memcpy(t->data, s->data, t->length * sizeof(smpl_t));
-#else
+#elif defined(HAVE_ATLAS)
+  aubio_cblas_copy(s->length, s->data, 1, t->data, 1);
+#elif defined(HAVE_ACCELERATE)
   aubio_vDSP_mmov(s->data, t->data, 1, s->length, 1, 1);
-#endif
 #endif
 }

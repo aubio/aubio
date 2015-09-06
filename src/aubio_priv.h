@@ -64,6 +64,45 @@
 #include <limits.h> // for CHAR_BIT, in C99 standard
 #endif
 
+#ifdef HAVE_ACCELERATE
+#define HAVE_ATLAS 1
+#include <Accelerate/Accelerate.h>
+#elif HAVE_ATLAS_CBLAS_H
+#define HAVE_ATLAS 1
+#include <atlas/cblas.h>
+#else
+#undef HAVE_ATLAS
+#endif
+
+#ifdef HAVE_ACCELERATE
+#include <Accelerate/Accelerate.h>
+#if !HAVE_AUBIO_DOUBLE
+#define aubio_vDSP_mmov       vDSP_mmov
+#define aubio_vDSP_vmul       vDSP_vmul
+#define aubio_vDSP_vfill      vDSP_vfill
+#else /* HAVE_AUBIO_DOUBLE */
+#define aubio_vDSP_mmov       vDSP_mmovD
+#define aubio_vDSP_vmul       vDSP_vmulD
+#define aubio_vDSP_vfill      vDSP_vfillD
+#endif /* HAVE_AUBIO_DOUBLE */
+#endif /* HAVE_ACCELERATE */
+
+#ifdef HAVE_ATLAS
+#if !HAVE_AUBIO_DOUBLE
+#define aubio_catlas_set      catlas_sset
+#define aubio_cblas_copy      cblas_scopy
+#else /* HAVE_AUBIO_DOUBLE */
+#define aubio_catlas_set      catlas_dset
+#define aubio_cblas_copy      cblas_dcopy
+#endif /* HAVE_AUBIO_DOUBLE */
+#endif /* HAVE_ATLAS */
+
+#if !defined(HAVE_MEMCPY_HACKS) && !defined(HAVE_ACCELERATE) && !defined(HAVE_ATLAS)
+#define HAVE_NOOPT 1
+#else
+#undef HAVE_NOOPT
+#endif
+
 #include "types.h"
 
 #define AUBIO_UNSTABLE 1
