@@ -62,7 +62,7 @@ aubio_tss_t *new_aubio_tss (uint_t buf_size, uint_t hop_size);
 void del_aubio_tss (aubio_tss_t * o);
 
 /** split input into transient and steady states components
- 
+
   \param o tss object as returned by new_aubio_tss()
   \param input input spectral frame
   \param trans output transient components
@@ -72,8 +72,8 @@ void del_aubio_tss (aubio_tss_t * o);
 void aubio_tss_do (aubio_tss_t * o, cvec_t * input, cvec_t * trans,
     cvec_t * stead);
 
-/** set transient / steady state separation threshold 
- 
+/** set transient / steady state separation threshold
+
   \param o tss object as returned by new_aubio_tss()
   \param thrs new threshold value
 
@@ -81,7 +81,7 @@ void aubio_tss_do (aubio_tss_t * o, cvec_t * input, cvec_t * trans,
 uint_t aubio_tss_set_threshold (aubio_tss_t * o, smpl_t thrs);
 
 /** set parameter a, defaults to 3
- 
+
   \param o tss object as returned by new_aubio_tss()
   \param alpha new value for alpha parameter
 
@@ -89,7 +89,7 @@ uint_t aubio_tss_set_threshold (aubio_tss_t * o, smpl_t thrs);
 uint_t aubio_tss_set_alpha (aubio_tss_t * o, smpl_t alpha);
 
 /** set parameter b, defaults to 3
- 
+
   \param o tss object as returned by new_aubio_tss()
   \param beta new value for beta parameter
 

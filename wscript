@@ -75,6 +75,12 @@ def options(ctx):
     add_option_enable_disable(ctx, 'fat', default = False,
             help_str = 'build fat binaries (darwin only)',
             help_disable_str = 'do not build fat binaries (default)')
+    add_option_enable_disable(ctx, 'accelerate', default = None,
+            help_str = 'use Accelerate framework (darwin only) (auto)',
+            help_disable_str = 'do not use Accelerate framework')
+    add_option_enable_disable(ctx, 'apple-audio', default = None,
+            help_str = 'use CoreFoundation (darwin only) (auto)',
+            help_disable_str = 'do not use CoreFoundation framework')
 
     ctx.add_option('--with-target-platform', type='string',
             help='set target platform for cross-compilation', dest='target_platform')
@@ -110,15 +116,20 @@ def configure(ctx):
         ctx.env.LINKFLAGS += ['-arch', 'i386', '-arch', 'x86_64']
 
     if target_platform in [ 'darwin', 'ios', 'iosimulator']:
-        ctx.env.FRAMEWORK = ['CoreFoundation', 'AudioToolbox', 'Accelerate']
-        ctx.define('HAVE_SOURCE_APPLE_AUDIO', 1)
-        ctx.define('HAVE_SINK_APPLE_AUDIO', 1)
-        ctx.define('HAVE_ACCELERATE', 1)
+        if (ctx.options.enable_apple_audio != False):
+            ctx.env.FRAMEWORK += ['CoreFoundation', 'AudioToolbox']
+            ctx.define('HAVE_SOURCE_APPLE_AUDIO', 1)
+            ctx.define('HAVE_SINK_APPLE_AUDIO', 1)
+        if (ctx.options.enable_accelerate != False):
+            ctx.define('HAVE_ACCELERATE', 1)
+            ctx.env.FRAMEWORK += ['Accelerate']
 
     if target_platform in [ 'ios', 'iosimulator' ]:
-        ctx.define('TARGET_OS_IPHONE', 1)
         MINSDKVER="6.1"
         ctx.env.CFLAGS += ['-std=c99']
+        if (ctx.options.enable_audio_unit != False):
+            ctx.define('HAVE_AUDIO_UNIT', 1)
+            #ctx.env.FRAMEWORK += ['CoreFoundation', 'AudioToolbox']
         if target_platform == 'ios':
             DEVROOT = "/Applications/Xcode.app/Contents"
             DEVROOT += "/Developer/Platforms/iPhoneOS.platform/Developer"
@@ -238,7 +249,7 @@ def configure(ctx):
         ctx.check_cfg(package = 'libavresample', atleast_version = '1.0.1',
                 args = '--cflags --libs', uselib_store = 'AVRESAMPLE',
                 mandatory = ctx.options.enable_avcodec)
-        if all ( 'HAVE_' + i in ctx.env.define_key
+        if all ( 'HAVE_' + i in ctx.env
                 for i in ['AVCODEC', 'AVFORMAT', 'AVUTIL', 'AVRESAMPLE'] ):
             ctx.define('HAVE_LIBAV', 1)
             ctx.msg('Checking for all libav libraries', 'yes')

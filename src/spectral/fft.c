@@ -66,12 +66,12 @@ typedef FFTW_TYPE fft_data_t;
 #if HAVE_AUBIO_DOUBLE
 #warning "Using aubio in double precision with fftw3 in single precision"
 #endif /* HAVE_AUBIO_DOUBLE */
-#define real_t float 
+#define real_t float
 #else /* HAVE_FFTW3F */
 #if !HAVE_AUBIO_DOUBLE
 #warning "Using aubio in single precision with fftw3 in double precision"
 #endif /* HAVE_AUBIO_DOUBLE */
-#define real_t double 
+#define real_t double
 #endif /* HAVE_FFTW3F */
 
 // a global mutex for FFTW thread safety
@@ -81,6 +81,36 @@ pthread_mutex_t aubio_fftw_mutex = PTHREAD_MUTEX_INITIALIZER;
 #ifdef HAVE_ACCELERATE        // using ACCELERATE
 // https://developer.apple.com/library/mac/#documentation/Accelerate/Reference/vDSPRef/Reference/reference.html
 #include <Accelerate/Accelerate.h>
+
+#if !HAVE_AUBIO_DOUBLE
+#define aubio_vDSP_ctoz                vDSP_ctoz
+#define aubio_vDSP_fft_zrip            vDSP_fft_zrip
+#define aubio_vDSP_ztoc                vDSP_ztoc
+#define aubio_vDSP_zvmags              vDSP_zvmags
+#define aubio_vDSP_zvphas              vDSP_zvphas
+#define aubio_vDSP_vsadd               vDSP_vsadd
+#define aubio_vDSP_vsmul               vDSP_vsmul
+#define aubio_vDSP_create_fftsetup     vDSP_create_fftsetup
+#define aubio_vDSP_destroy_fftsetup    vDSP_destroy_fftsetup
+#define aubio_DSPComplex               DSPComplex
+#define aubio_DSPSplitComplex          DSPSplitComplex
+#define aubio_FFTSetup                 FFTSetup
+#define aubio_vvsqrt                   vvsqrtf
+#else
+#define aubio_vDSP_ctoz                vDSP_ctozD
+#define aubio_vDSP_fft_zrip            vDSP_fft_zripD
+#define aubio_vDSP_ztoc                vDSP_ztocD
+#define aubio_vDSP_zvmags              vDSP_zvmagsD
+#define aubio_vDSP_zvphas              vDSP_zvphasD
+#define aubio_vDSP_vsadd               vDSP_vsaddD
+#define aubio_vDSP_vsmul               vDSP_vsmulD
+#define aubio_vDSP_create_fftsetup     vDSP_create_fftsetupD
+#define aubio_vDSP_destroy_fftsetup    vDSP_destroy_fftsetupD
+#define aubio_DSPComplex               DSPDoubleComplex
+#define aubio_DSPSplitComplex          DSPDoubleSplitComplex
+#define aubio_FFTSetup                 FFTSetupD
+#define aubio_vvsqrt                   vvsqrt
+#endif /* HAVE_AUBIO_DOUBLE */
 
 #else                         // using OOURA
 // let's use ooura instead
@@ -95,19 +125,13 @@ struct _aubio_fft_t {
 #ifdef HAVE_FFTW3             // using FFTW3
   real_t *in, *out;
   fftw_plan pfw, pbw;
-  fft_data_t * specdata;     /* complex spectral data */
+  fft_data_t * specdata;      /* complex spectral data */
 #else
 #ifdef HAVE_ACCELERATE        // using ACCELERATE
   int log2fftsize;
-#if !HAVE_AUBIO_DOUBLE
-  FFTSetup fftSetup;
-  DSPSplitComplex spec;
-  float *in, *out;
-#else
-  FFTSetupD fftSetup;
-  DSPDoubleSplitComplex spec;
-  double *in, *out;
-#endif
+  aubio_FFTSetup fftSetup;
+  aubio_DSPSplitComplex spec;
+  smpl_t *in, *out;
 #else                         // using OOURA
   smpl_t *in, *out;
   smpl_t *w;
@@ -119,6 +143,10 @@ struct _aubio_fft_t {
 
 aubio_fft_t * new_aubio_fft (uint_t winsize) {
   aubio_fft_t * s = AUBIO_NEW(aubio_fft_t);
+  if ((sint_t)winsize < 1) {
+    AUBIO_ERR("fft: got winsize %d, but can not be < 1\n", winsize);
+    goto beach;
+  }
 #ifdef HAVE_FFTW3
   uint_t i;
   s->winsize  = winsize;
@@ -153,20 +181,17 @@ aubio_fft_t * new_aubio_fft (uint_t winsize) {
   s->fft_size = winsize;
   s->compspec = new_fvec(winsize);
   s->log2fftsize = (uint_t)log2f(s->fft_size);
-#if !HAVE_AUBIO_DOUBLE
-  s->in = AUBIO_ARRAY(float, s->fft_size);
-  s->out = AUBIO_ARRAY(float, s->fft_size);
-  s->spec.realp = AUBIO_ARRAY(float, s->fft_size/2);
-  s->spec.imagp = AUBIO_ARRAY(float, s->fft_size/2);
-  s->fftSetup = vDSP_create_fftsetup(s->log2fftsize, FFT_RADIX2);
-#else
-  s->in = AUBIO_ARRAY(double, s->fft_size);
-  s->out = AUBIO_ARRAY(double, s->fft_size);
-  s->spec.realp = AUBIO_ARRAY(double, s->fft_size/2);
-  s->spec.imagp = AUBIO_ARRAY(double, s->fft_size/2);
-  s->fftSetup = vDSP_create_fftsetupD(s->log2fftsize, FFT_RADIX2);
-#endif
+  s->in = AUBIO_ARRAY(smpl_t, s->fft_size);
+  s->out = AUBIO_ARRAY(smpl_t, s->fft_size);
+  s->spec.realp = AUBIO_ARRAY(smpl_t, s->fft_size/2);
+  s->spec.imagp = AUBIO_ARRAY(smpl_t, s->fft_size/2);
+  s->fftSetup = aubio_vDSP_create_fftsetup(s->log2fftsize, FFT_RADIX2);
 #else                         // using OOURA
+  if (aubio_is_power_of_two(winsize) != 1) {
+    AUBIO_ERR("fft: can only create with sizes power of two,"
+              " requested %d\n", winsize);
+    goto beach;
+  }
   s->winsize = winsize;
   s->fft_size = winsize / 2 + 1;
   s->compspec = new_fvec(winsize);
@@ -178,6 +203,9 @@ aubio_fft_t * new_aubio_fft (uint_t winsize) {
 #endif /* HAVE_ACCELERATE */
 #endif /* HAVE_FFTW3 */
   return s;
+beach:
+  AUBIO_FREE(s);
+  return NULL;
 }
 
 void del_aubio_fft(aubio_fft_t * s) {
@@ -191,11 +219,7 @@ void del_aubio_fft(aubio_fft_t * s) {
 #ifdef HAVE_ACCELERATE        // using ACCELERATE
   AUBIO_FREE(s->spec.realp);
   AUBIO_FREE(s->spec.imagp);
-#if !HAVE_AUBIO_DOUBLE
-  vDSP_destroy_fftsetup(s->fftSetup);
-#else
-  vDSP_destroy_fftsetupD(s->fftSetup);
-#endif
+  aubio_vDSP_destroy_fftsetup(s->fftSetup);
 #else                         // using OOURA
   AUBIO_FREE(s->w);
   AUBIO_FREE(s->ip);
@@ -218,9 +242,13 @@ void aubio_fft_rdo(aubio_fft_t * s, cvec_t * spectrum, fvec_t * output) {
 
 void aubio_fft_do_complex(aubio_fft_t * s, fvec_t * input, fvec_t * compspec) {
   uint_t i;
+#ifndef HAVE_MEMCPY_HACKS
   for (i=0; i < s->winsize; i++) {
     s->in[i] = input->data[i];
   }
+#else
+  memcpy(s->in, input->data, s->winsize * sizeof(smpl_t));
+#endif /* HAVE_MEMCPY_HACKS */
 #ifdef HAVE_FFTW3             // using FFTW3
   fftw_execute(s->pfw);
 #ifdef HAVE_COMPLEX_H
@@ -237,17 +265,10 @@ void aubio_fft_do_complex(aubio_fft_t * s, fvec_t * input, fvec_t * compspec) {
 #endif /* HAVE_COMPLEX_H */
 #else /* HAVE_FFTW3 */
 #ifdef HAVE_ACCELERATE        // using ACCELERATE
-#if !HAVE_AUBIO_DOUBLE
   // convert real data to even/odd format used in vDSP
-  vDSP_ctoz((DSPComplex*)s->in, 2, &s->spec, 1, s->fft_size/2);
+  aubio_vDSP_ctoz((aubio_DSPComplex*)s->in, 2, &s->spec, 1, s->fft_size/2);
   // compute the FFT
-  vDSP_fft_zrip(s->fftSetup, &s->spec, 1, s->log2fftsize, FFT_FORWARD);
-#else
-  // convert real data to even/odd format used in vDSP
-  vDSP_ctozD((DSPDoubleComplex*)s->in, 2, &s->spec, 1, s->fft_size/2);
-  // compute the FFT
-  vDSP_fft_zripD(s->fftSetup, &s->spec, 1, s->log2fftsize, FFT_FORWARD);
-#endif
+  aubio_vDSP_fft_zrip(s->fftSetup, &s->spec, 1, s->log2fftsize, FFT_FORWARD);
   // convert from vDSP complex split to [ r0, r1, ..., rN, iN-1, .., i2, i1]
   compspec->data[0] = s->spec.realp[0];
   compspec->data[s->fft_size / 2] = s->spec.imagp[0];
@@ -257,11 +278,7 @@ void aubio_fft_do_complex(aubio_fft_t * s, fvec_t * input, fvec_t * compspec) {
   }
   // apply scaling
   smpl_t scale = 1./2.;
-#if !HAVE_AUBIO_DOUBLE
-  vDSP_vsmul(compspec->data, 1, &scale, compspec->data, 1, s->fft_size);
-#else
-  vDSP_vsmulD(compspec->data, 1, &scale, compspec->data, 1, s->fft_size);
-#endif
+  aubio_vDSP_vsmul(compspec->data, 1, &scale, compspec->data, 1, s->fft_size);
 #else                         // using OOURA
   rdft(s->winsize, 1, s->in, s->ip, s->w);
   compspec->data[0] = s->in[0];
@@ -304,27 +321,15 @@ void aubio_fft_rdo_complex(aubio_fft_t * s, fvec_t * compspec, fvec_t * output) 
     s->out[2 * i] = compspec->data[i];
     s->out[2 * i + 1] = compspec->data[s->winsize - i];
   }
-#if !HAVE_AUBIO_DOUBLE
   // convert to split complex format used in vDSP
-  vDSP_ctoz((DSPComplex*)s->out, 2, &s->spec, 1, s->fft_size/2);
+  aubio_vDSP_ctoz((aubio_DSPComplex*)s->out, 2, &s->spec, 1, s->fft_size/2);
   // compute the FFT
-  vDSP_fft_zrip(s->fftSetup, &s->spec, 1, s->log2fftsize, FFT_INVERSE);
+  aubio_vDSP_fft_zrip(s->fftSetup, &s->spec, 1, s->log2fftsize, FFT_INVERSE);
   // convert result to real output
-  vDSP_ztoc(&s->spec, 1, (DSPComplex*)output->data, 2, s->fft_size/2);
+  aubio_vDSP_ztoc(&s->spec, 1, (aubio_DSPComplex*)output->data, 2, s->fft_size/2);
   // apply scaling
   smpl_t scale = 1.0 / s->winsize;
-  vDSP_vsmul(output->data, 1, &scale, output->data, 1, s->fft_size);
-#else
-  // convert to split complex format used in vDSP
-  vDSP_ctozD((DSPDoubleComplex*)s->out, 2, &s->spec, 1, s->fft_size/2);
-  // compute the FFT
-  vDSP_fft_zripD(s->fftSetup, &s->spec, 1, s->log2fftsize, FFT_INVERSE);
-  // convert result to real output
-  vDSP_ztocD(&s->spec, 1, (DSPDoubleComplex*)output->data, 2, s->fft_size/2);
-  // apply scaling
-  smpl_t scale = 1.0 / s->winsize;
-  vDSP_vsmulD(output->data, 1, &scale, output->data, 1, s->fft_size);
-#endif
+  aubio_vDSP_vsmul(output->data, 1, &scale, output->data, 1, s->fft_size);
 #else                         // using OOURA
   smpl_t scale = 2.0 / s->winsize;
   s->out[0] = compspec->data[0];
@@ -391,7 +396,7 @@ void aubio_fft_get_imag(cvec_t * spectrum, fvec_t * compspec) {
 void aubio_fft_get_real(cvec_t * spectrum, fvec_t * compspec) {
   uint_t i;
   for (i = 0; i < compspec->length / 2 + 1; i++) {
-    compspec->data[i] = 
+    compspec->data[i] =
       spectrum->norm[i]*COS(spectrum->phas[i]);
   }
 }

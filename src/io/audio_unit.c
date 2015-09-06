@@ -19,7 +19,7 @@
 */
 
 #include "config.h"
-#ifdef TARGET_OS_IPHONE
+#ifdef HAVE_AUDIO_UNIT
 #include "aubio_priv.h"
 
 #include "fvec.h"
@@ -774,4 +774,4 @@ uint_t del_aubio_audio_unit(aubio_audio_unit_t *o)
   return (int)err;
 }
 
-#endif /* TARGET_OS_IPHONE */
+#endif /* HAVE_AUDIO_UNIT */

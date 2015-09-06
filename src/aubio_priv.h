@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2009 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2015 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -20,7 +20,7 @@
 
 /** @file
  * Private include file
- * 
+ *
  * This file is for inclusion from _within_ the library only.
  */
 
@@ -29,7 +29,7 @@
 
 /*********************
  *
- * External includes 
+ * External includes
  *
  */
 
@@ -64,6 +64,61 @@
 #include <limits.h> // for CHAR_BIT, in C99 standard
 #endif
 
+#ifdef HAVE_ACCELERATE
+#define HAVE_ATLAS 1
+#include <Accelerate/Accelerate.h>
+#elif HAVE_ATLAS_CBLAS_H
+#define HAVE_ATLAS 1
+#include <atlas/cblas.h>
+#else
+#undef HAVE_ATLAS
+#endif
+
+#ifdef HAVE_ACCELERATE
+#include <Accelerate/Accelerate.h>
+#if !HAVE_AUBIO_DOUBLE
+#define aubio_vDSP_mmov       vDSP_mmov
+#define aubio_vDSP_vmul       vDSP_vmul
+#define aubio_vDSP_vfill      vDSP_vfill
+#define aubio_vDSP_meanv      vDSP_meanv
+#define aubio_vDSP_sve        vDSP_sve
+#define aubio_vDSP_maxv       vDSP_maxv
+#define aubio_vDSP_maxvi      vDSP_maxvi
+#define aubio_vDSP_minv       vDSP_minv
+#define aubio_vDSP_minvi      vDSP_minvi
+#else /* HAVE_AUBIO_DOUBLE */
+#define aubio_vDSP_mmov       vDSP_mmovD
+#define aubio_vDSP_vmul       vDSP_vmulD
+#define aubio_vDSP_vfill      vDSP_vfillD
+#define aubio_vDSP_meanv      vDSP_meanvD
+#define aubio_vDSP_sve        vDSP_sveD
+#define aubio_vDSP_maxv       vDSP_maxvD
+#define aubio_vDSP_maxvi      vDSP_maxviD
+#define aubio_vDSP_minv       vDSP_minvD
+#define aubio_vDSP_minvi      vDSP_minviD
+#endif /* HAVE_AUBIO_DOUBLE */
+#endif /* HAVE_ACCELERATE */
+
+#ifdef HAVE_ATLAS
+#if !HAVE_AUBIO_DOUBLE
+#define aubio_catlas_set      catlas_sset
+#define aubio_cblas_copy      cblas_scopy
+#define aubio_cblas_swap      cblas_sswap
+#define aubio_cblas_dot       cblas_sdot
+#else /* HAVE_AUBIO_DOUBLE */
+#define aubio_catlas_set      catlas_dset
+#define aubio_cblas_copy      cblas_dcopy
+#define aubio_cblas_swap      cblas_dswap
+#define aubio_cblas_dot       cblas_ddot
+#endif /* HAVE_AUBIO_DOUBLE */
+#endif /* HAVE_ATLAS */
+
+#if !defined(HAVE_MEMCPY_HACKS) && !defined(HAVE_ACCELERATE) && !defined(HAVE_ATLAS)
+#define HAVE_NOOPT 1
+#else
+#undef HAVE_NOOPT
+#endif
+
 #include "types.h"
 
 #define AUBIO_UNSTABLE 1
@@ -71,7 +126,7 @@
 #include "mathutils.h"
 
 /****
- * 
+ *
  * SYSTEM INTERFACE
  *
  */
@@ -196,10 +251,14 @@ typedef enum {
 /* handy shortcuts */
 #define DB2LIN(g) (POW(10.0,(g)*0.05f))
 #define LIN2DB(v) (20.0*LOG10(v))
-#define SQR(_a)   (_a*_a)
+#define SQR(_a)   ((_a)*(_a))
 
-#define MAX(a,b)  ( a > b ? a : b)
-#define MIN(a,b)  ( a < b ? a : b)
+#ifndef MAX
+#define MAX(a,b)  (((a)>(b))?(a):(b))
+#endif /* MAX */
+#ifndef MIN
+#define MIN(a,b)  (((a)<(b))?(a):(b))
+#endif /* MIN */
 
 #define ELEM_SWAP(a,b) { register smpl_t t=(a);(a)=(b);(b)=t; }
 

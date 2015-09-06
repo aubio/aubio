@@ -60,17 +60,27 @@ void fvec_print(fvec_t *s) {
 }
 
 void fvec_set_all (fvec_t *s, smpl_t val) {
+#if !defined(HAVE_ACCELERATE) && !defined(HAVE_ATLAS)
   uint_t j;
   for (j=0; j< s->length; j++) {
     s->data[j] = val;
   }
+#elif defined(HAVE_ATLAS)
+  aubio_catlas_set(s->length, val, s->data, 1);
+#elif defined(HAVE_ACCELERATE)
+  aubio_vDSP_vfill(&val, s->data, 1, s->length);
+#endif
 }
 
 void fvec_zeros(fvec_t *s) {
-#if HAVE_MEMCPY_HACKS
+#if !defined(HAVE_MEMCPY_HACKS) && !defined(HAVE_ACCELERATE)
+  fvec_set_all (s, 0.);
+#else
+#if defined(HAVE_MEMCPY_HACKS)
   memset(s->data, 0, s->length * sizeof(smpl_t));
 #else
-  fvec_set_all (s, 0.);
+  aubio_vDSP_vclr(s->data, 1, s->length);
+#endif
 #endif
 }
 
@@ -86,11 +96,27 @@ void fvec_rev(fvec_t *s) {
 }
 
 void fvec_weight(fvec_t *s, fvec_t *weight) {
+#ifndef HAVE_ACCELERATE
   uint_t j;
   uint_t length = MIN(s->length, weight->length);
   for (j=0; j< length; j++) {
     s->data[j] *= weight->data[j];
   }
+#else
+  aubio_vDSP_vmul(s->data, 1, weight->data, 1, s->data, 1, s->length);
+#endif /* HAVE_ACCELERATE */
+}
+
+void fvec_weighted_copy(fvec_t *in, fvec_t *weight, fvec_t *out) {
+#ifndef HAVE_ACCELERATE
+  uint_t j;
+  uint_t length = MIN(out->length, weight->length);
+  for (j=0; j< length; j++) {
+    out->data[j] = in->data[j] * weight->data[j];
+  }
+#else
+  aubio_vDSP_vmul(in->data, 1, weight->data, 1, out->data, 1, out->length);
+#endif /* HAVE_ACCELERATE */
 }
 
 void fvec_copy(fvec_t *s, fvec_t *t) {
@@ -99,12 +125,16 @@ void fvec_copy(fvec_t *s, fvec_t *t) {
         s->length, t->length);
     return;
   }
-#if HAVE_MEMCPY_HACKS
-  memcpy(t->data, s->data, t->length * sizeof(smpl_t));
-#else
+#if HAVE_NOOPT
   uint_t j;
   for (j=0; j< t->length; j++) {
     t->data[j] = s->data[j];
   }
+#elif defined(HAVE_MEMCPY_HACKS)
+  memcpy(t->data, s->data, t->length * sizeof(smpl_t));
+#elif defined(HAVE_ATLAS)
+  aubio_cblas_copy(s->length, s->data, 1, t->data, 1);
+#elif defined(HAVE_ACCELERATE)
+  aubio_vDSP_mmov(s->data, t->data, 1, s->length, 1, 1);
 #endif
 }

@@ -107,9 +107,7 @@ aubio_pitchyinfft_do (aubio_pitchyinfft_t * p, fvec_t * input, fvec_t * output)
   fvec_t *yin = p->yinfft;
   smpl_t tmp = 0., sum = 0.;
   // window the input
-  for (l = 0; l < input->length; l++) {
-    p->winput->data[l] = p->win->data[l] * input->data[l];
-  }
+  fvec_weighted_copy(input, p->win, p->winput);
   // get the real / imag parts of its fft
   aubio_fft_do_complex (p->fft, p->winput, fftout);
   // get the squared magnitude spectrum, applying some weight

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2009-2013 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2009-2015 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 

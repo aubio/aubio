@@ -26,10 +26,6 @@
 #include "musicutils.h"
 #include "config.h"
 
-#ifdef HAVE_ACCELERATE
-#include <Accelerate/Accelerate.h>
-#endif
-
 /** Window types */
 typedef enum
 {
@@ -158,22 +154,31 @@ aubio_unwrap2pi (smpl_t phase)
 smpl_t
 fvec_mean (fvec_t * s)
 {
-  uint_t j;
   smpl_t tmp = 0.0;
+#ifndef HAVE_ACCELERATE
+  uint_t j;
   for (j = 0; j < s->length; j++) {
     tmp += s->data[j];
   }
   return tmp / (smpl_t) (s->length);
+#else
+  aubio_vDSP_meanv(s->data, 1, &tmp, s->length);
+  return tmp;
+#endif /* HAVE_ACCELERATE */
 }
 
 smpl_t
 fvec_sum (fvec_t * s)
 {
-  uint_t j;
   smpl_t tmp = 0.0;
+#ifndef HAVE_ACCELERATE
+  uint_t j;
   for (j = 0; j < s->length; j++) {
     tmp += s->data[j];
   }
+#else
+  aubio_vDSP_sve(s->data, 1, &tmp, s->length);
+#endif /* HAVE_ACCELERATE */
   return tmp;
 }
 
@@ -188,11 +193,7 @@ fvec_max (fvec_t * s)
   }
 #else
   smpl_t tmp = 0.;
-#if !HAVE_AUBIO_DOUBLE
-  vDSP_maxv(s->data, 1, &tmp, s->length);
-#else
-  vDSP_maxvD(s->data, 1, &tmp, s->length);
-#endif
+  aubio_vDSP_maxv(s->data, 1, &tmp, s->length);
 #endif
   return tmp;
 }
@@ -208,11 +209,7 @@ fvec_min (fvec_t * s)
   }
 #else
   smpl_t tmp = 0.;
-#if !HAVE_AUBIO_DOUBLE
-  vDSP_minv(s->data, 1, &tmp, s->length);
-#else
-  vDSP_minvD(s->data, 1, &tmp, s->length);
-#endif
+  aubio_vDSP_minv(s->data, 1, &tmp, s->length);
 #endif
   return tmp;
 }
@@ -230,11 +227,7 @@ fvec_min_elem (fvec_t * s)
 #else
   smpl_t tmp = 0.;
   uint_t pos = 0.;
-#if !HAVE_AUBIO_DOUBLE
-  vDSP_minvi(s->data, 1, &tmp, (vDSP_Length *)&pos, s->length);
-#else
-  vDSP_minviD(s->data, 1, &tmp, (vDSP_Length *)&pos, s->length);
-#endif
+  aubio_vDSP_minvi(s->data, 1, &tmp, (vDSP_Length *)&pos, s->length);
 #endif
   return pos;
 }
@@ -252,11 +245,7 @@ fvec_max_elem (fvec_t * s)
 #else
   smpl_t tmp = 0.;
   uint_t pos = 0.;
-#if !HAVE_AUBIO_DOUBLE
-  vDSP_maxvi(s->data, 1, &tmp, (vDSP_Length *)&pos, s->length);
-#else
-  vDSP_maxviD(s->data, 1, &tmp, (vDSP_Length *)&pos, s->length);
-#endif
+  aubio_vDSP_maxvi(s->data, 1, &tmp, (vDSP_Length *)&pos, s->length);
 #endif
   return pos;
 }
@@ -264,20 +253,29 @@ fvec_max_elem (fvec_t * s)
 void
 fvec_shift (fvec_t * s)
 {
+#ifndef HAVE_ATLAS
   uint_t j;
   for (j = 0; j < s->length / 2; j++) {
     ELEM_SWAP (s->data[j], s->data[j + s->length / 2]);
   }
+#else
+  uint_t half = s->length / 2;
+  aubio_cblas_swap(half, s->data, 1, s->data + half, 1);
+#endif
 }
 
 smpl_t
 aubio_level_lin (fvec_t * f)
 {
   smpl_t energy = 0.;
+#ifndef HAVE_ATLAS
   uint_t j;
   for (j = 0; j < f->length; j++) {
     energy += SQR (f->data[j]);
   }
+#else
+  energy = aubio_cblas_dot(f->length, f->data, 1, f->data, 1);
+#endif
   return energy / f->length;
 }
 

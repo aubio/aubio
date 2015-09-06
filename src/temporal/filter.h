@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2015 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -21,14 +21,14 @@
 #ifndef _AUBIO_FILTER_H
 #define _AUBIO_FILTER_H
 
-/** \file 
+/** \file
 
   Digital filter
 
   This object stores a digital filter of order \f$n\f$.
   It contains the following data:
-    - \f$ n*1 b_i \f$ feedforward coefficients 
-    - \f$ n*1 a_i \f$ feedback coefficients 
+    - \f$ n*1 b_i \f$ feedforward coefficients
+    - \f$ n*1 a_i \f$ feedback coefficients
     - \f$ n*c x_i \f$ input signal
     - \f$ n*c y_i \f$ output signal
 
@@ -40,7 +40,7 @@
 
   The function aubio_filter_do_outplace() computes the following output signal
   \f$ y[n] \f$ from the input signal \f$ x[n] \f$:
- 
+
   \f{eqnarray*}{
      y[n] = b_0 x[n] & + & b_1 x[n-1] + b_2 x[n-2] + ... + b_P x[n-P] \\
                      & - & a_1 y[n-1] - a_2 y[n-2] - ... - a_P y[n-P] \\
@@ -53,13 +53,13 @@
   forward then backward, to compensate with the phase shifting of the forward
   operation.
 
-  Some convenience functions are provided: 
+  Some convenience functions are provided:
     - new_aubio_filter_a_weighting() and aubio_filter_set_a_weighting(),
     - new_aubio_filter_c_weighting() and aubio_filter_set_c_weighting().
     - new_aubio_filter_biquad() and aubio_filter_set_biquad().
 
   \example temporal/test-filter.c
- 
+
 */
 
 #ifdef __cplusplus
@@ -163,7 +163,7 @@ void aubio_filter_do_reset (aubio_filter_t * f);
 aubio_filter_t *new_aubio_filter (uint_t order);
 
 /** delete a filter object
- 
+
   \param f filter object to delete
 
 */

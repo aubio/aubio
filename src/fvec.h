@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2003-2015 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -86,16 +86,16 @@ void del_fvec(fvec_t *s);
 /** read sample value in a buffer
 
   \param s vector to read from
-  \param position sample position to read from 
+  \param position sample position to read from
 
 */
 smpl_t fvec_get_sample(fvec_t *s, uint_t position);
 
 /** write sample value in a buffer
 
-  \param s vector to write to 
+  \param s vector to write to
   \param data value to write in s->data[position]
-  \param position sample position to write to 
+  \param position sample position to write to
 
 */
 void  fvec_set_sample(fvec_t *s, smpl_t data, uint_t position);
@@ -107,9 +107,9 @@ void  fvec_set_sample(fvec_t *s, smpl_t data, uint_t position);
 */
 smpl_t * fvec_get_data(fvec_t *s);
 
-/** print out fvec data 
+/** print out fvec data
 
-  \param s vector to print out 
+  \param s vector to print out
 
 */
 void fvec_print(fvec_t *s);
@@ -122,14 +122,14 @@ void fvec_print(fvec_t *s);
 */
 void fvec_set_all (fvec_t *s, smpl_t val);
 
-/** set all elements to zero 
+/** set all elements to zero
 
   \param s vector to modify
 
 */
 void fvec_zeros(fvec_t *s);
 
-/** set all elements to ones 
+/** set all elements to ones
 
   \param s vector to modify
 
@@ -161,6 +161,15 @@ void fvec_weight(fvec_t *s, fvec_t *weight);
 
 */
 void fvec_copy(fvec_t *s, fvec_t *t);
+
+/** make a copy of a vector, applying weights to each element
+
+  \param in input vector
+  \param weight weights vector
+  \param out output vector
+
+*/
+void fvec_weighted_copy(fvec_t *in, fvec_t *weight, fvec_t *out);
 
 #ifdef __cplusplus
 }

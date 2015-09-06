@@ -239,14 +239,21 @@ del_aubio_pitch (aubio_pitch_t * p)
 void
 aubio_pitch_slideblock (aubio_pitch_t * p, fvec_t * ibuf)
 {
-  uint_t j = 0, overlap_size = 0;
-  overlap_size = p->buf->length - ibuf->length;
+  uint_t overlap_size = p->buf->length - ibuf->length;
+#if !HAVE_MEMCPY_HACKS
+  uint_t j;
   for (j = 0; j < overlap_size; j++) {
     p->buf->data[j] = p->buf->data[j + ibuf->length];
   }
   for (j = 0; j < ibuf->length; j++) {
     p->buf->data[j + overlap_size] = ibuf->data[j];
   }
+#else
+  smpl_t *data = p->buf->data;
+  smpl_t *newdata = ibuf->data;
+  memmove(data, data + ibuf->length, overlap_size);
+  memcpy(data + overlap_size, newdata, ibuf->length);
+#endif
 }
 
 uint_t
