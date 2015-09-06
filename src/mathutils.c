@@ -26,18 +26,6 @@
 #include "musicutils.h"
 #include "config.h"
 
-#ifdef HAVE_ACCELERATE
-#include <Accelerate/Accelerate.h>
-#endif
-
-#if !HAVE_AUBIO_DOUBLE
-#define aubio_cblas_xswap cblas_sswap
-#define aubio_cblas_dot   cblas_sdot
-#else
-#define aubio_cblas_xswap cblas_dswap
-#define aubio_cblas_dot   cblas_ddot
-#endif
-
 /** Window types */
 typedef enum
 {
@@ -174,11 +162,7 @@ fvec_mean (fvec_t * s)
   }
   return tmp / (smpl_t) (s->length);
 #else
-#if !HAVE_AUBIO_DOUBLE
-  vDSP_meanv(s->data, 1, &tmp, s->length);
-#else /* HAVE_AUBIO_DOUBLE */
-  vDSP_meanvD(s->data, 1, &tmp, s->length);
-#endif /* HAVE_AUBIO_DOUBLE */
+  aubio_vDSP_meanv(s->data, 1, &tmp, s->length);
   return tmp;
 #endif /* HAVE_ACCELERATE */
 }
@@ -193,11 +177,7 @@ fvec_sum (fvec_t * s)
     tmp += s->data[j];
   }
 #else
-#if !HAVE_AUBIO_DOUBLE
-  vDSP_sve(s->data, 1, &tmp, s->length);
-#else /* HAVE_AUBIO_DOUBLE */
-  vDSP_sveD(s->data, 1, &tmp, s->length);
-#endif /* HAVE_AUBIO_DOUBLE */
+  aubio_vDSP_sve(s->data, 1, &tmp, s->length);
 #endif /* HAVE_ACCELERATE */
   return tmp;
 }
@@ -213,11 +193,7 @@ fvec_max (fvec_t * s)
   }
 #else
   smpl_t tmp = 0.;
-#if !HAVE_AUBIO_DOUBLE
-  vDSP_maxv(s->data, 1, &tmp, s->length);
-#else
-  vDSP_maxvD(s->data, 1, &tmp, s->length);
-#endif
+  aubio_vDSP_maxv(s->data, 1, &tmp, s->length);
 #endif
   return tmp;
 }
@@ -233,11 +209,7 @@ fvec_min (fvec_t * s)
   }
 #else
   smpl_t tmp = 0.;
-#if !HAVE_AUBIO_DOUBLE
-  vDSP_minv(s->data, 1, &tmp, s->length);
-#else
-  vDSP_minvD(s->data, 1, &tmp, s->length);
-#endif
+  aubio_vDSP_minv(s->data, 1, &tmp, s->length);
 #endif
   return tmp;
 }
@@ -255,11 +227,7 @@ fvec_min_elem (fvec_t * s)
 #else
   smpl_t tmp = 0.;
   uint_t pos = 0.;
-#if !HAVE_AUBIO_DOUBLE
-  vDSP_minvi(s->data, 1, &tmp, (vDSP_Length *)&pos, s->length);
-#else
-  vDSP_minviD(s->data, 1, &tmp, (vDSP_Length *)&pos, s->length);
-#endif
+  aubio_vDSP_minvi(s->data, 1, &tmp, (vDSP_Length *)&pos, s->length);
 #endif
   return pos;
 }
@@ -277,11 +245,7 @@ fvec_max_elem (fvec_t * s)
 #else
   smpl_t tmp = 0.;
   uint_t pos = 0.;
-#if !HAVE_AUBIO_DOUBLE
-  vDSP_maxvi(s->data, 1, &tmp, (vDSP_Length *)&pos, s->length);
-#else
-  vDSP_maxviD(s->data, 1, &tmp, (vDSP_Length *)&pos, s->length);
-#endif
+  aubio_vDSP_maxvi(s->data, 1, &tmp, (vDSP_Length *)&pos, s->length);
 #endif
   return pos;
 }
