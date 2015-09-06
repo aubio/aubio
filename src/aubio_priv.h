@@ -80,10 +80,22 @@
 #define aubio_vDSP_mmov       vDSP_mmov
 #define aubio_vDSP_vmul       vDSP_vmul
 #define aubio_vDSP_vfill      vDSP_vfill
+#define aubio_vDSP_meanv      vDSP_meanv
+#define aubio_vDSP_sve        vDSP_sve
+#define aubio_vDSP_maxv       vDSP_maxv
+#define aubio_vDSP_maxvi      vDSP_maxvi
+#define aubio_vDSP_minv       vDSP_minv
+#define aubio_vDSP_minvi      vDSP_minvi
 #else /* HAVE_AUBIO_DOUBLE */
 #define aubio_vDSP_mmov       vDSP_mmovD
 #define aubio_vDSP_vmul       vDSP_vmulD
 #define aubio_vDSP_vfill      vDSP_vfillD
+#define aubio_vDSP_meanv      vDSP_meanvD
+#define aubio_vDSP_sve        vDSP_sveD
+#define aubio_vDSP_maxv       vDSP_maxvD
+#define aubio_vDSP_maxvi      vDSP_maxviD
+#define aubio_vDSP_minv       vDSP_minvD
+#define aubio_vDSP_minvi      vDSP_minviD
 #endif /* HAVE_AUBIO_DOUBLE */
 #endif /* HAVE_ACCELERATE */
 
