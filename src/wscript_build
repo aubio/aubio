@@ -8,6 +8,7 @@ uselib += ['AVCODEC']
 uselib += ['AVFORMAT']
 uselib += ['AVRESAMPLE']
 uselib += ['AVUTIL']
+uselib += ['BLAS']
 
 # build each source files
 source = ctx.path.ant_glob('*.c **/*.c')

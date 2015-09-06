@@ -81,6 +81,9 @@ def options(ctx):
     add_option_enable_disable(ctx, 'apple-audio', default = None,
             help_str = 'use CoreFoundation (darwin only) (auto)',
             help_disable_str = 'do not use CoreFoundation framework')
+    add_option_enable_disable(ctx, 'atlas', default = None,
+            help_str = 'use Atlas library (auto)',
+            help_disable_str = 'do not use Atlas library')
 
     ctx.add_option('--with-target-platform', type='string',
             help='set target platform for cross-compilation', dest='target_platform')
@@ -258,6 +261,12 @@ def configure(ctx):
 
     ctx.define('HAVE_WAVREAD', 1)
     ctx.define('HAVE_WAVWRITE', 1)
+
+    # use ATLAS
+    if (ctx.options.enable_atlas != False):
+        ctx.check(header_name = 'atlas/cblas.h', mandatory = ctx.options.enable_atlas)
+        #ctx.check(lib = 'lapack', uselib_store = 'LAPACK', mandatory = ctx.options.enable_atlas)
+        ctx.check(lib = 'cblas', uselib_store = 'BLAS', mandatory = ctx.options.enable_atlas)
 
     # use memcpy hacks
     if (ctx.options.enable_memcpy == True):

@@ -10,6 +10,7 @@ for target_name in ctx.path.ant_glob('src/**/*.c'):
     uselib += ['AVRESAMPLE']
     uselib += ['AVUTIL']
     uselib += ['JACK']
+    uselib += ['BLAS']
     includes = ['../src', '.']
     extra_source = []
 
