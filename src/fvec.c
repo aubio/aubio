@@ -110,7 +110,7 @@ void fvec_weight(fvec_t *s, fvec_t *weight) {
 void fvec_weighted_copy(fvec_t *in, fvec_t *weight, fvec_t *out) {
 #ifndef HAVE_ACCELERATE
   uint_t j;
-  uint_t length = MIN(s->length, weight->length);
+  uint_t length = MIN(out->length, weight->length);
   for (j=0; j< length; j++) {
     out->data[j] = in->data[j] * weight->data[j];
   }
