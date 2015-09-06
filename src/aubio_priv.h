@@ -103,9 +103,13 @@
 #if !HAVE_AUBIO_DOUBLE
 #define aubio_catlas_set      catlas_sset
 #define aubio_cblas_copy      cblas_scopy
+#define aubio_cblas_swap      cblas_sswap
+#define aubio_cblas_dot       cblas_sdot
 #else /* HAVE_AUBIO_DOUBLE */
 #define aubio_catlas_set      catlas_dset
 #define aubio_cblas_copy      cblas_dcopy
+#define aubio_cblas_swap      cblas_dswap
+#define aubio_cblas_dot       cblas_ddot
 #endif /* HAVE_AUBIO_DOUBLE */
 #endif /* HAVE_ATLAS */
 

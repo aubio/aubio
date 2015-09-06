@@ -260,7 +260,7 @@ fvec_shift (fvec_t * s)
   }
 #else
   uint_t half = s->length / 2;
-  aubio_cblas_xswap(half, s->data, 1, s->data + half, 1);
+  aubio_cblas_swap(half, s->data, 1, s->data + half, 1);
 #endif
 }
 
