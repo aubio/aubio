@@ -130,7 +130,7 @@ def configure(ctx):
     if target_platform in [ 'ios', 'iosimulator' ]:
         MINSDKVER="6.1"
         ctx.env.CFLAGS += ['-std=c99']
-        if (ctx.options.enable_audio_unit != False):
+        if (ctx.options.enable_apple_audio != False):
             ctx.define('HAVE_AUDIO_UNIT', 1)
             #ctx.env.FRAMEWORK += ['CoreFoundation', 'AudioToolbox']
         if target_platform == 'ios':
