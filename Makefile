@@ -4,7 +4,7 @@ checkwaf:
 	@[ -f waf ] || make getwaf
 
 getwaf:
-	curl https://waf.io/waf-1.8.12 > waf
+	curl https://waf.io/waf-1.8.14 > waf
 	@[ -d wafilb ] || rm -fr waflib
 	@chmod +x waf && ./waf --help > /dev/null
 	@mv .waf*/waflib . && rm -fr .waf-*

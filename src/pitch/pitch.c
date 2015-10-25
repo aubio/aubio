@@ -240,7 +240,7 @@ void
 aubio_pitch_slideblock (aubio_pitch_t * p, fvec_t * ibuf)
 {
   uint_t overlap_size = p->buf->length - ibuf->length;
-#if !HAVE_MEMCPY_HACKS
+#if 1 //!HAVE_MEMCPY_HACKS
   uint_t j;
   for (j = 0; j < overlap_size; j++) {
     p->buf->data[j] = p->buf->data[j + ibuf->length];
