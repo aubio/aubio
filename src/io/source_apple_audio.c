@@ -100,6 +100,9 @@ uint_t aubio_source_apple_audio_open (aubio_source_apple_audio_t *s, char_t * pa
   // open the resource url
   CFURLRef fileURL = getURLFromPath(path);
   err = ExtAudioFileOpenURL(fileURL, &s->audioFile);
+  //release fileURL to stop memory leaks
+  CFRelease(fileURL);
+  
   if (err == -43) {
     AUBIO_ERR("source_apple_audio: Failed opening %s, "
         "file not found, or no read access\n", s->path);
