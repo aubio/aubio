@@ -142,6 +142,9 @@ uint_t aubio_sink_apple_audio_open(aubio_sink_apple_audio_t *s) {
   OSStatus err = noErr;
   err = ExtAudioFileCreateWithURL(fileURL, fileType, &clientFormat, NULL,
      overwrite ? kAudioFileFlags_EraseFile : 0, &s->audioFile);
+  //release fileURL to stop memory leaks
+  CFRelease(fileURL);
+  
   if (err) {
     char_t errorstr[20];
     AUBIO_ERR("sink_apple_audio: error when trying to create %s with "
