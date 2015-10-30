@@ -335,8 +335,7 @@ aubio_pitchmcomb_sort_cand_ene (aubio_spectralcandidate_t ** candidates,
   uint_t cur = 0;
   uint_t run = 0;
   for (cur = 0; cur < nbins; cur++) {
-    run = cur + 1;
-    for (run = cur; run < nbins; run++) {
+    for (run = cur + 1; run < nbins; run++) {
       if (candidates[run]->ene > candidates[cur]->ene)
         CAND_SWAP (candidates[run], candidates[cur]);
     }
@@ -351,8 +350,7 @@ aubio_pitchmcomb_sort_cand_freq (aubio_spectralcandidate_t ** candidates,
   uint_t cur = 0;
   uint_t run = 0;
   for (cur = 0; cur < nbins; cur++) {
-    run = cur + 1;
-    for (run = cur; run < nbins; run++) {
+    for (run = cur + 1; run < nbins; run++) {
       if (candidates[run]->ebin < candidates[cur]->ebin)
         CAND_SWAP (candidates[run], candidates[cur]);
     }
