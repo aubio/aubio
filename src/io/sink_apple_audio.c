@@ -36,7 +36,7 @@
 
 extern int createAubioBufferList(AudioBufferList *bufferList, int channels, int segmentSize);
 extern void freeAudioBufferList(AudioBufferList *bufferList);
-extern CFURLRef getURLFromPath(const char * path);
+extern CFURLRef createURLFromPath(const char * path);
 char_t *getPrintableOSStatusError(char_t *str, OSStatus error);
 
 uint_t aubio_sink_apple_audio_open(aubio_sink_apple_audio_t *s);
@@ -137,11 +137,12 @@ uint_t aubio_sink_apple_audio_open(aubio_sink_apple_audio_t *s) {
   clientFormat.mReserved         = 0;
 
   AudioFileTypeID fileType = kAudioFileWAVEType;
-  CFURLRef fileURL = getURLFromPath(s->path);
+  CFURLRef fileURL = createURLFromPath(s->path);
   bool overwrite = true;
   OSStatus err = noErr;
   err = ExtAudioFileCreateWithURL(fileURL, fileType, &clientFormat, NULL,
      overwrite ? kAudioFileFlags_EraseFile : 0, &s->audioFile);
+  CFRelease(fileURL);
   if (err) {
     char_t errorstr[20];
     AUBIO_ERR("sink_apple_audio: error when trying to create %s with "

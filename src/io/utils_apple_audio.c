@@ -33,12 +33,14 @@ void freeAudioBufferList(AudioBufferList *bufferList) {
   bufferList = NULL;
 }
 
-CFURLRef getURLFromPath(const char * path) {
+CFURLRef createURLFromPath(const char * path) {
   CFStringRef cfTotalPath = CFStringCreateWithCString (kCFAllocatorDefault,
       path, kCFStringEncodingUTF8);
 
-  return CFURLCreateWithFileSystemPath(kCFAllocatorDefault, cfTotalPath,
+  CFURLRef url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, cfTotalPath,
       kCFURLPOSIXPathStyle, false);
+  CFRelease(cfTotalPath);
+  return url;
 }
 
 char_t *getPrintableOSStatusError(char_t *str, OSStatus error)

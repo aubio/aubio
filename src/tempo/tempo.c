@@ -64,12 +64,14 @@ struct _aubio_tempo_t {
   smpl_t threshold;              /** peak picking threshold */
   sint_t blockpos;               /** current position in dfframe */
   uint_t winlen;                 /** dfframe bufsize */
-  uint_t step;                   /** dfframe hopsize */ 
-  uint_t samplerate;             /** sampling rate of the signal */ 
+  uint_t step;                   /** dfframe hopsize */
+  uint_t samplerate;             /** sampling rate of the signal */
   uint_t hop_size;               /** get hop_size */
   uint_t total_frames;           /** total frames since beginning */
   uint_t last_beat;              /** time of latest detected beat, in samples */
   uint_t delay;                  /** delay to remove to last beat, in samples */
+  uint_t last_tatum;             /** time of latest detected tatum, in samples */
+  uint_t tatum_signature;        /** number of tatum between each beats */
 };
 
 /* execute tempo detection function on iput buffer */
@@ -90,9 +92,9 @@ void aubio_tempo_do(aubio_tempo_t *o, fvec_t * input, fvec_t * tempo)
     /* check dfframe */
     aubio_beattracking_do(o->bt,o->dfframe,o->out);
     /* rotate dfframe */
-    for (i = 0 ; i < winlen - step; i++ ) 
+    for (i = 0 ; i < winlen - step; i++ )
       o->dfframe->data[i] = o->dfframe->data[i+step];
-    for (i = winlen - step ; i < winlen; i++ ) 
+    for (i = winlen - step ; i < winlen; i++ )
       o->dfframe->data[i] = 0.;
     o->blockpos = -1;
   }
@@ -103,7 +105,7 @@ void aubio_tempo_do(aubio_tempo_t *o, fvec_t * input, fvec_t * tempo)
   o->dfframe->data[winlen - step + o->blockpos] = thresholded->data[0];
   /* end of second level loop */
   tempo->data[0] = 0; /* reset tactus */
-  i=0;
+  //i=0;
   for (i = 1; i < o->out->data[0]; i++ ) {
     /* if current frame is a predicted tactus */
     if (o->blockpos == FLOOR(o->out->data[i])) {
@@ -113,6 +115,7 @@ void aubio_tempo_do(aubio_tempo_t *o, fvec_t * input, fvec_t * tempo)
         tempo->data[0] = 0; // unset beat if silent
       }
       o->last_beat = o->total_frames + (uint_t)ROUND(tempo->data[0] * o->hop_size);
+      o->last_tatum = o->last_beat;
     }
   }
   o->total_frames += o->hop_size;
@@ -214,6 +217,8 @@ aubio_tempo_t * new_aubio_tempo (char_t * tempo_mode,
     o2 = new_aubio_specdesc(type_onset2,buffer_size);
     onset2 = new_fvec(1);
   }*/
+  o->last_tatum = 0;
+  o->tatum_signature = 4;
   return o;
 
 beach:
@@ -225,8 +230,51 @@ smpl_t aubio_tempo_get_bpm(aubio_tempo_t *o) {
   return aubio_beattracking_get_bpm(o->bt);
 }
 
+smpl_t aubio_tempo_get_period (aubio_tempo_t *o)
+{
+  return aubio_beattracking_get_period (o->bt);
+}
+
+smpl_t aubio_tempo_get_period_s (aubio_tempo_t *o)
+{
+  return aubio_beattracking_get_period_s (o->bt);
+}
+
 smpl_t aubio_tempo_get_confidence(aubio_tempo_t *o) {
   return aubio_beattracking_get_confidence(o->bt);
+}
+
+uint_t aubio_tempo_was_tatum (aubio_tempo_t *o)
+{
+  uint_t last_tatum_distance = o->total_frames - o->last_tatum;
+  smpl_t beat_period = aubio_tempo_get_period(o);
+  smpl_t tatum_period = beat_period / o->tatum_signature;
+  if (last_tatum_distance < o->hop_size) {
+    o->last_tatum = o->last_beat;
+    return 2;
+  }
+  else if (last_tatum_distance > tatum_period) {
+    if ( last_tatum_distance + o->hop_size > beat_period ) {
+      // next beat is too close, pass
+      return 0;
+    }
+    o->last_tatum = o->total_frames;
+    return 1;
+  }
+  return 0;
+}
+
+smpl_t aubio_tempo_get_last_tatum (aubio_tempo_t *o) {
+  return (smpl_t)o->last_tatum - o->delay;
+}
+
+uint_t aubio_tempo_set_tatum_signature (aubio_tempo_t *o, uint_t signature) {
+  if (signature < 1 || signature > 64) {
+    return AUBIO_FAIL;
+  } else {
+    o->tatum_signature = signature;
+    return AUBIO_OK;
+  }
 }
 
 void del_aubio_tempo (aubio_tempo_t *o)

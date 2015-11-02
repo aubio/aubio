@@ -51,7 +51,7 @@ struct _aubio_source_apple_audio_t {
 
 extern int createAubioBufferList(AudioBufferList *bufferList, int channels, int max_source_samples);
 extern void freeAudioBufferList(AudioBufferList *bufferList);
-extern CFURLRef getURLFromPath(const char * path);
+extern CFURLRef createURLFromPath(const char * path);
 char_t *getPrintableOSStatusError(char_t *str, OSStatus error);
 
 uint_t aubio_source_apple_audio_open (aubio_source_apple_audio_t *s, char_t * path);
@@ -98,8 +98,9 @@ uint_t aubio_source_apple_audio_open (aubio_source_apple_audio_t *s, char_t * pa
   s->path = path;
 
   // open the resource url
-  CFURLRef fileURL = getURLFromPath(path);
+  CFURLRef fileURL = createURLFromPath(path);
   err = ExtAudioFileOpenURL(fileURL, &s->audioFile);
+  CFRelease(fileURL);
   if (err == -43) {
     AUBIO_ERR("source_apple_audio: Failed opening %s, "
         "file not found, or no read access\n", s->path);
