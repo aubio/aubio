@@ -67,6 +67,26 @@ aubio_beattracking_t * new_aubio_beattracking(uint_t winlen, uint_t hop_size,
 void aubio_beattracking_do (aubio_beattracking_t * bt, fvec_t * dfframes,
     fvec_t * out);
 
+/** get current beat period in samples
+
+  \param bt beat tracking object
+
+  Returns the currently observed period, in samples, or 0 if no consistent
+  value is found.
+
+*/
+smpl_t aubio_beattracking_get_period (aubio_beattracking_t * bt);
+
+/** get current beat period in seconds
+
+  \param bt beat tracking object
+
+  Returns the currently observed period, in seconds, or 0 if no consistent
+  value is found.
+
+*/
+smpl_t aubio_beattracking_get_period_s (aubio_beattracking_t * bt);
+
 /** get current tempo in bpm
 
   \param bt beat tracking object

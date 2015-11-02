@@ -409,10 +409,22 @@ aubio_beattracking_checkstate (aubio_beattracking_t * bt)
 }
 
 smpl_t
+aubio_beattracking_get_period (aubio_beattracking_t * bt)
+{
+  return bt->hop_size * bt->bp;
+}
+
+smpl_t
+aubio_beattracking_get_period_s (aubio_beattracking_t * bt)
+{
+  return aubio_beattracking_get_period(bt) / (smpl_t) bt->samplerate;
+}
+
+smpl_t
 aubio_beattracking_get_bpm (aubio_beattracking_t * bt)
 {
   if (bt->bp != 0) {
-    return 60. * bt->samplerate/ bt->bp / bt->hop_size;
+    return 60. / aubio_beattracking_get_period_s(bt);
   } else {
     return 0.;
   }
