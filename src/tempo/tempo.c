@@ -103,7 +103,7 @@ void aubio_tempo_do(aubio_tempo_t *o, fvec_t * input, fvec_t * tempo)
   o->dfframe->data[winlen - step + o->blockpos] = thresholded->data[0];
   /* end of second level loop */
   tempo->data[0] = 0; /* reset tactus */
-  i=0;
+  //i=0;
   for (i = 1; i < o->out->data[0]; i++ ) {
     /* if current frame is a predicted tactus */
     if (o->blockpos == FLOOR(o->out->data[i])) {
