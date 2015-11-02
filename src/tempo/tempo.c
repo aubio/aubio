@@ -225,6 +225,16 @@ smpl_t aubio_tempo_get_bpm(aubio_tempo_t *o) {
   return aubio_beattracking_get_bpm(o->bt);
 }
 
+smpl_t aubio_tempo_get_period (aubio_tempo_t *o)
+{
+  return aubio_beattracking_get_period (o->bt);
+}
+
+smpl_t aubio_tempo_get_period_s (aubio_tempo_t *o)
+{
+  return aubio_beattracking_get_period_s (o->bt);
+}
+
 smpl_t aubio_tempo_get_confidence(aubio_tempo_t *o) {
   return aubio_beattracking_get_confidence(o->bt);
 }

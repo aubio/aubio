@@ -121,6 +121,26 @@ uint_t aubio_tempo_set_threshold(aubio_tempo_t * o, smpl_t threshold);
 */
 smpl_t aubio_tempo_get_threshold(aubio_tempo_t * o);
 
+/** get current beat period in samples
+
+  \param bt beat tracking object
+
+  Returns the currently observed period, in samples, or 0 if no consistent
+  value is found.
+
+*/
+smpl_t aubio_tempo_get_period (aubio_tempo_t * bt);
+
+/** get current beat period in seconds
+
+  \param bt beat tracking object
+
+  Returns the currently observed period, in seconds, or 0 if no consistent
+  value is found.
+
+*/
+smpl_t aubio_tempo_get_period_s (aubio_tempo_t * bt);
+
 /** get current tempo
 
   \param o beat tracking object
