@@ -64,8 +64,8 @@ struct _aubio_tempo_t {
   smpl_t threshold;              /** peak picking threshold */
   sint_t blockpos;               /** current position in dfframe */
   uint_t winlen;                 /** dfframe bufsize */
-  uint_t step;                   /** dfframe hopsize */ 
-  uint_t samplerate;             /** sampling rate of the signal */ 
+  uint_t step;                   /** dfframe hopsize */
+  uint_t samplerate;             /** sampling rate of the signal */
   uint_t hop_size;               /** get hop_size */
   uint_t total_frames;           /** total frames since beginning */
   uint_t last_beat;              /** time of latest detected beat, in samples */
@@ -90,9 +90,9 @@ void aubio_tempo_do(aubio_tempo_t *o, fvec_t * input, fvec_t * tempo)
     /* check dfframe */
     aubio_beattracking_do(o->bt,o->dfframe,o->out);
     /* rotate dfframe */
-    for (i = 0 ; i < winlen - step; i++ ) 
+    for (i = 0 ; i < winlen - step; i++ )
       o->dfframe->data[i] = o->dfframe->data[i+step];
-    for (i = winlen - step ; i < winlen; i++ ) 
+    for (i = winlen - step ; i < winlen; i++ )
       o->dfframe->data[i] = 0.;
     o->blockpos = -1;
   }
