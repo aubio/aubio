@@ -56,8 +56,8 @@ function</a> on Wikipedia
 implementations of a phase vocoder: the tricks of the trade. In Proceedings of
 the International Conference on Digital Audio Effects (DAFx-00), pages 37–44,
 Uni- versity of Verona, Italy, 2000.
-  (<a href="http://profs.sci.univr.it/%7Edafx/Final-Papers/ps/Bernardini.ps.gz">
-  ps.gz</a>)
+  (<a href="http://www.cs.princeton.edu/courses/archive/spr09/cos325/Bernardini.pdf">
+  pdf</a>)
 
  */
 uint_t fvec_set_window (fvec_t * window, char_t * window_type);
