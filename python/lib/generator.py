@@ -3,7 +3,7 @@
 """ This file generates a c file from a list of cpp prototypes. """
 
 import os, sys, shutil
-from gen_pyobject import write_msg, gen_new_init, gen_do, gen_members, gen_methods, gen_finish
+from .gen_pyobject import write_msg, gen_new_init, gen_do, gen_members, gen_methods, gen_finish
 
 def get_cpp_objects():
 
