@@ -25,7 +25,7 @@ static void \
 Py_ ## NAME ## _del ( Py_ ## NAME * self) \
 { \
   del_aubio_ ## NAME (self->o); \
-  self->ob_type->tp_free ((PyObject *) self); \
+  Py_TYPE(self)->tp_free ((PyObject *) self); \
 }
 
 #define AUBIO_MEMBERS_START(NAME) \

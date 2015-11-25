@@ -55,7 +55,7 @@ static void
 Py_filter_del (Py_filter * self)
 {
   del_aubio_filter (self->o);
-  self->ob_type->tp_free ((PyObject *) self);
+  Py_TYPE(self)->tp_free ((PyObject *) self);
 }
 
 static PyObject * 

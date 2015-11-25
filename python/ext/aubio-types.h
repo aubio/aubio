@@ -39,6 +39,11 @@
 #define AUBIO_NPY_SMPL NPY_FLOAT
 #endif
 
+// compat with Python < 2.6
+#ifndef Py_TYPE
+#define Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
+#endif
+
 // special python type for cvec
 typedef struct
 {
