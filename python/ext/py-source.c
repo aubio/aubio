@@ -137,7 +137,7 @@ Py_source_init (Py_source * self, PyObject * args, PyObject * kwds)
   if (self->o == NULL) {
     char_t errstr[30 + strlen(self->uri)];
     sprintf(errstr, "error creating source with %s", self->uri);
-    PyErr_SetString (PyExc_StandardError, errstr);
+    PyErr_SetString (PyExc_RuntimeError, errstr);
     return -1;
   }
   self->samplerate = aubio_source_get_samplerate ( self->o );
