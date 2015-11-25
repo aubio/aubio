@@ -70,7 +70,7 @@ def get_params_types_names(proto):
     example: proto = "int main (int argc, char ** argv)"
     returns: [['int', 'argc'], ['char **','argv']]
     """
-    return map(split_type, get_params(proto)) 
+    return list(map(split_type, get_params(proto)))
 
 def get_return_type(proto):
     import re

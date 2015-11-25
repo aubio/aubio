@@ -11,6 +11,7 @@ def get_cpp_objects():
 
   cpp_output = filter(lambda y: len(y) > 1, cpp_output)
   cpp_output = filter(lambda y: not y.startswith('#'), cpp_output)
+  cpp_output = list(cpp_output)
 
   i = 1
   while 1:
@@ -85,9 +86,11 @@ def generate_object_files(output_path):
       object_methods = filter(lambda x: this_object in x, cpp_output)
       object_methods = [a.strip() for a in object_methods]
       object_methods = filter(lambda x: not x.startswith('typedef'), object_methods)
+      object_methods = list(object_methods)
       #for method in object_methods:
       #    write_msg(method)
-      new_methods = filter(lambda x: 'new_'+object_name in x, object_methods)
+      new_methods = list(filter(
+          lambda x: 'new_'+object_name in x, object_methods))
       if len(new_methods) > 1:
           write_msg("-- WARNING: more than one new method for", object_name)
           for method in new_methods:
@@ -98,7 +101,8 @@ def generate_object_files(output_path):
           for method in new_methods:
               write_msg(method)
 
-      del_methods = filter(lambda x: 'del_'+object_name in x, object_methods)
+      del_methods = list(filter(
+          lambda x: 'del_'+object_name in x, object_methods))
       if len(del_methods) > 1:
           write_msg("-- WARNING: more than one del method for", object_name)
           for method in del_methods:
@@ -106,7 +110,8 @@ def generate_object_files(output_path):
       elif len(del_methods) < 1:
           write_msg("-- WARNING: no del method for", object_name)
 
-      do_methods = filter(lambda x: object_name+'_do' in x, object_methods)
+      do_methods = list(filter(
+          lambda x: object_name+'_do' in x, object_methods))
       if len(do_methods) > 1:
           pass
           #write_msg("-- WARNING: more than one do method for", object_name)
@@ -135,6 +140,7 @@ def generate_object_files(output_path):
       other_methods = filter(lambda x: x not in    do_methods, other_methods)
       other_methods = filter(lambda x: x not in get_methods, other_methods)
       other_methods = filter(lambda x: x not in set_methods, other_methods)
+      other_methods = list(other_methods)
 
       if len(other_methods) > 0:
           write_msg("-- WARNING: some methods for", object_name, "were unidentified")
