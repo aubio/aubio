@@ -8,17 +8,22 @@ def record_sink(sink_path):
 
     hop_size = 256
     duration = 5 # in seconds
-    s = Stream(block_length = hop_size)
-    g = sink(sink_path, samplerate = s.sample_rate)
+    s = Stream(blocksize = hop_size, channels = 1)
+    g = sink(sink_path, samplerate = int(s.samplerate))
+    print s.channels
 
     s.start()
     total_frames = 0
-    while total_frames < duration * s.sample_rate:
-        vec = s.read(hop_size)
-        # mix down to mono
-        mono_vec = vec.sum(-1) / float(s.input_channels)
-        g(mono_vec, hop_size)
-        total_frames += hop_size
+    try:
+        while total_frames < duration * s.samplerate:
+            vec = s.read(hop_size)
+            # mix down to mono
+            mono_vec = vec.sum(-1) / float(s.channels[0])
+            g(mono_vec, hop_size)
+            total_frames += hop_size
+    except KeyboardInterrupt, e:
+        print "stopped after", "%.2f seconds" % (total_frames / s.samplerate)
+        pass
     s.stop()
 
 if __name__ == '__main__':

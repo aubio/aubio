@@ -10,7 +10,7 @@ def play_source(source_path):
     f = source(source_path, hop_size = hop_size)
     samplerate = f.samplerate
 
-    s = Stream(sample_rate = samplerate, block_length = hop_size)
+    s = Stream(samplerate = samplerate, blocksize = hop_size)
     s.start()
     read = 0
     while 1:
