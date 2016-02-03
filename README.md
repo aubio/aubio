@@ -68,14 +68,14 @@ in the `new_` methods, whereas free operations are done in the `del_` methods.
 
 The latest version of the documentation can be found at:
 
-  http://aubio.org/documentation
+  https://aubio.org/documentation
 
 Installation and Build Instructions
 -----------------------------------
 
 A number of distributions already include aubio. Check your favorite package
 management system, or have a look at the [download
-page](http://aubio.org/download).
+page](https://aubio.org/download).
 
 aubio uses [waf](https://waf.io/) to configure, compile, and test the source:
 
@@ -107,19 +107,19 @@ Substantial informations about the algorithms and their evaluation are gathered
 in:
 
   - Paul Brossier, _[Automatic annotation of musical audio for interactive
-    systems](http://aubio.org/phd)_, PhD thesis, Centre for Digital music,
+    systems](https://aubio.org/phd)_, PhD thesis, Centre for Digital music,
 Queen Mary University of London, London, UK, 2006.
 
 Additional results obtained with this software were discussed in the following
 papers:
 
   - P. M. Brossier and J. P. Bello and M. D. Plumbley, [Real-time temporal
-    segmentation of note objects in music signals](http://aubio.org/articles/brossier04fastnotes.pdf),
+    segmentation of note objects in music signals](https://aubio.org/articles/brossier04fastnotes.pdf),
 in _Proceedings of the International Computer Music Conference_, 2004, Miami,
 Florida, ICMA
 
   -  P. M. Brossier and J. P. Bello and M. D. Plumbley, [Fast labelling of note
-     objects in music signals] (http://aubio.org/articles/brossier04fastnotes.pdf),
+     objects in music signals] (https://aubio.org/articles/brossier04fastnotes.pdf),
 in _Proceedings of the International Symposium on Music Information Retrieval_,
 2004, Barcelona, Spain
 
@@ -127,7 +127,7 @@ in _Proceedings of the International Symposium on Music Information Retrieval_,
 Contact Info and Mailing List
 -----------------------------
 
-The home page of this project can be found at: http://aubio.org/
+The home page of this project can be found at: https://aubio.org/
 
 Questions, comments, suggestions, and contributions are welcome. Use the
 mailing list: <aubio-user@aubio.org>.
