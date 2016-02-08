@@ -259,7 +259,7 @@ void aubio_onset_default_parameters (aubio_onset_t * o, char_t * onset_mode)
 
   /* method specific optimisations */
   if (strcmp (onset_mode, "energy") == 0) {
-  } else if (strcmp (onset_mode, "hfc") == 0) {
+  } else if (strcmp (onset_mode, "hfc") == 0 || strcmp (onset_mode, "default") == 0) {
     aubio_onset_set_adaptive_whitening (o, 0);
   } else if (strcmp (onset_mode, "complexdomain") == 0
              || strcmp (onset_mode, "complex") == 0) {
@@ -274,7 +274,6 @@ void aubio_onset_default_parameters (aubio_onset_t * o, char_t * onset_mode)
   } else if (strcmp (onset_mode, "specflux") == 0) {
     aubio_onset_set_threshold (o, 0.4);
   } else if (strcmp (onset_mode, "specdiff") == 0) {
-  } else if (strcmp (onset_mode, "default") == 0) {
   } else {
     AUBIO_ERR ("onset: unknown spectral descriptor type %s, "
                "using default parameters.\n", onset_mode);
