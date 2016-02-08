@@ -28,27 +28,6 @@
 #include "mathutils.h"
 #include "tempo/tempo.h"
 
-// TODO implement get/set_delay
-
-/** set current delay
-
-  \param o beat tracking object
-
-  \return current delay, in samples
-
- */
-uint_t aubio_tempo_get_delay(aubio_tempo_t * o);
-
-/** set current delay
-
-  \param o beat tracking object
-  \param delay delay to set tempo to, in samples
-
-  \return `0` if successful, non-zero otherwise
-
- */
-uint_t aubio_tempo_set_delay(aubio_tempo_t * o, uint_t delay);
-
 /* structure to store object state */
 struct _aubio_tempo_t {
   aubio_specdesc_t * od;   /** onset detection */
@@ -69,7 +48,7 @@ struct _aubio_tempo_t {
   uint_t hop_size;               /** get hop_size */
   uint_t total_frames;           /** total frames since beginning */
   uint_t last_beat;              /** time of latest detected beat, in samples */
-  uint_t delay;                  /** delay to remove to last beat, in samples */
+  sint_t delay;                  /** delay to remove to last beat, in samples */
   uint_t last_tatum;             /** time of latest detected tatum, in samples */
   uint_t tatum_signature;        /** number of tatum between each beats */
 };
@@ -124,7 +103,7 @@ void aubio_tempo_do(aubio_tempo_t *o, fvec_t * input, fvec_t * tempo)
 
 uint_t aubio_tempo_get_last (aubio_tempo_t *o)
 {
-  return o->last_beat - o->delay;
+  return o->last_beat + o->delay;
 }
 
 smpl_t aubio_tempo_get_last_s (aubio_tempo_t *o)
@@ -137,13 +116,31 @@ smpl_t aubio_tempo_get_last_ms (aubio_tempo_t *o)
   return aubio_tempo_get_last_s (o) * 1000.;
 }
 
-uint_t aubio_tempo_set_delay(aubio_tempo_t * o, uint_t delay) {
+uint_t aubio_tempo_set_delay(aubio_tempo_t * o, sint_t delay) {
   o->delay = delay;
+  return AUBIO_OK;
+}
+
+uint_t aubio_tempo_set_delay_s(aubio_tempo_t * o, smpl_t delay) {
+  o->delay = delay * o->samplerate;
+  return AUBIO_OK;
+}
+
+uint_t aubio_tempo_set_delay_ms(aubio_tempo_t * o, smpl_t delay) {
+  o->delay = 1000. * delay * o->samplerate;
   return AUBIO_OK;
 }
 
 uint_t aubio_tempo_get_delay(aubio_tempo_t * o) {
   return o->delay;
+}
+
+smpl_t aubio_tempo_get_delay_s(aubio_tempo_t * o) {
+  return o->delay / (smpl_t)(o->samplerate);
+}
+
+smpl_t aubio_tempo_get_delay_ms(aubio_tempo_t * o) {
+  return o->delay / (smpl_t)(o->samplerate) / 1000.;
 }
 
 uint_t aubio_tempo_set_silence(aubio_tempo_t * o, smpl_t silence) {

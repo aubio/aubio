@@ -184,6 +184,63 @@ uint_t aubio_tempo_was_tatum(aubio_tempo_t *o);
 */
 smpl_t aubio_tempo_get_last_tatum(aubio_tempo_t *o);
 
+/** get current delay
+
+  \param o beat tracking object
+
+  \return current delay, in samples
+
+ */
+uint_t aubio_tempo_get_delay(aubio_tempo_t * o);
+
+/** get current delay in seconds
+
+  \param o beat tracking object
+
+  \return current delay, in seconds
+
+ */
+smpl_t aubio_tempo_get_delay_s(aubio_tempo_t * o);
+
+/** get current delay in ms
+
+  \param o beat tracking object
+
+  \return current delay, in milliseconds
+
+ */
+smpl_t aubio_tempo_get_delay_ms(aubio_tempo_t * o);
+
+/** set current delay
+
+  \param o beat tracking object
+  \param delay delay to set tempo to, in samples
+
+  \return `0` if successful, non-zero otherwise
+
+ */
+uint_t aubio_tempo_set_delay(aubio_tempo_t * o, sint_t delay);
+
+/** set current delay in seconds
+
+  \param o beat tracking object
+  \param delay delay to set tempo to, in seconds
+
+  \return `0` if successful, non-zero otherwise
+
+ */
+uint_t aubio_tempo_set_delay_s(aubio_tempo_t * o, smpl_t delay);
+
+/** set current delay
+
+  \param o beat tracking object
+  \param delay delay to set tempo to, in samples
+
+  \return `0` if successful, non-zero otherwise
+
+ */
+uint_t aubio_tempo_set_delay_ms(aubio_tempo_t * o, smpl_t delay);
+
 /** delete tempo detection object
 
   \param o beat tracking object
