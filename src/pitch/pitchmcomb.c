@@ -364,7 +364,7 @@ new_aubio_pitchmcomb (uint_t bufsize, uint_t hopsize)
   /* bug: should check if size / 8 > post+pre+1 */
   uint_t i, j;
   uint_t spec_size;
-  p->spec_partition = 4;
+  p->spec_partition = 2;
   p->ncand = 5;
   p->npartials = 5;
   p->cutoff = 1.;
@@ -376,7 +376,7 @@ new_aubio_pitchmcomb (uint_t bufsize, uint_t hopsize)
   p->goodcandidate = 0;
   p->phasefreq = bufsize / hopsize / TWO_PI;
   p->phasediff = TWO_PI * hopsize / bufsize;
-  spec_size = bufsize / p->spec_partition;
+  spec_size = bufsize / p->spec_partition + 1;
   //p->pickerfn = quadpick;
   //p->biquad = new_biquad(0.1600,0.3200,0.1600, -0.5949, 0.2348);
   /* allocate temp memory */
