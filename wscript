@@ -85,6 +85,10 @@ def options(ctx):
             help_str = 'use Atlas library (auto)',
             help_disable_str = 'do not use Atlas library')
 
+    add_option_enable_disable(ctx, 'docs', default = None,
+            help_str = 'build documentation (auto)',
+            help_disable_str = 'do not build documentation')
+
     ctx.add_option('--with-target-platform', type='string',
             help='set target platform for cross-compilation', dest='target_platform')
 
@@ -282,17 +286,18 @@ def configure(ctx):
     ctx.define('AUBIO_PREFIX', ctx.env['PREFIX'])
     ctx.define('PACKAGE', APPNAME)
 
-    # check if txt2man is installed, optional
-    try:
-      ctx.find_program('txt2man', var='TXT2MAN')
-    except ctx.errors.ConfigurationError:
-      ctx.to_log('txt2man was not found (ignoring)')
+    if (ctx.options.enable_docs != False):
+        # check if txt2man is installed, optional
+        try:
+          ctx.find_program('txt2man', var='TXT2MAN')
+        except ctx.errors.ConfigurationError:
+          ctx.to_log('txt2man was not found (ignoring)')
 
-    # check if doxygen is installed, optional
-    try:
-      ctx.find_program('doxygen', var='DOXYGEN')
-    except ctx.errors.ConfigurationError:
-      ctx.to_log('doxygen was not found (ignoring)')
+        # check if doxygen is installed, optional
+        try:
+          ctx.find_program('doxygen', var='DOXYGEN')
+        except ctx.errors.ConfigurationError:
+          ctx.to_log('doxygen was not found (ignoring)')
 
 def build(bld):
     bld.env['VERSION'] = VERSION
@@ -300,8 +305,6 @@ def build(bld):
 
     # add sub directories
     bld.recurse('src')
-    if bld.env['DEST_OS'] not in ['ios', 'iosimulator']:
-        pass
     if bld.env['DEST_OS'] not in ['ios', 'iosimulator', 'android']:
         bld.recurse('examples')
         bld.recurse('tests')
