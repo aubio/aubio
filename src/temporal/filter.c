@@ -134,6 +134,10 @@ aubio_filter_t *
 new_aubio_filter (uint_t order)
 {
   aubio_filter_t *f = AUBIO_NEW (aubio_filter_t);
+  if ((sint_t)order < 1) {
+    AUBIO_FREE(f);
+    return NULL;
+  }
   f->x = new_lvec (order);
   f->y = new_lvec (order);
   f->a = new_lvec (order);
@@ -142,7 +146,8 @@ new_aubio_filter (uint_t order)
   f->samplerate = 0;
   f->order = order;
   /* set default to identity */
-  f->a->data[1] = 1.;
+  f->a->data[0] = 1.;
+  f->b->data[0] = 1.;
   return f;
 }
 
