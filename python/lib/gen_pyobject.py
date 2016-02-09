@@ -108,6 +108,7 @@ defaultsizes = {
 # default value for variables
 aubioinitvalue = {
     'uint_t': 0,
+    'sint_t': 0,
     'smpl_t': 0,
     'lsmp_t': 0.,
     'char_t*': 'NULL',
@@ -137,6 +138,7 @@ aubiodefvalue = {
 # aubio to python
 aubio2pytypes = {
     'uint_t': 'I',
+    'sint_t': 'I',
     'smpl_t': 'f',
     'lsmp_t': 'd',
     'fvec_t*': 'O',
