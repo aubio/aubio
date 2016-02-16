@@ -58,22 +58,16 @@ del_aubio_filterbank (aubio_filterbank_t * fb)
 void
 aubio_filterbank_do (aubio_filterbank_t * f, cvec_t * in, fvec_t * out)
 {
-  uint_t j, fn;
-
   /* apply filter to all input channel, provided out has enough channels */
-  uint_t max_filters = MIN (f->n_filters, out->length);
-  uint_t max_length = MIN (in->length, f->filters->length);
+  //uint_t max_filters = MIN (f->n_filters, out->length);
+  //uint_t max_length = MIN (in->length, f->filters->length);
 
-  /* reset all values in output vector */
-  fvec_zeros (out);
+  // view cvec->norm as fvec->data
+  fvec_t tmp;
+  tmp.length = in->length;
+  tmp.data = in->norm;
 
-  /* for each filter */
-  for (fn = 0; fn < max_filters; fn++) {
-    /* for each sample */
-    for (j = 0; j < max_length; j++) {
-      out->data[fn] += in->norm[j] * f->filters->data[fn][j];
-    }
-  }
+  fmat_vecmul(f->filters, &tmp, out);
 
   return;
 }
