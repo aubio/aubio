@@ -186,8 +186,8 @@ aubio_onset_t * new_aubio_onset (char_t * onset_mode,
   if ((sint_t)hop_size < 1) {
     AUBIO_ERR("onset: got hop_size %d, but can not be < 1\n", hop_size);
     goto beach;
-  } else if ((sint_t)buf_size < 1) {
-    AUBIO_ERR("onset: got buffer_size %d, but can not be < 1\n", buf_size);
+  } else if ((sint_t)buf_size < 2) {
+    AUBIO_ERR("onset: got buffer_size %d, but can not be < 2\n", buf_size);
     goto beach;
   } else if (buf_size < hop_size) {
     AUBIO_ERR("onset: hop size (%d) is larger than win size (%d)\n", buf_size, hop_size);
