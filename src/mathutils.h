@@ -99,6 +99,24 @@ resulting spectrum. See Amalia de Götzen's paper referred to above.
 */
 void fvec_shift (fvec_t * v);
 
+/** swap the left and right halves of a vector
+
+  This function swaps the left part of the signal with the right part of the
+signal. Therefore
+
+  \f$ a[0], a[1], ..., a[\frac{N}{2}], a[\frac{N}{2}+1], ..., a[N-1], a[N] \f$
+
+  becomes
+
+  \f$ a[\frac{N}{2}+1], ..., a[N-1], a[N], a[0], a[1], ..., a[\frac{N}{2}] \f$
+
+  This operation, known as 'ifftshift' in the Matlab Signal Processing Toolbox,
+can be used after computing the inverse FFT to simplify the phase relationship
+of the resulting spectrum. See Amalia de Götzen's paper referred to above.
+
+*/
+void fvec_ishift (fvec_t * v);
+
 /** compute the sum of all elements of a vector
 
   \param v vector to compute the sum of

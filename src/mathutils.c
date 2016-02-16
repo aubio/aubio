@@ -253,15 +253,41 @@ fvec_max_elem (fvec_t * s)
 void
 fvec_shift (fvec_t * s)
 {
+  uint_t half = s->length / 2, start = half;
+  // if length is odd, middle element is moved to the end
+  if (2 * half < s->length) start ++;
 #ifndef HAVE_ATLAS
-  uint_t j;
-  for (j = 0; j < s->length / 2; j++) {
-    ELEM_SWAP (s->data[j], s->data[j + s->length / 2]);
+  for (uint_t j = 0; j < half; j++) {
+    ELEM_SWAP (s->data[j], s->data[j + start]);
   }
 #else
-  uint_t half = s->length / 2;
-  aubio_cblas_swap(half, s->data, 1, s->data + half, 1);
+  aubio_cblas_swap(half, s->data, 1, s->data + start, 1);
 #endif
+  if (start != half) {
+    for (uint_t j = 0; j < half; j++) {
+      ELEM_SWAP (s->data[j + start - 1], s->data[j + start]);
+    }
+  }
+}
+
+void
+fvec_ishift (fvec_t * s)
+{
+  uint_t half = s->length / 2, start = half;
+  // if length is odd, middle element is moved to the beginning
+  if (2 * half < s->length) start ++;
+#ifndef HAVE_ATLAS
+  for (uint_t j = 0; j < half; j++) {
+    ELEM_SWAP (s->data[j], s->data[j + start]);
+  }
+#else
+  aubio_cblas_swap(half, s->data, 1, s->data + start, 1);
+#endif
+  if (start != half) {
+    for (uint_t j = 0; j < half; j++) {
+      ELEM_SWAP (s->data[half], s->data[j]);
+    }
+  }
 }
 
 smpl_t
