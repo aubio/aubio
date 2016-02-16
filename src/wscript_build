@@ -24,6 +24,8 @@ if ctx.env['DEST_OS'] in ['ios', 'iosimulator']:
     build_features = ['cstlib', 'cshlib']
 elif ctx.env['DEST_OS'] in ['win32', 'win64']:
     build_features = ['cshlib']
+elif ctx.env['DEST_OS'] in ['emscripten']:
+    build_features = ['cstlib']
 else: #linux, darwin, android, mingw, ...
     build_features = ['cshlib', 'cstlib']
 
