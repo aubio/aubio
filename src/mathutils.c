@@ -442,6 +442,7 @@ smpl_t fvec_median (fvec_t * input) {
 
 smpl_t fvec_quadratic_peak_pos (fvec_t * x, uint_t pos) {
   smpl_t s0, s1, s2; uint_t x0, x2;
+  smpl_t half = .5, two = 2.;
   if (pos == 0 || pos == x->length - 1) return pos;
   x0 = (pos < 1) ? pos : pos - 1;
   x2 = (pos + 1 < x->length) ? pos + 1 : pos;
@@ -450,7 +451,7 @@ smpl_t fvec_quadratic_peak_pos (fvec_t * x, uint_t pos) {
   s0 = x->data[x0];
   s1 = x->data[pos];
   s2 = x->data[x2];
-  return pos + 0.5 * (s0 - s2 ) / (s0 - 2.* s1 + s2);
+  return pos + half * (s0 - s2 ) / (s0 - two * s1 + s2);
 }
 
 smpl_t fvec_quadratic_peak_mag (fvec_t *x, smpl_t pos) {
