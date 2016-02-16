@@ -156,8 +156,10 @@ void fmat_copy(fmat_t *s, fmat_t *t) {
 
 void fmat_vecmul(fmat_t *s, fvec_t *scale, fvec_t *output) {
   uint_t k;
+#if 0
   assert(s->height == output->length);
   assert(s->length == scale->length);
+#endif
 #if !defined(HAVE_ACCELERATE) && !defined(HAVE_ATLAS)
   uint_t j;
   fvec_zeros(output);
