@@ -132,16 +132,16 @@ new_aubio_pitch (char_t * pitch_mode,
 
   // check parameters are valid
   if ((sint_t)hopsize < 1) {
-    AUBIO_ERR("onset: got hopsize %d, but can not be < 1\n", hopsize);
+    AUBIO_ERR("pitch: got hopsize %d, but can not be < 1\n", hopsize);
     goto beach;
   } else if ((sint_t)bufsize < 1) {
-    AUBIO_ERR("onset: got buffer_size %d, but can not be < 1\n", bufsize);
+    AUBIO_ERR("pitch: got buffer_size %d, but can not be < 1\n", bufsize);
     goto beach;
   } else if (bufsize < hopsize) {
-    AUBIO_ERR("onset: hop size (%d) is larger than win size (%d)\n", bufsize, hopsize);
+    AUBIO_ERR("pitch: hop size (%d) is larger than win size (%d)\n", bufsize, hopsize);
     goto beach;
   } else if ((sint_t)samplerate < 1) {
-    AUBIO_ERR("onset: samplerate (%d) can not be < 1\n", samplerate);
+    AUBIO_ERR("pitch: samplerate (%d) can not be < 1\n", samplerate);
     goto beach;
   }
 
