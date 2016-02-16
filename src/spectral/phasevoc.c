@@ -64,7 +64,7 @@ void aubio_pvoc_rdo(aubio_pvoc_t *pv,cvec_t * fftgrain, fvec_t * synthnew) {
   /* calculate rfft */
   aubio_fft_rdo(pv->fft,fftgrain,pv->synth);
   /* unshift */
-  fvec_shift(pv->synth);
+  fvec_ishift(pv->synth);
   /* additive synthesis */
   aubio_pvoc_addsynth(pv, synthnew);
 }
