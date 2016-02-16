@@ -156,6 +156,15 @@ void fmat_weight(fmat_t *s, fmat_t *weight);
 */
 void fmat_copy(fmat_t *s, fmat_t *t);
 
+/* compute the product of a matrix by a vector
+
+   \param s matrix to compute product with
+   \param scale vector to compute product with
+   \param output vector to store restults in
+
+*/
+void fmat_vecmul(fmat_t *s, fvec_t *scale, fvec_t *output);
+
 #ifdef __cplusplus
 }
 #endif

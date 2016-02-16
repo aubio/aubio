@@ -154,3 +154,31 @@ void fmat_copy(fmat_t *s, fmat_t *t) {
 #endif
 }
 
+void fmat_vecmul(fmat_t *s, fvec_t *scale, fvec_t *output) {
+  uint_t k;
+  assert(s->height == output->length);
+  assert(s->length == scale->length);
+#if !defined(HAVE_ACCELERATE) && !defined(HAVE_ATLAS)
+  uint_t j;
+  fvec_zeros(output);
+  for (j = 0; j < s->length; j++) {
+    for (k = 0; k < s->height; k++) {
+      output->data[k] += scale->data[j]
+          * s->data[k][j];
+    }
+  }
+#elif defined(HAVE_ATLAS)
+  for (k = 0; k < s->height; k++) {
+    output->data[k] = aubio_cblas_dot( s->length, scale->data, 1, s->data[k], 1);
+  }
+#elif defined(HAVE_ACCELERATE)
+#if 0
+  // seems slower and less precise (and dangerous?)
+  vDSP_mmul (s->data[0], 1, scale->data, 1, output->data, 1, s->height, 1, s->length);
+#else
+  for (k = 0; k < s->height; k++) {
+    aubio_vDSP_dotpr( scale->data, 1, s->data[k], 1, &(output->data[k]), s->length);
+  }
+#endif
+#endif
+}
