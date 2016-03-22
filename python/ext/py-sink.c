@@ -115,7 +115,7 @@ Py_sink_init (Py_sink * self, PyObject * args, PyObject * kwds)
     aubio_sink_preset_samplerate ( self->o, self->samplerate );
   }
   if (self->o == NULL) {
-    PyErr_SetString (PyExc_StandardError, "error creating sink with this uri");
+    PyErr_SetString (PyExc_Exception, "error creating sink with this uri");
     return -1;
   }
   self->samplerate = aubio_sink_get_samplerate ( self->o );

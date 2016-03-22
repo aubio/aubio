@@ -1,4 +1,5 @@
 #include "aubio-types.h"
+#include "bytesobject.h"
 
 /* cvec type definition 
 
@@ -59,7 +60,7 @@ static void
 Py_cvec_del (Py_cvec * self)
 {
   del_cvec (self->o);
-  self->ob_type->tp_free ((PyObject *) self);
+  Py_TYPE(self)->tp_free ((PyObject *) self);
 }
 
 static PyObject *
@@ -69,7 +70,7 @@ Py_cvec_repr (Py_cvec * self, PyObject * unused)
   PyObject *args = NULL;
   PyObject *result = NULL;
 
-  format = PyString_FromString ("aubio cvec of %d elements");
+  format = PyUnicode_FromString ("aubio cvec of %d elements");
   if (format == NULL) {
     goto fail;
   }
@@ -80,7 +81,7 @@ Py_cvec_repr (Py_cvec * self, PyObject * unused)
   }
   cvec_print ( self->o );
 
-  result = PyString_Format (format, args);
+  result = PyUnicode_Format (format, args);
 
 fail:
   Py_XDECREF (format);
@@ -260,8 +261,7 @@ static PyGetSetDef Py_cvec_getseters[] = {
 };
 
 PyTypeObject Py_cvecType = {
-  PyObject_HEAD_INIT (NULL)
-  0,                            /* ob_size           */
+  PyVarObject_HEAD_INIT(NULL, 0) /* ob_size           */
   "aubio.cvec",                 /* tp_name           */
   sizeof (Py_cvec),             /* tp_basicsize      */
   0,                            /* tp_itemsize       */

@@ -17,7 +17,7 @@ class aubio_window(TestCase):
     def test_fail_name_not_string(self):
         try:
             window(10, 1024)
-        except ValueError, e:
+        except ValueError as e:
             pass
         else:
             self.fail('non-string window type does not raise a ValueError')
@@ -25,7 +25,7 @@ class aubio_window(TestCase):
     def test_fail_size_not_int(self):
         try:
             window("default", "default")
-        except ValueError, e:
+        except ValueError as e:
             pass
         else:
             self.fail('non-integer window length does not raise a ValueError')
@@ -43,7 +43,7 @@ class aubio_level_lin(TestCase):
     def test_fail_not_fvec(self):
         try:
             level_lin("default")
-        except ValueError, e:
+        except ValueError as e:
             pass
         else:
             self.fail('non-number input phase does not raise a TypeError')
@@ -62,7 +62,7 @@ class aubio_db_spl(TestCase):
     def test_fail_not_fvec(self):
         try:
             db_spl("default")
-        except ValueError, e:
+        except ValueError as e:
             pass
         else:
             self.fail('non-number input phase does not raise a TypeError')
@@ -82,7 +82,7 @@ class aubio_silence_detection(TestCase):
     def test_fail_not_fvec(self):
         try:
             silence_detection("default", -70)
-        except ValueError, e:
+        except ValueError as e:
             pass
         else:
             self.fail('non-number input phase does not raise a TypeError')
@@ -102,7 +102,7 @@ class aubio_level_detection(TestCase):
     def test_fail_not_fvec(self):
         try:
             level_detection("default", -70)
-        except ValueError, e:
+        except ValueError as e:
             pass
         else:
             self.fail('non-number input phase does not raise a TypeError')
