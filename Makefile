@@ -25,6 +25,12 @@ build_python:
 clean_python:
 	cd python && ./setup.py clean
 
+build_python3:
+	cd python && python3 ./setup.py build
+
+clean_python3:
+	cd python && python3 ./setup.py clean
+
 clean:
 	$(WAFCMD) clean
 

@@ -28,8 +28,8 @@ output_path = 'gen'
 generated_object_files = []
 
 if not os.path.isdir(output_path):
-    from lib.generator import generate_object_files
-    generated_object_files = generate_object_files(output_path)
+    from lib.gen_external import generate_external
+    generated_object_files = generate_external(output_path)
     # define include dirs
 else:
     import glob
