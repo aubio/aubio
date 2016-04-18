@@ -248,10 +248,25 @@ static PyMethodDef aubio_methods[] = {
   {NULL, NULL} /* Sentinel */
 };
 
-PyMODINIT_FUNC
-init_aubio (void)
+#if PY_MAJOR_VERSION >= 3
+// Python3 module definition
+static struct PyModuleDef moduledef = {
+   PyModuleDef_HEAD_INIT,
+   "_aubio",          /* m_name */
+   aubio_module_doc,  /* m_doc */
+   -1,                /* m_size */
+   aubio_methods,     /* m_methods */
+   NULL,              /* m_reload */
+   NULL,              /* m_traverse */
+   NULL,              /* m_clear */
+   NULL,              /* m_free */
+};
+#endif
+
+static PyObject *
+initaubio (void)
 {
-  PyObject *m;
+  PyObject *m = NULL;
   int err;
 
   // fvec is defined in __init__.py
@@ -265,13 +280,17 @@ init_aubio (void)
       // generated objects
       || (generated_types_ready() < 0 )
   ) {
-    return;
+    return m;
   }
 
+#if PY_MAJOR_VERSION >= 3
+  m = PyModule_Create(&moduledef);
+#else
   m = Py_InitModule3 ("_aubio", aubio_methods, aubio_module_doc);
+#endif
 
   if (m == NULL) {
-    return;
+    return m;
   }
 
   err = _import_array ();
@@ -300,4 +319,20 @@ init_aubio (void)
 
   // add ufunc
   add_ufuncs(m);
+
+  return m;
 }
+
+#if PY_MAJOR_VERSION >= 3
+    // Python3 init
+    PyMODINIT_FUNC PyInit__aubio(void)
+    {
+        return initaubio();
+    }
+#else
+    // Python 2 init
+    PyMODINIT_FUNC init_aubio(void)
+    {
+        initaubio();
+    }
+#endif
