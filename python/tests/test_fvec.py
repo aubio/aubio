@@ -19,7 +19,7 @@ class aubio_fvec_test_case(TestCase):
         a = fvec([0,1,2,3])
         assert a.dtype == 'float32'
         assert a.shape == (4,)
-        assert_equal (range(4), a)
+        assert_equal (list(range(4)), a)
 
     def test_vector_assign_element(self):
         a = fvec(default_size)
@@ -41,7 +41,7 @@ class aubio_fvec_test_case(TestCase):
         a = fvec(1)
         a.T
         array(a).T
-        a = range(len(a))
+        a = list(range(len(a)))
 
     def test_wrong_values(self):
         self.assertRaises (ValueError, fvec, -10)
@@ -52,11 +52,11 @@ class aubio_fvec_test_case(TestCase):
 
     def test_alpha_norm_of_fvec(self):
         a = fvec(2)
-        self.assertEquals (alpha_norm(a, 1), 0)
+        self.assertEqual (alpha_norm(a, 1), 0)
         a[0] = 1
-        self.assertEquals (alpha_norm(a, 1), 0.5)
+        self.assertEqual (alpha_norm(a, 1), 0.5)
         a[1] = 1
-        self.assertEquals (alpha_norm(a, 1), 1)
+        self.assertEqual (alpha_norm(a, 1), 1)
         a = array([0, 1], dtype='float32')
         from math import sqrt
         assert_almost_equal (alpha_norm(a, 2), sqrt(2)/2.)
@@ -73,7 +73,7 @@ class aubio_fvec_test_case(TestCase):
         self.assertRaises (ValueError, alpha_norm, a, 1)
         # check 1d array
         a = array(range(10), dtype = 'float32')
-        self.assertEquals (alpha_norm(a, 1), 4.5)
+        self.assertEqual (alpha_norm(a, 1), 4.5)
 
     def test_alpha_norm_of_array_of_int(self):
         a = array(1, dtype = 'int')
@@ -91,11 +91,11 @@ class aubio_fvec_test_case(TestCase):
         a = array([0,1,-1], dtype='float32')
         assert_almost_equal (zero_crossing_rate(a), 1./3. )
         a = array([0.]*100, dtype='float32')
-        self.assertEquals (zero_crossing_rate(a), 0 )
+        self.assertEqual (zero_crossing_rate(a), 0 )
         a = array([-1.]*100, dtype='float32')
-        self.assertEquals (zero_crossing_rate(a), 0 )
+        self.assertEqual (zero_crossing_rate(a), 0 )
         a = array([1.]*100, dtype='float32')
-        self.assertEquals (zero_crossing_rate(a), 0 )
+        self.assertEqual (zero_crossing_rate(a), 0 )
 
     def test_alpha_norm_of_array_of_float64(self):
         # check scalar fail
@@ -105,10 +105,10 @@ class aubio_fvec_test_case(TestCase):
         a = array([[[1,2],[3,4]]], dtype = 'float64')
         self.assertRaises (ValueError, alpha_norm, a, 1)
         # check float64 1d array fail
-        a = array(range(10), dtype = 'float64')
+        a = array(list(range(10)), dtype = 'float64')
         self.assertRaises (ValueError, alpha_norm, a, 1)
         # check float64 2d array fail
-        a = array([range(10), range(10)], dtype = 'float64')
+        a = array([list(range(10)), list(range(10))], dtype = 'float64')
         self.assertRaises (ValueError, alpha_norm, a, 1)
 
     def test_fvec_min_removal_of_array(self):

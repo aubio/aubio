@@ -12,7 +12,7 @@ class aubio_mathutils(TestCase):
     def test_unwrap2pi(self):
         unwrap2pi(int(23))
         unwrap2pi(float(23.))
-        unwrap2pi(long(23.))
+        unwrap2pi(int(23.))
         unwrap2pi(arange(10))
         unwrap2pi(arange(10).astype("int"))
         unwrap2pi(arange(10).astype("float"))
@@ -27,8 +27,8 @@ class aubio_mathutils(TestCase):
         #print zip(a, b)
 
         try:
-            print unwrap2pi(["23.","24.",25.])
-        except Exception, e:
+            print (unwrap2pi(["23.","24.",25.]))
+        except Exception as e:
             pass
 
     def test_unwrap2pi_takes_fvec(self):
@@ -53,7 +53,7 @@ class aubio_mathutils(TestCase):
         assert ( b <= pi ).all()
 
     def test_freqtomidi(self):
-        a = array(range(-20, 50000, 100) + [ -1e32, 1e32 ])
+        a = array(list(range(-20, 50000, 100)) + [ -1e32, 1e32 ])
         b = freqtomidi(a)
         #print zip(a, b)
         assert_equal ( isnan(array(b)), False )
@@ -61,7 +61,7 @@ class aubio_mathutils(TestCase):
         assert_equal ( array(b) < 0, False )
 
     def test_miditofreq(self):
-        a = range(-30, 200) + [-100000, 10000]
+        a = list(range(-30, 200)) + [-100000, 10000]
         b = miditofreq(a)
         #print zip(a, b)
         assert_equal ( isnan(b), False )
@@ -69,7 +69,7 @@ class aubio_mathutils(TestCase):
         assert_equal ( b < 0, False )
 
     def test_miditobin(self):
-        a = range(-30, 200) + [-100000, 10000]
+        a = list(range(-30, 200)) + [-100000, 10000]
         b = [ bintomidi(x, 44100, 512) for x in a ]
         #print zip(a, b)
         assert_equal ( isnan(array(b)), False )
@@ -77,7 +77,7 @@ class aubio_mathutils(TestCase):
         assert_equal ( array(b) < 0, False )
 
     def test_bintomidi(self):
-        a = range(-100, 512)
+        a = list(range(-100, 512))
         b = [ bintomidi(x, 44100, 512) for x in a ]
         #print zip(a, b)
         assert_equal ( isnan(array(b)), False )
@@ -85,7 +85,7 @@ class aubio_mathutils(TestCase):
         assert_equal ( array(b) < 0, False )
 
     def test_freqtobin(self):
-        a = range(-20, 50000, 100) + [ -1e32, 1e32 ]
+        a = list(range(-20, 50000, 100)) + [ -1e32, 1e32 ]
         b = [ freqtobin(x, 44100, 512) for x in a ]
         #print zip(a, b)
         assert_equal ( isnan(array(b)), False )
@@ -93,7 +93,7 @@ class aubio_mathutils(TestCase):
         assert_equal ( array(b) < 0, False )
 
     def test_bintofreq(self):
-        a = range(-20, 148)
+        a = list(range(-20, 148))
         b = [ bintofreq(x, 44100, 512) for x in a ]
         #print zip(a, b)
         assert_equal ( isnan(array(b)), False )
