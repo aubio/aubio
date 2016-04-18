@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from aubio import note2midi
+from aubio import note2midi, freq2note
 import unittest
 
 list_of_known_notes = (
@@ -49,12 +49,27 @@ class note2midi_wrong_values(unittest.TestCase):
         self.assertRaises(ValueError, note2midi, 'CBc')
 
     def test_note2midi_out_of_range(self):
-        " fails when passed a out of range note"
+        " fails when passed a note out of range"
         self.assertRaises(ValueError, note2midi, 'A9')
+
+    def test_note2midi_wrong_note_name(self):
+        " fails when passed a note with a wrong name"
+        self.assertRaises(ValueError, note2midi, 'W9')
+
+    def test_note2midi_wrong_octave(self):
+        " fails when passed a note with a wrong octave"
+        self.assertRaises(ValueError, note2midi, 'C-9')
 
     def test_note2midi_wrong_data_type(self):
         " fails when passed a non-string value "
         self.assertRaises(TypeError, note2midi, 123)
+
+
+class freq2note_simple_test(unittest.TestCase):
+
+    def test_freq2note(self):
+        " make sure freq2note(441) == A4 "
+        self.assertEquals("A4", freq2note(441))
 
 if __name__ == '__main__':
     unittest.main()
