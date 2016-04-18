@@ -13,7 +13,7 @@ Py_ ## NAME ## _init (Py_ ## NAME * self, PyObject * args, PyObject * kwds) \
 { \
   self->o = new_aubio_## NAME ( PARAMS ); \
   if (self->o == NULL) { \
-    PyErr_SetString (PyExc_StandardError, "error creating object"); \
+    PyErr_SetString (PyExc_RuntimeError, "error creating object"); \
     return -1; \
   } \
 \
@@ -25,7 +25,7 @@ static void \
 Py_ ## NAME ## _del ( Py_ ## NAME * self) \
 { \
   del_aubio_ ## NAME (self->o); \
-  self->ob_type->tp_free ((PyObject *) self); \
+  Py_TYPE(self)->tp_free ((PyObject *) self); \
 }
 
 #define AUBIO_MEMBERS_START(NAME) \

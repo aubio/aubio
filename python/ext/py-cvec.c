@@ -59,7 +59,7 @@ static void
 Py_cvec_del (Py_cvec * self)
 {
   del_cvec (self->o);
-  self->ob_type->tp_free ((PyObject *) self);
+  Py_TYPE(self)->tp_free ((PyObject *) self);
 }
 
 static PyObject *
