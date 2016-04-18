@@ -70,7 +70,7 @@ Py_pvoc_del (Py_pvoc *self, PyObject *unused)
   del_aubio_pvoc(self->o);
   del_cvec(self->output);
   del_fvec(self->routput);
-  self->ob_type->tp_free((PyObject *) self);
+  Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 

@@ -43,8 +43,7 @@ static PyMethodDef Py_ ## NAME ## _methods[] = { \
 
 #define AUBIO_TYPEOBJECT(NAME, PYNAME) \
 PyTypeObject Py_ ## NAME ## Type = { \
-  PyObject_HEAD_INIT (NULL)    \
-  0,                           \
+  PyVarObject_HEAD_INIT (NULL, 0) \
   PYNAME,                      \
   sizeof (Py_ ## NAME),          \
   0,                           \

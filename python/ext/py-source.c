@@ -159,7 +159,7 @@ Py_source_del (Py_source *self, PyObject *unused)
   del_aubio_source(self->o);
   del_fvec(self->read_to);
   del_fmat(self->mread_to);
-  self->ob_type->tp_free((PyObject *) self);
+  Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 
@@ -186,7 +186,7 @@ Py_source_do(Py_source * self, PyObject * args)
 
   PyObject *outputs = PyList_New(0);
   PyList_Append( outputs, (PyObject *)PyAubio_CFvecToArray (self->read_to));
-  PyList_Append( outputs, (PyObject *)PyInt_FromLong (read));
+  PyList_Append( outputs, (PyObject *)PyLong_FromLong(read));
   return outputs;
 }
 
@@ -213,7 +213,7 @@ Py_source_do_multi(Py_source * self, PyObject * args)
 
   PyObject *outputs = PyList_New(0);
   PyList_Append( outputs, (PyObject *)PyAubio_CFmatToArray (self->mread_to));
-  PyList_Append( outputs, (PyObject *)PyInt_FromLong (read));
+  PyList_Append( outputs, (PyObject *)PyLong_FromLong(read));
   return outputs;
 }
 
@@ -233,14 +233,14 @@ static PyObject *
 Pyaubio_source_get_samplerate (Py_source *self, PyObject *unused)
 {
   uint_t tmp = aubio_source_get_samplerate (self->o);
-  return (PyObject *)PyInt_FromLong (tmp);
+  return (PyObject *)PyLong_FromLong (tmp);
 }
 
 static PyObject *
 Pyaubio_source_get_channels (Py_source *self, PyObject *unused)
 {
   uint_t tmp = aubio_source_get_channels (self->o);
-  return (PyObject *)PyInt_FromLong (tmp);
+  return (PyObject *)PyLong_FromLong (tmp);
 }
 
 static PyObject *

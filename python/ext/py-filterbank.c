@@ -59,7 +59,7 @@ Py_filterbank_init (Py_filterbank * self, PyObject * args, PyObject * kwds)
     char_t errstr[30];
     sprintf(errstr, "error creating filterbank with n_filters=%d, win_s=%d",
         self->n_filters, self->win_s);
-    PyErr_SetString (PyExc_StandardError, errstr);
+    PyErr_SetString (PyExc_RuntimeError, errstr);
     return -1;
   }
   self->out = new_fvec(self->n_filters);
@@ -72,7 +72,7 @@ Py_filterbank_del (Py_filterbank *self, PyObject *unused)
 {
   del_aubio_filterbank(self->o);
   del_fvec(self->out);
-  self->ob_type->tp_free((PyObject *) self);
+  Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 static PyObject *

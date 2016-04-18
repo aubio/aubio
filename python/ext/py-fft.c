@@ -50,7 +50,7 @@ Py_fft_init (Py_fft * self, PyObject * args, PyObject * kwds)
   if (self->o == NULL) {
     char_t errstr[30];
     sprintf(errstr, "error creating fft with win_s=%d", self->win_s);
-    PyErr_SetString (PyExc_StandardError, errstr);
+    PyErr_SetString (PyExc_Exception, errstr);
     return -1;
   }
   self->out = new_cvec(self->win_s);
@@ -65,7 +65,7 @@ Py_fft_del (Py_fft *self, PyObject *unused)
   del_aubio_fft(self->o);
   del_cvec(self->out);
   del_fvec(self->rout);
-  self->ob_type->tp_free((PyObject *) self);
+  Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 static PyObject * 
