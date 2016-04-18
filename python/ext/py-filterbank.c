@@ -2,7 +2,14 @@
 
 static char Py_filterbank_doc[] = "filterbank object";
 
-AUBIO_DECLARE(filterbank, uint_t n_filters; uint_t win_s)
+typedef struct
+{
+  PyObject_HEAD
+  aubio_filterbank_t * o;
+  uint_t n_filters;
+  uint_t win_s;
+  fvec_t *out;
+} Py_filterbank;
 
 //AUBIO_NEW(filterbank)
 static PyObject *
@@ -44,17 +51,35 @@ Py_filterbank_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
   return (PyObject *) self;
 }
 
+static int
+Py_filterbank_init (Py_filterbank * self, PyObject * args, PyObject * kwds)
+{
+  self->o = new_aubio_filterbank (self->n_filters, self->win_s);
+  if (self->o == NULL) {
+    char_t errstr[30];
+    sprintf(errstr, "error creating filterbank with n_filters=%d, win_s=%d",
+        self->n_filters, self->win_s);
+    PyErr_SetString (PyExc_StandardError, errstr);
+    return -1;
+  }
+  self->out = new_fvec(self->n_filters);
 
-AUBIO_INIT(filterbank, self->n_filters, self->win_s)
+  return 0;
+}
 
-AUBIO_DEL(filterbank)
+static void
+Py_filterbank_del (Py_filterbank *self, PyObject *unused)
+{
+  del_aubio_filterbank(self->o);
+  del_fvec(self->out);
+  self->ob_type->tp_free((PyObject *) self);
+}
 
 static PyObject *
 Py_filterbank_do(Py_filterbank * self, PyObject * args)
 {
   PyObject *input;
   cvec_t *vec;
-  fvec_t *out;
 
   if (!PyArg_ParseTuple (args, "O", &input)) {
     return NULL;
@@ -66,11 +91,9 @@ Py_filterbank_do(Py_filterbank * self, PyObject * args)
     return NULL;
   }
 
-  out = new_fvec (self->n_filters);
-
   // compute the function
-  aubio_filterbank_do (self->o, vec, out);
-  return (PyObject *)PyAubio_CFvecToArray(out);
+  aubio_filterbank_do (self->o, vec, self->out);
+  return (PyObject *)PyAubio_CFvecToArray(self->out);
 }
 
 AUBIO_MEMBERS_START(filterbank)
