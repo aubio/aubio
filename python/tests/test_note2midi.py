@@ -69,7 +69,7 @@ class freq2note_simple_test(unittest.TestCase):
 
     def test_freq2note(self):
         " make sure freq2note(441) == A4 "
-        self.assertEquals("A4", freq2note(441))
+        self.assertEqual("A4", freq2note(441))
 
 if __name__ == '__main__':
     unittest.main()

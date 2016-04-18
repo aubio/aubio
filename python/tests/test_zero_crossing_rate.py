@@ -22,24 +22,24 @@ class zero_crossing_rate_test_case(TestCase):
 
     def test_impulse(self):
         """ check zero crossing rate on a buffer with an impulse """
-        self.vector[buf_size / 2] = 1.
+        self.vector[int(buf_size / 2)] = 1.
         self.assertEqual(0., zero_crossing_rate(self.vector))
 
     def test_negative_impulse(self):
         """ check zero crossing rate on a buffer with a negative impulse """
-        self.vector[buf_size / 2] = -1.
+        self.vector[int(buf_size / 2)] = -1.
         self.assertEqual(2./buf_size, zero_crossing_rate(self.vector))
 
     def test_single(self):
         """ check zero crossing rate on single crossing """
-        self.vector[buf_size / 2 - 1] = 1.
-        self.vector[buf_size / 2] = -1.
+        self.vector[int(buf_size / 2) - 1] = 1.
+        self.vector[int(buf_size / 2)] = -1.
         self.assertEqual(2./buf_size, zero_crossing_rate(self.vector))
 
     def test_single_with_gap(self):
         """ check zero crossing rate on single crossing with a gap"""
-        self.vector[buf_size / 2 - 2] = 1.
-        self.vector[buf_size / 2] = -1.
+        self.vector[int(buf_size / 2) - 2] = 1.
+        self.vector[int(buf_size / 2)] = -1.
         self.assertEqual(2./buf_size, zero_crossing_rate(self.vector))
 
 if __name__ == '__main__':

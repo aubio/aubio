@@ -16,7 +16,7 @@ class aubio_filterbank_test_case(TestCase):
 
   def test_set_coeffs(self):
     f = filterbank(40, 512)
-    r = random.random([40, 512 / 2 + 1]).astype('float32')
+    r = random.random([40, int(512 / 2) + 1]).astype('float32')
     f.set_coeffs(r)
     assert_equal (r, f.get_coeffs())
 
@@ -35,16 +35,16 @@ class aubio_filterbank_test_case(TestCase):
   def test_random_norm(self):
     f = filterbank(40, 512)
     c = cvec(512)
-    c.norm[:] = random.random((512 / 2 + 1,)).astype('float32')
+    c.norm[:] = random.random((int(512 / 2) + 1,)).astype('float32')
     assert_equal( f(c), 0)
 
   def test_random_coeffs(self):
     f = filterbank(40, 512)
     c = cvec(512)
-    r = random.random([40, 512 / 2 + 1]).astype('float32')
+    r = random.random([40, int(512 / 2) + 1]).astype('float32')
     r /= r.sum()
     f.set_coeffs(r)
-    c.norm[:] = random.random((512 / 2 + 1,)).astype('float32')
+    c.norm[:] = random.random((int(512 / 2) + 1,)).astype('float32')
     assert_equal ( f(c) < 1., True )
     assert_equal ( f(c) > 0., True )
 
@@ -52,7 +52,7 @@ class aubio_filterbank_test_case(TestCase):
     f = filterbank(40, 512)
     c = cvec(512)
     f.set_mel_coeffs_slaney(44100)
-    c.norm[:] = random.random((512 / 2 + 1,)).astype('float32')
+    c.norm[:] = random.random((int(512 / 2) + 1,)).astype('float32')
     assert_equal ( f(c) < 1., True )
     assert_equal ( f(c) > 0., True )
 
