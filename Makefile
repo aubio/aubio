@@ -1,3 +1,4 @@
+WAFCMD=python waf
 all: build
 
 checkwaf:
@@ -5,8 +6,11 @@ checkwaf:
 
 getwaf:
 	curl https://waf.io/waf-1.8.14 > waf
+	@chmod +x waf
+
+expandwaf:
 	@[ -d wafilb ] || rm -fr waflib
-	@chmod +x waf && ./waf --help > /dev/null
+	@$(WAFCMD) --help > /dev/null
 	@mv .waf*/waflib . && rm -fr .waf*
 	@sed '/^#==>$$/,$$d' waf > waf2 && mv waf2 waf
 	@chmod +x waf
@@ -22,10 +26,10 @@ clean_python:
 	cd python && ./setup.py clean
 
 clean:
-	./waf clean
+	$(WAFCMD) clean
 
 distcheck: build
-	./waf distcheck
+	$(WAFCMD) distcheck
 
 help:
-	./waf --help
+	$(WAFCMD) --help
