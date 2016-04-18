@@ -8,6 +8,8 @@ typedef struct
   uint_t samplerate;
   uint_t channels;
   uint_t hop_size;
+  fvec_t *read_to;
+  fmat_t *mread_to;
 } Py_source;
 
 static char Py_source_doc[] = ""
@@ -145,10 +147,21 @@ Py_source_init (Py_source * self, PyObject * args, PyObject * kwds)
     self->channels = aubio_source_get_channels ( self->o );
   }
 
+  self->read_to = new_fvec(self->hop_size);
+  self->mread_to = new_fmat (self->channels, self->hop_size);
+
   return 0;
 }
 
-AUBIO_DEL(source)
+static void
+Py_source_del (Py_source *self, PyObject *unused)
+{
+  del_aubio_source(self->o);
+  del_fvec(self->read_to);
+  del_fmat(self->mread_to);
+  self->ob_type->tp_free((PyObject *) self);
+}
+
 
 /* function Py_source_do */
 static PyObject *
@@ -157,7 +170,6 @@ Py_source_do(Py_source * self, PyObject * args)
 
 
   /* output vectors prototypes */
-  fvec_t* read_to;
   uint_t read;
 
 
@@ -166,16 +178,14 @@ Py_source_do(Py_source * self, PyObject * args)
 
 
   /* creating output read_to as a new_fvec of length self->hop_size */
-  read_to = new_fvec (self->hop_size);
   read = 0;
 
 
   /* compute _do function */
-  aubio_source_do (self->o, read_to, &read);
+  aubio_source_do (self->o, self->read_to, &read);
 
   PyObject *outputs = PyList_New(0);
-  PyList_Append( outputs, (PyObject *)PyAubio_CFvecToArray (read_to));
-  //del_fvec (read_to);
+  PyList_Append( outputs, (PyObject *)PyAubio_CFvecToArray (self->read_to));
   PyList_Append( outputs, (PyObject *)PyInt_FromLong (read));
   return outputs;
 }
@@ -187,7 +197,6 @@ Py_source_do_multi(Py_source * self, PyObject * args)
 
 
   /* output vectors prototypes */
-  fmat_t* read_to;
   uint_t read;
 
 
@@ -195,17 +204,15 @@ Py_source_do_multi(Py_source * self, PyObject * args)
 
 
 
-  /* creating output read_to as a new_fvec of length self->hop_size */
-  read_to = new_fmat (self->channels, self->hop_size);
+  /* creating output mread_to as a new_fvec of length self->hop_size */
   read = 0;
 
 
   /* compute _do function */
-  aubio_source_do_multi (self->o, read_to, &read);
+  aubio_source_do_multi (self->o, self->mread_to, &read);
 
   PyObject *outputs = PyList_New(0);
-  PyList_Append( outputs, (PyObject *)PyAubio_CFmatToArray (read_to));
-  //del_fvec (read_to);
+  PyList_Append( outputs, (PyObject *)PyAubio_CFmatToArray (self->mread_to));
   PyList_Append( outputs, (PyObject *)PyInt_FromLong (read));
   return outputs;
 }
