@@ -134,7 +134,7 @@ def parse_args():
         if len(args) == 1:
             options.source_file = args[0]
         else:
-            print "no file name given\n", usage
+            print ("no file name given\n", usage)
             sys.exit(1)
     return options, args
 
@@ -171,7 +171,7 @@ if __name__ == '__main__':
         samples, read = s()
         if o(samples):
             timestamps.append (o.get_last())
-            if options.verbose: print "%.4f" % o.get_last_s()
+            if options.verbose: print ("%.4f" % o.get_last_s())
         total_frames += read
         if read < hopsize: break
     del s
@@ -188,7 +188,7 @@ if __name__ == '__main__':
         from aubio.slicing import slice_source_at_stamps
         timestamps_end = None
         if options.cut_until_nslices and options.cut_until_nsamples:
-            print "warning: using cut_until_nslices, but cut_until_nsamples is set"
+            print ("warning: using cut_until_nslices, but cut_until_nsamples is set")
         if options.cut_until_nsamples:
             timestamps_end = [t + options.cut_until_nsamples for t in timestamps[1:]]
             timestamps_end += [ 1e120 ]
