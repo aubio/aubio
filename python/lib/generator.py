@@ -23,6 +23,7 @@ def get_cpp_objects():
           i += 1
 
   typedefs = filter(lambda y: y.startswith ('typedef struct _aubio'), cpp_output)
+  typedefs = list(typedefs)
 
   cpp_objects = [a.split()[3][:-1] for a in typedefs]
 
