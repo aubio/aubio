@@ -22,7 +22,7 @@ def slice_source_at_stamps(source_file, timestamps, timestamps_end = None,
     else:
         timestamps_end = [t - 1 for t in timestamps[1:] ] + [ max_timestamp ]
 
-    regions = zip(timestamps, timestamps_end)
+    regions = list(zip(timestamps, timestamps_end))
     #print regions
 
     source_base_name, source_ext = os.path.splitext(os.path.basename(source_file))
