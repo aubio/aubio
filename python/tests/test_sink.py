@@ -29,29 +29,6 @@ class aubio_sink_test_case(TestCase):
             g.close()
         shutil.rmtree(tmpdir)
 
-    def test_many_sinks_not_closed(self):
-        from tempfile import mkdtemp
-        import os.path
-        import shutil
-        tmpdir = mkdtemp()
-        sink_list = []
-        try:
-            for i in range(many_files):
-                path = os.path.join(tmpdir, 'f-' + str(i) + '.wav')
-                g = sink(path, 0)
-                sink_list.append(g)
-                write = 256
-                for n in range(200):
-                    vec = fvec(write)
-                    g(vec, write)
-        except Exception:
-            pass
-        else:
-            self.fail("does not fail on too many files open")
-        for g in sink_list:
-            g.close()
-        shutil.rmtree(tmpdir)
-
     def test_read_and_write(self):
 
         if not len(list_of_sounds):
@@ -69,12 +46,6 @@ class aubio_sink_test_case(TestCase):
                     g(vec, read)
                     total_frames += read
                     if read < f.hop_size: break
-                if 0:
-                    print ("read", "%.2fs" % (total_frames / float(f.samplerate) ) ),
-                    print ("(", total_frames, "frames", "in" ),
-                    print (total_frames / f.hop_size, "blocks", "at", "%dHz" % f.samplerate, ")" ),
-                    print ("from", f.uri ),
-                    print ("to", g.uri)
                 del_tmp_sink_path(sink_path)
 
     def test_read_and_write_multi(self):
@@ -94,14 +65,6 @@ class aubio_sink_test_case(TestCase):
                     g.do_multi(vec, read)
                     total_frames += read
                     if read < f.hop_size: break
-                if 0:
-                    print ("read", "%.2fs" % (total_frames / float(f.samplerate) ) ),
-                    print ("(", total_frames, "frames", "in" ),
-                    print (f.channels, "channels", "in" ),
-                    print (total_frames / f.hop_size, "blocks", "at", "%dHz" % f.samplerate, ")" ),
-                    print ("from", f.uri ),
-                    print ("to", g.uri ),
-                    print ("in", g.channels, "channels")
                 del_tmp_sink_path(sink_path)
 
     def test_close_file(self):
