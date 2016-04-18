@@ -48,7 +48,7 @@ def midi2note(midi):
                 "an integer between 0 and 127 is excepted, got %d" % midi)
     midi = int(midi)
     _valid_notenames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-    return _valid_notenames[midi % 12] + str( midi / 12 - 1)
+    return _valid_notenames[midi % 12] + str( int(midi / 12) - 1 )
 
 def freq2note(freq):
     from aubio import freqtomidi
