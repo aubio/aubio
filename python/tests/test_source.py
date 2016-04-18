@@ -38,10 +38,9 @@ class aubio_source_read_test_case(aubio_source_test_case_base):
             vec, read = f()
             total_frames += read
             if read < f.hop_size: break
-        print ("read", "%.2fs" % (total_frames / float(f.samplerate) ) ),
-        print ("(", total_frames, "frames", "in" ),
-        print (total_frames / f.hop_size, "blocks", "at", "%dHz" % f.samplerate, ")" ),
-        print ("from", f.uri)
+        result_str = "read {:.2f}s ({:d} frames in {:d} blocks at {:d}Hz) from {:s}"
+        params = total_frames / float(f.samplerate), total_frames, int(total_frames/f.hop_size), f.samplerate, f.uri
+        print (result_str.format(*params))
         return total_frames
 
     def test_samplerate_hopsize(self):
@@ -108,11 +107,9 @@ class aubio_source_readmulti_test_case(aubio_source_read_test_case):
             vec, read = f.do_multi()
             total_frames += read
             if read < f.hop_size: break
-        print ("read", "%.2fs" % (total_frames / float(f.samplerate) ) ),
-        print ("(", total_frames, "frames", "in" ),
-        print (f.channels, "channels and" ),
-        print (total_frames / f.hop_size, "blocks", "at", "%dHz" % f.samplerate, ")" ),
-        print ("from", f.uri)
+        result_str = "read {:.2f}s ({:d} frames in {:d} channels and {:d} blocks at {:d}Hz) from {:s}"
+        params = total_frames / float(f.samplerate), total_frames, f.channels, int(total_frames/f.hop_size), f.samplerate, f.uri
+        print (result_str.format(*params))
         return total_frames
 
 if __name__ == '__main__':
