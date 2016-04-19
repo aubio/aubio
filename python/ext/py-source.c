@@ -184,9 +184,9 @@ Py_source_do(Py_source * self, PyObject * args)
   /* compute _do function */
   aubio_source_do (self->o, self->read_to, &read);
 
-  PyObject *outputs = PyList_New(0);
-  PyList_Append( outputs, (PyObject *)PyAubio_CFvecToArray (self->read_to));
-  PyList_Append( outputs, (PyObject *)PyLong_FromLong(read));
+  PyObject *outputs = PyTuple_New(2);
+  PyTuple_SetItem( outputs, 0, (PyObject *)PyAubio_CFvecToArray (self->read_to) );
+  PyTuple_SetItem( outputs, 1, (PyObject *)PyLong_FromLong(read));
   return outputs;
 }
 
@@ -211,9 +211,9 @@ Py_source_do_multi(Py_source * self, PyObject * args)
   /* compute _do function */
   aubio_source_do_multi (self->o, self->mread_to, &read);
 
-  PyObject *outputs = PyList_New(0);
-  PyList_Append( outputs, (PyObject *)PyAubio_CFmatToArray (self->mread_to));
-  PyList_Append( outputs, (PyObject *)PyLong_FromLong(read));
+  PyObject *outputs = PyTuple_New(2);
+  PyTuple_SetItem( outputs, 0, (PyObject *)PyAubio_CFmatToArray (self->mread_to));
+  PyTuple_SetItem( outputs, 1, (PyObject *)PyLong_FromLong(read));
   return outputs;
 }
 
