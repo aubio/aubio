@@ -48,7 +48,7 @@ setting PYTHONPATH:
 Similarly, you can use the aubio module without installing libaubio by pointing
 LD_LIBRARY_PATH to the path libaubio can be found at:
 
-    $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:PWD/../build/src
+    $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/../build/src
 
 Or on Mac OS X systems, setting DYLD_LIBRARY_PATH:
 
