@@ -1,4 +1,4 @@
-#include "aubiowraphell.h"
+#include "aubio-types.h"
 
 static char Py_filterbank_doc[] = "filterbank object";
 
@@ -11,7 +11,6 @@ typedef struct
   fvec_t *out;
 } Py_filterbank;
 
-//AUBIO_NEW(filterbank)
 static PyObject *
 Py_filterbank_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
 {
@@ -96,12 +95,13 @@ Py_filterbank_do(Py_filterbank * self, PyObject * args)
   return (PyObject *)PyAubio_CFvecToArray(self->out);
 }
 
-AUBIO_MEMBERS_START(filterbank)
+static PyMemberDef Py_filterbank_members[] = {
   {"win_s", T_INT, offsetof (Py_filterbank, win_s), READONLY,
     "size of the window"},
   {"n_filters", T_INT, offsetof (Py_filterbank, n_filters), READONLY,
     "number of filters"},
-AUBIO_MEMBERS_STOP(filterbank)
+  {NULL} /* sentinel */
+};
 
 static PyObject *
 Py_filterbank_set_triangle_bands (Py_filterbank * self, PyObject *args)
@@ -203,4 +203,43 @@ static PyMethodDef Py_filterbank_methods[] = {
   {NULL}
 };
 
-AUBIO_TYPEOBJECT(filterbank, "aubio.filterbank")
+PyTypeObject Py_filterbankType = {
+  PyVarObject_HEAD_INIT (NULL, 0)
+  "aubio.filterbank",
+  sizeof (Py_filterbank),
+  0,
+  (destructor) Py_filterbank_del,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  (ternaryfunc)Py_filterbank_do,
+  0,
+  0,
+  0,
+  0,
+  Py_TPFLAGS_DEFAULT,
+  Py_filterbank_doc,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  Py_filterbank_methods,
+  Py_filterbank_members,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  (initproc) Py_filterbank_init,
+  0,
+  Py_filterbank_new,
+};

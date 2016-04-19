@@ -1,4 +1,4 @@
-#include "aubiowraphell.h"
+#include "aubio-types.h"
 
 static char Py_fft_doc[] = "fft object";
 
@@ -11,7 +11,6 @@ typedef struct
   fvec_t *rout;
 } Py_fft;
 
-//AUBIO_NEW(fft)
 static PyObject *
 Py_fft_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
 {
@@ -89,10 +88,11 @@ Py_fft_do(Py_fft * self, PyObject * args)
   return (PyObject *)PyAubio_CCvecToPyCvec(self->out);
 }
 
-AUBIO_MEMBERS_START(fft) 
+static PyMemberDef Py_fft_members[] = {
   {"win_s", T_INT, offsetof (Py_fft, win_s), READONLY,
     "size of the window"},
-AUBIO_MEMBERS_STOP(fft)
+  {NULL}
+};
 
 static PyObject * 
 Py_fft_rdo(Py_fft * self, PyObject * args)
@@ -121,4 +121,43 @@ static PyMethodDef Py_fft_methods[] = {
   {NULL}
 };
 
-AUBIO_TYPEOBJECT(fft, "aubio.fft")
+PyTypeObject Py_fftType = {
+  PyVarObject_HEAD_INIT (NULL, 0)
+  "aubio.fft",
+  sizeof (Py_fft),
+  0,
+  (destructor) Py_fft_del,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  (ternaryfunc)Py_fft_do,
+  0,
+  0,
+  0,
+  0,
+  Py_TPFLAGS_DEFAULT,
+  Py_fft_doc,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  Py_fft_methods,
+  Py_fft_members,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  (initproc) Py_fft_init,
+  0,
+  Py_fft_new,
+};

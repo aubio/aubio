@@ -1,4 +1,4 @@
-#include "aubiowraphell.h"
+#include "aubio-types.h"
 
 typedef struct
 {
@@ -217,7 +217,7 @@ Py_source_do_multi(Py_source * self, PyObject * args)
   return outputs;
 }
 
-AUBIO_MEMBERS_START(source)
+static PyMemberDef Py_source_members[] = {
   {"uri", T_STRING, offsetof (Py_source, uri), READONLY,
     "path at which the source was created"},
   {"samplerate", T_INT, offsetof (Py_source, samplerate), READONLY,
@@ -226,8 +226,8 @@ AUBIO_MEMBERS_START(source)
     "number of channels found in the source"},
   {"hop_size", T_INT, offsetof (Py_source, hop_size), READONLY,
     "number of consecutive frames that will be read at each do or do_multi call"},
-AUBIO_MEMBERS_STOP(source)
-
+  { NULL } // sentinel
+};
 
 static PyObject *
 Pyaubio_source_get_samplerate (Py_source *self, PyObject *unused)
@@ -285,4 +285,43 @@ static PyMethodDef Py_source_methods[] = {
   {NULL} /* sentinel */
 };
 
-AUBIO_TYPEOBJECT(source, "aubio.source")
+PyTypeObject Py_sourceType = {
+  PyVarObject_HEAD_INIT (NULL, 0)
+  "aubio.source",
+  sizeof (Py_source),
+  0,
+  (destructor) Py_source_del,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  (ternaryfunc)Py_source_do,
+  0,
+  0,
+  0,
+  0,
+  Py_TPFLAGS_DEFAULT,
+  Py_source_doc,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  Py_source_methods,
+  Py_source_members,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  (initproc) Py_source_init,
+  0,
+  Py_source_new,
+};

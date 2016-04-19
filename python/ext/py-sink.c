@@ -1,4 +1,4 @@
-#include "aubiowraphell.h"
+#include "aubio-types.h"
 
 typedef struct
 {
@@ -124,7 +124,12 @@ Py_sink_init (Py_sink * self, PyObject * args, PyObject * kwds)
   return 0;
 }
 
-AUBIO_DEL(sink)
+static void
+Py_sink_del (Py_sink *self, PyObject *unused)
+{
+  del_aubio_sink(self->o);
+  Py_TYPE(self)->tp_free((PyObject *) self);
+}
 
 /* function Py_sink_do */
 static PyObject *
@@ -193,14 +198,15 @@ Py_sink_do_multi(Py_sink * self, PyObject * args)
   Py_RETURN_NONE;
 }
 
-AUBIO_MEMBERS_START(sink)
+static PyMemberDef Py_sink_members[] = {
   {"uri", T_STRING, offsetof (Py_sink, uri), READONLY,
     "path at which the sink was created"},
   {"samplerate", T_INT, offsetof (Py_sink, samplerate), READONLY,
     "samplerate at which the sink was created"},
   {"channels", T_INT, offsetof (Py_sink, channels), READONLY,
     "number of channels with which the sink was created"},
-AUBIO_MEMBERS_STOP(sink)
+  { NULL } // sentinel
+};
 
 static PyObject *
 Pyaubio_sink_close (Py_sink *self, PyObject *unused)
@@ -216,4 +222,43 @@ static PyMethodDef Py_sink_methods[] = {
   {NULL} /* sentinel */
 };
 
-AUBIO_TYPEOBJECT(sink, "aubio.sink")
+PyTypeObject Py_sinkType = {
+  PyVarObject_HEAD_INIT (NULL, 0)
+  "aubio.sink",
+  sizeof (Py_sink),
+  0,
+  (destructor) Py_sink_del,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  (ternaryfunc)Py_sink_do,
+  0,
+  0,
+  0,
+  0,
+  Py_TPFLAGS_DEFAULT,
+  Py_sink_doc,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  Py_sink_methods,
+  Py_sink_members,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  (initproc) Py_sink_init,
+  0,
+  Py_sink_new,
+};
