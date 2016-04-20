@@ -110,7 +110,7 @@ On Linux, you should be able to set `LD_LIBRARY_PATH` with:
 On Mac OS X, a copy or a symlink can be made in `~/lib`:
 
     $ mkdir -p ~/lib
-    $ ln -sf $PWD/build/src/libaubio.4.dylib ~/lib/libaubio.4.dylib
+    $ ln -sf $PWD/build/src/libaubio*.dylib ~/lib/
 
 Note on Mac OS X systems older than El Capitan (10.11), the `DYLD_LIBRARY_PATH`
 variable can be set as follows:
