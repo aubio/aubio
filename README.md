@@ -70,8 +70,8 @@ The latest version of the documentation can be found at:
 
   https://aubio.org/documentation
 
-Installation and Build Instructions
------------------------------------
+Build Instructions
+------------------
 
 A number of distributions already include aubio. Check your favorite package
 management system, or have a look at the [download
@@ -81,13 +81,41 @@ aubio uses [waf](https://waf.io/) to configure, compile, and test the source:
 
     ./waf configure
     ./waf build
-    sudo ./waf install
 
 If waf is not found in the directory, you can download and install it with:
 
     make getwaf
 
 aubio compiles on Linux, Mac OS X, Cygwin, and iOS.
+
+Installation
+------------
+
+To install aubio library and headers on your system, use:
+
+    sudo ./waf install
+
+To uninstall:
+
+    sudo ./waf uninstall
+
+If you don't have root access to install libaubio on your system, you can use
+libaubio without installing libaubio either by setting `LD_LIBRARY_PATH`, or by
+copying it to `~/lib`.
+
+On Linux, you should be able to set `LD_LIBRARY_PATH` with:
+
+    $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/build/src
+
+On Mac OS X, a copy or a symlink can be made in `~/lib`:
+
+    $ mkdir -p ~/lib
+    $ ln -sf $PWD/build/src/libaubio.4.dylib ~/lib/libaubio.4.dylib
+
+Note on Mac OS X systems older than El Capitan (10.11), the `DYLD_LIBRARY_PATH`
+variable can be set as follows:
+
+    $ export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$PWD/build/src
 
 Credits and Publications
 ------------------------
