@@ -54,12 +54,20 @@ matrix:
       env: ARCH=i386
     - language: C
       os: osx
-      compiler:
-        - clang
-        - gcc
-      env:
-        - ARCH=i386
-        - ARCH=x86_64
+      compiler: clang
+      env: ARCH=x86_64
+    - language: C
+      os: osx
+      compiler: clang
+      env: ARCH=i386
+    - language: C
+      os: osx
+      compiler: gcc
+      env: ARCH=x86_64
+    - language: C
+      os: osx
+      compiler: gcc
+      env: ARCH=i386
 
 addons:
   apt:
