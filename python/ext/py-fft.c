@@ -7,7 +7,10 @@ typedef struct
   PyObject_HEAD
   aubio_fft_t * o;
   uint_t win_s;
+  fvec_t *vecin;
   cvec_t *out;
+  Py_cvec *py_out;
+  cvec_t *cvecin;
   fvec_t *rout;
 } Py_fft;
 
@@ -52,7 +55,13 @@ Py_fft_init (Py_fft * self, PyObject * args, PyObject * kwds)
     PyErr_SetString (PyExc_Exception, errstr);
     return -1;
   }
+
+  self->cvecin = (cvec_t *)malloc(sizeof(cvec_t));
+  self->vecin = (fvec_t *)malloc(sizeof(fvec_t));
+
   self->out = new_cvec(self->win_s);
+  self->py_out = (Py_cvec*) PyObject_New (Py_cvec, &Py_cvecType);
+  Py_XINCREF(self->py_out);
   self->rout = new_fvec(self->win_s);
 
   return 0;
@@ -61,31 +70,38 @@ Py_fft_init (Py_fft * self, PyObject * args, PyObject * kwds)
 static void
 Py_fft_del (Py_fft *self, PyObject *unused)
 {
+  Py_XDECREF((PyObject*)(self->py_out));
   del_aubio_fft(self->o);
   del_cvec(self->out);
   del_fvec(self->rout);
+  free(self->cvecin);
+  free(self->vecin);
   Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
-static PyObject * 
+static PyObject *
 Py_fft_do(Py_fft * self, PyObject * args)
 {
   PyObject *input;
-  fvec_t *vec;
 
   if (!PyArg_ParseTuple (args, "O", &input)) {
     return NULL;
   }
 
-  vec = PyAubio_ArrayToCFvec (input);
-
-  if (vec == NULL) {
+  if (!PyAubio_ArrayToCFvec(input, self->vecin)) {
     return NULL;
   }
 
   // compute the function
-  aubio_fft_do (((Py_fft *)self)->o, vec, self->out);
-  return (PyObject *)PyAubio_CCvecToPyCvec(self->out);
+  aubio_fft_do (((Py_fft *)self)->o, self->vecin, self->out);
+#if 0
+  Py_cvec * py_out = (Py_cvec*) PyObject_New (Py_cvec, &Py_cvecType);
+  PyObject* output = PyAubio_CCvecToPyCvec(self->out, py_out);
+  return output;
+#else
+  // convert cvec to py_cvec, incrementing refcount to keep a copy
+  return PyAubio_CCvecToPyCvec(self->out, self->py_out);
+#endif
 }
 
 static PyMemberDef Py_fft_members[] = {
@@ -94,25 +110,22 @@ static PyMemberDef Py_fft_members[] = {
   {NULL}
 };
 
-static PyObject * 
+static PyObject *
 Py_fft_rdo(Py_fft * self, PyObject * args)
 {
   PyObject *input;
-  cvec_t *vec;
 
   if (!PyArg_ParseTuple (args, "O", &input)) {
     return NULL;
   }
 
-  vec = PyAubio_ArrayToCCvec (input);
-
-  if (vec == NULL) {
+  if (!PyAubio_ArrayToCCvec (input, self->cvecin) ) {
     return NULL;
   }
 
   // compute the function
-  aubio_fft_rdo (((Py_fft *)self)->o, vec, self->rout);
-  return (PyObject *)PyAubio_CFvecToArray(self->rout);
+  aubio_fft_rdo (self->o, self->cvecin, self->rout);
+  return PyAubio_CFvecToArray(self->rout);
 }
 
 static PyMethodDef Py_fft_methods[] = {

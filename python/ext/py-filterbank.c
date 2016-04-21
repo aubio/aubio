@@ -8,7 +8,10 @@ typedef struct
   aubio_filterbank_t * o;
   uint_t n_filters;
   uint_t win_s;
+  cvec_t *vec;
   fvec_t *out;
+  fvec_t *freqs;
+  fmat_t *coeffs;
 } Py_filterbank;
 
 static PyObject *
@@ -63,6 +66,14 @@ Py_filterbank_init (Py_filterbank * self, PyObject * args, PyObject * kwds)
   }
   self->out = new_fvec(self->n_filters);
 
+  self->vec = (cvec_t *)malloc(sizeof(cvec_t));
+
+  self->freqs = (fvec_t *)malloc(sizeof(fvec_t));
+
+  self->coeffs = (fmat_t *)malloc(sizeof(fmat_t));
+  self->coeffs->data = (smpl_t **)malloc(sizeof(smpl_t*) * self->n_filters);
+  self->coeffs->height = self->n_filters;
+
   return 0;
 }
 
@@ -71,6 +82,10 @@ Py_filterbank_del (Py_filterbank *self, PyObject *unused)
 {
   del_aubio_filterbank(self->o);
   del_fvec(self->out);
+  free(self->vec);
+  free(self->freqs);
+  free(self->coeffs->data);
+  free(self->coeffs);
   Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
@@ -78,20 +93,17 @@ static PyObject *
 Py_filterbank_do(Py_filterbank * self, PyObject * args)
 {
   PyObject *input;
-  cvec_t *vec;
 
   if (!PyArg_ParseTuple (args, "O", &input)) {
     return NULL;
   }
 
-  vec = PyAubio_ArrayToCCvec (input);
-
-  if (vec == NULL) {
+  if (!PyAubio_ArrayToCCvec(input, self->vec)) {
     return NULL;
   }
 
   // compute the function
-  aubio_filterbank_do (self->o, vec, self->out);
+  aubio_filterbank_do (self->o, self->vec, self->out);
   return (PyObject *)PyAubio_CFvecToArray(self->out);
 }
 
@@ -110,7 +122,6 @@ Py_filterbank_set_triangle_bands (Py_filterbank * self, PyObject *args)
 
   PyObject *input;
   uint_t samplerate;
-  fvec_t *freqs;
   if (!PyArg_ParseTuple (args, "OI", &input, &samplerate)) {
     return NULL;
   }
@@ -119,14 +130,12 @@ Py_filterbank_set_triangle_bands (Py_filterbank * self, PyObject *args)
     return NULL;
   }
 
-  freqs = PyAubio_ArrayToCFvec (input);
-
-  if (freqs == NULL) {
+  if (!PyAubio_ArrayToCFvec(input, self->freqs)) {
     return NULL;
   }
 
   err = aubio_filterbank_set_triangle_bands (self->o,
-      freqs, samplerate);
+      self->freqs, samplerate);
   if (err > 0) {
     PyErr_SetString (PyExc_ValueError,
         "error when setting filter to A-weighting");
@@ -160,21 +169,15 @@ Py_filterbank_set_coeffs (Py_filterbank * self, PyObject *args)
   uint_t err = 0;
 
   PyObject *input;
-  fmat_t *coeffs;
-
   if (!PyArg_ParseTuple (args, "O", &input)) {
     return NULL;
   }
 
-  coeffs = PyAubio_ArrayToCFmat (input);
-
-  if (coeffs == NULL) {
-    PyErr_SetString (PyExc_ValueError,
-        "unable to parse input array");
+  if (!PyAubio_ArrayToCFmat(input, self->coeffs)) {
     return NULL;
   }
 
-  err = aubio_filterbank_set_coeffs (self->o, coeffs);
+  err = aubio_filterbank_set_coeffs (self->o, self->coeffs);
 
   if (err > 0) {
     PyErr_SetString (PyExc_ValueError,

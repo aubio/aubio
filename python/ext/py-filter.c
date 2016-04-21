@@ -5,6 +5,7 @@ typedef struct
   PyObject_HEAD
   aubio_filter_t * o;
   uint_t order;
+  fvec_t *vec;
   fvec_t *out;
 } Py_filter;
 
@@ -49,6 +50,7 @@ Py_filter_init (Py_filter * self, PyObject * args, PyObject * kwds)
     return -1;
   }
   self->out = new_fvec(Py_default_vector_length);
+  self->vec = (fvec_t *)malloc(sizeof(fvec_t));
   return 0;
 }
 
@@ -57,6 +59,7 @@ Py_filter_del (Py_filter * self)
 {
   del_fvec(self->out);
   del_aubio_filter (self->o);
+  free(self->vec);
   Py_TYPE(self)->tp_free ((PyObject *) self);
 }
 
@@ -64,7 +67,6 @@ static PyObject *
 Py_filter_do(Py_filter * self, PyObject * args)
 {
   PyObject *input;
-  fvec_t *vec;
 
   if (!PyArg_ParseTuple (args, "O:digital_filter.do", &input)) {
     return NULL;
@@ -74,19 +76,17 @@ Py_filter_do(Py_filter * self, PyObject * args)
     return NULL;
   }
 
-  vec = PyAubio_ArrayToCFvec (input);
-
-  if (vec == NULL) {
+  if (!PyAubio_ArrayToCFvec(input, self->vec)) {
     return NULL;
   }
 
   // reallocate the output if needed
-  if (vec->length != self->out->length) {
+  if (self->vec->length != self->out->length) {
     del_fvec(self->out);
-    self->out = new_fvec(vec->length);
+    self->out = new_fvec(self->vec->length);
   }
   // compute the function
-  aubio_filter_do_outplace (self->o, vec, self->out);
+  aubio_filter_do_outplace (self->o, self->vec, self->out);
   return PyAubio_CFvecToArray(self->out);
 }
 

@@ -8,7 +8,10 @@ typedef struct
   aubio_pvoc_t * o;
   uint_t win_s;
   uint_t hop_s;
+  fvec_t *vecin;
   cvec_t *output;
+  Py_cvec *py_out;
+  cvec_t *cvecin;
   fvec_t *routput;
 } Py_pvoc;
 
@@ -68,7 +71,11 @@ Py_pvoc_init (Py_pvoc * self, PyObject * args, PyObject * kwds)
     return -1;
   }
 
+  self->cvecin = (cvec_t *)malloc(sizeof(cvec_t));
+  self->vecin = (fvec_t *)malloc(sizeof(fvec_t));
+
   self->output = new_cvec(self->win_s);
+  self->py_out = (Py_cvec*) PyObject_New (Py_cvec, &Py_cvecType);
   self->routput = new_fvec(self->hop_s);
 
   return 0;
@@ -81,29 +88,35 @@ Py_pvoc_del (Py_pvoc *self, PyObject *unused)
   del_aubio_pvoc(self->o);
   del_cvec(self->output);
   del_fvec(self->routput);
+  free(self->cvecin);
+  free(self->vecin);
   Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 
-static PyObject * 
+static PyObject *
 Py_pvoc_do(Py_pvoc * self, PyObject * args)
 {
   PyObject *input;
-  fvec_t *vec;
 
   if (!PyArg_ParseTuple (args, "O", &input)) {
     return NULL;
   }
 
-  vec = PyAubio_ArrayToCFvec (input);
-
-  if (vec == NULL) {
+  if (!PyAubio_ArrayToCFvec (input, self->vecin)) {
     return NULL;
   }
 
   // compute the function
-  aubio_pvoc_do (self->o, vec, self->output);
-  return (PyObject *)PyAubio_CCvecToPyCvec(self->output);
+  aubio_pvoc_do (self->o, self->vecin, self->output);
+#if 0
+  Py_cvec * py_out = (Py_cvec*) PyObject_New (Py_cvec, &Py_cvecType);
+  PyObject* output = PyAubio_CCvecToPyCvec(self->output, py_out);
+  return output;
+#else
+  // convert cvec to py_cvec, incrementing refcount to keep a copy
+  return PyAubio_CCvecToPyCvec(self->output, self->py_out);
+#endif
 }
 
 static PyMemberDef Py_pvoc_members[] = {
@@ -118,20 +131,17 @@ static PyObject *
 Py_pvoc_rdo(Py_pvoc * self, PyObject * args)
 {
   PyObject *input;
-  cvec_t *vec;
   if (!PyArg_ParseTuple (args, "O", &input)) {
     return NULL;
   }
 
-  vec = PyAubio_ArrayToCCvec (input);
-
-  if (vec == NULL) {
+  if (!PyAubio_ArrayToCCvec (input, self->cvecin)) {
     return NULL;
   }
 
   // compute the function
-  aubio_pvoc_rdo (self->o, vec, self->routput);
-  return (PyObject *)PyAubio_CFvecToArray(self->routput);
+  aubio_pvoc_rdo (self->o, self->cvecin, self->routput);
+  return PyAubio_CFvecToArray(self->routput);
 }
 
 static PyMethodDef Py_pvoc_methods[] = {

@@ -95,14 +95,15 @@ Py_alpha_norm (PyObject * self, PyObject * args)
     return NULL;
   }
 
-  vec = PyAubio_ArrayToCFvec (input);
-
-  if (vec == NULL) {
+  vec = (fvec_t *)malloc(sizeof(fvec_t));
+  if (!PyAubio_ArrayToCFvec(input, vec)) {
+    free(vec);
     return NULL;
   }
 
   // compute the function
   result = Py_BuildValue ("f", fvec_alpha_norm (vec, alpha));
+  free(vec);
   if (result == NULL) {
     return NULL;
   }
@@ -185,14 +186,15 @@ Py_zero_crossing_rate (PyObject * self, PyObject * args)
     return NULL;
   }
 
-  vec = PyAubio_ArrayToCFvec (input);
-
-  if (vec == NULL) {
+  vec = (fvec_t *)malloc(sizeof(fvec_t));
+  if (!PyAubio_ArrayToCFvec(input, vec)) {
+    free(vec);
     return NULL;
   }
 
   // compute the function
   result = Py_BuildValue ("f", aubio_zero_crossing_rate (vec));
+  free(vec);
   if (result == NULL) {
     return NULL;
   }
@@ -214,9 +216,9 @@ Py_min_removal(PyObject * self, PyObject * args)
     return NULL;
   }
 
-  vec = PyAubio_ArrayToCFvec (input);
-
-  if (vec == NULL) {
+  vec = (fvec_t *)malloc(sizeof(fvec_t));
+  if (!PyAubio_ArrayToCFvec(input, vec)) {
+    free(vec);
     return NULL;
   }
 
