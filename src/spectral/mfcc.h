@@ -70,7 +70,7 @@ void del_aubio_mfcc (aubio_mfcc_t * mf);
   \param out output mel coefficients buffer (n_coeffs long)
 
 */
-void aubio_mfcc_do (aubio_mfcc_t * mf, cvec_t * in, fvec_t * out);
+void aubio_mfcc_do (aubio_mfcc_t * mf, const cvec_t * in, fvec_t * out);
 
 #ifdef __cplusplus
 }

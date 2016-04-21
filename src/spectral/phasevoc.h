@@ -67,7 +67,7 @@ void del_aubio_pvoc(aubio_pvoc_t *pv);
   \param fftgrain output spectral frame
 
 */
-void aubio_pvoc_do(aubio_pvoc_t *pv, fvec_t *in, cvec_t * fftgrain);
+void aubio_pvoc_do(aubio_pvoc_t *pv, const fvec_t *in, cvec_t * fftgrain);
 /** compute signal from spectral frame
 
   This function takes an input spectral frame fftgrain of size

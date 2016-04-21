@@ -44,12 +44,12 @@ struct _aubio_pvoc_t {
 
 
 /** returns data and dataold slided by hop_s */
-static void aubio_pvoc_swapbuffers(aubio_pvoc_t *pv, fvec_t *new);
+static void aubio_pvoc_swapbuffers(aubio_pvoc_t *pv, const fvec_t *new);
 
 /** do additive synthesis from 'old' and 'cur' */
 static void aubio_pvoc_addsynth(aubio_pvoc_t *pv, fvec_t * synthnew);
 
-void aubio_pvoc_do(aubio_pvoc_t *pv, fvec_t * datanew, cvec_t *fftgrain) {
+void aubio_pvoc_do(aubio_pvoc_t *pv, const fvec_t * datanew, cvec_t *fftgrain) {
   /* slide  */
   aubio_pvoc_swapbuffers(pv, datanew);
   /* windowing */
@@ -136,7 +136,7 @@ void del_aubio_pvoc(aubio_pvoc_t *pv) {
   AUBIO_FREE(pv);
 }
 
-static void aubio_pvoc_swapbuffers(aubio_pvoc_t *pv, fvec_t *new)
+static void aubio_pvoc_swapbuffers(aubio_pvoc_t *pv, const fvec_t *new)
 {
   /* some convenience pointers */
   smpl_t * data = pv->data->data;

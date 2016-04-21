@@ -56,7 +56,7 @@ del_aubio_filterbank (aubio_filterbank_t * fb)
 }
 
 void
-aubio_filterbank_do (aubio_filterbank_t * f, cvec_t * in, fvec_t * out)
+aubio_filterbank_do (aubio_filterbank_t * f, const cvec_t * in, fvec_t * out)
 {
   /* apply filter to all input channel, provided out has enough channels */
   //uint_t max_filters = MIN (f->n_filters, out->length);
@@ -73,13 +73,13 @@ aubio_filterbank_do (aubio_filterbank_t * f, cvec_t * in, fvec_t * out)
 }
 
 fmat_t *
-aubio_filterbank_get_coeffs (aubio_filterbank_t * f)
+aubio_filterbank_get_coeffs (const aubio_filterbank_t * f)
 {
   return f->filters;
 }
 
 uint_t
-aubio_filterbank_set_coeffs (aubio_filterbank_t * f, fmat_t * filter_coeffs)
+aubio_filterbank_set_coeffs (aubio_filterbank_t * f, const fmat_t * filter_coeffs)
 {
   fmat_copy(filter_coeffs, f->filters);
   return 0;

@@ -100,7 +100,7 @@ del_aubio_mfcc (aubio_mfcc_t * mf)
 
 
 void
-aubio_mfcc_do (aubio_mfcc_t * mf, cvec_t * in, fvec_t * out)
+aubio_mfcc_do (aubio_mfcc_t * mf, const cvec_t * in, fvec_t * out)
 {
   /* compute filterbank */
   aubio_filterbank_do (mf->fb, in, mf->in_dct);

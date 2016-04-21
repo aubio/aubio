@@ -22,29 +22,29 @@
 #include "cvec.h"
 #include "spectral/specdesc.h"
 
-void aubio_specdesc_centroid (aubio_specdesc_t * o, cvec_t * spec,
+void aubio_specdesc_centroid (aubio_specdesc_t * o, const cvec_t * spec,
     fvec_t * desc);
-void aubio_specdesc_spread (aubio_specdesc_t * o, cvec_t * spec,
+void aubio_specdesc_spread (aubio_specdesc_t * o, const cvec_t * spec,
     fvec_t * desc);
-void aubio_specdesc_skewness (aubio_specdesc_t * o, cvec_t * spec,
+void aubio_specdesc_skewness (aubio_specdesc_t * o, const cvec_t * spec,
     fvec_t * desc);
-void aubio_specdesc_kurtosis (aubio_specdesc_t * o, cvec_t * spec,
+void aubio_specdesc_kurtosis (aubio_specdesc_t * o, const cvec_t * spec,
     fvec_t * desc);
-void aubio_specdesc_slope (aubio_specdesc_t * o, cvec_t * spec,
+void aubio_specdesc_slope (aubio_specdesc_t * o, const cvec_t * spec,
     fvec_t * desc);
-void aubio_specdesc_decrease (aubio_specdesc_t * o, cvec_t * spec,
+void aubio_specdesc_decrease (aubio_specdesc_t * o, const cvec_t * spec,
     fvec_t * desc);
-void aubio_specdesc_rolloff (aubio_specdesc_t * o, cvec_t * spec,
+void aubio_specdesc_rolloff (aubio_specdesc_t * o, const cvec_t * spec,
     fvec_t * desc);
 
 
-smpl_t cvec_sum (cvec_t * s);
-smpl_t cvec_mean (cvec_t * s);
-smpl_t cvec_centroid (cvec_t * s);
-smpl_t cvec_moment (cvec_t * s, uint_t moment);
+smpl_t cvec_sum (const cvec_t * s);
+smpl_t cvec_mean (const cvec_t * s);
+smpl_t cvec_centroid (const cvec_t * s);
+smpl_t cvec_moment (const cvec_t * s, uint_t moment);
 
 smpl_t
-cvec_sum (cvec_t * s)
+cvec_sum (const cvec_t * s)
 {
   uint_t j;
   smpl_t tmp = 0.0;
@@ -55,13 +55,13 @@ cvec_sum (cvec_t * s)
 }
 
 smpl_t
-cvec_mean (cvec_t * s)
+cvec_mean (const cvec_t * s)
 {
   return cvec_sum (s) / (smpl_t) (s->length);
 }
 
 smpl_t
-cvec_centroid (cvec_t * spec)
+cvec_centroid (const cvec_t * spec)
 {
   smpl_t sum = 0., sc = 0.;
   uint_t j;
@@ -77,7 +77,7 @@ cvec_centroid (cvec_t * spec)
 }
 
 smpl_t
-cvec_moment (cvec_t * spec, uint_t order)
+cvec_moment (const cvec_t * spec, uint_t order)
 {
   smpl_t sum = 0., centroid = 0., sc = 0.;
   uint_t j;
@@ -94,21 +94,21 @@ cvec_moment (cvec_t * spec, uint_t order)
 }
 
 void
-aubio_specdesc_centroid (aubio_specdesc_t * o UNUSED, cvec_t * spec,
+aubio_specdesc_centroid (aubio_specdesc_t * o UNUSED, const cvec_t * spec,
     fvec_t * desc)
 {
   desc->data[0] = cvec_centroid (spec); 
 }
 
 void
-aubio_specdesc_spread (aubio_specdesc_t * o UNUSED, cvec_t * spec,
+aubio_specdesc_spread (aubio_specdesc_t * o UNUSED, const cvec_t * spec,
     fvec_t * desc)
 {
   desc->data[0] = cvec_moment (spec, 2);
 }
 
 void
-aubio_specdesc_skewness (aubio_specdesc_t * o UNUSED, cvec_t * spec,
+aubio_specdesc_skewness (aubio_specdesc_t * o UNUSED, const cvec_t * spec,
     fvec_t * desc)
 {
   smpl_t spread;
@@ -122,7 +122,7 @@ aubio_specdesc_skewness (aubio_specdesc_t * o UNUSED, cvec_t * spec,
 }
 
 void
-aubio_specdesc_kurtosis (aubio_specdesc_t * o UNUSED, cvec_t * spec,
+aubio_specdesc_kurtosis (aubio_specdesc_t * o UNUSED, const cvec_t * spec,
     fvec_t * desc)
 {
   smpl_t spread;
@@ -136,7 +136,7 @@ aubio_specdesc_kurtosis (aubio_specdesc_t * o UNUSED, cvec_t * spec,
 }
 
 void
-aubio_specdesc_slope (aubio_specdesc_t * o UNUSED, cvec_t * spec,
+aubio_specdesc_slope (aubio_specdesc_t * o UNUSED, const cvec_t * spec,
     fvec_t * desc)
 {
   uint_t j;
@@ -164,7 +164,7 @@ aubio_specdesc_slope (aubio_specdesc_t * o UNUSED, cvec_t * spec,
 }
 
 void
-aubio_specdesc_decrease (aubio_specdesc_t *o UNUSED, cvec_t * spec,
+aubio_specdesc_decrease (aubio_specdesc_t *o UNUSED, const cvec_t * spec,
     fvec_t * desc)
 {
   uint_t j; smpl_t sum;
@@ -182,7 +182,7 @@ aubio_specdesc_decrease (aubio_specdesc_t *o UNUSED, cvec_t * spec,
 }
 
 void
-aubio_specdesc_rolloff (aubio_specdesc_t *o UNUSED, cvec_t * spec,
+aubio_specdesc_rolloff (aubio_specdesc_t *o UNUSED, const cvec_t * spec,
     fvec_t *desc)
 {
   uint_t j; smpl_t cumsum, rollsum;

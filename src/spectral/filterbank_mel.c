@@ -29,7 +29,7 @@
 
 uint_t
 aubio_filterbank_set_triangle_bands (aubio_filterbank_t * fb,
-    fvec_t * freqs, smpl_t samplerate)
+    const fvec_t * freqs, smpl_t samplerate)
 {
 
   fmat_t *filters = aubio_filterbank_get_coeffs (fb);

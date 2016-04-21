@@ -69,7 +69,7 @@ void del_aubio_tss (aubio_tss_t * o);
   \param stead output steady state components
 
 */
-void aubio_tss_do (aubio_tss_t * o, cvec_t * input, cvec_t * trans,
+void aubio_tss_do (aubio_tss_t * o, const cvec_t * input, cvec_t * trans,
     cvec_t * stead);
 
 /** set transient / steady state separation threshold

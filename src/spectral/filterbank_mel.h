@@ -50,7 +50,7 @@ extern "C"
 
 */
 uint_t aubio_filterbank_set_triangle_bands (aubio_filterbank_t * fb,
-    fvec_t * freqs, smpl_t samplerate);
+    const fvec_t * freqs, smpl_t samplerate);
 
 /** filterbank initialization for Mel filters using Slaney's coefficients
 
