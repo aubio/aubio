@@ -80,7 +80,8 @@ addons:
     - libfftw3-dev
 
 script:
-  - make distcheck
+  - make build
   - make build_python
   - make clean_python
   - make clean
+  - make distcheck
