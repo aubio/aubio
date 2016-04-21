@@ -37,7 +37,7 @@ struct _aubio_scale_t {
      */
 };
 
-aubio_scale_t * new_aubio_scale (smpl_t ilow, smpl_t ihig, 
+aubio_scale_t * new_aubio_scale (smpl_t ilow, smpl_t ihig,
     smpl_t olow, smpl_t ohig) {
   aubio_scale_t * s = AUBIO_NEW(aubio_scale_t);
   aubio_scale_set_limits (s, ilow, ihig, olow, ohig);
