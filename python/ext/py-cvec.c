@@ -271,7 +271,7 @@ PyTypeObject Py_cvecType = {
   0,                            /* tp_compare        */
   (reprfunc) Py_cvec_repr,      /* tp_repr           */
   0,                            /* tp_as_number      */
-  0, //&Py_cvec_tp_as_sequence,      /* tp_as_sequence    */
+  0, //&Py_cvec_tp_as_sequence, /* tp_as_sequence    */
   0,                            /* tp_as_mapping     */
   0,                            /* tp_hash           */
   0,                            /* tp_call           */
