@@ -39,7 +39,7 @@ struct _aubio_filter_t
 };
 
 void
-aubio_filter_do_outplace (aubio_filter_t * f, fvec_t * in, fvec_t * out)
+aubio_filter_do_outplace (aubio_filter_t * f, const fvec_t * in, fvec_t * out)
 {
   fvec_copy (in, out);
   aubio_filter_do (f, out);
@@ -93,25 +93,25 @@ aubio_filter_do_filtfilt (aubio_filter_t * f, fvec_t * in, fvec_t * tmp)
 }
 
 lvec_t *
-aubio_filter_get_feedback (aubio_filter_t * f)
+aubio_filter_get_feedback (const aubio_filter_t * f)
 {
   return f->a;
 }
 
 lvec_t *
-aubio_filter_get_feedforward (aubio_filter_t * f)
+aubio_filter_get_feedforward (const aubio_filter_t * f)
 {
   return f->b;
 }
 
 uint_t
-aubio_filter_get_order (aubio_filter_t * f)
+aubio_filter_get_order (const aubio_filter_t * f)
 {
   return f->order;
 }
 
 uint_t
-aubio_filter_get_samplerate (aubio_filter_t * f)
+aubio_filter_get_samplerate (const aubio_filter_t * f)
 {
   return f->samplerate;
 }

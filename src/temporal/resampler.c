@@ -61,7 +61,7 @@ del_aubio_resampler (aubio_resampler_t * s)
 }
 
 void
-aubio_resampler_do (aubio_resampler_t * s, fvec_t * input, fvec_t * output)
+aubio_resampler_do (aubio_resampler_t * s, const fvec_t * input, fvec_t * output)
 {
   s->proc->input_frames = input->length;
   s->proc->output_frames = output->length;
@@ -92,7 +92,7 @@ del_aubio_resampler (aubio_resampler_t * s UNUSED)
 }
 
 void
-aubio_resampler_do (aubio_resampler_t * s UNUSED, fvec_t * input UNUSED, fvec_t * output UNUSED)
+aubio_resampler_do (aubio_resampler_t * s UNUSED, const fvec_t * input UNUSED, fvec_t * output UNUSED)
 {
 }
 #endif /* HAVE_SAMPLERATE */
