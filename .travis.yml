@@ -2,21 +2,62 @@ language: python
 
 sudo: false
 
-os:
-  - linux
-  - osx
-
-compiler:
-  - gcc
-  - clang
-
-env:
-  - ARCH=i386
-  - ARCH=x86_64
-
-python:
-  - "2.7"
-  - "3.4"
+matrix:
+  include:
+    - python: 2.6
+      os: linux
+      compiler: gcc
+      env: ARCH=x86_64
+    - python: 2.6
+      os: linux
+      compiler: gcc
+      env: ARCH=x86_64
+    - python: 2.6
+      os: linux
+      compiler: clang
+      env: ARCH=x86_64
+    - python: 2.6
+      os: linux
+      compiler: clang
+      env: ARCH=x86_64
+    - python: 2.7
+      os: linux
+      compiler: gcc
+      env: ARCH=x86_64
+    - python: 2.7
+      os: linux
+      compiler: gcc
+      env: ARCH=x86_64
+    - python: 2.7
+      os: linux
+      compiler: clang
+      env: ARCH=x86_64
+    - python: 2.7
+      os: linux
+      compiler: clang
+      env: ARCH=x86_64
+    - python: 3.4
+      os: linux
+      compiler: gcc
+      env: ARCH=x86_64
+    - python: 3.4
+      os: linux
+      compiler: clang
+      env: ARCH=x86_64
+    - python: 3.4
+      os: linux
+      compiler: gcc
+      env: ARCH=x86_64
+    - python: 3.4
+      os: linux
+      compiler: clang
+      env: ARCH=x86_64
+    - language: generic
+      os: osx
+      env: ARCH=i386
+    - language: generic
+      os: osx
+      env: ARCH=x86_64
 
 addons:
   apt:
