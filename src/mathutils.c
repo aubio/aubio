@@ -291,7 +291,7 @@ fvec_ishift (fvec_t * s)
 }
 
 smpl_t
-aubio_level_lin (fvec_t * f)
+aubio_level_lin (const fvec_t * f)
 {
   smpl_t energy = 0.;
 #ifndef HAVE_ATLAS
@@ -440,7 +440,7 @@ smpl_t fvec_median (fvec_t * input) {
   }
 }
 
-smpl_t fvec_quadratic_peak_pos (fvec_t * x, uint_t pos) {
+smpl_t fvec_quadratic_peak_pos (const fvec_t * x, uint_t pos) {
   smpl_t s0, s1, s2; uint_t x0, x2;
   smpl_t half = .5, two = 2.;
   if (pos == 0 || pos == x->length - 1) return pos;
@@ -465,7 +465,7 @@ smpl_t fvec_quadratic_peak_mag (fvec_t *x, smpl_t pos) {
   return x1 - .25 * (x0 - x2) * (pos - index);
 }
 
-uint_t fvec_peakpick(fvec_t * onset, uint_t pos) {
+uint_t fvec_peakpick(const fvec_t * onset, uint_t pos) {
   uint_t tmp=0;
   tmp = (onset->data[pos] > onset->data[pos-1]
       &&  onset->data[pos] > onset->data[pos+1]
@@ -552,13 +552,13 @@ aubio_next_power_of_two (uint_t a)
 }
 
 smpl_t
-aubio_db_spl (fvec_t * o)
+aubio_db_spl (const fvec_t * o)
 {
   return 10. * LOG10 (aubio_level_lin (o));
 }
 
 uint_t
-aubio_silence_detection (fvec_t * o, smpl_t threshold)
+aubio_silence_detection (const fvec_t * o, smpl_t threshold)
 {
   return (aubio_db_spl (o) < threshold);
 }
@@ -598,7 +598,7 @@ aubio_zero_crossing_rate (fvec_t * input)
 }
 
 void
-aubio_autocorr (fvec_t * input, fvec_t * output)
+aubio_autocorr (const fvec_t * input, fvec_t * output)
 {
   uint_t i, j, length = input->length;
   smpl_t *data, *acf;

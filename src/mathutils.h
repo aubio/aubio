@@ -250,7 +250,7 @@ smpl_t fvec_median (fvec_t * v);
   \return \f$ p + p_{frac} \f$ exact peak position of interpolated maximum or minimum
 
 */
-smpl_t fvec_quadratic_peak_pos (fvec_t * x, uint_t p);
+smpl_t fvec_quadratic_peak_pos (const fvec_t * x, uint_t p);
 
 /** finds magnitude of peak by quadratic interpolation
 
@@ -293,7 +293,7 @@ peak is defined as follows:
   \return 1 if a peak is found, 0 otherwise
 
 */
-uint_t fvec_peakpick (fvec_t * v, uint_t p);
+uint_t fvec_peakpick (const fvec_t * v, uint_t p);
 
 /** return 1 if a is a power of 2, 0 otherwise */
 uint_t aubio_is_power_of_two(uint_t a);
@@ -307,7 +307,7 @@ uint_t aubio_next_power_of_two(uint_t a);
   \param output vector to store autocorrelation function to
 
 */
-void aubio_autocorr (fvec_t * input, fvec_t * output);
+void aubio_autocorr (const fvec_t * input, fvec_t * output);
 
 #ifdef __cplusplus
 }
