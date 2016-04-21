@@ -134,7 +134,7 @@ def parse_args():
         if len(args) == 1:
             options.source_file = args[0]
         else:
-            print ("no file name given\n", usage)
+            print ("no file name given\n" + usage)
             sys.exit(1)
     return options, args
 
