@@ -59,7 +59,7 @@ typedef struct _aubio_onset_t aubio_onset_t;
   \return newly created ::aubio_onset_t
 
 */
-aubio_onset_t * new_aubio_onset (char_t * method,
+aubio_onset_t * new_aubio_onset (const char_t * method,
     uint_t buf_size, uint_t hop_size, uint_t samplerate);
 
 /** execute onset detection
@@ -88,7 +88,7 @@ aubio_onset_t * new_aubio_onset (char_t * method,
   aubio_onset_get_delay().
 
 */
-void aubio_onset_do (aubio_onset_t *o, fvec_t * input, fvec_t * onset);
+void aubio_onset_do (aubio_onset_t *o, const fvec_t * input, fvec_t * onset);
 
 /** get the time of the latest onset detected, in samples
 
@@ -97,7 +97,7 @@ void aubio_onset_do (aubio_onset_t *o, fvec_t * input, fvec_t * onset);
   \return onset detection timestamps (in samples)
 
 */
-uint_t aubio_onset_get_last (aubio_onset_t *o);
+uint_t aubio_onset_get_last (const aubio_onset_t *o);
 
 /** get the time of the latest onset detected, in seconds
 
@@ -106,7 +106,7 @@ uint_t aubio_onset_get_last (aubio_onset_t *o);
   \return onset detection timestamps (in seconds)
 
 */
-smpl_t aubio_onset_get_last_s (aubio_onset_t *o);
+smpl_t aubio_onset_get_last_s (const aubio_onset_t *o);
 
 /** get the time of the latest onset detected, in milliseconds
 
@@ -115,7 +115,7 @@ smpl_t aubio_onset_get_last_s (aubio_onset_t *o);
   \return onset detection timestamps (in milliseconds)
 
 */
-smpl_t aubio_onset_get_last_ms (aubio_onset_t *o);
+smpl_t aubio_onset_get_last_ms (const aubio_onset_t *o);
 
 /** set onset detection silence threshold
 
@@ -132,7 +132,7 @@ uint_t aubio_onset_set_silence(aubio_onset_t * o, smpl_t silence);
   \return current silence threshold
 
 */
-smpl_t aubio_onset_get_silence(aubio_onset_t * o);
+smpl_t aubio_onset_get_silence(const aubio_onset_t * o);
 
 /** get onset detection function
 
@@ -140,7 +140,7 @@ smpl_t aubio_onset_get_silence(aubio_onset_t * o);
   \return the current value of the descriptor
 
 */
-smpl_t aubio_onset_get_descriptor ( aubio_onset_t *o);
+smpl_t aubio_onset_get_descriptor (const aubio_onset_t *o);
 
 /** get thresholded onset detection function
 
@@ -148,7 +148,7 @@ smpl_t aubio_onset_get_descriptor ( aubio_onset_t *o);
   \return the value of the thresholded descriptor
 
 */
-smpl_t aubio_onset_get_thresholded_descriptor ( aubio_onset_t *o);
+smpl_t aubio_onset_get_thresholded_descriptor (const aubio_onset_t *o);
 
 /** set onset detection peak picking threshold
 
@@ -219,7 +219,7 @@ uint_t aubio_onset_set_delay_ms(aubio_onset_t * o, smpl_t delay);
   samples)
 
 */
-uint_t aubio_onset_get_minioi(aubio_onset_t * o);
+uint_t aubio_onset_get_minioi(const aubio_onset_t * o);
 
 /** get minimum inter onset interval in seconds
 
@@ -228,7 +228,7 @@ uint_t aubio_onset_get_minioi(aubio_onset_t * o);
   seconds)
 
 */
-smpl_t aubio_onset_get_minioi_s(aubio_onset_t * o);
+smpl_t aubio_onset_get_minioi_s(const aubio_onset_t * o);
 
 /** get minimum inter onset interval in milliseconds
 
@@ -237,7 +237,7 @@ smpl_t aubio_onset_get_minioi_s(aubio_onset_t * o);
   milliseconds)
 
 */
-smpl_t aubio_onset_get_minioi_ms(aubio_onset_t * o);
+smpl_t aubio_onset_get_minioi_ms(const aubio_onset_t * o);
 
 /** get delay in samples
 
@@ -246,7 +246,7 @@ smpl_t aubio_onset_get_minioi_ms(aubio_onset_t * o);
   (in samples)
 
 */
-uint_t aubio_onset_get_delay(aubio_onset_t * o);
+uint_t aubio_onset_get_delay(const aubio_onset_t * o);
 
 /** get delay in seconds
 
@@ -255,7 +255,7 @@ uint_t aubio_onset_get_delay(aubio_onset_t * o);
   (in seconds)
 
 */
-smpl_t aubio_onset_get_delay_s(aubio_onset_t * o);
+smpl_t aubio_onset_get_delay_s(const aubio_onset_t * o);
 
 /** get delay in milliseconds
 
@@ -264,7 +264,7 @@ smpl_t aubio_onset_get_delay_s(aubio_onset_t * o);
   (in milliseconds)
 
 */
-smpl_t aubio_onset_get_delay_ms(aubio_onset_t * o);
+smpl_t aubio_onset_get_delay_ms(const aubio_onset_t * o);
 
 /** get onset peak picking threshold
 
@@ -272,7 +272,7 @@ smpl_t aubio_onset_get_delay_ms(aubio_onset_t * o);
   \return current onset detection threshold
 
 */
-smpl_t aubio_onset_get_threshold(aubio_onset_t * o);
+smpl_t aubio_onset_get_threshold(const aubio_onset_t * o);
 
 /** delete onset detection object
 
