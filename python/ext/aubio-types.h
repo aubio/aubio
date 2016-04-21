@@ -55,13 +55,13 @@ extern PyTypeObject Py_cvecType;
 
 // defined in aubio-proxy.c
 extern PyObject *PyAubio_CFvecToArray (fvec_t * self);
-extern fvec_t *PyAubio_ArrayToCFvec (PyObject * self);
+extern int PyAubio_ArrayToCFvec (PyObject * self, fvec_t *out);
 
-extern Py_cvec *PyAubio_CCvecToPyCvec (cvec_t * self);
-extern cvec_t *PyAubio_ArrayToCCvec (PyObject *input);
+extern PyObject * PyAubio_CCvecToPyCvec (cvec_t * self, Py_cvec *out);
+extern int PyAubio_ArrayToCCvec (PyObject *input, cvec_t *i);
 
 extern PyObject *PyAubio_CFmatToArray (fmat_t * self);
-extern fmat_t *PyAubio_ArrayToCFmat (PyObject *input);
+extern int PyAubio_ArrayToCFmat (PyObject *input, fmat_t *out);
 
 // hand written wrappers
 extern PyTypeObject Py_filterType;
