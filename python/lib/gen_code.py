@@ -84,7 +84,7 @@ objoutsize = {
         'sampler': 'self->hop_size',
         'mfcc': 'self->n_coeffs',
         'specdesc': '1',
-        'tempo': '2',
+        'tempo': '1',
         'filterbank': 'self->n_filters',
         'tss': 'self->hop_size',
         }
