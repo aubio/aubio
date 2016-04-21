@@ -121,7 +121,7 @@ smpl_t aubio_zero_crossing_rate (fvec_t * v);
   \return level of v
 
 */
-smpl_t aubio_level_lin (fvec_t * v);
+smpl_t aubio_level_lin (const fvec_t * v);
 
 /** compute sound pressure level (SPL) in dB
 
@@ -134,7 +134,7 @@ smpl_t aubio_level_lin (fvec_t * v);
   \return level of v in dB SPL
 
 */
-smpl_t aubio_db_spl (fvec_t * v);
+smpl_t aubio_db_spl (const fvec_t * v);
 
 /** check if buffer level in dB SPL is under a given threshold
 
@@ -144,7 +144,7 @@ smpl_t aubio_db_spl (fvec_t * v);
   \return 0 if level is under the given threshold, 1 otherwise
 
 */
-uint_t aubio_silence_detection (fvec_t * v, smpl_t threshold);
+uint_t aubio_silence_detection (const fvec_t * v, smpl_t threshold);
 
 /** get buffer level if level >= threshold, 1. otherwise
 
