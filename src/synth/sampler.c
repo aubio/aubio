@@ -59,9 +59,9 @@ uint_t aubio_sampler_load( aubio_sampler_t * o, const char_t * uri )
 {
   if (o->source) del_aubio_source(o->source);
 
-  if (s->uri) AUBIO_FREE(s->uri);
-  s->uri = AUBIO_ARRAY(char_t, strnlen(uri, PATH_MAX));
-  strncpy(s->uri, uri, strnlen(uri, PATH_MAX));
+  if (o->uri) AUBIO_FREE(o->uri);
+  o->uri = AUBIO_ARRAY(char_t, strnlen(uri, PATH_MAX));
+  strncpy(o->uri, uri, strnlen(uri, PATH_MAX));
 
   o->source = new_aubio_source(uri, o->samplerate, o->blocksize);
   if (o->source) return 0;
@@ -134,7 +134,7 @@ void del_aubio_sampler( aubio_sampler_t * o )
   if (o->source) {
     del_aubio_source(o->source);
   }
-  if (s->uri) AUBIO_FREE(s->uri);
+  if (o->uri) AUBIO_FREE(o->uri);
   del_fvec(o->source_output);
   del_fmat(o->source_output_multi);
   AUBIO_FREE(o);
