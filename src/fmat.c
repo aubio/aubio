@@ -53,27 +53,27 @@ void fmat_set_sample(fmat_t *s, smpl_t data, uint_t channel, uint_t position) {
   s->data[channel][position] = data;
 }
 
-smpl_t fmat_get_sample(fmat_t *s, uint_t channel, uint_t position) {
+smpl_t fmat_get_sample(const fmat_t *s, uint_t channel, uint_t position) {
   return s->data[channel][position];
 }
 
-void fmat_get_channel(fmat_t *s, uint_t channel, fvec_t *output) {
+void fmat_get_channel(const fmat_t *s, uint_t channel, fvec_t *output) {
   output->data = s->data[channel];
   output->length = s->length;
   return;
 }
 
-smpl_t * fmat_get_channel_data(fmat_t *s, uint_t channel) {
+smpl_t * fmat_get_channel_data(const fmat_t *s, uint_t channel) {
   return s->data[channel];
 }
 
-smpl_t ** fmat_get_data(fmat_t *s) {
+smpl_t ** fmat_get_data(const fmat_t *s) {
   return s->data;
 }
 
 /* helper functions */
 
-void fmat_print(fmat_t *s) {
+void fmat_print(const fmat_t *s) {
   uint_t i,j;
   for (i=0; i< s->height; i++) {
     for (j=0; j< s->length; j++) {
@@ -116,7 +116,7 @@ void fmat_rev(fmat_t *s) {
   }
 }
 
-void fmat_weight(fmat_t *s, fmat_t *weight) {
+void fmat_weight(fmat_t *s, const fmat_t *weight) {
   uint_t i,j;
   uint_t length = MIN(s->length, weight->length);
   for (i=0; i< s->height; i++) {
@@ -126,7 +126,7 @@ void fmat_weight(fmat_t *s, fmat_t *weight) {
   }
 }
 
-void fmat_copy(fmat_t *s, fmat_t *t) {
+void fmat_copy(const fmat_t *s, fmat_t *t) {
   uint_t i;
 #if !HAVE_MEMCPY_HACKS
   uint_t j;
@@ -154,7 +154,7 @@ void fmat_copy(fmat_t *s, fmat_t *t) {
 #endif
 }
 
-void fmat_vecmul(fmat_t *s, fvec_t *scale, fvec_t *output) {
+void fmat_vecmul(const fmat_t *s, const fvec_t *scale, fvec_t *output) {
   uint_t k;
 #if 0
   assert(s->height == output->length);

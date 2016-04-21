@@ -21,7 +21,7 @@
 #include "aubio_priv.h"
 #include "lvec.h"
 
-lvec_t * new_lvec( uint_t length) {
+lvec_t * new_lvec(uint_t length) {
   lvec_t * s;
   if ((sint_t)length <= 0) {
     return NULL;
@@ -45,13 +45,13 @@ lsmp_t lvec_get_sample(lvec_t *s, uint_t position) {
   return s->data[position];
 }
 
-lsmp_t * lvec_get_data(lvec_t *s) {
+lsmp_t * lvec_get_data(const lvec_t *s) {
   return s->data;
 }
 
 /* helper functions */
 
-void lvec_print(lvec_t *s) {
+void lvec_print(const lvec_t *s) {
   uint_t j;
   for (j=0; j< s->length; j++) {
     AUBIO_MSG(AUBIO_LSMP_FMT " ", s->data[j]);
