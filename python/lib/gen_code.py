@@ -169,8 +169,8 @@ class MappedObject(object):
         self.outputs_flat = get_output_params(self.do_proto)
         self.output_results = "; ".join(self.outputs_flat)
 
-        print "input_params", map(split_type, get_input_params(self.do_proto))
-        print "output_params", map(split_type, get_output_params(self.do_proto))
+        #print ("input_params: ", map(split_type, get_input_params(self.do_proto)))
+        #print ("output_params", map(split_type, get_output_params(self.do_proto)))
 
     def gen_code(self):
         out = ""
