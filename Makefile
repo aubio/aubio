@@ -15,9 +15,11 @@ expandwaf:
 	@sed '/^#==>$$/,$$d' waf > waf2 && mv waf2 waf
 	@chmod +x waf
 
-build: checkwaf
-	./waf configure
-	./waf build
+configure: checkwaf
+	$(WAFCMD) configure
+
+build: configure
+	$(WAFCMD) build
 
 build_python:
 	cd python && ./setup.py build
@@ -34,7 +36,7 @@ clean_python3:
 clean:
 	$(WAFCMD) clean
 
-distcheck: build
+distcheck: checkwaf
 	$(WAFCMD) distcheck
 
 help:
