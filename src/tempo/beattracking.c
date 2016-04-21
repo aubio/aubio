@@ -123,7 +123,7 @@ del_aubio_beattracking (aubio_beattracking_t * p)
 
 
 void
-aubio_beattracking_do (aubio_beattracking_t * bt, fvec_t * dfframe,
+aubio_beattracking_do (aubio_beattracking_t * bt, const fvec_t * dfframe,
     fvec_t * output)
 {
 
@@ -409,19 +409,19 @@ aubio_beattracking_checkstate (aubio_beattracking_t * bt)
 }
 
 smpl_t
-aubio_beattracking_get_period (aubio_beattracking_t * bt)
+aubio_beattracking_get_period (const aubio_beattracking_t * bt)
 {
   return bt->hop_size * bt->bp;
 }
 
 smpl_t
-aubio_beattracking_get_period_s (aubio_beattracking_t * bt)
+aubio_beattracking_get_period_s (const aubio_beattracking_t * bt)
 {
   return aubio_beattracking_get_period(bt) / (smpl_t) bt->samplerate;
 }
 
 smpl_t
-aubio_beattracking_get_bpm (aubio_beattracking_t * bt)
+aubio_beattracking_get_bpm (const aubio_beattracking_t * bt)
 {
   if (bt->bp != 0) {
     return 60. / aubio_beattracking_get_period_s(bt);
@@ -431,7 +431,7 @@ aubio_beattracking_get_bpm (aubio_beattracking_t * bt)
 }
 
 smpl_t
-aubio_beattracking_get_confidence (aubio_beattracking_t * bt)
+aubio_beattracking_get_confidence (const aubio_beattracking_t * bt)
 {
   if (bt->gp) {
     smpl_t acf_sum = fvec_sum(bt->acfout);

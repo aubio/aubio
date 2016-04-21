@@ -50,7 +50,7 @@ typedef struct _aubio_tempo_t aubio_tempo_t;
   \return newly created ::aubio_tempo_t if successful, `NULL` otherwise
 
 */
-aubio_tempo_t * new_aubio_tempo (char_t * method,
+aubio_tempo_t * new_aubio_tempo (const char_t * method,
     uint_t buf_size, uint_t hop_size, uint_t samplerate);
 
 /** execute tempo detection
@@ -60,7 +60,7 @@ aubio_tempo_t * new_aubio_tempo (char_t * method,
   \param tempo output beats
 
 */
-void aubio_tempo_do (aubio_tempo_t *o, fvec_t * input, fvec_t * tempo);
+void aubio_tempo_do (aubio_tempo_t *o, const fvec_t * input, fvec_t * tempo);
 
 /** get the time of the latest beat detected, in samples
 

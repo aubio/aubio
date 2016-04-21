@@ -54,7 +54,7 @@ struct _aubio_tempo_t {
 };
 
 /* execute tempo detection function on iput buffer */
-void aubio_tempo_do(aubio_tempo_t *o, fvec_t * input, fvec_t * tempo)
+void aubio_tempo_do(aubio_tempo_t *o, const fvec_t * input, fvec_t * tempo)
 {
   uint_t i;
   uint_t winlen = o->winlen;
@@ -163,7 +163,7 @@ smpl_t aubio_tempo_get_threshold(aubio_tempo_t * o) {
 }
 
 /* Allocate memory for an tempo detection */
-aubio_tempo_t * new_aubio_tempo (char_t * tempo_mode,
+aubio_tempo_t * new_aubio_tempo (const char_t * tempo_mode,
     uint_t buf_size, uint_t hop_size, uint_t samplerate)
 {
   aubio_tempo_t * o = AUBIO_NEW(aubio_tempo_t);
