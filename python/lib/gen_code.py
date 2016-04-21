@@ -38,7 +38,7 @@ pyfromtype_fn = {
 pytoaubio_fn = {
         'fvec_t*': 'PyAubio_ArrayToCFvec',
         'cvec_t*': 'PyAubio_ArrayToCCvec',
-        'fmat_t*': 'PyAubio_ArrayToCFmat',
+        #'fmat_t*': 'PyAubio_ArrayToCFmat',
         }
 
 pyfromaubio_fn = {
@@ -74,6 +74,7 @@ pyargparse_chars = {
         'char_t*': 's',
         'fmat_t*': 'O',
         'fvec_t*': 'O',
+        'cvec_t*': 'O',
         }
 
 objoutsize = {
@@ -83,8 +84,9 @@ objoutsize = {
         'sampler': 'self->hop_size',
         'mfcc': 'self->n_coeffs',
         'specdesc': '1',
-        'tempo': '1',
+        'tempo': '2',
         'filterbank': 'self->n_filters',
+        'tss': 'self->hop_size',
         }
 
 def get_name(proto):
@@ -104,20 +106,20 @@ def split_type(arg):
     """ arg = 'foo *name' 
         return ['foo*', 'name'] """
     l = arg.split()
-    type_arg = {'type': l[0], 'name': l[1]}
-    # ['foo', '*name'] -> ['foo*', 'name']
-    if l[-1].startswith('*'):
-        #return [l[0]+'*', l[1][1:]]
-        type_arg['type'] = l[0] + '*'
-        type_arg['name'] = l[1][1:]
-    # ['foo', '*', 'name'] -> ['foo*', 'name']
-    if len(l) == 3:
-        #return [l[0]+l[1], l[2]]
-        type_arg['type'] = l[0]+l[1]
-        type_arg['name'] = l[2]
-    else:
-        #return l
-        pass
+    type_arg = {} #'type': l[0], 'name': l[1]}
+    type_arg['type'] = " ".join(l[:-1])
+    type_arg['name'] = l[-1]
+    # fix up type / name
+    if type_arg['name'].startswith('*'):
+        # ['foo', '*name'] -> ['foo*', 'name']
+        type_arg['type'] += '*'
+        type_arg['name'] = type_arg['name'][1:]
+    if type_arg['type'].endswith(' *'):
+        # ['foo *', 'name'] -> ['foo*', 'name']
+        type_arg['type'] = type_arg['type'].replace(' *','*')
+    if type_arg['type'].startswith('const '):
+        # ['foo *', 'name'] -> ['foo*', 'name']
+        type_arg['type'] = type_arg['type'].replace('const ','')
     return type_arg
 
 def get_params(proto):
@@ -126,16 +128,28 @@ def get_params(proto):
     returns: ['int argc', 'char ** argv']
     """
     import re
-    paramregex = re.compile('[\(, ](\w+ \*?\*? ?\w+)[, \)]')
-    return paramregex.findall(proto)
+    paramregex = re.compile('.*\((.*)\);')
+    a = paramregex.findall(proto)[0].split(', ')
+    #a = [i.replace('const ', '') for i in a]
+    return a
+
+def get_input_params(proto):
+    a = get_params(proto)
+    return [i.replace('const ', '') for i in a if (i.startswith('const ') or i.startswith('uint_t ') or i.startswith('smpl_t '))]
+
+def get_output_params(proto):
+    a = get_params(proto)
+    return [i for i in a if not i.startswith('const ')][1:]
 
 def get_params_types_names(proto):
     """ get the list of parameters from a function prototype
     example: proto = "int main (int argc, char ** argv)"
     returns: [['int', 'argc'], ['char **','argv']]
     """
-    return list(map(split_type, get_params(proto)))
-
+    a = list(map(split_type, get_params(proto)))
+    #print proto, a
+    #import sys; sys.exit(1)
+    return a
 
 class MappedObject(object):
 
@@ -148,10 +162,15 @@ class MappedObject(object):
         self.del_proto = prototypes['del'][0]
         self.do_proto = prototypes['do'][0]
         self.input_params = get_params_types_names(self.new_proto)
-        self.input_params_list = "; ".join(get_params(self.new_proto))
+        self.input_params_list = "; ".join(get_input_params(self.new_proto))
         self.outputs = get_params_types_names(self.do_proto)[2:]
-        self.outputs_flat = get_params(self.do_proto)[2:]
-        self.output_results = ", ".join(self.outputs_flat)
+        self.do_inputs = [get_params_types_names(self.do_proto)[1]]
+        self.do_outputs = get_params_types_names(self.do_proto)[2:]
+        self.outputs_flat = get_output_params(self.do_proto)
+        self.output_results = "; ".join(self.outputs_flat)
+
+        print "input_params", map(split_type, get_input_params(self.do_proto))
+        print "output_params", map(split_type, get_output_params(self.do_proto))
 
     def gen_code(self):
         out = ""
@@ -177,17 +196,19 @@ typedef struct{{
     {longname} *o;
     // input parameters
     {input_params_list};
+    // do input vectors
+    {do_inputs_list};
     // output results
     {output_results};
 }} Py_{shortname};
 """
-        return out.format(**self.__dict__)
+        return out.format(do_inputs_list = "; ".join(get_input_params(self.do_proto)), **self.__dict__)
 
     def gen_doc(self):
         out = """
 // TODO: add documentation
 static char Py_{shortname}_doc[] = \"undefined\";
-    """
+"""
         return out.format(**self.__dict__)
 
     def gen_new(self):
@@ -221,7 +242,7 @@ Py_{shortname}_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
 """.format(**self.__dict__)
         params = self.input_params
         for p in params:
-            out += self.check_valid(p) 
+            out += self.check_valid(p)
         out += """
     return (PyObject *)self;
 }
@@ -289,6 +310,9 @@ Py_{shortname}_init (Py_{shortname} * self, PyObject * args, PyObject * kwds)
         out += """
   // TODO get internal params after actual object creation?
 """
+        for input_param in self.do_inputs:
+            out += """
+  self->{0} = ({1})malloc(sizeof({2}));""".format(input_param['name'], input_param['type'], input_param['type'][:-1])
         out += """
   // create outputs{output_create}
 """.format(output_create = output_create)
@@ -317,6 +341,9 @@ static PyMemberDef Py_{shortname}_members[] = {{
 static void
 Py_{shortname}_del  (Py_{shortname} * self, PyObject * unused)
 {{""".format(**self.__dict__)
+        for input_param in self.do_inputs:
+            out += """
+    free(self->{0[name]});""".format(input_param)
         for o in self.outputs:
             name = o['name']
             del_out = delfromtype_fn[o['type']]
@@ -331,39 +358,45 @@ Py_{shortname}_del  (Py_{shortname} * self, PyObject * unused)
         return out
 
     def gen_do(self):
-        do_fn = get_name(self.do_proto)
-        input_param = get_params_types_names(self.do_proto)[1];
-        pytoaubio = pytoaubio_fn[input_param['type']]
         output = self.outputs[0]
         out = """
 // do {shortname}
 static PyObject*
 Py_{shortname}_do  (Py_{shortname} * self, PyObject * args)
-{{
-    PyObject * in_obj;
-    {input_type} {input_name};
-
-    if (!PyArg_ParseTuple (args, "O", &in_obj)) {{
+{{""".format(**self.__dict__)
+        input_params = self.do_inputs
+        output_params = self.do_outputs
+        #print input_params
+        #print output_params
+        for input_param in input_params:
+            out += """
+    PyObject *py_{0};""".format(input_param['name'], input_param['type'])
+        refs = ", ".join(["&py_%s" % p['name'] for p in input_params])
+        pyparamtypes = "".join([pyargparse_chars[p['type']] for p in input_params])
+        out += """
+    if (!PyArg_ParseTuple (args, "{pyparamtypes}", {refs})) {{
         return NULL;
-    }}
-    {input_name} = {pytoaubio} (in_obj); 
-    if ({input_name} == NULL) {{
+    }}""".format(refs = refs, pyparamtypes = pyparamtypes, **self.__dict__)
+        for p in input_params:
+            out += """
+    if (!{pytoaubio}(py_{0[name]}, self->{0[name]})) {{
         return NULL;
-    }}
+    }}""".format(input_param, pytoaubio = pytoaubio_fn[input_param['type']])
+        do_fn = get_name(self.do_proto)
+        inputs = ", ".join(['self->'+p['name'] for p in input_params])
+        outputs = ", ".join(["self->%s" % p['name'] for p in self.do_outputs])
+        out += """
 
-    {do_fn}(self->o, {input_name}, {outputs});
+    {do_fn}(self->o, {inputs}, {outputs});
 
     return (PyObject *) {aubiotonumpy} ({outputs});
 }}
-"""
-        return out.format(do_fn = do_fn,
-                shortname = self.prototypes['shortname'],
-                input_name = input_param['name'],
-                input_type= input_param['type'],
-                pytoaubio = pytoaubio,
-                outputs = ", ".join(["self->%s" % p['name'] for p in self.outputs]),
-                aubiotonumpy = pyfromaubio_fn[output['type']], 
-                )
+""".format(
+        do_fn = do_fn,
+        aubiotonumpy = pyfromaubio_fn[output['type']], 
+        inputs = inputs, outputs = outputs,
+        )
+        return out
 
     def gen_set(self):
         out = """

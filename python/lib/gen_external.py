@@ -116,7 +116,7 @@ def generate_external(output_path):
                 print ( "{:15s} {:10s} {:s}".format(o, family, lib[o][family] ) )
             elif len(lib[o][family]) == 1:
                 print ( "{:15s} {:10s} {:s}".format(o, family, lib[o][family][0] ) )
-            else:                                             
+            else:
                 print ( "{:15s} {:10s} {:d}".format(o, family, len(lib[o][family]) ) )
     """
 
@@ -158,7 +158,7 @@ void add_generated_objects ( PyObject *m )
         f.write(out)
         print ("wrote %s" % output_file )
         sources_list.append(output_file)
-    
+
     objlist = "".join(["extern PyTypeObject Py_%sType;\n" % p for p in lib])
     out = """
 // generated list of objects created with gen_external.py
