@@ -50,7 +50,6 @@ typedef struct
   PyObject_HEAD
   cvec_t * o;
   uint_t length;
-  uint_t channels;
 } Py_cvec;
 extern PyTypeObject Py_cvecType;
 
