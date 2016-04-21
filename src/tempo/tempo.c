@@ -79,7 +79,8 @@ void aubio_tempo_do(aubio_tempo_t *o, const fvec_t * input, fvec_t * tempo)
   }
   o->blockpos++;
   aubio_peakpicker_do (o->pp, o->of, o->onset);
-  tempo->data[1] = o->onset->data[0];
+  // store onset detection function in second sample of vector
+  //tempo->data[1] = o->onset->data[0];
   thresholded = aubio_peakpicker_get_thresholded_input(o->pp);
   o->dfframe->data[winlen - step + o->blockpos] = thresholded->data[0];
   /* end of second level loop */
