@@ -107,10 +107,11 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(const char_t * path, uint_t sa
   s->input_format     = sfinfo.format;
 
   if (samplerate == 0) {
-    samplerate = s->input_samplerate;
+    s->samplerate = s->input_samplerate;
     //AUBIO_DBG("sampling rate set to 0, automagically adjusting to %d\n", samplerate);
+  } else {
+    s->samplerate = samplerate;
   }
-  s->samplerate = samplerate;
   /* compute input block size required before resampling */
   s->ratio = s->samplerate/(smpl_t)s->input_samplerate;
   s->input_hop_size = (uint_t)FLOOR(s->hop_size / s->ratio + .5);

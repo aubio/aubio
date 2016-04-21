@@ -166,10 +166,10 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t sa
   //AUBIO_DBG("input_channels: %d\n", s->input_channels);
 
   if (samplerate == 0) {
-    samplerate = s->input_samplerate;
-    //AUBIO_DBG("sampling rate set to 0, automagically adjusting to %d\n", samplerate);
+    s->samplerate = s->input_samplerate;
+  } else {
+    s->samplerate = samplerate;
   }
-  s->samplerate = samplerate;
 
   if (s->samplerate >  s->input_samplerate) {
     AUBIO_WRN("source_avcodec: upsampling %s from %d to %d\n", s->path,
