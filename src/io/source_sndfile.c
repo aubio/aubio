@@ -86,7 +86,10 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(const char_t * path, uint_t sa
 
   s->hop_size = hop_size;
   s->channels = 1;
-  s->path = path;
+
+  if (s->path) AUBIO_FREE(s->path);
+  s->path = AUBIO_ARRAY(char_t, strnlen(path, PATH_MAX));
+  strncpy(s->path, path, strnlen(path, PATH_MAX));
 
   // try opening the file, getting the info in sfinfo
   AUBIO_MEMSET(&sfinfo, 0, sizeof (sfinfo));
@@ -305,6 +308,7 @@ void del_aubio_source_sndfile(aubio_source_sndfile_t * s){
     del_fvec(s->input_data);
   }
 #endif /* HAVE_SAMPLERATE */
+  if (s->path) AUBIO_FREE(s->path);
   AUBIO_FREE(s->scratch_data);
   AUBIO_FREE(s);
 }

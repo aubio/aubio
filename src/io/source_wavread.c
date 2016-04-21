@@ -86,7 +86,10 @@ aubio_source_wavread_t * new_aubio_source_wavread(const char_t * path, uint_t sa
     goto beach;
   }
 
-  s->path = path;
+  if (s->path) AUBIO_FREE(s->path);
+  s->path = AUBIO_ARRAY(char_t, strnlen(path, PATH_MAX));
+  strncpy(s->path, path, strnlen(path, PATH_MAX));
+
   s->samplerate = samplerate;
   s->hop_size = hop_size;
 
@@ -388,6 +391,7 @@ void del_aubio_source_wavread(aubio_source_wavread_t * s) {
   aubio_source_wavread_close(s);
   if (s->short_output) AUBIO_FREE(s->short_output);
   if (s->output) del_fmat(s->output);
+  if (s->path) AUBIO_FREE(s->path);
   AUBIO_FREE(s);
 }
 

@@ -84,7 +84,10 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t sa
 
   s->hop_size = hop_size;
   s->channels = 1;
-  s->path = path;
+
+  if (s->path) AUBIO_FREE(s->path);
+  s->path = AUBIO_ARRAY(char_t, strnlen(path, PATH_MAX));
+  strncpy(s->path, path, strnlen(path, PATH_MAX));
 
   // register all formats and codecs
   av_register_all();
@@ -424,6 +427,7 @@ void del_aubio_source_avcodec(aubio_source_avcodec_t * s){
   if (s->avFrame != NULL) {
     av_frame_free( &(s->avFrame) );
   }
+  if (s->path) AUBIO_FREE(s->path);
   s->avFrame = NULL;
   AUBIO_FREE(s);
 }

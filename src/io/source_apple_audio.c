@@ -79,7 +79,6 @@ aubio_source_apple_audio_t * new_aubio_source_apple_audio(const char_t * path, u
 
   s->block_size = block_size;
   s->samplerate = samplerate;
-  s->path = path;
 
   if ( aubio_source_apple_audio_open ( s, path ) ) {
     goto beach;
@@ -95,10 +94,13 @@ uint_t aubio_source_apple_audio_open (aubio_source_apple_audio_t *s, const char_
 {
   OSStatus err = noErr;
   UInt32 propSize;
-  s->path = path;
+
+  if (s->path) AUBIO_FREE(s->path);
+  s->path = AUBIO_ARRAY(char_t, strnlen(path, PATH_MAX));
+  strncpy(s->path, path, strnlen(path, PATH_MAX));
 
   // open the resource url
-  CFURLRef fileURL = createURLFromPath(path);
+  CFURLRef fileURL = createURLFromPath(s->path);
   err = ExtAudioFileOpenURL(fileURL, &s->audioFile);
   CFRelease(fileURL);
   if (err == -43) {
@@ -293,6 +295,7 @@ uint_t aubio_source_apple_audio_close (aubio_source_apple_audio_t *s)
 
 void del_aubio_source_apple_audio(aubio_source_apple_audio_t * s){
   aubio_source_apple_audio_close (s);
+  if (s->path) AUBIO_FREE(s->path);
   freeAudioBufferList(&s->bufferList);
   AUBIO_FREE(s);
   return;

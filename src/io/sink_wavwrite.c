@@ -89,7 +89,10 @@ aubio_sink_wavwrite_t * new_aubio_sink_wavwrite(const char_t * path, uint_t samp
     goto beach;
   }
 
-  s->path = path;
+  if (s->path) AUBIO_FREE(s->path);
+  s->path = AUBIO_ARRAY(char_t, strnlen(path, PATH_MAX));
+  strncpy(s->path, path, strnlen(path, PATH_MAX));
+
   s->max_size = MAX_SIZE;
   s->bitspersample = 16;
   s->total_frames_written = 0;
@@ -287,6 +290,7 @@ uint_t aubio_sink_wavwrite_close(aubio_sink_wavwrite_t * s) {
 void del_aubio_sink_wavwrite(aubio_sink_wavwrite_t * s){
   if (!s) return;
   aubio_sink_wavwrite_close(s);
+  if (s->path) AUBIO_FREE(s->path);
   AUBIO_FREE(s->scratch_data);
   AUBIO_FREE(s);
 }
