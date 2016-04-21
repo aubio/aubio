@@ -42,11 +42,11 @@ matrix:
       env: ARCH=x86_64
     - python: 3.4
       os: linux
-      compiler: clang
+      compiler: gcc
       env: ARCH=i386
     - python: 3.4
       os: linux
-      compiler: gcc
+      compiler: clang
       env: ARCH=x86_64
     - python: 3.4
       os: linux
@@ -54,20 +54,12 @@ matrix:
       env: ARCH=i386
     - language: C
       os: osx
-      compiler: clang
-      env: ARCH=x86_64
-    - language: C
-      os: osx
-      compiler: gcc
-      env: ARCH=x86_64
-    - language: C
-      os: osx
-      compiler: clang
-      env: ARCH=i386
-    - language: C
-      os: osx
-      compiler: gcc
-      env: ARCH=i386
+      compiler:
+        - clang
+        - gcc
+      env:
+        - ARCH=i386
+        - ARCH=x86_64
 
 addons:
   apt:
@@ -83,11 +75,6 @@ addons:
     - python3-setuptools
     - python3-dev
     - python3-numpy
-
-before install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libsndfile libsamplerate; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then pip install setuptools numpy; fi
 
 script:
   - make build
