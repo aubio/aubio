@@ -33,7 +33,5 @@ script:
   - make build
   - make build_python
   - make clean_python
-  - make build_python3
-  - make clean_python3
   - make clean
   - make distcheck
