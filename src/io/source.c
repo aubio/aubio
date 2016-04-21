@@ -55,7 +55,7 @@ struct _aubio_source_t {
   del_aubio_source_t s_del;
 };
 
-aubio_source_t * new_aubio_source(char_t * uri, uint_t samplerate, uint_t hop_size) {
+aubio_source_t * new_aubio_source(const char_t * uri, uint_t samplerate, uint_t hop_size) {
   aubio_source_t * s = AUBIO_NEW(aubio_source_t);
 #if HAVE_LIBAV
   s->source = (void *)new_aubio_source_avcodec(uri, samplerate, hop_size);

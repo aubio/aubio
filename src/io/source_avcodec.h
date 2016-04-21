@@ -56,7 +56,7 @@ typedef struct _aubio_source_avcodec_t aubio_source_avcodec_t;
   ::aubio_source_avcodec_get_samplerate.
 
 */
-aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * uri, uint_t samplerate, uint_t hop_size);
+aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * uri, uint_t samplerate, uint_t hop_size);
 
 /**
 
@@ -94,7 +94,7 @@ void aubio_source_avcodec_do_multi(aubio_source_avcodec_t * s, fmat_t * read_to,
   \return samplerate, in Hz
 
 */
-uint_t aubio_source_avcodec_get_samplerate(aubio_source_avcodec_t * s);
+uint_t aubio_source_avcodec_get_samplerate(const aubio_source_avcodec_t * s);
 
 /**
 
@@ -104,7 +104,7 @@ uint_t aubio_source_avcodec_get_samplerate(aubio_source_avcodec_t * s);
   \return number of channels
 
 */
-uint_t aubio_source_avcodec_get_channels (aubio_source_avcodec_t * s);
+uint_t aubio_source_avcodec_get_channels (const aubio_source_avcodec_t * s);
 
 /**
 

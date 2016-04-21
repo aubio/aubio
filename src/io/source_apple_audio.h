@@ -57,7 +57,7 @@ typedef struct _aubio_source_apple_audio_t aubio_source_apple_audio_t;
   ::aubio_source_apple_audio_get_samplerate.
 
 */
-aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * uri, uint_t samplerate, uint_t hop_size);
+aubio_source_apple_audio_t * new_aubio_source_apple_audio(const char_t * uri, uint_t samplerate, uint_t hop_size);
 
 /**
 
@@ -95,7 +95,7 @@ void aubio_source_apple_audio_do_multi(aubio_source_apple_audio_t * s, fmat_t * 
   \return samplerate, in Hz
 
 */
-uint_t aubio_source_apple_audio_get_samplerate(aubio_source_apple_audio_t * s);
+uint_t aubio_source_apple_audio_get_samplerate(const aubio_source_apple_audio_t * s);
 
 /**
 
@@ -105,7 +105,7 @@ uint_t aubio_source_apple_audio_get_samplerate(aubio_source_apple_audio_t * s);
   \return number of channels
 
 */
-uint_t aubio_source_apple_audio_get_channels(aubio_source_apple_audio_t * s);
+uint_t aubio_source_apple_audio_get_channels(const aubio_source_apple_audio_t * s);
 
 /**
 

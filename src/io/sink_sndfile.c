@@ -53,7 +53,7 @@ struct _aubio_sink_sndfile_t {
 
 uint_t aubio_sink_sndfile_open(aubio_sink_sndfile_t *s);
 
-aubio_sink_sndfile_t * new_aubio_sink_sndfile(char_t * path, uint_t samplerate) {
+aubio_sink_sndfile_t * new_aubio_sink_sndfile(const char_t * path, uint_t samplerate) {
   aubio_sink_sndfile_t * s = AUBIO_NEW(aubio_sink_sndfile_t);
   s->max_size = MAX_SIZE;
   s->path = path;
@@ -106,12 +106,12 @@ uint_t aubio_sink_sndfile_preset_channels(aubio_sink_sndfile_t *s, uint_t channe
   return AUBIO_OK;
 }
 
-uint_t aubio_sink_sndfile_get_samplerate(aubio_sink_sndfile_t *s)
+uint_t aubio_sink_sndfile_get_samplerate(const aubio_sink_sndfile_t *s)
 {
   return s->samplerate;
 }
 
-uint_t aubio_sink_sndfile_get_channels(aubio_sink_sndfile_t *s)
+uint_t aubio_sink_sndfile_get_channels(const aubio_sink_sndfile_t *s)
 {
   return s->channels;
 }

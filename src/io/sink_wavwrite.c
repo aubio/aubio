@@ -77,7 +77,7 @@ unsigned char *write_little_endian (unsigned int s, unsigned char *str, unsigned
   return str;
 }
 
-aubio_sink_wavwrite_t * new_aubio_sink_wavwrite(char_t * path, uint_t samplerate) {
+aubio_sink_wavwrite_t * new_aubio_sink_wavwrite(const char_t * path, uint_t samplerate) {
   aubio_sink_wavwrite_t * s = AUBIO_NEW(aubio_sink_wavwrite_t);
 
   if (path == NULL) {
@@ -142,12 +142,12 @@ uint_t aubio_sink_wavwrite_preset_channels(aubio_sink_wavwrite_t *s, uint_t chan
   return AUBIO_OK;
 }
 
-uint_t aubio_sink_wavwrite_get_samplerate(aubio_sink_wavwrite_t *s)
+uint_t aubio_sink_wavwrite_get_samplerate(const aubio_sink_wavwrite_t *s)
 {
   return s->samplerate;
 }
 
-uint_t aubio_sink_wavwrite_get_channels(aubio_sink_wavwrite_t *s)
+uint_t aubio_sink_wavwrite_get_channels(const aubio_sink_wavwrite_t *s)
 {
   return s->channels;
 }

@@ -54,7 +54,7 @@ struct _aubio_sink_t {
   del_aubio_sink_t s_del;
 };
 
-aubio_sink_t * new_aubio_sink(char_t * uri, uint_t samplerate) {
+aubio_sink_t * new_aubio_sink(const char_t * uri, uint_t samplerate) {
   aubio_sink_t * s = AUBIO_NEW(aubio_sink_t);
 #ifdef HAVE_SINK_APPLE_AUDIO
   s->sink = (void *)new_aubio_sink_apple_audio(uri, samplerate);
@@ -120,11 +120,11 @@ uint_t aubio_sink_preset_channels(aubio_sink_t * s, uint_t channels) {
   return s->s_preset_channels((void *)s->sink, channels);
 }
 
-uint_t aubio_sink_get_samplerate(aubio_sink_t * s) {
+uint_t aubio_sink_get_samplerate(const aubio_sink_t * s) {
   return s->s_get_samplerate((void *)s->sink);
 }
 
-uint_t aubio_sink_get_channels(aubio_sink_t * s) {
+uint_t aubio_sink_get_channels(const aubio_sink_t * s) {
   return s->s_get_channels((void *)s->sink);
 }
 

@@ -57,7 +57,7 @@ struct _aubio_sink_apple_audio_t {
   bool async;
 };
 
-aubio_sink_apple_audio_t * new_aubio_sink_apple_audio(char_t * uri, uint_t samplerate) {
+aubio_sink_apple_audio_t * new_aubio_sink_apple_audio(const char_t * uri, uint_t samplerate) {
   aubio_sink_apple_audio_t * s = AUBIO_NEW(aubio_sink_apple_audio_t);
   s->path = uri;
   s->max_frames = MAX_SIZE;
@@ -112,12 +112,12 @@ uint_t aubio_sink_apple_audio_preset_channels(aubio_sink_apple_audio_t *s, uint_
   return AUBIO_OK;
 }
 
-uint_t aubio_sink_apple_audio_get_samplerate(aubio_sink_apple_audio_t *s)
+uint_t aubio_sink_apple_audio_get_samplerate(const aubio_sink_apple_audio_t *s)
 {
   return s->samplerate;
 }
 
-uint_t aubio_sink_apple_audio_get_channels(aubio_sink_apple_audio_t *s)
+uint_t aubio_sink_apple_audio_get_channels(const aubio_sink_apple_audio_t *s)
 {
   return s->channels;
 }

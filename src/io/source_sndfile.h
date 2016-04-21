@@ -56,7 +56,7 @@ typedef struct _aubio_source_sndfile_t aubio_source_sndfile_t;
   ::aubio_source_sndfile_get_samplerate.
 
 */
-aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * uri, uint_t samplerate, uint_t hop_size);
+aubio_source_sndfile_t * new_aubio_source_sndfile(const char_t * uri, uint_t samplerate, uint_t hop_size);
 
 /**
 

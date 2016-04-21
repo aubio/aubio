@@ -54,9 +54,9 @@ extern void freeAudioBufferList(AudioBufferList *bufferList);
 extern CFURLRef createURLFromPath(const char * path);
 char_t *getPrintableOSStatusError(char_t *str, OSStatus error);
 
-uint_t aubio_source_apple_audio_open (aubio_source_apple_audio_t *s, char_t * path);
+uint_t aubio_source_apple_audio_open (aubio_source_apple_audio_t *s, const char_t * path);
 
-aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * path, uint_t samplerate, uint_t block_size)
+aubio_source_apple_audio_t * new_aubio_source_apple_audio(const char_t * path, uint_t samplerate, uint_t block_size)
 {
   aubio_source_apple_audio_t * s = AUBIO_NEW(aubio_source_apple_audio_t);
 
@@ -91,7 +91,7 @@ beach:
   return NULL;
 }
 
-uint_t aubio_source_apple_audio_open (aubio_source_apple_audio_t *s, char_t * path)
+uint_t aubio_source_apple_audio_open (aubio_source_apple_audio_t *s, const char_t * path)
 {
   OSStatus err = noErr;
   UInt32 propSize;
@@ -352,11 +352,11 @@ beach:
   return err;
 }
 
-uint_t aubio_source_apple_audio_get_samplerate(aubio_source_apple_audio_t * s) {
+uint_t aubio_source_apple_audio_get_samplerate(const aubio_source_apple_audio_t * s) {
   return s->samplerate;
 }
 
-uint_t aubio_source_apple_audio_get_channels(aubio_source_apple_audio_t * s) {
+uint_t aubio_source_apple_audio_get_channels(const aubio_source_apple_audio_t * s) {
   return s->channels;
 }
 

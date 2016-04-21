@@ -67,7 +67,7 @@ struct _aubio_source_sndfile_t {
   smpl_t *scratch_data;
 };
 
-aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * path, uint_t samplerate, uint_t hop_size) {
+aubio_source_sndfile_t * new_aubio_source_sndfile(const char_t * path, uint_t samplerate, uint_t hop_size) {
   aubio_source_sndfile_t * s = AUBIO_NEW(aubio_source_sndfile_t);
   SF_INFO sfinfo;
 

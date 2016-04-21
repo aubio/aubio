@@ -61,7 +61,7 @@ typedef struct _aubio_source_wavread_t aubio_source_wavread_t;
   ::aubio_source_wavread_get_samplerate.
 
 */
-aubio_source_wavread_t * new_aubio_source_wavread(char_t * uri, uint_t samplerate, uint_t hop_size);
+aubio_source_wavread_t * new_aubio_source_wavread(const char_t * uri, uint_t samplerate, uint_t hop_size);
 
 /**
 
