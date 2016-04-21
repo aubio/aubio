@@ -98,7 +98,7 @@ new_aubio_pitchyinfft (uint_t samplerate, uint_t bufsize)
 }
 
 void
-aubio_pitchyinfft_do (aubio_pitchyinfft_t * p, fvec_t * input, fvec_t * output)
+aubio_pitchyinfft_do (aubio_pitchyinfft_t * p, const fvec_t * input, fvec_t * output)
 {
   uint_t tau, l;
   uint_t length = p->fftout->length;

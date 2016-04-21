@@ -59,7 +59,7 @@ aubio_sampler_t * new_aubio_sampler(uint_t samplerate, uint_t hop_size);
   \return 0 if successful, non-zero otherwise
 
 */
-uint_t aubio_sampler_load( aubio_sampler_t * o, char_t * uri );
+uint_t aubio_sampler_load( aubio_sampler_t * o, const char_t * uri );
 
 /** process sampler function
 
@@ -73,7 +73,7 @@ If `input` is not NULL and different from `output`, then the samples from `input
 are added to the output.
 
 */
-void aubio_sampler_do ( aubio_sampler_t * o, fvec_t * input, fvec_t * output);
+void aubio_sampler_do ( aubio_sampler_t * o, const fvec_t * input, fvec_t * output);
 
 /** process sampler function, multiple channels
 
@@ -87,7 +87,7 @@ If `input` is not NULL and different from `output`, then the samples from `input
 are added to the output.
 
 */
-void aubio_sampler_do_multi ( aubio_sampler_t * o, fmat_t * input, fmat_t * output);
+void aubio_sampler_do_multi ( aubio_sampler_t * o, const fmat_t * input, fmat_t * output);
 
 /** get current playing state
 
@@ -96,7 +96,7 @@ void aubio_sampler_do_multi ( aubio_sampler_t * o, fmat_t * input, fmat_t * outp
   \return 0 if not playing, 1 if playing
 
 */
-uint_t aubio_sampler_get_playing ( aubio_sampler_t * o );
+uint_t aubio_sampler_get_playing ( const aubio_sampler_t * o );
 
 /** set current playing state
 

@@ -63,7 +63,7 @@ new_aubio_pitchfcomb (uint_t bufsize, uint_t hopsize)
 
 /* input must be stepsize long */
 void
-aubio_pitchfcomb_do (aubio_pitchfcomb_t * p, fvec_t * input, fvec_t * output)
+aubio_pitchfcomb_do (aubio_pitchfcomb_t * p, const fvec_t * input, fvec_t * output)
 {
   uint_t k, l, maxharm = 0;
   smpl_t phaseDifference = TWO_PI * (smpl_t) p->stepSize / (smpl_t) p->fftSize;

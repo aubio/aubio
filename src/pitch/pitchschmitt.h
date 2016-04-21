@@ -51,7 +51,7 @@ typedef struct _aubio_pitchschmitt_t aubio_pitchschmitt_t;
   \param cands_out pitch period estimates, in samples
 
 */
-void aubio_pitchschmitt_do (aubio_pitchschmitt_t * p, fvec_t * samples_in,
+void aubio_pitchschmitt_do (aubio_pitchschmitt_t * p, const fvec_t * samples_in,
     fvec_t * cands_out);
 
 /** creation of the pitch detection object

@@ -52,7 +52,7 @@ typedef struct _aubio_pitchmcomb_t aubio_pitchmcomb_t;
   \param out_cands pitch candidate frequenciess, in bins
 
 */
-void aubio_pitchmcomb_do (aubio_pitchmcomb_t * p, cvec_t * in_fftgrain,
+void aubio_pitchmcomb_do (aubio_pitchmcomb_t * p, const cvec_t * in_fftgrain,
     fvec_t * out_cands);
 
 /** creation of the pitch detection object
