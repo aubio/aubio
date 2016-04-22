@@ -5,7 +5,7 @@ checkwaf:
 	@[ -f waf ] || make getwaf
 
 getwaf:
-	curl https://waf.io/waf-1.8.14 > waf
+	curl https://waf.io/waf-1.8.20 > waf
 	@chmod +x waf
 
 expandwaf:
