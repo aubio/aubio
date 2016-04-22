@@ -34,7 +34,7 @@ for target in build_features:
     ctx(features = 'c ' + target,
             use = ['lib_objects'],
             uselib = uselib,
-            lib = 'm',
+            lib = lib,
             target = 'aubio',
             vnum = ctx.env['LIB_VERSION'])
 
