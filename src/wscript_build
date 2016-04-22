@@ -12,7 +12,7 @@ uselib += ['BLAS']
 
 # build each source files
 source = ctx.path.ant_glob('*.c **/*.c')
-lib = 'm' if ctx.env['DEST_OS'] not in ['win32', 'win64'] else None
+lib = 'm' if 'CL.exe' not in ctx.env.CC[0] else None
 ctx(features = 'c',
         source = source,
         includes = ['.'],

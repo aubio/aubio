@@ -1,6 +1,6 @@
 # vim:set syntax=python:
 
-lib = 'm' if ctx.env['DEST_OS'] not in ['win32', 'win64'] else None
+lib = 'm' if 'CL.exe' not in ctx.env.CC[0] else None
 
 uselib = []
 uselib += ['FFTW3', 'FFTW3F']
