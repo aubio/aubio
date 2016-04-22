@@ -193,6 +193,10 @@ typedef enum {
 #endif
 #define TWO_PI     (PI*2.)
 
+#ifndef PATH_MAX
+#define PATH_MAX 1024
+#endif
+
 /* aliases to math.h functions */
 #if !HAVE_AUBIO_DOUBLE
 #define EXP        expf
