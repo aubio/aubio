@@ -25,7 +25,7 @@ build_python:
 	cd python && ./setup.py build
 
 test_python:
-	cd python && ./setup.py develop && ./tests/run_all_tests
+	cd python && ./setup.py install && ./tests/run_all_tests
 
 clean_python:
 	cd python && ./setup.py clean
