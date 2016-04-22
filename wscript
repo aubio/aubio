@@ -121,6 +121,9 @@ def configure(ctx):
     if target_platform == 'darwin' and ctx.options.enable_fat:
         ctx.env.CFLAGS += ['-arch', 'i386', '-arch', 'x86_64']
         ctx.env.LINKFLAGS += ['-arch', 'i386', '-arch', 'x86_64']
+        MINSDKVER="10.4"
+        ctx.env.CFLAGS += [ '-mmacosx-version-min=' + MINSDKVER ]
+        ctx.env.LINKFLAGS += [ '-mmacosx-version-min=' + MINSDKVER ]
 
     if target_platform in [ 'darwin', 'ios', 'iosimulator']:
         if (ctx.options.enable_apple_audio != False):
