@@ -1,21 +1,24 @@
 # vim:set syntax=python:
 
-for target_name in ctx.path.ant_glob('src/**/*.c'):
-    uselib = []
-    uselib += ['FFTW3', 'FFTW3F']
-    uselib += ['SAMPLERATE']
-    uselib += ['SNDFILE']
-    uselib += ['AVCODEC']
-    uselib += ['AVFORMAT']
-    uselib += ['AVRESAMPLE']
-    uselib += ['AVUTIL']
-    uselib += ['JACK']
-    uselib += ['BLAS']
-    includes = ['../src', '.']
-    extra_source = []
+lib = 'm' if ctx.env['DEST_OS'] not in ['win32', 'win64'] else None
 
+uselib = []
+uselib += ['FFTW3', 'FFTW3F']
+uselib += ['SAMPLERATE']
+uselib += ['SNDFILE']
+uselib += ['AVCODEC']
+uselib += ['AVFORMAT']
+uselib += ['AVRESAMPLE']
+uselib += ['AVUTIL']
+uselib += ['JACK']
+uselib += ['BLAS']
+
+includes = ['../src', '.']
+
+for target_name in ctx.path.ant_glob('src/**/*.c'):
+    extra_source = []
     bld(features = 'c cprogram test',
-            lib = 'm',
+            lib = lib,
             uselib = uselib,
             source = [target_name] + extra_source,
             target = str(target_name).split('.')[0],

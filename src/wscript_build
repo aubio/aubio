@@ -12,11 +12,12 @@ uselib += ['BLAS']
 
 # build each source files
 source = ctx.path.ant_glob('*.c **/*.c')
+lib = 'm' if ctx.env['DEST_OS'] not in ['win32', 'win64'] else None
 ctx(features = 'c',
         source = source,
         includes = ['.'],
         uselib = uselib,
-        lib = 'm',
+        lib = lib,
         target = 'lib_objects')
 
 # build libaubio.so (cshlib) and/or libaubio.a (cstlib)
