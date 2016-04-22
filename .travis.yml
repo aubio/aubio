@@ -4,22 +4,6 @@ sudo: false
 
 matrix:
   include:
-    - python: 2.6
-      os: linux
-      compiler: gcc
-      env: ARCH=x86_64
-    - python: 2.6
-      os: linux
-      compiler: gcc
-      env: ARCH=i386
-    - python: 2.6
-      os: linux
-      compiler: clang
-      env: ARCH=x86_64
-    - python: 2.6
-      os: linux
-      compiler: clang
-      env: ARCH=i386
     - python: 2.7
       os: linux
       compiler: gcc
