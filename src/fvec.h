@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO__FVEC_H
-#define _AUBIO__FVEC_H
+#ifndef AUBIO_FVEC_H
+#define AUBIO_FVEC_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -175,4 +175,4 @@ void fvec_weighted_copy(const fvec_t *in, const fvec_t *weight, fvec_t *out);
 }
 #endif
 
-#endif /* _AUBIO__FVEC_H */
+#endif /* AUBIO_FVEC_H */

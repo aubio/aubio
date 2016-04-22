@@ -34,8 +34,8 @@
 
 */
 
-#ifndef _AUBIO_PITCHSCHMITT_H
-#define _AUBIO_PITCHSCHMITT_H
+#ifndef AUBIO_PITCHSCHMITT_H
+#define AUBIO_PITCHSCHMITT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -72,5 +72,4 @@ void del_aubio_pitchschmitt (aubio_pitchschmitt_t * p);
 }
 #endif
 
-#endif /* _AUBIO_PITCHSCHMITT_H */
-
+#endif /* AUBIO_PITCHSCHMITT_H */

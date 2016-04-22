@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO_SOURCE_H
-#define _AUBIO_SOURCE_H
+#ifndef AUBIO_SOURCE_H
+#define AUBIO_SOURCE_H
 
 /** \file
 
@@ -171,4 +171,4 @@ void del_aubio_source(aubio_source_t * s);
 }
 #endif
 
-#endif /* _AUBIO_SOURCE_H */
+#endif /* AUBIO_SOURCE_H */

@@ -39,8 +39,8 @@
 */
 
 
-#ifndef _AUBIO_ONSET_H
-#define _AUBIO_ONSET_H
+#ifndef AUBIO_ONSET_H
+#define AUBIO_ONSET_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -285,4 +285,4 @@ void del_aubio_onset(aubio_onset_t * o);
 }
 #endif
 
-#endif /* _AUBIO_ONSET_H */
+#endif /* AUBIO_ONSET_H */

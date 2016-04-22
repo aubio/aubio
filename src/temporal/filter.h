@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO_FILTER_H
-#define _AUBIO_FILTER_H
+#ifndef AUBIO_FILTER_H
+#define AUBIO_FILTER_H
 
 /** \file
 
@@ -173,4 +173,4 @@ void del_aubio_filter (aubio_filter_t * f);
 }
 #endif
 
-#endif /* _AUBIO_FILTER_H */
+#endif /* AUBIO_FILTER_H */

@@ -25,8 +25,8 @@
  * Big hacks to implement an histogram
  */
 
-#ifndef _AUBIO_HIST_H
-#define _AUBIO_HIST_H
+#ifndef AUBIO_HIST_H
+#define AUBIO_HIST_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -60,4 +60,4 @@ void aubio_hist_dyn_notnull (aubio_hist_t *s, fvec_t *input);
 }
 #endif
 
-#endif /* _AUBIO_HIST_H */
+#endif /* AUBIO_HIST_H */

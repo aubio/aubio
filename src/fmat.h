@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO__FMAT_H
-#define _AUBIO__FMAT_H
+#ifndef AUBIO_FMAT_H
+#define AUBIO_FMAT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -169,4 +169,4 @@ void fmat_vecmul(const fmat_t *s, const fvec_t *scale, fvec_t *output);
 }
 #endif
 
-#endif /* _AUBIO__FMAT_H */
+#endif /* AUBIO_FMAT_H */

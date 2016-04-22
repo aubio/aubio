@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO_SINK_H
-#define _AUBIO_SINK_H
+#ifndef AUBIO_SINK_H
+#define AUBIO_SINK_H
 
 /** \file
 
@@ -178,4 +178,4 @@ void del_aubio_sink(aubio_sink_t * s);
 }
 #endif
 
-#endif /* _AUBIO_SINK_H */
+#endif /* AUBIO_SINK_H */

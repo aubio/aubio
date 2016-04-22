@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO_WAVETABLE_H
-#define _AUBIO_WAVETABLE_H
+#ifndef AUBIO_WAVETABLE_H
+#define AUBIO_WAVETABLE_H
 
 /** \file
 
@@ -175,4 +175,4 @@ void del_aubio_wavetable( aubio_wavetable_t * o );
 }
 #endif
 
-#endif /* _AUBIO_WAVETABLE_H */
+#endif /* AUBIO_WAVETABLE_H */

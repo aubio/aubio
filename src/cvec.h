@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO__CVEC_H
-#define _AUBIO__CVEC_H
+#ifndef AUBIO_CVEC_H
+#define AUBIO_CVEC_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -234,4 +234,4 @@ void cvec_zeros(cvec_t *s);
 }
 #endif
 
-#endif /* _AUBIO__CVEC_H */
+#endif /* AUBIO_CVEC_H */

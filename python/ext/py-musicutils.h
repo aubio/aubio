@@ -1,5 +1,5 @@
-#ifndef _PY_AUBIO_MUSICUTILS_H_
-#define _PY_AUBIO_MUSICUTILS_H_
+#ifndef PY_AUBIO_MUSICUTILS_H
+#define PY_AUBIO_MUSICUTILS_H
 
 static char Py_aubio_window_doc[] = ""
 "window(string, integer) -> fvec\n"
@@ -71,4 +71,4 @@ static char Py_aubio_level_detection_doc[] = ""
 
 PyObject * Py_aubio_level_detection(PyObject *self, PyObject *args);
 
-#endif /* _PY_AUBIO_MUSICUTILS_H_ */
+#endif /* PY_AUBIO_MUSICUTILS_H */

@@ -34,8 +34,8 @@
 
 */
 
-#ifndef _AUBIO_PITCHFCOMB_H
-#define _AUBIO_PITCHFCOMB_H
+#ifndef AUBIO_PITCHFCOMB_H
+#define AUBIO_PITCHFCOMB_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -73,4 +73,4 @@ void del_aubio_pitchfcomb (aubio_pitchfcomb_t * p);
 }
 #endif
 
-#endif /* _AUBIO_PITCHFCOMB_H */
+#endif /* AUBIO_PITCHFCOMB_H */

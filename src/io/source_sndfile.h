@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO_SOURCE_SNDFILE_H
-#define _AUBIO_SOURCE_SNDFILE_H
+#ifndef AUBIO_SOURCE_SNDFILE_H
+#define AUBIO_SOURCE_SNDFILE_H
 
 /** \file
 
@@ -142,4 +142,4 @@ void del_aubio_source_sndfile(aubio_source_sndfile_t * s);
 }
 #endif
 
-#endif /* _AUBIO_SOURCE_SNDFILE_H */
+#endif /* AUBIO_SOURCE_SNDFILE_H */

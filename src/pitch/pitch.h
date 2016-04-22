@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO_PITCH_H
-#define _AUBIO_PITCH_H
+#ifndef AUBIO_PITCH_H
+#define AUBIO_PITCH_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -179,4 +179,4 @@ smpl_t aubio_pitch_get_confidence (aubio_pitch_t * o);
 }
 #endif
 
-#endif /* _AUBIO_PITCH_H */
+#endif /* AUBIO_PITCH_H */

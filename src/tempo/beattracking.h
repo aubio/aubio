@@ -36,8 +36,8 @@
   \example tempo/test-beattracking.c
 
 */
-#ifndef _AUBIO_BEATTRACKING_H
-#define _AUBIO_BEATTRACKING_H
+#ifndef AUBIO_BEATTRACKING_H
+#define AUBIO_BEATTRACKING_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -118,4 +118,4 @@ void del_aubio_beattracking(aubio_beattracking_t * p);
 }
 #endif
 
-#endif /* _AUBIO_BEATTRACKING_H */
+#endif /* AUBIO_BEATTRACKING_H */

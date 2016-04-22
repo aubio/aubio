@@ -31,8 +31,8 @@
 
 */
 
-#ifndef _AUBIO_FILTERBANK_MEL_H
-#define _AUBIO_FILTERBANK_MEL_H
+#ifndef AUBIO_FILTERBANK_MEL_H
+#define AUBIO_FILTERBANK_MEL_H
 
 #ifdef __cplusplus
 extern "C"
@@ -69,4 +69,4 @@ uint_t aubio_filterbank_set_mel_coeffs_slaney (aubio_filterbank_t * fb,
 }
 #endif
 
-#endif /* _AUBIO_FILTERBANK_MEL_H */
+#endif /* AUBIO_FILTERBANK_MEL_H */

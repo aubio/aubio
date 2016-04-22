@@ -34,8 +34,8 @@
 
 */
 
-#ifndef _AUBIO_MFCC_H
-#define _AUBIO_MFCC_H
+#ifndef AUBIO_MFCC_H
+#define AUBIO_MFCC_H
 
 #ifdef __cplusplus
 extern "C"
@@ -76,4 +76,4 @@ void aubio_mfcc_do (aubio_mfcc_t * mf, const cvec_t * in, fvec_t * out);
 }
 #endif
 
-#endif /* _AUBIO_MFCC_H */
+#endif /* AUBIO_MFCC_H */

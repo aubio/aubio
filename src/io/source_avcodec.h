@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO_SOURCE_AVCODEC_H
-#define _AUBIO_SOURCE_AVCODEC_H
+#ifndef AUBIO_SOURCE_AVCODEC_H
+#define AUBIO_SOURCE_AVCODEC_H
 
 /** \file
 
@@ -142,4 +142,4 @@ void del_aubio_source_avcodec(aubio_source_avcodec_t * s);
 }
 #endif
 
-#endif /* _AUBIO_SOURCE_AVCODEC_H */
+#endif /* AUBIO_SOURCE_AVCODEC_H */

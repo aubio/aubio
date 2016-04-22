@@ -36,8 +36,8 @@
 
 */
 
-#ifndef _AUBIO_TSS_H
-#define _AUBIO_TSS_H
+#ifndef AUBIO_TSS_H
+#define AUBIO_TSS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -100,4 +100,4 @@ uint_t aubio_tss_set_beta (aubio_tss_t * o, smpl_t beta);
 }
 #endif
 
-#endif /* _AUBIO_TSS_H */
+#endif /* AUBIO_TSS_H */

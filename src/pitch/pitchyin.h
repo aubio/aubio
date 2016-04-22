@@ -35,8 +35,8 @@
 
 */
 
-#ifndef _AUBIO_PITCHYIN_H
-#define _AUBIO_PITCHYIN_H
+#ifndef AUBIO_PITCHYIN_H
+#define AUBIO_PITCHYIN_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -97,4 +97,4 @@ smpl_t aubio_pitchyin_get_confidence (aubio_pitchyin_t * o);
 }
 #endif
 
-#endif /* _AUBIO_PITCHYIN_H */
+#endif /* AUBIO_PITCHYIN_H */

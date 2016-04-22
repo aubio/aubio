@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO_SOURCE_WAVREAD_H
-#define _AUBIO_SOURCE_WAVREAD_H
+#ifndef AUBIO_SOURCE_WAVREAD_H
+#define AUBIO_SOURCE_WAVREAD_H
 
 /** \file
 
@@ -147,4 +147,4 @@ void del_aubio_source_wavread(aubio_source_wavread_t * s);
 }
 #endif
 
-#endif /* _AUBIO_SOURCE_WAVREAD_H */
+#endif /* AUBIO_SOURCE_WAVREAD_H */

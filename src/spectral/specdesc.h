@@ -145,8 +145,8 @@
 */
 
 
-#ifndef _AUBIO_SPECDESC_H
-#define _AUBIO_SPECDESC_H
+#ifndef AUBIO_SPECDESC_H
+#define AUBIO_SPECDESC_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -191,4 +191,4 @@ void del_aubio_specdesc (aubio_specdesc_t * o);
 }
 #endif
 
-#endif /* _AUBIO_SPECDESC_H */
+#endif /* AUBIO_SPECDESC_H */

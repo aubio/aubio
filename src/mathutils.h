@@ -27,8 +27,8 @@
 
  */
 
-#ifndef _AUBIO_MATHUTILS_H
-#define _AUBIO_MATHUTILS_H
+#ifndef AUBIO_MATHUTILS_H
+#define AUBIO_MATHUTILS_H
 
 #include "fvec.h"
 #include "musicutils.h"
@@ -313,4 +313,4 @@ void aubio_autocorr (const fvec_t * input, fvec_t * output);
 }
 #endif
 
-#endif /* _AUBIO_MATHUTILS_H */
+#endif /* AUBIO_MATHUTILS_H */

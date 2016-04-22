@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO__LVEC_H
-#define _AUBIO__LVEC_H
+#ifndef AUBIO_LVEC_H
+#define AUBIO_LVEC_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -115,4 +115,4 @@ void lvec_ones(lvec_t *s);
 }
 #endif
 
-#endif /* _AUBIO__LVEC_H */
+#endif /* AUBIO_LVEC_H */

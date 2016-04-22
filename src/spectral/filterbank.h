@@ -29,8 +29,8 @@
 
 */
 
-#ifndef _AUBIO_FILTERBANK_H
-#define _AUBIO_FILTERBANK_H
+#ifndef AUBIO_FILTERBANK_H
+#define AUBIO_FILTERBANK_H
 
 #ifdef __cplusplus
 extern "C"
@@ -87,4 +87,4 @@ uint_t aubio_filterbank_set_coeffs (aubio_filterbank_t * f, const fmat_t * filte
 }
 #endif
 
-#endif /* _AUBIO_FILTERBANK_H */
+#endif /* AUBIO_FILTERBANK_H */

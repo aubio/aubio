@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO_SINK_APPLE_AUDIO_H
-#define _AUBIO_SINK_APPLE_AUDIO_H
+#ifndef AUBIO_SINK_APPLE_AUDIO_H
+#define AUBIO_SINK_APPLE_AUDIO_H
 
 /** \file
 
@@ -160,4 +160,4 @@ void del_aubio_sink_apple_audio(aubio_sink_apple_audio_t * s);
 }
 #endif
 
-#endif /* _AUBIO_SINK_APPLE_AUDIO_H */
+#endif /* AUBIO_SINK_APPLE_AUDIO_H */

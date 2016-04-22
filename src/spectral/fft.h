@@ -31,8 +31,8 @@
 
 */
 
-#ifndef _AUBIO_FFT_H
-#define _AUBIO_FFT_H
+#ifndef AUBIO_FFT_H
+#define AUBIO_FFT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -141,4 +141,4 @@ void aubio_fft_get_real(const cvec_t * spectrum, fvec_t * compspec);
 }
 #endif
 
-#endif /* _AUBIO_FFT_H */
+#endif /* AUBIO_FFT_H */

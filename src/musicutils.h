@@ -22,8 +22,8 @@
  *  various functions useful in audio signal processing
  */
 
-#ifndef _AUBIO__MUSICUTILS_H
-#define _AUBIO__MUSICUTILS_H
+#ifndef AUBIO_MUSICUTILS_H
+#define AUBIO_MUSICUTILS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -160,4 +160,4 @@ smpl_t aubio_level_detection (fvec_t * v, smpl_t threshold);
 }
 #endif
 
-#endif /* _AUBIO__MUSICUTILS_H */
+#endif /* AUBIO_MUSICUTILS_H */

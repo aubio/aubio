@@ -31,8 +31,8 @@
 
 */
 
-#ifndef _AUBIO_PHASEVOC_H
-#define _AUBIO_PHASEVOC_H
+#ifndef AUBIO_PHASEVOC_H
+#define AUBIO_PHASEVOC_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -99,4 +99,4 @@ uint_t aubio_pvoc_get_hop(aubio_pvoc_t* pv);
 }
 #endif
 
-#endif /* _AUBIO_PHASEVOC_H */
+#endif /* AUBIO_PHASEVOC_H */

@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO_FILTER_C_DESIGN_H
-#define _AUBIO_FILTER_C_DESIGN_H
+#ifndef AUBIO_FILTER_C_DESIGN_H
+#define AUBIO_FILTER_C_DESIGN_H
 
 /** \file
 
@@ -85,4 +85,4 @@ uint_t aubio_filter_set_c_weighting (aubio_filter_t * f, uint_t samplerate);
 }
 #endif
 
-#endif /* _AUBIO_FILTER_C_DESIGN_H */
+#endif /* AUBIO_FILTER_C_DESIGN_H */

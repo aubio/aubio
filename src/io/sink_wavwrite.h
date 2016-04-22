@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO_SINK_WAVWRITE_H
-#define _AUBIO_SINK_WAVWRITE_H
+#ifndef AUBIO_SINK_WAVWRITE_H
+#define AUBIO_SINK_WAVWRITE_H
 
 /** \file
 
@@ -159,4 +159,4 @@ void del_aubio_sink_wavwrite(aubio_sink_wavwrite_t * s);
 }
 #endif
 
-#endif /* _AUBIO_SINK_WAVWRITE_H */
+#endif /* AUBIO_SINK_WAVWRITE_H */

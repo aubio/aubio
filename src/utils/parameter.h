@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO_PARAMETER_H
-#define _AUBIO_PARAMETER_H
+#ifndef AUBIO_PARAMETER_H
+#define AUBIO_PARAMETER_H
 
 /** \file
 
@@ -156,4 +156,4 @@ void del_aubio_parameter( aubio_parameter_t * param );
 }
 #endif
 
-#endif /* _AUBIO_PARAMETER_H */
+#endif /* AUBIO_PARAMETER_H */

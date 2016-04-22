@@ -30,8 +30,8 @@
 
 */
 
-#ifndef _AUBIO_TEMPO_H
-#define _AUBIO_TEMPO_H
+#ifndef AUBIO_TEMPO_H
+#define AUBIO_TEMPO_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -252,4 +252,4 @@ void del_aubio_tempo(aubio_tempo_t * o);
 }
 #endif
 
-#endif /* _AUBIO_TEMPO_H */
+#endif /* AUBIO_TEMPO_H */

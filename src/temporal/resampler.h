@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO_RESAMPLER_H
-#define _AUBIO_RESAMPLER_H
+#ifndef AUBIO_RESAMPLER_H
+#define AUBIO_RESAMPLER_H
 
 /** \file
 
@@ -62,4 +62,4 @@ void aubio_resampler_do (aubio_resampler_t * s, const fvec_t * input,
 }
 #endif
 
-#endif /* _AUBIO_RESAMPLER_H */
+#endif /* AUBIO_RESAMPLER_H */
