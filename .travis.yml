@@ -71,3 +71,9 @@ script:
   - make clean_python
   - make clean
   - make distcheck
+
+notifications:
+    irc:
+        channels:
+            - "irc.freenode.org#aubio"
+        use_notice: true
