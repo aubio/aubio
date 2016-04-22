@@ -25,9 +25,14 @@ build_python:
 	cd python && ./setup.py build
 
 test_python:
+	cd python && pip install -v .
+	LD_LIBRARY_PATH=$(PWD)/build/src python/tests/run_all_tests
+	cd python && pip uninstall -y -v aubio
+
+test_python_osx:
 	cd python && pip install --user -v .
 	[ -f build/src/libaubio.[0-9].dylib ] && ( mkdir -p ~/lib && cp -prv build/src/libaubio.4.dylib ~/lib ) || true
-	LD_LIBRARY_PATH=$(PWD)/build/src python/tests/run_all_tests
+	./python/tests/run_all_tests
 	cd python && pip uninstall -y -v aubio
 
 clean_python:
