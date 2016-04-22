@@ -25,7 +25,9 @@ build_python:
 	cd python && ./setup.py build
 
 test_python:
-	cd python && ./setup.py install && ./tests/run_all_tests
+	cd python && ./setup.py install
+	[ -f build/src/libaubio.4.dylib ] && mkdir -p ~/lib && cp -prv build/src/libaubio.4.dylib ~/lib
+	LD_LIBRARY_PATH=$(PWD)/build/src python/tests/run_all_tests
 
 clean_python:
 	cd python && ./setup.py clean
