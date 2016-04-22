@@ -82,6 +82,7 @@ addons:
 script:
   - make build
   - make build_python
+  - make test_python
   - make clean_python
   - make clean
   - make distcheck
