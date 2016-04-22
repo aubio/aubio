@@ -70,7 +70,7 @@ aubio_sink_t * new_aubio_sink(const char_t * uri, uint_t samplerate) {
     return s;
   }
 #endif /* HAVE_SINK_APPLE_AUDIO */
-#if HAVE_SNDFILE
+#ifdef HAVE_SNDFILE
   s->sink = (void *)new_aubio_sink_sndfile(uri, samplerate);
   if (s->sink) {
     s->s_do = (aubio_sink_do_t)(aubio_sink_sndfile_do);
@@ -84,7 +84,7 @@ aubio_sink_t * new_aubio_sink(const char_t * uri, uint_t samplerate) {
     return s;
   }
 #endif /* HAVE_SNDFILE */
-#if HAVE_WAVWRITE
+#ifdef HAVE_WAVWRITE
   s->sink = (void *)new_aubio_sink_wavwrite(uri, samplerate);
   if (s->sink) {
     s->s_do = (aubio_sink_do_t)(aubio_sink_wavwrite_do);

@@ -125,7 +125,7 @@ void fvec_copy(const fvec_t *s, fvec_t *t) {
         s->length, t->length);
     return;
   }
-#if HAVE_NOOPT
+#ifdef HAVE_NOOPT
   uint_t j;
   for (j=0; j< t->length; j++) {
     t->data[j] = s->data[j];

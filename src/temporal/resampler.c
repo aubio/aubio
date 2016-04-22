@@ -24,7 +24,7 @@
 #include "fvec.h"
 #include "temporal/resampler.h"
 
-#if HAVE_SAMPLERATE
+#ifdef HAVE_SAMPLERATE
 
 #include <samplerate.h>         /* from libsamplerate */
 
