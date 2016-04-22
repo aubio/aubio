@@ -27,7 +27,7 @@ int main (int argc, char **argv)
 
   // create some vectors
   fvec_t * in = new_fvec (hop_size); // input audio buffer
-  fvec_t * out = new_fvec (2); // output position
+  fvec_t * out = new_fvec (1); // output position
 
   // create tempo object
   aubio_tempo_t * o = new_aubio_tempo("default", win_size, hop_size, samplerate);
