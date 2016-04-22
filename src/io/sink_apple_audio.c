@@ -67,8 +67,8 @@ aubio_sink_apple_audio_t * new_aubio_sink_apple_audio(const char_t * uri, uint_t
     goto beach;
   }
   if (s->path != NULL) AUBIO_FREE(s->path);
-  s->path = AUBIO_ARRAY(char_t, strnlen(uri, PATH_MAX));
-  strncpy(s->path, uri, strnlen(uri, PATH_MAX));
+  s->path = AUBIO_ARRAY(char_t, strnlen(uri, PATH_MAX) + 1);
+  strncpy(s->path, uri, strnlen(uri, PATH_MAX) + 1);
 
   s->samplerate = 0;
   s->channels = 0;

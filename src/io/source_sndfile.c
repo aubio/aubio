@@ -88,8 +88,8 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(const char_t * path, uint_t sa
   s->channels = 1;
 
   if (s->path) AUBIO_FREE(s->path);
-  s->path = AUBIO_ARRAY(char_t, strnlen(path, PATH_MAX));
-  strncpy(s->path, path, strnlen(path, PATH_MAX));
+  s->path = AUBIO_ARRAY(char_t, strnlen(path, PATH_MAX) + 1);
+  strncpy(s->path, path, strnlen(path, PATH_MAX) + 1);
 
   // try opening the file, getting the info in sfinfo
   AUBIO_MEMSET(&sfinfo, 0, sizeof (sfinfo));
