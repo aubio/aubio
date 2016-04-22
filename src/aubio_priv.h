@@ -67,7 +67,7 @@
 #ifdef HAVE_ACCELERATE
 #define HAVE_ATLAS 1
 #include <Accelerate/Accelerate.h>
-#elif HAVE_ATLAS_CBLAS_H
+#elif defined(HAVE_ATLAS_CBLAS_H)
 #define HAVE_ATLAS 1
 #include <atlas/cblas.h>
 #else
