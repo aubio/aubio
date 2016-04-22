@@ -369,3 +369,5 @@ def dist(ctx):
     ctx.excl += ' **/python.old/*'
     ctx.excl += ' **/python/tests/sounds'
     ctx.excl += ' **/**.asc'
+    ctx.excl += ' **/.DS_Store'
+    ctx.excl += ' **/.travis.yml'
