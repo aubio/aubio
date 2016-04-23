@@ -1,6 +1,7 @@
 # vim:set syntax=python:
 
 lib = 'm' if 'CL.exe' not in ctx.env.CC[0] else None
+cflags = ['-g'] if 'CL.exe' not in ctx.env.CC[0] else None
 
 uselib = []
 uselib += ['FFTW3', 'FFTW3F']
@@ -25,5 +26,5 @@ for target_name in ctx.path.ant_glob('src/**/*.c'):
             includes = includes,
             install_path = None,
             defines = 'AUBIO_UNSTABLE_API=1',
-            cflags = ['-g'],
+            cflags = cflags,
             use = 'aubio')
