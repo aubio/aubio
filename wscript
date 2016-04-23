@@ -102,6 +102,15 @@ def configure(ctx):
     ctx.load('waf_unit_test')
     ctx.load('gnu_dirs')
 
+    # check for common headers
+    ctx.check(header_name='stdlib.h')
+    ctx.check(header_name='stdio.h')
+    ctx.check(header_name='math.h')
+    ctx.check(header_name='string.h')
+    ctx.check(header_name='limits.h')
+    ctx.check(header_name='getopt.h')
+    ctx.check(header_name='unistd.h')
+
     target_platform = Options.platform
     if ctx.options.target_platform:
         target_platform = ctx.options.target_platform
@@ -173,13 +182,6 @@ def configure(ctx):
         ctx.env.cprogram_PATTERN = "%s.js"
         if (ctx.options.enable_atlas != True):
             ctx.options.enable_atlas = False
-
-    # check for required headers
-    ctx.check(header_name='stdlib.h')
-    ctx.check(header_name='stdio.h')
-    ctx.check(header_name='math.h')
-    ctx.check(header_name='string.h')
-    ctx.check(header_name='limits.h')
 
     # check support for C99 __VA_ARGS__ macros
     check_c99_varargs = '''
