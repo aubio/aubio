@@ -17,6 +17,14 @@
 #define PRINT_WRN(format, args...)   fprintf(stderr, "AUBIO-TESTS WARNING: " format, ##args)
 #endif
 
+#ifndef M_PI
+#define M_PI         (3.14159265358979323846)
+#endif
+
+#ifndef RAND_MAX
+#define RAND_MAX 32767
+#endif
+
 #ifdef HAVE_WIN_HACKS
 // http://en.wikipedia.org/wiki/Linear_congruential_generator
 // no srandom/random on win32
