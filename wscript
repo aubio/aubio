@@ -110,7 +110,7 @@ def configure(ctx):
     if 'CL.exe' not in ctx.env.CC[0]:
         ctx.env.CFLAGS += ['-g', '-Wall', '-Wextra']
     else:
-        ctx.env.CFLAGS += ['-Wall']
+        ctx.env.CFLAGS += ['/W4']
 
     if target_platform not in ['win32', 'win64']:
         ctx.env.CFLAGS += ['-fPIC']
