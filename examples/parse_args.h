@@ -18,6 +18,12 @@
 
 */
 
+#include "config.h"
+
+#ifdef HAVE_GETOPT_H
+#include <getopt.h>
+#endif
+
 extern int verbose;
 // input / output
 extern int usejack;
@@ -63,6 +69,7 @@ void usage (FILE * stream, int exit_code);
 
 void usage (FILE * stream, int exit_code)
 {
+#ifdef HAVE_GETOPT_H
   fprintf (stream, "usage: %s [ options ] \n", prog_name);
   fprintf (stream,
       "       -i      --input            input file\n"
@@ -106,12 +113,17 @@ void usage (FILE * stream, int exit_code)
       "       -v      --verbose          be verbose\n"
       "       -h      --help             display this message\n"
       );
+#else /* HAVE_GETOPT_H */
+  fprintf (stream, "warning: compiled with getopt.h, no argument parsing\n");
+  fprintf (stream, "usage: %s <filename> \n", prog_name);
+#endif /* HAVE_GETOPT_H */
   exit (exit_code);
 }
 
 int
 parse_args (int argc, char **argv)
 {
+#ifdef HAVE_GETOPT_H
   const char *options = "hv"
     "i:r:B:H:"
 #ifdef PROG_HAS_JACK
@@ -157,11 +169,13 @@ parse_args (int argc, char **argv)
     {"force-overwrite",       0, NULL, 'f'},
     {NULL,                    0, NULL, 0}
   };
+#endif /* HAVE_GETOPT_H */
   prog_name = argv[0];
   if (argc < 1) {
     usage (stderr, 1);
     return -1;
   }
+#ifdef HAVE_GETOPT_H
   do {
     next_option = getopt_long (argc, argv, options, long_options, NULL);
     switch (next_option) {
@@ -235,6 +249,7 @@ parse_args (int argc, char **argv)
     }
   }
   while (next_option != -1);
+#endif /* HAVE_GETOPT_H */
 
   // if unique, use the non option argument as the source
   if ( source_uri == NULL ) {
