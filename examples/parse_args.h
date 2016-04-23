@@ -249,6 +249,8 @@ parse_args (int argc, char **argv)
     }
   }
   while (next_option != -1);
+#else /* HAVE_GETOPT_H */
+  int optind = 1;
 #endif /* HAVE_GETOPT_H */
 
   // if unique, use the non option argument as the source
