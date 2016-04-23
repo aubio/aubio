@@ -35,11 +35,11 @@
 
 #include "config.h"
 
-#if HAVE_STDLIB_H
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
 
-#if HAVE_STDIO_H
+#ifdef HAVE_STDIO_H
 #include <stdio.h>
 #endif
 
