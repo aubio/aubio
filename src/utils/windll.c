@@ -24,6 +24,8 @@
 
 */
 
+#include "config.h"
+
 #ifdef HAVE_WIN_HACKS
 
 // latest version
