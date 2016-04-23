@@ -18,15 +18,25 @@
 
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <getopt.h>
-#include <unistd.h>
-#include <math.h>               /* for isfinite */
-#include <string.h>             /* for strcmp */
 #include <aubio.h>
+
 #include "config.h"
+
+#ifdef HAVE_STDIO_H
+#include <stdio.h>              // for fprintf
+#endif
+#ifdef HAVE_STDLIB_H
+#include <stdlib.h>             // for exit
+#endif
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>             // for access
+#endif
+#ifdef HAVE_MATH_H
+#include <math.h>               // for isfinite
+#endif
+#ifdef HAVE_STRING_H
+#include <string.h>             // for strcmp
+#endif
 
 #ifdef HAVE_C99_VARARGS_MACROS
 #ifdef HAVE_DEBUG
