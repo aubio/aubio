@@ -1,5 +1,7 @@
 # vim:set syntax=python:
 
+lib = 'm' if 'CL.exe' not in ctx.env.CC[0] else None
+
 uselib = []
 uselib += ['FFTW3', 'FFTW3F']
 uselib += ['SAMPLERATE']
@@ -25,7 +27,7 @@ bld(features = 'c',
 for source_file in programs_source:
     bld(features = 'c cprogram',
             includes = '../src',
-            lib = 'm',
+            lib = lib,
             use = ['aubio', 'utilsio'],
             uselib = uselib,
             source = source_file,
