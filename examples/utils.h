@@ -30,6 +30,10 @@
 #endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>             // for access
+#elif defined(HAVE_WIN_HACKS)
+#include <io.h>
+#define access _access
+#define F_OK   0
 #endif
 #ifdef HAVE_MATH_H
 #include <math.h>               // for isfinite
