@@ -1,7 +1,7 @@
 include README COPYING VERSION
 include ext/*.h
-include lib/generator.py
-include lib/gen_pyobject.py
+include lib/gen_external.py
+include lib/gen_code.py
 include gen/aubio-generated.h
 include tests/run_all_tests
 include tests/*.py
