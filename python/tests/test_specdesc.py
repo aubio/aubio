@@ -2,7 +2,7 @@
 
 from numpy.testing import TestCase, assert_equal, assert_almost_equal
 from numpy import random, arange, log, zeros
-from aubio import specdesc, cvec
+from aubio import specdesc, cvec, float_type
 from math import pi
 
 methods = ["default",
@@ -37,8 +37,8 @@ class aubio_specdesc(TestCase):
           spec.norm[1] = 1./2.
           #print "%20s" % method, str(o(spec))
           o(spec)
-          spec.norm = random.random_sample((len(spec.norm),)).astype('float32')
-          spec.phas = random.random_sample((len(spec.phas),)).astype('float32')
+          spec.norm = random.random_sample((len(spec.norm),)).astype(float_type)
+          spec.phas = random.random_sample((len(spec.phas),)).astype(float_type)
           #print "%20s" % method, str(o(spec))
           assert (o(spec) != 0.)
 
@@ -60,7 +60,7 @@ class aubio_specdesc(TestCase):
         spec = cvec(buf_size)
         # phase of zeros is zero
         assert_equal (o(spec), 0.)
-        spec.phas = random.random_sample((len(spec.phas),)).astype('float32')
+        spec.phas = random.random_sample((len(spec.phas),)).astype(float_type)
         # phase of random is not zero
         spec.norm[:] = 1
         assert (o(spec) != 0.)
@@ -70,7 +70,7 @@ class aubio_specdesc(TestCase):
         spec = cvec(buf_size)
         # specdiff of zeros is zero
         assert_equal (o(spec), 0.)
-        spec.phas = random.random_sample((len(spec.phas),)).astype('float32')
+        spec.phas = random.random_sample((len(spec.phas),)).astype(float_type)
         # phase of random is not zero
         spec.norm[:] = 1
         assert (o(spec) != 0.)
@@ -79,7 +79,7 @@ class aubio_specdesc(TestCase):
         o = specdesc("hfc")
         c = cvec()
         assert_equal( 0., o(c))
-        a = arange(c.length, dtype='float32')
+        a = arange(c.length, dtype=float_type)
         c.norm = a
         assert_equal (a, c.norm)
         assert_equal ( sum(a*(a+1)), o(c))
@@ -88,7 +88,7 @@ class aubio_specdesc(TestCase):
         o = specdesc("complex")
         c = cvec()
         assert_equal( 0., o(c))
-        a = arange(c.length, dtype='float32')
+        a = arange(c.length, dtype=float_type)
         c.norm = a
         assert_equal (a, c.norm)
         # the previous run was on zeros, so previous frames are still 0
@@ -101,7 +101,7 @@ class aubio_specdesc(TestCase):
         o = specdesc("kl")
         c = cvec()
         assert_equal( 0., o(c))
-        a = arange(c.length, dtype='float32')
+        a = arange(c.length, dtype=float_type)
         c.norm = a
         assert_almost_equal( sum(a * log(1.+ a/1.e-1 ) ) / o(c), 1., decimal=6)
 
@@ -109,7 +109,7 @@ class aubio_specdesc(TestCase):
         o = specdesc("mkl")
         c = cvec()
         assert_equal( 0., o(c))
-        a = arange(c.length, dtype='float32')
+        a = arange(c.length, dtype=float_type)
         c.norm = a
         assert_almost_equal( sum(log(1.+ a/1.e-1 ) ) / o(c), 1, decimal=6)
 
@@ -117,11 +117,11 @@ class aubio_specdesc(TestCase):
         o = specdesc("specflux")
         c = cvec()
         assert_equal( 0., o(c))
-        a = arange(c.length, dtype='float32')
+        a = arange(c.length, dtype=float_type)
         c.norm = a
         assert_equal( sum(a), o(c))
         assert_equal( 0, o(c))
-        c.norm = zeros(c.length, dtype='float32')
+        c.norm = zeros(c.length, dtype=float_type)
         assert_equal( 0, o(c))
 
     def test_centroid(self):
@@ -129,7 +129,7 @@ class aubio_specdesc(TestCase):
         c = cvec()
         # make sure centroid of zeros is zero
         assert_equal( 0., o(c))
-        a = arange(c.length, dtype='float32')
+        a = arange(c.length, dtype=float_type)
         c.norm = a
         centroid = sum(a*a) / sum(a)
         assert_almost_equal (centroid, o(c), decimal = 2)
@@ -140,7 +140,7 @@ class aubio_specdesc(TestCase):
     def test_spread(self):
         o = specdesc("spread")
         c = cvec(2048)
-        ramp = arange(c.length, dtype='float32')
+        ramp = arange(c.length, dtype=float_type)
         assert_equal( 0., o(c))
 
         a = ramp
@@ -153,7 +153,7 @@ class aubio_specdesc(TestCase):
         o = specdesc("skewness")
         c = cvec()
         assert_equal( 0., o(c))
-        a = arange(c.length, dtype='float32')
+        a = arange(c.length, dtype=float_type)
         c.norm = a
         centroid = sum(a*a) / sum(a)
         spread = sum( (a - centroid)**2 *a) / sum(a)
@@ -167,7 +167,7 @@ class aubio_specdesc(TestCase):
         o = specdesc("kurtosis")
         c = cvec()
         assert_equal( 0., o(c))
-        a = arange(c.length, dtype='float32')
+        a = arange(c.length, dtype=float_type)
         c.norm = a
         centroid = sum(a*a) / sum(a)
         spread = sum( (a - centroid)**2 *a) / sum(a)
@@ -178,22 +178,22 @@ class aubio_specdesc(TestCase):
         o = specdesc("slope")
         c = cvec()
         assert_equal( 0., o(c))
-        a = arange(c.length * 2, 0, -2, dtype='float32')
-        k = arange(c.length, dtype='float32')
+        a = arange(c.length * 2, 0, -2, dtype=float_type)
+        k = arange(c.length, dtype=float_type)
         c.norm = a
         num = len(a) * sum(k*a) - sum(k)*sum(a)
         den = (len(a) * sum(k**2) - sum(k)**2)
         slope = num/den/sum(a)
         assert_almost_equal (slope, o(c), decimal = 5)
 
-        a = arange(0, c.length * 2, +2, dtype='float32')
+        a = arange(0, c.length * 2, +2, dtype=float_type)
         c.norm = a
         num = len(a) * sum(k*a) - sum(k)*sum(a)
         den = (len(a) * sum(k**2) - sum(k)**2)
         slope = num/den/sum(a)
         assert_almost_equal (slope, o(c), decimal = 5)
 
-        a = arange(0, c.length * 2, +2, dtype='float32')
+        a = arange(0, c.length * 2, +2, dtype=float_type)
         c.norm = a * 2
         assert_almost_equal (slope, o(c), decimal = 5)
 
@@ -201,18 +201,18 @@ class aubio_specdesc(TestCase):
         o = specdesc("decrease")
         c = cvec()
         assert_equal( 0., o(c))
-        a = arange(c.length * 2, 0, -2, dtype='float32')
-        k = arange(c.length, dtype='float32')
+        a = arange(c.length * 2, 0, -2, dtype=float_type)
+        k = arange(c.length, dtype=float_type)
         c.norm = a
         decrease = sum((a[1:] - a [0]) / k[1:]) / sum(a[1:]) 
         assert_almost_equal (decrease, o(c), decimal = 5)
 
-        a = arange(0, c.length * 2, +2, dtype='float32')
+        a = arange(0, c.length * 2, +2, dtype=float_type)
         c.norm = a
         decrease = sum((a[1:] - a [0]) / k[1:]) / sum(a[1:]) 
         assert_almost_equal (decrease, o(c), decimal = 5)
 
-        a = arange(0, c.length * 2, +2, dtype='float32')
+        a = arange(0, c.length * 2, +2, dtype=float_type)
         c.norm = a * 2
         decrease = sum((a[1:] - a [0]) / k[1:]) / sum(a[1:]) 
         assert_almost_equal (decrease, o(c), decimal = 5)
@@ -221,8 +221,8 @@ class aubio_specdesc(TestCase):
         o = specdesc("rolloff")
         c = cvec()
         assert_equal( 0., o(c))
-        a = arange(c.length * 2, 0, -2, dtype='float32')
-        k = arange(c.length, dtype='float32')
+        a = arange(c.length * 2, 0, -2, dtype=float_type)
+        k = arange(c.length, dtype=float_type)
         c.norm = a
         cumsum = .95*sum(a*a)
         i = 0; rollsum = 0

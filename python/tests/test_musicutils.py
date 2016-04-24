@@ -7,7 +7,7 @@ from math import pi
 
 from aubio import window, level_lin, db_spl, silence_detection, level_detection
 
-from aubio import fvec
+from aubio import fvec, float_type
 
 class aubio_window(TestCase):
 
@@ -53,7 +53,7 @@ class aubio_level_lin(TestCase):
 
     def test_minus_ones_is_one(self):
         from numpy import ones
-        assert_equal(level_lin(-ones(1024, dtype="float32")), 1.)
+        assert_equal(level_lin(-ones(1024, dtype = float_type)), 1.)
 
 class aubio_db_spl(TestCase):
     def test_accept_fvec(self):
@@ -73,7 +73,7 @@ class aubio_db_spl(TestCase):
 
     def test_minus_ones_is_zero(self):
         from numpy import ones
-        assert_equal(db_spl(-ones(1024, dtype="float32")), 0.)
+        assert_equal(db_spl(-ones(1024, dtype = float_type)), 0.)
 
 class aubio_silence_detection(TestCase):
     def test_accept_fvec(self):
@@ -93,7 +93,7 @@ class aubio_silence_detection(TestCase):
 
     def test_minus_ones_is_zero(self):
         from numpy import ones
-        assert silence_detection(ones(1024, dtype="float32"), -70) == 0
+        assert silence_detection(ones(1024, dtype = float_type), -70) == 0
 
 class aubio_level_detection(TestCase):
     def test_accept_fvec(self):
@@ -113,7 +113,7 @@ class aubio_level_detection(TestCase):
 
     def test_minus_ones_is_zero(self):
         from numpy import ones
-        assert level_detection(ones(1024, dtype="float32"), -70) == 0
+        assert level_detection(ones(1024, dtype = float_type), -70) == 0
 
 if __name__ == '__main__':
     from unittest import main

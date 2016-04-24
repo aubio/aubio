@@ -4,7 +4,7 @@ from unittest import TestCase
 from numpy.testing import assert_equal, assert_almost_equal
 from numpy import random, sin, arange, mean, median, isnan
 from math import pi
-from aubio import fvec, pitch, freqtomidi
+from aubio import fvec, pitch, freqtomidi, float_type
 
 class aubio_pitch_Good_Values(TestCase):
 
@@ -50,7 +50,7 @@ class aubio_pitch_Sinusoid(TestCase):
         self.run_pitch(p, sinvec, freq)
 
     def build_sinusoid(self, length, freq, samplerate):
-        return sin( 2. * pi * arange(length).astype('float32') * freq / samplerate)
+        return sin( 2. * pi * arange(length).astype(float_type) * freq / samplerate)
 
     def run_pitch(self, p, input_vec, freq):
         count = 0

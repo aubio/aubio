@@ -3,7 +3,7 @@
 from numpy.testing import TestCase, run_module_suite
 from numpy.testing import assert_equal, assert_almost_equal
 from numpy import array, shape
-from aubio import cvec, filterbank
+from aubio import cvec, filterbank, float_type
 
 class aubio_filterbank_mel_test_case(TestCase):
 
@@ -27,7 +27,7 @@ class aubio_filterbank_mel_test_case(TestCase):
   def test_triangle_freqs_zeros(self):
     f = filterbank(9, 1024)
     freq_list = [40, 80, 200, 400, 800, 1600, 3200, 6400, 12800, 15000, 24000]
-    freqs = array(freq_list, dtype = 'float32')
+    freqs = array(freq_list, dtype = float_type)
     f.set_triangle_bands(freqs, 48000)
     f.get_coeffs().T
     assert_equal ( f(cvec(1024)), 0)
@@ -35,7 +35,7 @@ class aubio_filterbank_mel_test_case(TestCase):
   def test_triangle_freqs_ones(self):
     f = filterbank(9, 1024)
     freq_list = [40, 80, 200, 400, 800, 1600, 3200, 6400, 12800, 15000, 24000]
-    freqs = array(freq_list, dtype = 'float32')
+    freqs = array(freq_list, dtype = float_type)
     f.set_triangle_bands(freqs, 48000)
     f.get_coeffs().T
     spec = cvec(1024)
