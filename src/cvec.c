@@ -85,16 +85,16 @@ void cvec_copy(const cvec_t *s, cvec_t *t) {
         s->length, t->length);
     return;
   }
-#if HAVE_MEMCPY_HACKS
+#ifdef HAVE_MEMCPY_HACKS
   memcpy(t->norm, s->norm, t->length * sizeof(smpl_t));
   memcpy(t->phas, s->phas, t->length * sizeof(smpl_t));
-#else
+#else /* HAVE_MEMCPY_HACKS */
   uint_t j;
   for (j=0; j< t->length; j++) {
     t->norm[j] = s->norm[j];
     t->phas[j] = s->phas[j];
   }
-#endif
+#endif /* HAVE_MEMCPY_HACKS */
 }
 
 void cvec_norm_set_all (cvec_t *s, smpl_t val) {
@@ -105,11 +105,11 @@ void cvec_norm_set_all (cvec_t *s, smpl_t val) {
 }
 
 void cvec_norm_zeros(cvec_t *s) {
-#if HAVE_MEMCPY_HACKS
+#ifdef HAVE_MEMCPY_HACKS
   memset(s->norm, 0, s->length * sizeof(smpl_t));
-#else
+#else /* HAVE_MEMCPY_HACKS */
   cvec_norm_set_all (s, 0.);
-#endif
+#endif /* HAVE_MEMCPY_HACKS */
 }
 
 void cvec_norm_ones(cvec_t *s) {
@@ -124,7 +124,7 @@ void cvec_phas_set_all (cvec_t *s, smpl_t val) {
 }
 
 void cvec_phas_zeros(cvec_t *s) {
-#if HAVE_MEMCPY_HACKS
+#ifdef HAVE_MEMCPY_HACKS
   memset(s->phas, 0, s->length * sizeof(smpl_t));
 #else
   cvec_phas_set_all (s, 0.);

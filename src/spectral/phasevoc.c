@@ -142,7 +142,7 @@ static void aubio_pvoc_swapbuffers(aubio_pvoc_t *pv, const fvec_t *new)
   smpl_t * data = pv->data->data;
   smpl_t * dataold = pv->dataold->data;
   smpl_t * datanew = new->data;
-#if !HAVE_MEMCPY_HACKS
+#ifndef HAVE_MEMCPY_HACKS
   uint_t i;
   for (i = 0; i < pv->end; i++)
     data[i] = dataold[i];

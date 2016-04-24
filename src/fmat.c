@@ -93,14 +93,14 @@ void fmat_set(fmat_t *s, smpl_t val) {
 }
 
 void fmat_zeros(fmat_t *s) {
-#if HAVE_MEMCPY_HACKS
+#ifdef HAVE_MEMCPY_HACKS
   uint_t i;
   for (i=0; i< s->height; i++) {
     memset(s->data[i], 0, s->length * sizeof(smpl_t));
   }
-#else
+#else /* HAVE_MEMCPY_HACKS */
   fmat_set(s, 0.);
-#endif
+#endif /* HAVE_MEMCPY_HACKS */
 }
 
 void fmat_ones(fmat_t *s) {
@@ -128,9 +128,9 @@ void fmat_weight(fmat_t *s, const fmat_t *weight) {
 
 void fmat_copy(const fmat_t *s, fmat_t *t) {
   uint_t i;
-#if !HAVE_MEMCPY_HACKS
+#ifndef HAVE_MEMCPY_HACKS
   uint_t j;
-#endif
+#endif /* HAVE_MEMCPY_HACKS */
   if (s->height != t->height) {
     AUBIO_ERR("trying to copy %d rows to %d rows \n",
             s->height, t->height);
@@ -141,17 +141,17 @@ void fmat_copy(const fmat_t *s, fmat_t *t) {
             s->length, t->length);
     return;
   }
-#if HAVE_MEMCPY_HACKS
+#ifdef HAVE_MEMCPY_HACKS
   for (i=0; i< s->height; i++) {
     memcpy(t->data[i], s->data[i], t->length * sizeof(smpl_t));
   }
-#else
+#else /* HAVE_MEMCPY_HACKS */
   for (i=0; i< t->height; i++) {
     for (j=0; j< t->length; j++) {
       t->data[i][j] = s->data[i][j];
     }
   }
-#endif
+#endif /* HAVE_MEMCPY_HACKS */
 }
 
 void fmat_vecmul(const fmat_t *s, const fvec_t *scale, fvec_t *output) {
