@@ -289,8 +289,6 @@ def configure(ctx):
     # use memcpy hacks
     if (ctx.options.enable_memcpy == True):
         ctx.define('HAVE_MEMCPY_HACKS', 1)
-    else:
-        ctx.define('HAVE_MEMCPY_HACKS', 0)
 
     # write configuration header
     ctx.write_config_header('src/config.h')
