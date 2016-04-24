@@ -7,8 +7,8 @@ typedef struct
   char_t* uri;
   uint_t samplerate;
   uint_t channels;
-  fvec_t *write_data;
-  fmat_t *mwrite_data;
+  fvec_t write_data;
+  fmat_t mwrite_data;
 } Py_sink;
 
 static char Py_sink_doc[] = ""
@@ -123,10 +123,6 @@ Py_sink_init (Py_sink * self, PyObject * args, PyObject * kwds)
   self->samplerate = aubio_sink_get_samplerate ( self->o );
   self->channels = aubio_sink_get_channels ( self->o );
 
-  self->write_data = (fvec_t *)malloc(sizeof(fvec_t));
-  self->mwrite_data = (fmat_t *)malloc(sizeof(fmat_t));
-  self->mwrite_data->height = self->channels;
-  self->mwrite_data->data = (smpl_t **)malloc(sizeof(smpl_t*) * self->channels);
   return 0;
 }
 
@@ -134,9 +130,7 @@ static void
 Py_sink_del (Py_sink *self, PyObject *unused)
 {
   del_aubio_sink(self->o);
-  free(self->write_data);
-  free(self->mwrite_data->data);
-  free(self->mwrite_data);
+  free(self->mwrite_data.data);
   Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
@@ -156,13 +150,13 @@ Py_sink_do(Py_sink * self, PyObject * args)
   }
 
   /* input vectors parsing */
-  if (!PyAubio_ArrayToCFvec(write_data_obj, self->write_data)) {
+  if (!PyAubio_ArrayToCFvec(write_data_obj, &(self->write_data))) {
     return NULL;
   }
 
 
   /* compute _do function */
-  aubio_sink_do (self->o, self->write_data, write);
+  aubio_sink_do (self->o, &(self->write_data), write);
 
   Py_RETURN_NONE;
 }
@@ -184,12 +178,12 @@ Py_sink_do_multi(Py_sink * self, PyObject * args)
 
 
   /* input vectors parsing */
-  if (!PyAubio_ArrayToCFmat(write_data_obj, self->mwrite_data)) {
+  if (!PyAubio_ArrayToCFmat(write_data_obj, &(self->mwrite_data))) {
     return NULL;
   }
 
   /* compute _do function */
-  aubio_sink_do_multi (self->o, self->mwrite_data, write);
+  aubio_sink_do_multi (self->o, &(self->mwrite_data), write);
   Py_RETURN_NONE;
 }
 

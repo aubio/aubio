@@ -202,7 +202,9 @@ typedef struct{{
     {output_results};
 }} Py_{shortname};
 """
-        return out.format(do_inputs_list = "; ".join(get_input_params(self.do_proto)), **self.__dict__)
+        # fmat_t* / fvec_t* / cvec_t* inputs -> full fvec_t /.. struct in Py_{shortname}
+        do_inputs_list = "; ".join(get_input_params(self.do_proto)).replace('fvec_t *','fvec_t').replace('fmat_t *', 'fmat_t').replace('cvec_t *', 'cvec_t')
+        return out.format(do_inputs_list = do_inputs_list, **self.__dict__)
 
     def gen_doc(self):
         out = """
@@ -310,9 +312,6 @@ Py_{shortname}_init (Py_{shortname} * self, PyObject * args, PyObject * kwds)
         out += """
   // TODO get internal params after actual object creation?
 """
-        for input_param in self.do_inputs:
-            out += """
-  self->{0} = ({1})malloc(sizeof({2}));""".format(input_param['name'], input_param['type'], input_param['type'][:-1])
         out += """
   // create outputs{output_create}
 """.format(output_create = output_create)
@@ -342,8 +341,9 @@ static void
 Py_{shortname}_del  (Py_{shortname} * self, PyObject * unused)
 {{""".format(**self.__dict__)
         for input_param in self.do_inputs:
-            out += """
-    free(self->{0[name]});""".format(input_param)
+            if input_param['type'] == 'fmat_t *':
+                out += """
+    free(self->{0[name]}.data);""".format(input_param)
         for o in self.outputs:
             name = o['name']
             del_out = delfromtype_fn[o['type']]
@@ -379,11 +379,11 @@ Py_{shortname}_do  (Py_{shortname} * self, PyObject * args)
     }}""".format(refs = refs, pyparamtypes = pyparamtypes, **self.__dict__)
         for p in input_params:
             out += """
-    if (!{pytoaubio}(py_{0[name]}, self->{0[name]})) {{
+    if (!{pytoaubio}(py_{0[name]}, &(self->{0[name]}))) {{
         return NULL;
     }}""".format(input_param, pytoaubio = pytoaubio_fn[input_param['type']])
         do_fn = get_name(self.do_proto)
-        inputs = ", ".join(['self->'+p['name'] for p in input_params])
+        inputs = ", ".join(['&(self->'+p['name']+')' for p in input_params])
         outputs = ", ".join(["self->%s" % p['name'] for p in self.do_outputs])
         out += """
 

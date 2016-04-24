@@ -8,10 +8,10 @@ typedef struct
   aubio_filterbank_t * o;
   uint_t n_filters;
   uint_t win_s;
-  cvec_t *vec;
+  cvec_t vec;
+  fvec_t freqs;
+  fmat_t coeffs;
   fvec_t *out;
-  fvec_t *freqs;
-  fmat_t *coeffs;
 } Py_filterbank;
 
 static PyObject *
@@ -66,14 +66,6 @@ Py_filterbank_init (Py_filterbank * self, PyObject * args, PyObject * kwds)
   }
   self->out = new_fvec(self->n_filters);
 
-  self->vec = (cvec_t *)malloc(sizeof(cvec_t));
-
-  self->freqs = (fvec_t *)malloc(sizeof(fvec_t));
-
-  self->coeffs = (fmat_t *)malloc(sizeof(fmat_t));
-  self->coeffs->data = (smpl_t **)malloc(sizeof(smpl_t*) * self->n_filters);
-  self->coeffs->height = self->n_filters;
-
   return 0;
 }
 
@@ -82,10 +74,7 @@ Py_filterbank_del (Py_filterbank *self, PyObject *unused)
 {
   del_aubio_filterbank(self->o);
   del_fvec(self->out);
-  free(self->vec);
-  free(self->freqs);
-  free(self->coeffs->data);
-  free(self->coeffs);
+  free(self->coeffs.data);
   Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
@@ -98,12 +87,12 @@ Py_filterbank_do(Py_filterbank * self, PyObject * args)
     return NULL;
   }
 
-  if (!PyAubio_ArrayToCCvec(input, self->vec)) {
+  if (!PyAubio_ArrayToCCvec(input, &(self->vec) )) {
     return NULL;
   }
 
   // compute the function
-  aubio_filterbank_do (self->o, self->vec, self->out);
+  aubio_filterbank_do (self->o, &(self->vec), self->out);
   return (PyObject *)PyAubio_CFvecToArray(self->out);
 }
 
@@ -130,12 +119,12 @@ Py_filterbank_set_triangle_bands (Py_filterbank * self, PyObject *args)
     return NULL;
   }
 
-  if (!PyAubio_ArrayToCFvec(input, self->freqs)) {
+  if (!PyAubio_ArrayToCFvec(input, &(self->freqs) )) {
     return NULL;
   }
 
   err = aubio_filterbank_set_triangle_bands (self->o,
-      self->freqs, samplerate);
+      &(self->freqs), samplerate);
   if (err > 0) {
     PyErr_SetString (PyExc_ValueError,
         "error when setting filter to A-weighting");
@@ -173,11 +162,11 @@ Py_filterbank_set_coeffs (Py_filterbank * self, PyObject *args)
     return NULL;
   }
 
-  if (!PyAubio_ArrayToCFmat(input, self->coeffs)) {
+  if (!PyAubio_ArrayToCFmat(input, &(self->coeffs))) {
     return NULL;
   }
 
-  err = aubio_filterbank_set_coeffs (self->o, self->coeffs);
+  err = aubio_filterbank_set_coeffs (self->o, &(self->coeffs));
 
   if (err > 0) {
     PyErr_SetString (PyExc_ValueError,

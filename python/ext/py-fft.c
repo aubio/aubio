@@ -7,11 +7,14 @@ typedef struct
   PyObject_HEAD
   aubio_fft_t * o;
   uint_t win_s;
-  fvec_t *vecin;
+  // do / rdo input vectors
+  fvec_t vecin;
+  cvec_t cvecin;
+  // do / rdo output results
   cvec_t *out;
-  Py_cvec *py_out;
-  cvec_t *cvecin;
   fvec_t *rout;
+  // bridge for cvec output
+  Py_cvec *py_out;
 } Py_fft;
 
 static PyObject *
@@ -56,9 +59,6 @@ Py_fft_init (Py_fft * self, PyObject * args, PyObject * kwds)
     return -1;
   }
 
-  self->cvecin = (cvec_t *)malloc(sizeof(cvec_t));
-  self->vecin = (fvec_t *)malloc(sizeof(fvec_t));
-
   self->out = new_cvec(self->win_s);
   self->py_out = (Py_cvec*) PyObject_New (Py_cvec, &Py_cvecType);
   Py_XINCREF(self->py_out);
@@ -74,8 +74,6 @@ Py_fft_del (Py_fft *self, PyObject *unused)
   del_aubio_fft(self->o);
   del_cvec(self->out);
   del_fvec(self->rout);
-  free(self->cvecin);
-  free(self->vecin);
   Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
@@ -88,12 +86,12 @@ Py_fft_do(Py_fft * self, PyObject * args)
     return NULL;
   }
 
-  if (!PyAubio_ArrayToCFvec(input, self->vecin)) {
+  if (!PyAubio_ArrayToCFvec(input, &(self->vecin))) {
     return NULL;
   }
 
   // compute the function
-  aubio_fft_do (((Py_fft *)self)->o, self->vecin, self->out);
+  aubio_fft_do (((Py_fft *)self)->o, &(self->vecin), self->out);
 #if 0
   Py_cvec * py_out = (Py_cvec*) PyObject_New (Py_cvec, &Py_cvecType);
   PyObject* output = PyAubio_CCvecToPyCvec(self->out, py_out);
@@ -119,12 +117,12 @@ Py_fft_rdo(Py_fft * self, PyObject * args)
     return NULL;
   }
 
-  if (!PyAubio_ArrayToCCvec (input, self->cvecin) ) {
+  if (!PyAubio_ArrayToCCvec (input, &(self->cvecin)) ) {
     return NULL;
   }
 
   // compute the function
-  aubio_fft_rdo (self->o, self->cvecin, self->rout);
+  aubio_fft_rdo (self->o, &(self->cvecin), self->rout);
   return PyAubio_CFvecToArray(self->rout);
 }
 

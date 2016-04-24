@@ -83,7 +83,7 @@ static PyObject *
 Py_alpha_norm (PyObject * self, PyObject * args)
 {
   PyObject *input;
-  fvec_t *vec;
+  fvec_t vec;
   smpl_t alpha;
   PyObject *result;
 
@@ -95,15 +95,12 @@ Py_alpha_norm (PyObject * self, PyObject * args)
     return NULL;
   }
 
-  vec = (fvec_t *)malloc(sizeof(fvec_t));
-  if (!PyAubio_ArrayToCFvec(input, vec)) {
-    free(vec);
+  if (!PyAubio_ArrayToCFvec(input, &vec)) {
     return NULL;
   }
 
   // compute the function
-  result = Py_BuildValue ("f", fvec_alpha_norm (vec, alpha));
-  free(vec);
+  result = Py_BuildValue ("f", fvec_alpha_norm (&vec, alpha));
   if (result == NULL) {
     return NULL;
   }
@@ -175,7 +172,7 @@ static PyObject *
 Py_zero_crossing_rate (PyObject * self, PyObject * args)
 {
   PyObject *input;
-  fvec_t *vec;
+  fvec_t vec;
   PyObject *result;
 
   if (!PyArg_ParseTuple (args, "O:zero_crossing_rate", &input)) {
@@ -186,15 +183,12 @@ Py_zero_crossing_rate (PyObject * self, PyObject * args)
     return NULL;
   }
 
-  vec = (fvec_t *)malloc(sizeof(fvec_t));
-  if (!PyAubio_ArrayToCFvec(input, vec)) {
-    free(vec);
+  if (!PyAubio_ArrayToCFvec(input, &vec)) {
     return NULL;
   }
 
   // compute the function
-  result = Py_BuildValue ("f", aubio_zero_crossing_rate (vec));
-  free(vec);
+  result = Py_BuildValue ("f", aubio_zero_crossing_rate (&vec));
   if (result == NULL) {
     return NULL;
   }
@@ -206,7 +200,7 @@ static PyObject *
 Py_min_removal(PyObject * self, PyObject * args)
 {
   PyObject *input;
-  fvec_t *vec;
+  fvec_t vec;
 
   if (!PyArg_ParseTuple (args, "O:min_removal", &input)) {
     return NULL;
@@ -216,19 +210,17 @@ Py_min_removal(PyObject * self, PyObject * args)
     return NULL;
   }
 
-  vec = (fvec_t *)malloc(sizeof(fvec_t));
-  if (!PyAubio_ArrayToCFvec(input, vec)) {
-    free(vec);
+  if (!PyAubio_ArrayToCFvec(input, &vec)) {
     return NULL;
   }
 
   // compute the function
-  fvec_min_removal (vec);
+  fvec_min_removal (&vec);
 
   // since this function does not return, we could return None
   //Py_RETURN_NONE;
   // however it is convenient to return the modified vector
-  return (PyObject *) PyAubio_CFvecToArray(vec);
+  return (PyObject *) PyAubio_CFvecToArray(&vec);
   // or even without converting it back to an array
   //Py_INCREF(vec);
   //return (PyObject *)vec;

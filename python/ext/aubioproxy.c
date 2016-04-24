@@ -143,17 +143,15 @@ PyAubio_ArrayToCFmat (PyObject *input, fmat_t *mat) {
     return 0;
   }
 
-  if (mat->height != (uint_t)PyArray_DIM ((PyArrayObject *)input, 0)) {
-    /*
-    free(mat->data);
-    mat->height = (uint_t)PyArray_DIM ((PyArrayObject *)input, 0);
-    mat->data = (smpl_t **)malloc(sizeof(smpl_t*) * mat->height);
-    */
-    PyErr_Format(PyExc_ValueError, "too many rows, %d but %ld expected",
-                      mat->height, PyArray_DIM ((PyArrayObject *)input, 0) );
-    return 0;
+  uint_t new_height = (uint_t)PyArray_DIM ((PyArrayObject *)input, 0);
+  if (mat->height != new_height) {
+    if (mat->data) {
+      free(mat->data);
+    }
+    mat->data = (smpl_t **)malloc(sizeof(smpl_t*) * new_height);
   }
 
+  mat->height = new_height;
   mat->length = (uint_t)PyArray_DIM ((PyArrayObject *)input, 1);
   for (i=0; i< mat->height; i++) {
     mat->data[i] = (smpl_t*)PyArray_GETPTR1 ((PyArrayObject *)input, i);
