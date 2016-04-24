@@ -20,6 +20,7 @@
 
 #include "utils.h"
 #define PROG_HAS_TEMPO 1
+#define PROG_HAS_ONSET 1
 #define PROG_HAS_OUTPUT 1
 #define PROG_HAS_JACK 1
 #include "parse_args.h"
