@@ -1,5 +1,7 @@
 #include "aubio-types.h"
 
+static char Py_pvoc_doc[] = "pvoc object";
+
 typedef struct
 {
   PyObject_HEAD
