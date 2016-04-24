@@ -33,10 +33,14 @@
 #define Py_aubio_default_samplerate 44100
 
 #if HAVE_AUBIO_DOUBLE
-#error "Ouch! Python interface for aubio has not been much tested yet."
+#warning "double mode needs love"
 #define AUBIO_NPY_SMPL NPY_DOUBLE
+#define AUBIO_NPY_SMPL_STR "float64"
+#define AUBIO_NPY_SMPL_CHR "d"
 #else
 #define AUBIO_NPY_SMPL NPY_FLOAT
+#define AUBIO_NPY_SMPL_STR "float32"
+#define AUBIO_NPY_SMPL_CHR "f"
 #endif
 
 // compat with Python < 2.6

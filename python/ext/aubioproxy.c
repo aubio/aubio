@@ -30,7 +30,7 @@ PyAubio_ArrayToCFvec (PyObject *input, fvec_t *out) {
       PyErr_SetString (PyExc_ValueError, "input array should be float");
       return 0;
     } else if (PyArray_TYPE ((PyArrayObject *)input) != AUBIO_NPY_SMPL) {
-      PyErr_SetString (PyExc_ValueError, "input array should be float32");
+      PyErr_SetString (PyExc_ValueError, "input array should be " AUBIO_NPY_SMPL_STR);
       return 0;
     }
 
@@ -73,7 +73,7 @@ PyAubio_ArrayToCCvec (PyObject *input, cvec_t *i) {
       i->length = ((Py_cvec*)input)->o->length;
       return 1;
   } else {
-      PyErr_SetString (PyExc_ValueError, "input array should be float32");
+      PyErr_SetString (PyExc_ValueError, "input array should be aubio.cvec");
       return 0;
   }
 }
@@ -119,7 +119,7 @@ PyAubio_ArrayToCFmat (PyObject *input, fmat_t *mat) {
       PyErr_SetString (PyExc_ValueError, "input array should be float");
       return 0;
     } else if (PyArray_TYPE ((PyArrayObject *)input) != AUBIO_NPY_SMPL) {
-      PyErr_SetString (PyExc_ValueError, "input array should be float32");
+      PyErr_SetString (PyExc_ValueError, "input array should be " AUBIO_NPY_SMPL_STR);
       return 0;
     }
 

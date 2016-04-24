@@ -93,7 +93,7 @@ PyObject *
 PyAubio_CvecNormToArray (Py_cvec * self)
 {
   npy_intp dims[] = { self->o->length, 1 };
-  return PyArray_SimpleNewFromData (1, dims, NPY_FLOAT, self->o->norm);
+  return PyArray_SimpleNewFromData (1, dims, AUBIO_NPY_SMPL, self->o->norm);
 }
 
 
@@ -101,7 +101,7 @@ PyObject *
 PyAubio_CvecPhasToArray (Py_cvec * self)
 {
   npy_intp dims[] = { self->o->length, 1 };
-  return PyArray_SimpleNewFromData (1, dims, NPY_FLOAT, self->o->phas);
+  return PyArray_SimpleNewFromData (1, dims, AUBIO_NPY_SMPL, self->o->phas);
 }
 
 PyObject *

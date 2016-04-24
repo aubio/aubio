@@ -87,7 +87,7 @@ Py_alpha_norm (PyObject * self, PyObject * args)
   smpl_t alpha;
   PyObject *result;
 
-  if (!PyArg_ParseTuple (args, "Of:alpha_norm", &input, &alpha)) {
+  if (!PyArg_ParseTuple (args, "O" AUBIO_NPY_SMPL_CHR ":alpha_norm", &input, &alpha)) {
     return NULL;
   }
 
@@ -100,7 +100,7 @@ Py_alpha_norm (PyObject * self, PyObject * args)
   }
 
   // compute the function
-  result = Py_BuildValue ("f", fvec_alpha_norm (&vec, alpha));
+  result = Py_BuildValue (AUBIO_NPY_SMPL_CHR, fvec_alpha_norm (&vec, alpha));
   if (result == NULL) {
     return NULL;
   }
@@ -114,7 +114,7 @@ Py_bintomidi (PyObject * self, PyObject * args)
   smpl_t input, samplerate, fftsize;
   smpl_t output;
 
-  if (!PyArg_ParseTuple (args, "|fff", &input, &samplerate, &fftsize)) {
+  if (!PyArg_ParseTuple (args, "|" AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR , &input, &samplerate, &fftsize)) {
     return NULL;
   }
 
@@ -129,7 +129,7 @@ Py_miditobin (PyObject * self, PyObject * args)
   smpl_t input, samplerate, fftsize;
   smpl_t output;
 
-  if (!PyArg_ParseTuple (args, "|fff", &input, &samplerate, &fftsize)) {
+  if (!PyArg_ParseTuple (args, "|" AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR , &input, &samplerate, &fftsize)) {
     return NULL;
   }
 
@@ -144,7 +144,7 @@ Py_bintofreq (PyObject * self, PyObject * args)
   smpl_t input, samplerate, fftsize;
   smpl_t output;
 
-  if (!PyArg_ParseTuple (args, "|fff", &input, &samplerate, &fftsize)) {
+  if (!PyArg_ParseTuple (args, "|" AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR, &input, &samplerate, &fftsize)) {
     return NULL;
   }
 
@@ -159,7 +159,7 @@ Py_freqtobin (PyObject * self, PyObject * args)
   smpl_t input, samplerate, fftsize;
   smpl_t output;
 
-  if (!PyArg_ParseTuple (args, "|fff", &input, &samplerate, &fftsize)) {
+  if (!PyArg_ParseTuple (args, "|" AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR, &input, &samplerate, &fftsize)) {
     return NULL;
   }
 
@@ -188,7 +188,7 @@ Py_zero_crossing_rate (PyObject * self, PyObject * args)
   }
 
   // compute the function
-  result = Py_BuildValue ("f", aubio_zero_crossing_rate (&vec));
+  result = Py_BuildValue (AUBIO_NPY_SMPL_CHR, aubio_zero_crossing_rate (&vec));
   if (result == NULL) {
     return NULL;
   }
@@ -307,6 +307,8 @@ initaubio (void)
   PyModule_AddObject (m, "source", (PyObject *) & Py_sourceType);
   Py_INCREF (&Py_sinkType);
   PyModule_AddObject (m, "sink", (PyObject *) & Py_sinkType);
+
+  PyModule_AddStringConstant(m, "float_type", AUBIO_NPY_SMPL_STR);
 
   // add generated objects
   add_generated_objects(m);

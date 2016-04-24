@@ -25,7 +25,7 @@ member_types = {
         'name': 'type',
         'char_t*': 'T_STRING',
         'uint_t': 'T_INT',
-        'smpl_t': 'T_FLOAT',
+        'smpl_t': 'AUBIO_NPY_SMPL',
         }
 
 pyfromtype_fn = {
