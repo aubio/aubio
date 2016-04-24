@@ -68,7 +68,7 @@ param_init = {
         }
 
 pyargparse_chars = {
-        'smpl_t': 'f',
+        'smpl_t': 'f', # if not usedouble else 'd',
         'uint_t': 'I',
         'sint_t': 'I',
         'char_t*': 's',
@@ -153,7 +153,9 @@ def get_params_types_names(proto):
 
 class MappedObject(object):
 
-    def __init__(self, prototypes):
+    def __init__(self, prototypes, usedouble = False):
+        if usedouble:
+            pyargparse_chars['smpl_t'] = 'd'
         self.prototypes = prototypes
 
         self.shortname = prototypes['shortname']

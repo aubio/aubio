@@ -66,8 +66,8 @@ def get_cpp_objects():
 
     return cpp_output, cpp_objects
 
-def generate_external(output_path):
-    os.mkdir(output_path)
+def generate_external(output_path, usedouble = False):
+    if not os.path.isdir(output_path): os.mkdir(output_path)
     sources_list = []
     cpp_output, cpp_objects = get_cpp_objects()
     lib = {}
@@ -123,7 +123,7 @@ def generate_external(output_path):
     from .gen_code import MappedObject
     for o in lib:
         out = header
-        mapped = MappedObject(lib[o])
+        mapped = MappedObject(lib[o], usedouble = usedouble)
         out += mapped.gen_code()
         output_file = os.path.join(output_path, 'gen-%s.c' % o)
         with open(output_file, 'w') as f:
