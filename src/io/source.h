@@ -149,6 +149,16 @@ uint_t aubio_source_seek (aubio_source_t * s, uint_t pos);
 
 /**
 
+  get the duration of source object, in frames
+
+  \param s source object, created with ::new_aubio_source
+  \return number of frames in file
+
+*/
+uint_t aubio_source_get_duration (aubio_source_t * s);
+
+/**
+
   close source object
 
   \param s source object, created with ::new_aubio_source
