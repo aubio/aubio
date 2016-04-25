@@ -400,6 +400,14 @@ uint_t aubio_source_avcodec_seek (aubio_source_avcodec_t * s, uint_t pos) {
   return ret;
 }
 
+uint_t aubio_source_avcodec_get_duration (aubio_source_avcodec_t * s) {
+  if (s && &(s->avFormatCtx) != NULL) {
+    int64_t duration = s->avFormatCtx->duration;
+    return s->samplerate * ((uint_t)duration / 1e6 );
+  }
+  return 0;
+}
+
 uint_t aubio_source_avcodec_close(aubio_source_avcodec_t * s) {
   if (s->avr != NULL) {
     avresample_close( s->avr );

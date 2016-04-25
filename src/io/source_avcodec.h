@@ -118,6 +118,8 @@ uint_t aubio_source_avcodec_get_channels (const aubio_source_avcodec_t * s);
 */
 uint_t aubio_source_avcodec_seek (aubio_source_avcodec_t *s, uint_t pos);
 
+uint_t aubio_source_avcodec_get_duration (aubio_source_avcodec_t * s);
+
 /**
 
   close source
