@@ -140,6 +140,7 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(const char_t * path, uint_t sa
       AUBIO_WRN("source_sndfile: upsampling %s from %d to %d\n", s->path,
           s->input_samplerate, s->samplerate);
     }
+    s->duration = (uint_t)FLOOR(s->duration * s->ratio);
   }
 #else
   if (s->ratio != 1) {
