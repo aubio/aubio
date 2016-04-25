@@ -1,4 +1,4 @@
-import os
+import os, glob
 
 header = """// this file is generated! do not modify
 #include "aubio-types.h"
@@ -66,8 +66,9 @@ def get_cpp_objects():
 
     return cpp_output, cpp_objects
 
-def generate_external(output_path, usedouble = False):
+def generate_external(output_path, usedouble = False, overwrite = True):
     if not os.path.isdir(output_path): os.mkdir(output_path)
+    elif overwrite == False: return glob.glob(os.path.join(output_path, '*.c'))
     sources_list = []
     cpp_output, cpp_objects = get_cpp_objects()
     lib = {}
@@ -160,10 +161,17 @@ void add_generated_objects ( PyObject *m )
         sources_list.append(output_file)
 
     objlist = "".join(["extern PyTypeObject Py_%sType;\n" % p for p in lib])
-    out = """
-// generated list of objects created with gen_external.py
-#include <Python.h>
+    out = """// generated list of objects created with gen_external.py
 
+#include <Python.h>
+"""
+    if usedouble:
+        out += """
+#ifndef HAVE_AUBIO_DOUBLE
+#define HAVE_AUBIO_DOUBLE 1
+#endif
+"""
+    out += """
 {objlist}
 int generated_objects ( void );
 void add_generated_objects( PyObject *m );

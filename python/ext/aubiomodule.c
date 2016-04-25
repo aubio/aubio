@@ -1,6 +1,5 @@
 #define PY_AUBIO_MODULE_MAIN
 #include "aubio-types.h"
-#include "aubio-generated.h"
 #include "py-musicutils.h"
 
 static char aubio_module_doc[] = "Python module for the aubio library";

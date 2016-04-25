@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
-from setuptools import setup, Extension
+from setuptools import setup, Extension, Command
+from lib.moresetuptools import CleanGenerated, GenerateCommand
 
 import sys
 import os.path
@@ -12,29 +13,21 @@ __version__ = '.'.join \
         ([str(x) for x in [AUBIO_MAJOR_VERSION, AUBIO_MINOR_VERSION, AUBIO_PATCH_VERSION]]) \
         + AUBIO_VERSION_STATUS
 
+# function to generate gen/*.{c,h}
+from lib.gen_external import generate_external
+output_path = 'gen'
 
 include_dirs = []
 library_dirs = []
 define_macros = []
 extra_link_args = []
 
-include_dirs += ['ext']
+include_dirs += [ 'ext' ]
+include_dirs += [ output_path ] # aubio-generated.h
 include_dirs += [ numpy.get_include() ]
 
 if sys.platform.startswith('darwin'):
     extra_link_args += ['-framework','CoreFoundation', '-framework','AudioToolbox']
-
-output_path = 'gen'
-generated_object_files = []
-
-if not os.path.isdir(output_path):
-    from lib.gen_external import generate_external
-    generated_object_files = generate_external(output_path)
-    # define include dirs
-else:
-    import glob
-    generated_object_files = glob.glob(os.path.join(output_path, '*.c'))
-include_dirs += [output_path]
 
 if os.path.isfile('../src/aubio.h'):
     define_macros += [('USE_LOCAL_AUBIO', 1)]
@@ -56,8 +49,8 @@ aubio_extension = Extension("aubio._aubio", [
     "ext/py-phasevoc.c",
     "ext/py-source.c",
     "ext/py-sink.c",
-    # generated files
-    ] + generated_object_files,
+    # generate files if they don't exit
+    ] + generate_external(output_path, overwrite = False),
     include_dirs = include_dirs,
     library_dirs = library_dirs,
     extra_link_args = extra_link_args,
@@ -96,4 +89,8 @@ distrib = setup(name='aubio',
     platforms = 'any',
     classifiers = classifiers,
     install_requires = ['numpy'],
+    cmdclass = {
+        'clean': CleanGenerated,
+        'generate': GenerateCommand,
+        }
     )
