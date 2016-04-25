@@ -49,7 +49,8 @@ int main (int argc, char **argv)
   } while ( read == hop_size );
 
   PRINT_MSG("read %d frames (expected %d) at %dHz (%d blocks) from %s\n",
-            n_frames, n_frames_expected, samplerate, n_frames / hop_size, source_path);
+            n_frames, n_frames_expected, samplerate, n_frames / hop_size,
+            source_path);
 
   del_fvec (vec);
   del_aubio_source_apple_audio (s);
