@@ -38,6 +38,8 @@ int main (int argc, char **argv)
   if (!s) { err = 1; goto beach; }
   fvec_t *vec = new_fvec(hop_size);
 
+  uint_t n_frames_expected = aubio_source_sndfile_get_duration(s);
+
   samplerate = aubio_source_sndfile_get_samplerate(s);
 
   do {
@@ -46,8 +48,9 @@ int main (int argc, char **argv)
     n_frames += read;
   } while ( read == hop_size );
 
-  PRINT_MSG("read %d frames at %dHz (%d blocks) from %s\n", n_frames, samplerate,
-    n_frames / hop_size, source_path);
+  PRINT_MSG("read %d frames (expected %d) at %dHz (%d blocks) from %s\n",
+            n_frames, n_frames_expected, samplerate, n_frames / hop_size,
+            source_path);
 
   del_fvec (vec);
   del_aubio_source_sndfile (s);

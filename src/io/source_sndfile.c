@@ -53,6 +53,7 @@ struct _aubio_source_sndfile_t {
   int input_samplerate;
   int input_channels;
   int input_format;
+  int duration;
 
   // resampling stuff
   smpl_t ratio;
@@ -105,6 +106,7 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(const char_t * path, uint_t sa
   s->input_samplerate = sfinfo.samplerate;
   s->input_channels   = sfinfo.channels;
   s->input_format     = sfinfo.format;
+  s->duration         = sfinfo.frames;
 
   if (samplerate == 0) {
     s->samplerate = s->input_samplerate;
@@ -270,6 +272,13 @@ uint_t aubio_source_sndfile_get_samplerate(aubio_source_sndfile_t * s) {
 
 uint_t aubio_source_sndfile_get_channels(aubio_source_sndfile_t * s) {
   return s->input_channels;
+}
+
+uint_t aubio_source_sndfile_get_duration (const aubio_source_sndfile_t * s) {
+  if (s && s->duration) {
+    return s->duration;
+  }
+  return 0;
 }
 
 uint_t aubio_source_sndfile_seek (aubio_source_sndfile_t * s, uint_t pos) {
