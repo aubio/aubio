@@ -311,10 +311,7 @@ uint_t aubio_source_apple_audio_seek (aubio_source_apple_audio_t * s, uint_t pos
     goto beach;
   }
   // check if we are not seeking out of the file
-  SInt64 fileLengthFrames = 0;
-  UInt32 propSize = sizeof(fileLengthFrames);
-  ExtAudioFileGetProperty(s->audioFile,
-      kExtAudioFileProperty_FileLengthFrames, &propSize, &fileLengthFrames);
+  uint_t fileLengthFrames = aubio_source_apple_audio_get_duration(s);
   // compute position in the source file, before resampling
   smpl_t ratio = s->source_samplerate * 1. / s->samplerate;
   SInt64 resampled_pos = (SInt64)ROUND( pos * ratio );
@@ -361,6 +358,21 @@ uint_t aubio_source_apple_audio_get_samplerate(const aubio_source_apple_audio_t 
 
 uint_t aubio_source_apple_audio_get_channels(const aubio_source_apple_audio_t * s) {
   return s->channels;
+}
+
+uint_t aubio_source_apple_audio_get_duration(const aubio_source_apple_audio_t * s) {
+  SInt64 fileLengthFrames = 0;
+  UInt32 propSize = sizeof(fileLengthFrames);
+  OSStatus err = ExtAudioFileGetProperty(s->audioFile,
+      kExtAudioFileProperty_FileLengthFrames, &propSize, &fileLengthFrames);
+  if (err) {
+    char_t errorstr[20];
+    AUBIO_ERROR("source_apple_audio: Failed getting %s duration, "
+        "error in ExtAudioFileGetProperty (%s)\n", s->path,
+        getPrintableOSStatusError(errorstr, err));
+    return err;
+  }
+  return (uint_t)fileLengthFrames;
 }
 
 #endif /* HAVE_SOURCE_APPLE_AUDIO */

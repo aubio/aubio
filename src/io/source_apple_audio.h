@@ -109,6 +109,16 @@ uint_t aubio_source_apple_audio_get_channels(const aubio_source_apple_audio_t * 
 
 /**
 
+  get the duration of source object, in frames
+
+  \param s source object, created with ::new_aubio_source_apple_audio
+  \return number of frames in file
+
+*/
+uint_t aubio_source_apple_audio_get_duration(const aubio_source_apple_audio_t * s);
+
+/**
+
   seek source object
 
   \param s source object, created with ::new_aubio_source
