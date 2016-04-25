@@ -125,6 +125,16 @@ uint_t aubio_source_wavread_seek (aubio_source_wavread_t *s, uint_t pos);
 
 /**
 
+  get the duration of source object, in frames
+
+  \param s source object, created with ::new_aubio_source_sndfile
+  \return number of frames in file
+
+*/
+uint_t aubio_source_wavread_get_duration (const aubio_source_wavread_t *s);
+
+/**
+
   close source
 
   \param s source object, created with ::new_aubio_source_wavread
