@@ -118,6 +118,14 @@ uint_t aubio_source_avcodec_get_channels (const aubio_source_avcodec_t * s);
 */
 uint_t aubio_source_avcodec_seek (aubio_source_avcodec_t *s, uint_t pos);
 
+/**
+
+  get the duration of source object, in frames
+
+  \param s source object, created with ::new_aubio_source_avcodec
+  \return number of frames in file
+
+*/
 uint_t aubio_source_avcodec_get_duration (aubio_source_avcodec_t * s);
 
 /**
