@@ -99,6 +99,17 @@ class aubio_source_read_test_case(aubio_source_test_case_base):
             b = self.read_from_source(f)
             assert a == b + c
 
+    def test_duration(self):
+        for p in list_of_sounds:
+            total_frames = 0
+            f = source(p)
+            duration = f.duration
+            while True:
+                vec, read = f()
+                total_frames += read
+                if read < f.hop_size: break
+            self.assertEqual(duration, total_frames)
+
 class aubio_source_readmulti_test_case(aubio_source_read_test_case):
 
     def read_from_source(self, f):

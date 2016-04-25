@@ -8,6 +8,7 @@ typedef struct
   uint_t samplerate;
   uint_t channels;
   uint_t hop_size;
+  uint_t duration;
   fvec_t *read_to;
   fmat_t *mread_to;
 } Py_source;
@@ -146,6 +147,7 @@ Py_source_init (Py_source * self, PyObject * args, PyObject * kwds)
   if (self->channels == 0) {
     self->channels = aubio_source_get_channels ( self->o );
   }
+  self->duration = aubio_source_get_duration ( self->o );
 
   self->read_to = new_fvec(self->hop_size);
   self->mread_to = new_fmat (self->channels, self->hop_size);
@@ -226,6 +228,8 @@ static PyMemberDef Py_source_members[] = {
     "number of channels found in the source"},
   {"hop_size", T_INT, offsetof (Py_source, hop_size), READONLY,
     "number of consecutive frames that will be read at each do or do_multi call"},
+  {"duration", T_INT, offsetof (Py_source, duration), READONLY,
+    "total number of frames in the source (estimated)"},
   { NULL } // sentinel
 };
 
