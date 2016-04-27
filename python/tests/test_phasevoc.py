@@ -1,11 +1,12 @@
 #! /usr/bin/env python
 
 from numpy.testing import TestCase, assert_equal, assert_almost_equal
-from aubio import fvec, cvec, pvoc
+from aubio import fvec, cvec, pvoc, float_type
 from numpy import array, shape
 from numpy.random import random
+import numpy as np
 
-precision = 6
+precision = 4
 
 class aubio_pvoc_test_case(TestCase):
     """ pvoc object test case """
@@ -38,38 +39,32 @@ class aubio_pvoc_test_case(TestCase):
             assert_equal ( s.phas, 0)
             assert_equal ( r, 0)
 
-    def test_resynth_two_steps(self):
-        """ check the resynthesis of steps is correct with 50% overlap """
-        hop_s = 512
-        buf_s = hop_s * 2
+    def test_resynth_8_steps(self):
+        """ check the resynthesis of is correct with 87.5% overlap """
+        hop_s = 256
+        ratio = 8
+        sigin = np.random.rand(hop_s).astype(float_type) * 2. - 1.
+        buf_s = hop_s * ratio
         f = pvoc(buf_s, hop_s)
-        sigin = fvec(hop_s)
         zeros = fvec(hop_s)
-        # negative step
-        sigin[20:50] = -.1
-        # positive step
-        sigin[100:200] = .1
-        s1 = f(sigin)
-        r1 = f.rdo(s1)
-        s2 = f(zeros)
-        r2 = f.rdo(s2)
-        #self.plot_this ( s2.norm.T )
-        assert_almost_equal ( r2, sigin, decimal = precision )
-    
-    def test_resynth_three_steps(self):
-        """ check the resynthesis of steps is correct with 25% overlap """
-        hop_s = 16
-        buf_s = hop_s * 4
-        sigin = fvec(hop_s)
-        zeros = fvec(hop_s)
+        r2 = f.rdo( f(sigin) )
+        for i in range(1, ratio):
+            r2 = f.rdo( f(zeros) )
+        r2 *= .5
+        assert_almost_equal ( r2 - sigin, 0., decimal = precision )
+
+    def test_resynth_4_steps(self):
+        """ check the resynthesis of is correct with 75% overlap """
+        hop_s = 256
+        ratio = 4
+        sigin = np.random.rand(hop_s).astype(float_type) * 2. - 1.
+        buf_s = hop_s * ratio
         f = pvoc(buf_s, hop_s)
-        for i in range(hop_s):
-            sigin[i] = random() * 2. - 1.
-        t2 = f.rdo( f(sigin) )
-        t2 = f.rdo( f(zeros) )
-        t2 = f.rdo( f(zeros) )
-        t2 = f.rdo( f(zeros) )
-        assert_almost_equal( sigin, t2, decimal = precision )
+        zeros = fvec(hop_s)
+        r2 = f.rdo( f(sigin) )
+        for i in range(1, ratio):
+            r2 = f.rdo( f(zeros) )
+        assert_almost_equal ( r2 - sigin, 0., decimal = precision )
     
     def plot_this( self, this ):
         from pylab import semilogy, show
