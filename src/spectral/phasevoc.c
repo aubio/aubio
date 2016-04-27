@@ -119,7 +119,8 @@ aubio_pvoc_t * new_aubio_pvoc (uint_t win_s, uint_t hop_s) {
   pv->end_datasize = pv->end * sizeof(smpl_t);
   pv->hop_datasize = pv->hop_s * sizeof(smpl_t);
 
-  pv->scale = pv->hop_s * 2. / pv->win_s;
+  // for reconstruction with 75% overlap
+  pv->scale = 2./3.;
 
   return pv;
 
