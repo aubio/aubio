@@ -74,7 +74,10 @@ class aubio_pvoc_test_case(TestCase):
         r2 = f.rdo( f(sigin) )
         for i in range(1, ratio):
             r2 = f.rdo( f(zeros) )
-        return r2
+
+        # FIXME: if we don't return a copy here, test_phasevoc.py will crash
+        # once in a while
+        return np.copy(r2)
 
     def plot_this( self, this ):
         from pylab import semilogy, show
