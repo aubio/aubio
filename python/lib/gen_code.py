@@ -37,7 +37,7 @@ pyfromtype_fn = {
 
 pytoaubio_fn = {
         'fvec_t*': 'PyAubio_ArrayToCFvec',
-        'cvec_t*': 'PyAubio_ArrayToCCvec',
+        'cvec_t*': 'PyAubio_PyCvecToCCvec',
         #'fmat_t*': 'PyAubio_ArrayToCFmat',
         }
 

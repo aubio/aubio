@@ -56,29 +56,6 @@ PyAubio_ArrayToCFvec (PyObject *input, fvec_t *out) {
 }
 
 PyObject *
-PyAubio_CCvecToPyCvec (cvec_t * input, Py_cvec *vec) {
-  vec->length = input->length;
-  vec->o = input;
-  // keep a reference to re-use after returning it
-  Py_INCREF(vec);
-  return (PyObject *)vec;
-}
-
-int
-PyAubio_ArrayToCCvec (PyObject *input, cvec_t *i) {
-  if (PyObject_TypeCheck (input, &Py_cvecType)) {
-      //*i = *(((Py_cvec*)input)->o);
-      i->norm = ((Py_cvec*)input)->o->norm;
-      i->phas = ((Py_cvec*)input)->o->phas;
-      i->length = ((Py_cvec*)input)->o->length;
-      return 1;
-  } else {
-      PyErr_SetString (PyExc_ValueError, "input array should be aubio.cvec");
-      return 0;
-  }
-}
-
-PyObject *
 PyAubio_CFmatToArray (fmat_t * input)
 {
   PyObject *array = NULL;

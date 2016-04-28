@@ -13,8 +13,6 @@ typedef struct
   // do / rdo output results
   cvec_t *out;
   fvec_t *rout;
-  // bridge for cvec output
-  Py_cvec *py_out;
 } Py_fft;
 
 static PyObject *
@@ -60,8 +58,6 @@ Py_fft_init (Py_fft * self, PyObject * args, PyObject * kwds)
   }
 
   self->out = new_cvec(self->win_s);
-  self->py_out = (Py_cvec*) PyObject_New (Py_cvec, &Py_cvecType);
-  Py_XINCREF(self->py_out);
   self->rout = new_fvec(self->win_s);
 
   return 0;
@@ -70,7 +66,6 @@ Py_fft_init (Py_fft * self, PyObject * args, PyObject * kwds)
 static void
 Py_fft_del (Py_fft *self, PyObject *unused)
 {
-  Py_XDECREF((PyObject*)(self->py_out));
   del_aubio_fft(self->o);
   del_cvec(self->out);
   del_fvec(self->rout);
@@ -92,14 +87,8 @@ Py_fft_do(Py_fft * self, PyObject * args)
 
   // compute the function
   aubio_fft_do (((Py_fft *)self)->o, &(self->vecin), self->out);
-#if 0
-  Py_cvec * py_out = (Py_cvec*) PyObject_New (Py_cvec, &Py_cvecType);
-  PyObject* output = PyAubio_CCvecToPyCvec(self->out, py_out);
-  return output;
-#else
-  // convert cvec to py_cvec, incrementing refcount to keep a copy
-  return PyAubio_CCvecToPyCvec(self->out, self->py_out);
-#endif
+  // convert cvec to py_cvec
+  return PyAubio_CCvecToPyCvec(self->out);
 }
 
 static PyMemberDef Py_fft_members[] = {
@@ -117,7 +106,7 @@ Py_fft_rdo(Py_fft * self, PyObject * args)
     return NULL;
   }
 
-  if (!PyAubio_ArrayToCCvec (input, &(self->cvecin)) ) {
+  if (!PyAubio_PyCvecToCCvec (input, &(self->cvecin)) ) {
     return NULL;
   }
 

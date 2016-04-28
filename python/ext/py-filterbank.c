@@ -87,7 +87,7 @@ Py_filterbank_do(Py_filterbank * self, PyObject * args)
     return NULL;
   }
 
-  if (!PyAubio_ArrayToCCvec(input, &(self->vec) )) {
+  if (!PyAubio_PyCvecToCCvec(input, &(self->vec) )) {
     return NULL;
   }
 

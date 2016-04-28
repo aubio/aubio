@@ -10,7 +10,6 @@ typedef struct
   uint_t hop_s;
   fvec_t vecin;
   cvec_t *output;
-  Py_cvec *py_out;
   cvec_t cvecin;
   fvec_t *routput;
 } Py_pvoc;
@@ -72,7 +71,6 @@ Py_pvoc_init (Py_pvoc * self, PyObject * args, PyObject * kwds)
   }
 
   self->output = new_cvec(self->win_s);
-  self->py_out = (Py_cvec*) PyObject_New (Py_cvec, &Py_cvecType);
   self->routput = new_fvec(self->hop_s);
 
   return 0;
@@ -104,14 +102,8 @@ Py_pvoc_do(Py_pvoc * self, PyObject * args)
 
   // compute the function
   aubio_pvoc_do (self->o, &(self->vecin), self->output);
-#if 0
-  Py_cvec * py_out = (Py_cvec*) PyObject_New (Py_cvec, &Py_cvecType);
-  PyObject* output = PyAubio_CCvecToPyCvec(self->output, py_out);
-  return output;
-#else
-  // convert cvec to py_cvec, incrementing refcount to keep a copy
-  return PyAubio_CCvecToPyCvec(self->output, self->py_out);
-#endif
+  // convert cvec to py_cvec
+  return PyAubio_CCvecToPyCvec(self->output);
 }
 
 static PyMemberDef Py_pvoc_members[] = {
@@ -130,7 +122,7 @@ Py_pvoc_rdo(Py_pvoc * self, PyObject * args)
     return NULL;
   }
 
-  if (!PyAubio_ArrayToCCvec (input, &(self->cvecin) )) {
+  if (!PyAubio_PyCvecToCCvec (input, &(self->cvecin) )) {
     return NULL;
   }
 
