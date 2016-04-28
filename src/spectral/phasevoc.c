@@ -120,7 +120,13 @@ aubio_pvoc_t * new_aubio_pvoc (uint_t win_s, uint_t hop_s) {
   pv->hop_datasize = pv->hop_s * sizeof(smpl_t);
 
   // for reconstruction with 75% overlap
-  pv->scale = 2./3.;
+  if (win_s == hop_s * 4) {
+    pv->scale = 2./3.;
+  } else if (win_s == hop_s * 8) {
+    pv->scale = 1./3.;
+  } else {
+    pv->scale = .5;
+  }
 
   return pv;
 
