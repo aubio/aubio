@@ -9,8 +9,10 @@ typedef struct
   uint_t channels;
   uint_t hop_size;
   uint_t duration;
-  fvec_t *read_to;
-  fmat_t *mread_to;
+  PyObject *read_to;
+  fvec_t c_read_to;
+  PyObject *mread_to;
+  fmat_t c_mread_to;
 } Py_source;
 
 static char Py_source_doc[] = ""
@@ -149,8 +151,8 @@ Py_source_init (Py_source * self, PyObject * args, PyObject * kwds)
   }
   self->duration = aubio_source_get_duration ( self->o );
 
-  self->read_to = new_fvec(self->hop_size);
-  self->mread_to = new_fmat (self->channels, self->hop_size);
+  self->read_to = new_py_fvec(self->hop_size);
+  self->mread_to = new_py_fmat(self->channels, self->hop_size);
 
   return 0;
 }
@@ -159,8 +161,9 @@ static void
 Py_source_del (Py_source *self, PyObject *unused)
 {
   del_aubio_source(self->o);
-  del_fvec(self->read_to);
-  del_fmat(self->mread_to);
+  //del_fvec(self->read_to);
+  Py_XDECREF(self->read_to);
+  Py_XDECREF(self->mread_to);
   Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
@@ -169,25 +172,18 @@ Py_source_del (Py_source *self, PyObject *unused)
 static PyObject *
 Py_source_do(Py_source * self, PyObject * args)
 {
-
-
-  /* output vectors prototypes */
   uint_t read;
-
-
-
-
-
-
-  /* creating output read_to as a new_fvec of length self->hop_size */
   read = 0;
 
-
+  Py_INCREF(self->read_to);
+  if (!PyAubio_ArrayToCFvec(self->read_to, &(self->c_read_to))) {
+    return NULL;
+  }
   /* compute _do function */
-  aubio_source_do (self->o, self->read_to, &read);
+  aubio_source_do (self->o, &(self->c_read_to), &read);
 
   PyObject *outputs = PyTuple_New(2);
-  PyTuple_SetItem( outputs, 0, (PyObject *)PyAubio_CFvecToArray (self->read_to) );
+  PyTuple_SetItem( outputs, 0, self->read_to );
   PyTuple_SetItem( outputs, 1, (PyObject *)PyLong_FromLong(read));
   return outputs;
 }
@@ -196,25 +192,18 @@ Py_source_do(Py_source * self, PyObject * args)
 static PyObject *
 Py_source_do_multi(Py_source * self, PyObject * args)
 {
-
-
-  /* output vectors prototypes */
   uint_t read;
-
-
-
-
-
-
-  /* creating output mread_to as a new_fvec of length self->hop_size */
   read = 0;
 
-
+  Py_INCREF(self->mread_to);
+  if (!PyAubio_ArrayToCFmat(self->mread_to,  &(self->c_mread_to))) {
+    return NULL;
+  }
   /* compute _do function */
-  aubio_source_do_multi (self->o, self->mread_to, &read);
+  aubio_source_do_multi (self->o, &(self->c_mread_to), &read);
 
   PyObject *outputs = PyTuple_New(2);
-  PyTuple_SetItem( outputs, 0, (PyObject *)PyAubio_CFmatToArray (self->mread_to));
+  PyTuple_SetItem( outputs, 0, self->mread_to);
   PyTuple_SetItem( outputs, 1, (PyObject *)PyLong_FromLong(read));
   return outputs;
 }
