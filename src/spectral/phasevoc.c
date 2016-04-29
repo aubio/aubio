@@ -66,7 +66,10 @@ void aubio_pvoc_rdo(aubio_pvoc_t *pv,cvec_t * fftgrain, fvec_t * synthnew) {
   /* unshift */
   fvec_ishift(pv->synth);
   /* windowing */
-  fvec_weight(pv->synth, pv->w);
+  // if overlap = 50%, do not apply window (identity)
+  if (pv->hop_s * 2 < pv->win_s) {
+    fvec_weight(pv->synth, pv->w);
+  }
   /* additive synthesis */
   aubio_pvoc_addsynth(pv, synthnew);
 }
@@ -124,6 +127,8 @@ aubio_pvoc_t * new_aubio_pvoc (uint_t win_s, uint_t hop_s) {
     pv->scale = 2./3.;
   } else if (win_s == hop_s * 8) {
     pv->scale = 1./3.;
+  } else if (win_s == hop_s * 2) {
+    pv->scale = 1.;
   } else {
     pv->scale = .5;
   }
