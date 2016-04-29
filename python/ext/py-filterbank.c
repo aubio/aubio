@@ -11,7 +11,8 @@ typedef struct
   cvec_t vec;
   fvec_t freqs;
   fmat_t coeffs;
-  fvec_t *out;
+  PyObject *out;
+  fvec_t c_out;
 } Py_filterbank;
 
 static PyObject *
@@ -64,7 +65,7 @@ Py_filterbank_init (Py_filterbank * self, PyObject * args, PyObject * kwds)
     PyErr_SetString (PyExc_RuntimeError, errstr);
     return -1;
   }
-  self->out = new_fvec(self->n_filters);
+  self->out = new_py_fvec(self->n_filters);
 
   return 0;
 }
@@ -73,7 +74,7 @@ static void
 Py_filterbank_del (Py_filterbank *self, PyObject *unused)
 {
   del_aubio_filterbank(self->o);
-  del_fvec(self->out);
+  Py_DECREF(self->out);
   free(self->coeffs.data);
   Py_TYPE(self)->tp_free((PyObject *) self);
 }
@@ -91,9 +92,13 @@ Py_filterbank_do(Py_filterbank * self, PyObject * args)
     return NULL;
   }
 
+  Py_INCREF(self->out);
+  if (!PyAubio_ArrayToCFvec(self->out, &(self->c_out))) {
+    return NULL;
+  }
   // compute the function
-  aubio_filterbank_do (self->o, &(self->vec), self->out);
-  return (PyObject *)PyAubio_CFvecToArray(self->out);
+  aubio_filterbank_do (self->o, &(self->vec), &(self->c_out));
+  return self->out;
 }
 
 static PyMemberDef Py_filterbank_members[] = {
