@@ -106,6 +106,36 @@ class aubio_fft_test_case(TestCase):
         plot ( this )
         show ()
 
+    def test_local_fftgrain(self):
+        """ check aubio.fft() result can be accessed after deletion """
+        def compute_grain(impulse):
+            win_s = 1024
+            timegrain = fvec(win_s)
+            timegrain[0] = impulse
+            f = fft(win_s)
+            fftgrain = f ( timegrain )
+            return fftgrain
+        impulse = pi
+        fftgrain = compute_grain(impulse)
+        assert_equal ( fftgrain.phas[0], 0)
+        assert_almost_equal ( fftgrain.phas[1], 0)
+        assert_almost_equal ( fftgrain.norm[0], impulse, decimal = 6 )
+
+    def test_local_reconstruct(self):
+        """ check aubio.fft.rdo() result can be accessed after deletion """
+        def compute_grain(impulse):
+            win_s = 1024
+            timegrain = fvec(win_s)
+            timegrain[0] = impulse
+            f = fft(win_s)
+            fftgrain = f ( timegrain )
+            r = f.rdo(fftgrain)
+            return r
+        impulse = pi
+        r = compute_grain(impulse)
+        assert_almost_equal ( r[0], impulse, decimal = 6)
+        assert_almost_equal ( r[1:], 0)
+
 if __name__ == '__main__':
     from unittest import main
     main()
