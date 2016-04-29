@@ -48,15 +48,15 @@ pyfromaubio_fn = {
         }
 
 newfromtype_fn = {
-        'fvec_t*': 'new_fvec',
-        'fmat_t*': 'new_fmat',
-        'cvec_t*': 'new_cvec',
+        'fvec_t*': 'new_py_fvec',
+        'fmat_t*': 'new_py_fmat',
+        'cvec_t*': 'new_py_cvec',
         }
 
 delfromtype_fn = {
-        'fvec_t*': 'del_fvec',
-        'fmat_t*': 'del_fmat',
-        'cvec_t*': 'del_cvec',
+        'fvec_t*': 'Py_DECREF',
+        'fmat_t*': 'Py_DECREF',
+        'cvec_t*': 'Py_DECREF',
         }
 
 param_init = {
@@ -168,8 +168,8 @@ class MappedObject(object):
         self.outputs = get_params_types_names(self.do_proto)[2:]
         self.do_inputs = [get_params_types_names(self.do_proto)[1]]
         self.do_outputs = get_params_types_names(self.do_proto)[2:]
-        self.outputs_flat = get_output_params(self.do_proto)
-        self.output_results = "; ".join(self.outputs_flat)
+        struct_output_str = ["PyObject *{0[name]}; {1} c_{0[name]}".format(i, i['type'][:-1]) for i in self.do_outputs]
+        self.struct_outputs = ";\n    ".join(struct_output_str)
 
         #print ("input_params: ", map(split_type, get_input_params(self.do_proto)))
         #print ("output_params", map(split_type, get_output_params(self.do_proto)))
@@ -201,7 +201,7 @@ typedef struct{{
     // do input vectors
     {do_inputs_list};
     // output results
-    {output_results};
+    {struct_outputs};
 }} Py_{shortname};
 """
         # fmat_t* / fvec_t* / cvec_t* inputs -> full fvec_t /.. struct in Py_{shortname}
@@ -379,24 +379,35 @@ Py_{shortname}_do  (Py_{shortname} * self, PyObject * args)
     if (!PyArg_ParseTuple (args, "{pyparamtypes}", {refs})) {{
         return NULL;
     }}""".format(refs = refs, pyparamtypes = pyparamtypes, **self.__dict__)
-        for p in input_params:
+        for input_param in input_params:
             out += """
+
     if (!{pytoaubio}(py_{0[name]}, &(self->{0[name]}))) {{
         return NULL;
     }}""".format(input_param, pytoaubio = pytoaubio_fn[input_param['type']])
+        out += """
+
+    // TODO: check input sizes"""
+        for output_param in output_params:
+            out += """
+
+    Py_INCREF(self->{0[name]});
+    if (!{pytoaubio}(self->{0[name]}, &(self->c_{0[name]}))) {{
+        return NULL;
+    }}""".format(output_param, pytoaubio = pytoaubio_fn[output_param['type']])
         do_fn = get_name(self.do_proto)
         inputs = ", ".join(['&(self->'+p['name']+')' for p in input_params])
+        c_outputs = ", ".join(["&(self->c_%s)" % p['name'] for p in self.do_outputs])
         outputs = ", ".join(["self->%s" % p['name'] for p in self.do_outputs])
         out += """
 
-    {do_fn}(self->o, {inputs}, {outputs});
+    {do_fn}(self->o, {inputs}, {c_outputs});
 
-    return (PyObject *) {aubiotonumpy} ({outputs});
+    return {outputs};
 }}
 """.format(
         do_fn = do_fn,
-        aubiotonumpy = pyfromaubio_fn[output['type']], 
-        inputs = inputs, outputs = outputs,
+        inputs = inputs, outputs = outputs, c_outputs = c_outputs,
         )
         return out
 

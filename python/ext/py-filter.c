@@ -6,7 +6,8 @@ typedef struct
   aubio_filter_t * o;
   uint_t order;
   fvec_t vec;
-  fvec_t *out;
+  PyObject *out;
+  fvec_t c_out;
 } Py_filter;
 
 static char Py_filter_doc[] = "filter object";
@@ -49,19 +50,19 @@ Py_filter_init (Py_filter * self, PyObject * args, PyObject * kwds)
   if (self->o == NULL) {
     return -1;
   }
-  self->out = new_fvec(Py_default_vector_length);
+  self->out = NULL;
   return 0;
 }
 
 static void
 Py_filter_del (Py_filter * self)
 {
-  del_fvec(self->out);
+  Py_XDECREF(self->out);
   del_aubio_filter (self->o);
   Py_TYPE(self)->tp_free ((PyObject *) self);
 }
 
-static PyObject * 
+static PyObject *
 Py_filter_do(Py_filter * self, PyObject * args)
 {
   PyObject *input;
@@ -78,17 +79,21 @@ Py_filter_do(Py_filter * self, PyObject * args)
     return NULL;
   }
 
-  // reallocate the output if needed
-  if (self->vec.length != self->out->length) {
-    del_fvec(self->out);
-    self->out = new_fvec(self->vec.length);
+  // initialize output now
+  if (self->out == NULL) {
+    self->out = new_py_fvec(self->vec.length);
+  }
+
+  Py_INCREF(self->out);
+  if (!PyAubio_ArrayToCFvec(self->out, &(self->c_out)) ) {
+    return NULL;
   }
   // compute the function
-  aubio_filter_do_outplace (self->o, &(self->vec), self->out);
-  return PyAubio_CFvecToArray(self->out);
+  aubio_filter_do_outplace (self->o, &(self->vec), &(self->c_out));
+  return self->out;
 }
 
-static PyObject * 
+static PyObject *
 Py_filter_set_c_weighting (Py_filter * self, PyObject *args)
 {
   uint_t err = 0;
@@ -106,7 +111,7 @@ Py_filter_set_c_weighting (Py_filter * self, PyObject *args)
   Py_RETURN_NONE;
 }
 
-static PyObject * 
+static PyObject *
 Py_filter_set_a_weighting (Py_filter * self, PyObject *args)
 {
   uint_t err = 0;
