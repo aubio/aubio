@@ -1,6 +1,18 @@
 #include "aubio-types.h"
 
 PyObject *
+new_py_fvec(uint_t length) {
+    npy_intp dims[] = { length, 1 };
+    return PyArray_ZEROS(1, dims, AUBIO_NPY_SMPL, 0);
+}
+
+PyObject *
+new_py_fmat(uint_t height, uint_t length) {
+    npy_intp dims[] = { height, length, 1 };
+    return PyArray_ZEROS(2, dims, AUBIO_NPY_SMPL, 0);
+}
+
+PyObject *
 PyAubio_CFvecToArray (fvec_t * self)
 {
   npy_intp dims[] = { self->length, 1 };

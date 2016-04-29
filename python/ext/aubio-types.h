@@ -52,6 +52,10 @@
 
 extern PyTypeObject Py_cvecType;
 
+PyObject * new_py_fvec(uint_t length);
+PyObject * new_py_cvec(uint_t length);
+PyObject * new_py_fmat(uint_t height, uint_t length);
+
 // defined in aubio-proxy.c
 extern PyObject *PyAubio_CFvecToArray (fvec_t * self);
 extern int PyAubio_ArrayToCFvec (PyObject * self, fvec_t *out);

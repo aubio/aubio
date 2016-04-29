@@ -21,6 +21,17 @@ typedef struct
 
 static char Py_cvec_doc[] = "cvec object";
 
+
+PyObject *
+new_py_cvec(uint_t length) {
+  Py_cvec* vec = (Py_cvec*) PyObject_New (Py_cvec, &Py_cvecType);
+  npy_intp dims[] = { length / 2 + 1, 1 };
+  vec->norm = PyArray_ZEROS(1, dims, AUBIO_NPY_SMPL, 0);
+  vec->phas = PyArray_ZEROS(1, dims, AUBIO_NPY_SMPL, 0);
+  vec->length = length / 2 + 1;
+  return (PyObject*)vec;
+}
+
 PyObject *
 PyAubio_CCvecToPyCvec (cvec_t * input) {
   if (input == NULL) {
@@ -39,14 +50,6 @@ int
 PyAubio_PyCvecToCCvec (PyObject *input, cvec_t *i) {
   if (PyObject_TypeCheck (input, &Py_cvecType)) {
       Py_cvec * in = (Py_cvec *)input;
-      if (in->norm == NULL) {
-        npy_intp dims[] = { in->length, 1 };
-        in->norm = PyArray_ZEROS(1, dims, AUBIO_NPY_SMPL, 0);
-      }
-      if (in->phas == NULL) {
-        npy_intp dims[] = { in->length, 1 };
-        in->phas = PyArray_ZEROS(1, dims, AUBIO_NPY_SMPL, 0);
-      }
       i->norm = (smpl_t *) PyArray_GETPTR1 ((PyArrayObject *)(in->norm), 0);
       i->phas = (smpl_t *) PyArray_GETPTR1 ((PyArrayObject *)(in->phas), 0);
       i->length = ((Py_cvec*)input)->length;
@@ -91,16 +94,17 @@ Py_cvec_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
 static int
 Py_cvec_init (Py_cvec * self, PyObject * args, PyObject * kwds)
 {
-  self->norm = NULL;
-  self->phas = NULL;
+  npy_intp dims[] = { self->length, 1 };
+  self->phas = PyArray_ZEROS(1, dims, AUBIO_NPY_SMPL, 0);
+  self->norm = PyArray_ZEROS(1, dims, AUBIO_NPY_SMPL, 0);
   return 0;
 }
 
 static void
 Py_cvec_del (Py_cvec * self)
 {
-  Py_XDECREF(self->norm);
-  Py_XDECREF(self->phas);
+  Py_DECREF(self->norm);
+  Py_DECREF(self->phas);
   Py_TYPE(self)->tp_free ((PyObject *) self);
 }
 
@@ -134,11 +138,7 @@ fail:
 PyObject *
 Py_cvec_get_norm (Py_cvec * self, void *closure)
 {
-  // if it norm hasn't been created, create it now
-  if (self->norm == NULL) {
-    npy_intp dims[] = { self->length, 1 };
-    self->norm = PyArray_ZEROS(1, dims, AUBIO_NPY_SMPL, 0);
-  }
+  // we want self->norm to still exist after our caller return it
   Py_INCREF(self->norm);
   return (PyObject*)(self->norm);
 }
@@ -146,11 +146,7 @@ Py_cvec_get_norm (Py_cvec * self, void *closure)
 PyObject *
 Py_cvec_get_phas (Py_cvec * self, void *closure)
 {
-  // if it phas hasn't been created, create it now
-  if (self->phas == NULL) {
-    npy_intp dims[] = { self->length, 1 };
-    self->phas = PyArray_ZEROS(1, dims, AUBIO_NPY_SMPL, 0);
-  }
+  // we want self->phas to still exist after our caller return it
   Py_INCREF(self->phas);
   return (PyObject *)(self->phas);
 }
