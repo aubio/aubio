@@ -9,9 +9,11 @@ typedef struct
   uint_t win_s;
   uint_t hop_s;
   fvec_t vecin;
-  cvec_t *output;
   cvec_t cvecin;
-  fvec_t *routput;
+  PyObject *output;
+  cvec_t c_output;
+  PyObject *routput;
+  fvec_t c_routput;
 } Py_pvoc;
 
 
@@ -70,8 +72,8 @@ Py_pvoc_init (Py_pvoc * self, PyObject * args, PyObject * kwds)
     return -1;
   }
 
-  self->output = new_cvec(self->win_s);
-  self->routput = new_fvec(self->hop_s);
+  self->output = new_py_cvec(self->win_s);
+  self->routput = new_py_fvec(self->hop_s);
 
   return 0;
 }
@@ -80,9 +82,9 @@ Py_pvoc_init (Py_pvoc * self, PyObject * args, PyObject * kwds)
 static void
 Py_pvoc_del (Py_pvoc *self, PyObject *unused)
 {
+  Py_XDECREF(self->output);
+  Py_XDECREF(self->routput);
   del_aubio_pvoc(self->o);
-  del_cvec(self->output);
-  del_fvec(self->routput);
   Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
@@ -100,10 +102,13 @@ Py_pvoc_do(Py_pvoc * self, PyObject * args)
     return NULL;
   }
 
+  Py_INCREF(self->output);
+  if (!PyAubio_PyCvecToCCvec (self->output, &(self->c_output))) {
+    return NULL;
+  }
   // compute the function
-  aubio_pvoc_do (self->o, &(self->vecin), self->output);
-  // convert cvec to py_cvec
-  return PyAubio_CCvecToPyCvec(self->output);
+  aubio_pvoc_do (self->o, &(self->vecin), &(self->c_output));
+  return self->output;
 }
 
 static PyMemberDef Py_pvoc_members[] = {
@@ -114,7 +119,7 @@ static PyMemberDef Py_pvoc_members[] = {
   { NULL } // sentinel
 };
 
-static PyObject * 
+static PyObject *
 Py_pvoc_rdo(Py_pvoc * self, PyObject * args)
 {
   PyObject *input;
@@ -126,9 +131,13 @@ Py_pvoc_rdo(Py_pvoc * self, PyObject * args)
     return NULL;
   }
 
+  Py_INCREF(self->routput);
+  if (!PyAubio_ArrayToCFvec(self->routput, &(self->c_routput)) ) {
+    return NULL;
+  }
   // compute the function
-  aubio_pvoc_rdo (self->o, &(self->cvecin), self->routput);
-  return PyAubio_CFvecToArray(self->routput);
+  aubio_pvoc_rdo (self->o, &(self->cvecin), &(self->c_routput));
+  return self->routput;
 }
 
 static PyMethodDef Py_pvoc_methods[] = {
