@@ -121,6 +121,13 @@ Py_fft_rdo(Py_fft * self, PyObject * args)
     return NULL;
   }
 
+  if (self->cvecin.length != self->win_s / 2 + 1) {
+    PyErr_Format(PyExc_ValueError,
+                 "input array has length %d, but fft input has size %d",
+                 self->vecin.length, self->win_s / 2 + 1);
+    return NULL;
+  }
+
   fvec_t out;
   Py_INCREF(self->rdoout);
   if (!PyAubio_ArrayToCFvec(self->rdoout, &out) ) {

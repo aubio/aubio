@@ -63,7 +63,7 @@ addons:
     - sox
 
 script:
-  - make create_test_sounds
+  - echo make create_test_sounds disabled for now
   - make build
   - make build_python
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make test_python; fi
