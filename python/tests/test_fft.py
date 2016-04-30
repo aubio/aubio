@@ -140,17 +140,29 @@ class aubio_fft_test_case(TestCase):
         win_s = 1024
         f = fft(win_s)
         t = fvec(win_s + 1)
-        print f(t)
         with self.assertRaises(ValueError):
-            print f(t)
+            f(t)
 
     def test_small_input_timegrain(self):
         win_s = 1024
         f = fft(win_s)
         t = fvec(1)
-        print f(t).phas
         with self.assertRaises(ValueError):
             f(t)
+
+    def test_large_input_fftgrain(self):
+        win_s = 1024
+        f = fft(win_s)
+        s = cvec(win_s + 1)
+        with self.assertRaises(ValueError):
+            f.rdo(s)
+
+    def test_small_input_timegrain(self):
+        win_s = 1024
+        f = fft(win_s)
+        s = cvec(16)
+        with self.assertRaises(ValueError):
+            f.rdo(s)
 
 if __name__ == '__main__':
     from unittest import main
