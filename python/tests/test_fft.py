@@ -136,6 +136,22 @@ class aubio_fft_test_case(TestCase):
         assert_almost_equal ( r[0], impulse, decimal = 6)
         assert_almost_equal ( r[1:], 0)
 
+    def test_large_input_timegrain(self):
+        win_s = 1024
+        f = fft(win_s)
+        t = fvec(win_s + 1)
+        print f(t)
+        with self.assertRaises(ValueError):
+            print f(t)
+
+    def test_small_input_timegrain(self):
+        win_s = 1024
+        f = fft(win_s)
+        t = fvec(1)
+        print f(t).phas
+        with self.assertRaises(ValueError):
+            f(t)
+
 if __name__ == '__main__':
     from unittest import main
     main()
