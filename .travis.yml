@@ -73,6 +73,10 @@ addons:
   apt:
     packages:
     - bzip2
+    - libavcodec-dev
+    - libavformat-dev
+    - libavresample-dev
+    - libavutil-dev
     - libsndfile1-dev
     - libsamplerate-dev
     - libjack-dev
