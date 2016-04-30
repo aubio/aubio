@@ -67,7 +67,7 @@ install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then travis_retry pip install --user nose2; fi
 
 script:
-  - echo make create_test_sounds disabled for now
+  - make create_test_sounds
   - make build
   - make build_python
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make test_python; fi
