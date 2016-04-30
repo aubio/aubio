@@ -63,7 +63,7 @@ addons:
     - sox
 
 install:
-  - travis_retry pip install nose2
+  - travis_retry pip install --user nose2
 
 script:
   - echo make create_test_sounds disabled for now
