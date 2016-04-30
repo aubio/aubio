@@ -195,15 +195,19 @@ def configure(ctx):
             mandatory = False):
         ctx.define('HAVE_C99_VARARGS_MACROS', 1)
 
-    # double precision mode
+    # show a message about enable_double status
     if (ctx.options.enable_double == True):
-        ctx.define('HAVE_AUBIO_DOUBLE', 1)
+        ctx.msg('Checking for size of smpl_t', 'double')
+        ctx.msg('Checking for size of lsmp_t', 'long double')
     else:
-        ctx.define('HAVE_AUBIO_DOUBLE', 0)
+        ctx.msg('Checking for size of smpl_t', 'float')
+        ctx.msg('Checking for size of lsmp_t', 'double')
 
     # optionally use complex.h
     if (ctx.options.enable_complex == True):
         ctx.check(header_name='complex.h')
+    else:
+        ctx.msg('Checking if complex.h is enabled', 'no')
 
     # check for fftw3
     if (ctx.options.enable_fftw3 != False or ctx.options.enable_fftw3f != False):
@@ -293,9 +297,16 @@ def configure(ctx):
     # write configuration header
     ctx.write_config_header('src/config.h')
 
+    # the following defines will be passed as arguments to the compiler
+    # instead of being written to src/config.h
+
     # add some defines used in examples
     ctx.define('AUBIO_PREFIX', ctx.env['PREFIX'])
     ctx.define('PACKAGE', APPNAME)
+
+    # double precision mode
+    if (ctx.options.enable_double == True):
+        ctx.define('HAVE_AUBIO_DOUBLE', 1)
 
     if (ctx.options.enable_docs != False):
         # check if txt2man is installed, optional
