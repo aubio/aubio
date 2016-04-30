@@ -16,13 +16,13 @@ expandwaf:
 	@chmod +x waf
 
 configure: checkwaf
-	$(WAFCMD) configure
+	$(WAFCMD) configure $(WAFOPTS) $(HAVE_DOUBLE)
 
 build: configure
-	$(WAFCMD) build
+	$(WAFCMD) build $(WAFOPTS)
 
 build_python:
-	cd python && ./setup.py build
+	cd python && python ./setup.py generate $(HAVE_DOUBLE) build
 
 test_python:
 	cd python && pip install -v .
@@ -39,7 +39,7 @@ clean_python:
 	cd python && ./setup.py clean
 
 build_python3:
-	cd python && python3 ./setup.py build
+	cd python && python3 ./setup.py generate $(HAVE_DOUBLE) build
 
 clean_python3:
 	cd python && python3 ./setup.py clean
