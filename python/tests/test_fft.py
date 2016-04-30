@@ -153,7 +153,7 @@ class aubio_fft_test_case(TestCase):
     def test_large_input_fftgrain(self):
         win_s = 1024
         f = fft(win_s)
-        s = cvec(win_s + 1)
+        s = cvec(win_s + 5)
         with self.assertRaises(ValueError):
             f.rdo(s)
 
