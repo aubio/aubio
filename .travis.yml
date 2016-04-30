@@ -63,14 +63,15 @@ addons:
     - sox
 
 install:
-  - travis_retry pip install --user nose2
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make travis_retry pip install nose2; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   make travis_retry pip install --user nose2; fi
 
 script:
   - echo make create_test_sounds disabled for now
   - make build
   - make build_python
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make test_python; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then make test_python_osx; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then PATH="$HOME/Library/Python/2.7/bin/:$PATH" make test_python_osx; fi
   - make clean_python
   - make clean
   - make distcheck
