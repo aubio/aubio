@@ -76,7 +76,7 @@
 
 #ifdef HAVE_ACCELERATE
 #include <Accelerate/Accelerate.h>
-#if !HAVE_AUBIO_DOUBLE
+#ifndef HAVE_AUBIO_DOUBLE
 #define aubio_vDSP_mmov       vDSP_mmov
 #define aubio_vDSP_vmul       vDSP_vmul
 #define aubio_vDSP_vfill      vDSP_vfill
@@ -102,7 +102,7 @@
 #endif /* HAVE_ACCELERATE */
 
 #ifdef HAVE_ATLAS
-#if !HAVE_AUBIO_DOUBLE
+#ifndef HAVE_AUBIO_DOUBLE
 #define aubio_catlas_set      catlas_sset
 #define aubio_cblas_copy      cblas_scopy
 #define aubio_cblas_swap      cblas_sswap
@@ -198,7 +198,7 @@ typedef enum {
 #endif
 
 /* aliases to math.h functions */
-#if !HAVE_AUBIO_DOUBLE
+#ifndef HAVE_AUBIO_DOUBLE
 #define EXP        expf
 #define COS        cosf
 #define SIN        sinf
@@ -226,7 +226,7 @@ typedef enum {
 #define ROUND(x)   FLOOR(x+.5)
 
 /* aliases to complex.h functions */
-#if HAVE_AUBIO_DOUBLE || !defined(HAVE_COMPLEX_H) || defined(WIN32)
+#if defined(HAVE_AUBIO_DOUBLE) || !defined(HAVE_COMPLEX_H) || defined(WIN32)
 /* mingw32 does not know about c*f functions */
 #define EXPC      cexp
 /** complex = CEXPC(complex) */
