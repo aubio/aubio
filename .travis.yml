@@ -62,6 +62,10 @@ addons:
     - libfftw3-dev
     - sox
 
+before_install:
+   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update     ; fi
+   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install sox; fi
+
 install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then travis_retry pip install nose2; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then travis_retry pip install --user nose2; fi
