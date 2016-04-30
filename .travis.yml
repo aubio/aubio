@@ -1,4 +1,4 @@
-language: python
+language: generic
 
 sudo: required
 ditro: trusty
