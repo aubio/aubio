@@ -59,7 +59,7 @@ class aubio_source_read_test_case(aubio_source_test_case_base):
         try:
             f = source(soundfile, samplerate, hop_size)
         except RuntimeError as e:
-            self.skipTest('failed opening with hop_s = {:d}, samplerate = {:d} ({:s})'.format(hop_size, samplerate, e))
+            self.skipTest('failed opening with hop_s = {:d}, samplerate = {:d} ({:s})'.format(hop_size, samplerate, str(e)))
         assert f.samplerate != 0
         self.read_from_source(f)
 
