@@ -35,11 +35,12 @@
 #define Py_aubio_default_samplerate 44100
 
 #if HAVE_AUBIO_DOUBLE
-#warning "double mode needs love"
+// 64 bit precision with HAVE_AUBIO_DOUBLE=1
 #define AUBIO_NPY_SMPL NPY_DOUBLE
 #define AUBIO_NPY_SMPL_STR "float64"
 #define AUBIO_NPY_SMPL_CHR "d"
 #else
+// default is 32 bit precision
 #define AUBIO_NPY_SMPL NPY_FLOAT
 #define AUBIO_NPY_SMPL_STR "float32"
 #define AUBIO_NPY_SMPL_CHR "f"
