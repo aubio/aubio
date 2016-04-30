@@ -80,10 +80,6 @@ addons:
     - libfftw3-dev
     - sox
 
-before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then; brew upgrade; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then; brew install sox; fi
-
 script:
   - make create_test_sounds
   - make build
