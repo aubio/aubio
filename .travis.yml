@@ -1,8 +1,5 @@
 language: generic
 
-sudo: required
-ditro: trusty
-
 matrix:
   include:
     - python: 2.7
@@ -29,14 +26,6 @@ matrix:
       os: osx
       compiler: clang
       env: ARCH=i386
-    - language: C
-      os: osx
-      compiler: gcc
-      env: ARCH=x86_64
-    - language: C
-      os: osx
-      compiler: gcc
-      env: ARCH=i386
     - python: 2.7
       os: linux
       compiler: gcc
@@ -60,24 +49,12 @@ matrix:
     - language: C
       os: osx
       compiler: clang
-      env: ARCH=i386 HAVE_DOUBLE=1
-    - language: C
-      os: osx
-      compiler: gcc
-      env: ARCH=x86_64 HAVE_DOUBLE=1
-    - language: C
-      os: osx
-      compiler: gcc
       env: ARCH=i386 HAVE_DOUBLE=1
 
 addons:
   apt:
     packages:
     - bzip2
-    - libavcodec-dev
-    - libavformat-dev
-    - libavresample-dev
-    - libavutil-dev
     - libsndfile1-dev
     - libsamplerate-dev
     - libjack-dev
