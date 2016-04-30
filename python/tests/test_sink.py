@@ -49,7 +49,7 @@ class aubio_sink_test_case(TestCase):
         try:
             f = source(path, samplerate, hop_size)
         except RuntimeError as e:
-            self.skipTest('failed opening with hop_s = {:d}, samplerate = {:d} ({:s})'.format(hop_size, samplerate, e))
+            self.skipTest('failed opening with hop_s = {:d}, samplerate = {:d} ({:s})'.format(hop_size, samplerate, str(e)))
         if samplerate == 0: samplerate = f.samplerate
         sink_path = get_tmp_sink_path()
         g = sink(sink_path, samplerate)
@@ -66,7 +66,7 @@ class aubio_sink_test_case(TestCase):
         try:
             f = source(path, samplerate, hop_size)
         except RuntimeError as e:
-            self.skipTest('failed opening with hop_s = {:d}, samplerate = {:d} ({:s})'.format(hop_size, samplerate, e))
+            self.skipTest('failed opening with hop_s = {:d}, samplerate = {:d} ({:s})'.format(hop_size, samplerate, str(e)))
         if samplerate == 0: samplerate = f.samplerate
         sink_path = get_tmp_sink_path()
         g = sink(sink_path, samplerate, channels = f.channels)
