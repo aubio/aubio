@@ -61,7 +61,7 @@ help:
 
 create_test_sounds:
 	[ -z `which $(SOX)` ] && ( echo $(SOX) could not be found; false ) || true
-	$(MKDIR) -p $(TESTSOUNDS)
+	mkdir -p $(TESTSOUNDS)
 	$(SOX) -r 44100 -n $(TESTSOUNDS)/44100Hz_1f_silence.wav synth 1s silence 0
 	$(SOX) -r  8000 -n $(TESTSOUNDS)/8000Hz_30s_silence.wav synth 30 silence 0
 	$(SOX) -r 32000 -n $(TESTSOUNDS)/32000Hz_127f_sine440.wav synth 127 sine 440
