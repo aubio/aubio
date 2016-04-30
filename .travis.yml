@@ -1,6 +1,7 @@
 language: python
 
-sudo: false
+sudo: required
+ditro: trusty
 
 matrix:
   include:
