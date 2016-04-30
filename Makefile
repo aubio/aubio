@@ -60,10 +60,10 @@ help:
 	$(WAFCMD) --help
 
 create_test_sounds:
-	[ -z `which $(SOX)` ] && ( echo $(SOX) could not be found; false ) || true
-	mkdir -p $(TESTSOUNDS)
-	$(SOX) -r 44100 -n $(TESTSOUNDS)/44100Hz_1f_silence.wav synth 1s silence 0
-	$(SOX) -r  8000 -n $(TESTSOUNDS)/8000Hz_30s_silence.wav synth 30 silence 0
-	$(SOX) -r 32000 -n $(TESTSOUNDS)/32000Hz_127f_sine440.wav synth 127 sine 440
-	$(SOX) -r 22050 -n $(TESTSOUNDS)/22050Hz_5s_brownnoise.wav synth 5 brownnoise
-	$(SOX) -r 48000 -n $(TESTSOUNDS)/48000Hz_60s_sweep.wav synth 60 sine 200-24000
+	-[ -z `which $(SOX)` ] && ( echo $(SOX) could not be found) || true
+	-mkdir -p $(TESTSOUNDS)
+	-$(SOX) -r 44100 -n $(TESTSOUNDS)/44100Hz_1f_silence.wav synth 1s silence 0
+	-$(SOX) -r  8000 -n $(TESTSOUNDS)/8000Hz_30s_silence.wav synth 30 silence 0
+	-$(SOX) -r 32000 -n $(TESTSOUNDS)/32000Hz_127f_sine440.wav synth 127 sine 440
+	-$(SOX) -r 22050 -n $(TESTSOUNDS)/22050Hz_5s_brownnoise.wav synth 5 brownnoise
+	-$(SOX) -r 48000 -n $(TESTSOUNDS)/48000Hz_60s_sweep.wav synth 60 sine 200-24000
