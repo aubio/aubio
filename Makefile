@@ -1,4 +1,7 @@
 WAFCMD=python waf
+
+ENABLE_DOUBLE := $(shell [ -z $(HAVE_DOUBLE) ] || echo --enable-double )
+
 all: build
 
 checkwaf:
@@ -16,13 +19,13 @@ expandwaf:
 	@chmod +x waf
 
 configure: checkwaf
-	$(WAFCMD) configure $(WAFOPTS) $(HAVE_DOUBLE)
+	$(WAFCMD) configure $(WAFOPTS) $(ENABLE_DOUBLE)
 
 build: configure
 	$(WAFCMD) build $(WAFOPTS)
 
 build_python:
-	cd python && python ./setup.py generate $(HAVE_DOUBLE) build
+	cd python && python ./setup.py generate $(ENABLE_DOUBLE) build
 
 test_python:
 	cd python && pip install -v .
@@ -39,7 +42,7 @@ clean_python:
 	cd python && ./setup.py clean
 
 build_python3:
-	cd python && python3 ./setup.py generate $(HAVE_DOUBLE) build
+	cd python && python3 ./setup.py generate $(ENABLE_DOUBLE) build
 
 clean_python3:
 	cd python && python3 ./setup.py clean
