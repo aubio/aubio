@@ -50,6 +50,14 @@ matrix:
       os: osx
       compiler: clang
       env: ARCH=i386 HAVE_DOUBLE=1
+    - language: C
+      os: osx
+      compiler: clang
+      env: ARCH=x86_64 WAFOPTS=--enable-fat
+    - language: C
+      os: osx
+      compiler: clang
+      env: ARCH=i386 WAFOPTS=--enable-fat
 
 addons:
   apt:
