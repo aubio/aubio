@@ -87,7 +87,7 @@ Py_fft_do(Py_fft * self, PyObject * args)
 
   if (self->vecin.length != self->win_s) {
     PyErr_Format(PyExc_ValueError,
-                 "input array has length %d, but fft has size %d",
+                 "input array has length %d, but fft expects length %d",
                  self->vecin.length, self->win_s);
     return NULL;
   }
@@ -123,8 +123,8 @@ Py_fft_rdo(Py_fft * self, PyObject * args)
 
   if (self->cvecin.length != self->win_s / 2 + 1) {
     PyErr_Format(PyExc_ValueError,
-                 "input array has length %d, but fft input has size %d",
-                 self->vecin.length, self->win_s / 2 + 1);
+                 "input cvec has length %d, but fft expects length %d",
+                 self->cvecin.length, self->win_s / 2 + 1);
     return NULL;
   }
 
