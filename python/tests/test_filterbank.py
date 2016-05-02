@@ -1,10 +1,8 @@
 #! /usr/bin/env python
 
-from numpy.testing import TestCase, run_module_suite
+from numpy.testing import TestCase
 from numpy.testing import assert_equal, assert_almost_equal
-from numpy import random
-from math import pi
-from numpy import array
+import numpy as np
 from aubio import cvec, filterbank, float_type
 from utils import array_from_text_file
 
@@ -16,14 +14,14 @@ class aubio_filterbank_test_case(TestCase):
 
   def test_set_coeffs(self):
     f = filterbank(40, 512)
-    r = random.random([40, int(512 / 2) + 1]).astype(float_type)
+    r = np.random.random([40, int(512 / 2) + 1]).astype(float_type)
     f.set_coeffs(r)
     assert_equal (r, f.get_coeffs())
 
   def test_phase(self):
     f = filterbank(40, 512)
     c = cvec(512)
-    c.phas[:] = pi
+    c.phas[:] = np.pi
     assert_equal( f(c), 0);
 
   def test_norm(self):
@@ -35,16 +33,17 @@ class aubio_filterbank_test_case(TestCase):
   def test_random_norm(self):
     f = filterbank(40, 512)
     c = cvec(512)
-    c.norm[:] = random.random((int(512 / 2) + 1,)).astype(float_type)
+    c.norm[:] = np.random.random((int(512 / 2) + 1,)).astype(float_type)
     assert_equal( f(c), 0)
 
   def test_random_coeffs(self):
-    f = filterbank(40, 512)
-    c = cvec(512)
-    r = random.random([40, int(512 / 2) + 1]).astype(float_type)
+    win_s = 128
+    f = filterbank(40, win_s)
+    c = cvec(win_s)
+    r = np.random.random([40, int(win_s / 2) + 1]).astype(float_type)
     r /= r.sum()
     f.set_coeffs(r)
-    c.norm[:] = random.random((int(512 / 2) + 1,)).astype(float_type)
+    c.norm[:] = np.random.random((int(win_s / 2) + 1,)).astype(float_type)
     assert_equal ( f(c) < 1., True )
     assert_equal ( f(c) > 0., True )
 
@@ -52,7 +51,7 @@ class aubio_filterbank_test_case(TestCase):
     f = filterbank(40, 512)
     c = cvec(512)
     f.set_mel_coeffs_slaney(44100)
-    c.norm[:] = random.random((int(512 / 2) + 1,)).astype(float_type)
+    c.norm[:] = np.random.random((int(512 / 2) + 1,)).astype(float_type)
     assert_equal ( f(c) < 1., True )
     assert_equal ( f(c) > 0., True )
 
@@ -63,6 +62,6 @@ class aubio_filterbank_test_case(TestCase):
     assert_almost_equal ( expected, f.get_coeffs() )
 
 if __name__ == '__main__':
-  from unittest import main
-  main()
+    from nose2 import main
+    main()
 
