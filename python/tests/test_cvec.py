@@ -2,7 +2,7 @@
 
 from numpy.testing import TestCase
 from numpy.testing import assert_equal, assert_almost_equal
-from aubio import cvec, float_type
+from aubio import cvec, fvec, float_type
 import numpy as np
 
 class aubio_cvec_test_case(TestCase):
@@ -77,6 +77,30 @@ class aubio_cvec_test_case(TestCase):
         assert_equal(new_spec.norm, 0.)
         assert_equal(new_spec.phas, 0.)
         del new_spec
+
+    def test_assign_norm_too_large(self):
+        a = cvec(512)
+        b = fvec(512//2+1 + 4)
+        with self.assertRaises(ValueError):
+            a.norm = b
+
+    def test_assign_norm_too_small(self):
+        a = cvec(512)
+        b = fvec(512//2+1 - 4)
+        with self.assertRaises(ValueError):
+            a.norm = b
+
+    def test_assign_phas_too_large(self):
+        a = cvec(512)
+        b = fvec(512//2+1 + 4)
+        with self.assertRaises(ValueError):
+            a.phas = b
+
+    def test_assign_phas_too_small(self):
+        a = cvec(512)
+        b = fvec(512//2+1 - 4)
+        with self.assertRaises(ValueError):
+            a.phas = b
 
 if __name__ == '__main__':
     from nose2 import main
