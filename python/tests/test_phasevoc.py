@@ -2,8 +2,6 @@
 
 from numpy.testing import TestCase, assert_equal, assert_array_less
 from aubio import fvec, cvec, pvoc, float_type
-from numpy import array, shape
-from numpy.random import random
 from nose2.tools import params
 import numpy as np
 
@@ -49,51 +47,6 @@ class aubio_pvoc_test_case(TestCase):
             assert_equal ( s.norm, 0.)
             assert_equal ( s.phas, 0.)
             assert_equal ( r, 0.)
-
-    def test_resynth_8_steps_sine(self):
-        """ check the resynthesis of is correct with 87.5% overlap """
-        hop_s = 1024
-        ratio = 8
-        freq = 445; samplerate = 22050
-        sigin = create_sine(hop_s, freq, samplerate)
-        self.reconstruction( sigin, hop_s, ratio)
-
-    def test_resynth_8_steps(self):
-        """ check the resynthesis of is correct with 87.5% overlap """
-        hop_s = 1024
-        ratio = 8
-        sigin = create_noise(hop_s)
-        self.reconstruction(sigin, hop_s, ratio)
-
-    def test_resynth_4_steps_sine(self):
-        """ check the resynthesis of is correct with 87.5% overlap """
-        hop_s = 1024
-        ratio = 4
-        freq = 445; samplerate = 22050
-        sigin = create_sine(hop_s, freq, samplerate)
-        self.reconstruction(sigin, hop_s, ratio)
-
-    def test_resynth_4_steps(self):
-        """ check the resynthesis of is correct with 75% overlap """
-        hop_s = 1024
-        ratio = 4
-        sigin = create_noise(hop_s)
-        self.reconstruction(sigin, hop_s, ratio)
-
-    def test_resynth_2_steps_sine(self):
-        """ check the resynthesis of is correct with 50% overlap """
-        hop_s = 1024
-        ratio = 2
-        freq = 445; samplerate = 22050
-        sigin = create_sine(hop_s, freq, samplerate)
-        self.reconstruction(sigin, hop_s, ratio)
-
-    def test_resynth_2_steps(self):
-        """ check the resynthesis of is correct with 50% overlap """
-        hop_s = 1024
-        ratio = 2
-        sigin = create_noise(hop_s)
-        self.reconstruction(sigin, hop_s, ratio)
 
     @params(
             ( 256, 8),
@@ -152,6 +105,34 @@ class aubio_pvoc_test_case(TestCase):
         sq_error = (r2 - sigin)**2
         # make sure all square errors are less than desired precision
         assert_array_less(sq_error, max_sq_error)
+
+    def test_large_input_timegrain(self):
+        win_s = 1024
+        f = pvoc(win_s)
+        t = fvec(win_s + 1)
+        with self.assertRaises(ValueError):
+            f(t)
+
+    def test_small_input_timegrain(self):
+        win_s = 1024
+        f = pvoc(win_s)
+        t = fvec(1)
+        with self.assertRaises(ValueError):
+            f(t)
+
+    def test_large_input_fftgrain(self):
+        win_s = 1024
+        f = pvoc(win_s)
+        s = cvec(win_s + 5)
+        with self.assertRaises(ValueError):
+            f.rdo(s)
+
+    def test_small_input_fftgrain(self):
+        win_s = 1024
+        f = pvoc(win_s)
+        s = cvec(16)
+        with self.assertRaises(ValueError):
+            f.rdo(s)
 
 if __name__ == '__main__':
     from nose2 import main
