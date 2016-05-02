@@ -1,6 +1,7 @@
 # vim:set syntax=python:
 
-lib = 'm' if 'CL.exe' not in ctx.env.CC[0] else None
+lib = ['aubio']
+lib += ['m'] if 'CL.exe' not in ctx.env.CC[0] else []
 
 uselib = []
 uselib += ['FFTW3', 'FFTW3F']
