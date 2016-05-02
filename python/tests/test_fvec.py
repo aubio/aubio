@@ -135,6 +135,18 @@ class aubio_fvec_test_case(TestCase):
         assert_equal (b, [19, 0, 18])
         assert_equal (a, b)
 
+    def test_pass_to_numpy(self):
+        a = fvec(10)
+        a = 1.
+        b = a
+        del a
+        assert_equal (b, 1.)
+        c = fvec(10)
+        c = b
+        del b
+        assert_equal (c, 1.)
+        del c
+
 if __name__ == '__main__':
     from unittest import main
     main()
