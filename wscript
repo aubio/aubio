@@ -116,7 +116,7 @@ def configure(ctx):
         target_platform = ctx.options.target_platform
     ctx.env['DEST_OS'] = target_platform
 
-    if 'CL.exe' not in ctx.env.CC[0]:
+    if ctx.env.CC_NAME != 'msvc':
         ctx.env.CFLAGS += ['-g', '-Wall', '-Wextra']
     else:
         ctx.env.CFLAGS += ['/W4']
