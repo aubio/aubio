@@ -1,9 +1,8 @@
 #! /usr/bin/env python
 
-from numpy.testing import TestCase, run_module_suite
+from numpy.testing import TestCase
 from numpy.testing import assert_equal, assert_almost_equal
 from aubio import fvec, fft, cvec
-from numpy import array, shape
 from math import pi
 
 class aubio_fft_test_case(TestCase):
@@ -20,8 +19,9 @@ class aubio_fft_test_case(TestCase):
         timegrain = fvec(win_s)
         f = fft (win_s)
         fftgrain = f (timegrain)
-        assert_equal (shape(fftgrain.norm), (win_s/2+1,))
-        assert_equal (shape(fftgrain.phas), (win_s/2+1,))
+        del f
+        assert_equal (fftgrain.norm.shape, (win_s/2+1,))
+        assert_equal (fftgrain.phas.shape, (win_s/2+1,))
 
     def test_zeros(self):
         """ check the transform of zeros is all zeros """
@@ -157,7 +157,7 @@ class aubio_fft_test_case(TestCase):
         with self.assertRaises(ValueError):
             f.rdo(s)
 
-    def test_small_input_timegrain(self):
+    def test_small_input_fftgrain(self):
         win_s = 1024
         f = fft(win_s)
         s = cvec(16)
@@ -165,6 +165,5 @@ class aubio_fft_test_case(TestCase):
             f.rdo(s)
 
 if __name__ == '__main__':
-    from unittest import main
+    from nose2 import main
     main()
-
