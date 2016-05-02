@@ -102,6 +102,13 @@ Py_pvoc_do(Py_pvoc * self, PyObject * args)
     return NULL;
   }
 
+  if (self->vecin.length != self->hop_s) {
+    PyErr_Format(PyExc_ValueError,
+                 "input fvec has length %d, but pvoc expects length %d",
+                 self->vecin.length, self->hop_s);
+    return NULL;
+  }
+
   Py_INCREF(self->output);
   if (!PyAubio_PyCvecToCCvec (self->output, &(self->c_output))) {
     return NULL;
@@ -128,6 +135,13 @@ Py_pvoc_rdo(Py_pvoc * self, PyObject * args)
   }
 
   if (!PyAubio_PyCvecToCCvec (input, &(self->cvecin) )) {
+    return NULL;
+  }
+
+  if (self->cvecin.length != self->win_s / 2 + 1) {
+    PyErr_Format(PyExc_ValueError,
+                 "input cvec has length %d, but pvoc expects length %d",
+                 self->cvecin.length, self->win_s / 2 + 1);
     return NULL;
   }
 
