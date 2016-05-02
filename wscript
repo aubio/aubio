@@ -121,6 +121,8 @@ def configure(ctx):
     else:
         ctx.env.CFLAGS += ['/W4']
 
+    ctx.check_cc(lib='m', uselib_store='M', mandatory=False)
+
     if target_platform not in ['win32', 'win64']:
         ctx.env.CFLAGS += ['-fPIC']
     else:
