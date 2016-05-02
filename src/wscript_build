@@ -1,6 +1,7 @@
 # vim:set syntax=python:
 
 uselib = []
+uselib += ['M']
 uselib += ['FFTW3', 'FFTW3F']
 uselib += ['SAMPLERATE']
 uselib += ['SNDFILE']
@@ -10,14 +11,12 @@ uselib += ['AVRESAMPLE']
 uselib += ['AVUTIL']
 uselib += ['BLAS']
 
-# build each source files
 source = ctx.path.ant_glob('*.c **/*.c')
-lib = 'm' if 'CL.exe' not in ctx.env.CC[0] else None
+
 ctx(features = 'c',
         source = source,
         includes = ['.'],
-        uselib = uselib,
-        lib = lib,
+        use = uselib,
         target = 'lib_objects')
 
 # build libaubio.so (cshlib) and/or libaubio.a (cstlib)
@@ -32,9 +31,7 @@ else: #linux, darwin, android, mingw, ...
 
 for target in build_features:
     ctx(features = 'c ' + target,
-            use = ['lib_objects'],
-            uselib = uselib,
-            lib = lib,
+            use = uselib + ['lib_objects'],
             target = 'aubio',
             vnum = ctx.env['LIB_VERSION'])
 
