@@ -92,6 +92,13 @@ Py_filterbank_do(Py_filterbank * self, PyObject * args)
     return NULL;
   }
 
+  if (self->vec.length != self->win_s / 2 + 1) {
+    PyErr_Format(PyExc_ValueError,
+                 "input cvec has length %d, but fft expects length %d",
+                 self->vec.length, self->win_s / 2 + 1);
+    return NULL;
+  }
+
   Py_INCREF(self->out);
   if (!PyAubio_ArrayToCFvec(self->out, &(self->c_out))) {
     return NULL;

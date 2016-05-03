@@ -61,6 +61,16 @@ class aubio_filterbank_test_case(TestCase):
         f.set_mel_coeffs_slaney(16000)
         assert_almost_equal ( expected, f.get_coeffs() )
 
+    def test_filterbank_long_cvec(self):
+        f = filterbank(40, 512)
+        with self.assertRaises(ValueError):
+            f(cvec(1024))
+
+    def test_filterbank_short_cvec(self):
+        f = filterbank(40, 512)
+        with self.assertRaises(ValueError):
+            f(cvec(256))
+
 if __name__ == '__main__':
     from nose2 import main
     main()
