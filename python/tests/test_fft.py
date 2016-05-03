@@ -164,6 +164,27 @@ class aubio_fft_test_case(TestCase):
         with self.assertRaises(ValueError):
             f.rdo(s)
 
+class aubio_fft_wrong_params(TestCase):
+
+    def test_wrong_buf_size(self):
+        win_s = -1
+        with self.assertRaises(ValueError):
+            fft(win_s)
+
+    def test_buf_size_not_power_of_two(self):
+        # when compiled with fftw3, aubio supports non power of two fft sizes
+        win_s = 320
+        try:
+            with self.assertRaises(RuntimeError):
+                fft(win_s)
+        except AssertionError as e:
+            self.skipTest('creating aubio.fft with size %d did not fail' % win_s)
+
+    def test_buf_size_too_small(self):
+        win_s = 1
+        with self.assertRaises(RuntimeError):
+            fft(win_s)
+
 if __name__ == '__main__':
     from nose2 import main
     main()
