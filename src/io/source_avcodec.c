@@ -26,7 +26,7 @@
 // determine whether we use libavformat from ffmpeg or from libav
 #define FFMPEG_LIBAVFORMAT (LIBAVFORMAT_VERSION_MICRO > 99 )
 // max_analyze_duration2 was used from ffmpeg libavformat 55.43.100 through 57.2.100
-#define FFMPEG_LIBAVFORMAT_MAX_DUR2 FFMPEG_LIBAVFORMAT && defined( \
+#define FFMPEG_LIBAVFORMAT_MAX_DUR2 FFMPEG_LIBAVFORMAT && ( \
       (LIBAVFORMAT_VERSION_MAJOR == 55 && LIBAVFORMAT_VERSION_MINOR >= 43) \
       || (LIBAVFORMAT_VERSION_MAJOR == 56) \
       || (LIBAVFORMAT_VERSION_MAJOR == 57 && LIBAVFORMAT_VERSION_MINOR < 2) \
