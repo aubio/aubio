@@ -106,11 +106,7 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t sa
   }
 
   // try to make sure max_analyze_duration is big enough for most songs
-#if FFMPEG_LIBAVFORMAT
-  avFormatCtx->max_analyze_duration2 *= 100;
-#else
   avFormatCtx->max_analyze_duration *= 100;
-#endif
 
   // retrieve stream information
   if ( (err = avformat_find_stream_info(avFormatCtx, NULL)) < 0 ) {
@@ -302,7 +298,7 @@ beach:
   s->avr = avr;
   s->output = output;
 
-  av_free_packet(&avPacket);
+  av_packet_unref(&avPacket);
 }
 
 void aubio_source_avcodec_do(aubio_source_avcodec_t * s, fvec_t * read_data, uint_t * read){
