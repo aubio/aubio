@@ -51,9 +51,11 @@ Py_fft_init (Py_fft * self, PyObject * args, PyObject * kwds)
 {
   self->o = new_aubio_fft (self->win_s);
   if (self->o == NULL) {
-    char_t errstr[30];
-    sprintf(errstr, "error creating fft with win_s=%d", self->win_s);
-    PyErr_SetString (PyExc_Exception, errstr);
+    PyErr_Format(PyExc_RuntimeError,
+        "error creating fft with win_s=%d "
+        "(should be a power of 2 greater than 1; "
+        "try recompiling aubio with --enable-fftw3)",
+        self->win_s);
     return -1;
   }
 
@@ -68,7 +70,9 @@ Py_fft_del (Py_fft *self, PyObject *unused)
 {
   Py_XDECREF(self->doout);
   Py_XDECREF(self->rdoout);
-  del_aubio_fft(self->o);
+  if (self->o) {
+    del_aubio_fft(self->o);
+  }
   Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
