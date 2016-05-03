@@ -23,8 +23,14 @@
 
 #ifdef HAVE_LIBAV
 
-// determine whether we use libavformat from ffmpe or libav
-#define FFMPEG_LIBAVFORMAT (LIBAVFORMAT_VERSION_MICRO > 99)
+// determine whether we use libavformat from ffmpeg or from libav
+#define FFMPEG_LIBAVFORMAT (LIBAVFORMAT_VERSION_MICRO > 99 )
+// max_analyze_duration2 was used from ffmpeg libavformat 55.43.100 through 57.2.100
+#define FFMPEG_LIBAVFORMAT_MAX_DUR2 FFMPEG_LIBAVFORMAT && defined( \
+      (LIBAVFORMAT_VERSION_MAJOR == 55 && LIBAVFORMAT_VERSION_MINOR >= 43) \
+      || (LIBAVFORMAT_VERSION_MAJOR == 56) \
+      || (LIBAVFORMAT_VERSION_MAJOR == 57 && LIBAVFORMAT_VERSION_MINOR < 2) \
+      )
 
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
@@ -106,7 +112,7 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t sa
   }
 
   // try to make sure max_analyze_duration is big enough for most songs
-#if FFMPEG_LIBAVFORMAT
+#if FFMPEG_LIBAVFORMAT_MAX_DUR2
   avFormatCtx->max_analyze_duration2 *= 100;
 #else
   avFormatCtx->max_analyze_duration *= 100;
@@ -302,7 +308,7 @@ beach:
   s->avr = avr;
   s->output = output;
 
-  av_free_packet(&avPacket);
+  av_packet_unref(&avPacket);
 }
 
 void aubio_source_avcodec_do(aubio_source_avcodec_t * s, fvec_t * read_data, uint_t * read){
