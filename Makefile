@@ -54,7 +54,7 @@ clean:
 	$(WAFCMD) clean
 
 distcheck: checkwaf
-	$(WAFCMD) distcheck
+	$(WAFCMD) distcheck $(WAFOPTS) $(ENABLE_DOUBLE)
 
 help:
 	$(WAFCMD) --help
