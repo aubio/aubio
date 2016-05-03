@@ -64,12 +64,12 @@ typedef FFTW_TYPE fft_data_t;
 
 #ifdef HAVE_FFTW3F
 #if HAVE_AUBIO_DOUBLE
-#warning "Using aubio in double precision with fftw3 in single precision"
+#error "Using aubio in double precision with fftw3 in single precision"
 #endif /* HAVE_AUBIO_DOUBLE */
 #define real_t float
-#else /* HAVE_FFTW3F */
+#elif defined (HAVE_FFTW3) /* HAVE_FFTW3F */
 #if !HAVE_AUBIO_DOUBLE
-#warning "Using aubio in single precision with fftw3 in double precision"
+#error "Using aubio in single precision with fftw3 in double precision"
 #endif /* HAVE_AUBIO_DOUBLE */
 #define real_t double
 #endif /* HAVE_FFTW3F */
