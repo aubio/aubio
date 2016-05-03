@@ -29,7 +29,7 @@ matrix:
     - python: 2.7
       os: linux
       compiler: gcc
-      env: ARCH=x86_64 HAVE_DOUBLE=1 WAFOPTS=--enable-fftw3f
+      env: ARCH=x86_64 HAVE_DOUBLE=1 WAFOPTS=--enable-fftw3
     - python: 2.7
       os: linux
       compiler: gcc
