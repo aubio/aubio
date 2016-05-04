@@ -353,7 +353,9 @@ Py_{shortname}_del  (Py_{shortname} * self, PyObject * unused)
     {del_out}(self->{name});""".format(del_out = del_out, name = name)
         del_fn = get_name(self.del_proto)
         out += """
-    {del_fn}(self->o);
+    if (self->o) {{
+        {del_fn}(self->o);
+    }}
     Py_TYPE(self)->tp_free((PyObject *) self);
 }}
 """.format(del_fn = del_fn)
