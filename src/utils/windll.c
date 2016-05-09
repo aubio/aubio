@@ -28,9 +28,13 @@
 
 #ifdef HAVE_WIN_HACKS
 
+#ifndef __GNUC__ // do not include msvc headers when using gcc/mingw32
+
 // latest version
 #include <SDKDDKVer.h>
 // for earlier versions, include WinSDKVer.h and set _WIN32_WINNT macro
+
+#endif /* __GNUC__ */
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
