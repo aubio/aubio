@@ -2,7 +2,7 @@
 
 import sys, os.path
 from aubio import pvoc, source
-from numpy import array, arange, zeros, log10, vstack
+from numpy import zeros, log10, vstack
 import matplotlib.pyplot as plt
 
 def get_spectrogram(filename, samplerate = 0):
