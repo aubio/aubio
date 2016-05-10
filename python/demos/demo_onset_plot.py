@@ -46,7 +46,6 @@ while True:
 
 if 1:
     # do plotting
-    from numpy import arange
     import matplotlib.pyplot as plt
     allsamples_max = (allsamples_max > 0) * allsamples_max
     allsamples_max_times = [ float(t) * hop_s / downsample / samplerate for t in range(len(allsamples_max)) ]
