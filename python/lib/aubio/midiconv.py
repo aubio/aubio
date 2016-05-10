@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """ utilities to convert midi note number to and from note names """
 
+__all__ = ['note2midi', 'midi2note', 'freq2note']
+
 import sys
 py3 = sys.version_info[0] == 3
 if py3:
