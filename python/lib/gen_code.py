@@ -374,7 +374,7 @@ Py_{shortname}_do  (Py_{shortname} * self, PyObject * args)
         #print output_params
         for input_param in input_params:
             out += """
-    PyObject *py_{0};""".format(input_param['name'], input_param['type'])
+    PyObject *py_{0};""".format(input_param['name'])
         refs = ", ".join(["&py_%s" % p['name'] for p in input_params])
         pyparamtypes = "".join([pyargparse_chars[p['type']] for p in input_params])
         out += """
