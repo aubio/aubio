@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 import sys
-from aubio import source, pitch, freqtomidi
+from aubio import source, pitch
 
 if len(sys.argv) < 2:
     print "Usage: %s <filename> [samplerate]" % sys.argv[0]

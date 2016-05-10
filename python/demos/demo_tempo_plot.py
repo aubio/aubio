@@ -39,7 +39,7 @@ while True:
 
 if len(beats) > 1:
     # do plotting
-    from numpy import array, arange, mean, median, diff
+    from numpy import mean, median, diff
     import matplotlib.pyplot as plt
     bpms = 60./ diff(beats)
     print 'mean period:', "%.2f" % mean(bpms), 'bpm', 'median', "%.2f" % median(bpms), 'bpm'

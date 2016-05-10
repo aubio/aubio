@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 from aubio import filterbank, fvec
-from pylab import loglog, show, subplot, xlim, ylim, xlabel, ylabel, title
+from pylab import loglog, show, xlim, ylim, xlabel, ylabel, title
 from numpy import vstack, arange
 
 win_s = 2048

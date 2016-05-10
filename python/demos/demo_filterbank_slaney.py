@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 from aubio import filterbank
-from numpy import array, arange, vstack
+from numpy import arange, vstack
 
 win_s = 8192
 samplerate = 16000

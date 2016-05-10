@@ -3,7 +3,7 @@
 import sys
 from math import pi, e
 from aubio import sink
-from numpy import arange, resize, sin, exp, zeros
+from numpy import arange, sin, exp, zeros
 
 if len(sys.argv) < 2:
     print 'usage: %s <outputfile> [samplerate]' % sys.argv[0]

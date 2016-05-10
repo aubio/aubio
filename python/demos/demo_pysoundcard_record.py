@@ -21,9 +21,8 @@ def record_sink(sink_path):
             mono_vec = vec.sum(-1) / float(s.channels[0])
             g(mono_vec, hop_size)
             total_frames += hop_size
-    except KeyboardInterrupt, e:
+    except KeyboardInterrupt:
         print "stopped after", "%.2f seconds" % (total_frames / s.samplerate)
-        pass
     s.stop()
 
 if __name__ == '__main__':

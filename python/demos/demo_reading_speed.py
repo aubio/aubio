@@ -5,16 +5,22 @@
 
 Compare the speed of several methods for reading and loading a sound file.
 
-This file depends on audioread and librosa:
-    https://github.com/beetbox/audioread
-    https://github.com/bmcfee/librosa
+This file depends on the following packages:
+
+    - audioread     https://github.com/beetbox/audioread
+    - librosa       https://github.com/bmcfee/librosa
+    - pydub         https://github.com/jiaaro/pydub
 
 """
 
 import numpy as np
 import aubio
+"""
 import audioread
 import librosa
+import scipy.io.wavfile
+from pydub import AudioSegment
+"""
 
 def read_file_audioread(filename):
     # taken from librosa.util.utils
@@ -25,19 +31,42 @@ def read_file_audioread(filename):
         fmt = '<i{:d}'.format(n_bytes)
         # Rescale and format the data buffer
         out = scale * np.frombuffer(buf, fmt).astype(dtype)
-        out = out.reshape(2, -1)
         return out
 
     with audioread.audio_open(filename) as f:
         total_frames = 0
         for buf in f:
             samples = convert_buffer_to_float(buf)
+            samples = samples.reshape(f.channels, -1)
             total_frames += samples.shape[1]
         return total_frames, f.samplerate
 
 def load_file_librosa(filename):
     y, sr = librosa.load(filename, sr = None)
+    #print y.mean(), y.shape
     return len(y), sr
+
+def load_file_scipy(filename):
+    sr, y = scipy.io.wavfile.read(filename)
+    y = y.astype('float32') / 32767
+    #print y.mean(), y.shape
+    return len(y), sr
+
+def load_file_scipy_mmap(filename):
+    sr, y = scipy.io.wavfile.read(filename, mmap = True)
+    #print y.mean(), y.shape
+    return len(y), sr
+
+def read_file_pydub(filename):
+    song = AudioSegment.from_file(filename)
+    song.get_array_of_samples()
+    return song.frame_count(), song.frame_rate
+
+def load_file_pydub(filename):
+    song = AudioSegment.from_file(filename)
+    y = np.asarray(song.get_array_of_samples(), dtype = 'float32')
+    y = y.reshape(song.channels, -1) / 32767.
+    return song.frame_count(), song.frame_rate
 
 def read_file_aubio(filename):
     f = aubio.source(filename, hop_size = 1024)
@@ -58,6 +87,7 @@ def load_file_aubio(filename):
         total_frames += read
         if read < f.hop_size: break
     assert len(y) == total_frames
+    #print y.mean(), y.shape
     return total_frames, f.samplerate
 
 def test_speed(function, filename):
@@ -81,6 +111,16 @@ if __name__ == '__main__':
         sys.exit(1)
     filename = sys.argv[1]
 
-    functions = [read_file_aubio, load_file_aubio, read_file_audioread, load_file_librosa]
+    functions = [
+            read_file_aubio,
+            load_file_aubio,
+            #load_file_scipy,
+            #load_file_scipy_mmap,
+            #read_file_audioread,
+            #load_file_librosa,
+            #read_file_pydub,
+            #load_file_pydub,
+            ]
+
     for f in functions:
         test_speed(f, filename)

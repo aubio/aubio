@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 import sys
-from aubio import fvec, source, pvoc, filterbank
+from aubio import source, pvoc, filterbank
 from numpy import vstack, zeros
 
 win_s = 512                 # fft size

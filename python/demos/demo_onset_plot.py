@@ -2,7 +2,7 @@
 
 import sys
 from aubio import onset, source
-from numpy import array, hstack, zeros
+from numpy import hstack, zeros
 
 win_s = 512                 # fft size
 hop_s = win_s / 2           # hop size

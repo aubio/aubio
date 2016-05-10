@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 import sys
-from aubio import pvoc, source
+from aubio import source
 from numpy import zeros, hstack
 
 def get_waveform_plot(filename, samplerate = 0, block_size = 4096, ax = None, downsample = 2**4):

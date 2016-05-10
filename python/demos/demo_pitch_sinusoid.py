@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-from numpy import random, sin, arange, ones, zeros
+from numpy import random, sin, arange, zeros
 from math import pi
 from aubio import fvec, pitch
 
@@ -10,7 +10,6 @@ def build_sinusoid(length, freqs, samplerate):
 def run_pitch(p, input_vec):
   f = fvec (p.hop_size)
   cands = []
-  count = 0
   for vec_slice in input_vec.reshape((-1, p.hop_size)):
     f[:] = vec_slice
     cands.append(p(f))

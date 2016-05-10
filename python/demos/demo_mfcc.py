@@ -2,7 +2,7 @@
 
 import sys
 from aubio import source, pvoc, mfcc
-from numpy import array, vstack, zeros
+from numpy import vstack, zeros
 
 win_s = 512                 # fft size
 hop_s = win_s / 4           # hop size

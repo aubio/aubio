@@ -44,3 +44,4 @@ if __name__ == '__main__':
     get_spectrogram(sys.argv[2])
     subplot(313)
     get_spectrogram(sys.argv[3])
+    show()
