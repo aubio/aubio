@@ -362,7 +362,6 @@ Py_{shortname}_del  (Py_{shortname} * self, PyObject * unused)
         return out
 
     def gen_do(self):
-        output = self.outputs[0]
         out = """
 // do {shortname}
 static PyObject*
