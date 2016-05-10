@@ -57,7 +57,7 @@ def get_spectrogram(filename, samplerate = 0):
     ax.set_yticklabels ( y_labels )
     ax.set_ylabel('Frequency (kHz)')
     ax.set_xlabel('Time (s)')
-    ax.set_title(os.path.basename(soundfile))
+    ax.set_title(os.path.basename(filename))
     for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] +
             ax.get_xticklabels() + ax.get_yticklabels()):
         item.set_fontsize('x-small')
