@@ -1,11 +1,8 @@
-import distutils, os, subprocess
-import setuptools.command.build_py
-import distutils.command.clean
-from distutils.dir_util import remove_tree
+import distutils, distutils.command.clean, distutils.dir_util
 
 class CleanGenerated(distutils.command.clean.clean):
     def run(self):
-        remove_tree('gen')
+        distutils.dir_util.remove_tree('gen')
         distutils.command.clean.clean.run(self)
 
 class GenerateCommand(distutils.cmd.Command):
