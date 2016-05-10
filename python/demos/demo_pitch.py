@@ -45,6 +45,7 @@ while True:
 if 0: sys.exit(0)
 
 #print pitches
+import os.path
 from numpy import array, ma
 import matplotlib.pyplot as plt
 from demo_waveform_plot import get_waveform_plot, set_xlabels_sample2time
@@ -63,14 +64,11 @@ plt.setp(ax1.get_xticklabels(), visible = False)
 ax1.set_xlabel('')
 
 def array_from_text_file(filename, dtype = 'float'):
-    import os.path
-    from numpy import array
     filename = os.path.join(os.path.dirname(__file__), filename)
     return array([line.split() for line in open(filename).readlines()],
         dtype = dtype)
 
 ax2 = fig.add_subplot(312, sharex = ax1)
-import sys, os.path
 ground_truth = os.path.splitext(filename)[0] + '.f0.Corrected'
 if os.path.isfile(ground_truth):
     ground_truth = array_from_text_file(ground_truth)
