@@ -55,6 +55,9 @@ class aubio_pvoc_test_case(TestCase):
             ( 512, 8),
             ( 512, 4),
             ( 512, 2),
+            #( 129, 2),
+            #( 320, 4),
+            #(  13, 8),
             (1024, 8),
             (1024, 4),
             (1024, 2),
@@ -106,6 +109,16 @@ class aubio_pvoc_test_case(TestCase):
         # make sure all square errors are less than desired precision
         assert_array_less(sq_error, max_sq_error)
 
+class aubio_pvoc_strange_params(TestCase):
+
+    def test_win_size_short(self):
+        with self.assertRaises(RuntimeError):
+            pvoc(1, 1)
+
+    def test_hop_size_long(self):
+        with self.assertRaises(RuntimeError):
+            pvoc(1024, 1025)
+
     def test_large_input_timegrain(self):
         win_s = 1024
         f = pvoc(win_s)
@@ -133,6 +146,40 @@ class aubio_pvoc_test_case(TestCase):
         s = cvec(16)
         with self.assertRaises(ValueError):
             f.rdo(s)
+
+class aubio_pvoc_wrong_params(TestCase):
+
+    def test_wrong_buf_size(self):
+        win_s = -1
+        with self.assertRaises(ValueError):
+            pvoc(win_s)
+
+    def test_buf_size_too_small(self):
+        win_s = 1
+        with self.assertRaises(RuntimeError):
+            pvoc(win_s)
+
+    def test_hop_size_negative(self):
+        win_s = 512
+        hop_s = -2
+        with self.assertRaises(ValueError):
+            pvoc(win_s, hop_s)
+
+    def test_hop_size_too_small(self):
+        win_s = 1
+        hop_s = 1
+        with self.assertRaises(RuntimeError):
+            pvoc(win_s, hop_s)
+
+    def test_buf_size_not_power_of_two(self):
+        win_s = 320
+        hop_s = win_s // 2
+        try:
+            with self.assertRaises(RuntimeError):
+                pvoc(win_s, hop_s)
+        except AssertionError as e:
+            # when compiled with fftw3, aubio supports non power of two fft sizes
+            self.skipTest('creating aubio.pvoc with size %d did not fail' % win_s)
 
 if __name__ == '__main__':
     from nose2 import main
