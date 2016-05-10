@@ -84,7 +84,9 @@ Py_pvoc_del (Py_pvoc *self, PyObject *unused)
 {
   Py_XDECREF(self->output);
   Py_XDECREF(self->routput);
-  del_aubio_pvoc(self->o);
+  if (self->o) {
+    del_aubio_pvoc(self->o);
+  }
   Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
