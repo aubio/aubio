@@ -6,10 +6,10 @@ from .midiconv import *
 from .slicing import *
 
 class fvec(numpy.ndarray):
-    """a simple numpy array holding a vector of %s""" % float_type
+    """a numpy vector holding audio samples"""
 
-    def __new__(self, length = 1024, **kwargs):
-        self.length = length
-        if type(length) == type([]):
-            return numpy.array(length, dtype = float_type, **kwargs)
-        return numpy.zeros(length, dtype = float_type, **kwargs)
+    def __new__(cls, input_arg=1024, **kwargs):
+        if isinstance(input_arg, int):
+            return numpy.zeros(input_arg, dtype=float_type, **kwargs)
+        else:
+            return numpy.array(input_arg, dtype=float_type, **kwargs)
