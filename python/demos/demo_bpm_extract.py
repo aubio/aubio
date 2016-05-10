@@ -3,16 +3,18 @@
 from aubio import source, tempo
 from numpy import median, diff
 
-def get_file_bpm(path, params = {}):
+def get_file_bpm(path, params = None):
     """ Calculate the beats per minute (bpm) of a given file.
         path: path to the file
         param: dictionary of parameters
     """
+    if params == None:
+        params = {}
     try:
         win_s = params['win_s']
         samplerate = params['samplerate']
         hop_s = params['hop_s']
-    except:
+    except KeyError:
         """
         # super fast
         samplerate, win_s, hop_s = 4000, 128, 64 
