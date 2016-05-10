@@ -4,11 +4,11 @@
 import sys
 py3 = sys.version_info[0] == 3
 if py3:
-    str_instances = [str]
-    int_instances = [int]
+    str_instances = str
+    int_instances = int
 else:
-    str_instances = [str, unicode]
-    int_instances = [int, long]
+    str_instances = (str, unicode)
+    int_instances = (int, long)
 
 def note2midi(note):
     " convert note name to midi note number, e.g. [C-1, G9] -> [0, 127] "
@@ -16,7 +16,7 @@ def note2midi(note):
     _valid_modifiers = {None: 0, u'♮': 0, '#': +1, u'♯': +1, u'\udd2a': +2,
                         'b': -1, u'♭': -1, u'\ufffd': -2}
     _valid_octaves = range(-1, 10)
-    if isinstance(note, str_instances):
+    if not isinstance(note, str_instances):
         raise TypeError("a string is required, got %s (%s)" % (note, str(type(note))))
     if len(note) not in range(2, 5):
         raise ValueError("string of 2 to 4 characters expected, got %d (%s)" \
@@ -51,7 +51,7 @@ def note2midi(note):
 
 def midi2note(midi):
     " convert midi note number to note name, e.g. [0, 127] -> [C-1, G9] "
-    if isinstance(midi, int_instances):
+    if not isinstance(midi, int_instances):
         raise TypeError("an integer is required, got %s" % midi)
     if midi not in range(0, 128):
         raise ValueError("an integer between 0 and 127 is excepted, got %d" % midi)
