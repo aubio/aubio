@@ -70,7 +70,7 @@ class aubio_mathutils(TestCase):
 
     def test_miditobin(self):
         a = list(range(-30, 200)) + [-100000, 10000]
-        b = [ bintomidi(x, 44100, 512) for x in a ]
+        b = [ miditobin(x, 44100, 512) for x in a ]
         #print zip(a, b)
         assert_equal ( isnan(array(b)), False )
         assert_equal ( isinf(array(b)), False )
