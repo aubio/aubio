@@ -39,7 +39,7 @@ def slice_source_at_stamps(source_file, timestamps, timestamps_end=None,
 
     # open source file
     _source = source(source_file, samplerate, hopsize)
-    samplerate = source.get_samplerate()
+    samplerate = _source.samplerate
 
     total_frames = 0
     slices = []
