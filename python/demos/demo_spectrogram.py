@@ -66,12 +66,12 @@ def get_spectrogram(filename, samplerate = 0):
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         print "Usage: %s <filename>" % sys.argv[0]
-  else:
-      for soundfile in sys.argv[1:]:
-          fig = get_spectrogram(soundfile)
-          # display graph
-          fig.show()
-          #outimage = os.path.basename(soundfile) + '.png'
-          #print ("writing: " + outimage)
-          #plt.savefig(outimage)
-          plt.close()
+    else:
+        for soundfile in sys.argv[1:]:
+            fig = get_spectrogram(soundfile)
+            # display graph
+            fig.show()
+            #outimage = os.path.basename(soundfile) + '.png'
+            #print ("writing: " + outimage)
+            #plt.savefig(outimage)
+            plt.close()
