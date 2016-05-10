@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-from setuptools import setup, Extension, Command
+from setuptools import setup, Extension
 from lib.moresetuptools import CleanGenerated, GenerateCommand
 
 import sys
