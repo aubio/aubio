@@ -93,6 +93,9 @@ aubio_pvoc_t * new_aubio_pvoc (uint_t win_s, uint_t hop_s) {
   }
 
   pv->fft      = new_aubio_fft (win_s);
+  if (pv->fft == NULL) {
+    goto beach;
+  }
 
   /* remember old */
   pv->data     = new_fvec (win_s);
