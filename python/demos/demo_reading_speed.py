@@ -109,7 +109,7 @@ def load_file_aubio(filename):
 
 def test_speed(function, filename):
     times = []
-    for i in range(10):
+    for _ in range(10):
         start = time.time()
         try:
             total_frames, samplerate = function(filename)
@@ -134,4 +134,6 @@ if __name__ == '__main__':
     filename = sys.argv[1]
 
     for f in test_functions:
-        test_speed(eval(f), filename)
+        # get actual function from globals
+        test_function = globals()[f]
+        test_speed(test_function, filename)
