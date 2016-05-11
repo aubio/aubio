@@ -87,7 +87,7 @@ def get_cpp_objects():
     elif err_output:
         print ("Warning: preprocessor produced errors\n%s" % err_output)
     #cpp_output = [l.strip() for l in os.popen(" ".join(cpp_cmd)).readlines()]
-    cpp_output = [l.strip() for l in cpp_output.split('\n')]
+    cpp_output = [l.strip() for l in cpp_output.decode('utf8').split('\n')]
 
     cpp_output = filter(lambda y: len(y) > 1, cpp_output)
     cpp_output = filter(lambda y: not y.startswith('#'), cpp_output)
