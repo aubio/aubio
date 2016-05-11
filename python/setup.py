@@ -35,6 +35,9 @@ if os.path.isfile('../src/aubio.h'):
     include_dirs += ['../build/src'] # config.h
     library_dirs += ['../build/src']
 
+if sys.platform.startswith('win'):
+    library_dirs += ['-L../src']
+
 aubio_extension = Extension("aubio._aubio", [
     "ext/aubiomodule.c",
     "ext/aubioproxy.c",
