@@ -22,6 +22,7 @@ install:
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
 
   - "pip install --disable-pip-version-check --user --upgrade pip"
+  - "pip install --upgrade setuptools"
   - "pip install numpy"
 
 before_build:
