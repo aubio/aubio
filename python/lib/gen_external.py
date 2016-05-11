@@ -49,7 +49,7 @@ def get_cpp_objects():
     if compiler_name not in ['msvc']:
         cpp_cmd = os.environ.get('CC', 'cc').split()  # support CC="ccache gcc"
     else:
-        cpp_cmd = 'cl.exe'
+        cpp_cmd = ['cl.exe']
 
     cpp_cmd += ['-E', '-P', '-DAUBIO_UNSTABLE=1']
 
