@@ -82,8 +82,11 @@ def get_cpp_objects():
     assert proc, 'Proc was none'
     cpp_output = proc.stdout.read()
     err_output = proc.stderr.read()
+    if compiler_name in ['msvc']:
+        guessed_output = os.path.splitext(os.path.basename(include_file))[0]+".i"
+        cpp_output = fopen(guessed_output, 'r').readline()
     if not cpp_output:
-        raise Exception("preprocessor output is tempy:\n%s" % err_output)
+        raise Exception("preprocessor output is empty:\n%s" % err_output)
     elif err_output:
         print ("Warning: preprocessor produced errors\n%s" % err_output)
     #cpp_output = [l.strip() for l in os.popen(" ".join(cpp_cmd)).readlines()]
