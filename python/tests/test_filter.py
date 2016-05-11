@@ -68,7 +68,21 @@ class aubio_filter_test_case(TestCase):
     u = f(v)
     assert_almost_equal (expected[1][16:], u)
 
-if __name__ == '__main__':
-  from unittest import main
-  main()
+  def test_set_biquad(self):
+    f = digital_filter(3)
+    f.set_biquad(0., 0., 0, 0., 0.)
 
+  def test_set_biquad_wrong_order(self):
+    f = digital_filter(4)
+    with self.assertRaises(ValueError):
+        f.set_biquad(0., 0., 0, 0., 0.)
+
+class aubio_filter_wrong_params(TestCase):
+
+    def test_negative_order(self):
+        with self.assertRaises(ValueError):
+            digital_filter(-1)
+
+if __name__ == '__main__':
+    from unittest import main
+    main()
