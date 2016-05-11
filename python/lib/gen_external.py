@@ -84,13 +84,14 @@ def get_cpp_objects():
     err_output = proc.stderr.read()
     if compiler_name in ['msvc']:
         guessed_output = os.path.splitext(os.path.basename(include_file))[0]+".i"
-        cpp_output = fopen(guessed_output, 'r').readline()
+        cpp_output = [l.strip() for l in open(guessed_output, 'r').readlines()]
     if not cpp_output:
         raise Exception("preprocessor output is empty:\n%s" % err_output)
     elif err_output:
         print ("Warning: preprocessor produced errors\n%s" % err_output)
     #cpp_output = [l.strip() for l in os.popen(" ".join(cpp_cmd)).readlines()]
-    cpp_output = [l.strip() for l in cpp_output.decode('utf8').split('\n')]
+    if not isinstance(cpp_output, list):
+        cpp_output = [l.strip() for l in cpp_output.decode('utf8').split('\n')]
 
     cpp_output = filter(lambda y: len(y) > 1, cpp_output)
     cpp_output = filter(lambda y: not y.startswith('#'), cpp_output)
