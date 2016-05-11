@@ -21,6 +21,7 @@ PyAubio_CFvecToArray (fvec_t * self)
 
 int
 PyAubio_IsValidVector (PyObject * input) {
+  npy_intp length;
   if (input == NULL) {
     PyErr_SetString (PyExc_ValueError, "input array is not a python object");
     return 0;
@@ -46,7 +47,7 @@ PyAubio_IsValidVector (PyObject * input) {
       return 0;
     }
 
-    npy_intp length = PyArray_SIZE ((PyArrayObject *)input);
+    length = PyArray_SIZE ((PyArrayObject *)input);
     if (length <= 0) {
       PyErr_SetString (PyExc_ValueError, "input array size should be greater than 0");
       return 0;
@@ -93,7 +94,8 @@ PyAubio_CFmatToArray (fmat_t * input)
 
 int
 PyAubio_ArrayToCFmat (PyObject *input, fmat_t *mat) {
-  uint_t i;
+  uint_t i, new_height;
+  npy_intp length, height;
   if (input == NULL) {
     PyErr_SetString (PyExc_ValueError, "input array is not a python object");
     return 0;
@@ -120,12 +122,12 @@ PyAubio_ArrayToCFmat (PyObject *input, fmat_t *mat) {
     }
 
     // no need to really allocate fvec, just its struct member
-    npy_intp length = PyArray_DIM ((PyArrayObject *)input, 1);
+    length = PyArray_DIM ((PyArrayObject *)input, 1);
     if (length <= 0) {
       PyErr_SetString (PyExc_ValueError, "input array dimension 1 should be greater than 0");
       return 0;
     }
-    npy_intp height = PyArray_DIM ((PyArrayObject *)input, 0);
+    height = PyArray_DIM ((PyArrayObject *)input, 0);
     if (height <= 0) {
       PyErr_SetString (PyExc_ValueError, "input array dimension 0 should be greater than 0");
       return 0;
@@ -139,7 +141,7 @@ PyAubio_ArrayToCFmat (PyObject *input, fmat_t *mat) {
     return 0;
   }
 
-  uint_t new_height = (uint_t)PyArray_DIM ((PyArrayObject *)input, 0);
+  new_height = (uint_t)PyArray_DIM ((PyArrayObject *)input, 0);
   if (mat->height != new_height) {
     if (mat->data) {
       free(mat->data);
