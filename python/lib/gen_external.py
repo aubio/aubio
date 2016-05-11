@@ -42,10 +42,38 @@ skip_objects = [
 
 
 def get_cpp_objects():
+    include_file = "aubio.h" # change to specific object for debugging
 
-    cpp_output = [l.strip() for l in os.popen('cpp -DAUBIO_UNSTABLE=1 -I../build/src ../src/aubio.h').readlines()]
-    #cpp_output = [l.strip() for l in os.popen('cpp -DAUBIO_UNSTABLE=0 -I../build/src ../src/onset/onset.h').readlines()]
-    #cpp_output = [l.strip() for l in os.popen('cpp -DAUBIO_UNSTABLE=0 -I../build/src ../src/pitch/pitch.h').readlines()]
+    cpp_cmd = os.environ.get('CC', 'cc').split()  # support CC="ccache gcc"
+    cpp_cmd += ['-E', '-DAUBIO_UNSTABLE=1']
+
+    if 'cl.exe' in cpp_cmd or 'cl' in cpp_cmd:
+        cpp_cmd += ['-P']
+
+    # look for file in current directory
+    include_path = None
+    for p in (
+        ['..', 'src'],
+        ['src'],
+        ['/usr/include/aubio'],
+        ['/usr/local/include/aubio'],
+        ):
+        full_path = p + [include_file]
+        include_path = os.path.join(*full_path)
+        if os.path.isfile(include_path):
+            print "Found aubio header: ", include_path
+            cpp_cmd += ['-I'+os.path.join(*p)]
+            cpp_cmd += [include_path]
+            break
+        else:
+            include_path = None
+
+    if not include_path:
+        raise Exception("could not find include file " + include_file)
+        #cpp_cmd = 'echo "#include <aubio/aubio.h>" | ' + " ".join(cpp_cmd)
+
+    print "Running command: ", " ".join(cpp_cmd)
+    cpp_output = [l.strip() for l in os.popen(" ".join(cpp_cmd)).readlines()]
 
     cpp_output = filter(lambda y: len(y) > 1, cpp_output)
     cpp_output = filter(lambda y: not y.startswith('#'), cpp_output)
