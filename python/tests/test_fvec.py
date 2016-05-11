@@ -61,8 +61,7 @@ class aubio_fvec_test_case(TestCase):
         a[1] = 1
         self.assertEqual (alpha_norm(a, 1), 1)
         a = array([0, 1], dtype=float_type)
-        from math import sqrt
-        assert_almost_equal (alpha_norm(a, 2), sqrt(2)/2.)
+        assert_almost_equal (alpha_norm(a, 2), .5*2.**.5)
 
     def test_alpha_norm_of_none(self):
         self.assertRaises (ValueError, alpha_norm, None, 1)
