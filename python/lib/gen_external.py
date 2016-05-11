@@ -1,4 +1,4 @@
-import os, glob
+import os, subprocess, glob
 
 header = """// this file is generated! do not modify
 #include "aubio-types.h"
@@ -73,7 +73,18 @@ def get_cpp_objects():
         #cpp_cmd = 'echo "#include <aubio/aubio.h>" | ' + " ".join(cpp_cmd)
 
     print "Running command: ", " ".join(cpp_cmd)
-    cpp_output = [l.strip() for l in os.popen(" ".join(cpp_cmd)).readlines()]
+    proc = subprocess.Popen(cpp_cmd,
+            stderr=subprocess.PIPE,
+            stdout=subprocess.PIPE)
+    assert proc, 'Proc was none'
+    cpp_output = proc.stdout.read()
+    err_output = proc.stderr.read()
+    if not cpp_output:
+        raise Exception("preprocessor output is tempy:\n%s" % err_output)
+    elif err_output:
+        print ("Warning: preprocessor produced errors\n%s" % err_output)
+    #cpp_output = [l.strip() for l in os.popen(" ".join(cpp_cmd)).readlines()]
+    cpp_output = [l.strip() for l in cpp_output.split('\n')]
 
     cpp_output = filter(lambda y: len(y) > 1, cpp_output)
     cpp_output = filter(lambda y: not y.startswith('#'), cpp_output)
