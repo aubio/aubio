@@ -63,7 +63,6 @@ extern int PyAubio_IsValidVector (PyObject *input);
 extern PyObject *PyAubio_CFvecToArray (fvec_t * self);
 extern int PyAubio_ArrayToCFvec (PyObject * self, fvec_t *out);
 
-extern PyObject * PyAubio_CCvecToPyCvec (cvec_t * self);
 extern int PyAubio_PyCvecToCCvec (PyObject *input, cvec_t *i);
 
 extern PyObject *PyAubio_CFmatToArray (fmat_t * self);

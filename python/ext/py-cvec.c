@@ -32,20 +32,6 @@ new_py_cvec(uint_t length) {
   return (PyObject*)vec;
 }
 
-PyObject *
-PyAubio_CCvecToPyCvec (cvec_t * input) {
-  if (input == NULL) {
-      PyErr_SetString (PyExc_ValueError, "PyAubio_CCvecToPyCvec got a null cvec!");
-      return NULL;
-  }
-  Py_cvec* vec = (Py_cvec*) PyObject_New (Py_cvec, &Py_cvecType);
-  npy_intp dims[] = { input->length, 1 };
-  vec->norm = PyArray_SimpleNewFromData (1, dims, AUBIO_NPY_SMPL, input->norm);
-  vec->phas = PyArray_SimpleNewFromData (1, dims, AUBIO_NPY_SMPL, input->phas);
-  vec->length = input->length;
-  return (PyObject *)vec;
-}
-
 int
 PyAubio_PyCvecToCCvec (PyObject *input, cvec_t *i) {
   if (PyObject_TypeCheck (input, &Py_cvecType)) {
