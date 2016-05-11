@@ -299,11 +299,7 @@ Py_{shortname}_init (Py_{shortname} * self, PyObject * args, PyObject * kwds)
         out += """
   // return -1 and set error string on failure
   if (self->o == NULL) {{
-    //char_t errstr[30 + strlen(self->uri)];
-    //sprintf(errstr, "error creating {shortname} with params {paramchars}", {paramvals});
-    char_t errstr[60];
-    sprintf(errstr, "error creating {shortname} with given params");
-    PyErr_SetString (PyExc_Exception, errstr);
+    PyErr_Format (PyExc_Exception, "failed creating {shortname}");
     return -1;
   }}
 """.format(paramchars = paramchars, paramvals = paramvals, **self.__dict__)
