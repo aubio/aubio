@@ -173,6 +173,7 @@ Py_source_del (Py_source *self, PyObject *unused)
 static PyObject *
 Py_source_do(Py_source * self, PyObject * args)
 {
+  PyObject *outputs;
   uint_t read;
   read = 0;
 
@@ -183,7 +184,7 @@ Py_source_do(Py_source * self, PyObject * args)
   /* compute _do function */
   aubio_source_do (self->o, &(self->c_read_to), &read);
 
-  PyObject *outputs = PyTuple_New(2);
+  outputs = PyTuple_New(2);
   PyTuple_SetItem( outputs, 0, self->read_to );
   PyTuple_SetItem( outputs, 1, (PyObject *)PyLong_FromLong(read));
   return outputs;
@@ -193,6 +194,7 @@ Py_source_do(Py_source * self, PyObject * args)
 static PyObject *
 Py_source_do_multi(Py_source * self, PyObject * args)
 {
+  PyObject *outputs;
   uint_t read;
   read = 0;
 
@@ -203,7 +205,7 @@ Py_source_do_multi(Py_source * self, PyObject * args)
   /* compute _do function */
   aubio_source_do_multi (self->o, &(self->c_mread_to), &read);
 
-  PyObject *outputs = PyTuple_New(2);
+  outputs = PyTuple_New(2);
   PyTuple_SetItem( outputs, 0, self->mread_to);
   PyTuple_SetItem( outputs, 1, (PyObject *)PyLong_FromLong(read));
   return outputs;

@@ -80,6 +80,7 @@ static PyObject *
 Py_fft_do(Py_fft * self, PyObject * args)
 {
   PyObject *input;
+  cvec_t c_out;
 
   if (!PyArg_ParseTuple (args, "O", &input)) {
     return NULL;
@@ -96,7 +97,6 @@ Py_fft_do(Py_fft * self, PyObject * args)
     return NULL;
   }
 
-  cvec_t c_out;
   Py_INCREF(self->doout);
   if (!PyAubio_PyCvecToCCvec(self->doout, &c_out)) {
     return NULL;
@@ -116,6 +116,7 @@ static PyObject *
 Py_fft_rdo(Py_fft * self, PyObject * args)
 {
   PyObject *input;
+  fvec_t out;
 
   if (!PyArg_ParseTuple (args, "O", &input)) {
     return NULL;
@@ -132,7 +133,6 @@ Py_fft_rdo(Py_fft * self, PyObject * args)
     return NULL;
   }
 
-  fvec_t out;
   Py_INCREF(self->rdoout);
   if (!PyAubio_ArrayToCFvec(self->rdoout, &out) ) {
     return NULL;
