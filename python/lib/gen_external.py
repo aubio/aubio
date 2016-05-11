@@ -75,6 +75,9 @@ def get_cpp_objects():
         raise Exception("could not find include file " + include_file)
         #cpp_cmd = 'echo "#include <aubio/aubio.h>" | ' + " ".join(cpp_cmd)
 
+    if compiler_name in ['msvc']:
+        cpp_cmd = ['cl.exe']
+
     print("Running command: {:s}".format(" ".join(cpp_cmd)))
     proc = subprocess.Popen(cpp_cmd,
             stderr=subprocess.PIPE,
