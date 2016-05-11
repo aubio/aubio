@@ -120,7 +120,7 @@ def configure(ctx):
         ctx.env.CFLAGS += ['-g', '-Wall', '-Wextra']
     else:
         ctx.env.CFLAGS += ['/W4']
-        ctx.env.CFLAGS += ['-D_CRT_SECURE_NO_WARNINGS']
+        ctx.env.CFLAGS += ['/D_CRT_SECURE_NO_WARNINGS']
 
     ctx.check_cc(lib='m', uselib_store='M', mandatory=False)
 
