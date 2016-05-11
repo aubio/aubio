@@ -1,3 +1,4 @@
+import distutils.ccompiler
 import os, subprocess, glob
 
 header = """// this file is generated! do not modify
@@ -44,11 +45,13 @@ skip_objects = [
 def get_cpp_objects():
     include_file = "aubio.h" # change to specific object for debugging
 
-    cpp_cmd = os.environ.get('CC', 'cc').split()  # support CC="ccache gcc"
-    cpp_cmd += ['-E', '-DAUBIO_UNSTABLE=1']
+    compiler_name = distutils.ccompiler.get_default_compiler()
+    if compiler_name not in ['msvc']:
+        cpp_cmd = os.environ.get('CC', 'cc').split()  # support CC="ccache gcc"
+    else:
+        cpp_cmd = 'cl.exe'
 
-    if 'cl.exe' in cpp_cmd or 'cl' in cpp_cmd:
-        cpp_cmd += ['-P']
+    cpp_cmd += ['-E', '-P', '-DAUBIO_UNSTABLE=1']
 
     # look for file in current directory
     include_path = None
