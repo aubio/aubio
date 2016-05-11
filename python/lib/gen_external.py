@@ -64,7 +64,7 @@ def get_cpp_objects():
         full_path = p + [include_file]
         include_path = os.path.join(*full_path)
         if os.path.isfile(include_path):
-            print "Found aubio header: ", include_path
+            print("Found aubio header: {:s}".format(include_path))
             cpp_cmd += ['-I'+os.path.join(*p)]
             cpp_cmd += [include_path]
             break
@@ -75,7 +75,7 @@ def get_cpp_objects():
         raise Exception("could not find include file " + include_file)
         #cpp_cmd = 'echo "#include <aubio/aubio.h>" | ' + " ".join(cpp_cmd)
 
-    print "Running command: ", " ".join(cpp_cmd)
+    print("Running command: {:s}".format(" ".join(cpp_cmd))
     proc = subprocess.Popen(cpp_cmd,
             stderr=subprocess.PIPE,
             stdout=subprocess.PIPE)
