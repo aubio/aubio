@@ -140,9 +140,8 @@ Py_source_init (Py_source * self, PyObject * args, PyObject * kwds)
 {
   self->o = new_aubio_source ( self->uri, self->samplerate, self->hop_size );
   if (self->o == NULL) {
-    char_t errstr[30 + strlen(self->uri)];
-    sprintf(errstr, "error creating source with %s", self->uri);
-    PyErr_SetString (PyExc_RuntimeError, errstr);
+    PyErr_Format (PyExc_RuntimeError, "error creating source with \"%s\"",
+        self->uri);
     return -1;
   }
   self->samplerate = aubio_source_get_samplerate ( self->o );
@@ -160,8 +159,10 @@ Py_source_init (Py_source * self, PyObject * args, PyObject * kwds)
 static void
 Py_source_del (Py_source *self, PyObject *unused)
 {
-  del_aubio_source(self->o);
-  //del_fvec(self->read_to);
+  if (self->o) {
+    del_aubio_source(self->o);
+    free(self->mread_to.data);
+  }
   Py_XDECREF(self->read_to);
   Py_XDECREF(self->mread_to);
   Py_TYPE(self)->tp_free((PyObject *) self);
