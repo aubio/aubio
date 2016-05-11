@@ -20,7 +20,7 @@ PyAubio_CFvecToArray (fvec_t * self)
 }
 
 int
-PyAubio_ArrayToCFvec (PyObject *input, fvec_t *out) {
+PyAubio_IsValidVector (PyObject * input) {
   if (input == NULL) {
     PyErr_SetString (PyExc_ValueError, "input array is not a python object");
     return 0;
@@ -46,8 +46,6 @@ PyAubio_ArrayToCFvec (PyObject *input, fvec_t *out) {
       return 0;
     }
 
-    // vec = new_fvec (vec->length);
-    // no need to really allocate fvec, just its struct member
     long length = PyArray_SIZE ((PyArrayObject *)input);
     if (length <= 0) {
       PyErr_SetString (PyExc_ValueError, "input array size should be greater than 0");
@@ -59,6 +57,15 @@ PyAubio_ArrayToCFvec (PyObject *input, fvec_t *out) {
     return 0;
   } else {
     PyErr_SetString (PyExc_ValueError, "can only accept vector of float as input");
+    return 0;
+  }
+  return 1;
+}
+
+int
+PyAubio_ArrayToCFvec (PyObject *input, fvec_t *out) {
+
+  if (!PyAubio_IsValidVector(input)){
     return 0;
   }
 

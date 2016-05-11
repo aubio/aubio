@@ -154,118 +154,41 @@ Py_cvec_get_phas (Py_cvec * self, void *closure)
 static int
 Py_cvec_set_norm (Py_cvec * vec, PyObject *input, void * closure)
 {
-  PyArrayObject * array;
-  if (input == NULL) {
-    PyErr_SetString (PyExc_ValueError, "input array is not a python object");
-    goto fail;
+  if (!PyAubio_IsValidVector(input)) {
+    return 1;
   }
-  if (PyArray_Check(input)) {
-    // we got an array, convert it to a cvec.norm
-    if (PyArray_NDIM ((PyArrayObject *)input) == 0) {
-      PyErr_SetString (PyExc_ValueError, "input array is a scalar");
-      goto fail;
-    } else if (PyArray_NDIM ((PyArrayObject *)input) > 2) {
-      PyErr_SetString (PyExc_ValueError,
-          "input array has more than two dimensions");
-      goto fail;
-    }
-
-    if (!PyArray_ISFLOAT ((PyArrayObject *)input)) {
-      PyErr_SetString (PyExc_ValueError, "input array should be float");
-      goto fail;
-    } else if (PyArray_TYPE ((PyArrayObject *)input) != AUBIO_NPY_SMPL) {
-      PyErr_SetString (PyExc_ValueError, "input array should be float32");
-      goto fail;
-    }
-    array = (PyArrayObject *)input;
-
-    // check input array dimensions
-    if (PyArray_NDIM (array) != 1) {
-      PyErr_Format (PyExc_ValueError,
-          "input array has %d dimensions, not 1",
-          PyArray_NDIM (array));
-      goto fail;
-    } else {
-      if (vec->length != PyArray_SIZE (array)) {
-          PyErr_Format (PyExc_ValueError,
-                  "input array has length %d, but cvec has length %d",
-                  (int)PyArray_SIZE (array), vec->length);
-          goto fail;
-      }
-    }
-
-    Py_XDECREF(vec->norm);
-    vec->norm = input;
-    Py_INCREF(vec->norm);
-
-  } else {
-    PyErr_SetString (PyExc_ValueError, "can only accept array as input");
+  long length = PyArray_SIZE ((PyArrayObject *)input);
+  if (length != vec->length) {
+    PyErr_Format (PyExc_ValueError,
+        "input array has length %ld, but cvec has length %d", length,
+        vec->length);
     return 1;
   }
 
+  Py_XDECREF(vec->norm);
+  vec->norm = input;
+  Py_INCREF(vec->norm);
   return 0;
-
-fail:
-  return 1;
 }
 
 static int
 Py_cvec_set_phas (Py_cvec * vec, PyObject *input, void * closure)
 {
-  PyArrayObject * array;
-  if (input == NULL) {
-    PyErr_SetString (PyExc_ValueError, "input array is not a python object");
-    goto fail;
+  if (!PyAubio_IsValidVector(input)) {
+    return 1;
   }
-  if (PyArray_Check(input)) {
-
-    // we got an array, convert it to a cvec.phas
-    if (PyArray_NDIM ((PyArrayObject *)input) == 0) {
-      PyErr_SetString (PyExc_ValueError, "input array is a scalar");
-      goto fail;
-    } else if (PyArray_NDIM ((PyArrayObject *)input) > 2) {
-      PyErr_SetString (PyExc_ValueError,
-          "input array has more than two dimensions");
-      goto fail;
-    }
-
-    if (!PyArray_ISFLOAT ((PyArrayObject *)input)) {
-      PyErr_SetString (PyExc_ValueError, "input array should be float");
-      goto fail;
-    } else if (PyArray_TYPE ((PyArrayObject *)input) != AUBIO_NPY_SMPL) {
-      PyErr_SetString (PyExc_ValueError, "input array should be float32");
-      goto fail;
-    }
-    array = (PyArrayObject *)input;
-
-    // check input array dimensions
-    if (PyArray_NDIM (array) != 1) {
-      PyErr_Format (PyExc_ValueError,
-          "input array has %d dimensions, not 1",
-          PyArray_NDIM (array));
-      goto fail;
-    } else {
-      if (vec->length != PyArray_SIZE (array)) {
-          PyErr_Format (PyExc_ValueError,
-                  "input array has length %d, but cvec has length %d",
-                  (int)PyArray_SIZE (array), vec->length);
-          goto fail;
-      }
-    }
-
-    Py_XDECREF(vec->phas);
-    vec->phas = input;
-    Py_INCREF(vec->phas);
-
-  } else {
-    PyErr_SetString (PyExc_ValueError, "can only accept array as input");
+  long length = PyArray_SIZE ((PyArrayObject *)input);
+  if (length != vec->length) {
+    PyErr_Format (PyExc_ValueError,
+        "input array has length %ld, but cvec has length %d", length,
+        vec->length);
     return 1;
   }
 
+  Py_XDECREF(vec->phas);
+  vec->phas = input;
+  Py_INCREF(vec->phas);
   return 0;
-
-fail:
-  return 1;
 }
 
 static PyMemberDef Py_cvec_members[] = {

@@ -58,6 +58,8 @@ PyObject * new_py_cvec(uint_t length);
 PyObject * new_py_fmat(uint_t height, uint_t length);
 
 // defined in aubio-proxy.c
+extern int PyAubio_IsValidVector (PyObject *input);
+
 extern PyObject *PyAubio_CFvecToArray (fvec_t * self);
 extern int PyAubio_ArrayToCFvec (PyObject * self, fvec_t *out);
 
