@@ -23,7 +23,10 @@ before_build:
   - curl -fsS -o waf https://waf.io/waf-1.8.20
   - curl -fsS -o waf.bat https://raw.githubusercontent.com/waf-project/waf/master/utils/waf.bat
 
+install:
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - "pip install --disable-pip-version-check --user --upgrade pip"
+  - "pip install numpy"
+
 build_script:
   - waf configure build --verbose
-
-  - "pip install --disable-pip-version-check --user --upgrade pip"
