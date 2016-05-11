@@ -140,10 +140,11 @@ Py_cvec_get_phas (Py_cvec * self, void *closure)
 static int
 Py_cvec_set_norm (Py_cvec * vec, PyObject *input, void * closure)
 {
+  npy_intp length;
   if (!PyAubio_IsValidVector(input)) {
     return 1;
   }
-  npy_intp length = PyArray_SIZE ((PyArrayObject *)input);
+  length = PyArray_SIZE ((PyArrayObject *)input);
   if (length != vec->length) {
     PyErr_Format (PyExc_ValueError,
         "input array has length %ld, but cvec has length %d", length,
@@ -160,10 +161,11 @@ Py_cvec_set_norm (Py_cvec * vec, PyObject *input, void * closure)
 static int
 Py_cvec_set_phas (Py_cvec * vec, PyObject *input, void * closure)
 {
+  npy_intp length;
   if (!PyAubio_IsValidVector(input)) {
     return 1;
   }
-  npy_intp length = PyArray_SIZE ((PyArrayObject *)input);
+  length = PyArray_SIZE ((PyArrayObject *)input);
   if (length != vec->length) {
     PyErr_Format (PyExc_ValueError,
         "input array has length %ld, but cvec has length %d", length,
