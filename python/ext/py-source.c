@@ -161,7 +161,7 @@ Py_source_del (Py_source *self, PyObject *unused)
 {
   if (self->o) {
     del_aubio_source(self->o);
-    free(self->mread_to.data);
+    free(self->c_mread_to.data);
   }
   Py_XDECREF(self->read_to);
   Py_XDECREF(self->mread_to);
