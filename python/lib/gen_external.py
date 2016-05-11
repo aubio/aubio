@@ -225,6 +225,10 @@ void add_generated_objects( PyObject *m );
         print ("wrote %s" % output_file )
         # no need to add header to list of sources
 
+    import sys
+    py3 = sys.version_info[0] == 3
+    if not py3:
+        return [str(s) for s in sources_list]
     return sources_list
 
 if __name__ == '__main__':
