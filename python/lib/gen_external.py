@@ -49,7 +49,7 @@ def get_cpp_objects():
     if compiler_name not in ['msvc']:
         cpp_cmd = os.environ.get('CC', 'cc').split()  # support CC="ccache gcc"
     else:
-        cpp_cmd = ['cl.exe']
+        cpp_cmd = ['C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\BIN\\amd64\\CL.exe', '/nologo', '/W4', '/D_CRT_SECURE_NO_WARNINGS']
 
     cpp_cmd += ['-E', '-P', '-DAUBIO_UNSTABLE=1']
 
@@ -74,9 +74,6 @@ def get_cpp_objects():
     if not include_path:
         raise Exception("could not find include file " + include_file)
         #cpp_cmd = 'echo "#include <aubio/aubio.h>" | ' + " ".join(cpp_cmd)
-
-    if compiler_name in ['msvc']:
-        cpp_cmd = ['cl.exe']
 
     print("Running command: {:s}".format(" ".join(cpp_cmd)))
     proc = subprocess.Popen(cpp_cmd,
