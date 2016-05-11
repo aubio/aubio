@@ -25,3 +25,5 @@ before_build:
 
 build_script:
   - waf configure build --verbose
+
+  - "pip install --disable-pip-version-check --user --upgrade pip"
