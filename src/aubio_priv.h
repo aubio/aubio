@@ -289,4 +289,12 @@ typedef enum {
 #define UNUSED
 #endif
 
+/* are we using gcc -std=c99 ? */
+#if defined(__STRICT_ANSI__)
+#define strnlen(a,b) MIN(strlen(a),b)
+#if !HAVE_AUBIO_DOUBLE
+#define floorf floor
+#endif
+#endif /* __STRICT_ANSI__ */
+
 #endif /* AUBIO_PRIV_H */
