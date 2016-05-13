@@ -1,8 +1,9 @@
 import distutils, distutils.command.clean, distutils.dir_util
+from .gen_external import generate_external, header, output_path
 
 class CleanGenerated(distutils.command.clean.clean):
     def run(self):
-        distutils.dir_util.remove_tree('gen')
+        distutils.dir_util.remove_tree(output_path)
         distutils.command.clean.clean.run(self)
 
 class GenerateCommand(distutils.cmd.Command):
@@ -23,5 +24,4 @@ class GenerateCommand(distutils.cmd.Command):
 
     def run(self):
         self.announce( 'Generating code', level=distutils.log.INFO)
-        from .gen_external import generate_external
-        generated_object_files = generate_external('gen', usedouble = self.enable_double)
+        generated_object_files = generate_external(header, output_path, usedouble = self.enable_double)
