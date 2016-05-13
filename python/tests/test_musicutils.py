@@ -15,20 +15,12 @@ class aubio_window(TestCase):
         window("default", 1024)
 
     def test_fail_name_not_string(self):
-        try:
+        with self.assertRaises(TypeError):
             window(10, 1024)
-        except ValueError as e:
-            pass
-        else:
-            self.fail('non-string window type does not raise a ValueError')
 
     def test_fail_size_not_int(self):
-        try:
+        with self.assertRaises(TypeError):
             window("default", "default")
-        except ValueError as e:
-            pass
-        else:
-            self.fail('non-integer window length does not raise a ValueError')
 
     def test_compute_hanning_1024(self):
         size = 1024
