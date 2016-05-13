@@ -88,7 +88,7 @@ def read_file_aubio(filename):
     f = aubio.source(filename, hop_size = 1024)
     total_frames = 0
     while True:
-        samples, read = f()
+        _, read = f()
         total_frames += read
         if read < f.hop_size: break
     return total_frames, f.samplerate
