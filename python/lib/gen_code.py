@@ -526,5 +526,14 @@ PyTypeObject Py_{shortname}Type = {{
   (initproc) Py_{shortname}_init,
   0,
   Py_{shortname}_new,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
 }};
 """.format(**self.__dict__)

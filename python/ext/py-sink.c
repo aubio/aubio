@@ -250,4 +250,13 @@ PyTypeObject Py_sinkType = {
   (initproc) Py_sink_init,
   0,
   Py_sink_new,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
 };

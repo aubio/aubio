@@ -246,4 +246,13 @@ PyTypeObject Py_filterbankType = {
   (initproc) Py_filterbank_init,
   0,
   Py_filterbank_new,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
 };
