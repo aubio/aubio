@@ -187,4 +187,13 @@ PyTypeObject Py_fftType = {
   (initproc) Py_fft_init,
   0,
   Py_fft_new,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
 };

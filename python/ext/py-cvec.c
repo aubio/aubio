@@ -239,4 +239,13 @@ PyTypeObject Py_cvecType = {
   (initproc) Py_cvec_init,      /* tp_init           */
   0,                            /* tp_alloc          */
   Py_cvec_new,                  /* tp_new            */
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
 };

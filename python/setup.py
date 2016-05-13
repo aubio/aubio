@@ -32,7 +32,6 @@ if sys.platform.startswith('darwin'):
 if os.path.isfile('../src/aubio.h'):
     define_macros += [('USE_LOCAL_AUBIO', 1)]
     include_dirs += ['../src'] # aubio.h
-    include_dirs += ['../build/src'] # config.h
     library_dirs += ['../build/src']
 
 if sys.platform.startswith('win'):

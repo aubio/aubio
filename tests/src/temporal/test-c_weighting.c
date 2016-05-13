@@ -19,16 +19,22 @@ int main (void)
 
   // samplerate unknown
   f = new_aubio_filter_c_weighting (4200);
-  del_aubio_filter (f);
+  if (!f) {
+    //PRINT_WRN ("failed creating C-weighting filter with samplerate=4200Hz");
+  }
 
   // order to small
   f = new_aubio_filter (2);
-  aubio_filter_set_c_weighting (f, samplerate);
+  if (aubio_filter_set_c_weighting (f, samplerate) != 0) {
+    //PRINT_WRN ("failed setting filter to C-weighting");
+  }
   del_aubio_filter (f);
 
   // order to big
   f = new_aubio_filter (12);
-  aubio_filter_set_c_weighting (f, samplerate);
+  if (aubio_filter_set_c_weighting (f, samplerate) != 0) {
+    //PRINT_WRN ("failed setting filter to C-weighting");
+  }
   del_aubio_filter (f);
 
   return 0;

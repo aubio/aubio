@@ -203,4 +203,13 @@ PyTypeObject Py_filterType = {
   (initproc) Py_filter_init,    /* tp_init           */
   0,                            /* tp_alloc          */
   Py_filter_new,                /* tp_new            */
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
 };

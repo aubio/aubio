@@ -201,4 +201,13 @@ PyTypeObject Py_pvocType = {
   (initproc) Py_pvoc_init,
   0,
   Py_pvoc_new,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
 };

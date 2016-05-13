@@ -81,7 +81,7 @@ new_aubio_mfcc (uint_t win_s, uint_t n_filters, uint_t n_coefs,
   }
 
   return mfcc;
-};
+}
 
 void
 del_aubio_mfcc (aubio_mfcc_t * mf)

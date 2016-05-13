@@ -320,4 +320,13 @@ PyTypeObject Py_sourceType = {
   (initproc) Py_source_init,
   0,
   Py_source_new,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
 };

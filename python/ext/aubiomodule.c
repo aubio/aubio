@@ -238,7 +238,7 @@ static PyMethodDef aubio_methods[] = {
   {"silence_detection", Py_aubio_silence_detection, METH_VARARGS, Py_aubio_silence_detection_doc},
   {"level_detection", Py_aubio_level_detection, METH_VARARGS, Py_aubio_level_detection_doc},
   {"window", Py_aubio_window, METH_VARARGS, Py_aubio_window_doc},
-  {NULL, NULL} /* Sentinel */
+  {NULL, NULL, 0, NULL} /* Sentinel */
 };
 
 #if PY_MAJOR_VERSION >= 3
