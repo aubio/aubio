@@ -59,10 +59,8 @@ Py_filterbank_init (Py_filterbank * self, PyObject * args, PyObject * kwds)
 {
   self->o = new_aubio_filterbank (self->n_filters, self->win_s);
   if (self->o == NULL) {
-    char_t errstr[30];
-    sprintf(errstr, "error creating filterbank with n_filters=%d, win_s=%d",
-        self->n_filters, self->win_s);
-    PyErr_SetString (PyExc_RuntimeError, errstr);
+    PyErr_Format(PyExc_RuntimeError, "error creating filterbank with"
+        " n_filters=%d, win_s=%d", self->n_filters, self->win_s);
     return -1;
   }
   self->out = new_py_fvec(self->n_filters);
@@ -73,9 +71,11 @@ Py_filterbank_init (Py_filterbank * self, PyObject * args, PyObject * kwds)
 static void
 Py_filterbank_del (Py_filterbank *self, PyObject *unused)
 {
-  del_aubio_filterbank(self->o);
-  Py_DECREF(self->out);
-  free(self->coeffs.data);
+  if (self->o) {
+    free(self->coeffs.data);
+    del_aubio_filterbank(self->o);
+  }
+  Py_XDECREF(self->out);
   Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
