@@ -5,6 +5,8 @@ from numpy.testing import assert_equal, assert_almost_equal
 from aubio import cvec, fvec, float_type
 import numpy as np
 
+wrong_type = 'float32' if float_type == 'float64' else 'float64'
+
 class aubio_cvec_test_case(TestCase):
 
     def test_vector_created_with_zeroes(self):
@@ -49,8 +51,8 @@ class aubio_cvec_test_case(TestCase):
     def test_assign_cvec_with_other_cvec(self):
         """ check dest cvec is still reachable after source was deleted """
         spec = cvec(1024)
-        a = np.random.rand(1024/2+1).astype(float_type)
-        b = np.random.rand(1024/2+1).astype(float_type)
+        a = np.random.rand(1024//2+1).astype(float_type)
+        b = np.random.rand(1024//2+1).astype(float_type)
         spec.norm = a
         spec.phas = b
         new_spec = spec
@@ -101,6 +103,43 @@ class aubio_cvec_test_case(TestCase):
         b = fvec(512//2+1 - 4)
         with self.assertRaises(ValueError):
             a.phas = b
+
+    def test_cvec_repr(self):
+        win_s = 512
+        c = cvec(win_s)
+        expected_repr = "aubio cvec of {:d} elements".format(win_s//2+1)
+        self.assertEqual(repr(c), expected_repr)
+
+class aubio_cvec_wrong_norm_input(TestCase):
+
+    def test_wrong_length(self):
+        with self.assertRaises(ValueError):
+            cvec(-1)
+
+    def test_set_norm_with_scalar(self):
+        a = cvec(512)
+        with self.assertRaises(ValueError):
+            a.norm = 1
+
+    def test_set_norm_with_scalar_array(self):
+        a = cvec(512)
+        with self.assertRaises(ValueError):
+            a.norm = np.ndarray(1, dtype = 'int')
+
+    def test_set_norm_with_int_array(self):
+        a = cvec(512)
+        with self.assertRaises(ValueError):
+            a.norm = np.zeros(512//2+1, dtype = 'int')
+
+    def test_set_norm_with_wrong_float_array(self):
+        a = cvec(512)
+        with self.assertRaises(ValueError):
+            a.norm = np.zeros(512//2+1, dtype = wrong_type)
+
+    def test_set_norm_with_wrong_2d_array(self):
+        a = cvec(512)
+        with self.assertRaises(ValueError):
+            a.norm = np.zeros((512//2+1, 2), dtype = float_type)
 
 if __name__ == '__main__':
     from nose2 import main
