@@ -1,0 +1,25 @@
+include AUTHORS COPYING README.md VERSION ChangeLog
+include python/README
+include Makefile wscript */wscript_build
+include waf
+include aubio.pc.in
+include nose2.cfg
+include requirements.txt
+include src/*.h
+include src/*/*.h
+include examples/*.c examples/*.h
+include tests/*.h tests/*/*.c tests/*/*/*.c
+include python/ext/*.h
+include python/__init__.py
+include python/lib/__init__.py
+include python/lib/moresetuptools.py
+include python/lib/gen_external.py
+include python/lib/gen_code.py
+include python/tests/run_all_tests
+include python/tests/*.py
+include python/demos/*.py
+include python/tests/*.expected
+include doc/*.txt doc/*.rst doc/*.cfg doc/Makefile doc/make.bat doc/conf.py
+include scripts/* scripts/apple/Info.plist scripts/apple/Modules/module.modulemap
+exclude python/gen/*
+exclude python/ext/config.h
