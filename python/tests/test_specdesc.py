@@ -240,7 +240,9 @@ class aubio_specdesc_wrong(TestCase):
 
     def test_unknown(self):
         # FIXME should fail?
-        o = specdesc("unknown", 512)
+        with self.assertRaises(ValueError):
+            o = specdesc("unknown", 512)
+            self.skipTest('todo: new_specdesc should fail on wrong method')
 
 if __name__ == '__main__':
     from unittest import main
