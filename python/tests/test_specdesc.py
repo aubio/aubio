@@ -232,6 +232,15 @@ class aubio_specdesc(TestCase):
         rolloff = i 
         assert_equal (rolloff, o(c))
 
+class aubio_specdesc_wrong(TestCase):
+
+    def test_negative(self):
+        with self.assertRaises(ValueError):
+            o = specdesc("default", -10)
+
+    def test_unknown(self):
+        # FIXME should fail?
+        o = specdesc("unknown", 512)
 
 if __name__ == '__main__':
     from unittest import main
