@@ -1,10 +1,9 @@
 #! /usr/bin/env python
 
-import sys
-import os.path
+import sys, os.path, glob
 import numpy
 from setuptools import setup, Extension
-from python.lib.moresetuptools import CleanGenerated, GenerateCommand
+from python.lib.moresetuptools import *
 # function to generate gen/*.{c,h}
 from python.lib.gen_external import generate_external, header, output_path
 
@@ -26,30 +25,33 @@ include_dirs += [ numpy.get_include() ]
 if sys.platform.startswith('darwin'):
     extra_link_args += ['-framework','CoreFoundation', '-framework','AudioToolbox']
 
-if os.path.isfile('src/aubio.h'):
-    define_macros += [('USE_LOCAL_AUBIO', 1)]
-    include_dirs += ['src'] # aubio.h
-    library_dirs += ['build/src']
+sources = glob.glob(os.path.join('python', 'ext', '*.c'))
 
-aubio_extension = Extension("aubio._aubio", [
-    "python/ext/aubiomodule.c",
-    "python/ext/aubioproxy.c",
-    "python/ext/ufuncs.c",
-    "python/ext/py-musicutils.c",
-    "python/ext/py-cvec.c",
-    "python/ext/py-filter.c",
-    "python/ext/py-filterbank.c",
-    "python/ext/py-fft.c",
-    "python/ext/py-phasevoc.c",
-    "python/ext/py-source.c",
-    "python/ext/py-sink.c",
-    # generate files if they don't exit
-    ] + generate_external(header, output_path, overwrite = False),
+aubio_extension = Extension("aubio._aubio",
+    sources,
     include_dirs = include_dirs,
     library_dirs = library_dirs,
     extra_link_args = extra_link_args,
-    define_macros = define_macros,
-    libraries=['aubio'])
+    define_macros = define_macros)
+
+if os.path.isfile('src/aubio.h'):
+    # if aubio headers are found in this directory
+    add_local_aubio_header(aubio_extension)
+    # was waf used to build the shared lib?
+    if os.path.isdir(os.path.join('build','src')):
+        # link against build/src/libaubio, built with waf
+        add_local_aubio_lib(aubio_extension)
+    else:
+        # add libaubio sources and look for optional deps with pkg-config
+        add_local_aubio_sources(aubio_extension)
+        __version__ += '_libaubio'
+else:
+    # look for aubio headers and lib using pkg-config
+    add_system_aubio(aubio_extension)
+
+
+# generate files if they don't exit
+aubio_extension.sources += generate_external(header, output_path, overwrite = False)
 
 classifiers = [
     'Development Status :: 4 - Beta',
