@@ -254,6 +254,11 @@ typedef enum {
 #define IMAG      cimagf
 #endif
 
+/* avoid unresolved symbol with msvc 9 */
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
+#define isnan _isnan
+#endif
+
 /* handy shortcuts */
 #define DB2LIN(g) (POW(10.0,(g)*0.05f))
 #define LIN2DB(v) (20.0*LOG10(v))
