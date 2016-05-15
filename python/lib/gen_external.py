@@ -65,7 +65,7 @@ def get_cpp_objects(header=header):
     elif hasattr(compiler, 'cc'): # for msvccompiler
         cpp_cmd = compiler.cc
     elif hasattr(compiler, 'find_exe'):
-        cpp_cmd = compiler.find_exe('cl.exe')
+        cpp_cmd = [compiler.find_exe('cl.exe')]
         cpp_cmd += ['/E']
 
     if not cpp_cmd:
