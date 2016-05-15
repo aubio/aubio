@@ -96,6 +96,9 @@ def add_local_aubio_sources(ext):
         ext.extra_link_args += ['-framework', 'Accelerate']
         ext.define_macros += [('HAVE_ACCELERATE', 1)]
 
+    if sys.platform.startswith('win'):
+        ext.define_macros += [('HAVE_WIN_HACKS', 1)]
+
     ext.define_macros += [('HAVE_WAVWRITE', 1)]
     ext.define_macros += [('HAVE_WAVREAD', 1)]
     # TODO:
