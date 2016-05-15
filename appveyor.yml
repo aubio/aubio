@@ -39,7 +39,6 @@ install:
 
   - "pip install --disable-pip-version-check --user --upgrade pip"
   - "pip install --upgrade setuptools"
-  - "pip install numpy"
 
 before_build:
   - curl -fsS -o waf https://waf.io/waf-1.8.20
@@ -47,7 +46,10 @@ before_build:
 
 build_script:
   # build python module without using libaubio
+  - "pip install -r requirements"
   - "python setup.py build"
+  - "pip install ."
+  - "nose2"
   # clean up
   - waf distclean
   # build libaubio
