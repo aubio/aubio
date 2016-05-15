@@ -4,8 +4,24 @@
 environment:
 
   matrix:
+
+    # pre-installed python version, see:
+    # http://www.appveyor.com/docs/installed-software#python
     - PYTHON: "C:\\Python27"
-    - PYTHON: "C:\\Python33-x64"
+      PYTHON_VERSION: "2.7.x"
+      PYTHON_ARCH: "32"
+
+    - PYTHON: "C:\\Python27-x64"
+      PYTHON_VERSION: "2.7.x"
+      PYTHON_ARCH: "64"
+
+    - PYTHON: "C:\\Python34"
+      PYTHON_VERSION: "3.4.x"
+      PYTHON_ARCH: "32"
+
+    - PYTHON: "C:\\Python34-x64"
+      PYTHON_VERSION: "3.4.x"
+      PYTHON_ARCH: "64"
 
 install:
 
