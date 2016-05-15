@@ -21,11 +21,11 @@ def add_packages(packages, ext=None, **kw):
              }
 
     for package in packages:
+        cmd = ['pkg-config', '--libs', '--cflags', package]
         try:
-            cmd = ['pkg-config', '--libs', '--cflags', package]
             tokens = subprocess.check_output(cmd)
-        except subprocess.CalledProcessError:
-            print("{:s} could not be found".format(package))
+        except Exception as e:
+            print("Running \"{:s}\" failed: {:s}".format(' '.join(cmd), repr(e)))
             continue
         tokens = tokens.decode('utf8').split()
         for token in tokens:
