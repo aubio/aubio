@@ -56,7 +56,11 @@ def get_cpp_objects(header=header):
         pass
 
     if hasattr(compiler, 'initialize'):
-        compiler.initialize()
+        try:
+            compiler.initialize()
+        except ValueError as e:
+            print("Warning: failed initializing compiler.")
+            pass
 
     if hasattr(compiler, 'preprocessor'): # for unixccompiler
         cpp_cmd = compiler.preprocessor
@@ -93,8 +97,7 @@ def get_cpp_objects(header=header):
     if not cpp_output:
         raise Exception("preprocessor output is empty:\n%s" % err_output)
     elif err_output:
-        print ("Warning: preprocessor produced errors\n%s" % err_output)
-    #cpp_output = [l.strip() for l in os.popen(" ".join(cpp_cmd)).readlines()]
+        print ("Warning: preprocessor produced warnings:\n%s" % err_output)
     if not isinstance(cpp_output, list):
         cpp_output = [l.strip() for l in cpp_output.decode('utf8').split('\n')]
 
