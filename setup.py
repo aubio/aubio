@@ -53,9 +53,6 @@ else:
     add_system_aubio(aubio_extension)
 
 
-# generate files if they don't exit
-aubio_extension.sources += generate_external(header, output_path, overwrite = False)
-
 classifiers = [
     'Development Status :: 4 - Beta',
     'Environment :: Console',
@@ -70,6 +67,14 @@ classifiers = [
     'Programming Language :: Python',
     'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
     ]
+
+from distutils.command.build_ext import build_ext as _build_ext
+class build_ext(_build_ext):
+
+    def build_extension(self, extension):
+        # generate files python/gen/*.c, python/gen/aubio-generated.h
+        extension.sources += generate_external(header, output_path, overwrite = False)
+        return _build_ext.build_extension(self, extension)
 
 distrib = setup(name='aubio',
     version = __version__,
@@ -91,6 +96,7 @@ distrib = setup(name='aubio',
     cmdclass = {
         'clean': CleanGenerated,
         'generate': GenerateCommand,
+        'build_ext': build_ext,
         },
     test_suite = 'nose2.collector.collector',
     )
