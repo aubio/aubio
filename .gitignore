@@ -42,3 +42,4 @@ aubio-*.zip
 
 # test sounds
 python/tests/sounds
+aubio.egg-info
