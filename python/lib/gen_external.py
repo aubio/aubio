@@ -57,27 +57,22 @@ def get_cpp_objects(header=header):
         print("Warning: failed customizing compiler.")
         pass
 
-    cpp_cmd = None
+    if hasattr(compiler, 'initialize'):
+        compiler.initialize()
+
     if hasattr(compiler, 'preprocessor'): # for unixccompiler
         cpp_cmd = compiler.preprocessor
     elif hasattr(compiler, 'compiler'): # for ccompiler
-        cpp_cmd = compiler.compiler
+        cpp_cmd = compiler.compiler.split()
+        cpp_cmd += ['-E']
     elif hasattr(compiler, 'cc'): # for msvccompiler
-        cpp_cmd = compiler.cc
-    elif hasattr(compiler, 'find_exe'):
-        cpp_cmd = [compiler.find_exe('cl.exe')]
-        cpp_cmd += ['/E']
+        cpp_cmd = compiler.cc.split()
+        cpp_cmd += ['-E']
 
     if not cpp_cmd:
         print("Warning: could not guess preprocessor, using env's CC")
-        print("Compiler was: " + type(compiler))
-        print("Compiler attrs: " + dir(compiler))
-        if sys.platform.startswith('win'):
-            cpp_cmd = ['cl.exe']
-            cpp_cmd += ['/E']
-        else:
-            cpp_cmd = os.environ.get('CC', 'cc').split()
-            cpp_cmd += ['-E']
+        cpp_cmd = os.environ.get('CC', 'cc').split()
+        cpp_cmd += ['-E']
 
     macros = [('AUBIO_UNSTABLE', 1)]
 
@@ -88,7 +83,6 @@ def get_cpp_objects(header=header):
         raise Exception("could not find include file " + header)
 
     includes = [os.path.dirname(header)]
-    cpp_cmd += ['-P']
     cpp_cmd += distutils.ccompiler.gen_preprocess_options(macros, includes)
     cpp_cmd += [header]
 
