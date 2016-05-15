@@ -46,11 +46,22 @@ skip_objects = [
 
 def get_cpp_objects(header=header):
     include_file = os.path.basename(header)
+
+    # findout which compiler to use
+    from distutils.sysconfig import customize_compiler
     compiler_name = distutils.ccompiler.get_default_compiler()
-    if compiler_name not in ['msvc']:
-        cpp_cmd = os.environ.get('CC', 'cc').split()  # support CC="ccache gcc"
+    compiler = distutils.ccompiler.new_compiler(compiler=compiler_name)
+    customize_compiler(compiler)
+
+    if hasattr(compiler, 'preprocessor'): # for unixccompiler
+        cpp_cmd = compiler.preprocessor
+    elif hasattr(compiler, 'compiler'): # for ccompiler
+        cpp_cmd = compiler.compiler
+    elif hasattr(compiler, 'cc'): # for msvccompiler
+        cpp_cmd = compiler.cc
     else:
-        cpp_cmd = ['C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\BIN\\amd64\\CL.exe', '/nologo', '/W4', '/D_CRT_SECURE_NO_WARNINGS']
+        print("Could not guess preprocessor, using env's CC")
+        cpp_cmd = os.environ.get('CC', 'cc').split()
 
     cpp_cmd += ['-E', '-P', '-DAUBIO_UNSTABLE=1']
 
