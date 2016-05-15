@@ -45,8 +45,6 @@ skip_objects = [
   ]
 
 def get_cpp_objects(header=header):
-    include_file = os.path.basename(header)
-
     # findout which compiler to use
     from distutils.sysconfig import customize_compiler
     compiler_name = distutils.ccompiler.get_default_compiler()
@@ -78,7 +76,6 @@ def get_cpp_objects(header=header):
 
     if os.path.isfile(header):
         include_path = os.path.dirname(header)
-        include_file = os.path.basename(header)
     else:
         raise Exception("could not find include file " + header)
 
@@ -93,9 +90,6 @@ def get_cpp_objects(header=header):
     assert proc, 'Proc was none'
     cpp_output = proc.stdout.read()
     err_output = proc.stderr.read()
-    if compiler_name in ['msvc']:
-        guessed_output = os.path.splitext(os.path.basename(include_file))[0]+".i"
-        cpp_output = [l.strip() for l in open(guessed_output, 'r').readlines()]
     if not cpp_output:
         raise Exception("preprocessor output is empty:\n%s" % err_output)
     elif err_output:
