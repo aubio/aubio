@@ -8,9 +8,18 @@ from python.lib.gen_external import generate_external, header, output_path
 
 # read from VERSION
 for l in open('VERSION').readlines(): exec (l.strip())
-__version__ = '.'.join \
-        ([str(x) for x in [AUBIO_MAJOR_VERSION, AUBIO_MINOR_VERSION, AUBIO_PATCH_VERSION]]) \
-        + AUBIO_VERSION_STATUS
+
+if AUBIO_MAJOR_VERSION is None or AUBIO_MINOR_VERSION is None \
+        or AUBIO_PATCH_VERSION is None:
+    raise SystemError("Failed parsing VERSION file.")
+
+__version__ = '.'.join(map(str, [AUBIO_MAJOR_VERSION,
+                                 AUBIO_MINOR_VERSION,
+                                 AUBIO_PATCH_VERSION]))
+if AUBIO_VERSION_STATUS is not None:
+    if AUBIO_VERSION_STATUS.startswith('~'):
+        AUBIO_VERSION_STATUS = AUBIO_VERSION_STATUS[1:]
+    __version__ += AUBIO_VERSION_STATUS
 
 include_dirs = []
 library_dirs = []
