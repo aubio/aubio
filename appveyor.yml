@@ -30,11 +30,11 @@ before_build:
   - curl -fsS -o waf.bat https://raw.githubusercontent.com/waf-project/waf/master/utils/waf.bat
 
 build_script:
-  # build libaubio
-  - waf configure build --verbose
-  # try building python module using libaubio dll
+  # build python module without using libaubio
   - "python setup.py build"
   # clean up
   - waf distclean
-  # try building python module without using libaubio
+  # build libaubio
+  - waf configure build --verbose
+  # build python module using libaubio dll
   - "python setup.py build"
