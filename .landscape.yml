@@ -1,0 +1,4 @@
+strictness: medium
+python-targets:
+  - 2
+  - 3
