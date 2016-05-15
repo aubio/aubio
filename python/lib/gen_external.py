@@ -54,7 +54,7 @@ def get_cpp_objects(header=header):
     try:
         customize_compiler(compiler)
     except AttributeError as e:
-        print("Failed customizing compiler.")
+        print("Warning: failed customizing compiler.")
         pass
 
     if hasattr(compiler, 'preprocessor'): # for unixccompiler
@@ -63,32 +63,31 @@ def get_cpp_objects(header=header):
         cpp_cmd = compiler.compiler
     elif hasattr(compiler, 'cc'): # for msvccompiler
         cpp_cmd = compiler.cc
-    else:
-        print("Could not guess preprocessor, using env's CC")
-        cpp_cmd = os.environ.get('CC', 'cc').split()
 
-    cpp_cmd += ['-E', '-P', '-DAUBIO_UNSTABLE=1']
-
-    # look for file in current directory
-    include_path = None
-    for p in (
-        ['src'],
-        ['/usr/include/aubio'],
-        ['/usr/local/include/aubio'],
-        ):
-        full_path = p + [include_file]
-        include_path = os.path.join(*full_path)
-        if os.path.isfile(include_path):
-            print("Found aubio header: {:s}".format(include_path))
-            cpp_cmd += ['-I'+os.path.join(*p)]
-            cpp_cmd += [include_path]
-            break
+    if not cpp_cmd:
+        if hasattr(compiler, 'find_exe'):
+            cpp_cmd = compiler.find_exe('cl.exe')
         else:
-            include_path = None
+            print("Warning: could not guess preprocessor, using env's CC")
+            cpp_cmd = os.environ.get('CC', 'cc').split()
+            if not cpp_cmd:
+                print("Compiler was: " + type(compiler))
+                print("Compiler attrs: " + dir(compiler))
+                raise Exception("Could not find a preprocessor.")
+        cpp_cmd += ['-E']
 
-    if not include_path:
-        raise Exception("could not find include file " + include_file)
-        #cpp_cmd = 'echo "#include <aubio/aubio.h>" | ' + " ".join(cpp_cmd)
+    macros = [('AUBIO_UNSTABLE', 1)]
+
+    if os.path.isfile(header):
+        include_path = os.path.dirname(header)
+        include_file = os.path.basename(header)
+    else:
+        raise Exception("could not find include file " + header)
+
+    includes = [os.path.dirname(header)]
+    cpp_cmd += ['-P']
+    cpp_cmd += distutils.ccompiler.gen_preprocess_options(macros, includes)
+    cpp_cmd += [header]
 
     print("Running command: {:s}".format(" ".join(cpp_cmd)))
     proc = subprocess.Popen(cpp_cmd,
