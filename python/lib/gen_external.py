@@ -51,7 +51,11 @@ def get_cpp_objects(header=header):
     from distutils.sysconfig import customize_compiler
     compiler_name = distutils.ccompiler.get_default_compiler()
     compiler = distutils.ccompiler.new_compiler(compiler=compiler_name)
-    customize_compiler(compiler)
+    try:
+        customize_compiler(compiler)
+    except AttributeError as e:
+        print("Failed customizing compiler.")
+        pass
 
     if hasattr(compiler, 'preprocessor'): # for unixccompiler
         cpp_cmd = compiler.preprocessor
