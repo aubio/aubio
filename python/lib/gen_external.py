@@ -1,7 +1,7 @@
 import os, glob
 
-header = 'src/aubio.h'
-output_path = 'python/gen'
+header = os.path.join('src', 'aubio.h')
+output_path = os.path.join('python', 'gen')
 
 source_header = """// this file is generated! do not modify
 #include "aubio-types.h"
