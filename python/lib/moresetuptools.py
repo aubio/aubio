@@ -64,6 +64,7 @@ def add_local_aubio_sources(ext):
     # define macros (waf puts them in build/src/config.h)
     for define_macro in ['HAVE_STDLIB_H', 'HAVE_STDIO_H',
                          'HAVE_MATH_H', 'HAVE_STRING_H',
+                         'HAVE_C99_VARARGS_MACROS',
                          'HAVE_LIMITS_H', 'HAVE_MEMCPY_HACKS']:
         ext.define_macros += [(define_macro, 1)]
 
