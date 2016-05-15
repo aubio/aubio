@@ -119,7 +119,8 @@ def configure(ctx):
     if ctx.env.CC_NAME != 'msvc':
         ctx.env.CFLAGS += ['-g', '-Wall', '-Wextra']
     else:
-        ctx.env.CFLAGS += ['/W4']
+        ctx.env.CFLAGS += ['/W4', '/MD']
+        ctx.env.CFLAGS += ['/D_CRT_SECURE_NO_WARNINGS']
 
     ctx.check_cc(lib='m', uselib_store='M', mandatory=False)
 
