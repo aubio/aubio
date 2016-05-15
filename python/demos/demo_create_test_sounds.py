@@ -47,4 +47,4 @@ if __name__ == '__main__':
         outstr += " ({:d} frames".format(total_frames)
         outstr += " at {:d}Hz)".format(g.samplerate)
         outstr += " to {:s}".format(g.uri)
-        print outstr
+        print(outstr)
