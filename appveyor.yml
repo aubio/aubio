@@ -46,7 +46,7 @@ before_build:
 
 build_script:
   # build python module without using libaubio
-  - "pip install -r requirements"
+  - "pip install -r requirements.txt"
   - "python setup.py build"
   - "pip install ."
   - "nose2"
