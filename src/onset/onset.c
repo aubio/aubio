@@ -127,7 +127,7 @@ uint_t aubio_onset_get_minioi(const aubio_onset_t * o) {
 }
 
 uint_t aubio_onset_set_minioi_s(aubio_onset_t * o, smpl_t minioi) {
-  return aubio_onset_set_minioi (o, minioi * o->samplerate);
+  return aubio_onset_set_minioi (o, (uint_t)ROUND(minioi * o->samplerate));
 }
 
 smpl_t aubio_onset_get_minioi_s(const aubio_onset_t * o) {
