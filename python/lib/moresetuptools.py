@@ -92,7 +92,7 @@ def add_local_aubio_sources(ext):
 
     # add accelerate on darwin
     if sys.platform.startswith('darwin'):
-        ext.extra_link_args += ['-framework', 'accelerate']
+        ext.extra_link_args += ['-framework', 'Accelerate']
         ext.define_macros += [('HAVE_ACCELERATE', 1)]
 
     ext.define_macros += [('HAVE_WAVWRITE', 1)]
