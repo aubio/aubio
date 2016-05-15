@@ -62,6 +62,7 @@ def get_cpp_objects(header=header):
             print("Warning: failed initializing compiler.")
             pass
 
+    cpp_cmd = None
     if hasattr(compiler, 'preprocessor'): # for unixccompiler
         cpp_cmd = compiler.preprocessor
     elif hasattr(compiler, 'compiler'): # for ccompiler
