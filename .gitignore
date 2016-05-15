@@ -39,3 +39,7 @@ python/*.wav
 
 aubio-*.tar.bz2
 aubio-*.zip
+
+# test sounds
+python/tests/sounds
+aubio.egg-info

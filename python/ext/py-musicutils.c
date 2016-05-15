@@ -8,7 +8,6 @@ Py_aubio_window(PyObject *self, PyObject *args)
   fvec_t *window = NULL;
 
   if (!PyArg_ParseTuple (args, "|sI", &wintype, &winlen)) {
-    PyErr_SetString (PyExc_ValueError, "failed parsing arguments");
     return NULL;
   }
 
@@ -29,7 +28,6 @@ Py_aubio_level_lin(PyObject *self, PyObject *args)
   PyObject *level_lin;
 
   if (!PyArg_ParseTuple (args, "O:level_lin", &input)) {
-    PyErr_SetString (PyExc_ValueError, "failed parsing arguments");
     return NULL;
   }
 
@@ -58,7 +56,6 @@ Py_aubio_db_spl(PyObject *self, PyObject *args)
   PyObject *db_spl;
 
   if (!PyArg_ParseTuple (args, "O:db_spl", &input)) {
-    PyErr_SetString (PyExc_ValueError, "failed parsing arguments");
     return NULL;
   }
 
@@ -88,7 +85,6 @@ Py_aubio_silence_detection(PyObject *self, PyObject *args)
   smpl_t threshold;
 
   if (!PyArg_ParseTuple (args, "O" AUBIO_NPY_SMPL_CHR ":silence_detection", &input, &threshold)) {
-    PyErr_SetString (PyExc_ValueError, "failed parsing arguments");
     return NULL;
   }
 
@@ -118,7 +114,6 @@ Py_aubio_level_detection(PyObject *self, PyObject *args)
   smpl_t threshold;
 
   if (!PyArg_ParseTuple (args, "O" AUBIO_NPY_SMPL_CHR ":level_detection", &input, &threshold)) {
-    PyErr_SetString (PyExc_ValueError, "failed parsing arguments");
     return NULL;
   }
 

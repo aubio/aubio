@@ -61,6 +61,14 @@ class aubio_filterbank_test_case(TestCase):
         f.set_mel_coeffs_slaney(16000)
         assert_almost_equal ( expected, f.get_coeffs() )
 
+class aubio_filterbank_wrong_values(TestCase):
+
+    def test_negative_window(self):
+        self.assertRaises(ValueError, filterbank, 40, -20)
+
+    def test_negative_filters(self):
+        self.assertRaises(ValueError, filterbank, -40, 1024)
+
     def test_filterbank_long_cvec(self):
         f = filterbank(40, 512)
         with self.assertRaises(ValueError):

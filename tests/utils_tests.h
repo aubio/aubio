@@ -25,7 +25,8 @@
 #define RAND_MAX 32767
 #endif
 
-#ifdef HAVE_WIN_HACKS
+// are we on windows ? or are we using -std=c99 ?
+#if defined(HAVE_WIN_HACKS) || defined(__STRICT_ANSI__)
 // http://en.wikipedia.org/wiki/Linear_congruential_generator
 // no srandom/random on win32
 

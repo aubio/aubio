@@ -37,7 +37,7 @@ class aubio_fft_test_case(TestCase):
         from random import random
         from math import floor
         win_s = 256
-        i = floor(random()*win_s)
+        i = int(floor(random()*win_s))
         impulse = pi * random()
         f = fft(win_s)
         timegrain = fvec(win_s)

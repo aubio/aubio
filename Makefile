@@ -28,27 +28,32 @@ build: configure
 	$(WAFCMD) build $(WAFOPTS)
 
 build_python:
-	cd python && python ./setup.py generate $(ENABLE_DOUBLE) build
+	python ./setup.py generate $(ENABLE_DOUBLE) build
 
+test_python: export LD_LIBRARY_PATH=$(PWD)/build/src
 test_python:
-	cd python && pip install -v .
-	cd python && LD_LIBRARY_PATH=$(PWD)/build/src nose2 --verbose
-	cd python && pip uninstall -y -v aubio
+	pip install -v -r requirements.txt
+	pip install -v .
+	nose2 --verbose
+	pip uninstall -y -v aubio
 
 test_python_osx:
-	cd python && pip install --user -v .
+	# create links from ~/lib/lib* to build/src/lib*
 	[ -f build/src/libaubio.[0-9].dylib ] && ( mkdir -p ~/lib && cp -prv build/src/libaubio.4.dylib ~/lib ) || true
-	cd python && nose2 --verbose
-	cd python && pip uninstall -y -v aubio
+	# then run the tests
+	pip install --user -v -r requirements.txt
+	pip install --user -v .
+	nose2 --verbose
+	pip uninstall -y -v aubio
 
 clean_python:
-	cd python && ./setup.py clean
+	./setup.py clean
 
 build_python3:
-	cd python && python3 ./setup.py generate $(ENABLE_DOUBLE) build
+	python3 ./setup.py generate $(ENABLE_DOUBLE) build
 
 clean_python3:
-	cd python && python3 ./setup.py clean
+	python3 ./setup.py clean
 
 clean:
 	$(WAFCMD) clean

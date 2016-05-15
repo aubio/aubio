@@ -1,7 +1,10 @@
 import distutils.ccompiler
 import os, subprocess, glob
 
-header = """// this file is generated! do not modify
+header = os.path.join('src', 'aubio.h')
+output_path = os.path.join('python', 'gen')
+
+source_header = """// this file is generated! do not modify
 #include "aubio-types.h"
 """
 
@@ -41,10 +44,8 @@ skip_objects = [
   'tss',
   ]
 
-
-def get_cpp_objects():
-    include_file = "aubio.h" # change to specific object for debugging
-
+def get_cpp_objects(header=header):
+    include_file = os.path.basename(header)
     compiler_name = distutils.ccompiler.get_default_compiler()
     if compiler_name not in ['msvc']:
         cpp_cmd = os.environ.get('CC', 'cc').split()  # support CC="ccache gcc"
@@ -56,7 +57,6 @@ def get_cpp_objects():
     # look for file in current directory
     include_path = None
     for p in (
-        ['..', 'src'],
         ['src'],
         ['/usr/include/aubio'],
         ['/usr/local/include/aubio'],
@@ -112,11 +112,11 @@ def get_cpp_objects():
 
     return cpp_output, cpp_objects
 
-def generate_external(output_path, usedouble = False, overwrite = True):
+def generate_external(header=header, output_path=output_path, usedouble=False, overwrite=True):
     if not os.path.isdir(output_path): os.mkdir(output_path)
     elif overwrite == False: return glob.glob(os.path.join(output_path, '*.c'))
     sources_list = []
-    cpp_output, cpp_objects = get_cpp_objects()
+    cpp_output, cpp_objects = get_cpp_objects(header)
     lib = {}
 
     for o in cpp_objects:
@@ -167,9 +167,12 @@ def generate_external(output_path, usedouble = False, overwrite = True):
                 print ( "{:15s} {:10s} {:d}".format(o, family, len(lib[o][family]) ) )
     """
 
-    from .gen_code import MappedObject
+    try:
+        from .gen_code import MappedObject
+    except (SystemError, ValueError) as e:
+        from gen_code import MappedObject
     for o in lib:
-        out = header
+        out = source_header
         mapped = MappedObject(lib[o], usedouble = usedouble)
         out += mapped.gen_code()
         output_file = os.path.join(output_path, 'gen-%s.c' % o)
@@ -178,7 +181,7 @@ def generate_external(output_path, usedouble = False, overwrite = True):
             print ("wrote %s" % output_file )
             sources_list.append(output_file)
 
-    out = header
+    out = source_header
     out += "#include \"aubio-generated.h\""
     check_types = "\n     ||  ".join(["PyType_Ready(&Py_%sType) < 0" % o for o in lib])
     out += """
@@ -236,5 +239,7 @@ void add_generated_objects( PyObject *m );
     return sources_list
 
 if __name__ == '__main__':
-    output_path = 'gen'
-    generate_external(output_path)
+    import sys
+    if len(sys.argv) > 1: header = sys.argv[1]
+    if len(sys.argv) > 2: output_path = sys.argv[2]
+    generate_external(header, output_path)

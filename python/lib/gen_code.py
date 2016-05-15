@@ -41,12 +41,6 @@ pytoaubio_fn = {
         #'fmat_t*': 'PyAubio_ArrayToCFmat',
         }
 
-pyfromaubio_fn = {
-        'fvec_t*': 'PyAubio_CFvecToArray',
-        'cvec_t*': 'PyAubio_CCvecToArray',
-        'fmat_t*': 'PyAubio_CFmatToArray',
-        }
-
 newfromtype_fn = {
         'fvec_t*': 'new_py_fvec',
         'fmat_t*': 'new_py_fmat',

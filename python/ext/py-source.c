@@ -251,8 +251,15 @@ Pyaubio_source_seek (Py_source *self, PyObject *args)
 {
   uint_t err = 0;
 
-  uint_t position;
+  int position;
   if (!PyArg_ParseTuple (args, "I", &position)) {
+    return NULL;
+  }
+
+  if (position < 0) {
+    PyErr_Format(PyExc_ValueError,
+        "error when seeking in source: can not seek to negative value %d",
+        position);
     return NULL;
   }
 
