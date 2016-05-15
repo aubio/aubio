@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 
 import sys, os.path, glob
-import numpy
 from setuptools import setup, Extension
 from python.lib.moresetuptools import *
 # function to generate gen/*.{c,h}
@@ -20,7 +19,11 @@ extra_link_args = []
 
 include_dirs += [ 'python/ext' ]
 include_dirs += [ output_path ] # aubio-generated.h
-include_dirs += [ numpy.get_include() ]
+try:
+    import numpy
+    include_dirs += [ numpy.get_include() ]
+except ImportError:
+    pass
 
 if sys.platform.startswith('darwin'):
     extra_link_args += ['-framework','CoreFoundation', '-framework','AudioToolbox']
