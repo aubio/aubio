@@ -57,24 +57,27 @@ def get_cpp_objects(header=header):
         print("Warning: failed customizing compiler.")
         pass
 
+    cpp_cmd = None
     if hasattr(compiler, 'preprocessor'): # for unixccompiler
         cpp_cmd = compiler.preprocessor
     elif hasattr(compiler, 'compiler'): # for ccompiler
         cpp_cmd = compiler.compiler
     elif hasattr(compiler, 'cc'): # for msvccompiler
         cpp_cmd = compiler.cc
+    elif hasattr(compiler, 'find_exe'):
+        cpp_cmd = compiler.find_exe('cl.exe')
+        cpp_cmd += ['/E']
 
     if not cpp_cmd:
-        if hasattr(compiler, 'find_exe'):
-            cpp_cmd = compiler.find_exe('cl.exe')
+        print("Warning: could not guess preprocessor, using env's CC")
+        print("Compiler was: " + type(compiler))
+        print("Compiler attrs: " + dir(compiler))
+        if sys.platform.startswith('win'):
+            cpp_cmd = ['cl.exe']
+            cpp_cmd += ['/E']
         else:
-            print("Warning: could not guess preprocessor, using env's CC")
             cpp_cmd = os.environ.get('CC', 'cc').split()
-            if not cpp_cmd:
-                print("Compiler was: " + type(compiler))
-                print("Compiler attrs: " + dir(compiler))
-                raise Exception("Could not find a preprocessor.")
-        cpp_cmd += ['-E']
+            cpp_cmd += ['-E']
 
     macros = [('AUBIO_UNSTABLE', 1)]
 
