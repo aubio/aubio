@@ -7,7 +7,6 @@ from utils import list_all_sounds
 from nose2.tools import params
 
 list_of_sounds = list_all_sounds('sounds')
-default_test_sound = None
 samplerates = [0, 44100, 8000, 32000]
 hop_sizes = [512, 1024, 64]
 
@@ -24,7 +23,7 @@ class aubio_source_test_case_base(TestCase):
 
     def setUp(self):
         if not len(list_of_sounds): self.skipTest('add some sound files in \'python/tests/sounds\'')
-        default_test_sound = list_of_sounds[0]
+        self.default_test_sound = list_of_sounds[0]
 
 class aubio_source_test_case(aubio_source_test_case_base):
 
@@ -114,27 +113,27 @@ class aubio_source_test_wrong_params(TestCase):
         with self.assertRaises(RuntimeError):
             f = source('path_to/unexisting file.mp3')
 
-class aubio_source_test_wrong_params(aubio_source_test_case_base):
+class aubio_source_test_wrong_params_with_file(aubio_source_test_case_base):
 
     def test_wrong_samplerate(self):
         with self.assertRaises(ValueError):
-            f = source(default_test_sound, -1)
+            f = source(self.default_test_sound, -1)
 
     def test_wrong_hop_size(self):
         with self.assertRaises(ValueError):
-            f = source(default_test_sound, 0, -1)
+            f = source(self.default_test_sound, 0, -1)
 
     def test_wrong_channels(self):
         with self.assertRaises(ValueError):
-            f = source(default_test_sound, 0, 0, -1)
+            f = source(self.default_test_sound, 0, 0, -1)
 
     def test_wrong_seek(self):
-        f = source(default_test_sound)
+        f = source(self.default_test_sound)
         with self.assertRaises(ValueError):
             f.seek(-1)
 
     def test_wrong_seek_too_large(self):
-        f = source(default_test_sound)
+        f = source(self.default_test_sound)
         try:
             with self.assertRaises(ValueError):
                 f.seek(f.duration + f.samplerate * 10)
