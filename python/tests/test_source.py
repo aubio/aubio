@@ -7,7 +7,7 @@ from utils import list_all_sounds
 from nose2.tools import params
 
 list_of_sounds = list_all_sounds('sounds')
-default_test_sound = list_of_sounds[0]
+default_test_sound = None
 samplerates = [0, 44100, 8000, 32000]
 hop_sizes = [512, 1024, 64]
 
@@ -24,6 +24,7 @@ class aubio_source_test_case_base(TestCase):
 
     def setUp(self):
         if not len(list_of_sounds): self.skipTest('add some sound files in \'python/tests/sounds\'')
+        default_test_sound = list_of_sounds[0]
 
 class aubio_source_test_case(aubio_source_test_case_base):
 
@@ -112,6 +113,8 @@ class aubio_source_test_wrong_params(TestCase):
     def test_wrong_file(self):
         with self.assertRaises(RuntimeError):
             f = source('path_to/unexisting file.mp3')
+
+class aubio_source_test_wrong_params(aubio_source_test_case_base):
 
     def test_wrong_samplerate(self):
         with self.assertRaises(ValueError):
