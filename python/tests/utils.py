@@ -30,7 +30,16 @@ def get_tmp_sink_path():
 
 def del_tmp_sink_path(path):
     import os
-    os.unlink(path)
+    try:
+        os.unlink(path)
+    except WindowsError as e:
+        print("deleting {:s} failed ({:s}), reopening".format(path, repr(e)))
+        with open(path, 'wb') as f:
+            f.close()
+        try:
+            os.unlink(path)
+        except WindowsError as f:
+            print("deleting {:s} failed ({:s}), aborting".format(path, repr(e)))
 
 def array_from_yaml_file(filename):
     import yaml
