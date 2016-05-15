@@ -57,6 +57,7 @@ build_script:
   - "pip install -r requirements.txt"
   - "python setup.py build"
   - "pip install ."
+  - "python python\\demos\\demo_create_test_sounds.py"
   - "nose2"
   # clean up
   - waf distclean
