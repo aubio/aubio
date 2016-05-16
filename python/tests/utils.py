@@ -1,16 +1,18 @@
 #! /usr/bin/env python
 
+import os
+import glob
+import numpy as np
+from tempfile import mkstemp
+
 def array_from_text_file(filename, dtype = 'float'):
-    import os.path
-    from numpy import array
     filename = os.path.join(os.path.dirname(__file__), filename)
     with open(filename) as f:
         lines = f.readlines()
-    return array([line.split() for line in lines],
+    return np.array([line.split() for line in lines],
             dtype = dtype)
 
 def list_all_sounds(rel_dir):
-    import os.path, glob
     datadir = os.path.join(os.path.dirname(__file__), rel_dir)
     return glob.glob(os.path.join(datadir,'*.*'))
 
@@ -22,14 +24,11 @@ def get_default_test_sound(TestCase, rel_dir = 'sounds'):
         return all_sounds[0]
 
 def get_tmp_sink_path():
-    from tempfile import mkstemp
-    import os
     fd, path = mkstemp()
     os.close(fd)
     return path
 
 def del_tmp_sink_path(path):
-    import os
     try:
         os.unlink(path)
     except WindowsError as e:
@@ -54,13 +53,12 @@ def count_samples_in_file(file_path):
     s = source(file_path, 0, hopsize)
     total_frames = 0
     while True:
-        samples, read = s()
+        _, read = s()
         total_frames += read
         if read < hopsize: break
     return total_frames
 
 def count_samples_in_directory(samples_dir):
-    import os
     total_frames = 0
     for f in os.walk(samples_dir):
         if len(f[2]):
@@ -71,7 +69,6 @@ def count_samples_in_directory(samples_dir):
     return total_frames
 
 def count_files_in_directory(samples_dir):
-    import os
     total_files = 0
     for f in os.walk(samples_dir):
         if len(f[2]):

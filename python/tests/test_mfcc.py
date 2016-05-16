@@ -1,16 +1,16 @@
 #! /usr/bin/env python
 
-from numpy.testing import TestCase, assert_equal, assert_almost_equal
-from numpy import random, arange, log, zeros, count_nonzero
+from nose2 import main
+from nose2.tools import params
+from numpy import random, count_nonzero
+from numpy.testing import TestCase
 from aubio import mfcc, cvec, float_type
-from math import pi
 
 buf_size = 2048
 n_filters = 40
 n_coeffs = 13
 samplerate = 44100
 
-from nose2.tools import params
 
 new_params = ['buf_size', 'n_filters', 'n_coeffs', 'samplerate']
 new_deflts = [1024, 40, 13, 44100]
@@ -101,10 +101,9 @@ class aubio_mfcc_all_parameters(TestCase):
         o = mfcc(buf_size, n_filters, n_coeffs, samplerate)
         spec = cvec(buf_size)
         spec.phas[0] = 0.2
-        for i in range(10):
-            coeffs = o(spec)
+        for _ in range(10):
+            o(spec)
         #print coeffs
 
 if __name__ == '__main__':
-    import nose2
-    nose2.main()
+    main()

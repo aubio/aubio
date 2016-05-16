@@ -1,10 +1,10 @@
 #! /usr/bin/env python
 
-from numpy.testing import TestCase, assert_equal, assert_almost_equal
-from aubio import fvec, source
-from numpy import array
-from utils import list_all_sounds
+from nose2 import main
 from nose2.tools import params
+from numpy.testing import TestCase
+from aubio import source
+from utils import list_all_sounds
 
 list_of_sounds = list_all_sounds('sounds')
 samplerates = [0, 44100, 8000, 32000]
@@ -47,11 +47,11 @@ class aubio_source_read_test_case(aubio_source_test_case_base):
     def read_from_source(self, f):
         total_frames = 0
         while True:
-            vec, read = f()
+            _ , read = f()
             total_frames += read
             if read < f.hop_size: break
-        result_str = "read {:.2f}s ({:d} frames in {:d} blocks at {:d}Hz) from {:s}"
-        result_params = total_frames / float(f.samplerate), total_frames, total_frames//f.hop_size, f.samplerate, f.uri
+        #result_str = "read {:.2f}s ({:d} frames in {:d} blocks at {:d}Hz) from {:s}"
+        #result_params = total_frames / float(f.samplerate), total_frames, total_frames//f.hop_size, f.samplerate, f.uri
         #print (result_str.format(*result_params))
         return total_frames
 
@@ -101,7 +101,7 @@ class aubio_source_read_test_case(aubio_source_test_case_base):
         f = source(p)
         duration = f.duration
         while True:
-            vec, read = f()
+            _, read = f()
             total_frames += read
             if read < f.hop_size: break
         self.assertEqual(duration, total_frames)
@@ -111,21 +111,21 @@ class aubio_source_test_wrong_params(TestCase):
 
     def test_wrong_file(self):
         with self.assertRaises(RuntimeError):
-            f = source('path_to/unexisting file.mp3')
+            source('path_to/unexisting file.mp3')
 
 class aubio_source_test_wrong_params_with_file(aubio_source_test_case_base):
 
     def test_wrong_samplerate(self):
         with self.assertRaises(ValueError):
-            f = source(self.default_test_sound, -1)
+            source(self.default_test_sound, -1)
 
     def test_wrong_hop_size(self):
         with self.assertRaises(ValueError):
-            f = source(self.default_test_sound, 0, -1)
+            source(self.default_test_sound, 0, -1)
 
     def test_wrong_channels(self):
         with self.assertRaises(ValueError):
-            f = source(self.default_test_sound, 0, 0, -1)
+            source(self.default_test_sound, 0, 0, -1)
 
     def test_wrong_seek(self):
         f = source(self.default_test_sound)
@@ -137,7 +137,7 @@ class aubio_source_test_wrong_params_with_file(aubio_source_test_case_base):
         try:
             with self.assertRaises(ValueError):
                 f.seek(f.duration + f.samplerate * 10)
-        except AssertionError as e:
+        except AssertionError:
             self.skipTest('seeking after end of stream failed raising ValueError')
 
 class aubio_source_readmulti_test_case(aubio_source_read_test_case):
@@ -145,14 +145,13 @@ class aubio_source_readmulti_test_case(aubio_source_read_test_case):
     def read_from_source(self, f):
         total_frames = 0
         while True:
-            vec, read = f.do_multi()
+            _, read = f.do_multi()
             total_frames += read
             if read < f.hop_size: break
-        result_str = "read {:.2f}s ({:d} frames in {:d} channels and {:d} blocks at {:d}Hz) from {:s}"
-        result_params = total_frames / float(f.samplerate), total_frames, f.channels, int(total_frames/f.hop_size), f.samplerate, f.uri
+        #result_str = "read {:.2f}s ({:d} frames in {:d} channels and {:d} blocks at {:d}Hz) from {:s}"
+        #result_params = total_frames / float(f.samplerate), total_frames, f.channels, int(total_frames/f.hop_size), f.samplerate, f.uri
         #print (result_str.format(*result_params))
         return total_frames
 
 if __name__ == '__main__':
-    from nose2 import main
     main()

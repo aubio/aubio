@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from unittest import main
 from numpy.testing import TestCase
 from numpy.testing import assert_equal, assert_almost_equal
 import numpy as np
@@ -80,6 +81,4 @@ class aubio_filterbank_wrong_values(TestCase):
             f(cvec(256))
 
 if __name__ == '__main__':
-    from nose2 import main
     main()
-

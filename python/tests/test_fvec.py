@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from unittest import main
 import numpy as np
 from numpy.testing import TestCase, assert_equal, assert_almost_equal
 from aubio import fvec, zero_crossing_rate, alpha_norm, min_removal
@@ -49,7 +50,7 @@ class aubio_fvec_wrong_values(TestCase):
         """ test creating fvec with negative length fails (pure python) """
         self.assertRaises(ValueError, fvec, -10)
 
-    def test_negative_length(self):
+    def test_zero_length(self):
         """ test creating fvec with zero length fails (pure python) """
         self.assertRaises(ValueError, fvec, 0)
 
@@ -128,7 +129,7 @@ class aubio_fvec_test_memory(TestCase):
 
     def test_pass_to_numpy(self):
         a = fvec(10)
-        a = 1.
+        a[:] = 1.
         b = a
         del a
         assert_equal(b, 1.)
@@ -139,5 +140,4 @@ class aubio_fvec_test_memory(TestCase):
         del c
 
 if __name__ == '__main__':
-    from unittest import main
     main()

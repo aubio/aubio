@@ -2,6 +2,7 @@
 
 from numpy.testing import TestCase, assert_equal, assert_array_less
 from aubio import fvec, cvec, pvoc, float_type
+from nose2 import main
 from nose2.tools import params
 import numpy as np
 
@@ -40,7 +41,7 @@ class aubio_pvoc_test_case(TestCase):
         win_s, hop_s = 1024, 256
         f = pvoc (win_s, hop_s)
         t = fvec (hop_s)
-        for time in range( int ( 4 * win_s / hop_s ) ):
+        for _ in range( int ( 4 * win_s / hop_s ) ):
             s = f(t)
             r = f.rdo(s)
             assert_equal ( t, 0.)
@@ -102,7 +103,7 @@ class aubio_pvoc_test_case(TestCase):
         f = pvoc(buf_s, hop_s)
         zeros = fvec(hop_s)
         r2 = f.rdo( f(sigin) )
-        for i in range(1, ratio):
+        for _ in range(1, ratio):
             r2 = f.rdo( f(zeros) )
         # compute square errors
         sq_error = (r2 - sigin)**2
@@ -177,11 +178,10 @@ class aubio_pvoc_wrong_params(TestCase):
         try:
             with self.assertRaises(RuntimeError):
                 pvoc(win_s, hop_s)
-        except AssertionError as e:
+        except AssertionError:
             # when compiled with fftw3, aubio supports non power of two fft sizes
             self.skipTest('creating aubio.pvoc with size %d did not fail' % win_s)
 
 if __name__ == '__main__':
-    from nose2 import main
     main()
 

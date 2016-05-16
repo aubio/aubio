@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from unittest import main
 from numpy.testing import TestCase, assert_equal
 from numpy import array, arange, isnan, isinf
 from aubio import bintomidi, miditobin, freqtobin, bintofreq, freqtomidi, miditofreq
@@ -23,13 +24,12 @@ class aubio_mathutils(TestCase):
         a[:] = 4.
         unwrap2pi(a)
         a = pi/100. * arange(-600,600).astype("float")
-        b = unwrap2pi (a)
+        unwrap2pi(a)
         #print zip(a, b)
 
-        try:
-            print (unwrap2pi(["23.","24.",25.]))
-        except Exception as e:
-            pass
+    def test_unwrap2pi_fails_on_list(self):
+        with self.assertRaises(TypeError):
+            unwrap2pi(["23.","24.",25.])
 
     def test_unwrap2pi_takes_fvec(self):
         a = fvec(10)
@@ -101,5 +101,4 @@ class aubio_mathutils(TestCase):
         assert_equal ( array(b) < 0, False )
 
 if __name__ == '__main__':
-    from unittest import main
     main()
