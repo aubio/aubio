@@ -28,7 +28,7 @@ class aubio_mathutils(TestCase):
         #print zip(a, b)
 
     def test_unwrap2pi_fails_on_list(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaises((TypeError, NotImplementedError)):
             unwrap2pi(["23.","24.",25.])
 
     def test_unwrap2pi_takes_fvec(self):
