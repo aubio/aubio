@@ -1,4 +1,5 @@
-import os, glob
+import distutils.ccompiler
+import sys, os, subprocess, glob
 
 header = os.path.join('src', 'aubio.h')
 output_path = os.path.join('python', 'gen')
@@ -43,16 +44,67 @@ skip_objects = [
   'tss',
   ]
 
+def get_preprocessor():
+    # findout which compiler to use
+    from distutils.sysconfig import customize_compiler
+    compiler_name = distutils.ccompiler.get_default_compiler()
+    compiler = distutils.ccompiler.new_compiler(compiler=compiler_name)
+    try:
+        customize_compiler(compiler)
+    except AttributeError as e:
+        print("Warning: failed customizing compiler ({:s})".format(repr(e)))
+
+    if hasattr(compiler, 'initialize'):
+        try:
+            compiler.initialize()
+        except ValueError as e:
+            print("Warning: failed initializing compiler ({:s})".format(repr(e)))
+
+    cpp_cmd = None
+    if hasattr(compiler, 'preprocessor'): # for unixccompiler
+        cpp_cmd = compiler.preprocessor
+    elif hasattr(compiler, 'compiler'): # for ccompiler
+        cpp_cmd = compiler.compiler.split()
+        cpp_cmd += ['-E']
+    elif hasattr(compiler, 'cc'): # for msvccompiler
+        cpp_cmd = compiler.cc.split()
+        cpp_cmd += ['-E']
+
+    if not cpp_cmd:
+        print("Warning: could not guess preprocessor, using env's CC")
+        cpp_cmd = os.environ.get('CC', 'cc').split()
+        cpp_cmd += ['-E']
+
+    return cpp_cmd
 
 def get_cpp_objects(header=header):
+    cpp_cmd = get_preprocessor()
 
-    cpp_output = [l.strip() for l in os.popen('cpp -DAUBIO_UNSTABLE=1 {:s}'.format(header)).readlines()]
-    #cpp_output = [l.strip() for l in os.popen('cpp -DAUBIO_UNSTABLE=0 -I../build/src ../src/onset/onset.h').readlines()]
-    #cpp_output = [l.strip() for l in os.popen('cpp -DAUBIO_UNSTABLE=0 -I../build/src ../src/pitch/pitch.h').readlines()]
+    macros = [('AUBIO_UNSTABLE', 1)]
+
+    if not os.path.isfile(header):
+        raise Exception("could not find include file " + header)
+
+    includes = [os.path.dirname(header)]
+    cpp_cmd += distutils.ccompiler.gen_preprocess_options(macros, includes)
+    cpp_cmd += [header]
+
+    print("Running command: {:s}".format(" ".join(cpp_cmd)))
+    proc = subprocess.Popen(cpp_cmd,
+            stderr=subprocess.PIPE,
+            stdout=subprocess.PIPE)
+    assert proc, 'Proc was none'
+    cpp_output = proc.stdout.read()
+    err_output = proc.stderr.read()
+    if not cpp_output:
+        raise Exception("preprocessor output is empty:\n%s" % err_output)
+    elif err_output:
+        print ("Warning: preprocessor produced warnings:\n%s" % err_output)
+    if not isinstance(cpp_output, list):
+        cpp_output = [l.strip() for l in cpp_output.decode('utf8').split('\n')]
 
     cpp_output = filter(lambda y: len(y) > 1, cpp_output)
-    cpp_output = filter(lambda y: not y.startswith('#'), cpp_output)
-    cpp_output = list(cpp_output)
+    cpp_output = list(filter(lambda y: not y.startswith('#'), cpp_output))
 
     i = 1
     while 1:
@@ -126,7 +178,7 @@ def generate_external(header=header, output_path=output_path, usedouble=False, o
 
     try:
         from .gen_code import MappedObject
-    except (SystemError, ValueError) as e:
+    except (SystemError, ValueError):
         from gen_code import MappedObject
     for o in lib:
         out = source_header
@@ -192,7 +244,6 @@ void add_generated_objects( PyObject *m );
     return sources_list
 
 if __name__ == '__main__':
-    import sys
     if len(sys.argv) > 1: header = sys.argv[1]
     if len(sys.argv) > 2: output_path = sys.argv[2]
     generate_external(header, output_path)
