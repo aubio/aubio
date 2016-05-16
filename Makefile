@@ -49,6 +49,27 @@ test_python_osx:
 clean_python:
 	./setup.py clean
 
+test_pure_python:
+	-pip uninstall -v -y aubio
+	-rm -rf build/ python/gen/
+	-rm -f dist/*.egg
+	-pip install -v -r requirements.txt
+	CFLAGS=-Os python setup.py bdist_egg
+	easy_install dist/*.egg
+	nose2 -N 4
+	pip uninstall -v -y aubio
+
+test_pure_python_wheel:
+	-pip uninstall -v -y aubio
+	-rm -rf build/ python/gen/
+	-rm -f dist/*.whl
+	-pip install -v -r requirements.txt
+	-pip install -v wheel
+	CFLAGS=-Os python setup.py bdist_wheel --universal
+	wheel install dist/*.whl
+	nose2 -N 4
+	pip uninstall -v -y aubio
+
 build_python3:
 	python3 ./setup.py generate $(ENABLE_DOUBLE) build
 
