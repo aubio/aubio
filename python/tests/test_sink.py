@@ -1,9 +1,9 @@
 #! /usr/bin/env python
 
-from numpy.testing import TestCase, assert_equal, assert_almost_equal
+from nose2 import main
 from nose2.tools import params
+from numpy.testing import TestCase
 from aubio import fvec, source, sink
-from numpy import array
 from utils import list_all_sounds, get_tmp_sink_path, del_tmp_sink_path
 
 list_of_sounds = list_all_sounds('sounds')
@@ -37,7 +37,7 @@ class aubio_sink_test_case(TestCase):
             g = sink(path, 0)
             sink_list.append(g)
             write = 32
-            for n in range(200):
+            for _ in range(200):
                 vec = fvec(write)
                 g(vec, write)
             g.close()
@@ -94,5 +94,4 @@ class aubio_sink_test_case(TestCase):
         del_tmp_sink_path(sink_path)
 
 if __name__ == '__main__':
-    from nose2 import main
     main()

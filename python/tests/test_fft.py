@@ -1,9 +1,12 @@
 #! /usr/bin/env python
 
+from unittest import main
 from numpy.testing import TestCase
 from numpy.testing import assert_equal, assert_almost_equal
+import numpy as np
 from aubio import fvec, fft, cvec
-from math import pi
+from math import pi, floor
+from random import random
 
 class aubio_fft_test_case(TestCase):
 
@@ -34,8 +37,6 @@ class aubio_fft_test_case(TestCase):
 
     def test_impulse(self):
         """ check the transform of one impulse at a random place """
-        from random import random
-        from math import floor
         win_s = 256
         i = int(floor(random()*win_s))
         impulse = pi * random()
@@ -49,27 +50,26 @@ class aubio_fft_test_case(TestCase):
         assert_equal ( fftgrain.phas >= -pi, True)
 
     def test_impulse_negative(self):
-        """ check the transform of one impulse at a random place """
-        from random import random
-        from math import floor
+        """ check the transform of a negative impulse at a random place """
         win_s = 256
-        i = 0
-        impulse = -10.
+        i = int(floor(random()*win_s))
+        impulse = -.1
         f = fft(win_s)
         timegrain = fvec(win_s)
+        timegrain[0] = 0
         timegrain[i] = impulse
         fftgrain = f ( timegrain )
         #self.plot_this ( fftgrain.phas )
-        assert_almost_equal ( fftgrain.norm, abs(impulse), decimal = 6 )
+        assert_almost_equal ( fftgrain.norm, abs(impulse), decimal = 5 )
         if impulse < 0:
             # phase can be pi or -pi, as it is not unwrapped
-            assert_almost_equal ( abs(fftgrain.phas[1:-1]) , pi, decimal = 6 )
+            #assert_almost_equal ( abs(fftgrain.phas[1:-1]) , pi, decimal = 6 )
             assert_almost_equal ( fftgrain.phas[0], pi, decimal = 6)
-            assert_almost_equal ( fftgrain.phas[-1], pi, decimal = 6)
+            assert_almost_equal ( np.fmod(fftgrain.phas[-1], pi), 0, decimal = 6)
         else:
-            assert_equal ( fftgrain.phas[1:-1] == 0, True)
-            assert_equal ( fftgrain.phas[0] == 0, True)
-            assert_equal ( fftgrain.phas[-1] == 0, True)
+            #assert_equal ( fftgrain.phas[1:-1] == 0, True)
+            assert_equal ( fftgrain.phas[0], 0)
+            assert_almost_equal ( np.fmod(fftgrain.phas[-1], pi), 0, decimal = 6)
         # now check the resynthesis
         synthgrain = f.rdo ( fftgrain )
         #self.plot_this ( fftgrain.phas.T )
@@ -95,7 +95,6 @@ class aubio_fft_test_case(TestCase):
     def test_rdo_before_do(self):
         """ check running fft.rdo before fft.do works """
         win_s = 1024
-        impulse = pi
         f = fft(win_s)
         fftgrain = cvec(win_s)
         t = f.rdo( fftgrain )
@@ -177,7 +176,7 @@ class aubio_fft_wrong_params(TestCase):
         try:
             with self.assertRaises(RuntimeError):
                 fft(win_s)
-        except AssertionError as e:
+        except AssertionError:
             self.skipTest('creating aubio.fft with size %d did not fail' % win_s)
 
     def test_buf_size_too_small(self):
@@ -186,5 +185,4 @@ class aubio_fft_wrong_params(TestCase):
             fft(win_s)
 
 if __name__ == '__main__':
-    from nose2 import main
     main()

@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
+from unittest import main
 from numpy.testing import TestCase
-
 from aubio import fvec, zero_crossing_rate
 
 buf_size = 2048
@@ -43,5 +43,4 @@ class zero_crossing_rate_test_case(TestCase):
         self.assertEqual(2./buf_size, zero_crossing_rate(self.vector))
 
 if __name__ == '__main__':
-    from unittest import main
     main()

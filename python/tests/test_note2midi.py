@@ -58,8 +58,8 @@ class note2midi_wrong_values(unittest.TestCase):
         " fails when passed a note with a wrong name"
         self.assertRaises(ValueError, note2midi, 'W9')
 
-    def test_note2midi_wrong_octave(self):
-        " fails when passed a note with a wrong octave"
+    def test_note2midi_low_octave(self):
+        " fails when passed a note with a too low octave"
         self.assertRaises(ValueError, note2midi, 'C-9')
 
     def test_note2midi_wrong_data_type(self):

@@ -1,9 +1,9 @@
 #! /usr/bin/env python
 
-from numpy.testing import TestCase
-from numpy.testing import assert_equal, assert_almost_equal
-from aubio import cvec, fvec, float_type
+from unittest import main
 import numpy as np
+from numpy.testing import TestCase, assert_equal
+from aubio import cvec, fvec, float_type
 
 wrong_type = 'float32' if float_type == 'float64' else 'float64'
 
@@ -13,7 +13,7 @@ class aubio_cvec_test_case(TestCase):
         a = cvec(10)
         assert_equal(a.norm.shape[0], 10 / 2 + 1)
         assert_equal(a.phas.shape[0], 10 / 2 + 1)
-        a.norm[0]
+        _ = a.norm[0]
         assert_equal(a.norm, 0.)
         assert_equal(a.phas, 0.)
 
@@ -142,5 +142,4 @@ class aubio_cvec_wrong_norm_input(TestCase):
             a.norm = np.zeros((512//2+1, 2), dtype = float_type)
 
 if __name__ == '__main__':
-    from nose2 import main
     main()

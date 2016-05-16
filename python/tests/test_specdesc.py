@@ -1,9 +1,9 @@
 #! /usr/bin/env python
 
+from unittest import main
 from numpy.testing import TestCase, assert_equal, assert_almost_equal
 from numpy import random, arange, log, zeros
 from aubio import specdesc, cvec, float_type
-from math import pi
 
 methods = ["default",
      "energy",
@@ -29,31 +29,18 @@ class aubio_specdesc(TestCase):
         o = specdesc()
 
         for method in methods:
-          o = specdesc(method, buf_size)
-          assert_equal ([o.buf_size, o.method], [buf_size, method])
+            o = specdesc(method, buf_size)
+            assert_equal ([o.buf_size, o.method], [buf_size, method])
 
-          spec = cvec(buf_size)
-          spec.norm[0] = 1
-          spec.norm[1] = 1./2.
-          #print "%20s" % method, str(o(spec))
-          o(spec)
-          spec.norm = random.random_sample((len(spec.norm),)).astype(float_type)
-          spec.phas = random.random_sample((len(spec.phas),)).astype(float_type)
-          #print "%20s" % method, str(o(spec))
-          assert (o(spec) != 0.)
-
-    def test_hfc(self):
-        o = specdesc("hfc", buf_size)
-        spec = cvec(buf_size)
-        # hfc of zeros is zero
-        assert_equal (o(spec), 0.)
-        # hfc of ones is sum of all bin numbers
-        spec.norm[:] = 1
-        expected = sum(range(buf_size/2 + 2))
-        assert_equal (o(spec), expected)
-        # changing phase doesn't change anything
-        spec.phas[:] = 1
-        assert_equal (o(spec), sum(range(buf_size/2 + 2)))
+            spec = cvec(buf_size)
+            spec.norm[0] = 1
+            spec.norm[1] = 1./2.
+            #print "%20s" % method, str(o(spec))
+            o(spec)
+            spec.norm = random.random_sample((len(spec.norm),)).astype(float_type)
+            spec.phas = random.random_sample((len(spec.phas),)).astype(float_type)
+            #print "%20s" % method, str(o(spec))
+            assert (o(spec) != 0.)
 
     def test_phase(self):
         o = specdesc("phase", buf_size)
@@ -222,13 +209,12 @@ class aubio_specdesc(TestCase):
         c = cvec()
         assert_equal( 0., o(c))
         a = arange(c.length * 2, 0, -2, dtype=float_type)
-        k = arange(c.length, dtype=float_type)
         c.norm = a
         cumsum = .95*sum(a*a)
         i = 0; rollsum = 0
         while rollsum < cumsum:
-          rollsum += a[i]*a[i]
-          i+=1
+            rollsum += a[i]*a[i]
+            i+=1
         rolloff = i 
         assert_equal (rolloff, o(c))
 
@@ -236,14 +222,13 @@ class aubio_specdesc_wrong(TestCase):
 
     def test_negative(self):
         with self.assertRaises(ValueError):
-            o = specdesc("default", -10)
+            specdesc("default", -10)
 
     def test_unknown(self):
         # FIXME should fail?
         with self.assertRaises(ValueError):
-            o = specdesc("unknown", 512)
+            specdesc("unknown", 512)
             self.skipTest('todo: new_specdesc should fail on wrong method')
 
 if __name__ == '__main__':
-    from unittest import main
     main()

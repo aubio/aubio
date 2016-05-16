@@ -1,9 +1,8 @@
 #! /usr/bin/env python
 
-from unittest import TestCase
-from numpy.testing import assert_equal, assert_almost_equal
-from numpy import random, sin, arange, mean, median, isnan
-from math import pi
+from unittest import TestCase, main
+from numpy.testing import assert_equal
+from numpy import sin, arange, mean, median, isnan, pi
 from aubio import fvec, pitch, freqtomidi, float_type
 
 class aubio_pitch_Good_Values(TestCase):
@@ -24,14 +23,14 @@ class aubio_pitch_Good_Values(TestCase):
         " running on silence gives 0 "
         p = pitch('default', 2048, 512, 32000)
         f = fvec (512)
-        for i in range(10): assert_equal (p(f), 0.)
+        for _ in range(10): assert_equal (p(f), 0.)
 
     def test_run_on_ones(self):
         " running on ones gives 0 "
         p = pitch('default', 2048, 512, 32000)
         f = fvec (512)
         f[:] = 1
-        for i in range(10): assert_equal (p(f), 0.)
+        for _ in range(10): assert_equal (p(f), 0.)
 
 class aubio_pitch_Sinusoid(TestCase):
 
@@ -53,7 +52,6 @@ class aubio_pitch_Sinusoid(TestCase):
         return sin( 2. * pi * arange(length).astype(float_type) * freq / samplerate)
 
     def run_pitch(self, p, input_vec, freq):
-        count = 0
         pitches, errors = [], []
         input_blocks = input_vec.reshape((-1, p.hop_size))
         for new_block in input_blocks:
@@ -63,7 +61,7 @@ class aubio_pitch_Sinusoid(TestCase):
         assert_equal ( len(input_blocks), len(pitches) )
         assert_equal ( isnan(pitches), False )
         # cut the first candidates
-        cut = ( p.buf_size - p.hop_size ) / p.hop_size
+        #cut = ( p.buf_size - p.hop_size ) / p.hop_size
         pitches = pitches[2:]
         errors = errors[2:]
         # check that the mean of all relative errors is less than 10%
@@ -124,5 +122,4 @@ for algo in pitch_algorithms:
         setattr (aubio_pitch_Sinusoid, test_method.__name__, test_method)
 
 if __name__ == '__main__':
-    from unittest import main
     main()
