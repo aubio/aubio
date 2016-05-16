@@ -71,8 +71,13 @@ addons:
     - sox
 
 before_install:
-   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update     ; fi
-   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install sox; fi
+   - |
+     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+       brew update
+       brew install sox
+       export PATH="$HOME/Library/Python/2.7/bin/:$PATH"
+     fi;
+
 
 install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then travis_retry pip install nose2; fi
@@ -83,7 +88,7 @@ script:
   - make build
   - make build_python
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make test_python; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then PATH="$HOME/Library/Python/2.7/bin/:$PATH" make test_python_osx; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then make test_python_osx; fi
   - make clean_python
   - make clean
   - make distcheck
