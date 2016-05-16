@@ -19,7 +19,7 @@ coeffs[4] *= 5.
 
 f.set_coeffs(coeffs)
 
-times = vstack([arange(win_s / 2 + 1) * samplerate / win_s] * n_filters)
+times = vstack([arange(win_s // 2 + 1) * samplerate / win_s] * n_filters)
 title('Bank of filters built using a simple list of boundaries\nThe middle band has been amplified by 2.')
 loglog(times.T, f.get_coeffs().T, '.-')
 xlim([50, samplerate/2])

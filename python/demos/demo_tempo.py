@@ -4,10 +4,10 @@ import sys
 from aubio import tempo, source
 
 win_s = 512                 # fft size
-hop_s = win_s / 2           # hop size
+hop_s = win_s // 2          # hop size
 
 if len(sys.argv) < 2:
-    print "Usage: %s <filename> [samplerate]" % sys.argv[0]
+    print("Usage: %s <filename> [samplerate]" % sys.argv[0])
     sys.exit(1)
 
 filename = sys.argv[1]
@@ -33,7 +33,7 @@ while True:
     is_beat = o(samples)
     if is_beat:
         this_beat = int(total_frames - delay + is_beat[0] * hop_s)
-        print "%f" % (this_beat / float(samplerate))
+        print("%f" % (this_beat / float(samplerate)))
         beats.append(this_beat)
     total_frames += read
     if read < hop_s: break

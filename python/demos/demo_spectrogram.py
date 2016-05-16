@@ -1,19 +1,19 @@
 #! /usr/bin/env python
 
 import sys, os.path
-from aubio import pvoc, source
+from aubio import pvoc, source, float_type
 from numpy import zeros, log10, vstack
 import matplotlib.pyplot as plt
 
 def get_spectrogram(filename, samplerate = 0):
     win_s = 512                                        # fft window size
-    hop_s = win_s / 2                                  # hop size
-    fft_s = win_s / 2 + 1                              # spectrum bins
+    hop_s = win_s // 2                                 # hop size
+    fft_s = win_s // 2 + 1                             # spectrum bins
 
     a = source(filename, samplerate, hop_s)            # source file
     if samplerate == 0: samplerate = a.samplerate
     pv = pvoc(win_s, hop_s)                            # phase vocoder
-    specgram = zeros([0, fft_s], dtype='float32')      # numpy array to store spectrogram
+    specgram = zeros([0, fft_s], dtype=float_type)     # numpy array to store spectrogram
 
     # analysis
     while True:
@@ -28,8 +28,8 @@ def get_spectrogram(filename, samplerate = 0):
     # show axes in Hz and seconds
     time_step = hop_s / float(samplerate)
     total_time = len(specgram) * time_step
-    print "total time: %0.2fs" % total_time,
-    print ", samplerate: %.2fkHz" % (samplerate / 1000.)
+    outstr = "total time: %0.2fs" % total_time
+    print(outstr + ", samplerate: %.2fkHz" % (samplerate / 1000.))
     n_xticks = 10
     n_yticks = 10
 
@@ -65,12 +65,12 @@ def get_spectrogram(filename, samplerate = 0):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print "Usage: %s <filename>" % sys.argv[0]
+        print("Usage: %s <filename>" % sys.argv[0])
     else:
         for soundfile in sys.argv[1:]:
             fig = get_spectrogram(soundfile)
             # display graph
-            fig.show()
+            plt.show()
             #outimage = os.path.basename(soundfile) + '.png'
             #print ("writing: " + outimage)
             #plt.savefig(outimage)

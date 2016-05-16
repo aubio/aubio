@@ -22,7 +22,7 @@ samplerate = 44100
 sin_length = (samplerate * 10) % 512 * 512
 freqs = np.zeros(sin_length)
 
-partition = sin_length / 8
+partition = sin_length // 8
 pointer = 0
 
 pointer += partition
@@ -44,9 +44,10 @@ a = build_sinusoid(sin_length, freqs, samplerate)
 for method in methods:
     p = aubio.pitch(method, buf_size, hop_size, samplerate)
     cands[method] = run_pitch(p, a)
-    print cands[method]
+    print(method)
+    print(cands[method])
 
-print "done computing"
+print("done computing")
 
 if 1:
     import matplotlib.pyplot as plt

@@ -45,12 +45,18 @@ def get_file_bpm(path, params = None):
             break
 
     # Convert to periods and to bpm 
-    bpms = 60./diff(beats)
-    b = median(bpms)
+    if len(beats) > 1:
+        if len(beats) < 4:
+            print("few beats found in {:s}".format(path))
+        bpms = 60./diff(beats)
+        b = median(bpms)
+    else:
+        b = 0
+        print("not enough beats found in {:s}".format(path))
     return b
 
 if __name__ == '__main__':
     import sys
     for f in sys.argv[1:]:
         bpm = get_file_bpm(f)
-        print "%6s" % ("%.2f" % bpm), f
+        print("{:6s} {:s}".format("{:2f}".format(bpm), f))
