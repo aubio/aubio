@@ -55,7 +55,8 @@ test_pure_python:
 	-rm -f dist/*.egg
 	-pip install -v -r requirements.txt
 	CFLAGS=-Os python setup.py bdist_egg
-	easy_install dist/*.egg
+	[ "$(TRAVIS_OS_NAME)" == "osx" ] && easy_install --user dist/*.egg || \
+		easy_install dist/*.egg
 	nose2 -N 4
 	pip uninstall -v -y aubio
 
