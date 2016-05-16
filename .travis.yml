@@ -87,6 +87,7 @@ script:
   - make clean_python
   - make clean
   - make distcheck
+  - make test_pure_python
 
 notifications:
     irc:
