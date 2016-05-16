@@ -53,14 +53,12 @@ def get_cpp_objects(header=header):
         customize_compiler(compiler)
     except AttributeError as e:
         print("Warning: failed customizing compiler ({:s})".format(repr(e)))
-        pass
 
     if hasattr(compiler, 'initialize'):
         try:
             compiler.initialize()
         except ValueError as e:
             print("Warning: failed initializing compiler ({:s})".format(repr(e)))
-            pass
 
     cpp_cmd = None
     if hasattr(compiler, 'preprocessor'): # for unixccompiler
