@@ -2,7 +2,7 @@
 
 import sys
 import numpy as np
-from aubio import fvec, source, pvoc, specdesc
+from aubio import source, pvoc, specdesc
 
 win_s = 512                 # fft size
 hop_s = win_s // 4          # hop size
