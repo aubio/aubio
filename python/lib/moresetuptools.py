@@ -95,6 +95,8 @@ def add_local_aubio_sources(ext):
     if sys.platform.startswith('darwin'):
         ext.extra_link_args += ['-framework', 'Accelerate']
         ext.define_macros += [('HAVE_ACCELERATE', 1)]
+        ext.define_macros += [('HAVE_SOURCE_APPLE_AUDIO', 1)]
+        etx.define_macros += [('HAVE_SINK_APPLE_AUDIO', 1)]
 
     if sys.platform.startswith('win'):
         ext.define_macros += [('HAVE_WIN_HACKS', 1)]
