@@ -5,7 +5,7 @@ from aubio import source, sink, pvoc
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print 'usage: %s <inputfile> <outputfile>' % sys.argv[0]
+        print('usage: %s <inputfile> <outputfile>' % sys.argv[0])
         sys.exit(1)
     samplerate = 44100
     f = source(sys.argv[1], samplerate, 256)
@@ -13,7 +13,7 @@ if __name__ == '__main__':
     total_frames, read = 0, 256
 
     win_s = 512                          # fft size
-    hop_s = win_s / 2                    # hop size
+    hop_s = win_s // 2                   # hop size
     pv = pvoc(win_s, hop_s)              # phase vocoder
 
     while read:
@@ -25,4 +25,5 @@ if __name__ == '__main__':
         g(new_samples, read)             # write to output
         total_frames += read
 
-    print "wrote", total_frames, "from", f.uri, "to", g.uri
+    format_str = "read {:d} samples from {:s}, written to {:s}"
+    print(format_str.format(total_frames, f.uri, g.uri))

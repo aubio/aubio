@@ -11,7 +11,7 @@ f.set_mel_coeffs_slaney(samplerate)
 
 from pylab import loglog, title, show, xlim, ylim, xlabel, ylabel
 xlim([0,samplerate / 2])
-times = vstack([arange(win_s / 2 + 1) * samplerate / win_s] * 40)
+times = vstack([arange(win_s // 2 + 1) * samplerate / win_s] * 40)
 loglog(times.T, f.get_coeffs().T, '.-')
 title('Mel frequency bands coefficients')
 xlim([100, 7500])

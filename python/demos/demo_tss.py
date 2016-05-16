@@ -5,12 +5,12 @@ from aubio import source, sink, pvoc, tss
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print 'usage: %s <inputfile> <outputfile_transient> <outputfile_steady>' % sys.argv[0]
+        print('usage: %s <inputfile> <outputfile_transient> <outputfile_steady>' % sys.argv[0])
         sys.exit(1)
 
     samplerate = 44100
-    win_s = 1024      # fft size
-    hop_s = win_s / 4 # block size
+    win_s = 1024       # fft size
+    hop_s = win_s // 4 # block size
     threshold = 0.5
 
     f = source(sys.argv[1], samplerate, hop_s)
