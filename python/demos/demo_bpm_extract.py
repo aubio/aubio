@@ -8,7 +8,7 @@ def get_file_bpm(path, params = None):
         path: path to the file
         param: dictionary of parameters
     """
-    if params == None:
+    if params is None:
         params = {}
     try:
         win_s = params['win_s']
