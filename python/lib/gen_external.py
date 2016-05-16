@@ -104,7 +104,7 @@ def get_cpp_objects(header=header):
         cpp_output = [l.strip() for l in cpp_output.decode('utf8').split('\n')]
 
     cpp_output = filter(lambda y: len(y) > 1, cpp_output)
-    cpp_output = filter(lambda y: not y.startswith('#'), cpp_output)
+    cpp_output = list(filter(lambda y: not y.startswith('#'), cpp_output))
 
     i = 1
     while 1:
