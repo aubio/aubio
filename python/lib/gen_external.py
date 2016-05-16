@@ -1,5 +1,5 @@
 import distutils.ccompiler
-import os, subprocess, glob
+import sys, os, subprocess, glob
 
 header = os.path.join('src', 'aubio.h')
 output_path = os.path.join('python', 'gen')
@@ -44,7 +44,7 @@ skip_objects = [
   'tss',
   ]
 
-def get_cpp_objects(header=header):
+def get_preprocessor():
     # findout which compiler to use
     from distutils.sysconfig import customize_compiler
     compiler_name = distutils.ccompiler.get_default_compiler()
@@ -75,11 +75,14 @@ def get_cpp_objects(header=header):
         cpp_cmd = os.environ.get('CC', 'cc').split()
         cpp_cmd += ['-E']
 
+    return cpp_cmd
+
+def get_cpp_objects(header=header):
+    cpp_cmd = get_preprocessor()
+
     macros = [('AUBIO_UNSTABLE', 1)]
 
-    if os.path.isfile(header):
-        include_path = os.path.dirname(header)
-    else:
+    if not os.path.isfile(header):
         raise Exception("could not find include file " + header)
 
     includes = [os.path.dirname(header)]
@@ -102,7 +105,6 @@ def get_cpp_objects(header=header):
 
     cpp_output = filter(lambda y: len(y) > 1, cpp_output)
     cpp_output = filter(lambda y: not y.startswith('#'), cpp_output)
-    cpp_output = list(cpp_output)
 
     i = 1
     while 1:
@@ -176,7 +178,7 @@ def generate_external(header=header, output_path=output_path, usedouble=False, o
 
     try:
         from .gen_code import MappedObject
-    except (SystemError, ValueError) as e:
+    except (SystemError, ValueError):
         from gen_code import MappedObject
     for o in lib:
         out = source_header
@@ -239,14 +241,9 @@ void add_generated_objects( PyObject *m );
         print ("wrote %s" % output_file )
         # no need to add header to list of sources
 
-    import sys
-    py3 = sys.version_info[0] == 3
-    if not py3:
-        return [str(s) for s in sources_list]
     return sources_list
 
 if __name__ == '__main__':
-    import sys
     if len(sys.argv) > 1: header = sys.argv[1]
     if len(sys.argv) > 2: output_path = sys.argv[2]
     generate_external(header, output_path)
