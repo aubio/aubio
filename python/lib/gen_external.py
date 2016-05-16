@@ -123,7 +123,7 @@ def get_cpp_objects(header=header):
 
 def generate_external(header=header, output_path=output_path, usedouble=False, overwrite=True):
     if not os.path.isdir(output_path): os.mkdir(output_path)
-    elif overwrite == False: return glob.glob(os.path.join(output_path, '*.c'))
+    elif not overwrite: return glob.glob(os.path.join(output_path, '*.c'))
     sources_list = []
     cpp_output, cpp_objects = get_cpp_objects(header)
     lib = {}

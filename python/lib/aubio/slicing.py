@@ -14,10 +14,10 @@ def slice_source_at_stamps(source_file, timestamps, timestamps_end=None,
 
     if timestamps[0] != 0:
         timestamps = [0] + timestamps
-        if timestamps_end != None:
+        if timestamps_end is not None:
             timestamps_end = [timestamps[1] - 1] + timestamps_end
 
-    if timestamps_end != None:
+    if timestamps_end is not None:
         if len(timestamps_end) != len(timestamps):
             raise ValueError("len(timestamps_end) != len(timestamps)")
     else:
@@ -27,7 +27,7 @@ def slice_source_at_stamps(source_file, timestamps, timestamps_end=None,
     #print regions
 
     source_base_name, _ = os.path.splitext(os.path.basename(source_file))
-    if output_dir != None:
+    if output_dir is not None:
         if not os.path.isdir(output_dir):
             os.makedirs(output_dir)
         source_base_name = os.path.join(output_dir, source_base_name)
