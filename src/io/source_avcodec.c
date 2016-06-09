@@ -72,6 +72,21 @@ struct _aubio_source_avcodec_t {
 void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s, uint_t multi);
 void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_samples);
 
+uint_t aubio_source_avcodec_has_network_url(aubio_source_avcodec_t *s);
+
+uint_t aubio_source_avcodec_has_network_url(aubio_source_avcodec_t *s) {
+  char proto[20], authorization[256], hostname[128], uripath[256];
+  int proto_size = 20, authorization_size = 256, hostname_size = 128,
+      *port_ptr = 0, path_size = 256;
+  av_url_split(proto, proto_size, authorization, authorization_size, hostname,
+      hostname_size, port_ptr, uripath, path_size, s->path);
+  if (strlen(proto)) {
+    return 1;
+  }
+  return 0;
+}
+
+
 aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t samplerate, uint_t hop_size) {
   aubio_source_avcodec_t * s = AUBIO_NEW(aubio_source_avcodec_t);
   int err;
@@ -98,8 +113,9 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t sa
   // register all formats and codecs
   av_register_all();
 
-  // if path[0] != '/'
-  //avformat_network_init();
+  if (aubio_source_avcodec_has_network_url(s)) {
+    avformat_network_init();
+  }
 
   // try opening the file and get some info about it
   AVFormatContext *avFormatCtx = s->avFormatCtx;
