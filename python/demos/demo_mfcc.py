@@ -2,16 +2,16 @@
 
 import sys
 from aubio import source, pvoc, mfcc
-from numpy import array, vstack, zeros
+from numpy import vstack, zeros
 
 win_s = 512                 # fft size
-hop_s = win_s / 4           # hop size
+hop_s = win_s // 4          # hop size
 n_filters = 40              # must be 40 for mfcc
 n_coeffs = 13
 samplerate = 44100
 
 if len(sys.argv) < 2:
-    print "Usage: %s <source_filename>" % sys.argv[0]
+    print("Usage: %s <source_filename>" % sys.argv[0])
     sys.exit(1)
 
 source_filename = sys.argv[1]

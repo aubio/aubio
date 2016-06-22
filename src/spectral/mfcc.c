@@ -67,21 +67,21 @@ new_aubio_mfcc (uint_t win_s, uint_t n_filters, uint_t n_coefs,
   /* allocating buffers */
   mfcc->in_dct = new_fvec (n_filters);
 
-  mfcc->dct_coeffs = new_fmat (n_filters, n_coefs);
+  mfcc->dct_coeffs = new_fmat (n_coefs, n_filters);
 
-  /* compute DCT transform dct_coeffs[i][j] as
+  /* compute DCT transform dct_coeffs[j][i] as
      cos ( j * (i+.5) * PI / n_filters ) */
   scaling = 1. / SQRT (n_filters / 2.);
   for (i = 0; i < n_filters; i++) {
     for (j = 0; j < n_coefs; j++) {
-      mfcc->dct_coeffs->data[i][j] =
+      mfcc->dct_coeffs->data[j][i] =
           scaling * COS (j * (i + 0.5) * PI / n_filters);
     }
-    mfcc->dct_coeffs->data[i][0] *= SQRT (2.) / 2.;
+    mfcc->dct_coeffs->data[0][i] *= SQRT (2.) / 2.;
   }
 
   return mfcc;
-};
+}
 
 void
 del_aubio_mfcc (aubio_mfcc_t * mf)
@@ -100,10 +100,8 @@ del_aubio_mfcc (aubio_mfcc_t * mf)
 
 
 void
-aubio_mfcc_do (aubio_mfcc_t * mf, cvec_t * in, fvec_t * out)
+aubio_mfcc_do (aubio_mfcc_t * mf, const cvec_t * in, fvec_t * out)
 {
-  uint_t j, k;
-
   /* compute filterbank */
   aubio_filterbank_do (mf->fb, in, mf->in_dct);
 
@@ -113,16 +111,8 @@ aubio_mfcc_do (aubio_mfcc_t * mf, cvec_t * in, fvec_t * out)
   /* raise power */
   //fvec_pow (mf->in_dct, 3.);
 
-  /* zeros output */
-  fvec_zeros(out);
-
-  /* compute discrete cosine transform */
-  for (j = 0; j < mf->n_filters; j++) {
-    for (k = 0; k < mf->n_coefs; k++) {
-      out->data[k] += mf->in_dct->data[j]
-          * mf->dct_coeffs->data[j][k];
-    }
-  }
+  /* compute mfccs */
+  fmat_vecmul(mf->dct_coeffs, mf->in_dct, out);
 
   return;
 }

@@ -2,11 +2,11 @@
 
 import sys
 from math import pi, e
-from aubio import sink
-from numpy import arange, resize, sin, exp, zeros
+from aubio import sink, float_type
+from numpy import arange, sin, exp, zeros
 
 if len(sys.argv) < 2:
-    print 'usage: %s <outputfile> [samplerate]' % sys.argv[0]
+    print('usage: %s <outputfile> [samplerate]' % sys.argv[0])
     sys.exit(1)
 
 samplerate = 44100 # samplerate in Hz
@@ -25,9 +25,9 @@ decay = .5
 period = float(samplerate) /  pitch
 # create a sine lookup table
 tablelen = 1000
-sinetable = arange(tablelen + 1, dtype = 'float32')
+sinetable = arange(tablelen + 1, dtype = float_type)
 sinetable = 0.7 * sin(twopi * sinetable/tablelen)
-sinetone = zeros((duration,), dtype = 'float32')
+sinetone = zeros((duration,), dtype = float_type)
 
 # compute sinetone at floating point period
 for i in range(duration):
@@ -39,7 +39,7 @@ for i in range(duration):
     sinetone[i] = a + frac * (b -a)
 
 # apply some envelope
-float_ramp = arange(duration, dtype = 'float32')
+float_ramp = arange(duration, dtype = float_type)
 sinetone *= exp( - e * float_ramp / duration / decay)
 sinetone[:attack] *= exp( e * ( float_ramp[:attack] / attack - 1 ) )
 

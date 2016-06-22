@@ -44,12 +44,12 @@ struct _aubio_pvoc_t {
 
 
 /** returns data and dataold slided by hop_s */
-static void aubio_pvoc_swapbuffers(aubio_pvoc_t *pv, fvec_t *new);
+static void aubio_pvoc_swapbuffers(aubio_pvoc_t *pv, const fvec_t *new);
 
 /** do additive synthesis from 'old' and 'cur' */
 static void aubio_pvoc_addsynth(aubio_pvoc_t *pv, fvec_t * synthnew);
 
-void aubio_pvoc_do(aubio_pvoc_t *pv, fvec_t * datanew, cvec_t *fftgrain) {
+void aubio_pvoc_do(aubio_pvoc_t *pv, const fvec_t * datanew, cvec_t *fftgrain) {
   /* slide  */
   aubio_pvoc_swapbuffers(pv, datanew);
   /* windowing */
@@ -64,7 +64,12 @@ void aubio_pvoc_rdo(aubio_pvoc_t *pv,cvec_t * fftgrain, fvec_t * synthnew) {
   /* calculate rfft */
   aubio_fft_rdo(pv->fft,fftgrain,pv->synth);
   /* unshift */
-  fvec_shift(pv->synth);
+  fvec_ishift(pv->synth);
+  /* windowing */
+  // if overlap = 50%, do not apply window (identity)
+  if (pv->hop_s * 2 < pv->win_s) {
+    fvec_weight(pv->synth, pv->w);
+  }
   /* additive synthesis */
   aubio_pvoc_addsynth(pv, synthnew);
 }
@@ -79,8 +84,8 @@ aubio_pvoc_t * new_aubio_pvoc (uint_t win_s, uint_t hop_s) {
   if ((sint_t)hop_s < 1) {
     AUBIO_ERR("pvoc: got hop_size %d, but can not be < 1\n", hop_s);
     goto beach;
-  } else if ((sint_t)win_s < 1) {
-    AUBIO_ERR("pvoc: got buffer_size %d, but can not be < 1\n", win_s);
+  } else if ((sint_t)win_s < 2) {
+    AUBIO_ERR("pvoc: got buffer_size %d, but can not be < 2\n", win_s);
     goto beach;
   } else if (win_s < hop_s) {
     AUBIO_ERR("pvoc: hop size (%d) is larger than win size (%d)\n", win_s, hop_s);
@@ -88,6 +93,9 @@ aubio_pvoc_t * new_aubio_pvoc (uint_t win_s, uint_t hop_s) {
   }
 
   pv->fft      = new_aubio_fft (win_s);
+  if (pv->fft == NULL) {
+    goto beach;
+  }
 
   /* remember old */
   pv->data     = new_fvec (win_s);
@@ -117,7 +125,16 @@ aubio_pvoc_t * new_aubio_pvoc (uint_t win_s, uint_t hop_s) {
   pv->end_datasize = pv->end * sizeof(smpl_t);
   pv->hop_datasize = pv->hop_s * sizeof(smpl_t);
 
-  pv->scale = pv->hop_s * 2. / pv->win_s;
+  // for reconstruction with 75% overlap
+  if (win_s == hop_s * 4) {
+    pv->scale = 2./3.;
+  } else if (win_s == hop_s * 8) {
+    pv->scale = 1./3.;
+  } else if (win_s == hop_s * 2) {
+    pv->scale = 1.;
+  } else {
+    pv->scale = .5;
+  }
 
   return pv;
 
@@ -136,13 +153,13 @@ void del_aubio_pvoc(aubio_pvoc_t *pv) {
   AUBIO_FREE(pv);
 }
 
-static void aubio_pvoc_swapbuffers(aubio_pvoc_t *pv, fvec_t *new)
+static void aubio_pvoc_swapbuffers(aubio_pvoc_t *pv, const fvec_t *new)
 {
   /* some convenience pointers */
   smpl_t * data = pv->data->data;
   smpl_t * dataold = pv->dataold->data;
   smpl_t * datanew = new->data;
-#if !HAVE_MEMCPY_HACKS
+#ifndef HAVE_MEMCPY_HACKS
   uint_t i;
   for (i = 0; i < pv->end; i++)
     data[i] = dataold[i];

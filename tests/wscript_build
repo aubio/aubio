@@ -1,25 +1,16 @@
 # vim:set syntax=python:
 
-for target_name in ctx.path.ant_glob('src/**/*.c'):
-    uselib = []
-    uselib += ['FFTW3', 'FFTW3F']
-    uselib += ['SAMPLERATE']
-    uselib += ['SNDFILE']
-    uselib += ['AVCODEC']
-    uselib += ['AVFORMAT']
-    uselib += ['AVRESAMPLE']
-    uselib += ['AVUTIL']
-    uselib += ['JACK']
-    includes = ['../src', '.']
-    extra_source = []
+uselib = ['aubio']
 
+includes = ['../src', '.']
+programs_sources = ctx.path.ant_glob('src/**/*.c')
+
+for source_file in programs_sources:
     bld(features = 'c cprogram test',
-            lib = 'm',
-            uselib = uselib,
-            source = [target_name] + extra_source,
-            target = str(target_name).split('.')[0],
+            source = source_file,
+            target = str(source_file).split('.')[0],
             includes = includes,
+            use = uselib,
             install_path = None,
             defines = 'AUBIO_UNSTABLE_API=1',
-            cflags = ['-g'],
-            use = 'aubio')
+       )

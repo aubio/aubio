@@ -13,7 +13,7 @@ def hanningz(size):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print 'usage: %s <inputfile> <outputfile>' % sys.argv[0]
+        print('usage: %s <inputfile> <outputfile>' % sys.argv[0])
         sys.exit(1)
     samplerate = 0 
     if len(sys.argv) > 3: samplerate = int(sys.argv[3])
@@ -22,7 +22,7 @@ if __name__ == '__main__':
     g = sink(sys.argv[2], samplerate)
 
     win_s = 512 # fft size
-    hop_s = win_s / 2 # hop size
+    hop_s = win_s // 2 # hop size
     pv = pvoc(win_s, hop_s) # phase vocoder
 
     # spectral weighting vector
@@ -30,7 +30,7 @@ if __name__ == '__main__':
         .8 * hanningz(80)[40:],
         zeros( 50 ),
         1.3 * hanningz(100),
-        zeros (win_s / 2 + 1 - 40 - 50 - 100),
+        zeros (win_s // 2 + 1 - 40 - 50 - 100),
         ] )
 
     if 0:
@@ -52,4 +52,5 @@ if __name__ == '__main__':
         g(new_samples, read)
         total_frames += read
 
-    print "read", total_frames / float(samplerate), "seconds from", f.uri
+    duration = total_frames / float(samplerate)
+    print("read {:.3f}s from {:s}".format(duration, f.uri))

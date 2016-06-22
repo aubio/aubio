@@ -81,6 +81,13 @@ def options(ctx):
     add_option_enable_disable(ctx, 'apple-audio', default = None,
             help_str = 'use CoreFoundation (darwin only) (auto)',
             help_disable_str = 'do not use CoreFoundation framework')
+    add_option_enable_disable(ctx, 'atlas', default = None,
+            help_str = 'use Atlas library (auto)',
+            help_disable_str = 'do not use Atlas library')
+
+    add_option_enable_disable(ctx, 'docs', default = None,
+            help_str = 'build documentation (auto)',
+            help_disable_str = 'do not build documentation')
 
     ctx.add_option('--with-target-platform', type='string',
             help='set target platform for cross-compilation', dest='target_platform')
@@ -95,15 +102,27 @@ def configure(ctx):
     ctx.load('waf_unit_test')
     ctx.load('gnu_dirs')
 
+    # check for common headers
+    ctx.check(header_name='stdlib.h')
+    ctx.check(header_name='stdio.h')
+    ctx.check(header_name='math.h')
+    ctx.check(header_name='string.h')
+    ctx.check(header_name='limits.h')
+    ctx.check(header_name='getopt.h', mandatory = False)
+    ctx.check(header_name='unistd.h', mandatory = False)
+
     target_platform = Options.platform
     if ctx.options.target_platform:
         target_platform = ctx.options.target_platform
     ctx.env['DEST_OS'] = target_platform
 
-    if 'CL.exe' not in ctx.env.CC[0]:
+    if ctx.env.CC_NAME != 'msvc':
         ctx.env.CFLAGS += ['-g', '-Wall', '-Wextra']
     else:
-        ctx.env.CFLAGS += ['-Wall']
+        ctx.env.CFLAGS += ['/W4', '/MD']
+        ctx.env.CFLAGS += ['/D_CRT_SECURE_NO_WARNINGS']
+
+    ctx.check_cc(lib='m', uselib_store='M', mandatory=False)
 
     if target_platform not in ['win32', 'win64']:
         ctx.env.CFLAGS += ['-fPIC']
@@ -114,6 +133,9 @@ def configure(ctx):
     if target_platform == 'darwin' and ctx.options.enable_fat:
         ctx.env.CFLAGS += ['-arch', 'i386', '-arch', 'x86_64']
         ctx.env.LINKFLAGS += ['-arch', 'i386', '-arch', 'x86_64']
+        MINSDKVER="10.4"
+        ctx.env.CFLAGS += [ '-mmacosx-version-min=' + MINSDKVER ]
+        ctx.env.LINKFLAGS += [ '-mmacosx-version-min=' + MINSDKVER ]
 
     if target_platform in [ 'darwin', 'ios', 'iosimulator']:
         if (ctx.options.enable_apple_audio != False):
@@ -127,13 +149,14 @@ def configure(ctx):
     if target_platform in [ 'ios', 'iosimulator' ]:
         MINSDKVER="6.1"
         ctx.env.CFLAGS += ['-std=c99']
-        if (ctx.options.enable_audio_unit != False):
+        if (ctx.options.enable_apple_audio != False):
             ctx.define('HAVE_AUDIO_UNIT', 1)
             #ctx.env.FRAMEWORK += ['CoreFoundation', 'AudioToolbox']
         if target_platform == 'ios':
             DEVROOT = "/Applications/Xcode.app/Contents"
             DEVROOT += "/Developer/Platforms/iPhoneOS.platform/Developer"
             SDKROOT = "%(DEVROOT)s/SDKs/iPhoneOS.sdk" % locals()
+            ctx.env.CFLAGS += [ '-fembed-bitcode' ]
             ctx.env.CFLAGS += [ '-arch', 'arm64' ]
             ctx.env.CFLAGS += [ '-arch', 'armv7' ]
             ctx.env.CFLAGS += [ '-arch', 'armv7s' ]
@@ -155,12 +178,13 @@ def configure(ctx):
         ctx.env.CFLAGS += [ '-isysroot' , SDKROOT]
         ctx.env.LINKFLAGS += [ '-isysroot' , SDKROOT]
 
-    # check for required headers
-    ctx.check(header_name='stdlib.h')
-    ctx.check(header_name='stdio.h')
-    ctx.check(header_name='math.h')
-    ctx.check(header_name='string.h')
-    ctx.check(header_name='limits.h')
+    if target_platform == 'emscripten':
+        import os.path
+        ctx.env.CFLAGS += [ '-I' + os.path.join(os.environ['EMSCRIPTEN'], 'system', 'include') ]
+        ctx.env.CFLAGS += ['-Oz']
+        ctx.env.cprogram_PATTERN = "%s.js"
+        if (ctx.options.enable_atlas != True):
+            ctx.options.enable_atlas = False
 
     # check support for C99 __VA_ARGS__ macros
     check_c99_varargs = '''
@@ -174,15 +198,19 @@ def configure(ctx):
             mandatory = False):
         ctx.define('HAVE_C99_VARARGS_MACROS', 1)
 
-    # double precision mode
+    # show a message about enable_double status
     if (ctx.options.enable_double == True):
-        ctx.define('HAVE_AUBIO_DOUBLE', 1)
+        ctx.msg('Checking for size of smpl_t', 'double')
+        ctx.msg('Checking for size of lsmp_t', 'long double')
     else:
-        ctx.define('HAVE_AUBIO_DOUBLE', 0)
+        ctx.msg('Checking for size of smpl_t', 'float')
+        ctx.msg('Checking for size of lsmp_t', 'double')
 
     # optionally use complex.h
     if (ctx.options.enable_complex == True):
         ctx.check(header_name='complex.h')
+    else:
+        ctx.msg('Checking if complex.h is enabled', 'no')
 
     # check for fftw3
     if (ctx.options.enable_fftw3 != False or ctx.options.enable_fftw3f != False):
@@ -259,30 +287,42 @@ def configure(ctx):
     ctx.define('HAVE_WAVREAD', 1)
     ctx.define('HAVE_WAVWRITE', 1)
 
+    # use ATLAS
+    if (ctx.options.enable_atlas != False):
+        ctx.check(header_name = 'atlas/cblas.h', mandatory = ctx.options.enable_atlas)
+        #ctx.check(lib = 'lapack', uselib_store = 'LAPACK', mandatory = ctx.options.enable_atlas)
+        ctx.check(lib = 'cblas', uselib_store = 'BLAS', mandatory = ctx.options.enable_atlas)
+
     # use memcpy hacks
     if (ctx.options.enable_memcpy == True):
         ctx.define('HAVE_MEMCPY_HACKS', 1)
-    else:
-        ctx.define('HAVE_MEMCPY_HACKS', 0)
 
     # write configuration header
     ctx.write_config_header('src/config.h')
+
+    # the following defines will be passed as arguments to the compiler
+    # instead of being written to src/config.h
 
     # add some defines used in examples
     ctx.define('AUBIO_PREFIX', ctx.env['PREFIX'])
     ctx.define('PACKAGE', APPNAME)
 
-    # check if txt2man is installed, optional
-    try:
-      ctx.find_program('txt2man', var='TXT2MAN')
-    except ctx.errors.ConfigurationError:
-      ctx.to_log('txt2man was not found (ignoring)')
+    # double precision mode
+    if (ctx.options.enable_double == True):
+        ctx.define('HAVE_AUBIO_DOUBLE', 1)
 
-    # check if doxygen is installed, optional
-    try:
-      ctx.find_program('doxygen', var='DOXYGEN')
-    except ctx.errors.ConfigurationError:
-      ctx.to_log('doxygen was not found (ignoring)')
+    if (ctx.options.enable_docs != False):
+        # check if txt2man is installed, optional
+        try:
+          ctx.find_program('txt2man', var='TXT2MAN')
+        except ctx.errors.ConfigurationError:
+          ctx.to_log('txt2man was not found (ignoring)')
+
+        # check if doxygen is installed, optional
+        try:
+          ctx.find_program('doxygen', var='DOXYGEN')
+        except ctx.errors.ConfigurationError:
+          ctx.to_log('doxygen was not found (ignoring)')
 
 def build(bld):
     bld.env['VERSION'] = VERSION
@@ -290,8 +330,6 @@ def build(bld):
 
     # add sub directories
     bld.recurse('src')
-    if bld.env['DEST_OS'] not in ['ios', 'iosimulator']:
-        pass
     if bld.env['DEST_OS'] not in ['ios', 'iosimulator', 'android']:
         bld.recurse('examples')
         bld.recurse('tests')
@@ -339,9 +377,15 @@ def dist(ctx):
     ctx.excl  = ' **/.waf-1* **/*~ **/*.pyc **/*.swp **/.lock-w* **/.git*'
     ctx.excl += ' **/build/*'
     ctx.excl += ' **/python/gen **/python/build **/python/dist'
+    ctx.excl += ' **/python/ext/config.h'
     ctx.excl += ' **/**.zip **/**.tar.bz2'
     ctx.excl += ' **/doc/full/* **/doc/web/*'
     ctx.excl += ' **/python/*.db'
     ctx.excl += ' **/python.old/*'
+    ctx.excl += ' **/python/*/*.old'
     ctx.excl += ' **/python/tests/sounds'
     ctx.excl += ' **/**.asc'
+    ctx.excl += ' **/.DS_Store'
+    ctx.excl += ' **/.travis.yml'
+    ctx.excl += ' **/dist*'
+    ctx.excl += ' **/appveyor.yml'

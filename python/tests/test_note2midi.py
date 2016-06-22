@@ -1,7 +1,9 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from aubio import note2midi
+from __future__ import unicode_literals
+
+from aubio import note2midi, freq2note
 import unittest
 
 list_of_known_notes = (
@@ -14,13 +16,13 @@ list_of_known_notes = (
         ( 'A4', 69 ),
         ( 'A#4', 70 ),
         ( 'Bb4', 70 ),
-        ( u'B♭4', 70 ),
+        ( 'B♭4', 70 ),
         ( 'G8', 115 ),
-        ( u'G♯8', 116 ),
+        ( 'G♯8', 116 ),
         ( 'G9', 127 ),
-        ( u'G\udd2a2', 45 ),
-        ( u'B\ufffd2', 45 ),
-        ( u'A♮2', 45 ),
+        ( 'G\udd2a2', 45 ),
+        ( 'B\ufffd2', 45 ),
+        ( 'A♮2', 45 ),
         )
 
 class note2midi_good_values(unittest.TestCase):
@@ -49,12 +51,27 @@ class note2midi_wrong_values(unittest.TestCase):
         self.assertRaises(ValueError, note2midi, 'CBc')
 
     def test_note2midi_out_of_range(self):
-        " fails when passed a out of range note"
+        " fails when passed a note out of range"
         self.assertRaises(ValueError, note2midi, 'A9')
+
+    def test_note2midi_wrong_note_name(self):
+        " fails when passed a note with a wrong name"
+        self.assertRaises(ValueError, note2midi, 'W9')
+
+    def test_note2midi_low_octave(self):
+        " fails when passed a note with a too low octave"
+        self.assertRaises(ValueError, note2midi, 'C-9')
 
     def test_note2midi_wrong_data_type(self):
         " fails when passed a non-string value "
         self.assertRaises(TypeError, note2midi, 123)
+
+
+class freq2note_simple_test(unittest.TestCase):
+
+    def test_freq2note(self):
+        " make sure freq2note(441) == A4 "
+        self.assertEqual("A4", freq2note(441))
 
 if __name__ == '__main__':
     unittest.main()

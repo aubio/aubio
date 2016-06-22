@@ -16,7 +16,7 @@ f.set_triangle_bands(freqs, samplerate)
 
 subplot(211)
 title('Examples of filterbank built with set_triangle_bands and set_coeffs')
-times = vstack([arange(win_s / 2 + 1) * samplerate / win_s] * n_filters)
+times = vstack([arange(win_s // 2 + 1) * samplerate / win_s] * n_filters)
 loglog(times.T, f.get_coeffs().T, '.-')
 xlim([50, samplerate/2])
 ylim([1.0e-6, 2.0e-2])
@@ -37,7 +37,7 @@ coeffs[4] *= 5.
 f.set_coeffs(coeffs)
 
 subplot(212)
-times = vstack([arange(win_s / 2 + 1) * samplerate / win_s] * n_filters)
+times = vstack([arange(win_s // 2 + 1) * samplerate / win_s] * n_filters)
 loglog(times.T, f.get_coeffs().T, '.-')
 xlim([50, samplerate/2])
 ylim([1.0e-6, 2.0e-2])

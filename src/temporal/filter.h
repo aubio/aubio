@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO_FILTER_H
-#define _AUBIO_FILTER_H
+#ifndef AUBIO_FILTER_H
+#define AUBIO_FILTER_H
 
 /** \file
 
@@ -86,7 +86,7 @@ void aubio_filter_do (aubio_filter_t * f, fvec_t * in);
   \param out output vector to store filtered input
 
 */
-void aubio_filter_do_outplace (aubio_filter_t * f, fvec_t * in, fvec_t * out);
+void aubio_filter_do_outplace (aubio_filter_t * f, const fvec_t * in, fvec_t * out);
 
 /** filter input vector forward and backward
 
@@ -104,7 +104,7 @@ void aubio_filter_do_filtfilt (aubio_filter_t * f, fvec_t * in, fvec_t * tmp);
   \return a pointer to the \f$ a_0 ... a_i ... a_P \f$ coefficients
 
 */
-lvec_t *aubio_filter_get_feedback (aubio_filter_t * f);
+lvec_t *aubio_filter_get_feedback (const aubio_filter_t * f);
 
 /** returns a pointer to feedforward coefficients \f$ b_i \f$
 
@@ -113,7 +113,7 @@ lvec_t *aubio_filter_get_feedback (aubio_filter_t * f);
   \return a pointer to the \f$ b_0 ... b_i ... b_P \f$ coefficients
 
 */
-lvec_t *aubio_filter_get_feedforward (aubio_filter_t * f);
+lvec_t *aubio_filter_get_feedforward (const aubio_filter_t * f);
 
 /** get order of the filter
 
@@ -122,7 +122,7 @@ lvec_t *aubio_filter_get_feedforward (aubio_filter_t * f);
   \return the order of the filter
 
 */
-uint_t aubio_filter_get_order (aubio_filter_t * f);
+uint_t aubio_filter_get_order (const aubio_filter_t * f);
 
 /** get sampling rate of the filter
 
@@ -131,7 +131,7 @@ uint_t aubio_filter_get_order (aubio_filter_t * f);
   \return the sampling rate of the filter, in Hz
 
 */
-uint_t aubio_filter_get_samplerate (aubio_filter_t * f);
+uint_t aubio_filter_get_samplerate (const aubio_filter_t * f);
 
 /** get sampling rate of the filter
 
@@ -173,4 +173,4 @@ void del_aubio_filter (aubio_filter_t * f);
 }
 #endif
 
-#endif /* _AUBIO_FILTER_H */
+#endif /* AUBIO_FILTER_H */

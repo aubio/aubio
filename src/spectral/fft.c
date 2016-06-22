@@ -64,12 +64,12 @@ typedef FFTW_TYPE fft_data_t;
 
 #ifdef HAVE_FFTW3F
 #if HAVE_AUBIO_DOUBLE
-#warning "Using aubio in double precision with fftw3 in single precision"
+#error "Using aubio in double precision with fftw3 in single precision"
 #endif /* HAVE_AUBIO_DOUBLE */
 #define real_t float
-#else /* HAVE_FFTW3F */
+#elif defined (HAVE_FFTW3) /* HAVE_FFTW3F */
 #if !HAVE_AUBIO_DOUBLE
-#warning "Using aubio in single precision with fftw3 in double precision"
+#error "Using aubio in single precision with fftw3 in double precision"
 #endif /* HAVE_AUBIO_DOUBLE */
 #define real_t double
 #endif /* HAVE_FFTW3F */
@@ -143,8 +143,8 @@ struct _aubio_fft_t {
 
 aubio_fft_t * new_aubio_fft (uint_t winsize) {
   aubio_fft_t * s = AUBIO_NEW(aubio_fft_t);
-  if ((sint_t)winsize < 1) {
-    AUBIO_ERR("fft: got winsize %d, but can not be < 1\n", winsize);
+  if ((sint_t)winsize < 2) {
+    AUBIO_ERR("fft: got winsize %d, but can not be < 2\n", winsize);
     goto beach;
   }
 #ifdef HAVE_FFTW3
@@ -230,17 +230,17 @@ void del_aubio_fft(aubio_fft_t * s) {
   AUBIO_FREE(s);
 }
 
-void aubio_fft_do(aubio_fft_t * s, fvec_t * input, cvec_t * spectrum) {
+void aubio_fft_do(aubio_fft_t * s, const fvec_t * input, cvec_t * spectrum) {
   aubio_fft_do_complex(s, input, s->compspec);
   aubio_fft_get_spectrum(s->compspec, spectrum);
 }
 
-void aubio_fft_rdo(aubio_fft_t * s, cvec_t * spectrum, fvec_t * output) {
+void aubio_fft_rdo(aubio_fft_t * s, const cvec_t * spectrum, fvec_t * output) {
   aubio_fft_get_realimag(spectrum, s->compspec);
   aubio_fft_rdo_complex(s, s->compspec, output);
 }
 
-void aubio_fft_do_complex(aubio_fft_t * s, fvec_t * input, fvec_t * compspec) {
+void aubio_fft_do_complex(aubio_fft_t * s, const fvec_t * input, fvec_t * compspec) {
   uint_t i;
 #ifndef HAVE_MEMCPY_HACKS
   for (i=0; i < s->winsize; i++) {
@@ -291,7 +291,7 @@ void aubio_fft_do_complex(aubio_fft_t * s, fvec_t * input, fvec_t * compspec) {
 #endif /* HAVE_FFTW3 */
 }
 
-void aubio_fft_rdo_complex(aubio_fft_t * s, fvec_t * compspec, fvec_t * output) {
+void aubio_fft_rdo_complex(aubio_fft_t * s, const fvec_t * compspec, fvec_t * output) {
   uint_t i;
 #ifdef HAVE_FFTW3
   const smpl_t renorm = 1./(smpl_t)s->winsize;
@@ -346,17 +346,17 @@ void aubio_fft_rdo_complex(aubio_fft_t * s, fvec_t * compspec, fvec_t * output) 
 #endif /* HAVE_FFTW3 */
 }
 
-void aubio_fft_get_spectrum(fvec_t * compspec, cvec_t * spectrum) {
+void aubio_fft_get_spectrum(const fvec_t * compspec, cvec_t * spectrum) {
   aubio_fft_get_phas(compspec, spectrum);
   aubio_fft_get_norm(compspec, spectrum);
 }
 
-void aubio_fft_get_realimag(cvec_t * spectrum, fvec_t * compspec) {
+void aubio_fft_get_realimag(const cvec_t * spectrum, fvec_t * compspec) {
   aubio_fft_get_imag(spectrum, compspec);
   aubio_fft_get_real(spectrum, compspec);
 }
 
-void aubio_fft_get_phas(fvec_t * compspec, cvec_t * spectrum) {
+void aubio_fft_get_phas(const fvec_t * compspec, cvec_t * spectrum) {
   uint_t i;
   if (compspec->data[0] < 0) {
     spectrum->phas[0] = PI;
@@ -374,7 +374,7 @@ void aubio_fft_get_phas(fvec_t * compspec, cvec_t * spectrum) {
   }
 }
 
-void aubio_fft_get_norm(fvec_t * compspec, cvec_t * spectrum) {
+void aubio_fft_get_norm(const fvec_t * compspec, cvec_t * spectrum) {
   uint_t i = 0;
   spectrum->norm[0] = ABS(compspec->data[0]);
   for (i=1; i < spectrum->length - 1; i++) {
@@ -385,7 +385,7 @@ void aubio_fft_get_norm(fvec_t * compspec, cvec_t * spectrum) {
     ABS(compspec->data[compspec->length/2]);
 }
 
-void aubio_fft_get_imag(cvec_t * spectrum, fvec_t * compspec) {
+void aubio_fft_get_imag(const cvec_t * spectrum, fvec_t * compspec) {
   uint_t i;
   for (i = 1; i < ( compspec->length + 1 ) / 2 /*- 1 + 1*/; i++) {
     compspec->data[compspec->length - i] =
@@ -393,7 +393,7 @@ void aubio_fft_get_imag(cvec_t * spectrum, fvec_t * compspec) {
   }
 }
 
-void aubio_fft_get_real(cvec_t * spectrum, fvec_t * compspec) {
+void aubio_fft_get_real(const cvec_t * spectrum, fvec_t * compspec) {
   uint_t i;
   for (i = 0; i < compspec->length / 2 + 1; i++) {
     compspec->data[i] =

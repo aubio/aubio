@@ -2,13 +2,13 @@
 
 import sys
 from aubio import onset, source
-from numpy import array, hstack, zeros
+from numpy import hstack, zeros
 
 win_s = 512                 # fft size
-hop_s = win_s / 2           # hop size
+hop_s = win_s // 2          # hop size
 
 if len(sys.argv) < 2:
-    print "Usage: %s <filename> [samplerate]" % sys.argv[0]
+    print("Usage: %s <filename> [samplerate]" % sys.argv[0])
     sys.exit(1)
 
 filename = sys.argv[1]
@@ -34,10 +34,10 @@ total_frames = 0
 while True:
     samples, read = s()
     if o(samples):
-        print "%f" % (o.get_last_s())
+        print("%f" % (o.get_last_s()))
         onsets.append(o.get_last())
     # keep some data to plot it later
-    new_maxes = (abs(samples.reshape(hop_s/downsample, downsample))).max(axis=0)
+    new_maxes = (abs(samples.reshape(hop_s//downsample, downsample))).max(axis=0)
     allsamples_max = hstack([allsamples_max, new_maxes])
     desc.append(o.get_descriptor())
     tdesc.append(o.get_thresholded_descriptor())
@@ -46,7 +46,6 @@ while True:
 
 if 1:
     # do plotting
-    from numpy import arange
     import matplotlib.pyplot as plt
     allsamples_max = (allsamples_max > 0) * allsamples_max
     allsamples_max_times = [ float(t) * hop_s / downsample / samplerate for t in range(len(allsamples_max)) ]
@@ -62,9 +61,10 @@ if 1:
     plt1.xaxis.set_visible(False)
     plt1.yaxis.set_visible(False)
     desc_times = [ float(t) * hop_s / samplerate for t in range(len(desc)) ]
-    desc_plot = [d / max(desc) for d in desc]
+    desc_max = max(desc) if max(desc) != 0 else 1.
+    desc_plot = [d / desc_max for d in desc]
     plt2.plot(desc_times, desc_plot, '-g')
-    tdesc_plot = [d / max(desc) for d in tdesc]
+    tdesc_plot = [d / desc_max for d in tdesc]
     for stamp in onsets:
         stamp /= float(samplerate)
         plt2.plot([stamp, stamp], [min(tdesc_plot), max(desc_plot)], '-r')

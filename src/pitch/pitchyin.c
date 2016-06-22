@@ -40,26 +40,26 @@ struct _aubio_pitchyin_t
 };
 
 /** compute difference function
-  
-  \param input input signal 
+
+  \param input input signal
   \param yinbuf output buffer to store difference function (half shorter than input)
 
 */
 void aubio_pitchyin_diff (fvec_t * input, fvec_t * yinbuf);
 
-/** in place computation of the YIN cumulative normalised function 
-  
-  \param yinbuf input signal (a square difference function), also used to store function 
+/** in place computation of the YIN cumulative normalised function
+
+  \param yinbuf input signal (a square difference function), also used to store function
 
 */
 void aubio_pitchyin_getcum (fvec_t * yinbuf);
 
 /** detect pitch in a YIN function
-  
+
   \param yinbuf input buffer as computed by aubio_pitchyin_getcum
 
 */
-uint_t aubio_pitchyin_getpitch (fvec_t * yinbuf);
+uint_t aubio_pitchyin_getpitch (const fvec_t * yinbuf);
 
 aubio_pitchyin_t *
 new_aubio_pitchyin (uint_t bufsize)
@@ -111,7 +111,7 @@ aubio_pitchyin_getcum (fvec_t * yin)
 }
 
 uint_t
-aubio_pitchyin_getpitch (fvec_t * yin)
+aubio_pitchyin_getpitch (const fvec_t * yin)
 {
   uint_t tau = 1;
   do {
@@ -130,7 +130,7 @@ aubio_pitchyin_getpitch (fvec_t * yin)
 
 /* all the above in one */
 void
-aubio_pitchyin_do (aubio_pitchyin_t * o, fvec_t * input, fvec_t * out)
+aubio_pitchyin_do (aubio_pitchyin_t * o, const fvec_t * input, fvec_t * out)
 {
   smpl_t tol = o->tol;
   fvec_t *yin = o->yin;

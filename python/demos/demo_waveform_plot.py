@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 import sys
-from aubio import pvoc, source
+from aubio import source
 from numpy import zeros, hstack
 
 def get_waveform_plot(filename, samplerate = 0, block_size = 4096, ax = None, downsample = 2**4):
@@ -21,7 +21,7 @@ def get_waveform_plot(filename, samplerate = 0, block_size = 4096, ax = None, do
     while True:
         samples, read = a()
         # keep some data to plot it later
-        new_maxes = (abs(samples.reshape(hop_s/downsample, downsample))).max(axis=0)
+        new_maxes = (abs(samples.reshape(hop_s//downsample, downsample))).max(axis=0)
         allsamples_max = hstack([allsamples_max, new_maxes])
         total_frames += read
         if read < hop_s: break
@@ -48,7 +48,7 @@ def set_xlabels_sample2time(ax, latest_sample, samplerate):
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
     if len(sys.argv) < 2:
-        print "Usage: %s <filename>" % sys.argv[0]
+        print("Usage: %s <filename>" % sys.argv[0])
     else:
         for soundfile in sys.argv[1:]:
             get_waveform_plot(soundfile)

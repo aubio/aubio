@@ -52,6 +52,8 @@ struct _aubio_source_wavread_t {
   uint_t read_index;
   uint_t eof;
 
+  uint_t duration;
+
   size_t seek_start;
 
   unsigned char *short_output;
@@ -67,11 +69,11 @@ unsigned int read_little_endian (unsigned char *buf, unsigned int length) {
   return ret;
 }
 
-aubio_source_wavread_t * new_aubio_source_wavread(char_t * path, uint_t samplerate, uint_t hop_size) {
+aubio_source_wavread_t * new_aubio_source_wavread(const char_t * path, uint_t samplerate, uint_t hop_size) {
   aubio_source_wavread_t * s = AUBIO_NEW(aubio_source_wavread_t);
   size_t bytes_read = 0, bytes_expected = 44;
   unsigned char buf[5];
-  unsigned int format, channels, sr, byterate, blockalign, bitspersample;//, data_size;
+  unsigned int format, channels, sr, byterate, blockalign, duration, bitspersample;//, data_size;
 
   if (path == NULL) {
     AUBIO_ERR("source_wavread: Aborted opening null path\n");
@@ -86,7 +88,10 @@ aubio_source_wavread_t * new_aubio_source_wavread(char_t * path, uint_t samplera
     goto beach;
   }
 
-  s->path = path;
+  if (s->path) AUBIO_FREE(s->path);
+  s->path = AUBIO_ARRAY(char_t, strnlen(path, PATH_MAX) + 1);
+  strncpy(s->path, path, strnlen(path, PATH_MAX) + 1);
+
   s->samplerate = samplerate;
   s->hop_size = hop_size;
 
@@ -212,6 +217,8 @@ aubio_source_wavread_t * new_aubio_source_wavread(char_t * path, uint_t samplera
 
   // Subchunk2Size
   bytes_read += fread(buf, 1, 4, s->fid);
+  duration = read_little_endian(buf, 4) / blockalign;
+
   //data_size = buf[0] + (buf[1] << 8) + (buf[2] << 16) + (buf[3] << 24);
   //AUBIO_MSG("found %d frames in %s\n", 8 * data_size / bitspersample / channels, s->path);
 
@@ -231,6 +238,8 @@ aubio_source_wavread_t * new_aubio_source_wavread(char_t * path, uint_t samplera
   s->output = new_fmat(s->input_channels, AUBIO_WAVREAD_BUFSIZE);
   s->blockalign= blockalign;
   s->bitspersample = bitspersample;
+
+  s->duration = duration;
 
   s->short_output = (unsigned char *)calloc(s->blockalign, AUBIO_WAVREAD_BUFSIZE);
   s->read_index = 0;
@@ -371,6 +380,13 @@ uint_t aubio_source_wavread_seek (aubio_source_wavread_t * s, uint_t pos) {
   return AUBIO_OK;
 }
 
+uint_t aubio_source_wavread_get_duration (const aubio_source_wavread_t * s) {
+  if (s && s->duration) {
+    return s->duration;
+  }
+  return 0;
+}
+
 uint_t aubio_source_wavread_close (aubio_source_wavread_t * s) {
   if (!s->fid) {
     return AUBIO_FAIL;
@@ -388,6 +404,7 @@ void del_aubio_source_wavread(aubio_source_wavread_t * s) {
   aubio_source_wavread_close(s);
   if (s->short_output) AUBIO_FREE(s->short_output);
   if (s->output) del_fmat(s->output);
+  if (s->path) AUBIO_FREE(s->path);
   AUBIO_FREE(s);
 }
 

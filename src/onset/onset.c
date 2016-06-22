@@ -45,7 +45,7 @@ struct _aubio_onset_t {
 };
 
 /* execute onset detection function on iput buffer */
-void aubio_onset_do (aubio_onset_t *o, fvec_t * input, fvec_t * onset)
+void aubio_onset_do (aubio_onset_t *o, const fvec_t * input, fvec_t * onset)
 {
   smpl_t isonset = 0;
   aubio_pvoc_do (o->pv,input, o->fftgrain);
@@ -84,17 +84,17 @@ void aubio_onset_do (aubio_onset_t *o, fvec_t * input, fvec_t * onset)
   return;
 }
 
-uint_t aubio_onset_get_last (aubio_onset_t *o)
+uint_t aubio_onset_get_last (const aubio_onset_t *o)
 {
   return o->last_onset - o->delay;
 }
 
-smpl_t aubio_onset_get_last_s (aubio_onset_t *o)
+smpl_t aubio_onset_get_last_s (const aubio_onset_t *o)
 {
   return aubio_onset_get_last (o) / (smpl_t) (o->samplerate);
 }
 
-smpl_t aubio_onset_get_last_ms (aubio_onset_t *o)
+smpl_t aubio_onset_get_last_ms (const aubio_onset_t *o)
 {
   return aubio_onset_get_last_s (o) * 1000.;
 }
@@ -104,7 +104,7 @@ uint_t aubio_onset_set_silence(aubio_onset_t * o, smpl_t silence) {
   return AUBIO_OK;
 }
 
-smpl_t aubio_onset_get_silence(aubio_onset_t * o) {
+smpl_t aubio_onset_get_silence(const aubio_onset_t * o) {
   return o->silence;
 }
 
@@ -113,7 +113,7 @@ uint_t aubio_onset_set_threshold(aubio_onset_t * o, smpl_t threshold) {
   return AUBIO_OK;
 }
 
-smpl_t aubio_onset_get_threshold(aubio_onset_t * o) {
+smpl_t aubio_onset_get_threshold(const aubio_onset_t * o) {
   return aubio_peakpicker_get_threshold(o->pp);
 }
 
@@ -122,15 +122,15 @@ uint_t aubio_onset_set_minioi(aubio_onset_t * o, uint_t minioi) {
   return AUBIO_OK;
 }
 
-uint_t aubio_onset_get_minioi(aubio_onset_t * o) {
+uint_t aubio_onset_get_minioi(const aubio_onset_t * o) {
   return o->minioi;
 }
 
 uint_t aubio_onset_set_minioi_s(aubio_onset_t * o, smpl_t minioi) {
-  return aubio_onset_set_minioi (o, minioi * o->samplerate);
+  return aubio_onset_set_minioi (o, (uint_t)ROUND(minioi * o->samplerate));
 }
 
-smpl_t aubio_onset_get_minioi_s(aubio_onset_t * o) {
+smpl_t aubio_onset_get_minioi_s(const aubio_onset_t * o) {
   return aubio_onset_get_minioi (o) / (smpl_t) o->samplerate;
 }
 
@@ -138,7 +138,7 @@ uint_t aubio_onset_set_minioi_ms(aubio_onset_t * o, smpl_t minioi) {
   return aubio_onset_set_minioi_s (o, minioi / 1000.);
 }
 
-smpl_t aubio_onset_get_minioi_ms(aubio_onset_t * o) {
+smpl_t aubio_onset_get_minioi_ms(const aubio_onset_t * o) {
   return aubio_onset_get_minioi_s (o) * 1000.;
 }
 
@@ -147,7 +147,7 @@ uint_t aubio_onset_set_delay(aubio_onset_t * o, uint_t delay) {
   return AUBIO_OK;
 }
 
-uint_t aubio_onset_get_delay(aubio_onset_t * o) {
+uint_t aubio_onset_get_delay(const aubio_onset_t * o) {
   return o->delay;
 }
 
@@ -155,7 +155,7 @@ uint_t aubio_onset_set_delay_s(aubio_onset_t * o, smpl_t delay) {
   return aubio_onset_set_delay (o, delay * o->samplerate);
 }
 
-smpl_t aubio_onset_get_delay_s(aubio_onset_t * o) {
+smpl_t aubio_onset_get_delay_s(const aubio_onset_t * o) {
   return aubio_onset_get_delay (o) / (smpl_t) o->samplerate;
 }
 
@@ -163,21 +163,21 @@ uint_t aubio_onset_set_delay_ms(aubio_onset_t * o, smpl_t delay) {
   return aubio_onset_set_delay_s (o, delay / 1000.);
 }
 
-smpl_t aubio_onset_get_delay_ms(aubio_onset_t * o) {
+smpl_t aubio_onset_get_delay_ms(const aubio_onset_t * o) {
   return aubio_onset_get_delay_s (o) * 1000.;
 }
 
-smpl_t aubio_onset_get_descriptor(aubio_onset_t * o) {
+smpl_t aubio_onset_get_descriptor(const aubio_onset_t * o) {
   return o->desc->data[0];
 }
 
-smpl_t aubio_onset_get_thresholded_descriptor(aubio_onset_t * o) {
+smpl_t aubio_onset_get_thresholded_descriptor(const aubio_onset_t * o) {
   fvec_t * thresholded = aubio_peakpicker_get_thresholded_input(o->pp);
   return thresholded->data[0];
 }
 
 /* Allocate memory for an onset detection */
-aubio_onset_t * new_aubio_onset (char_t * onset_mode, 
+aubio_onset_t * new_aubio_onset (const char_t * onset_mode,
     uint_t buf_size, uint_t hop_size, uint_t samplerate)
 {
   aubio_onset_t * o = AUBIO_NEW(aubio_onset_t);
@@ -186,8 +186,8 @@ aubio_onset_t * new_aubio_onset (char_t * onset_mode,
   if ((sint_t)hop_size < 1) {
     AUBIO_ERR("onset: got hop_size %d, but can not be < 1\n", hop_size);
     goto beach;
-  } else if ((sint_t)buf_size < 1) {
-    AUBIO_ERR("onset: got buffer_size %d, but can not be < 1\n", buf_size);
+  } else if ((sint_t)buf_size < 2) {
+    AUBIO_ERR("onset: got buffer_size %d, but can not be < 2\n", buf_size);
     goto beach;
   } else if (buf_size < hop_size) {
     AUBIO_ERR("onset: hop size (%d) is larger than win size (%d)\n", buf_size, hop_size);

@@ -21,7 +21,7 @@
 #include <aubio.h>
 #include "config.h"
 
-#if HAVE_JACK
+#ifdef HAVE_JACK
 #include "utils.h" // for aubio_process_func_t
 #include "jackio.h"
 #include "aubio_priv.h"

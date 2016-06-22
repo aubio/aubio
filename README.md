@@ -68,26 +68,54 @@ in the `new_` methods, whereas free operations are done in the `del_` methods.
 
 The latest version of the documentation can be found at:
 
-  http://aubio.org/documentation
+  https://aubio.org/documentation
 
-Installation and Build Instructions
------------------------------------
+Build Instructions
+------------------
 
 A number of distributions already include aubio. Check your favorite package
 management system, or have a look at the [download
-page](http://aubio.org/download).
+page](https://aubio.org/download).
 
 aubio uses [waf](https://waf.io/) to configure, compile, and test the source:
 
     ./waf configure
     ./waf build
-    sudo ./waf install
 
 If waf is not found in the directory, you can download and install it with:
 
     make getwaf
 
 aubio compiles on Linux, Mac OS X, Cygwin, and iOS.
+
+Installation
+------------
+
+To install aubio library and headers on your system, use:
+
+    sudo ./waf install
+
+To uninstall:
+
+    sudo ./waf uninstall
+
+If you don't have root access to install libaubio on your system, you can use
+libaubio without installing libaubio either by setting `LD_LIBRARY_PATH`, or by
+copying it to `~/lib`.
+
+On Linux, you should be able to set `LD_LIBRARY_PATH` with:
+
+    $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/build/src
+
+On Mac OS X, a copy or a symlink can be made in `~/lib`:
+
+    $ mkdir -p ~/lib
+    $ ln -sf $PWD/build/src/libaubio*.dylib ~/lib/
+
+Note on Mac OS X systems older than El Capitan (10.11), the `DYLD_LIBRARY_PATH`
+variable can be set as follows:
+
+    $ export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$PWD/build/src
 
 Credits and Publications
 ------------------------
@@ -107,19 +135,19 @@ Substantial informations about the algorithms and their evaluation are gathered
 in:
 
   - Paul Brossier, _[Automatic annotation of musical audio for interactive
-    systems](http://aubio.org/phd)_, PhD thesis, Centre for Digital music,
+    systems](https://aubio.org/phd)_, PhD thesis, Centre for Digital music,
 Queen Mary University of London, London, UK, 2006.
 
 Additional results obtained with this software were discussed in the following
 papers:
 
   - P. M. Brossier and J. P. Bello and M. D. Plumbley, [Real-time temporal
-    segmentation of note objects in music signals](http://aubio.org/articles/brossier04fastnotes.pdf),
+    segmentation of note objects in music signals](https://aubio.org/articles/brossier04fastnotes.pdf),
 in _Proceedings of the International Computer Music Conference_, 2004, Miami,
 Florida, ICMA
 
   -  P. M. Brossier and J. P. Bello and M. D. Plumbley, [Fast labelling of note
-     objects in music signals] (http://aubio.org/articles/brossier04fastnotes.pdf),
+     objects in music signals] (https://aubio.org/articles/brossier04fastnotes.pdf),
 in _Proceedings of the International Symposium on Music Information Retrieval_,
 2004, Barcelona, Spain
 
@@ -127,7 +155,7 @@ in _Proceedings of the International Symposium on Music Information Retrieval_,
 Contact Info and Mailing List
 -----------------------------
 
-The home page of this project can be found at: http://aubio.org/
+The home page of this project can be found at: https://aubio.org/
 
 Questions, comments, suggestions, and contributions are welcome. Use the
 mailing list: <aubio-user@aubio.org>.

@@ -84,7 +84,7 @@ uint_t aubio_parameter_set_current_value ( aubio_parameter_t * param, smpl_t val
   return err;
 }
 
-smpl_t aubio_parameter_get_current_value ( aubio_parameter_t * s )
+smpl_t aubio_parameter_get_current_value ( const aubio_parameter_t * s )
 {
   return s->current_value;
 }
@@ -109,7 +109,7 @@ uint_t aubio_parameter_set_steps ( aubio_parameter_t * param, uint_t steps )
   return AUBIO_OK;
 }
 
-uint_t aubio_parameter_get_steps ( aubio_parameter_t * param )
+uint_t aubio_parameter_get_steps ( const aubio_parameter_t * param )
 {
   return param->steps;
 }
@@ -120,7 +120,7 @@ uint_t aubio_parameter_set_min_value ( aubio_parameter_t * param, smpl_t min_val
   return AUBIO_OK;
 }
 
-smpl_t aubio_parameter_get_min_value ( aubio_parameter_t * param )
+smpl_t aubio_parameter_get_min_value ( const aubio_parameter_t * param )
 {
   return param->min_value;
 }
@@ -131,7 +131,7 @@ uint_t aubio_parameter_set_max_value ( aubio_parameter_t * param, smpl_t max_val
   return AUBIO_OK;
 }
 
-smpl_t aubio_parameter_get_max_value ( aubio_parameter_t * param )
+smpl_t aubio_parameter_get_max_value ( const aubio_parameter_t * param )
 {
   return param->max_value;
 }

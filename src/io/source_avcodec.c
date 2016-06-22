@@ -23,8 +23,14 @@
 
 #ifdef HAVE_LIBAV
 
-// determine whether we use libavformat from ffmpe or libav
-#define FFMPEG_LIBAVFORMAT (LIBAVFORMAT_VERSION_MICRO > 99)
+// determine whether we use libavformat from ffmpeg or from libav
+#define FFMPEG_LIBAVFORMAT (LIBAVFORMAT_VERSION_MICRO > 99 )
+// max_analyze_duration2 was used from ffmpeg libavformat 55.43.100 through 57.2.100
+#define FFMPEG_LIBAVFORMAT_MAX_DUR2 FFMPEG_LIBAVFORMAT && ( \
+      (LIBAVFORMAT_VERSION_MAJOR == 55 && LIBAVFORMAT_VERSION_MINOR >= 43) \
+      || (LIBAVFORMAT_VERSION_MAJOR == 56) \
+      || (LIBAVFORMAT_VERSION_MAJOR == 57 && LIBAVFORMAT_VERSION_MINOR < 2) \
+      )
 
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
@@ -66,7 +72,22 @@ struct _aubio_source_avcodec_t {
 void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s, uint_t multi);
 void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_samples);
 
-aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * path, uint_t samplerate, uint_t hop_size) {
+uint_t aubio_source_avcodec_has_network_url(aubio_source_avcodec_t *s);
+
+uint_t aubio_source_avcodec_has_network_url(aubio_source_avcodec_t *s) {
+  char proto[20], authorization[256], hostname[128], uripath[256];
+  int proto_size = 20, authorization_size = 256, hostname_size = 128,
+      *port_ptr = 0, path_size = 256;
+  av_url_split(proto, proto_size, authorization, authorization_size, hostname,
+      hostname_size, port_ptr, uripath, path_size, s->path);
+  if (strlen(proto)) {
+    return 1;
+  }
+  return 0;
+}
+
+
+aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t samplerate, uint_t hop_size) {
   aubio_source_avcodec_t * s = AUBIO_NEW(aubio_source_avcodec_t);
   int err;
   if (path == NULL) {
@@ -84,13 +105,17 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * path, uint_t samplera
 
   s->hop_size = hop_size;
   s->channels = 1;
-  s->path = path;
+
+  if (s->path) AUBIO_FREE(s->path);
+  s->path = AUBIO_ARRAY(char_t, strnlen(path, PATH_MAX) + 1);
+  strncpy(s->path, path, strnlen(path, PATH_MAX) + 1);
 
   // register all formats and codecs
   av_register_all();
 
-  // if path[0] != '/'
-  //avformat_network_init();
+  if (aubio_source_avcodec_has_network_url(s)) {
+    avformat_network_init();
+  }
 
   // try opening the file and get some info about it
   AVFormatContext *avFormatCtx = s->avFormatCtx;
@@ -103,7 +128,7 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * path, uint_t samplera
   }
 
   // try to make sure max_analyze_duration is big enough for most songs
-#if FFMPEG_LIBAVFORMAT
+#if FFMPEG_LIBAVFORMAT_MAX_DUR2
   avFormatCtx->max_analyze_duration2 *= 100;
 #else
   avFormatCtx->max_analyze_duration *= 100;
@@ -163,10 +188,10 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * path, uint_t samplera
   //AUBIO_DBG("input_channels: %d\n", s->input_channels);
 
   if (samplerate == 0) {
-    samplerate = s->input_samplerate;
-    //AUBIO_DBG("sampling rate set to 0, automagically adjusting to %d\n", samplerate);
+    s->samplerate = s->input_samplerate;
+  } else {
+    s->samplerate = samplerate;
   }
-  s->samplerate = samplerate;
 
   if (s->samplerate >  s->input_samplerate) {
     AUBIO_WRN("source_avcodec: upsampling %s from %d to %d\n", s->path,
@@ -299,7 +324,7 @@ beach:
   s->avr = avr;
   s->output = output;
 
-  av_free_packet(&avPacket);
+  av_packet_unref(&avPacket);
 }
 
 void aubio_source_avcodec_do(aubio_source_avcodec_t * s, fvec_t * read_data, uint_t * read){
@@ -369,11 +394,11 @@ void aubio_source_avcodec_do_multi(aubio_source_avcodec_t * s, fmat_t * read_dat
   *read = total_wrote;
 }
 
-uint_t aubio_source_avcodec_get_samplerate(aubio_source_avcodec_t * s) {
+uint_t aubio_source_avcodec_get_samplerate(const aubio_source_avcodec_t * s) {
   return s->samplerate;
 }
 
-uint_t aubio_source_avcodec_get_channels(aubio_source_avcodec_t * s) {
+uint_t aubio_source_avcodec_get_channels(const aubio_source_avcodec_t * s) {
   return s->input_channels;
 }
 
@@ -395,6 +420,14 @@ uint_t aubio_source_avcodec_seek (aubio_source_avcodec_t * s, uint_t pos) {
   avresample_close(s->avr);
   avresample_open(s->avr);
   return ret;
+}
+
+uint_t aubio_source_avcodec_get_duration (aubio_source_avcodec_t * s) {
+  if (s && &(s->avFormatCtx) != NULL) {
+    int64_t duration = s->avFormatCtx->duration;
+    return s->samplerate * ((uint_t)duration / 1e6 );
+  }
+  return 0;
 }
 
 uint_t aubio_source_avcodec_close(aubio_source_avcodec_t * s) {
@@ -424,6 +457,7 @@ void del_aubio_source_avcodec(aubio_source_avcodec_t * s){
   if (s->avFrame != NULL) {
     av_frame_free( &(s->avFrame) );
   }
+  if (s->path) AUBIO_FREE(s->path);
   s->avFrame = NULL;
   AUBIO_FREE(s);
 }

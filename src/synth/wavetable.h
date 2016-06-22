@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO_WAVETABLE_H
-#define _AUBIO_WAVETABLE_H
+#ifndef AUBIO_WAVETABLE_H
+#define AUBIO_WAVETABLE_H
 
 /** \file
 
@@ -59,7 +59,7 @@ aubio_wavetable_t * new_aubio_wavetable(uint_t samplerate, uint_t hop_size);
   \return 0 if successful, non-zero otherwise
 
 */
-uint_t aubio_wavetable_load( aubio_wavetable_t * o, char_t * uri );
+uint_t aubio_wavetable_load( aubio_wavetable_t * o, const char_t * uri );
 
 /** process wavetable function
 
@@ -73,7 +73,7 @@ If `input` is not NULL and different from `output`, then the samples from `input
 are added to the output.
 
 */
-void aubio_wavetable_do ( aubio_wavetable_t * o, fvec_t * input, fvec_t * output);
+void aubio_wavetable_do ( aubio_wavetable_t * o, const fvec_t * input, fvec_t * output);
 
 /** process wavetable function, multiple channels
 
@@ -87,7 +87,7 @@ If `input` is not NULL and different from `output`, then the samples from `input
 are added to the output.
 
 */
-void aubio_wavetable_do_multi ( aubio_wavetable_t * o, fmat_t * input, fmat_t * output);
+void aubio_wavetable_do_multi ( aubio_wavetable_t * o, const fmat_t * input, fmat_t * output);
 
 /** get current playing state
 
@@ -96,7 +96,7 @@ void aubio_wavetable_do_multi ( aubio_wavetable_t * o, fmat_t * input, fmat_t * 
   \return 0 if not playing, 1 if playing
 
 */
-uint_t aubio_wavetable_get_playing ( aubio_wavetable_t * o );
+uint_t aubio_wavetable_get_playing ( const aubio_wavetable_t * o );
 
 /** set current playing state
 
@@ -143,7 +143,7 @@ uint_t aubio_wavetable_set_freq ( aubio_wavetable_t * o, smpl_t freq );
   \return current frequency, in Hz
 
 */
-smpl_t aubio_wavetable_get_freq ( aubio_wavetable_t * o);
+smpl_t aubio_wavetable_get_freq ( const aubio_wavetable_t * o);
 
 /** set wavetable amplitude
 
@@ -162,7 +162,7 @@ uint_t aubio_wavetable_set_amp ( aubio_wavetable_t * o, smpl_t amp );
   \return current amplitude
 
 */
-smpl_t aubio_wavetable_get_amp ( aubio_wavetable_t * o);
+smpl_t aubio_wavetable_get_amp ( const aubio_wavetable_t * o);
 
 /** destroy aubio_wavetable_t object
 
@@ -175,4 +175,4 @@ void del_aubio_wavetable( aubio_wavetable_t * o );
 }
 #endif
 
-#endif /* _AUBIO_WAVETABLE_H */
+#endif /* AUBIO_WAVETABLE_H */

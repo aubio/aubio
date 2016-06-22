@@ -24,8 +24,8 @@
 
  */
 
-#ifndef _AUBIO__VECUTILS_H
-#define _AUBIO__VECUTILS_H
+#ifndef AUBIO_VECUTILS_H
+#define AUBIO_VECUTILS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -113,4 +113,4 @@ void fvec_pow (fvec_t *s, smpl_t pow);
 }
 #endif
 
-#endif /* _AUBIO__VECUTILS_H */
+#endif /* AUBIO_VECUTILS_H */

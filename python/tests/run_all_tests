@@ -1,24 +1,5 @@
 #! /usr/bin/env python
 
 if __name__ == '__main__':
-  import os, sys, unittest
-  def load_test():
-    # get relevant files
-    curdir = os.path.dirname(sys.argv[0])
-    if curdir == '': curdir = '.'
-    files = os.listdir(curdir)
-    modfiles = filter (lambda y: y.endswith('.py'), files)
-    modfiles = filter (lambda f: f.startswith('test_'), modfiles)
-    modfiles = filter (lambda y: not 'beattracking' in y, modfiles)
-    modfiles = filter (lambda y: not 'hist' in y, modfiles)
-    modfiles = filter (lambda y: not 'scale' in y, modfiles)
-    modfiles = filter (lambda y: not 'peakpicker' in y, modfiles)
-    # get module names
-    modnames = map (lambda x: os.path.splitext(x)[0], modfiles)
-    # import them
-    modules = map (__import__, modnames)
-    # create a test suites from the imported module
-    load_from_module = unittest.defaultTestLoader.loadTestsFromModule
-    tests = map(load_from_module, modules)
-    return unittest.TestSuite(tests)
-  unittest.main(defaultTest = 'load_test')
+    import nose2.main
+    nose2.discover()

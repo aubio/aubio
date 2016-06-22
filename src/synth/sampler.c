@@ -55,17 +55,21 @@ beach:
   return NULL;
 }
 
-uint_t aubio_sampler_load( aubio_sampler_t * o, char_t * uri )
+uint_t aubio_sampler_load( aubio_sampler_t * o, const char_t * uri )
 {
   if (o->source) del_aubio_source(o->source);
-  o->uri = uri;
+
+  if (o->uri) AUBIO_FREE(o->uri);
+  o->uri = AUBIO_ARRAY(char_t, strnlen(uri, PATH_MAX));
+  strncpy(o->uri, uri, strnlen(uri, PATH_MAX));
+
   o->source = new_aubio_source(uri, o->samplerate, o->blocksize);
   if (o->source) return 0;
   AUBIO_ERR("sampler: failed loading %s", uri);
   return 1;
 }
 
-void aubio_sampler_do ( aubio_sampler_t * o, fvec_t * input, fvec_t * output)
+void aubio_sampler_do ( aubio_sampler_t * o, const fvec_t * input, fvec_t * output)
 {
   uint_t read = 0, i;
   if (o->playing) {
@@ -82,7 +86,7 @@ void aubio_sampler_do ( aubio_sampler_t * o, fvec_t * input, fvec_t * output)
   }
 }
 
-void aubio_sampler_do_multi ( aubio_sampler_t * o, fmat_t * input, fmat_t * output)
+void aubio_sampler_do_multi ( aubio_sampler_t * o, const fmat_t * input, fmat_t * output)
 {
   uint_t read = 0, i, j;
   if (o->playing) {
@@ -103,7 +107,7 @@ void aubio_sampler_do_multi ( aubio_sampler_t * o, fmat_t * input, fmat_t * outp
   }
 }
 
-uint_t aubio_sampler_get_playing ( aubio_sampler_t * o )
+uint_t aubio_sampler_get_playing ( const aubio_sampler_t * o )
 {
   return o->playing;
 }
@@ -130,6 +134,7 @@ void del_aubio_sampler( aubio_sampler_t * o )
   if (o->source) {
     del_aubio_source(o->source);
   }
+  if (o->uri) AUBIO_FREE(o->uri);
   del_fvec(o->source_output);
   del_fmat(o->source_output_multi);
   AUBIO_FREE(o);

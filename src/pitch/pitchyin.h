@@ -35,8 +35,8 @@
 
 */
 
-#ifndef _AUBIO_PITCHYIN_H
-#define _AUBIO_PITCHYIN_H
+#ifndef AUBIO_PITCHYIN_H
+#define AUBIO_PITCHYIN_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -66,7 +66,7 @@ void del_aubio_pitchyin (aubio_pitchyin_t * o);
   \param cands_out pitch period candidates, in samples
 
 */
-void aubio_pitchyin_do (aubio_pitchyin_t * o, fvec_t * samples_in, fvec_t * cands_out);
+void aubio_pitchyin_do (aubio_pitchyin_t * o, const fvec_t * samples_in, fvec_t * cands_out);
 
 
 /** set tolerance parameter for YIN algorithm
@@ -97,4 +97,4 @@ smpl_t aubio_pitchyin_get_confidence (aubio_pitchyin_t * o);
 }
 #endif
 
-#endif /* _AUBIO_PITCHYIN_H */
+#endif /* AUBIO_PITCHYIN_H */

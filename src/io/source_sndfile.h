@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO_SOURCE_SNDFILE_H
-#define _AUBIO_SOURCE_SNDFILE_H
+#ifndef AUBIO_SOURCE_SNDFILE_H
+#define AUBIO_SOURCE_SNDFILE_H
 
 /** \file
 
@@ -56,7 +56,7 @@ typedef struct _aubio_source_sndfile_t aubio_source_sndfile_t;
   ::aubio_source_sndfile_get_samplerate.
 
 */
-aubio_source_sndfile_t * new_aubio_source_sndfile(char_t * uri, uint_t samplerate, uint_t hop_size);
+aubio_source_sndfile_t * new_aubio_source_sndfile(const char_t * uri, uint_t samplerate, uint_t hop_size);
 
 /**
 
@@ -120,6 +120,16 @@ uint_t aubio_source_sndfile_seek (aubio_source_sndfile_t *s, uint_t pos);
 
 /**
 
+  get the duration of source object, in frames
+
+  \param s source object, created with ::new_aubio_source_sndfile
+  \return number of frames in file
+
+*/
+uint_t aubio_source_sndfile_get_duration (const aubio_source_sndfile_t *s);
+
+/**
+
   close source
 
   \param s source object, created with ::new_aubio_source_sndfile
@@ -142,4 +152,4 @@ void del_aubio_source_sndfile(aubio_source_sndfile_t * s);
 }
 #endif
 
-#endif /* _AUBIO_SOURCE_SNDFILE_H */
+#endif /* AUBIO_SOURCE_SNDFILE_H */

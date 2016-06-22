@@ -1,6 +1,7 @@
 # vim:set syntax=python:
 
 uselib = []
+uselib += ['M']
 uselib += ['FFTW3', 'FFTW3F']
 uselib += ['SAMPLERATE']
 uselib += ['SNDFILE']
@@ -8,29 +9,29 @@ uselib += ['AVCODEC']
 uselib += ['AVFORMAT']
 uselib += ['AVRESAMPLE']
 uselib += ['AVUTIL']
+uselib += ['BLAS']
 
-# build each source files
 source = ctx.path.ant_glob('*.c **/*.c')
+
 ctx(features = 'c',
         source = source,
         includes = ['.'],
-        uselib = uselib,
-        lib = 'm',
+        use = uselib,
         target = 'lib_objects')
 
 # build libaubio.so (cshlib) and/or libaubio.a (cstlib)
 if ctx.env['DEST_OS'] in ['ios', 'iosimulator']:
     build_features = ['cstlib', 'cshlib']
 elif ctx.env['DEST_OS'] in ['win32', 'win64']:
-    build_features = ['cshlib']
+    build_features = ['cstlib', 'cshlib']
+elif ctx.env['DEST_OS'] in ['emscripten']:
+    build_features = ['cstlib']
 else: #linux, darwin, android, mingw, ...
-    build_features = ['cshlib', 'cstlib']
+    build_features = ['cstlib', 'cshlib']
 
 for target in build_features:
     ctx(features = 'c ' + target,
-            use = ['lib_objects'],
-            uselib = uselib,
-            lib = 'm',
+            use = uselib + ['lib_objects'],
             target = 'aubio',
             vnum = ctx.env['LIB_VERSION'])
 

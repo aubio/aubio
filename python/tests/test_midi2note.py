@@ -27,7 +27,7 @@ class midi2note_wrong_values(unittest.TestCase):
         " fails when passed a negative value "
         self.assertRaises(ValueError, midi2note, -2)
 
-    def test_midi2note_negative_value(self):
+    def test_midi2note_large(self):
         " fails when passed a value greater than 127 "
         self.assertRaises(ValueError, midi2note, 128)
 

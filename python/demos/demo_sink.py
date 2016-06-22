@@ -5,7 +5,7 @@ from aubio import source, sink
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
-        print 'usage: %s <inputfile> <outputfile> [samplerate] [hop_size]' % sys.argv[0]
+        print('usage: %s <inputfile> <outputfile> [samplerate] [hop_size]' % sys.argv[0])
         sys.exit(1)
 
     if len(sys.argv) > 3: samplerate = int(sys.argv[3])
@@ -22,8 +22,10 @@ if __name__ == '__main__':
         vec, read = f()
         g(vec, read)
         total_frames += read
-    print "wrote", "%.2fs" % (total_frames / float(samplerate) ),
-    print "(", total_frames, "frames", "in",
-    print total_frames / f.hop_size, "blocks", "at", "%dHz" % f.samplerate, ")",
-    print "from", f.uri,
-    print "to", g.uri
+    outstr = "wrote %.2fs" % (total_frames / float(samplerate))
+    outstr += " (%d frames in" % total_frames
+    outstr += " %d blocks" % (total_frames // f.hop_size)
+    outstr += " at %dHz)" % f.samplerate
+    outstr += " from " + f.uri
+    outstr += " to " + g.uri
+    print(outstr)

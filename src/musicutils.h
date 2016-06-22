@@ -22,8 +22,8 @@
  *  various functions useful in audio signal processing
  */
 
-#ifndef _AUBIO__MUSICUTILS_H
-#define _AUBIO__MUSICUTILS_H
+#ifndef AUBIO_MUSICUTILS_H
+#define AUBIO_MUSICUTILS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -56,8 +56,8 @@ function</a> on Wikipedia
 implementations of a phase vocoder: the tricks of the trade. In Proceedings of
 the International Conference on Digital Audio Effects (DAFx-00), pages 37–44,
 Uni- versity of Verona, Italy, 2000.
-  (<a href="http://profs.sci.univr.it/%7Edafx/Final-Papers/ps/Bernardini.ps.gz">
-  ps.gz</a>)
+  (<a href="http://www.cs.princeton.edu/courses/archive/spr09/cos325/Bernardini.pdf">
+  pdf</a>)
 
  */
 uint_t fvec_set_window (fvec_t * window, char_t * window_type);
@@ -121,7 +121,7 @@ smpl_t aubio_zero_crossing_rate (fvec_t * v);
   \return level of v
 
 */
-smpl_t aubio_level_lin (fvec_t * v);
+smpl_t aubio_level_lin (const fvec_t * v);
 
 /** compute sound pressure level (SPL) in dB
 
@@ -134,7 +134,7 @@ smpl_t aubio_level_lin (fvec_t * v);
   \return level of v in dB SPL
 
 */
-smpl_t aubio_db_spl (fvec_t * v);
+smpl_t aubio_db_spl (const fvec_t * v);
 
 /** check if buffer level in dB SPL is under a given threshold
 
@@ -144,7 +144,7 @@ smpl_t aubio_db_spl (fvec_t * v);
   \return 0 if level is under the given threshold, 1 otherwise
 
 */
-uint_t aubio_silence_detection (fvec_t * v, smpl_t threshold);
+uint_t aubio_silence_detection (const fvec_t * v, smpl_t threshold);
 
 /** get buffer level if level >= threshold, 1. otherwise
 
@@ -160,4 +160,4 @@ smpl_t aubio_level_detection (fvec_t * v, smpl_t threshold);
 }
 #endif
 
-#endif /* _AUBIO__MUSICUTILS_H */
+#endif /* AUBIO_MUSICUTILS_H */

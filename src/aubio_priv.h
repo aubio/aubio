@@ -24,8 +24,8 @@
  * This file is for inclusion from _within_ the library only.
  */
 
-#ifndef _AUBIO__PRIV_H
-#define _AUBIO__PRIV_H
+#ifndef AUBIO_PRIV_H
+#define AUBIO_PRIV_H
 
 /*********************
  *
@@ -35,11 +35,11 @@
 
 #include "config.h"
 
-#if HAVE_STDLIB_H
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
 
-#if HAVE_STDIO_H
+#ifdef HAVE_STDIO_H
 #include <stdio.h>
 #endif
 
@@ -62,6 +62,63 @@
 
 #ifdef HAVE_LIMITS_H
 #include <limits.h> // for CHAR_BIT, in C99 standard
+#endif
+
+#ifdef HAVE_ACCELERATE
+#define HAVE_ATLAS 1
+#include <Accelerate/Accelerate.h>
+#elif defined(HAVE_ATLAS_CBLAS_H)
+#define HAVE_ATLAS 1
+#include <atlas/cblas.h>
+#else
+#undef HAVE_ATLAS
+#endif
+
+#ifdef HAVE_ACCELERATE
+#include <Accelerate/Accelerate.h>
+#ifndef HAVE_AUBIO_DOUBLE
+#define aubio_vDSP_mmov       vDSP_mmov
+#define aubio_vDSP_vmul       vDSP_vmul
+#define aubio_vDSP_vfill      vDSP_vfill
+#define aubio_vDSP_meanv      vDSP_meanv
+#define aubio_vDSP_sve        vDSP_sve
+#define aubio_vDSP_maxv       vDSP_maxv
+#define aubio_vDSP_maxvi      vDSP_maxvi
+#define aubio_vDSP_minv       vDSP_minv
+#define aubio_vDSP_minvi      vDSP_minvi
+#define aubio_vDSP_dotpr      vDSP_dotpr
+#else /* HAVE_AUBIO_DOUBLE */
+#define aubio_vDSP_mmov       vDSP_mmovD
+#define aubio_vDSP_vmul       vDSP_vmulD
+#define aubio_vDSP_vfill      vDSP_vfillD
+#define aubio_vDSP_meanv      vDSP_meanvD
+#define aubio_vDSP_sve        vDSP_sveD
+#define aubio_vDSP_maxv       vDSP_maxvD
+#define aubio_vDSP_maxvi      vDSP_maxviD
+#define aubio_vDSP_minv       vDSP_minvD
+#define aubio_vDSP_minvi      vDSP_minviD
+#define aubio_vDSP_dotpr      vDSP_dotprD
+#endif /* HAVE_AUBIO_DOUBLE */
+#endif /* HAVE_ACCELERATE */
+
+#ifdef HAVE_ATLAS
+#ifndef HAVE_AUBIO_DOUBLE
+#define aubio_catlas_set      catlas_sset
+#define aubio_cblas_copy      cblas_scopy
+#define aubio_cblas_swap      cblas_sswap
+#define aubio_cblas_dot       cblas_sdot
+#else /* HAVE_AUBIO_DOUBLE */
+#define aubio_catlas_set      catlas_dset
+#define aubio_cblas_copy      cblas_dcopy
+#define aubio_cblas_swap      cblas_dswap
+#define aubio_cblas_dot       cblas_ddot
+#endif /* HAVE_AUBIO_DOUBLE */
+#endif /* HAVE_ATLAS */
+
+#if !defined(HAVE_MEMCPY_HACKS) && !defined(HAVE_ACCELERATE) && !defined(HAVE_ATLAS)
+#define HAVE_NOOPT 1
+#else
+#undef HAVE_NOOPT
 #endif
 
 #include "types.h"
@@ -136,6 +193,10 @@ typedef enum {
 #endif
 #define TWO_PI     (PI*2.)
 
+#ifndef PATH_MAX
+#define PATH_MAX 1024
+#endif
+
 /* aliases to math.h functions */
 #if !HAVE_AUBIO_DOUBLE
 #define EXP        expf
@@ -193,6 +254,11 @@ typedef enum {
 #define IMAG      cimagf
 #endif
 
+/* avoid unresolved symbol with msvc 9 */
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
+#define isnan _isnan
+#endif
+
 /* handy shortcuts */
 #define DB2LIN(g) (POW(10.0,(g)*0.05f))
 #define LIN2DB(v) (20.0*LOG10(v))
@@ -228,4 +294,12 @@ typedef enum {
 #define UNUSED
 #endif
 
-#endif /* _AUBIO__PRIV_H */
+/* are we using gcc -std=c99 ? */
+#if defined(__STRICT_ANSI__)
+#define strnlen(a,b) MIN(strlen(a),b)
+#if !HAVE_AUBIO_DOUBLE
+#define floorf floor
+#endif
+#endif /* __STRICT_ANSI__ */
+
+#endif /* AUBIO_PRIV_H */

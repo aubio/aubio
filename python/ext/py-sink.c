@@ -1,4 +1,4 @@
-#include "aubiowraphell.h"
+#include "aubio-types.h"
 
 typedef struct
 {
@@ -7,6 +7,8 @@ typedef struct
   char_t* uri;
   uint_t samplerate;
   uint_t channels;
+  fvec_t write_data;
+  fmat_t mwrite_data;
 } Py_sink;
 
 static char Py_sink_doc[] = ""
@@ -115,7 +117,7 @@ Py_sink_init (Py_sink * self, PyObject * args, PyObject * kwds)
     aubio_sink_preset_samplerate ( self->o, self->samplerate );
   }
   if (self->o == NULL) {
-    PyErr_SetString (PyExc_StandardError, "error creating sink with this uri");
+    PyErr_SetString (PyExc_RuntimeError, "error creating sink with this uri");
     return -1;
   }
   self->samplerate = aubio_sink_get_samplerate ( self->o );
@@ -124,7 +126,13 @@ Py_sink_init (Py_sink * self, PyObject * args, PyObject * kwds)
   return 0;
 }
 
-AUBIO_DEL(sink)
+static void
+Py_sink_del (Py_sink *self, PyObject *unused)
+{
+  del_aubio_sink(self->o);
+  free(self->mwrite_data.data);
+  Py_TYPE(self)->tp_free((PyObject *) self);
+}
 
 /* function Py_sink_do */
 static PyObject *
@@ -134,7 +142,6 @@ Py_sink_do(Py_sink * self, PyObject * args)
   PyObject * write_data_obj;
 
   /* input vectors prototypes */
-  fvec_t* write_data;
   uint_t write;
 
 
@@ -142,20 +149,14 @@ Py_sink_do(Py_sink * self, PyObject * args)
     return NULL;
   }
 
-
   /* input vectors parsing */
-  write_data = PyAubio_ArrayToCFvec (write_data_obj);
-
-  if (write_data == NULL) {
+  if (!PyAubio_ArrayToCFvec(write_data_obj, &(self->write_data))) {
     return NULL;
   }
 
 
-
-
-
   /* compute _do function */
-  aubio_sink_do (self->o, write_data, write);
+  aubio_sink_do (self->o, &(self->write_data), write);
 
   Py_RETURN_NONE;
 }
@@ -168,7 +169,6 @@ Py_sink_do_multi(Py_sink * self, PyObject * args)
   PyObject * write_data_obj;
 
   /* input vectors prototypes */
-  fmat_t * write_data;
   uint_t write;
 
 
@@ -178,29 +178,24 @@ Py_sink_do_multi(Py_sink * self, PyObject * args)
 
 
   /* input vectors parsing */
-  write_data = PyAubio_ArrayToCFmat (write_data_obj);
-
-  if (write_data == NULL) {
+  if (!PyAubio_ArrayToCFmat(write_data_obj, &(self->mwrite_data))) {
     return NULL;
   }
 
-
-
-
-
   /* compute _do function */
-  aubio_sink_do_multi (self->o, write_data, write);
+  aubio_sink_do_multi (self->o, &(self->mwrite_data), write);
   Py_RETURN_NONE;
 }
 
-AUBIO_MEMBERS_START(sink)
+static PyMemberDef Py_sink_members[] = {
   {"uri", T_STRING, offsetof (Py_sink, uri), READONLY,
     "path at which the sink was created"},
   {"samplerate", T_INT, offsetof (Py_sink, samplerate), READONLY,
     "samplerate at which the sink was created"},
   {"channels", T_INT, offsetof (Py_sink, channels), READONLY,
     "number of channels with which the sink was created"},
-AUBIO_MEMBERS_STOP(sink)
+  { NULL } // sentinel
+};
 
 static PyObject *
 Pyaubio_sink_close (Py_sink *self, PyObject *unused)
@@ -216,4 +211,52 @@ static PyMethodDef Py_sink_methods[] = {
   {NULL} /* sentinel */
 };
 
-AUBIO_TYPEOBJECT(sink, "aubio.sink")
+PyTypeObject Py_sinkType = {
+  PyVarObject_HEAD_INIT (NULL, 0)
+  "aubio.sink",
+  sizeof (Py_sink),
+  0,
+  (destructor) Py_sink_del,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  (ternaryfunc)Py_sink_do,
+  0,
+  0,
+  0,
+  0,
+  Py_TPFLAGS_DEFAULT,
+  Py_sink_doc,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  Py_sink_methods,
+  Py_sink_members,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  (initproc) Py_sink_init,
+  0,
+  Py_sink_new,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+};

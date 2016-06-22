@@ -53,15 +53,18 @@ struct _aubio_sink_sndfile_t {
 
 uint_t aubio_sink_sndfile_open(aubio_sink_sndfile_t *s);
 
-aubio_sink_sndfile_t * new_aubio_sink_sndfile(char_t * path, uint_t samplerate) {
+aubio_sink_sndfile_t * new_aubio_sink_sndfile(const char_t * path, uint_t samplerate) {
   aubio_sink_sndfile_t * s = AUBIO_NEW(aubio_sink_sndfile_t);
   s->max_size = MAX_SIZE;
-  s->path = path;
 
   if (path == NULL) {
     AUBIO_ERR("sink_sndfile: Aborted opening null path\n");
     return NULL;
   }
+
+  if (s->path) AUBIO_FREE(s->path);
+  s->path = AUBIO_ARRAY(char_t, strnlen(path, PATH_MAX) + 1);
+  strncpy(s->path, path, strnlen(path, PATH_MAX) + 1);
 
   s->samplerate = 0;
   s->channels = 0;
@@ -106,12 +109,12 @@ uint_t aubio_sink_sndfile_preset_channels(aubio_sink_sndfile_t *s, uint_t channe
   return AUBIO_OK;
 }
 
-uint_t aubio_sink_sndfile_get_samplerate(aubio_sink_sndfile_t *s)
+uint_t aubio_sink_sndfile_get_samplerate(const aubio_sink_sndfile_t *s)
 {
   return s->samplerate;
 }
 
-uint_t aubio_sink_sndfile_get_channels(aubio_sink_sndfile_t *s)
+uint_t aubio_sink_sndfile_get_channels(const aubio_sink_sndfile_t *s)
 {
   return s->channels;
 }
@@ -219,6 +222,7 @@ uint_t aubio_sink_sndfile_close (aubio_sink_sndfile_t *s) {
 
 void del_aubio_sink_sndfile(aubio_sink_sndfile_t * s){
   if (!s) return;
+  if (s->path) AUBIO_FREE(s->path);
   aubio_sink_sndfile_close(s);
   AUBIO_FREE(s->scratch_data);
   AUBIO_FREE(s);

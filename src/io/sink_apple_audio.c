@@ -36,12 +36,14 @@
 
 extern int createAubioBufferList(AudioBufferList *bufferList, int channels, int segmentSize);
 extern void freeAudioBufferList(AudioBufferList *bufferList);
-extern CFURLRef getURLFromPath(const char * path);
+extern CFURLRef createURLFromPath(const char * path);
 char_t *getPrintableOSStatusError(char_t *str, OSStatus error);
 
 uint_t aubio_sink_apple_audio_open(aubio_sink_apple_audio_t *s);
 
 #define MAX_SIZE 4096 // the maximum number of frames that can be written at a time
+
+void aubio_sink_apple_audio_write(aubio_sink_apple_audio_t *s, uint_t write);
 
 struct _aubio_sink_apple_audio_t {
   uint_t samplerate;
@@ -55,16 +57,18 @@ struct _aubio_sink_apple_audio_t {
   bool async;
 };
 
-aubio_sink_apple_audio_t * new_aubio_sink_apple_audio(char_t * uri, uint_t samplerate) {
+aubio_sink_apple_audio_t * new_aubio_sink_apple_audio(const char_t * uri, uint_t samplerate) {
   aubio_sink_apple_audio_t * s = AUBIO_NEW(aubio_sink_apple_audio_t);
-  s->path = uri;
   s->max_frames = MAX_SIZE;
-  s->async = true;
+  s->async = false;
 
   if (uri == NULL) {
     AUBIO_ERROR("sink_apple_audio: Aborted opening null path\n");
     goto beach;
   }
+  if (s->path != NULL) AUBIO_FREE(s->path);
+  s->path = AUBIO_ARRAY(char_t, strnlen(uri, PATH_MAX) + 1);
+  strncpy(s->path, uri, strnlen(uri, PATH_MAX) + 1);
 
   s->samplerate = 0;
   s->channels = 0;
@@ -110,12 +114,12 @@ uint_t aubio_sink_apple_audio_preset_channels(aubio_sink_apple_audio_t *s, uint_
   return AUBIO_OK;
 }
 
-uint_t aubio_sink_apple_audio_get_samplerate(aubio_sink_apple_audio_t *s)
+uint_t aubio_sink_apple_audio_get_samplerate(const aubio_sink_apple_audio_t *s)
 {
   return s->samplerate;
 }
 
-uint_t aubio_sink_apple_audio_get_channels(aubio_sink_apple_audio_t *s)
+uint_t aubio_sink_apple_audio_get_channels(const aubio_sink_apple_audio_t *s)
 {
   return s->channels;
 }
@@ -137,11 +141,12 @@ uint_t aubio_sink_apple_audio_open(aubio_sink_apple_audio_t *s) {
   clientFormat.mReserved         = 0;
 
   AudioFileTypeID fileType = kAudioFileWAVEType;
-  CFURLRef fileURL = getURLFromPath(s->path);
+  CFURLRef fileURL = createURLFromPath(s->path);
   bool overwrite = true;
   OSStatus err = noErr;
   err = ExtAudioFileCreateWithURL(fileURL, fileType, &clientFormat, NULL,
      overwrite ? kAudioFileFlags_EraseFile : 0, &s->audioFile);
+  CFRelease(fileURL);
   if (err) {
     char_t errorstr[20];
     AUBIO_ERR("sink_apple_audio: error when trying to create %s with "
@@ -161,7 +166,6 @@ beach:
 }
 
 void aubio_sink_apple_audio_do(aubio_sink_apple_audio_t * s, fvec_t * write_data, uint_t write) {
-  OSStatus err = noErr;
   UInt32 c, v;
   short *data = (short*)s->bufferList.mBuffers[0].mData;
   if (write > s->max_frames) {
@@ -178,34 +182,10 @@ void aubio_sink_apple_audio_do(aubio_sink_apple_audio_t * s, fvec_t * write_data
           }
       }
   }
-  if (s->async) {
-    err = ExtAudioFileWriteAsync(s->audioFile, write, &s->bufferList);
-
-    if (err) {
-      char_t errorstr[20];
-      AUBIO_ERROR("sink_apple_audio: error while writing %s "
-          "in ExtAudioFileWriteAsync (%s), switching to sync\n", s->path,
-          getPrintableOSStatusError(errorstr, err));
-      s->async = false;
-    } else {
-      return;
-    }
-
-  } else {
-    err = ExtAudioFileWrite(s->audioFile, write, &s->bufferList);
-
-    if (err) {
-      char_t errorstr[20];
-      AUBIO_ERROR("sink_apple_audio: error while writing %s "
-          "in ExtAudioFileWrite (%s)\n", s->path,
-          getPrintableOSStatusError(errorstr, err));
-    }
-  }
-  return;
+  aubio_sink_apple_audio_write(s, write);
 }
 
 void aubio_sink_apple_audio_do_multi(aubio_sink_apple_audio_t * s, fmat_t * write_data, uint_t write) {
-  OSStatus err = noErr;
   UInt32 c, v;
   short *data = (short*)s->bufferList.mBuffers[0].mData;
   if (write > s->max_frames) {
@@ -222,22 +202,28 @@ void aubio_sink_apple_audio_do_multi(aubio_sink_apple_audio_t * s, fmat_t * writ
           }
       }
   }
+  aubio_sink_apple_audio_write(s, write);
+}
+
+void aubio_sink_apple_audio_write(aubio_sink_apple_audio_t *s, uint_t write) {
+  OSStatus err = noErr;
   if (s->async) {
     err = ExtAudioFileWriteAsync(s->audioFile, write, &s->bufferList);
-
     if (err) {
       char_t errorstr[20];
+      if (err == kExtAudioFileError_AsyncWriteBufferOverflow) {
+        sprintf(errorstr,"buffer overflow");
+      } else if (err == kExtAudioFileError_AsyncWriteTooLarge) {
+        sprintf(errorstr,"write too large");
+      } else {
+        // unknown error
+        getPrintableOSStatusError(errorstr, err);
+      }
       AUBIO_ERROR("sink_apple_audio: error while writing %s "
-          "in ExtAudioFileWriteAsync (%s), switching to sync\n", s->path,
-          getPrintableOSStatusError(errorstr, err));
-      s->async = false;
-    } else {
-      return;
+                  "in ExtAudioFileWriteAsync (%s)\n", s->path, errorstr);
     }
-
   } else {
     err = ExtAudioFileWrite(s->audioFile, write, &s->bufferList);
-
     if (err) {
       char_t errorstr[20];
       AUBIO_ERROR("sink_apple_audio: error while writing %s "
@@ -245,7 +231,6 @@ void aubio_sink_apple_audio_do_multi(aubio_sink_apple_audio_t * s, fmat_t * writ
           getPrintableOSStatusError(errorstr, err));
     }
   }
-  return;
 }
 
 uint_t aubio_sink_apple_audio_close(aubio_sink_apple_audio_t * s) {
@@ -266,6 +251,7 @@ uint_t aubio_sink_apple_audio_close(aubio_sink_apple_audio_t * s) {
 
 void del_aubio_sink_apple_audio(aubio_sink_apple_audio_t * s) {
   if (s->audioFile) aubio_sink_apple_audio_close (s);
+  if (s->path) AUBIO_FREE(s->path);
   freeAudioBufferList(&s->bufferList);
   AUBIO_FREE(s);
   return;

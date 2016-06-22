@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO__LVEC_H
-#define _AUBIO__LVEC_H
+#ifndef AUBIO_LVEC_H
+#define AUBIO_LVEC_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -80,14 +80,14 @@ void  lvec_set_sample(lvec_t *s, lsmp_t data, uint_t position);
   \param s vector to read from
 
 */
-lsmp_t * lvec_get_data(lvec_t *s);
+lsmp_t * lvec_get_data(const lvec_t *s);
 
 /** print out lvec data
 
   \param s vector to print out
 
 */
-void lvec_print(lvec_t *s);
+void lvec_print(const lvec_t *s);
 
 /** set all elements to a given value
 
@@ -115,4 +115,4 @@ void lvec_ones(lvec_t *s);
 }
 #endif
 
-#endif /* _AUBIO__LVEC_H */
+#endif /* AUBIO_LVEC_H */

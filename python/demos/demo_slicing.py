@@ -6,7 +6,7 @@ from aubio import source, sink
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
-        print 'usage: %s <inputfile> <duration>' % sys.argv[0]
+        print('usage: %s <inputfile> <duration>' % sys.argv[0])
         sys.exit(1)
     source_file = sys.argv[1]
     duration = float(sys.argv[2])
@@ -44,7 +44,8 @@ if __name__ == '__main__':
         total_frames_written += read
     total_duration = total_frames_written / float(samplerate)
     slice_n += 1
-    print 'created %(slice_n)s slices from %(source_base_name)s%(source_ext)s' % locals(),
-    print ' (total duration %(total_duration).2fs)' % locals()
+    outstr = 'created %(slice_n)s slices from %(source_base_name)s%(source_ext)s' % locals()
+    outstr += ' (total duration %(total_duration).2fs)' % locals()
+    print(outstr)
     # close source and sink files
     del f, g

@@ -36,8 +36,8 @@
   \example tempo/test-beattracking.c
 
 */
-#ifndef _AUBIO_BEATTRACKING_H
-#define _AUBIO_BEATTRACKING_H
+#ifndef AUBIO_BEATTRACKING_H
+#define AUBIO_BEATTRACKING_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -64,8 +64,28 @@ aubio_beattracking_t * new_aubio_beattracking(uint_t winlen, uint_t hop_size,
   \param out stored detected beat locations
 
 */
-void aubio_beattracking_do (aubio_beattracking_t * bt, fvec_t * dfframes,
+void aubio_beattracking_do (aubio_beattracking_t * bt, const fvec_t * dfframes,
     fvec_t * out);
+
+/** get current beat period in samples
+
+  \param bt beat tracking object
+
+  Returns the currently observed period, in samples, or 0 if no consistent
+  value is found.
+
+*/
+smpl_t aubio_beattracking_get_period (const aubio_beattracking_t * bt);
+
+/** get current beat period in seconds
+
+  \param bt beat tracking object
+
+  Returns the currently observed period, in seconds, or 0 if no consistent
+  value is found.
+
+*/
+smpl_t aubio_beattracking_get_period_s (const aubio_beattracking_t * bt);
 
 /** get current tempo in bpm
 
@@ -75,7 +95,7 @@ void aubio_beattracking_do (aubio_beattracking_t * bt, fvec_t * dfframes,
   consistent value is found.
 
 */
-smpl_t aubio_beattracking_get_bpm(aubio_beattracking_t * bt);
+smpl_t aubio_beattracking_get_bpm(const aubio_beattracking_t * bt);
 
 /** get current tempo confidence
 
@@ -85,7 +105,7 @@ smpl_t aubio_beattracking_get_bpm(aubio_beattracking_t * bt);
   consistent value is found.
 
 */
-smpl_t aubio_beattracking_get_confidence(aubio_beattracking_t * bt);
+smpl_t aubio_beattracking_get_confidence(const aubio_beattracking_t * bt);
 
 /** delete beat tracking object
 
@@ -98,4 +118,4 @@ void del_aubio_beattracking(aubio_beattracking_t * p);
 }
 #endif
 
-#endif /* _AUBIO_BEATTRACKING_H */
+#endif /* AUBIO_BEATTRACKING_H */

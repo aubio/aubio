@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
-from numpy.testing import TestCase, run_module_suite
-from numpy.testing import assert_equal, assert_almost_equal
+from unittest import main
+from numpy.testing import TestCase, assert_equal, assert_almost_equal
 from aubio import onset
 
 class aubio_onset_default(TestCase):
@@ -84,5 +84,4 @@ class aubio_onset_8000(aubio_onset_params):
     samplerate = 8000
 
 if __name__ == '__main__':
-    from unittest import main
     main()

@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO_PITCH_H
-#define _AUBIO_PITCH_H
+#ifndef AUBIO_PITCH_H
+#define AUBIO_PITCH_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -107,7 +107,7 @@ typedef struct _aubio_pitch_t aubio_pitch_t;
   \param out output pitch candidates of size [1]
 
 */
-void aubio_pitch_do (aubio_pitch_t * o, fvec_t * in, fvec_t * out);
+void aubio_pitch_do (aubio_pitch_t * o, const fvec_t * in, fvec_t * out);
 
 /** change yin or yinfft tolerance threshold
 
@@ -134,7 +134,7 @@ void del_aubio_pitch (aubio_pitch_t * o);
   \return newly created ::aubio_pitch_t
 
 */
-aubio_pitch_t *new_aubio_pitch (char_t * method,
+aubio_pitch_t *new_aubio_pitch (const char_t * method,
     uint_t buf_size, uint_t hop_size, uint_t samplerate);
 
 /** set the output unit of the pitch detection object
@@ -145,7 +145,7 @@ aubio_pitch_t *new_aubio_pitch (char_t * method,
   \return 0 if successfull, non-zero otherwise
 
 */
-uint_t aubio_pitch_set_unit (aubio_pitch_t * o, char_t * mode);
+uint_t aubio_pitch_set_unit (aubio_pitch_t * o, const char_t * mode);
 
 /** set the silence threshold of the pitch detection object
 
@@ -179,4 +179,4 @@ smpl_t aubio_pitch_get_confidence (aubio_pitch_t * o);
 }
 #endif
 
-#endif /* _AUBIO_PITCH_H */
+#endif /* AUBIO_PITCH_H */

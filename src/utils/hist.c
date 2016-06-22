@@ -137,7 +137,7 @@ void aubio_hist_weight (aubio_hist_t *s) {
   }
 }
 
-smpl_t aubio_hist_mean (aubio_hist_t *s) {
+smpl_t aubio_hist_mean (const aubio_hist_t *s) {
   uint_t j;
   smpl_t tmp = 0.0;
   for (j=0; j < s->nelems; j++)

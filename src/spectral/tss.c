@@ -40,7 +40,7 @@ struct _aubio_tss_t
   fvec_t *dev;
 };
 
-void aubio_tss_do(aubio_tss_t *o, cvec_t * input, 
+void aubio_tss_do(aubio_tss_t *o, const cvec_t * input,
     cvec_t * trans, cvec_t * stead)
 {
   uint_t j;

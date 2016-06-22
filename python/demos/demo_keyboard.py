@@ -25,7 +25,6 @@ def get_keyboard_edges(firstnote = 21, lastnote = 108):
     return xb, xw, 2/3. *scaleb, 1/2. * scalew
 
 def create_keyboard_patches(firstnote, lastnote, ax = None):
-    import numpy as np
     import matplotlib.pyplot as plt
     from matplotlib.path import Path
     import matplotlib.patches as mpatches

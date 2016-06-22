@@ -45,15 +45,6 @@ setting PYTHONPATH:
 
     $ export PYTHONPATH=$PYTHONPATH:$PWD/`ls -rtd build/lib.* | head -1`:$PWD/tests
 
-Similarly, you can use the aubio module without installing libaubio by pointing
-LD_LIBRARY_PATH to the path libaubio can be found at:
-
-    $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:PWD/../build/src
-
-Or on Mac OS X systems, setting DYLD_LIBRARY_PATH:
-
-    $ export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$PWD/../build/src
-
 Testing the Python module
 -------------------------
 

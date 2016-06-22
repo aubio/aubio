@@ -84,6 +84,7 @@ static void* Py_miditofreq_data[] = {
 void add_ufuncs ( PyObject *m )
 {
   int err = 0;
+  PyObject *dict, *f, *g, *h;
 
   err = _import_umath ();
   if (err != 0) {
@@ -91,7 +92,6 @@ void add_ufuncs ( PyObject *m )
         "Unable to import Numpy umath from aubio module (error %d)\n", err);
   }
 
-  PyObject *f, *dict;
   dict = PyModule_GetDict(m);
   f = PyUFunc_FromFuncAndData(Py_aubio_unary_functions, Py_unwrap2pi_data, Py_aubio_unary_types,
           Py_aubio_unary_n_types, Py_aubio_unary_n_inputs, Py_aubio_unary_n_outputs,
@@ -99,14 +99,12 @@ void add_ufuncs ( PyObject *m )
   PyDict_SetItemString(dict, "unwrap2pi", f);
   Py_DECREF(f);
 
-  PyObject *g;
   g = PyUFunc_FromFuncAndData(Py_aubio_unary_functions, Py_freqtomidi_data, Py_aubio_unary_types,
           Py_aubio_unary_n_types, Py_aubio_unary_n_inputs, Py_aubio_unary_n_outputs,
           PyUFunc_None, "freqtomidi", Py_freqtomidi_doc, 0);
   PyDict_SetItemString(dict, "freqtomidi", g);
   Py_DECREF(g);
 
-  PyObject *h;
   h = PyUFunc_FromFuncAndData(Py_aubio_unary_functions, Py_miditofreq_data, Py_aubio_unary_types,
           Py_aubio_unary_n_types, Py_aubio_unary_n_inputs, Py_aubio_unary_n_outputs,
           PyUFunc_None, "miditofreq", Py_miditofreq_doc, 0);

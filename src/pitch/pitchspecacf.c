@@ -54,7 +54,7 @@ new_aubio_pitchspecacf (uint_t bufsize)
 }
 
 void
-aubio_pitchspecacf_do (aubio_pitchspecacf_t * p, fvec_t * input, fvec_t * output)
+aubio_pitchspecacf_do (aubio_pitchspecacf_t * p, const fvec_t * input, fvec_t * output)
 {
   uint_t l, tau;
   fvec_t *fftout = p->fftout;
@@ -91,7 +91,7 @@ del_aubio_pitchspecacf (aubio_pitchspecacf_t * p)
 }
 
 smpl_t
-aubio_pitchspecacf_get_confidence (aubio_pitchspecacf_t * o) {
+aubio_pitchspecacf_get_confidence (const aubio_pitchspecacf_t * o) {
   // no confidence for now
   return o->confidence;
 }
@@ -104,7 +104,7 @@ aubio_pitchspecacf_set_tolerance (aubio_pitchspecacf_t * p, smpl_t tol)
 }
 
 smpl_t
-aubio_pitchspecacf_get_tolerance (aubio_pitchspecacf_t * p)
+aubio_pitchspecacf_get_tolerance (const aubio_pitchspecacf_t * p)
 {
   return p->tol;
 }

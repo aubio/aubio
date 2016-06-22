@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO_SINK_WAVWRITE_H
-#define _AUBIO_SINK_WAVWRITE_H
+#ifndef AUBIO_SINK_WAVWRITE_H
+#define AUBIO_SINK_WAVWRITE_H
 
 /** \file
 
@@ -57,7 +57,7 @@ typedef struct _aubio_sink_wavwrite_t aubio_sink_wavwrite_t;
   been called.
 
 */
-aubio_sink_wavwrite_t * new_aubio_sink_wavwrite(char_t * uri, uint_t samplerate);
+aubio_sink_wavwrite_t * new_aubio_sink_wavwrite(const char_t * uri, uint_t samplerate);
 
 /**
 
@@ -101,7 +101,7 @@ uint_t aubio_sink_wavwrite_preset_channels(aubio_sink_wavwrite_t *s, uint_t chan
   \return samplerate, in Hz
 
 */
-uint_t aubio_sink_wavwrite_get_samplerate(aubio_sink_wavwrite_t *s);
+uint_t aubio_sink_wavwrite_get_samplerate(const aubio_sink_wavwrite_t *s);
 
 /**
 
@@ -111,7 +111,7 @@ uint_t aubio_sink_wavwrite_get_samplerate(aubio_sink_wavwrite_t *s);
   \return number of channels
 
 */
-uint_t aubio_sink_wavwrite_get_channels(aubio_sink_wavwrite_t *s);
+uint_t aubio_sink_wavwrite_get_channels(const aubio_sink_wavwrite_t *s);
 
 /**
 
@@ -159,4 +159,4 @@ void del_aubio_sink_wavwrite(aubio_sink_wavwrite_t * s);
 }
 #endif
 
-#endif /* _AUBIO_SINK_WAVWRITE_H */
+#endif /* AUBIO_SINK_WAVWRITE_H */

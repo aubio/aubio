@@ -1,16 +1,50 @@
 #include "aubio-types.h"
 
-/* cvec type definition 
+/* cvec type definition
 
 class cvec():
-    def __init__(self, length = 1024):
-        self.length = length 
-        self.norm = array(length)
-        self.phas = array(length)
+    def __new__(self, length = 1024):
+        self.length = length / 2 + 1
+        self.norm = np.zeros(length / 2 + 1)
+        self.phas = np.zeros(length / 2 + 1)
 
 */
 
+// special python type for cvec
+typedef struct
+{
+  PyObject_HEAD
+  PyObject *norm;
+  PyObject *phas;
+  uint_t length;
+} Py_cvec;
+
 static char Py_cvec_doc[] = "cvec object";
+
+
+PyObject *
+new_py_cvec(uint_t length) {
+  Py_cvec* vec = (Py_cvec*) PyObject_New (Py_cvec, &Py_cvecType);
+  npy_intp dims[] = { length / 2 + 1, 1 };
+  vec->norm = PyArray_ZEROS(1, dims, AUBIO_NPY_SMPL, 0);
+  vec->phas = PyArray_ZEROS(1, dims, AUBIO_NPY_SMPL, 0);
+  vec->length = length / 2 + 1;
+  return (PyObject*)vec;
+}
+
+int
+PyAubio_PyCvecToCCvec (PyObject *input, cvec_t *i) {
+  if (PyObject_TypeCheck (input, &Py_cvecType)) {
+      Py_cvec * in = (Py_cvec *)input;
+      i->norm = (smpl_t *) PyArray_GETPTR1 ((PyArrayObject *)(in->norm), 0);
+      i->phas = (smpl_t *) PyArray_GETPTR1 ((PyArrayObject *)(in->phas), 0);
+      i->length = ((Py_cvec*)input)->length;
+      return 1;
+  } else {
+      PyErr_SetString (PyExc_ValueError, "input array should be aubio.cvec");
+      return 0;
+  }
+}
 
 static PyObject *
 Py_cvec_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
@@ -23,7 +57,6 @@ Py_cvec_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
           &length)) {
     return NULL;
   }
-
 
   self = (Py_cvec *) type->tp_alloc (type, 0);
 
@@ -47,19 +80,18 @@ Py_cvec_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
 static int
 Py_cvec_init (Py_cvec * self, PyObject * args, PyObject * kwds)
 {
-  self->o = new_cvec ((self->length - 1) * 2);
-  if (self->o == NULL) {
-    return -1;
-  }
-
+  npy_intp dims[] = { self->length, 1 };
+  self->phas = PyArray_ZEROS(1, dims, AUBIO_NPY_SMPL, 0);
+  self->norm = PyArray_ZEROS(1, dims, AUBIO_NPY_SMPL, 0);
   return 0;
 }
 
 static void
 Py_cvec_del (Py_cvec * self)
 {
-  del_cvec (self->o);
-  self->ob_type->tp_free ((PyObject *) self);
+  Py_DECREF(self->norm);
+  Py_DECREF(self->phas);
+  Py_TYPE(self)->tp_free ((PyObject *) self);
 }
 
 static PyObject *
@@ -69,7 +101,7 @@ Py_cvec_repr (Py_cvec * self, PyObject * unused)
   PyObject *args = NULL;
   PyObject *result = NULL;
 
-  format = PyString_FromString ("aubio cvec of %d elements");
+  format = PyUnicode_FromString ("aubio cvec of %d elements");
   if (format == NULL) {
     goto fail;
   }
@@ -78,9 +110,9 @@ Py_cvec_repr (Py_cvec * self, PyObject * unused)
   if (args == NULL) {
     goto fail;
   }
-  cvec_print ( self->o );
+  // hide actual norm / phas content
 
-  result = PyString_Format (format, args);
+  result = PyUnicode_Format (format, args);
 
 fail:
   Py_XDECREF (format);
@@ -90,152 +122,61 @@ fail:
 }
 
 PyObject *
-PyAubio_CvecNormToArray (Py_cvec * self)
-{
-  npy_intp dims[] = { self->o->length, 1 };
-  return PyArray_SimpleNewFromData (1, dims, NPY_FLOAT, self->o->norm);
-}
-
-
-PyObject *
-PyAubio_CvecPhasToArray (Py_cvec * self)
-{
-  npy_intp dims[] = { self->o->length, 1 };
-  return PyArray_SimpleNewFromData (1, dims, NPY_FLOAT, self->o->phas);
-}
-
-PyObject *
-PyAubio_ArrayToCvecPhas (PyObject * self)
-{
-  return NULL;
-}
-
-PyObject *
 Py_cvec_get_norm (Py_cvec * self, void *closure)
 {
-  return PyAubio_CvecNormToArray(self);
+  // we want self->norm to still exist after our caller return it
+  Py_INCREF(self->norm);
+  return (PyObject*)(self->norm);
 }
 
 PyObject *
 Py_cvec_get_phas (Py_cvec * self, void *closure)
 {
-  return PyAubio_CvecPhasToArray(self);
+  // we want self->phas to still exist after our caller return it
+  Py_INCREF(self->phas);
+  return (PyObject *)(self->phas);
 }
 
 static int
 Py_cvec_set_norm (Py_cvec * vec, PyObject *input, void * closure)
 {
-  PyArrayObject * array;
-  if (input == NULL) {
-    PyErr_SetString (PyExc_ValueError, "input array is not a python object");
-    goto fail;
+  npy_intp length;
+  if (!PyAubio_IsValidVector(input)) {
+    return 1;
   }
-  if (PyArray_Check(input)) {
-
-    // we got an array, convert it to a cvec.norm 
-    if (PyArray_NDIM ((PyArrayObject *)input) == 0) {
-      PyErr_SetString (PyExc_ValueError, "input array is a scalar");
-      goto fail;
-    } else if (PyArray_NDIM ((PyArrayObject *)input) > 2) {
-      PyErr_SetString (PyExc_ValueError,
-          "input array has more than two dimensions");
-      goto fail;
-    }
-
-    if (!PyArray_ISFLOAT ((PyArrayObject *)input)) {
-      PyErr_SetString (PyExc_ValueError, "input array should be float");
-      goto fail;
-    } else if (PyArray_TYPE ((PyArrayObject *)input) != AUBIO_NPY_SMPL) {
-      PyErr_SetString (PyExc_ValueError, "input array should be float32");
-      goto fail;
-    }
-    array = (PyArrayObject *)input;
-
-    // check input array dimensions
-    if (PyArray_NDIM (array) != 1) {
-      PyErr_Format (PyExc_ValueError,
-          "input array has %d dimensions, not 1",
-          PyArray_NDIM (array));
-      goto fail;
-    } else {
-      if (vec->o->length != PyArray_SIZE (array)) {
-          PyErr_Format (PyExc_ValueError,
-                  "input array has length %d, but cvec has length %d",
-                  (int)PyArray_SIZE (array), vec->o->length);
-          goto fail;
-      }
-    }
-
-    vec->o->norm = (smpl_t *) PyArray_GETPTR1 (array, 0);
-
-  } else {
-    PyErr_SetString (PyExc_ValueError, "can only accept array as input");
+  length = PyArray_SIZE ((PyArrayObject *)input);
+  if (length != vec->length) {
+    PyErr_Format (PyExc_ValueError,
+        "input array has length %ld, but cvec has length %d", length,
+        vec->length);
     return 1;
   }
 
-  Py_INCREF(array);
+  Py_XDECREF(vec->norm);
+  vec->norm = input;
+  Py_INCREF(vec->norm);
   return 0;
-
-fail:
-  return 1;
 }
 
 static int
 Py_cvec_set_phas (Py_cvec * vec, PyObject *input, void * closure)
 {
-  PyArrayObject * array;
-  if (input == NULL) {
-    PyErr_SetString (PyExc_ValueError, "input array is not a python object");
-    goto fail;
+  npy_intp length;
+  if (!PyAubio_IsValidVector(input)) {
+    return 1;
   }
-  if (PyArray_Check(input)) {
-
-    // we got an array, convert it to a cvec.phas
-    if (PyArray_NDIM ((PyArrayObject *)input) == 0) {
-      PyErr_SetString (PyExc_ValueError, "input array is a scalar");
-      goto fail;
-    } else if (PyArray_NDIM ((PyArrayObject *)input) > 2) {
-      PyErr_SetString (PyExc_ValueError,
-          "input array has more than two dimensions");
-      goto fail;
-    }
-
-    if (!PyArray_ISFLOAT ((PyArrayObject *)input)) {
-      PyErr_SetString (PyExc_ValueError, "input array should be float");
-      goto fail;
-    } else if (PyArray_TYPE ((PyArrayObject *)input) != AUBIO_NPY_SMPL) {
-      PyErr_SetString (PyExc_ValueError, "input array should be float32");
-      goto fail;
-    }
-    array = (PyArrayObject *)input;
-
-    // check input array dimensions
-    if (PyArray_NDIM (array) != 1) {
-      PyErr_Format (PyExc_ValueError,
-          "input array has %d dimensions, not 1",
-          PyArray_NDIM (array));
-      goto fail;
-    } else {
-      if (vec->o->length != PyArray_SIZE (array)) {
-          PyErr_Format (PyExc_ValueError,
-                  "input array has length %d, but cvec has length %d",
-                  (int)PyArray_SIZE (array), vec->o->length);
-          goto fail;
-      }
-    }
-
-    vec->o->phas = (smpl_t *) PyArray_GETPTR1 (array, 0);
-
-  } else {
-    PyErr_SetString (PyExc_ValueError, "can only accept array as input");
+  length = PyArray_SIZE ((PyArrayObject *)input);
+  if (length != vec->length) {
+    PyErr_Format (PyExc_ValueError,
+        "input array has length %ld, but cvec has length %d", length,
+        vec->length);
     return 1;
   }
 
-  Py_INCREF(array);
+  Py_XDECREF(vec->phas);
+  vec->phas = input;
+  Py_INCREF(vec->phas);
   return 0;
-
-fail:
-  return 1;
 }
 
 static PyMemberDef Py_cvec_members[] = {
@@ -260,8 +201,7 @@ static PyGetSetDef Py_cvec_getseters[] = {
 };
 
 PyTypeObject Py_cvecType = {
-  PyObject_HEAD_INIT (NULL)
-  0,                            /* ob_size           */
+  PyVarObject_HEAD_INIT(NULL, 0)
   "aubio.cvec",                 /* tp_name           */
   sizeof (Py_cvec),             /* tp_basicsize      */
   0,                            /* tp_itemsize       */
@@ -272,7 +212,7 @@ PyTypeObject Py_cvecType = {
   0,                            /* tp_compare        */
   (reprfunc) Py_cvec_repr,      /* tp_repr           */
   0,                            /* tp_as_number      */
-  0, //&Py_cvec_tp_as_sequence,      /* tp_as_sequence    */
+  0, //&Py_cvec_tp_as_sequence, /* tp_as_sequence    */
   0,                            /* tp_as_mapping     */
   0,                            /* tp_hash           */
   0,                            /* tp_call           */
@@ -299,4 +239,13 @@ PyTypeObject Py_cvecType = {
   (initproc) Py_cvec_init,      /* tp_init           */
   0,                            /* tp_alloc          */
   Py_cvec_new,                  /* tp_new            */
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
 };

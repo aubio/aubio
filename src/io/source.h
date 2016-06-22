@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO_SOURCE_H
-#define _AUBIO_SOURCE_H
+#ifndef AUBIO_SOURCE_H
+#define AUBIO_SOURCE_H
 
 /** \file
 
@@ -85,7 +85,7 @@ typedef struct _aubio_source_t aubio_source_t;
   ::aubio_source_get_samplerate.
 
 */
-aubio_source_t * new_aubio_source(char_t * uri, uint_t samplerate, uint_t hop_size);
+aubio_source_t * new_aubio_source(const char_t * uri, uint_t samplerate, uint_t hop_size);
 
 /**
 
@@ -149,6 +149,16 @@ uint_t aubio_source_seek (aubio_source_t * s, uint_t pos);
 
 /**
 
+  get the duration of source object, in frames
+
+  \param s source object, created with ::new_aubio_source
+  \return number of frames in file
+
+*/
+uint_t aubio_source_get_duration (aubio_source_t * s);
+
+/**
+
   close source object
 
   \param s source object, created with ::new_aubio_source
@@ -171,4 +181,4 @@ void del_aubio_source(aubio_source_t * s);
 }
 #endif
 
-#endif /* _AUBIO_SOURCE_H */
+#endif /* AUBIO_SOURCE_H */

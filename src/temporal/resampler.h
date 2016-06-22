@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO_RESAMPLER_H
-#define _AUBIO_RESAMPLER_H
+#ifndef AUBIO_RESAMPLER_H
+#define AUBIO_RESAMPLER_H
 
 /** \file
 
@@ -55,11 +55,11 @@ void del_aubio_resampler (aubio_resampler_t * s);
   \param output output buffer of size N*ratio
 
 */
-void aubio_resampler_do (aubio_resampler_t * s, fvec_t * input,
+void aubio_resampler_do (aubio_resampler_t * s, const fvec_t * input,
     fvec_t * output);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* _AUBIO_RESAMPLER_H */
+#endif /* AUBIO_RESAMPLER_H */

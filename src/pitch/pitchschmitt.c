@@ -47,7 +47,7 @@ new_aubio_pitchschmitt (uint_t size)
 }
 
 void
-aubio_pitchschmitt_do (aubio_pitchschmitt_t * p, fvec_t * input,
+aubio_pitchschmitt_do (aubio_pitchschmitt_t * p, const fvec_t * input,
     fvec_t * output)
 {
   uint_t j;
