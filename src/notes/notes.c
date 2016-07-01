@@ -37,25 +37,48 @@ struct _aubio_notes_t {
   fvec_t *note_buffer2;
 
   aubio_pitch_t *pitch;
+  fvec_t *pitch_output;
+  smpl_t pitch_tolerance;
+
   aubio_onset_t *onset;
   fvec_t *onset_output;
-  fvec_t *pitch_output;
+  smpl_t onset_threshold;
 
   smpl_t curnote;
   smpl_t newnote;
+
+  smpl_t silence_threshold;
+
+  uint_t isready;
 };
 
-aubio_notes_t * new_aubio_notes (char_t * notes_method,
+aubio_notes_t * new_aubio_notes (const char_t * notes_method,
     uint_t buf_size, uint_t hop_size, uint_t samplerate) {
   aubio_notes_t *o = AUBIO_NEW(aubio_notes_t);
+
+  const char_t * onset_method = "default";
+  const char_t * pitch_method = "default";
 
   o->onset_buf_size = buf_size;
   o->pitch_buf_size = buf_size * 4;
   o->hop_size = hop_size;
 
+  o->onset_threshold = 0.;
+  o->pitch_tolerance = 0.;
+
   o->samplerate = samplerate;
 
-  o->median = 9;
+  o->median = 6;
+
+  o->isready = 0;
+
+  o->onset = new_aubio_onset (onset_method, o->onset_buf_size, o->hop_size, o->samplerate);
+  if (o->onset_threshold != 0.) aubio_onset_set_threshold (o->onset, o->onset_threshold);
+  o->onset_output = new_fvec (1);
+
+  o->pitch = new_aubio_pitch (pitch_method, o->pitch_buf_size, o->hop_size, o->samplerate);
+  if (o->pitch_tolerance != 0.) aubio_pitch_set_tolerance (o->pitch, o->pitch_tolerance);
+  o->pitch_output = new_fvec (1);
 
   if (strcmp(notes_method, "default") != 0) {
     AUBIO_ERR("unknown notes detection method %s, using default.\n",
@@ -66,7 +89,9 @@ aubio_notes_t * new_aubio_notes (char_t * notes_method,
   o->note_buffer2 = new_fvec(o->median);
 
   o->curnote = -1.;
-  o->newnote = -1.;
+  o->newnote = 0.;
+
+  o->silence_threshold = -90.;
 
   return o;
 
@@ -75,8 +100,96 @@ fail:
   return NULL;
 }
 
+/** append new note candidate to the note_buffer and return filtered value. we
+ * need to copy the input array as fvec_median destroy its input data.*/
+static void
+note_append (fvec_t * note_buffer, smpl_t curnote)
+{
+  uint_t i = 0;
+  for (i = 0; i < note_buffer->length - 1; i++) {
+    note_buffer->data[i] = note_buffer->data[i + 1];
+  }
+  note_buffer->data[note_buffer->length - 1] = curnote;
+  return;
+}
+
+static uint_t
+aubio_notes_get_latest_note (aubio_notes_t *o)
+{
+  uint_t i;
+  for (i = 0; i < o->note_buffer->length; i++) {
+    o->note_buffer2->data[i] = o->note_buffer->data[i];
+  }
+  return fvec_median (o->note_buffer2);
+}
+
+
+void aubio_notes_do (aubio_notes_t *o, const fvec_t * input, fvec_t * notes)
+{
+  smpl_t new_pitch, curlevel;
+  fvec_zeros(notes);
+  aubio_onset_do(o->onset, input, o->onset_output);
+
+  aubio_pitch_do (o->pitch, input, o->pitch_output);
+  new_pitch = o->pitch_output->data[0];
+  if(o->median){
+    note_append(o->note_buffer, new_pitch);
+  }
+
+  /* curlevel is negatif or 1 if silence */
+  curlevel = aubio_level_detection(input, o->silence_threshold);
+  if (o->onset_output->data[0] != 0) {
+    /* test for silence */
+    if (curlevel == 1.) {
+      if (o->median) o->isready = 0;
+      /* send note off */
+      //send_noteon(o->curnote,0);
+      //notes->data[0] = o->curnote;
+      //notes->data[1] = 0.;
+      notes->data[2] = o->curnote;
+    } else {
+      if (o->median) {
+        o->isready = 1;
+      } else {
+        /* kill old note */
+        //send_noteon(o->curnote,0, o->samplerate);
+        notes->data[2] = o->curnote;
+        /* get and send new one */
+        //send_noteon(new_pitch,127+(int)floor(curlevel), o->samplerate);
+        notes->data[0] = new_pitch;
+        notes->data[1] = 127 + (int)floor(curlevel);
+        o->curnote = new_pitch;
+      }
+    }
+  } else {
+    if (o->median) {
+      if (o->isready > 0)
+        o->isready++;
+      if (o->isready == o->median)
+      {
+        /* kill old note */
+        //send_noteon(curnote,0);
+        notes->data[2] = o->curnote;
+        notes->data[3] = 0;
+        o->newnote = aubio_notes_get_latest_note(o);
+        o->curnote = o->newnote;
+        /* get and send new one */
+        if (o->curnote>45){
+          //send_noteon(curnote,127+(int)floor(curlevel));
+          notes->data[0] = o->curnote;
+          notes->data[1] = 127 + (int) floor(curlevel);
+        }
+      }
+    } // if median
+  }
+}
+
 void del_aubio_notes (aubio_notes_t *o) {
   if (o->note_buffer) del_fvec(o->note_buffer);
   if (o->note_buffer2) del_fvec(o->note_buffer2);
+  if (o->pitch_output) del_fvec(o->pitch_output);
+  if (o->pitch) del_aubio_pitch(o->pitch);
+  if (o->onset_output) del_fvec(o->onset_output);
+  if (o->onset) del_aubio_onset(o->onset);
   AUBIO_FREE(o);
 }
