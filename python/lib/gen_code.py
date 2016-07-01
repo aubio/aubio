@@ -74,6 +74,7 @@ pyargparse_chars = {
 objoutsize = {
         'onset': '1',
         'pitch': '1',
+        'notes': '3',
         'wavetable': 'self->hop_size',
         'sampler': 'self->hop_size',
         'mfcc': 'self->n_coeffs',
