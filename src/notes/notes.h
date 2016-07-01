@@ -38,7 +38,7 @@ typedef struct _aubio_notes_t aubio_notes_t;
   \return newly created ::aubio_notes_t
 
 */
-aubio_notes_t * new_aubio_notes (const char_t * notes_method,
+aubio_notes_t * new_aubio_notes (const char_t * method,
     uint_t buf_size, uint_t hop_size, uint_t samplerate);
 
 /** delete notes detection object
@@ -55,7 +55,7 @@ void del_aubio_notes(aubio_notes_t * o);
   \param out output notes of size [3] ? FIXME
 
 */
-void aubio_notes_do (aubio_notes_t *o, const fvec_t *input, fvec_t *output);
+void aubio_notes_do (aubio_notes_t *o, const fvec_t * input, fvec_t * output);
 
 #ifdef __cplusplus
 }

@@ -52,7 +52,7 @@ struct _aubio_notes_t {
   uint_t isready;
 };
 
-aubio_notes_t * new_aubio_notes (const char_t * notes_method,
+aubio_notes_t * new_aubio_notes (const char_t * method,
     uint_t buf_size, uint_t hop_size, uint_t samplerate) {
   aubio_notes_t *o = AUBIO_NEW(aubio_notes_t);
 
@@ -80,9 +80,9 @@ aubio_notes_t * new_aubio_notes (const char_t * notes_method,
   if (o->pitch_tolerance != 0.) aubio_pitch_set_tolerance (o->pitch, o->pitch_tolerance);
   o->pitch_output = new_fvec (1);
 
-  if (strcmp(notes_method, "default") != 0) {
+  if (strcmp(method, "default") != 0) {
     AUBIO_ERR("unknown notes detection method %s, using default.\n",
-       notes_method);
+       method);
     goto fail;
   }
   o->note_buffer = new_fvec(o->median);
