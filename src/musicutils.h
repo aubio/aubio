@@ -154,7 +154,7 @@ uint_t aubio_silence_detection (const fvec_t * v, smpl_t threshold);
   \return level in dB SPL if level >= threshold, 1. otherwise
 
 */
-smpl_t aubio_level_detection (fvec_t * v, smpl_t threshold);
+smpl_t aubio_level_detection (const fvec_t * v, smpl_t threshold);
 
 #ifdef __cplusplus
 }

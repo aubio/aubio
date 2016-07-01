@@ -564,7 +564,7 @@ aubio_silence_detection (const fvec_t * o, smpl_t threshold)
 }
 
 smpl_t
-aubio_level_detection (fvec_t * o, smpl_t threshold)
+aubio_level_detection (const fvec_t * o, smpl_t threshold)
 {
   smpl_t db_spl = aubio_db_spl (o);
   if (db_spl < threshold) {
