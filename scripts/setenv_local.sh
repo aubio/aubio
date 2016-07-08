@@ -12,7 +12,7 @@ PYTHON_PLATFORM=`python -c "import pkg_resources, sys; print '%s-%s' % (pkg_reso
 
 AUBIODIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 AUBIOLIB=$AUBIODIR/build/src
-AUBIOPYTHON=$AUBIODIR/python/build/lib.$PYTHON_PLATFORM
+AUBIOPYTHON=$AUBIODIR/build/lib.$PYTHON_PLATFORM
 
 if [ "$(dirname $PWD)" == "scripts" ]; then
   AUBIODIR=$(basename $PWD)
