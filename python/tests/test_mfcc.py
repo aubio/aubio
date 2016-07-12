@@ -56,6 +56,11 @@ class aubio_mfcc_wrong_params(TestCase):
         with self.assertRaises(ValueError):
             mfcc(samplerate = -1)
 
+    def test_wrong_input_size(self):
+        m = mfcc(buf_size = 1024)
+        with self.assertRaises(ValueError):
+            m(cvec(512))
+
 class aubio_mfcc_compute(TestCase):
 
     def test_members(self):
