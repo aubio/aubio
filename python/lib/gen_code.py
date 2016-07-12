@@ -84,6 +84,17 @@ objoutsize = {
         'tss': 'self->hop_size',
         }
 
+objinputsize = {
+        'mfcc': 'self->buf_size / 2 + 1',
+        'notes': 'self->hop_size',
+        'onset': 'self->hop_size',
+        'pitch': 'self->hop_size',
+        'sampler': 'self->hop_size',
+        'specdesc': 'self->buf_size / 2 + 1',
+        'tempo': 'self->hop_size',
+        'wavetable': 'self->hop_size',
+        }
+
 def get_name(proto):
     name = proto.replace(' *', '* ').split()[1].split('(')[0]
     name = name.replace('*','')
@@ -377,7 +388,17 @@ Py_{shortname}_do  (Py_{shortname} * self, PyObject * args)
     if (!{pytoaubio}(py_{0[name]}, &(self->{0[name]}))) {{
         return NULL;
     }}""".format(input_param, pytoaubio = pytoaubio_fn[input_param['type']])
-        out += """
+        if self.shortname in objinputsize:
+            out += """
+
+    if (self->{0[name]}.length != {expected_size}) {{
+        PyErr_Format (PyExc_ValueError,
+            "input size of {shortname} should be %d, not %d",
+            {expected_size}, self->{0[name]}.length);
+        return NULL;
+    }}""".format(input_param, expected_size = objinputsize[self.shortname], **self.__dict__)
+        else:
+            out += """
 
     // TODO: check input sizes"""
         for output_param in output_params:
