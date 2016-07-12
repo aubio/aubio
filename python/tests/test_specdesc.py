@@ -126,7 +126,7 @@ class aubio_specdesc(TestCase):
 
     def test_spread(self):
         o = specdesc("spread")
-        c = cvec(2048)
+        c = cvec(1024)
         ramp = arange(c.length, dtype=float_type)
         assert_equal( 0., o(c))
 
