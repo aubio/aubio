@@ -1,4 +1,5 @@
 WAFCMD=python waf
+WAFURL=https://waf.io/waf-1.9.1
 
 SOX=sox
 
