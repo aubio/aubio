@@ -160,7 +160,7 @@ smpl_t aubio_tempo_get_bpm(aubio_tempo_t * o);
 */
 smpl_t aubio_tempo_get_confidence(aubio_tempo_t * o);
 
-/* set number of tatum per beat
+/** set number of tatum per beat
 
    \param o beat tracking object
    \param signature number of tatum per beat (between 1 and 64)
@@ -168,7 +168,7 @@ smpl_t aubio_tempo_get_confidence(aubio_tempo_t * o);
 */
 uint_t aubio_tempo_set_tatum_signature(aubio_tempo_t *o, uint_t signature);
 
-/* check whether a tatum was detected in the current frame
+/** check whether a tatum was detected in the current frame
 
    \param o beat tracking object
 
@@ -177,7 +177,7 @@ uint_t aubio_tempo_set_tatum_signature(aubio_tempo_t *o, uint_t signature);
 */
 uint_t aubio_tempo_was_tatum(aubio_tempo_t *o);
 
-/* get position of last_tatum, in samples
+/** get position of last_tatum, in samples
 
    \param o beat tracking object
 

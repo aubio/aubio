@@ -156,7 +156,7 @@ void fmat_weight(fmat_t *s, const fmat_t *weight);
 */
 void fmat_copy(const fmat_t *s, fmat_t *t);
 
-/* compute the product of a matrix by a vector
+/** compute the product of a matrix by a vector
 
    \param s matrix to compute product with
    \param scale vector to compute product with
