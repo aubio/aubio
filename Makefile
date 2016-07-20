@@ -11,7 +11,7 @@ checkwaf:
 	@[ -f waf ] || make getwaf
 
 getwaf:
-	curl https://waf.io/waf-1.8.20 > waf
+	@( which wget > /dev/null && wget -qO waf $(WAFURL) ) || ( which curl > /dev/null && curl $(WAFURL) > waf )
 	@chmod +x waf
 
 expandwaf:
