@@ -10,6 +10,8 @@
 # have Python installed, you do *not* need to install anything to build aubio.
 # For more info about waf, see http://code.google.com/p/waf/ .
 
+import sys
+
 APPNAME = 'aubio'
 
 # source VERSION
@@ -111,7 +113,7 @@ def configure(ctx):
     ctx.check(header_name='getopt.h', mandatory = False)
     ctx.check(header_name='unistd.h', mandatory = False)
 
-    target_platform = Options.platform
+    target_platform = sys.platform
     if ctx.options.target_platform:
         target_platform = ctx.options.target_platform
     ctx.env['DEST_OS'] = target_platform
@@ -359,7 +361,7 @@ def build(bld):
     if bld.env['DOXYGEN']:
         bld( name = 'doxygen', rule = 'doxygen ${SRC} > /dev/null',
                 source = 'doc/web.cfg',
-                cwd = 'doc')
+                cwd = bld.path.find_dir('doc'))
         bld.install_files( '${PREFIX}' + '/share/doc/libaubio-doc',
                 bld.path.ant_glob('doc/web/html/**'),
                 cwd = bld.path.find_dir ('doc/web'),
