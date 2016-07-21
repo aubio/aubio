@@ -1,5 +1,7 @@
 # vim:set syntax=python:
 
+import os.path
+
 uselib = ['aubio']
 uselib += ['JACK']
 
@@ -16,9 +18,10 @@ bld(features = 'c',
 
 # loop over all *.c filenames in examples to build them all
 for source_file in programs_source:
+    target = os.path.basename(os.path.splitext(str(source_file))[0])
     bld(features = 'c cprogram',
             source = source_file,
-            target = str(source_file).split('.')[0],
+            target = target,
             includes = includes,
             use = uselib + ['utilsio'],
        )

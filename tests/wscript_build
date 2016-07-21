@@ -1,14 +1,17 @@
 # vim:set syntax=python:
 
+import os.path
+
 uselib = ['aubio']
 
 includes = ['../src', '.']
 programs_sources = ctx.path.ant_glob('src/**/*.c')
 
 for source_file in programs_sources:
+    target = os.path.basename(os.path.splitext(str(source_file))[0])
     bld(features = 'c cprogram test',
             source = source_file,
-            target = str(source_file).split('.')[0],
+            target = target,
             includes = includes,
             use = uselib,
             install_path = None,
