@@ -30,7 +30,8 @@ Python module
 -------------
 
 A python module to access the library functions is also provided. Please see
-the file `python/README` for more information on how to use it.
+the file [`python/README.md`](python/README.md) for more information on how to
+use it.
 
 Examples tools
 --------------

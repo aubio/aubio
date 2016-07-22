@@ -1,5 +1,5 @@
 include AUTHORS COPYING README.md VERSION ChangeLog
-include python/README
+include python/README.md
 include Makefile wscript */wscript_build
 include waf
 include aubio.pc.in
