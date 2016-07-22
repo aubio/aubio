@@ -26,19 +26,20 @@
 #include "parse_args.h"
 
 aubio_notes_t *notes;
-uint_t lastnote = 0;
+smpl_t lastmidi = 0.;
 
 void process_block (fvec_t *ibuf, fvec_t *obuf)
 {
   aubio_notes_do (notes, ibuf, obuf);
   // did we get a note off?
   if (obuf->data[2] != 0) {
-    send_noteon(obuf->data[2], 0);
+    lastmidi = aubio_freqtomidi (obuf->data[2]) + .5;
+    send_noteon(lastmidi, 0);
   }
   // did we get a note on?
   if (obuf->data[0] != 0) {
-    send_noteon(obuf->data[0], obuf->data[1]);
-    lastnote = (uint_t) floor(obuf->data[0]);
+    lastmidi = aubio_freqtomidi (obuf->data[0]) + .5;
+    send_noteon(lastmidi, obuf->data[1]);
   }
 }
 
@@ -67,7 +68,7 @@ int main(int argc, char **argv) {
   examples_common_process((aubio_process_func_t)process_block, process_print);
 
   // send a last note off
-  send_noteon (lastnote, 0);
+  send_noteon (lastmidi, 0);
 
   del_aubio_notes (notes);
 

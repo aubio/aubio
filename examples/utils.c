@@ -181,9 +181,8 @@ void examples_common_process (aubio_process_func_t process_func,
 }
 
 void
-send_noteon (int pitch, int velo)
+send_noteon (smpl_t pitch, smpl_t velo)
 {
-  smpl_t mpitch = floor (aubio_freqtomidi (pitch) + .5);
 #ifdef HAVE_JACK
   jack_midi_event_t ev;
   ev.size = 3;
@@ -191,7 +190,7 @@ send_noteon (int pitch, int velo)
   ev.time = 0;
   if (usejack) {
     ev.buffer[2] = velo;
-    ev.buffer[1] = mpitch;
+    ev.buffer[1] = pitch;
     if (velo == 0) {
       ev.buffer[0] = 0x80;      /* note off */
     } else {
@@ -204,7 +203,7 @@ send_noteon (int pitch, int velo)
     print_time (blocks * hop_size);
     outmsg ("\n");
   } else {
-    outmsg ("%f\t", mpitch);
+    outmsg ("%f\t", pitch);
     print_time (blocks * hop_size);
     outmsg ("\t");
   }
