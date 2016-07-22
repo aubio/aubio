@@ -12,8 +12,7 @@ checkwaf:
 	@[ -f waf ] || make getwaf
 
 getwaf:
-	@( which wget > /dev/null && wget -qO waf $(WAFURL) ) || ( which curl > /dev/null && curl $(WAFURL) > waf )
-	@chmod +x waf
+	@./scripts/get_waf.sh
 
 expandwaf:
 	@[ -d wafilb ] || rm -fr waflib
