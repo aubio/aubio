@@ -64,6 +64,9 @@ aubio_sink_t *this_sink = NULL;
 fvec_t *ibuf;
 fvec_t *obuf;
 
+smpl_t miditap_note = 69.;
+smpl_t miditap_velo = 65.;
+
 /* settings */
 int blocks = 0;
 

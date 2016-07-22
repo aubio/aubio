@@ -47,6 +47,9 @@ extern char_t * tempo_method;
 // more general stuff
 extern smpl_t silence_threshold;
 extern uint_t mix_input;
+// midi tap
+extern smpl_t miditap_note;
+extern smpl_t miditap_velo;
 
 extern uint_t force_overwrite;
 

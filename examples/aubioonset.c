@@ -37,6 +37,8 @@ void process_block(fvec_t *ibuf, fvec_t *obuf)
   fvec_zeros(obuf);
   if ( is_onset ) {
     aubio_wavetable_play ( wavetable );
+    /* send a midi tap (default to C0) out to the midi output */
+    if (usejack) send_noteon(miditap_note, miditap_velo);
   } else {
     aubio_wavetable_stop ( wavetable );
   }
@@ -77,6 +79,9 @@ int main(int argc, char **argv) {
   //aubio_sampler_load (sampler, "/archives/sounds/woodblock.aiff");
 
   examples_common_process((aubio_process_func_t)process_block, process_print);
+
+  // send a last note off
+  send_noteon (miditap_note, 0);
 
   del_aubio_onset (o);
   del_aubio_wavetable (wavetable);

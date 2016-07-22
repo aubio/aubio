@@ -40,18 +40,8 @@ void process_block(fvec_t * ibuf, fvec_t *obuf) {
   fvec_zeros (obuf);
   if ( is_beat && !is_silence ) {
     aubio_wavetable_play ( wavetable );
-    /* Send tap over midi output */
-    /* Is called without jack use so ask for jack use */
-    if (usejack)
-    {
-       /* Note on midi clock: Midi clock looks like it is more suitable here,
-       * but it is send 24 times between the detected bpm which is impossible
-       * to do since we get here only once per peat.
-       * Therefore midinote is used as a good workaround.
-       * Reference:
-       * http://www.blitter.com/~russtopia/MIDI/~jglatt/tech/midispec/clock.htm */
-      send_noteon(0, 0);
-    }
+    /* send a midi tap (default to C0) out to the midi output */
+    if (usejack) send_noteon(miditap_note, miditap_velo);
   } else {
     aubio_wavetable_stop ( wavetable );
   }
@@ -93,6 +83,9 @@ int main(int argc, char **argv) {
   //aubio_sampler_load (sampler, "/archives/sounds/woodblock.aiff");
 
   examples_common_process((aubio_process_func_t)process_block,process_print);
+
+  // send a last note off
+  send_noteon (miditap_note, 0);
 
   del_aubio_tempo(tempo);
   del_aubio_wavetable (wavetable);
