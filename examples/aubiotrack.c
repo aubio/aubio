@@ -28,8 +28,8 @@
 aubio_tempo_t * tempo;
 aubio_wavetable_t *wavetable;
 fvec_t * tempo_out;
-smpl_t is_beat = 0;
-uint_t is_silence = 0.;
+smpl_t is_beat = 0.;
+uint_t is_silence = 0;
 
 void process_block(fvec_t * ibuf, fvec_t *obuf) {
   aubio_tempo_do (tempo, ibuf, tempo_out);
