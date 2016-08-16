@@ -1,4 +1,4 @@
-2015-08-16 Paul Brossier <piem@aubio.org>
+2016-08-16 Paul Brossier <piem@aubio.org>
 
 	[ Interface ]
 
@@ -117,6 +117,7 @@
 	* python/scripts/aubiocut: fix usage string output
 
 	[ Python tests ]
+
 	* python/tests/run_all_tests,*.py: switch to nose2, fix most prospect warnings
 	* python/tests/test_fvec.py: add test_pass_to_numpy, cope with accumulated
 	errors
