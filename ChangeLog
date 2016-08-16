@@ -1,3 +1,230 @@
+2015-08-16 Paul Brossier <piem@aubio.org>
+
+	[ Interface ]
+
+	* src/io/source.h, src/io/source_*.h: add _get_duration
+	* src/notes/notes.h: add basic notes object
+	* src/tempo/beattracking.{c,h}: add _get_period and _get_period_s
+	* src/mathutils.h: add fvec_ishift
+	* src/fvec.{c,h}: add fvec_weighted_copy
+	* src/tempo/tempo.{c,h}: add _get_period and _get_period_s, also add tatum,
+	a subdivision of the beat period, default to 4, implement get/set_delay
+	* src/**.{c,h}: use #ifdef HAVE_FOO, not #if _HAVE_FOO, add const qualifiers
+	to unmodified pointers (see #35)
+
+	[ Library ]
+
+	* src/{fmat,fvec,mathutils}.c: optimisations (using atlas or Accelerate when
+	available) for fvec_sum, fvec_mean, fvec_shift, aubio_level_lin,
+	fvec_set_all, fvec_zeros, fvec_weight, fvec_copy, fvec_weighted_copy,
+	fmat_vecmul
+	* src/aubio_priv.h: check for atlas cblas, use cblas_xswap, vDSP_dotpr,
+	protect SQR parameters, avoid redefining MIN/MAX, define PATH_MAX and PI
+	when needed, use _isnan on windows msvc 9 to avoid linking error, more
+	windows hacks
+	* src/mathutils.c: avoid for loop initial declarations [gcc], use
+	HAVE_ATLAS, use smpl_t for constants
+	* src/fmat.c: skip asserts
+	* src/spectral/{filterbank,mfcc}.c: use accelerated fmat_vecmul
+	* src/spectral/fft.c: fftw can be used odd length sizes, not Ooura,
+	factorise double / single flags, use memcpy
+	* src/spectral/phasevoc.c: fix arguments checks, return NULL when fft
+	creation failed , apply windowing for resynthesized grain, use ishift for
+	odd windows, fix scaling factors for correct reconstruction at 50 and 75%
+	overlap
+	* src/pitch/pitch.c: allow for silence == 0, improve error messages
+	* src/pitch/pitchmcomb.c: fix candidates sorting function, really comparing
+	current to next
+	* src/notes/notes.c: equivalent to previous examples/aubionotes.c results
+	* src/onset/onset.c: simplify selection of first onset, fix for "conversion
+	from 'smpl_t' to 'uint_t', possible loss of data" with msvc
+	* src/pitch/pitchmcomb.c: scan across all spectrum
+	* src/pitch/pitchyinfft.c: use fvec_weighted_copy
+	* src/{spectral/*.c,onset/*.c,tempo/*.c}: make sure win_size > 1
+	* src/io/*.c: use custom defines for {source,sink}_apple_audio, take a copy
+	of const char* path
+	* src/io/source_avcodec.c:
+	 - update to libav10, libavcodec 55.34.1
+	 - avoid deprecation warning, detect if we use ffmpeg or libav version
+	 - check if the uri is a network stream using av_url_split, call
+	 avformat_network_init() if needed
+	 - check if we still need max_analyze_duration2 (closes #53, thanks to
+	 @anthonylauzon)
+	* src/io/source_{avcodec,sndfile}.c: avoid modifying input param
+	* src/io/{sink,source,utils}_apple_audio.c: fix memory leak calling
+	CFRelease (closes #26, closes #27, and closes #28)
+	* src/io/sink_apple_audio.c: disable async mode for now, factorise code
+	* src/io/source_apple_audio.c: check out of bounds _seek, set s->path, quiet
+	* src/io/source_sndfile.c: fix crash, zero-pad output vector when
+	upsampling, use sf_read_double when compiling with AUBIO_DOUBLE, approximate
+	duration when resampling
+	* src/io/sink_sndfile.c: fix for double precision
+	* src/synth/sampler.c: fix typo, keeps a copy of uri
+	* src/tempo/tempo.c: do not write novelty function in output[1]
+	* src/temporal/resampler.c: make msvc happier adding a dummy variable
+	* src/temporal/filter.c: check parameters, fix filter_do_outplace to really
+	avoid modifying input
+	* src/utils/windll.c: add dll main entry point
+
+	[ Python ]
+
+	* General:
+	  - new build system, new code generator
+	  - Python 3 compatibility (#33), thanks to Nils Philippsen (@nphilipp)
+	  - double precision compatibility
+	  - simplify memory allocations, removed unneeded malloc/free calls
+	  - fix memory leak (#49), check input sizes (#63) and output sizes (#60)
+	  - improve indentation, clean up unused imports and variables
+	  - fix comparison to None and to False
+	* setup.py: move from python/setup.py, add option to build libaubio inside
+	python-aubio (for instance with pip), add command 'generate' with option
+	'--enable-double', build with -Wdeclaration-after-statement -Werror
+	* python/ext/aubiomodule.c: fix PyMethodDef sentinel
+	* python/ext/aubioproxy.c: factorize input checks into
+	PyAubio_IsValidVector, fix windows c89 compilation, use npy_intp, not long
+	* python/ext: rewrite and simplify, safer and improved memory usage (#49),
+	improve error strings, verify actual object creation
+	* python/ext/py-source.c: added duration, check seek is not negative
+	* python/ext/py-musicutils.c: do not overwrite PyArg_ParseTuple messages
+	* python/lib/gen_code.py: new generator, switch to using custom PyObjects
+	instead of fvec, cvec, fmat, ready for double precision (defaults to single)
+	* python/lib/aubio__init__.py: use new aubio.float_type, make sure length is
+	not zero and float_type is imported
+	* python/lib/aubio/midiconv.py: fix instance checks, make sure midi2note
+	uses midi int (#33)
+	* python/lib/aubio/slicing.py: fix samplerate
+	* python/ext/aubio-types.h: add new_py_ functions to create PyObjects
+	instead of fvec_t, apply to generated and hard-coded objects
+	* python/lib/gen_external.py: improve compiler detection, fixes build on
+	windows (#55)
+	* python/lib/moresetuptools.py: helpers for windows and macos compilations
+
+	[  Python demos ]
+
+	* python/demos/demo_reading_speed.py: new reading speed tests, external
+	packages disabled by default
+	* python/demos/demo_timestretch.py: new timescale algorithm
+	* python/demos/demo_timestretch_online.py: new timescale algorithm (online
+	version)
+	* python/demos/demo_create_test_sounds.py: add script to create simple sound
+	files to test on using sox
+	* python/demos/demo_a_weighting.py: add simple demo for a_weighting
+	* python/demos/demo_filter.py: moved from _a_weighting
+	* python/demos/demo_mfcc.py: use n_coeffs
+	* python/demos/demo_bpm_extract.py: add exception type, avoid {} as default
+	argument value
+	* python/demos/demo_pysoundcard_*: update to pysoundcard 0.5.2 (closes #42)
+	* python/scripts/aubiocut: fix usage string output
+
+	[ Python tests ]
+	* python/tests/run_all_tests,*.py: switch to nose2, fix most prospect warnings
+	* python/tests/test_fvec.py: add test_pass_to_numpy, cope with accumulated
+	errors
+	* python/tests/test_cvec.py: simplify, add more tests
+	* python/tests/test_fft.py: more tests, fft.do to clash on wrong size
+	inputs, f.rdo input size, cvec is large enough, memory tests, avoid
+	VisibleDeprecationWarning
+	* python/tests/test_filterbank.py: check for wrong values, ValueError raised
+	* python/tests/test_filter.py: add tests
+	* python/tests/test_musicutils.py: simplify, check TypeError is raised
+	* python/tests/test_mfcc.py: more tests, check for wrong input size (see #63)
+	* python/tests/test_mathutils: fix test_miditobin test, can also raise
+	NotImplementedError (darwin)
+	* python/tests/test_note2midi.py: more tests, use unicode_literals
+	* python/tests/test_phasevoc.py: add a note about ocasional crash check
+	perfect reconstruction for overlap > 75% add 50% overlap test, fix duplicate
+	test name, add wrong sized input tests
+	* python/tests/test_sink.py: remove useless many_sinks_not_closed and cruft
+	* python/tests/test_source.py: simplify, quieten, skip tests if no test sounds
+	* python/tests/test_specdesc.py: check for wrong values, skip wrong name
+	test, use correct input size (see #63)
+	* python/tests/utils.py: try reopening the file is deleting it fails on windows
+	* python/VERSION: removed, use same VERSION file for libaubio and python-aubio
+	* MANIFEST.in: move from python/, update contents
+	* nose2.cfg: add minimal config, set multiprocess always-on=false (fixes
+	coverage, pass -N to speed up the tests)
+
+	[ Tools ]
+
+	* examples/*.c: add time format option
+	* examples/{aubioonset,aubiotrack}.c: also emit midi note, thanks to
+	@topas-rec (closes #62)
+	* examples/: use outmsg to print notes (fixes #8)
+	* examples/aubionotes.c: use new aubio_notes object
+	* examples/aubiotrack.c: enable -O and -t options, fix is_beat/is_silence
+	types
+	* examples/{parse_args,utils}.h: check in config.h if getopt.h was found, or
+	build without for msvc, more windows hacks
+	* examples/utils.c: change send_noteon to accept floating point midi note number
+
+	[ Tests ]
+
+	* tests/src/io/test-source_apple_audio.c: shorten long line
+	* tests/src/io/test-source_avcodec.c: use HAVE_LIBAV, closes #10
+	* tests/src/temporal: avoid crash, clarify
+	* tests/src/tempo/test-tempo.c: tempo back to only one output
+	* tests/src/test-delnull.c: improve test, avoid segfaults
+	* tests/src/test-lvec.c: use AUBIO_LSMP_FMT
+	* tests/utils_tests.h: add VA_ARGS versions of variadic macros
+	* tests/utils_tests.h: also use custom srandom/random when compiling with
+	-std=c99
+	* tests/utils_tests.h: make sure M_PI and RAND_MAX are defined
+
+	[ Build ]
+
+	* Makefile: set waf to 1.8.22 for now, new targets create_test_sounds,
+	build_python, test_python, clean_python, build_python3, clean_python3,
+	test_pure_python, test_pure_python_wheel, (use test_pure_* targets to build
+	without libaubio), use 'HAVE_DOUBLE=1 make' to build in double precision
+	* scripts/build_apple_frameworks: add script to build macosx and ios
+	frameworks (see #34, #43)
+	* scripts/build_emscripten: add script to build with emcc and co
+	* scripts/build_mingw: add script to cross-compile using mingw
+	* scripts/get_waf.sh: added simple script to fetch latest waf
+	* scripts/setenv_local.sh: set environment to run from built source tree
+	* scripts/setenv_local.sh: update to new python-aubio build location
+	* tests/wscript_build: do not install test programs
+	* tests/wscript_build, src/wscript_build: use 'use =', simplify
+	* src/wscript_build: enable shared lib on ios, static lib on windows
+	* wscript:
+	  - update --enable-foo to fail if foo is not found
+	  - add -mmacosx-version-min=10.4 on darwin
+	  - add '-fembed-bitcode' on ios (closes #31), min to 6.1
+	  - make fat build, add option to not build with Accelerate framework
+	  - add option to not build with CoreAudio/AudioToolbox
+	  - add --disable-docs option
+	  - add -lm detection
+	  - pass HAVE_AUBIO_DOUBLE in compiler arguments
+	  - first check for headers, make getopt.h and unistd.h optional
+	  - check HAVE_AV* from ctx.env
+	  - make msvc compiler quieter, add /MD and /D_CRT_SECURE_NO_WARNINGS
+	  - check if we find atlas/cblas.h
+	  - new build platform emscripten
+	  - more cleanups and updates
+
+	[ Only in git ]
+
+	* .travis.yml: config for https://travis-ci.org/aubio/aubio
+	* .appveyor.yml: config for https://ci.appveyor.com/project/piem/aubio
+	* .landscape.yml: config for https://landscape.io/github/aubio/aubio
+	* conda recipes: see https://github.com/conda/conda-recipes#387
+	* .gitignore: add python/tests/sounds and .egg-info
+
+	[ General ]
+
+	* src/: remove trailing spaces, improve doxygen strings, update copyrights,
+	fix typos
+	* src/onset/onset.h: fix description of get/set_delay functions
+	* src/spectral/mfcc.h: add link to reference implementation
+	* src/spectral/filterbank_mel.h: update reference url
+	* src/musicutils.h: update link to Bernardini's paper, improve doc
+	* doc/aubiomfcc.txt: add a note about the output
+	* doc/*.cfg: update to Doxygen 1.8.8
+	* python/README.md: fix typo (thanks to Sam Alexander), document how to
+	build in a virtualenv (see #2)
+	* README.md: minor updates, link to python/README.md, switch to https
+	* VERSION: bump to 0.4.3
+
 2015-08-01 Paul Brossier <piem@aubio.org>
 
 	[ Interface ]
