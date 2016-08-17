@@ -39,7 +39,7 @@ test_python:
 
 test_python_osx:
 	# create links from ~/lib/lib* to build/src/lib*
-	[ -f build/src/libaubio.[0-9].dylib ] && ( mkdir -p ~/lib && cp -prv build/src/libaubio.4.dylib ~/lib ) || true
+	[ -f build/src/libaubio.[0-9].dylib ] && ( mkdir -p ~/lib && cp -prv build/src/libaubio.[0-9].dylib ~/lib ) || true
 	# then run the tests
 	pip install --user -v -r requirements.txt
 	pip install --user -v .
