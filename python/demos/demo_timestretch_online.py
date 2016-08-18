@@ -17,7 +17,7 @@ hop_s = win_s / 8 # 87.5 % overlap
 warmup = win_s // hop_s - 1
 
 if len(sys.argv) < 3:
-    print("Usage: %s <source_filename> <output_filename> <rate> [samplerate]".format(sys.argv[0]))
+    print("Usage: {:s} <source_filename> <output_filename> <rate> [samplerate]".format(sys.argv[0]))
     print("""Examples:
     # twice faster
     {0} track_01.mp3 track_01_faster.wav 2.0
