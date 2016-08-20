@@ -40,8 +40,6 @@ skip_objects = [
   'source_wavread',
   #'sampler',
   'audio_unit',
-
-  'tss',
   ]
 
 def get_preprocessor():
