@@ -10,8 +10,7 @@ if __name__ == '__main__':
 
     samplerate = 44100
     win_s = 1024       # fft size
-    hop_s = win_s // 4 # block size
-    threshold = 0.5
+    hop_s = win_s // 8 # block size
 
     f = source(sys.argv[1], samplerate, hop_s)
     g = sink(sys.argv[2], samplerate)
@@ -21,7 +20,9 @@ if __name__ == '__main__':
     pvb = pvoc(win_s, hop_s)    # another phase vocoder
     t = tss(win_s, hop_s)       # transient steady state separation
 
-    t.set_threshold(threshold)
+    t.set_threshold(0.01)
+    t.set_alpha(3.)
+    t.set_beta(4.)
 
     read = hop_s
 
@@ -35,6 +36,7 @@ if __name__ == '__main__':
         h(steadstate, read)               # write steady states to output
 
     del f, g, h                           # finish writing the files now
+    sys.exit(0)
 
     from demo_spectrogram import get_spectrogram
     from pylab import subplot, show
