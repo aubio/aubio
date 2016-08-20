@@ -81,7 +81,7 @@ objoutsize = {
         'specdesc': '1',
         'tempo': '1',
         'filterbank': 'self->n_filters',
-        'tss': 'self->hop_size',
+        'tss': 'self->buf_size',
         }
 
 objinputsize = {
@@ -93,6 +93,7 @@ objinputsize = {
         'specdesc': 'self->buf_size / 2 + 1',
         'tempo': 'self->hop_size',
         'wavetable': 'self->hop_size',
+        'tss': 'self->buf_size / 2 + 1',
         }
 
 def get_name(proto):
@@ -373,6 +374,8 @@ Py_{shortname}_do  (Py_{shortname} * self, PyObject * args)
         output_params = self.do_outputs
         #print input_params
         #print output_params
+        out += """
+    PyObject *outputs;"""
         for input_param in input_params:
             out += """
     PyObject *py_{0};""".format(input_param['name'])
@@ -415,12 +418,25 @@ Py_{shortname}_do  (Py_{shortname} * self, PyObject * args)
         out += """
 
     {do_fn}(self->o, {inputs}, {c_outputs});
-
-    return {outputs};
-}}
 """.format(
         do_fn = do_fn,
-        inputs = inputs, outputs = outputs, c_outputs = c_outputs,
+        inputs = inputs, c_outputs = c_outputs,
+        )
+        if len(self.do_outputs) > 1:
+            out += """
+    outputs = PyTuple_New(2);""".format(len(self.do_outputs))
+            for i, p in enumerate(self.do_outputs):
+                out += """
+    PyTuple_SetItem( outputs, {i}, self->{p[name]});""".format(i = i, p = p)
+        else:
+            out += """
+    outputs = self->{p[name]};""".format(p = self.do_outputs[0])
+        out += """
+
+    return outputs;
+}}
+""".format(
+        outputs = outputs,
         )
         return out
 
