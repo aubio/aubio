@@ -306,7 +306,7 @@ Py_{shortname}_init (Py_{shortname} * self, PyObject * args, PyObject * kwds)
         out += """
   // return -1 and set error string on failure
   if (self->o == NULL) {{
-    PyErr_Format (PyExc_Exception, "failed creating {shortname}");
+    PyErr_Format (PyExc_RuntimeError, "failed creating {shortname}");
     return -1;
   }}
 """.format(paramchars = paramchars, paramvals = paramvals, **self.__dict__)
@@ -348,18 +348,20 @@ Py_{shortname}_del  (Py_{shortname} * self, PyObject * unused)
         for input_param in self.do_inputs:
             if input_param['type'] == 'fmat_t *':
                 out += """
-    free(self->{0[name]}.data);""".format(input_param)
+  free(self->{0[name]}.data);""".format(input_param)
         for o in self.outputs:
             name = o['name']
             del_out = delfromtype_fn[o['type']]
             out += """
-    {del_out}(self->{name});""".format(del_out = del_out, name = name)
+  if (self->{name}) {{
+    {del_out}(self->{name});
+  }}""".format(del_out = del_out, name = name)
         del_fn = get_name(self.del_proto)
         out += """
-    if (self->o) {{
-        {del_fn}(self->o);
-    }}
-    Py_TYPE(self)->tp_free((PyObject *) self);
+  if (self->o) {{
+    {del_fn}(self->o);
+  }}
+  Py_TYPE(self)->tp_free((PyObject *) self);
 }}
 """.format(del_fn = del_fn)
         return out
