@@ -56,7 +56,7 @@ if os.path.isfile('src/aubio.h'):
     else:
         # add libaubio sources and look for optional deps with pkg-config
         add_local_aubio_sources(aubio_extension)
-        __version__ += '_libaubio'
+        __version__ += 'a2' # pypi version
 else:
     # look for aubio headers and lib using pkg-config
     add_system_aubio(aubio_extension)
