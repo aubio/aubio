@@ -5,8 +5,8 @@ include waf
 include aubio.pc.in
 include nose2.cfg
 include requirements.txt
-include src/*.h
-include src/*/*.h
+include src/*.c src/*.h
+include src/*/*.c src/*/*.h
 include examples/*.c examples/*.h
 include tests/*.h tests/*/*.c tests/*/*/*.c
 include python/ext/*.h
