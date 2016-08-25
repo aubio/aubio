@@ -30,6 +30,8 @@ environment:
     - PYTHON: "C:\\Python35-x64"
       PYTHON_VERSION: "3.5.x"
       PYTHON_ARCH: "64"
+      # add path required to run preprocessor step
+      PATH_EXTRAS: "c:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\bin"
 
 install:
 
@@ -43,7 +45,7 @@ install:
   # We need wheel installed to build wheels
   - "%PYTHON%\\python.exe -m pip install wheel"
 
-  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - "SET PATH=%PATH_EXTRAS%;%%PYTHON%;%PYTHON%\\Scripts;%PATH%"
 
   - "pip install --disable-pip-version-check --user --upgrade pip"
   - "pip install --upgrade setuptools"
