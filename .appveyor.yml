@@ -45,7 +45,7 @@ install:
   # We need wheel installed to build wheels
   - "%PYTHON%\\python.exe -m pip install wheel"
 
-  - "SET PATH=%PATH_EXTRAS%;%%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - "SET PATH=%PATH_EXTRAS%;%PYTHON%;%PYTHON%\\Scripts;%PATH%"
 
   - "pip install --disable-pip-version-check --user --upgrade pip"
   - "pip install --upgrade setuptools"
