@@ -1,12 +1,12 @@
-aubio documentation
-===================
+Welcome
+=======
 
-aubio is a collection of algorithms and tools to label music and sounds. It
-listens to audio signals and attempts to detect events. For instance, when a
-drum is hit, at which frequency is a note, or at what tempo is a rhythmic
-melody.
+aubio is a collection of algorithms and tools to label and transform music and
+sounds. It scans or `listens` to audio signals and attempts to detect musical
+events. For instance, when a drum is hit, at which frequency is a note, or at
+what tempo is a rhythmic melody.
 
-Its features include segmenting a sound file before each of its attacks,
+aubio features include segmenting a sound file before each of its attacks,
 performing pitch detection, tapping the beat and producing midi streams from
 live audio.
 
@@ -21,7 +21,7 @@ aubio provide several algorithms and routines, including:
 - digital filters (low pass, high pass, and more)
 - spectral filtering
 - transient/steady-state separation
-- sound file and audio devices read and write access
+- sound file read and write access
 - various mathematics utilities for music applications
 
 The name aubio comes from *audio* with a typo: some errors are likely to be
