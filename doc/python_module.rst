@@ -1,6 +1,13 @@
 aubio Python module
 ===================
 
+Installing with pip
+-------------------
+
+.. code-block:: bash
+
+    $ pip install aubio
+
 Building the module
 -------------------
 
@@ -8,7 +15,7 @@ From ``aubio`` source directory, run the following:
 
 .. code-block:: bash
 
-    $ cd python
+    $ ./setup.py clean
     $ ./setup.py build
     $ sudo ./setup.py install
 
