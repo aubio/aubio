@@ -1,8 +1,14 @@
+.. _python:
+
 Python module
 =============
 
+The aubio extension for Python is available for Python 2.7 and Python 3.
+
 Installing aubio with pip
 -------------------------
+
+aubio can now be installed using ``pip`` and ``easy_install``.
 
 .. code-block:: bash
 
@@ -25,31 +31,25 @@ Using aubio in python
 Once you have python-aubio installed, you should be able to run ``python -c
 "import aubio"``.
 
-A very simple example
-.....................
+A simple example
+................
 
-Here is a very simple script
-to read all the samples from a media file:
+Here is a :download:`simple script <../python/demos/demo_source_simple.py>`
+that reads all the samples from a media file:
 
-.. code-block:: python
-
-        #! /usr/bin/env python
-        import aubio
-
-        s = aubio.source(sys.argv[1], 0, 256)
-        while True:
-          samples, read = s()
-          #print(samples)
-          if read < 256: break
+.. literalinclude:: ../python/demos/demo_source_simple.py
+   :language: python
 
 Filtering an input sound file
 .............................
 
-Here is a more complete example, `demo_filter.py`_. This files executes the following:
+Here is a more complete example, :download:`demo_filter.py
+<../python/demos/demo_filter.py>`. This files executes the following:
 
 * read an input media file (``aubio.source``)
 
-* filter it using an A-weighting filter (``aubio.digital_filter``)
+* filter it using an `A-weighting <https://en.wikipedia.org/wiki/A-weighting>`_
+  filter (``aubio.digital_filter``)
 
 * write result to a new file (``aubio.sink``)
 
@@ -67,7 +67,7 @@ Python tests
 A number of `python tests`_ are provided. To run them, use
 ``python/tests/run_all_tests``.
 
-.. _python tests folder: https://github.com/aubio/aubio/blob/master/python/tests
 .. _python demos folder: https://github.com/aubio/aubio/blob/master/python/demos
 .. _demo_filter.py: https://github.com/aubio/aubio/blob/master/python/demos/demo_filter.py
+.. _python tests: https://github.com/aubio/aubio/blob/master/python/tests
 
