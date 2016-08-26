@@ -1,32 +1,47 @@
 .. highlight:: bash
 
-Installing aubio
-================
+Building aubio
+==============
 
-A number of distributions already include aubio. Check your favorite package
-management system, or have a look at the `download page
-<http://aubio.org/download>`_.
+.. note::
+    To download a prebuilt version of aubio, see :ref:`download`.
 
-aubio uses `waf <https://waf.io/>`_ to configure, compile, and test the source.
-A copy of ``waf`` is included along aubio, so all you need is a ``terminal``
-and a recent ``python`` installed.
+aubio uses `waf`_ to configure, compile, and test the source.
+A copy of waf is included in aubio tarball, so all you need is a terminal,
+a compiler, and a recent version of python installed.
 
-Source code
------------
+Latest release
+--------------
 
-Check out the `download page <http://aubio.org/download>`_ for more options:
-http://aubio.org/download.
-
-The latest stable release can be found at http://aubio.org/pub/::
+The **latest stable release** can be downloaded from https://aubio.org/download::
 
         $ curl -O http://aubio.org/pub/aubio-0.4.3.tar.bz2
         $ tar xf aubio-0.4.3.tar.bz2
         $ cd aubio-0.4.3
 
-The latest develop branch can be obtained with::
+Git repository
+--------------
+
+The **latest git branch** can be obtained with::
 
         $ git clone git://git.aubio.org/git/aubio
         $ cd aubio
+
+The following command will fetch the correct `waf`_ version (not included in
+aubio's git)::
+
+        $ ./scripts/get_waf.sh
+
+.. note::
+
+  Windows users without `Git Bash`_ installed will want to use the following
+  commands instead:
+
+  .. code:: bash
+
+        $ curl -fsS -o waf https://waf.io/waf-1.8.22
+        $ curl -fsS -o waf.bat https://raw.githubusercontent.com/waf-project/waf/master/utils/waf.bat
+
 
 Compiling
 ---------
@@ -35,7 +50,7 @@ To compile the C library, examples programs, and tests, run::
 
         $ ./waf configure
 
-Check out the available options using ``./waf configure --help | less``. Once
+Check out the available options using ``./waf configure --help``. Once
 you are done with configuration, you can start building::
 
         $ ./waf build
@@ -44,6 +59,14 @@ To install the freshly built C library and tools, simply run the following
 command::
 
         $ sudo ./waf install
+
+.. note::
+  Windows users should simply run ``waf``, without the leading ``./``. For
+  instance:
+
+  .. code:: bash
+
+       $ waf configure build
 
 Cleaning
 --------
@@ -61,3 +84,10 @@ To also forget the options previously passed to the last ``./waf configure``
 invocation, use the ``distclean`` command::
 
         $ ./waf distclean
+
+.. _waf: https://waf.io/
+
+.. _Git Bash: https://git-for-windows.github.io/
+
+.. toctree::
+   :maxdepth: 2
