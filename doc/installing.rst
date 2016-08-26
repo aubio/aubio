@@ -19,16 +19,14 @@ http://aubio.org/download.
 
 The latest stable release can be found at http://aubio.org/pub/::
 
-        $ curl -O http://aubio.org/pub/aubio-0.4.1.tar.bz2
-        $ tar xf aubio-0.4.1.tar.bz2
-        $ cd aubio-0.4.1
+        $ curl -O http://aubio.org/pub/aubio-0.4.3.tar.bz2
+        $ tar xf aubio-0.4.3.tar.bz2
+        $ cd aubio-0.4.3
 
 The latest develop branch can be obtained with::
 
-        $ git clone git://git.aubio.org/git/aubio/ aubio-devel
-        $ cd aubio-devel
-        $ git fetch origin develop:develop
-        $ git checkout develop
+        $ git clone git://git.aubio.org/git/aubio
+        $ cd aubio
 
 Compiling
 ---------
