@@ -426,7 +426,7 @@ Py_{shortname}_do  (Py_{shortname} * self, PyObject * args)
         )
         if len(self.do_outputs) > 1:
             out += """
-    outputs = PyTuple_New(2);""".format(len(self.do_outputs))
+    outputs = PyTuple_New({:d});""".format(len(self.do_outputs))
             for i, p in enumerate(self.do_outputs):
                 out += """
     PyTuple_SetItem( outputs, {i}, self->{p[name]});""".format(i = i, p = p)
