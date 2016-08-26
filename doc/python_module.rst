@@ -8,7 +8,7 @@ The aubio extension for Python is available for Python 2.7 and Python 3.
 Installing aubio with pip
 -------------------------
 
-aubio can now be installed using ``pip`` and ``easy_install``.
+aubio can now be installed using ``pip``:
 
 .. code-block:: bash
 

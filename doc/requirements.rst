@@ -3,11 +3,17 @@
 Requirements
 ============
 
-While aubio should build without any additional external libraries, we
-**strongly recommend** to build aubio with some additional dependancies.
+While aubio can be built without any external dependencies, we **recommend** to
+use at least some of the following libraries.
 
 Platform notes
 --------------
+
+On all platforms, you will need to have installed:
+
+ - a compiler (gcc, clang, msvc, ...)
+ - python (any version >= 2.7, including 3.x)
+ - a terminal to run command lines in
 
 Linux
 .....
@@ -74,7 +80,10 @@ Set ``CFLAGS`` and ``LINKFLAGS`` to change these default values, or edit
 Build options
 -------------
 
-These options can be passed to configure
+Some additional options can be passed to the configure step. For the complete
+list of options, run:
+
+    $ ./waf configure --help
 
 Double precision
 ................
@@ -132,7 +141,7 @@ With libsndfile built in, ``aubio_source_sndfile`` will be built in and used by
 ``aubio_source``.
 
 To enable this option, configure with ``--enable-sndfile``. The build will then
-failed if the required library is not found. To disable this option, configure
+fail if the required library is not found. To disable this option, configure
 with ``--disable-sndfile``
 
 libsamplerate
@@ -145,7 +154,7 @@ With libsamplerate built in, ``aubio_source_sndfile`` will support resampling,
 and ``aubio_resample`` will be fully functional.
 
 To enable this option, configure with ``--enable-samplerate``. The build will
-then failed if the required library is not found. To disable this option,
+then fail if the required library is not found. To disable this option,
 configure with ``--disable-samplerate``
 
 libfftw3
@@ -159,7 +168,7 @@ compute Fast Fourier Transform (FFT), allowing aubio to compute FFT on length
 that are not a power of 2.
 
 To enable this option, configure with ``--enable-fftw3``. The build will
-then failed if the required library is not found. To disable this option,
+then fail if the required library is not found. To disable this option,
 configure with ``--disable-fftw3``
 
 External tools
