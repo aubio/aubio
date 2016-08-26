@@ -13,7 +13,7 @@ live audio.
 Features
 ========
 
-aubio provide several algorithms and routines, including:
+aubio provides several algorithms and routines, including:
 
 - several onset detection methods
 - different pitch detection methods
@@ -76,6 +76,7 @@ Current status
 
 * `Travis Continuous integration page <https://travis-ci.org/aubio/aubio>`_
 * `Appveyor Continuous integration page <https://ci.appveyor.com/project/piem/aubio>`_
+* `Landscape python code validation <https://landscape.io/github/aubio/aubio/master>`_
 * `ReadTheDocs documentation <http://aubio.readthedocs.io/en/latest/>`_
 
 Copyright and License
