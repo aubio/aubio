@@ -39,6 +39,7 @@ Content
    installing
    cli
    python_module
+   develop
 
 Project pages
 =============
@@ -46,13 +47,13 @@ Project pages
 * `Project homepage`_: https://aubio.org
 * `aubio on github`_: https://github.com/aubio/aubio
 * `aubio on pypi`_: https://pypi.python.org/pypi/aubio
-* `API documentation`_: https://aubio.org/doc/latest/
+* `Doxygen documentation`_: https://aubio.org/doc/latest/
 * `Mailing lists`_: https://lists.aubio.org
 
 .. _Project homepage: https://aubio.org
 .. _aubio on github: https://github.com/aubio/aubio
 .. _aubio on pypi: https://pypi.python.org/pypi/aubio
-.. _api documentation: https://aubio.org/doc/latest/
+.. _Doxygen documentation: https://aubio.org/doc/latest/
 .. _Mailing lists: https://lists.aubio.org/
 
 Current status

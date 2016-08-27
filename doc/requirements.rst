@@ -174,7 +174,7 @@ libfftw3
   `FFTW <http://fftw.org/>`_, a C subroutine for computing the discrete Fourier
   transform
 
-With libfftw3 built in, ``aubio_fft`` will use `FFTW <http://fftw.org>`_ to
+With libfftw3 built in, ``aubio_fft`` will use `FFTW`_ to
 compute Fast Fourier Transform (FFT), allowing aubio to compute FFT on length
 that are not a power of 2.
 
@@ -187,7 +187,7 @@ External tools
 
 If the following tools are found, additional documentations are built:
 
- - `doxygen <http://doxygen.org>`_ to build the `API documentation`.
+ - `doxygen <http://doxygen.org>`_ to build the :ref:`doxygen-documentation`.
  - `txt2man <https://github.com/mvertes/txt2man>`_ to build the :ref:`manpages`
 
 These tools are searched for in the current ``PATH`` environment variable.
