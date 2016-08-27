@@ -44,6 +44,15 @@ The following `External libraries`_ will also be checked: `libav`_,
 Windows
 .......
 
+To use a specific version of the compiler, ``--msvc_version``. To build for a
+specific architecture, use ``--msvc_target``. For instance, to build aubio
+for ``x86`` using ``msvc 12.0``, use:
+
+.. code:: bash
+
+    waf configure --msvc_version='msvc 12.0' --msvc_target='x86'
+
+
 The following `External libraries`_ will be used if found: `libav`_,
 `libsamplerate`_, `libsndfile`_, `libfftw3`_.
 
