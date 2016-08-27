@@ -81,7 +81,7 @@ and on iOS Simulator:
 
 .. code::
 
-    CFLAGS="-fembed-bitcode -arch i386 -arch x86_64 -mios-simulator-version-min=6.1"
+    CFLAGS="-arch i386 -arch x86_64 -mios-simulator-version-min=6.1"
 
 Set ``CFLAGS`` and ``LINKFLAGS`` to change these default values, or edit
 ``wscript`` directly.
