@@ -92,6 +92,8 @@ Build options
 Some additional options can be passed to the configure step. For the complete
 list of options, run:
 
+.. code:: bash
+
     $ ./waf configure --help
 
 Double precision
