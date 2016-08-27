@@ -6,14 +6,13 @@ Using aubio frameworks in Xcode
 `Binary frameworks`_ are available and ready to use in your XCode project, for
 `iOS`_ and `macOS`_.
 
-#. Download the ``framework.zip`` file from the `Download`_ page
+#. Download and extract the corresponding ``framework.zip`` file from the `Download`_ page
 
-#. Select **Build Phases** in your project settings
+#. Select **Build Phases** in your project setting and unfold **Link Binary with Libraries**
 
-#. Unfold the **Link Binary with Libraries** list, and add *AudioToolbox* and
-   *Accelerate* system frameworks
+#. Add *AudioToolbox* and *Accelerate* system frameworks (or make sure they are listed)
 
-#. Also add ``aubio.framework`` from the unzipped ``framework.zip``
+#. Add ``aubio.framework`` from the unzipped ``framework.zip``
 
 #. Include the aubio header in your code:
 
