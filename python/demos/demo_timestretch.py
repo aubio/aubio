@@ -7,7 +7,7 @@
 # and synthesis in a second pass.
 
 import sys
-from aubio import source, sink, pvoc, mfcc, cvec
+from aubio import source, sink, pvoc, cvec
 from aubio import unwrap2pi, float_type
 import numpy as np
 
