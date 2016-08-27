@@ -1,8 +1,8 @@
 Installing aubio
 ================
 
-aubio runs on Linux, Windows, macOS, iOS, Android, and probably quite a few
-others operating systems.
+aubio runs on Linux, Windows, macOS, iOS, Android, and probably a few others
+operating systems.
 
 To download a pre-compiled version of the library, head to :ref:`download`.
 
