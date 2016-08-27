@@ -7,9 +7,9 @@ s = aubio.source(sys.argv[1], samplerate, hop_size)
 total_frames = 0
 
 while True: # reading loop
-  samples, read = s()
-  total_frames += read
-  if read < hop_size: break # end of file reached
+    samples, read = s()
+    total_frames += read
+    if read < hop_size: break # end of file reached
 
 fmt_string = "read {:d} frames at {:d}Hz from {:s}"
 print (fmt_string.format(total_frames, s.samplerate, sys.argv[1]))
