@@ -71,9 +71,13 @@ Current status
    :target: https://landscape.io/github/aubio/aubio/master
    :alt: Landscape code health
 
-.. image:: http://readthedocs.org/projects/aubio/badge/?version=latest
+.. image:: https://readthedocs.org/projects/aubio/badge/?version=latest
    :target: http://aubio.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation status
+
+.. image:: https://img.shields.io/github/commits-since/aubio/aubio/0.4.3.svg?maxAge=2592000
+   :target: https://github.com/aubio/aubio
+   :alt: Commits since last release
 
 * `Travis Continuous integration page <https://travis-ci.org/aubio/aubio>`_
 * `Appveyor Continuous integration page <https://ci.appveyor.com/project/piem/aubio>`_
