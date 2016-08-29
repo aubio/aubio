@@ -11,9 +11,8 @@ class aubio_cvec_test_case(TestCase):
 
     def test_vector_created_with_zeroes(self):
         a = cvec(10)
-        assert_equal(a.norm.shape[0], 10 / 2 + 1)
-        assert_equal(a.phas.shape[0], 10 / 2 + 1)
-        _ = a.norm[0]
+        assert_equal(a.norm.shape[0], 10 // 2 + 1)
+        assert_equal(a.phas.shape[0], 10 // 2 + 1)
         assert_equal(a.norm, 0.)
         assert_equal(a.phas, 0.)
 
