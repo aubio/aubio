@@ -119,11 +119,8 @@ def get_cpp_objects(header=header):
 
     return cpp_output, cpp_objects
 
-def generate_external(header=header, output_path=output_path, usedouble=False, overwrite=True):
-    if not os.path.isdir(output_path): os.mkdir(output_path)
-    elif not overwrite: return glob.glob(os.path.join(output_path, '*.c'))
-    sources_list = []
-    cpp_output, cpp_objects = get_cpp_objects(header)
+
+def analyze_cpp_output(cpp_objects, cpp_output):
     lib = {}
 
     for o in cpp_objects:
@@ -153,8 +150,9 @@ def generate_external(header=header, output_path=output_path, usedouble=False, o
                 else:
                     #print "no idea what to do about", fn
                     lib[shortname]['other'].append(fn)
+    return lib
 
-    """
+def print_cpp_output_results(lib, cpp_output):
     for fn in cpp_output:
         found = 0
         for o in lib:
@@ -162,7 +160,7 @@ def generate_external(header=header, output_path=output_path, usedouble=False, o
                 if fn in lib[o][family]:
                     found = 1
         if found == 0:
-            print "missing", fn
+            print ("missing", fn)
 
     for o in lib:
         for family in lib[o]:
@@ -171,9 +169,19 @@ def generate_external(header=header, output_path=output_path, usedouble=False, o
             elif len(lib[o][family]) == 1:
                 print ( "{:15s} {:10s} {:s}".format(o, family, lib[o][family][0] ) )
             else:
-                print ( "{:15s} {:10s} {:d}".format(o, family, len(lib[o][family]) ) )
-    """
+                print ( "{:15s} {:10s} {:s}".format(o, family, lib[o][family] ) )
 
+
+def generate_external(header=header, output_path=output_path, usedouble=False, overwrite=True):
+    if not os.path.isdir(output_path): os.mkdir(output_path)
+    elif not overwrite: return glob.glob(os.path.join(output_path, '*.c'))
+
+    cpp_output, cpp_objects = get_cpp_objects(header)
+
+    lib = analyze_cpp_output(cpp_objects, cpp_output)
+    # print_cpp_output_results(lib, cpp_output)
+
+    sources_list = []
     try:
         from .gen_code import MappedObject
     except (SystemError, ValueError):
