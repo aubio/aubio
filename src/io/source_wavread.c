@@ -71,7 +71,7 @@ unsigned int read_little_endian (unsigned char *buf, unsigned int length) {
 
 aubio_source_wavread_t * new_aubio_source_wavread(const char_t * path, uint_t samplerate, uint_t hop_size) {
   aubio_source_wavread_t * s = AUBIO_NEW(aubio_source_wavread_t);
-  size_t bytes_read = 0, bytes_expected = 44;
+  size_t bytes_read = 0, bytes_junk = 0, bytes_expected = 44;
   unsigned char buf[5];
   unsigned int format, channels, sr, byterate, blockalign, duration, bitspersample;//, data_size;
 
@@ -123,8 +123,27 @@ aubio_source_wavread_t * new_aubio_source_wavread(const char_t * path, uint_t sa
   // Subchunk1ID
   bytes_read += fread(buf, 1, 4, s->fid);
   buf[4] = '\0';
+
+  // check if we have a JUNK Chunk
+  if ( strcmp((const char *)buf, "JUNK") == 0 ) {
+    bytes_junk = fread(buf, 1, 4, s->fid);
+    buf[4] = '\0';
+    bytes_junk += read_little_endian(buf, 4);
+    if (fseek(s->fid, bytes_read + bytes_junk, SEEK_SET) != 0) {
+      AUBIO_ERR("source_wavread: could not seek past JUNK Chunk in %s (%s)\n",
+          s->path, strerror(errno));
+      goto beach;
+    }
+    bytes_read += bytes_junk;
+    bytes_expected += bytes_junk;
+    // now really read the fmt chunk
+    fread(buf, 1, 4, s->fid);
+    buf[4] = '\0';
+  }
+
+  // get the fmt chunk
   if ( strcmp((const char *)buf, "fmt ") != 0 ) {
-    AUBIO_ERR("source_wavread: fmt RIFF header in %s\n", s->path);
+    AUBIO_ERR("source_wavread: failed finding fmt RIFF header in %s\n", s->path);
     goto beach;
   }
 
