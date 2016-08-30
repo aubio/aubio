@@ -212,9 +212,11 @@ void del_aubio_fft(aubio_fft_t * s) {
   /* destroy data */
   del_fvec(s->compspec);
 #ifdef HAVE_FFTW3             // using FFTW3
+  pthread_mutex_lock(&aubio_fftw_mutex);
   fftw_destroy_plan(s->pfw);
   fftw_destroy_plan(s->pbw);
   fftw_free(s->specdata);
+  pthread_mutex_unlock(&aubio_fftw_mutex);
 #else /* HAVE_FFTW3 */
 #ifdef HAVE_ACCELERATE        // using ACCELERATE
   AUBIO_FREE(s->spec.realp);
