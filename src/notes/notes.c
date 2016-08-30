@@ -170,7 +170,6 @@ void aubio_notes_do (aubio_notes_t *o, const fvec_t * input, fvec_t * notes)
         /* kill old note */
         //send_noteon(curnote,0);
         notes->data[2] = o->curnote;
-        notes->data[3] = 0;
         o->newnote = aubio_notes_get_latest_note(o);
         o->curnote = o->newnote;
         /* get and send new one */
