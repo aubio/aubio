@@ -326,6 +326,12 @@ def configure(ctx):
         except ctx.errors.ConfigurationError:
           ctx.to_log('doxygen was not found (ignoring)')
 
+        # check if sphinx-build is installed, optional
+        try:
+          ctx.find_program('sphinx-build', var='SPHINX')
+        except ctx.errors.ConfigurationError:
+          ctx.to_log('sphinx-build was not found (ignoring)')
+
 def build(bld):
     bld.env['VERSION'] = VERSION
     bld.env['LIB_VERSION'] = LIB_VERSION
@@ -365,6 +371,16 @@ def build(bld):
         bld.install_files( '${PREFIX}' + '/share/doc/libaubio-doc',
                 bld.path.ant_glob('doc/web/html/**'),
                 cwd = bld.path.find_dir ('doc/web'),
+                relative_trick = True)
+
+    # build documentation from source files using sphinx-build
+    if bld.env['SPHINX']:
+        bld( name = 'sphinx', rule = 'make html',
+                source = ['doc/conf.py'] + bld.path.ant_glob('doc/**.rst'),
+                cwd = 'doc')
+        bld.install_files( '${PREFIX}' + '/share/doc/libaubio-doc/sphinx',
+                bld.path.ant_glob('doc/_build/html/**'),
+                cwd = bld.path.find_dir ('doc/_build/html'),
                 relative_trick = True)
 
 def shutdown(bld):
