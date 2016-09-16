@@ -56,8 +56,8 @@ void del_aubio_pitchshift (aubio_pitchshift_t * o);
 
 /** creation of the pitch shifting object
 
-  \param method set pitch shifting algorithm
-  \param buf_size size of the input buffer to analyse
+  \param method set pitch shifting algorithm ("default")
+  \param pitchscale initial pitch scaling factor
   \param hop_size step size between two consecutive analysis instant
   \param samplerate sampling rate of the signal
 
