@@ -73,6 +73,7 @@ def add_local_aubio_sources(ext):
     packages = ['libavcodec', 'libavformat', 'libavutil', 'libavresample',
                 'jack',
                 'sndfile', 'samplerate',
+                'rubberband',
                 #'fftw3f',
                ]
     add_packages(packages, ext=ext)
@@ -87,6 +88,8 @@ def add_local_aubio_sources(ext):
         ext.define_macros += [('HAVE_SNDFILE', 1)]
     if 'samplerate' in ext.libraries:
         ext.define_macros += [('HAVE_SAMPLERATE', 1)]
+    if 'rubberband' in ext.libraries:
+        ext.define_macros += [('HAVE_RUBBERBAND', 1)]
     if 'fftw3f' in ext.libraries:
         ext.define_macros += [('HAVE_FFTW3F', 1)]
         ext.define_macros += [('HAVE_FFTW3', 1)]
