@@ -144,6 +144,9 @@ aubio_pitchshift_do (aubio_pitchshift_t * p, const fvec_t * in, fvec_t * out)
 }
 
 #else
+
+// TODO fallback pitch shifting implementation
+
 struct _aubio_pitchshift_t
 {
   void *dummy;
@@ -153,7 +156,8 @@ void aubio_pitchshift_do (aubio_pitchshift_t * o UNUSED, const fvec_t * in UNUSE
     fvec_t * out UNUSED) {
 }
 
-void del_aubio_pitchshift (aubio_pitchshift_t * o UNUSED) {}
+void del_aubio_pitchshift (aubio_pitchshift_t * o UNUSED) {
+}
 
 aubio_pitchshift_t *new_aubio_pitchshift (const char_t * method UNUSED,
     smpl_t pitchscale UNUSED, uint_t hop_size UNUSED, uint_t samplerate UNUSED)
@@ -161,18 +165,25 @@ aubio_pitchshift_t *new_aubio_pitchshift (const char_t * method UNUSED,
   AUBIO_ERR ("aubio was not compiled with rubberband\n");
   return NULL;
 }
+
 uint_t aubio_pitchshift_set_pitchscale (aubio_pitchshift_t * o UNUSED, smpl_t pitchscale UNUSED)
 {
   return AUBIO_FAIL;
 }
+
 smpl_t aubio_pitchshift_get_pitchscale (aubio_pitchshift_t * o UNUSED)
 {
   return 1.;
 }
+
 uint_t aubio_pitchshift_set_transpose (aubio_pitchshift_t * o UNUSED, smpl_t transpose UNUSED) {
   return AUBIO_FAIL;
 }
+
 smpl_t aubio_pitchshift_get_transpose (aubio_pitchshift_t * o UNUSED) {
   return 0.;
 }
+
+// end of dummy implementation
+
 #endif /* HAVE_RUBBERBAND */
