@@ -392,10 +392,14 @@ def shutdown(bld):
         Logs.pprint('RED', msg)
 
 def dist(ctx):
-    ctx.excl  = ' **/.waf-1* **/*~ **/*.pyc **/*.swp **/.lock-w* **/.git*'
+    ctx.excl  = ' **/.waf-1* **/*~ **/*.pyc **/*.swp **/*.swo **/*.swn **/.lock-w* **/.git*'
     ctx.excl += ' **/build/*'
+    ctx.excl += ' doc/_build'
+    ctx.excl += ' python/demos_*'
     ctx.excl += ' **/python/gen **/python/build **/python/dist'
     ctx.excl += ' **/python/ext/config.h'
+    ctx.excl += ' **/python/lib/aubio/_aubio.so'
+    ctx.excl += ' **.egg-info'
     ctx.excl += ' **/**.zip **/**.tar.bz2'
     ctx.excl += ' **/doc/full/* **/doc/web/*'
     ctx.excl += ' **/python/*.db'
