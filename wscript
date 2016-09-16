@@ -68,6 +68,9 @@ def options(ctx):
     add_option_enable_disable(ctx, 'samplerate', default = None,
             help_str = 'compile with samplerate (auto)',
             help_disable_str = 'disable samplerate')
+    add_option_enable_disable(ctx, 'rubberband', default = None,
+            help_str = 'compile with rubberband (auto)',
+            help_disable_str = 'disable rubberband')
     add_option_enable_disable(ctx, 'memcpy', default = True,
             help_str = 'use memcpy hacks (default)',
             help_disable_str = 'do not use memcpy hacks')
@@ -258,6 +261,12 @@ def configure(ctx):
         ctx.check_cfg(package = 'samplerate', atleast_version = '0.0.15',
                 args = '--cflags --libs',
                 mandatory = ctx.options.enable_samplerate)
+
+    # check for librubberband
+    if (ctx.options.enable_rubberband != False):
+        ctx.check_cfg(package = 'rubberband', atleast_version = '1.8.1',
+                args = '--cflags --libs',
+                mandatory = ctx.options.enable_rubberband)
 
     # check for jack
     if (ctx.options.enable_jack != False):
