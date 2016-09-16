@@ -19,6 +19,7 @@ aubiodefvalue = {
     'ratio': '0.5',
     'method': '"default"',
     'uri': '"none"',
+    'pitchscale': '1.',
     }
 
 member_types = {
@@ -82,6 +83,7 @@ objoutsize = {
         'tempo': '1',
         'filterbank': 'self->n_filters',
         'tss': 'self->buf_size',
+        'pitchshift': 'self->hop_size',
         }
 
 objinputsize = {
@@ -94,6 +96,7 @@ objinputsize = {
         'tempo': 'self->hop_size',
         'wavetable': 'self->hop_size',
         'tss': 'self->buf_size / 2 + 1',
+        'pitchshift': 'self->hop_size',
         }
 
 def get_name(proto):
@@ -265,6 +268,8 @@ Py_{shortname}_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
             return self.check_valid_uint(p)
         if p['type'] == 'char_t*':
             return self.check_valid_char(p)
+        if p['type'] == 'smpl_t':
+            return self.check_valid_smpl(p)
         else:
             print ("ERROR, no idea how to check %s for validity" % p['type'])
 
@@ -284,7 +289,14 @@ Py_{shortname}_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
         name = p['name']
         return """
     self->{name} = {defval};
-    if ({name} != NULL) {{
+""".format(defval = aubiodefvalue[name], name = name)
+
+    def check_valid_smpl(self, p):
+        name = p['name']
+        return """
+    self->{name} = {defval};
+    // nothing to do?
+    if ({name} != {defval}) {{
         self->{name} = {name};
     }}
 """.format(defval = aubiodefvalue[name], name = name)
