@@ -55,8 +55,12 @@ new_aubio_pitchshift (const char_t * mode,
   p->timeratio = 1.;
   p->pitchscale = pitchscale;
 
-  p->rboptions = RubberBandOptionProcessRealTime || RubberBandOptionPitchHighConsistency;
-  p->rboptions = p->rboptions || RubberBandOptionTransientsCrisp;
+  p->rboptions = RubberBandOptionProcessRealTime;
+  //p->rboptions |= RubberBandOptionTransientsCrisp;
+  //p->rboptions |= RubberBandOptionWindowStandard;
+  //p->rboptions |= RubberBandOptionSmoothingOff;
+  //p->rboptions |= RubberBandOptionFormantShifted;
+  //p->rboptions |= RubberBandOptionPitchHighConsistency;
   p->rb = rubberband_new(samplerate, 1, p->rboptions, p->timeratio, p->pitchscale);
   rubberband_set_max_process_size(p->rb, p->hopsize * 4);
   //rubberband_set_debug_level(p->rb, 10);
