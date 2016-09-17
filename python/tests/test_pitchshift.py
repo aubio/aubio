@@ -6,7 +6,10 @@ import aubio
 class aubio_pitchshift(TestCase):
 
     def setUp(self):
-        self.o = aubio.pitchshift()
+        try:
+            self.o = aubio.pitchshift()
+        except RuntimeError as e:
+            self.skipTest("creating aubio.pitchshift failed (recompile with rubberband?)")
 
     def test_default_creation(self):
         self.assertEqual(self.o.get_pitchscale(), 1)
