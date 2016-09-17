@@ -289,6 +289,9 @@ Py_{shortname}_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
         name = p['name']
         return """
     self->{name} = {defval};
+    if ({name} != NULL) {{
+        self->{name} = {name};
+    }}
 """.format(defval = aubiodefvalue[name], name = name)
 
     def check_valid_smpl(self, p):
