@@ -53,11 +53,11 @@ matrix:
     - language: C
       os: osx
       compiler: clang
-      env: ARCH=x86_64 WAFOPTS=--enable-fat
+      env: ARCH=x86_64 WAFOPTS="--enable-fat --disable-sndfile --disable-samplerate --disable-rubberband"
     - language: C
       os: osx
       compiler: clang
-      env: ARCH=i386 WAFOPTS=--enable-fat
+      env: ARCH=i386 WAFOPTS="--enable-fat --disable-sndfile --disable-samplerate --disable-rubberband"
 
 addons:
   apt:
@@ -75,7 +75,7 @@ before_install:
    - |
      if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
        brew update
-       brew install sox rubberband
+       brew install sox libsamplerate libsndfile rubberband
        export PATH="$HOME/Library/Python/2.7/bin/:$PATH"
      fi;
 
