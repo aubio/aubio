@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-from nose2 import TestCase
+from numpy.testing import TestCase
 import aubio
 
 class aubio_pitchshift(TestCase):
