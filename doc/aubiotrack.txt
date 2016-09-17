@@ -6,6 +6,7 @@ SYNOPSIS
   aubiotrack source
   aubiotrack [[-i] source] [-o sink]
              [-r rate] [-B win] [-H hop]
+             [-T time-format]
              [-s sil] [-m]
              [-j] [-v] [-h]
 
@@ -52,6 +53,9 @@ OPTIONS
 
   -j, --jack  Use Jack input/output. You will need a Jack connection
   controller to feed aubio some signal and listen to its output.
+
+  -T, --timeformat format  Set time format (samples, ms, seconds). Defaults to
+  seconds.
 
   -h, --help  Print a short help message and exit.
 

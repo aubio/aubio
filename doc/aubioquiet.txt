@@ -6,6 +6,7 @@ SYNOPSIS
   aubioquiet source
   aubioquiet [[-i] source]
              [-r rate] [-B win] [-H hop]
+             [-T time-format]
              [-s sil]
              [-v] [-h]
 
@@ -37,6 +38,9 @@ OPTIONS
 
   -s, --silence sil  Set the silence threshold, in dB, under which the pitch
   will not be detected. Defaults to -90.0.
+
+  -T, --timeformat format  Set time format (samples, ms, seconds). Defaults to
+  seconds.
 
   -h, --help  Print a short help message and exit.
 
