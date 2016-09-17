@@ -298,8 +298,7 @@ Py_{shortname}_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
         name = p['name']
         return """
     self->{name} = {defval};
-    // nothing to do?
-    if ({name} != {defval}) {{
+    if ({name} != 0.) {{
         self->{name} = {name};
     }}
 """.format(defval = aubiodefvalue[name], name = name)
