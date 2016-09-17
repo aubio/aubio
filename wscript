@@ -264,7 +264,7 @@ def configure(ctx):
 
     # check for librubberband
     if (ctx.options.enable_rubberband != False):
-        ctx.check_cfg(package = 'rubberband', atleast_version = '1.8.1',
+        ctx.check_cfg(package = 'rubberband', atleast_version = '1.3',
                 args = '--cflags --libs',
                 mandatory = ctx.options.enable_rubberband)
 
