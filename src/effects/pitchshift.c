@@ -97,6 +97,10 @@ del_aubio_pitchshift (aubio_pitchshift_t * p)
   AUBIO_FREE (p);
 }
 
+uint_t aubio_pitchshift_get_latency (aubio_pitchshift_t * p) {
+  return rubberband_get_latency(p->rb);
+}
+
 uint_t
 aubio_pitchshift_set_pitchscale (aubio_pitchshift_t * p, smpl_t pitchscale)
 {
@@ -185,6 +189,10 @@ uint_t aubio_pitchshift_set_transpose (aubio_pitchshift_t * o UNUSED, smpl_t tra
 }
 
 smpl_t aubio_pitchshift_get_transpose (aubio_pitchshift_t * o UNUSED) {
+  return 0.;
+}
+
+uint_t aubio_pitchshift_get_latency (aubio_pitchshift_t * o UNUSED) {
   return 0.;
 }
 

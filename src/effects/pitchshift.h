@@ -67,6 +67,15 @@ void del_aubio_pitchshift (aubio_pitchshift_t * o);
 aubio_pitchshift_t *new_aubio_pitchshift (const char_t * method,
     smpl_t pitchscale, uint_t hop_size, uint_t samplerate);
 
+/** get the latency of the pitch shifting object, in samples
+
+  \param o pitch shifting object as returned by ::new_aubio_pitchshift()
+
+  \return latency of the pitch shifting object in samples
+
+*/
+uint_t aubio_pitchshift_get_latency (aubio_pitchshift_t * o);
+
 /** set the pitch scale of the pitch shifting object
 
   \param o pitch shifting object as returned by new_aubio_pitchshift()
