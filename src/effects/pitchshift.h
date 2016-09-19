@@ -86,7 +86,7 @@ uint_t aubio_pitchshift_get_latency (aubio_pitchshift_t * o);
 */
 uint_t aubio_pitchshift_set_pitchscale (aubio_pitchshift_t * o, smpl_t pitchscale);
 
-/** set the pitchscale of the pitch shifting object
+/** get the pitchscale of the pitch shifting object
 
   \param o pitch shifting object as returned by ::new_aubio_pitchshift()
 
@@ -95,21 +95,22 @@ uint_t aubio_pitchshift_set_pitchscale (aubio_pitchshift_t * o, smpl_t pitchscal
 */
 smpl_t aubio_pitchshift_get_pitchscale (aubio_pitchshift_t * o);
 
-/** set the transposition of the pitch shifting object
+/** set the transposition of the pitch shifting object, in semitones
 
   \param o pitch shifting object as returned by new_aubio_pitchshift()
-  \param transpose new pitch transposition of the pitch shifting object
+  \param transpose new pitch transposition of the pitch shifting object, expressed
+  in semitones (should be in the range [-24;+24])
 
   \return 0 if successfull, non-zero otherwise
 
 */
 uint_t aubio_pitchshift_set_transpose (aubio_pitchshift_t * o, smpl_t transpose);
 
-/** set the transposition of the pitch shifting object
+/** get the transposition of the pitch shifting object, in semitones
 
   \param o pitch shifting object as returned by ::new_aubio_pitchshift()
 
-  \return transposition of the pitch shifting object
+  \return transposition of the pitch shifting object, in semitones
 
 */
 smpl_t aubio_pitchshift_get_transpose (aubio_pitchshift_t * o);
