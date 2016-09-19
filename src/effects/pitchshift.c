@@ -56,6 +56,37 @@ new_aubio_pitchshift (const char_t * mode,
   p->pitchscale = pitchscale;
 
   p->rboptions = RubberBandOptionProcessRealTime;
+
+  if ( strcmp(mode,"crispness:0") == 0 ) {
+    p->rboptions |= RubberBandOptionTransientsSmooth;
+    p->rboptions |= RubberBandOptionWindowLong;
+    p->rboptions |= RubberBandOptionPhaseIndependent;
+  } else if ( strcmp(mode, "crispness:1") == 0 ) {
+    p->rboptions |= RubberBandOptionDetectorSoft;
+    p->rboptions |= RubberBandOptionTransientsSmooth;
+    p->rboptions |= RubberBandOptionWindowLong;
+    p->rboptions |= RubberBandOptionPhaseIndependent;
+  } else if ( strcmp(mode, "crispness:2") == 0 ) {
+    p->rboptions |= RubberBandOptionTransientsSmooth;
+    p->rboptions |= RubberBandOptionPhaseIndependent;
+  } else if ( strcmp(mode, "crispness:3") == 0 ) {
+    p->rboptions |= RubberBandOptionTransientsSmooth;
+  } else if ( strcmp(mode, "crispness:4") == 0 ) {
+    // same as "default"
+  } else if ( strcmp(mode, "crispness:5") == 0 ) {
+    p->rboptions |= RubberBandOptionTransientsCrisp;
+  } else if ( strcmp(mode, "crispness:6") == 0 ) {
+    p->rboptions |= RubberBandOptionTransientsCrisp;
+    p->rboptions |= RubberBandOptionWindowShort;
+    p->rboptions |= RubberBandOptionPhaseIndependent;
+  } else if ( strcmp(mode, "default") == 0 ) {
+    // nothing to do
+  } else {
+    AUBIO_ERR("pitchshift: unknown pitch shifting method %s\n", mode);
+    goto beach;
+  }
+  //AUBIO_MSG("pitchshift: using pitch shifting method %s\n", mode);
+
   //p->rboptions |= RubberBandOptionTransientsCrisp;
   //p->rboptions |= RubberBandOptionWindowStandard;
   //p->rboptions |= RubberBandOptionSmoothingOff;
