@@ -44,13 +44,7 @@ new_aubio_pitchshift (const char_t * mode,
     smpl_t pitchscale, uint_t hopsize, uint_t samplerate)
 {
   aubio_pitchshift_t *p = AUBIO_NEW (aubio_pitchshift_t);
-  int available = 0; unsigned int latency = 0;
   p->samplerate = samplerate;
-  if (strcmp (mode, "default") != 0) {
-    AUBIO_ERR ("unknown pitch shifting method %s\n", mode);
-    goto beach;
-  }
-  //p->mode = pitch_type;
   p->hopsize = hopsize;
   p->timeratio = 1.;
   p->pitchscale = pitchscale;
@@ -96,21 +90,17 @@ new_aubio_pitchshift (const char_t * mode,
   rubberband_set_max_process_size(p->rb, p->hopsize * 4);
   //rubberband_set_debug_level(p->rb, 10);
 
+#if 1
+  // warm up rubber band
+  unsigned int latency = 0; int available = 0;
   latency = MAX(rubberband_get_latency(p->rb), p->hopsize);
-
-  // warm up
   fvec_t *zeros = new_fvec(p->hopsize);
   while (available <= (int)latency) {
     rubberband_process(p->rb, (const float* const*)&(zeros->data), p->hopsize, 0);
     available = rubberband_available(p->rb);
-#if 0
-    int samples_required = rubberband_get_samples_required(p->rb);
-    AUBIO_DBG("pitchshift: warmup "
-        "samples_required: %d, available: %d, hopsize: %d, latency: %d\n",
-        samples_required, available, p->hopsize, latency);
-#endif
   }
   del_fvec(zeros);
+#endif
 
   return p;
 
