@@ -173,13 +173,15 @@ void
 aubio_pitchshift_do (aubio_pitchshift_t * p, const fvec_t * in, fvec_t * out)
 {
   int output = 0;
-  // this may occur when RubberBandStretcher initialPitchScale is changed
-  while (rubberband_available(p->rb) <= (int)p->hopsize) {
-    //AUBIO_WRN("pitchshift: catching up, only %d available\n", rubberband_available(p->rb));
-    rubberband_process(p->rb, (const float* const*)&(in->data), 0, output);
-  }
   rubberband_process(p->rb, (const float* const*)&(in->data), p->hopsize, output);
-  rubberband_retrieve(p->rb, (float* const*)&(out->data), p->hopsize);
+  if (rubberband_available(p->rb) >= (int)p->hopsize) {
+    rubberband_retrieve(p->rb, (float* const*)&(out->data), p->hopsize);
+  } else {
+    AUBIO_WRN("pitchshift: catching up with zeros, only %d available, needed: %d, "
+        "current pitchscale: %f\n",
+        rubberband_available(p->rb), p->hopsize, p->pitchscale);
+    fvec_zeros(out);
+  }
 }
 
 #else
