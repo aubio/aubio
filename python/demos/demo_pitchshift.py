@@ -13,9 +13,9 @@ if __name__ == '__main__':
     if len(sys.argv) > 4: samplerate = int(sys.argv[4])
     else: samplerate = 0
     if len(sys.argv) > 5: hop_size = int(sys.argv[5])
-    else: hop_size = 256
+    else: hop_size = 64
     if len(sys.argv) > 6: mode = sys.argv[6]
-    else: mode = available_modes[0]
+    else: mode = "default"
 
     source_read = aubio.source(sys.argv[1], samplerate, hop_size)
     if samplerate == 0: samplerate = source_read.samplerate
