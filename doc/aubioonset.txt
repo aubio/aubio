@@ -7,6 +7,7 @@ SYNOPSIS
   aubioonset [[-i] source] [-o sink]
              [-r rate] [-B win] [-H hop]
              [-O method] [-t thres]
+             [-T time-format]
              [-s sil] [-m] [-f]
              [-j] [-v] [-h]
 
@@ -54,6 +55,9 @@ OPTIONS
   -s, --silence sil  Set the silence threshold, in dB, under which the pitch
   will not be detected. A value of -20.0 would eliminate most onsets but the
   loudest ones. A value of -90.0 would select all onsets. Defaults to -90.0.
+
+  -T, --timeformat format  Set time format (samples, ms, seconds). Defaults to
+  seconds.
 
   -m, --mix-input  Mix source signal to the output signal before writing to
   sink.
