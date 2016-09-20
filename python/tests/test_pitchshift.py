@@ -71,7 +71,10 @@ class aubio_pitchshift_testruns(TestCase):
             ("crispness:6", 2.3, 4096, 192000),
             )
     def test_run_with_params(self, mode, pitchscale, hop_size, samplerate):
-        self.o = aubio.pitchshift(mode, pitchscale, hop_size, samplerate)
+        try:
+            self.o = aubio.pitchshift(mode, pitchscale, hop_size, samplerate)
+        except RuntimeError as e:
+            self.skipTest("creating aubio.pitchshift failed (recompile with rubberband?)")
         test_length = self.o.hop_size * 50
         read = 0
         # test on random
