@@ -95,15 +95,15 @@ new_aubio_pitchshift (const char_t * mode,
   //p->rboptions |= RubberBandOptionFormantShifted;
   //p->rboptions |= RubberBandOptionPitchHighConsistency;
   p->rb = rubberband_new(samplerate, 1, p->rboptions, p->timeratio, p->pitchscale);
-  rubberband_set_max_process_size(p->rb, p->hopsize * 4);
+  rubberband_set_max_process_size(p->rb, p->hopsize);
   //rubberband_set_debug_level(p->rb, 10);
 
 #if 1
   // warm up rubber band
-  unsigned int latency = 0; int available = 0;
-  latency = MAX(rubberband_get_latency(p->rb), p->hopsize);
+  unsigned int latency = MAX(p->hopsize, rubberband_get_latency(p->rb));
+  int available = rubberband_available(p->rb);
   fvec_t *zeros = new_fvec(p->hopsize);
-  while (available <= (int)latency) {
+  while (available <= latency) {
     rubberband_process(p->rb, (const float* const*)&(zeros->data), p->hopsize, 0);
     available = rubberband_available(p->rb);
   }
