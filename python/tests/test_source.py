@@ -27,20 +27,20 @@ class aubio_source_test_case_base(TestCase):
 
 class aubio_source_test_case(aubio_source_test_case_base):
 
-    def test_close_file(self):
+    @params(*list_of_sounds)
+    def test_close_file(self, filename):
         samplerate = 0 # use native samplerate
         hop_size = 256
-        for p in list_of_sounds:
-            f = source(p, samplerate, hop_size)
-            f.close()
+        f = source(filename, samplerate, hop_size)
+        f.close()
 
-    def test_close_file_twice(self):
+    @params(*list_of_sounds)
+    def test_close_file_twice(self, filename):
         samplerate = 0 # use native samplerate
         hop_size = 256
-        for p in list_of_sounds:
-            f = source(p, samplerate, hop_size)
-            f.close()
-            f.close()
+        f = source(filename, samplerate, hop_size)
+        f.close()
+        f.close()
 
 class aubio_source_read_test_case(aubio_source_test_case_base):
 
