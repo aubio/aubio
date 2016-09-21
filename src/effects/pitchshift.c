@@ -103,7 +103,7 @@ new_aubio_pitchshift (const char_t * mode,
   unsigned int latency = MAX(p->hopsize, rubberband_get_latency(p->rb));
   int available = rubberband_available(p->rb);
   fvec_t *zeros = new_fvec(p->hopsize);
-  while (available <= latency) {
+  while (available <= (int)latency) {
     rubberband_process(p->rb, (const float* const*)&(zeros->data), p->hopsize, 0);
     available = rubberband_available(p->rb);
   }
