@@ -6,25 +6,27 @@ int main (int argc, char **argv)
 {
   sint_t err = 0;
 
-  if (argc < 3) {
+  if (argc < 4) {
     err = 2;
     PRINT_ERR("not enough arguments\n");
-    PRINT_MSG("usage: %s <input_path> <output_path> [samplerate] [hop_size]\n", argv[0]);
+    PRINT_MSG("usage: %s <input_path> <output_path> <transpose> [samplerate] [hop_size]\n", argv[0]);
+    PRINT_MSG(" with <transpose> a number of semi tones in the range [-24, 24]\n");
     return err;
   }
 
 #ifdef HAVE_RUBBERBAND
   uint_t samplerate = 0;
   uint_t hop_size = 256;
-  smpl_t pitchscale = 1.;
+  smpl_t transpose = 0.;
   uint_t n_frames = 0, read = 0;
 
   char_t *source_path = argv[1];
   char_t *sink_path = argv[2];
 
-  if ( argc >= 4 ) samplerate = atoi(argv[3]);
-  if ( argc >= 5 ) hop_size = atoi(argv[4]);
-  if ( argc >= 6 ) pitchscale = atof(argv[5]);
+  transpose = atof(argv[3]);
+
+  if ( argc >= 5 ) samplerate = atoi(argv[4]);
+  if ( argc >= 6 ) hop_size = atoi(argv[5]);
   if ( argc >= 7 ) {
     err = 2;
     PRINT_ERR("too many arguments\n");
@@ -43,16 +45,14 @@ int main (int argc, char **argv)
   aubio_sink_t *o = new_aubio_sink(sink_path, samplerate);
   if (!o) { err = 1; goto beach_sink; }
 
-  aubio_pitchshift_t *ps = new_aubio_pitchshift("default", pitchscale, hop_size, samplerate);
-  //aubio_pitchshift_set_pitchscale(ps, pitchscale);
+  aubio_pitchshift_t *ps = new_aubio_pitchshift("default", transpose, hop_size, samplerate);
+  if (!ps) { err = 1; goto beach_pitchshift; }
 
-  int k = 0;
   do {
     aubio_source_do(i, vec, &read);
-    aubio_pitchshift_set_transpose(ps, (float)(k-50) / 100.);
+    //aubio_pitchshift_set_transpose(ps, tranpose);
     aubio_pitchshift_do(ps, vec, out);
     aubio_sink_do(o, out, read);
-    k ++;
     n_frames += read;
   } while ( read == hop_size );
 
@@ -61,6 +61,7 @@ int main (int argc, char **argv)
       source_path, sink_path);
 
   del_aubio_pitchshift(ps);
+beach_pitchshift:
   del_aubio_sink(o);
 beach_sink:
   del_aubio_source(i);
