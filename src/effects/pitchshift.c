@@ -40,7 +40,6 @@ struct _aubio_pitchshift_t
 {
   uint_t samplerate;              /**< samplerate */
   uint_t hopsize;                 /**< hop size */
-  smpl_t timeratio;               /**< time ratio */
   smpl_t pitchscale;              /**< pitch scale */
 
   RubberBandState rb;
@@ -94,7 +93,7 @@ new_aubio_pitchshift (const char_t * mode,
   //p->rboptions |= RubberBandOptionSmoothingOff;
   //p->rboptions |= RubberBandOptionFormantShifted;
   //p->rboptions |= RubberBandOptionPitchHighConsistency;
-  p->rb = rubberband_new(samplerate, 1, p->rboptions, p->timeratio, p->pitchscale);
+  p->rb = rubberband_new(samplerate, 1, p->rboptions, 1., p->pitchscale);
   rubberband_set_max_process_size(p->rb, p->hopsize);
   //rubberband_set_debug_level(p->rb, 10);
 
