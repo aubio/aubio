@@ -135,9 +135,9 @@ aubio_source_wavread_t * new_aubio_source_wavread(const char_t * path, uint_t sa
       goto beach;
     }
     bytes_read += bytes_junk;
-    bytes_expected += bytes_junk;
+    bytes_expected += bytes_junk + 4;
     // now really read the fmt chunk
-    fread(buf, 1, 4, s->fid);
+    bytes_read += fread(buf, 1, 4, s->fid);
     buf[4] = '\0';
   }
 
@@ -229,9 +229,23 @@ aubio_source_wavread_t * new_aubio_source_wavread(const char_t * path, uint_t sa
   // Subchunk2ID
   bytes_read += fread(buf, 1, 4, s->fid);
   buf[4] = '\0';
-  if ( strcmp((const char *)buf, "data") != 0 ) {
-    AUBIO_ERR("source_wavread: data RIFF header not found in %s\n", s->path);
-    goto beach;
+  while ( strcmp((const char *)buf, "data") != 0 ) {
+    if (feof(s->fid) || ferror(s->fid)) {
+      AUBIO_ERR("source_wavread: no data RIFF header found in %s\n", s->path);
+      goto beach;
+    }
+    bytes_junk = fread(buf, 1, 4, s->fid);
+    buf[4] = '\0';
+    bytes_junk += read_little_endian(buf, 4);
+    if (fseek(s->fid, bytes_read + bytes_junk, SEEK_SET) != 0) {
+      AUBIO_ERR("source_wavread: could not seek past unknown chunk in %s (%s)\n",
+          s->path, strerror(errno));
+      goto beach;
+    }
+    bytes_read += bytes_junk;
+    bytes_expected += bytes_junk+ 4;
+    bytes_read += fread(buf, 1, 4, s->fid);
+    buf[4] = '\0';
   }
 
   // Subchunk2Size

@@ -98,7 +98,8 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(const char_t * path, uint_t sa
 
   if (s->handle == NULL) {
     /* show libsndfile err msg */
-    AUBIO_ERR("source_sndfile: Failed opening %s: %s\n", s->path, sf_strerror (NULL));
+    AUBIO_ERR("source_sndfile: Failed opening %s (%s)\n", s->path,
+        sf_strerror (NULL));
     goto beach;
   }
 
