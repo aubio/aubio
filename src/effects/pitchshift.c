@@ -137,7 +137,7 @@ uint_t aubio_pitchshift_get_latency (aubio_pitchshift_t * p) {
 uint_t
 aubio_pitchshift_set_pitchscale (aubio_pitchshift_t * p, smpl_t pitchscale)
 {
-  if (pitchscale >= 0.0625  && pitchscale <= 4.) {
+  if (pitchscale >= 0.25  && pitchscale <= 4.) {
     p->pitchscale = pitchscale;
     rubberband_set_pitch_scale(p->rb, p->pitchscale);
     return AUBIO_OK;
