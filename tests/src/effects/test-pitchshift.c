@@ -16,7 +16,7 @@ int main (int argc, char **argv)
 
 #ifdef HAVE_RUBBERBAND
   uint_t samplerate = 0;
-  uint_t hop_size = 256;
+  uint_t hop_size = 64;
   smpl_t transpose = 0.;
   uint_t n_frames = 0, read = 0;
 
