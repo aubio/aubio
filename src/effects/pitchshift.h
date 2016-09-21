@@ -57,7 +57,7 @@ void del_aubio_pitchshift (aubio_pitchshift_t * o);
 /** creation of the pitch shifting object
 
   \param method set pitch shifting algorithm ("default")
-  \param pitchscale initial pitch scaling factor
+  \param transpose initial pitch transposition
   \param hop_size step size between two consecutive analysis instant
   \param samplerate sampling rate of the signal
 
@@ -65,7 +65,7 @@ void del_aubio_pitchshift (aubio_pitchshift_t * o);
 
 */
 aubio_pitchshift_t *new_aubio_pitchshift (const char_t * method,
-    smpl_t pitchscale, uint_t hop_size, uint_t samplerate);
+    smpl_t transpose, uint_t hop_size, uint_t samplerate);
 
 /** get the latency of the pitch shifting object, in samples
 

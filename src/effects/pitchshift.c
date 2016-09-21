@@ -48,13 +48,18 @@ struct _aubio_pitchshift_t
 
 aubio_pitchshift_t *
 new_aubio_pitchshift (const char_t * mode,
-    smpl_t pitchscale, uint_t hopsize, uint_t samplerate)
+    smpl_t transpose, uint_t hopsize, uint_t samplerate)
 {
   aubio_pitchshift_t *p = AUBIO_NEW (aubio_pitchshift_t);
   p->samplerate = samplerate;
   p->hopsize = hopsize;
-  p->timeratio = 1.;
-  p->pitchscale = pitchscale;
+  p->pitchscale = 1.;
+  if (transpose >= -24. && transpose <= 24.) {
+    p->pitchscale = POW(2., transpose / 12.);
+  } else {
+    AUBIO_ERR("pitchshift: transpose should be in the range [-24, 24], got %f\n", transpose);
+    goto beach;
+  }
 
   p->rboptions = RubberBandOptionProcessRealTime;
 

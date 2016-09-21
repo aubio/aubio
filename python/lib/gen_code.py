@@ -19,7 +19,7 @@ aubiodefvalue = {
     'ratio': '0.5',
     'method': '"default"',
     'uri': '"none"',
-    'pitchscale': '1.',
+    'transpose': '0.',
     }
 
 member_types = {
