@@ -9,8 +9,9 @@ int main (int argc, char **argv)
   if (argc < 4) {
     err = 2;
     PRINT_ERR("not enough arguments\n");
-    PRINT_MSG("usage: %s <input_path> <output_path> <transpose> [samplerate] [hop_size]\n", argv[0]);
+    PRINT_MSG("usage: %s <input_path> <output_path> <transpose> [mode] [hop_size] [samplerate]\n", argv[0]);
     PRINT_MSG(" with <transpose> a number of semi tones in the range [-24, 24]\n");
+    PRINT_MSG(" and [mode] in 'default', 'crispness:0', ..., 'crispness:6'\n");
     return err;
   }
 
@@ -22,12 +23,14 @@ int main (int argc, char **argv)
 
   char_t *source_path = argv[1];
   char_t *sink_path = argv[2];
+  char_t *mode = "default";
 
   transpose = atof(argv[3]);
 
-  if ( argc >= 5 ) samplerate = atoi(argv[4]);
+  if ( argc >= 5 ) mode = argv[4];
   if ( argc >= 6 ) hop_size = atoi(argv[5]);
-  if ( argc >= 7 ) {
+  if ( argc >= 7 ) samplerate = atoi(argv[6]);
+  if ( argc >= 8 ) {
     err = 2;
     PRINT_ERR("too many arguments\n");
     return err;
@@ -45,7 +48,7 @@ int main (int argc, char **argv)
   aubio_sink_t *o = new_aubio_sink(sink_path, samplerate);
   if (!o) { err = 1; goto beach_sink; }
 
-  aubio_pitchshift_t *ps = new_aubio_pitchshift("default", transpose, hop_size, samplerate);
+  aubio_pitchshift_t *ps = new_aubio_pitchshift(mode, transpose, hop_size, samplerate);
   if (!ps) { err = 1; goto beach_pitchshift; }
 
   do {
