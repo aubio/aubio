@@ -135,9 +135,9 @@ aubio_source_wavread_t * new_aubio_source_wavread(const char_t * path, uint_t sa
       goto beach;
     }
     bytes_read += bytes_junk;
-    bytes_expected += bytes_junk;
+    bytes_expected += bytes_junk + 4;
     // now really read the fmt chunk
-    fread(buf, 1, 4, s->fid);
+    bytes_read += fread(buf, 1, 4, s->fid);
     buf[4] = '\0';
   }
 
