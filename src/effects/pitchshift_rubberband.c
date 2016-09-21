@@ -58,7 +58,7 @@ new_aubio_pitchshift (const char_t * mode,
 
   p->rboptions = aubio_get_rubberband_opts(mode);
   if (p->rboptions < 0) {
-    AUBIO_ERR("timestretch: unknown pitch shifting method %s\n", mode);
+    AUBIO_ERR("pitchshift: unknown pitch shifting method %s\n", mode);
     goto beach;
   }
   //AUBIO_MSG("pitchshift: using pitch shifting method %s\n", mode);
