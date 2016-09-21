@@ -60,6 +60,11 @@ class aubio_pitchshift(TestCase):
         with self.assertRaises(ValueError):
             self.o.set_transpose(-24.3)
 
+class aubio_pitchshift_wrong_params(TestCase):
+
+    def test_wrong_transpose(self):
+        with self.assertRaises(RuntimeError):
+            aubio.pitchshift("default", -123)
 
 class aubio_pitchshift_testruns(TestCase):
 
