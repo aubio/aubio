@@ -98,7 +98,7 @@ class aubio_alpha_norm(TestCase):
         x = np.random.rand(1024).astype(float_type)
         alpha = np.random.rand() * 5.
         x_alpha_norm = (np.sum(np.abs(x)**alpha)/len(x))**(1/alpha)
-        assert_almost_equal(alpha_norm(x, alpha), x_alpha_norm, decimal = 5)
+        assert_almost_equal(alpha_norm(x, alpha), x_alpha_norm, decimal = 4)
 
 class aubio_zero_crossing_rate_test(TestCase):
 
