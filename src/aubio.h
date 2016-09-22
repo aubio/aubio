@@ -188,6 +188,7 @@ extern "C"
 #include "synth/sampler.h"
 #include "synth/wavetable.h"
 #include "utils/parameter.h"
+#include "utils/log.h"
 
 #if AUBIO_UNSTABLE
 #include "mathutils.h"
