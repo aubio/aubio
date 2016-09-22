@@ -64,6 +64,10 @@
 #include <limits.h> // for CHAR_BIT, in C99 standard
 #endif
 
+#ifdef HAVE_STDARG_H
+#include <stdarg.h>
+#endif
+
 #ifdef HAVE_ACCELERATE
 #define HAVE_ATLAS 1
 #include <Accelerate/Accelerate.h>
