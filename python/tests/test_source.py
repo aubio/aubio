@@ -6,6 +6,9 @@ from numpy.testing import TestCase
 from aubio import source
 from utils import list_all_sounds
 
+import warnings
+warnings.filterwarnings('ignore', category=UserWarning, append=True)
+
 list_of_sounds = list_all_sounds('sounds')
 samplerates = [0, 44100, 8000, 32000]
 hop_sizes = [512, 1024, 64]
