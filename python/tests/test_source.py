@@ -25,7 +25,8 @@ for soundfile in list_of_sounds:
 class aubio_source_test_case_base(TestCase):
 
     def setUp(self):
-        if not len(list_of_sounds): self.skipTest('add some sound files in \'python/tests/sounds\'')
+        if not len(list_of_sounds):
+            self.skipTest('add some sound files in \'python/tests/sounds\'')
         self.default_test_sound = list_of_sounds[0]
 
 class aubio_source_test_case(aubio_source_test_case_base):
