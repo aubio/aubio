@@ -256,6 +256,22 @@ static struct PyModuleDef moduledef = {
 };
 #endif
 
+void
+aubio_log_function(int level, const char *message, void *data)
+{
+  // remove trailing \n
+  char *pos;
+  if ((pos=strchr(message, '\n')) != NULL) {
+        *pos = '\0';
+  }
+  // warning or error
+  if (level == AUBIO_LOG_ERR) {
+    PyErr_Format(PyExc_RuntimeError, "%s", message);
+  } else {
+    PyErr_WarnEx(PyExc_UserWarning, message, 1);
+  }
+}
+
 static PyObject *
 initaubio (void)
 {
@@ -315,6 +331,8 @@ initaubio (void)
   // add ufunc
   add_ufuncs(m);
 
+  aubio_log_set_level_function(AUBIO_LOG_ERR, aubio_log_function, NULL);
+  aubio_log_set_level_function(AUBIO_LOG_WRN, aubio_log_function, NULL);
   return m;
 }
 
