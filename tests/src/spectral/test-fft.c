@@ -4,7 +4,7 @@ int main (void)
 {
   int return_code = 0;
   uint_t i, n_iters = 100; // number of iterations
-  uint_t win_s = 500; // window size
+  uint_t win_s = 512; // window size
   fvec_t * in = new_fvec (win_s); // input buffer
   cvec_t * fftgrain = new_cvec (win_s); // fft norm and phase
   fvec_t * out = new_fvec (win_s); // output buffer
