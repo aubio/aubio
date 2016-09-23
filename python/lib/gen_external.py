@@ -224,7 +224,7 @@ void add_generated_objects ( PyObject *m )
         print ("wrote %s" % output_file )
         sources_list.append(output_file)
 
-    objlist = "".join(["extern PyTypeObject Py_%sType;\n" % p for p in lib])
+    objlist = "".join(["PyTypeObject Py_%sType;\n" % p for p in lib])
     out = """// generated list of objects created with gen_external.py
 
 #include <Python.h>
