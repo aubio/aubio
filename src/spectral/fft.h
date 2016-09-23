@@ -27,7 +27,7 @@
     - [FFTW3](http://www.fftw.org)
     - [vDSP](https://developer.apple.com/library/mac/#documentation/Accelerate/Reference/vDSPRef/Reference/reference.html)
 
-  \example src/spectral/test-fft.c
+  \example spectral/test-fft.c
 
 */
 

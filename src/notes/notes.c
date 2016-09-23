@@ -81,8 +81,7 @@ aubio_notes_t * new_aubio_notes (const char_t * method,
   o->pitch_output = new_fvec (1);
 
   if (strcmp(method, "default") != 0) {
-    AUBIO_ERR("unknown notes detection method %s, using default.\n",
-       method);
+    AUBIO_ERR("notes: unknown notes detection method \"%s\"\n", method);
     goto fail;
   }
   o->note_buffer = new_fvec(o->median);

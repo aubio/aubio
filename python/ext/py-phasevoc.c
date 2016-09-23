@@ -66,9 +66,8 @@ Py_pvoc_init (Py_pvoc * self, PyObject * args, PyObject * kwds)
 {
   self->o = new_aubio_pvoc ( self->win_s, self->hop_s);
   if (self->o == NULL) {
-    PyErr_Format(PyExc_RuntimeError,
-        "failed creating pvoc with win_s=%d, hop_s=%d",
-        self->win_s, self->hop_s);
+    // PyErr_Format(PyExc_RuntimeError, ...) was set above by new_ which called
+    // AUBIO_ERR when failing
     return -1;
   }
 

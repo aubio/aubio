@@ -51,11 +51,8 @@ Py_fft_init (Py_fft * self, PyObject * args, PyObject * kwds)
 {
   self->o = new_aubio_fft (self->win_s);
   if (self->o == NULL) {
-    PyErr_Format(PyExc_RuntimeError,
-        "error creating fft with win_s=%d "
-        "(should be a power of 2 greater than 1; "
-        "try recompiling aubio with --enable-fftw3)",
-        self->win_s);
+    // PyErr_Format(PyExc_RuntimeError, ...) was set above by new_ which called
+    // AUBIO_ERR when failing
     return -1;
   }
 

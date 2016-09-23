@@ -273,12 +273,13 @@ new_aubio_specdesc (const char_t * onset_mode, uint_t size){
   else if (strcmp (onset_mode, "default") == 0)
       onset_type = aubio_onset_default;
   else {
-      AUBIO_ERR("unknown spectral descriptor type %s, using default.\n", onset_mode);
-      onset_type = aubio_onset_default;
+      AUBIO_ERR("unknown spectral descriptor type %s\n", onset_mode);
+      AUBIO_FREE(o);
+      return NULL;
   }
   switch(onset_type) {
     /* for both energy and hfc, only fftgrain->norm is required */
-    case aubio_onset_energy: 
+    case aubio_onset_energy:
       break;
     case aubio_onset_hfc:
       break;
@@ -366,7 +367,7 @@ new_aubio_specdesc (const char_t * onset_mode, uint_t size){
 
 void del_aubio_specdesc (aubio_specdesc_t *o){
   switch(o->onset_type) {
-    case aubio_onset_energy: 
+    case aubio_onset_energy:
       break;
     case aubio_onset_hfc:
       break;

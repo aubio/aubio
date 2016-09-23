@@ -64,6 +64,10 @@
 #include <limits.h> // for CHAR_BIT, in C99 standard
 #endif
 
+#ifdef HAVE_STDARG_H
+#include <stdarg.h>
+#endif
+
 #ifdef HAVE_ACCELERATE
 #define HAVE_ATLAS 1
 #include <Accelerate/Accelerate.h>
@@ -168,16 +172,23 @@ typedef enum {
   AUBIO_FAIL = 1
 } aubio_status;
 
+/* Logging */
+
+#include "utils/log.h"
+
+/** internal logging function, defined in utils/log.c */
+uint_t aubio_log(sint_t level, const char_t *fmt, ...);
+
 #ifdef HAVE_C99_VARARGS_MACROS
-#define AUBIO_ERR(...)               fprintf(stderr, "AUBIO ERROR: " __VA_ARGS__)
-#define AUBIO_MSG(...)               fprintf(stdout, __VA_ARGS__)
-#define AUBIO_DBG(...)               fprintf(stderr, __VA_ARGS__)
-#define AUBIO_WRN(...)               fprintf(stderr, "AUBIO WARNING: " __VA_ARGS__)
+#define AUBIO_ERR(...)               aubio_log(AUBIO_LOG_ERR, "AUBIO ERROR: " __VA_ARGS__)
+#define AUBIO_MSG(...)               aubio_log(AUBIO_LOG_MSG, __VA_ARGS__)
+#define AUBIO_DBG(...)               aubio_log(AUBIO_LOG_DBG, __VA_ARGS__)
+#define AUBIO_WRN(...)               aubio_log(AUBIO_LOG_WRN, "AUBIO WARNING: " __VA_ARGS__)
 #else
-#define AUBIO_ERR(format, args...)   fprintf(stderr, "AUBIO ERROR: " format , ##args)
-#define AUBIO_MSG(format, args...)   fprintf(stdout, format , ##args)
-#define AUBIO_DBG(format, args...)   fprintf(stderr, format , ##args)
-#define AUBIO_WRN(format, args...)   fprintf(stderr, "AUBIO WARNING: " format, ##args)
+#define AUBIO_ERR(format, args...)   aubio_log(stderr, "AUBIO ERROR: " format , ##args)
+#define AUBIO_MSG(format, args...)   aubio_log(stdout, format , ##args)
+#define AUBIO_DBG(format, args...)   aubio_log(stderr, format , ##args)
+#define AUBIO_WRN(format, args...)   aubio_log(stderr, "AUBIO WARNING: " format, ##args)
 #endif
 
 #define AUBIO_ERROR   AUBIO_ERR
