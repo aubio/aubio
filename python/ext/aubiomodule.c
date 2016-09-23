@@ -74,8 +74,9 @@ static char Py_min_removal_doc[] = ""
 "\n"
 ">>> min_removal(a)";
 
-void add_ufuncs ( PyObject *m );
-int generated_types_ready(void);
+extern void add_generated_objects ( PyObject *m );
+extern void add_ufuncs ( PyObject *m );
+extern int generated_types_ready(void);
 
 static PyObject *
 Py_alpha_norm (PyObject * self, PyObject * args)

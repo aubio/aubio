@@ -51,32 +51,32 @@
 #define Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
 #endif
 
-PyTypeObject Py_cvecType;
+extern PyTypeObject Py_cvecType;
 
 PyObject * new_py_fvec(uint_t length);
 PyObject * new_py_cvec(uint_t length);
 PyObject * new_py_fmat(uint_t height, uint_t length);
 
 // defined in aubio-proxy.c
-int PyAubio_IsValidVector (PyObject *input);
+extern int PyAubio_IsValidVector (PyObject *input);
 
-PyObject *PyAubio_CFvecToArray (fvec_t * self);
-int PyAubio_ArrayToCFvec (PyObject * self, fvec_t *out);
+extern PyObject *PyAubio_CFvecToArray (fvec_t * self);
+extern int PyAubio_ArrayToCFvec (PyObject * self, fvec_t *out);
 
-int PyAubio_PyCvecToCCvec (PyObject *input, cvec_t *i);
+extern int PyAubio_PyCvecToCCvec (PyObject *input, cvec_t *i);
 
-PyObject *PyAubio_CFmatToArray (fmat_t * self);
-int PyAubio_ArrayToCFmat (PyObject *input, fmat_t *out);
+extern PyObject *PyAubio_CFmatToArray (fmat_t * self);
+extern int PyAubio_ArrayToCFmat (PyObject *input, fmat_t *out);
 
 // hand written wrappers
-PyTypeObject Py_filterType;
+extern PyTypeObject Py_filterType;
 
-PyTypeObject Py_filterbankType;
+extern PyTypeObject Py_filterbankType;
 
-PyTypeObject Py_fftType;
+extern PyTypeObject Py_fftType;
 
-PyTypeObject Py_pvocType;
+extern PyTypeObject Py_pvocType;
 
-PyTypeObject Py_sourceType;
+extern PyTypeObject Py_sourceType;
 
-PyTypeObject Py_sinkType;
+extern PyTypeObject Py_sinkType;
