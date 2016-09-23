@@ -140,8 +140,8 @@ Py_source_init (Py_source * self, PyObject * args, PyObject * kwds)
 {
   self->o = new_aubio_source ( self->uri, self->samplerate, self->hop_size );
   if (self->o == NULL) {
-    PyErr_Format (PyExc_RuntimeError, "error creating source with \"%s\"",
-        self->uri);
+    // PyErr_Format(PyExc_RuntimeError, ...) was set above by new_ which called
+    // AUBIO_ERR when failing
     return -1;
   }
   self->samplerate = aubio_source_get_samplerate ( self->o );
