@@ -59,8 +59,9 @@ struct _aubio_source_sndfile_t {
   smpl_t ratio;
   uint_t input_hop_size;
 #ifdef HAVE_SAMPLERATE
-  aubio_resampler_t *resampler;
+  aubio_resampler_t **resamplers;
   fvec_t *input_data;
+  fmat_t *input_mat;
 #endif /* HAVE_SAMPLERATE */
 
   // some temporary memory for sndfile to write at
@@ -126,11 +127,17 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(const char_t * path, uint_t sa
   }
 
 #ifdef HAVE_SAMPLERATE
-  s->resampler = NULL;
   s->input_data = NULL;
+  s->input_mat = NULL;
+  s->resamplers = NULL;
   if (s->ratio != 1) {
+    uint_t i;
+    s->resamplers = AUBIO_ARRAY(aubio_resampler_t*, s->input_channels);
     s->input_data = new_fvec(s->input_hop_size);
-    s->resampler = new_aubio_resampler(s->ratio, 4);
+    s->input_mat = new_fmat(s->input_channels, s->input_hop_size);
+    for (i = 0; i < (uint_t)s->input_channels; i++) {
+      s->resamplers[i] = new_aubio_resampler(s->ratio, 4);
+    }
     if (s->ratio > 1) {
       // we would need to add a ring buffer for these
       if ( (uint_t)(s->input_hop_size * s->ratio + .5)  != s->hop_size ) {
@@ -189,8 +196,8 @@ void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_data, uin
   }
 
 #ifdef HAVE_SAMPLERATE
-  if (s->resampler) {
-    aubio_resampler_do(s->resampler, s->input_data, read_data);
+  if (s->resamplers) {
+    aubio_resampler_do(s->resamplers[0], s->input_data, read_data);
   }
 #endif /* HAVE_SAMPLERATE */
 
@@ -213,9 +220,7 @@ void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_dat
   smpl_t **ptr_data;
 #ifdef HAVE_SAMPLERATE
   if (s->ratio != 1) {
-    AUBIO_ERR("source_sndfile: no multi channel resampling yet\n");
-    return;
-    //ptr_data = s->input_data->data;
+    ptr_data = s->input_mat->data;
   } else
 #endif /* HAVE_SAMPLERATE */
   {
@@ -251,8 +256,15 @@ void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_dat
   }
 
 #ifdef HAVE_SAMPLERATE
-  if (s->resampler) {
-    //aubio_resampler_do(s->resampler, s->input_data, read_data);
+  if (s->resamplers) {
+    for (i = 0; i < input_channels; i++) {
+      fvec_t input_chan, read_chan;
+      input_chan.data = s->input_mat->data[i];
+      input_chan.length = s->input_mat->length;
+      read_chan.data = read_data->data[i];
+      read_chan.length = read_data->length;
+      aubio_resampler_do(s->resamplers[i], &input_chan, &read_chan);
+    }
   }
 #endif /* HAVE_SAMPLERATE */
 
@@ -313,11 +325,20 @@ void del_aubio_source_sndfile(aubio_source_sndfile_t * s){
   if (!s) return;
   aubio_source_sndfile_close(s);
 #ifdef HAVE_SAMPLERATE
-  if (s->resampler != NULL) {
-    del_aubio_resampler(s->resampler);
+  if (s->resamplers != NULL) {
+    uint_t i = 0, input_channels = s->input_channels;
+    for (i = 0; i < input_channels; i ++) {
+      if (s->resamplers[i] != NULL) {
+        del_aubio_resampler(s->resamplers[i]);
+      }
+    }
+    AUBIO_FREE(s->resamplers);
   }
   if (s->input_data) {
     del_fvec(s->input_data);
+  }
+  if (s->input_mat) {
+    del_fmat(s->input_mat);
   }
 #endif /* HAVE_SAMPLERATE */
   if (s->path) AUBIO_FREE(s->path);
