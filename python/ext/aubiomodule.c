@@ -74,7 +74,6 @@ static char Py_min_removal_doc[] = ""
 "\n"
 ">>> min_removal(a)";
 
-extern void add_generated_objects ( PyObject *m );
 extern void add_ufuncs ( PyObject *m );
 extern int generated_types_ready(void);
 
