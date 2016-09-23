@@ -11,7 +11,7 @@ class aubio_pitchshift(TestCase):
         try:
             self.o = aubio.pitchshift(hop_size = 128)
         except RuntimeError as e:
-            self.skipTest("creating aubio.pitchshift failed (recompile with rubberband?)")
+            self.skipTest("creating aubio.pitchshift {}".format(e))
 
     def test_default_creation(self):
         self.assertEqual(self.o.get_pitchscale(), 1)
@@ -79,7 +79,7 @@ class aubio_pitchshift_testruns(TestCase):
         try:
             self.o = aubio.pitchshift(mode, pitchscale, hop_size, samplerate)
         except RuntimeError as e:
-            self.skipTest("creating aubio.pitchshift failed (recompile with rubberband?)")
+            self.skipTest("failed creating pitchshift ({})".format(e))
         test_length = self.o.hop_size * 50
         read = 0
         # test on random
