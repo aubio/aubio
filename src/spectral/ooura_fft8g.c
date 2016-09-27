@@ -3,27 +3,29 @@
 //  - include "aubio_priv.h" (for config.h and types.h)
 //  - add missing prototypes
 //  - use COS and SIN macros
+//  - declare initialization as static
+//  - prefix public function with aubio_ooura_
 
 #include "aubio_priv.h"
 
-void cdft(int n, int isgn, smpl_t *a, int *ip, smpl_t *w);
-void rdft(int n, int isgn, smpl_t *a, int *ip, smpl_t *w);
-void ddct(int n, int isgn, smpl_t *a, int *ip, smpl_t *w);
-void ddst(int n, int isgn, smpl_t *a, int *ip, smpl_t *w);
-void dfct(int n, smpl_t *a, smpl_t *t, int *ip, smpl_t *w);
-void dfst(int n, smpl_t *a, smpl_t *t, int *ip, smpl_t *w);
-void makewt(int nw, int *ip, smpl_t *w);
-void makect(int nc, int *ip, smpl_t *c);
-void bitrv2(int n, int *ip, smpl_t *a);
-void bitrv2conj(int n, int *ip, smpl_t *a);
-void cftfsub(int n, smpl_t *a, smpl_t *w);
-void cftbsub(int n, smpl_t *a, smpl_t *w);
-void cft1st(int n, smpl_t *a, smpl_t *w);
-void cftmdl(int n, int l, smpl_t *a, smpl_t *w);
-void rftfsub(int n, smpl_t *a, int nc, smpl_t *c);
-void rftbsub(int n, smpl_t *a, int nc, smpl_t *c);
-void dctsub(int n, smpl_t *a, int nc, smpl_t *c);
-void dstsub(int n, smpl_t *a, int nc, smpl_t *c);
+void aubio_ooura_cdft(int n, int isgn, smpl_t *a, int *ip, smpl_t *w);
+void aubio_ooura_rdft(int n, int isgn, smpl_t *a, int *ip, smpl_t *w);
+void aubio_ooura_ddct(int n, int isgn, smpl_t *a, int *ip, smpl_t *w);
+void aubio_ooura_ddst(int n, int isgn, smpl_t *a, int *ip, smpl_t *w);
+void aubio_ooura_dfct(int n, smpl_t *a, smpl_t *t, int *ip, smpl_t *w);
+void aubio_ooura_dfst(int n, smpl_t *a, smpl_t *t, int *ip, smpl_t *w);
+static void makewt(int nw, int *ip, smpl_t *w);
+static void makect(int nc, int *ip, smpl_t *c);
+static void bitrv2(int n, int *ip, smpl_t *a);
+static void bitrv2conj(int n, int *ip, smpl_t *a);
+static void cftfsub(int n, smpl_t *a, smpl_t *w);
+static void cftbsub(int n, smpl_t *a, smpl_t *w);
+static void cft1st(int n, smpl_t *a, smpl_t *w);
+static void cftmdl(int n, int l, smpl_t *a, smpl_t *w);
+static void rftfsub(int n, smpl_t *a, int nc, smpl_t *c);
+static void rftbsub(int n, smpl_t *a, int nc, smpl_t *c);
+static void dctsub(int n, smpl_t *a, int nc, smpl_t *c);
+static void dstsub(int n, smpl_t *a, int nc, smpl_t *c);
 
 /*
 Fast Fourier/Cosine/Sine Transform
@@ -302,7 +304,7 @@ Appendix :
 */
 
 
-void cdft(int n, int isgn, smpl_t *a, int *ip, smpl_t *w)
+void aubio_ooura_cdft(int n, int isgn, smpl_t *a, int *ip, smpl_t *w)
 {
     void makewt(int nw, int *ip, smpl_t *w);
     void bitrv2(int n, int *ip, smpl_t *a);
@@ -327,7 +329,7 @@ void cdft(int n, int isgn, smpl_t *a, int *ip, smpl_t *w)
 }
 
 
-void rdft(int n, int isgn, smpl_t *a, int *ip, smpl_t *w)
+void aubio_ooura_rdft(int n, int isgn, smpl_t *a, int *ip, smpl_t *w)
 {
     void makewt(int nw, int *ip, smpl_t *w);
     void makect(int nc, int *ip, smpl_t *c);
@@ -374,7 +376,7 @@ void rdft(int n, int isgn, smpl_t *a, int *ip, smpl_t *w)
 }
 
 
-void ddct(int n, int isgn, smpl_t *a, int *ip, smpl_t *w)
+void aubio_ooura_ddct(int n, int isgn, smpl_t *a, int *ip, smpl_t *w)
 {
     void makewt(int nw, int *ip, smpl_t *w);
     void makect(int nc, int *ip, smpl_t *c);
@@ -433,7 +435,7 @@ void ddct(int n, int isgn, smpl_t *a, int *ip, smpl_t *w)
 }
 
 
-void ddst(int n, int isgn, smpl_t *a, int *ip, smpl_t *w)
+void aubio_ooura_ddst(int n, int isgn, smpl_t *a, int *ip, smpl_t *w)
 {
     void makewt(int nw, int *ip, smpl_t *w);
     void makect(int nc, int *ip, smpl_t *c);
@@ -492,7 +494,7 @@ void ddst(int n, int isgn, smpl_t *a, int *ip, smpl_t *w)
 }
 
 
-void dfct(int n, smpl_t *a, smpl_t *t, int *ip, smpl_t *w)
+void aubio_ooura_dfct(int n, smpl_t *a, smpl_t *t, int *ip, smpl_t *w)
 {
     void makewt(int nw, int *ip, smpl_t *w);
     void makect(int nc, int *ip, smpl_t *c);
@@ -588,7 +590,7 @@ void dfct(int n, smpl_t *a, smpl_t *t, int *ip, smpl_t *w)
 }
 
 
-void dfst(int n, smpl_t *a, smpl_t *t, int *ip, smpl_t *w)
+void aubio_ooura_dfst(int n, smpl_t *a, smpl_t *t, int *ip, smpl_t *w)
 {
     void makewt(int nw, int *ip, smpl_t *w);
     void makect(int nc, int *ip, smpl_t *c);
