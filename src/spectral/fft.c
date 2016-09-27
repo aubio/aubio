@@ -188,8 +188,8 @@ aubio_fft_t * new_aubio_fft (uint_t winsize) {
   s->fftSetup = aubio_vDSP_create_fftsetup(s->log2fftsize, FFT_RADIX2);
 #else                         // using OOURA
   if (aubio_is_power_of_two(winsize) != 1) {
-    AUBIO_ERR("fft: can only create with sizes power of two,"
-              " requested %d\n", winsize);
+    AUBIO_ERR("fft: can only create with sizes power of two, requested %d,"
+        " try recompiling aubio with --enable-fftw3\n", winsize);
     goto beach;
   }
   s->winsize = winsize;
