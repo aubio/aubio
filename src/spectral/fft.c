@@ -114,7 +114,7 @@ pthread_mutex_t aubio_fftw_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 #else                         // using OOURA
 // let's use ooura instead
-extern void rdft(int, int, smpl_t *, int *, smpl_t *);
+extern void aubio_ooura_rdft(int, int, smpl_t *, int *, smpl_t *);
 
 #endif /* HAVE_ACCELERATE */
 #endif /* HAVE_FFTW3 */
@@ -282,7 +282,7 @@ void aubio_fft_do_complex(aubio_fft_t * s, const fvec_t * input, fvec_t * compsp
   smpl_t scale = 1./2.;
   aubio_vDSP_vsmul(compspec->data, 1, &scale, compspec->data, 1, s->fft_size);
 #else                         // using OOURA
-  rdft(s->winsize, 1, s->in, s->ip, s->w);
+  aubio_ooura_rdft(s->winsize, 1, s->in, s->ip, s->w);
   compspec->data[0] = s->in[0];
   compspec->data[s->winsize / 2] = s->in[1];
   for (i = 1; i < s->fft_size - 1; i++) {
@@ -340,7 +340,7 @@ void aubio_fft_rdo_complex(aubio_fft_t * s, const fvec_t * compspec, fvec_t * ou
     s->out[2 * i] = compspec->data[i];
     s->out[2 * i + 1] = - compspec->data[s->winsize - i];
   }
-  rdft(s->winsize, -1, s->out, s->ip, s->w);
+  aubio_ooura_rdft(s->winsize, -1, s->out, s->ip, s->w);
   for (i=0; i < s->winsize; i++) {
     output->data[i] = s->out[i] * scale;
   }
