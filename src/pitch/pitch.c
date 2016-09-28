@@ -324,6 +324,23 @@ aubio_pitch_set_tolerance (aubio_pitch_t * p, smpl_t tol)
   return AUBIO_OK;
 }
 
+smpl_t
+aubio_pitch_get_tolerance (aubio_pitch_t * p)
+{
+  smpl_t tolerance = 1.;
+  switch (p->type) {
+    case aubio_pitcht_yin:
+      tolerance = aubio_pitchyin_get_tolerance (p->p_object);
+      break;
+    case aubio_pitcht_yinfft:
+      tolerance = aubio_pitchyinfft_get_tolerance (p->p_object);
+      break;
+    default:
+      break;
+  }
+  return tolerance;
+}
+
 uint_t
 aubio_pitch_set_silence (aubio_pitch_t * p, smpl_t silence)
 {

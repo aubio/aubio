@@ -117,6 +117,14 @@ void aubio_pitch_do (aubio_pitch_t * o, const fvec_t * in, fvec_t * out);
 */
 uint_t aubio_pitch_set_tolerance (aubio_pitch_t * o, smpl_t tol);
 
+/** get yin or yinfft tolerance threshold
+
+  \param o pitch detection object as returned by new_aubio_pitch()
+  \return tolerance (default is 0.15 for yin and 0.85 for yinfft)
+
+*/
+smpl_t aubio_pitch_get_tolerance (aubio_pitch_t * o);
+
 /** deletion of the pitch detection object
 
   \param o pitch detection object as returned by new_aubio_pitch()
