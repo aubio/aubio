@@ -205,6 +205,7 @@ aubio_onset_t * new_aubio_onset (const char_t * onset_mode,
   o->pv = new_aubio_pvoc(buf_size, o->hop_size);
   o->pp = new_aubio_peakpicker();
   o->od = new_aubio_specdesc(onset_mode,buf_size);
+  if (o->od == NULL) goto beach_specdesc;
   o->fftgrain = new_cvec(buf_size);
   o->desc = new_fvec(1);
 
@@ -219,6 +220,9 @@ aubio_onset_t * new_aubio_onset (const char_t * onset_mode,
   o->total_frames = 0;
   return o;
 
+beach_specdesc:
+  del_aubio_peakpicker(o->pp);
+  del_aubio_pvoc(o->pv);
 beach:
   AUBIO_FREE(o);
   return NULL;
