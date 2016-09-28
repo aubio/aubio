@@ -68,8 +68,12 @@ struct _aubio_sink_wavwrite_t {
   unsigned short *scratch_data;
 };
 
-unsigned char *write_little_endian (unsigned int s, unsigned char *str, unsigned int length);
-unsigned char *write_little_endian (unsigned int s, unsigned char *str, unsigned int length) {
+static unsigned char *write_little_endian (unsigned int s, unsigned char *str,
+    unsigned int length);
+
+static unsigned char *write_little_endian (unsigned int s, unsigned char *str,
+    unsigned int length)
+{
   uint_t i;
   for (i = 0; i < length; i++) {
     str[i] = s >> (i * 8);

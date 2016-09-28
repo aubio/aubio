@@ -60,8 +60,12 @@ struct _aubio_source_wavread_t {
   fmat_t *output;
 };
 
-unsigned int read_little_endian (unsigned char *buf, unsigned int length);
-unsigned int read_little_endian (unsigned char *buf, unsigned int length) {
+static unsigned int read_little_endian (unsigned char *buf,
+    unsigned int length);
+
+static unsigned int read_little_endian (unsigned char *buf,
+    unsigned int length)
+{
   uint_t i, ret = 0;
   for (i = 0; i < length; i++) {
     ret += buf[i] << (i * 8);
