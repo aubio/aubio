@@ -126,9 +126,8 @@ new_aubio_pitch (const char_t * pitch_mode,
   else if (strcmp (pitch_mode, "default") == 0)
     pitch_type = aubio_pitcht_default;
   else {
-    AUBIO_ERR ("unknown pitch detection method %s, using default.\n",
-        pitch_mode);
-    pitch_type = aubio_pitcht_default;
+    AUBIO_ERR ("pitch: unknown pitch detection method ‘%s’\n", pitch_mode);
+    goto beach;
   }
 
   // check parameters are valid
@@ -283,7 +282,8 @@ aubio_pitch_set_unit (aubio_pitch_t * p, const char_t * pitch_unit)
   else if (strcmp (pitch_unit, "default") == 0)
     pitch_mode = aubio_pitchm_default;
   else {
-    AUBIO_ERR ("unknown pitch detection unit %s, using default\n", pitch_unit);
+    AUBIO_WRN("pitch: unknown pitch detection unit ‘%s’, using default\n",
+        pitch_unit);
     pitch_mode = aubio_pitchm_default;
     err = AUBIO_FAIL;
   }
@@ -348,7 +348,7 @@ aubio_pitch_set_silence (aubio_pitch_t * p, smpl_t silence)
     p->silence = silence;
     return AUBIO_OK;
   } else {
-    AUBIO_ERR("pitch: could not set silence to %.2f", silence);
+    AUBIO_WRN("pitch: could not set silence to %.2f\n", silence);
     return AUBIO_FAIL;
   }
 }
