@@ -190,7 +190,7 @@ aubio_onset_t * new_aubio_onset (const char_t * onset_mode,
     AUBIO_ERR("onset: got buffer_size %d, but can not be < 2\n", buf_size);
     goto beach;
   } else if (buf_size < hop_size) {
-    AUBIO_ERR("onset: hop size (%d) is larger than win size (%d)\n", buf_size, hop_size);
+    AUBIO_ERR("onset: hop size (%d) is larger than win size (%d)\n", hop_size, buf_size);
     goto beach;
   } else if ((sint_t)samplerate < 1) {
     AUBIO_ERR("onset: samplerate (%d) can not be < 1\n", samplerate);
@@ -205,6 +205,7 @@ aubio_onset_t * new_aubio_onset (const char_t * onset_mode,
   o->pv = new_aubio_pvoc(buf_size, o->hop_size);
   o->pp = new_aubio_peakpicker();
   o->od = new_aubio_specdesc(onset_mode,buf_size);
+  if (o->od == NULL) goto beach_specdesc;
   o->fftgrain = new_cvec(buf_size);
   o->desc = new_fvec(1);
 
@@ -219,6 +220,9 @@ aubio_onset_t * new_aubio_onset (const char_t * onset_mode,
   o->total_frames = 0;
   return o;
 
+beach_specdesc:
+  del_aubio_peakpicker(o->pp);
+  del_aubio_pvoc(o->pv);
 beach:
   AUBIO_FREE(o);
   return NULL;

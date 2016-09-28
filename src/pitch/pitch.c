@@ -96,10 +96,10 @@ static void aubio_pitch_do_fcomb (aubio_pitch_t * p, const fvec_t * ibuf, fvec_t
 static void aubio_pitch_do_yinfft (aubio_pitch_t * p, const fvec_t * ibuf, fvec_t * obuf);
 static void aubio_pitch_do_specacf (aubio_pitch_t * p, const fvec_t * ibuf, fvec_t * obuf);
 
-/* conversion functions for frequency conversions */
-smpl_t freqconvbin (smpl_t f, uint_t samplerate, uint_t bufsize);
-smpl_t freqconvmidi (smpl_t f, uint_t samplerate, uint_t bufsize);
-smpl_t freqconvpass (smpl_t f, uint_t samplerate, uint_t bufsize);
+/* internal functions for frequency conversion */
+static smpl_t freqconvbin (smpl_t f, uint_t samplerate, uint_t bufsize);
+static smpl_t freqconvmidi (smpl_t f, uint_t samplerate, uint_t bufsize);
+static smpl_t freqconvpass (smpl_t f, uint_t samplerate, uint_t bufsize);
 
 /* adapter to stack ibuf new samples at the end of buf, and trim `buf` to `bufsize` */
 void aubio_pitch_slideblock (aubio_pitch_t * p, const fvec_t * ibuf);
@@ -126,9 +126,8 @@ new_aubio_pitch (const char_t * pitch_mode,
   else if (strcmp (pitch_mode, "default") == 0)
     pitch_type = aubio_pitcht_default;
   else {
-    AUBIO_ERR ("unknown pitch detection method %s, using default.\n",
-        pitch_mode);
-    pitch_type = aubio_pitcht_default;
+    AUBIO_ERR ("pitch: unknown pitch detection method ‘%s’\n", pitch_mode);
+    goto beach;
   }
 
   // check parameters are valid
@@ -283,7 +282,8 @@ aubio_pitch_set_unit (aubio_pitch_t * p, const char_t * pitch_unit)
   else if (strcmp (pitch_unit, "default") == 0)
     pitch_mode = aubio_pitchm_default;
   else {
-    AUBIO_ERR ("unknown pitch detection unit %s, using default\n", pitch_unit);
+    AUBIO_WRN("pitch: unknown pitch detection unit ‘%s’, using default\n",
+        pitch_unit);
     pitch_mode = aubio_pitchm_default;
     err = AUBIO_FAIL;
   }
@@ -324,6 +324,23 @@ aubio_pitch_set_tolerance (aubio_pitch_t * p, smpl_t tol)
   return AUBIO_OK;
 }
 
+smpl_t
+aubio_pitch_get_tolerance (aubio_pitch_t * p)
+{
+  smpl_t tolerance = 1.;
+  switch (p->type) {
+    case aubio_pitcht_yin:
+      tolerance = aubio_pitchyin_get_tolerance (p->p_object);
+      break;
+    case aubio_pitcht_yinfft:
+      tolerance = aubio_pitchyinfft_get_tolerance (p->p_object);
+      break;
+    default:
+      break;
+  }
+  return tolerance;
+}
+
 uint_t
 aubio_pitch_set_silence (aubio_pitch_t * p, smpl_t silence)
 {
@@ -331,7 +348,7 @@ aubio_pitch_set_silence (aubio_pitch_t * p, smpl_t silence)
     p->silence = silence;
     return AUBIO_OK;
   } else {
-    AUBIO_ERR("pitch: could not set silence to %.2f", silence);
+    AUBIO_WRN("pitch: could not set silence to %.2f\n", silence);
     return AUBIO_FAIL;
   }
 }
