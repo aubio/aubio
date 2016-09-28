@@ -96,10 +96,10 @@ static void aubio_pitch_do_fcomb (aubio_pitch_t * p, const fvec_t * ibuf, fvec_t
 static void aubio_pitch_do_yinfft (aubio_pitch_t * p, const fvec_t * ibuf, fvec_t * obuf);
 static void aubio_pitch_do_specacf (aubio_pitch_t * p, const fvec_t * ibuf, fvec_t * obuf);
 
-/* conversion functions for frequency conversions */
-smpl_t freqconvbin (smpl_t f, uint_t samplerate, uint_t bufsize);
-smpl_t freqconvmidi (smpl_t f, uint_t samplerate, uint_t bufsize);
-smpl_t freqconvpass (smpl_t f, uint_t samplerate, uint_t bufsize);
+/* internal functions for frequency conversion */
+static smpl_t freqconvbin (smpl_t f, uint_t samplerate, uint_t bufsize);
+static smpl_t freqconvmidi (smpl_t f, uint_t samplerate, uint_t bufsize);
+static smpl_t freqconvpass (smpl_t f, uint_t samplerate, uint_t bufsize);
 
 /* adapter to stack ibuf new samples at the end of buf, and trim `buf` to `bufsize` */
 void aubio_pitch_slideblock (aubio_pitch_t * p, const fvec_t * ibuf);
