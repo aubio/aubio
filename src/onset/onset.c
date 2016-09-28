@@ -190,7 +190,7 @@ aubio_onset_t * new_aubio_onset (const char_t * onset_mode,
     AUBIO_ERR("onset: got buffer_size %d, but can not be < 2\n", buf_size);
     goto beach;
   } else if (buf_size < hop_size) {
-    AUBIO_ERR("onset: hop size (%d) is larger than win size (%d)\n", buf_size, hop_size);
+    AUBIO_ERR("onset: hop size (%d) is larger than win size (%d)\n", hop_size, buf_size);
     goto beach;
   } else if ((sint_t)samplerate < 1) {
     AUBIO_ERR("onset: samplerate (%d) can not be < 1\n", samplerate);
