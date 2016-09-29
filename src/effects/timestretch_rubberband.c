@@ -42,6 +42,7 @@ struct _aubio_timestretch_t
   smpl_t pitchscale;              /**< pitch scale */
 
   aubio_source_t *source;
+  uint_t source_hopsize;          /**< hop size at which the source is read */
   fvec_t *in;
   uint_t eof;
 
@@ -52,7 +53,7 @@ struct _aubio_timestretch_t
 extern RubberBandOptions aubio_get_rubberband_opts(const char_t *mode);
 
 static void aubio_timestretch_warmup (aubio_timestretch_t * p);
-static sint_t aubio_timestretch_fetch(aubio_timestretch_t *p);
+static sint_t aubio_timestretch_fetch(aubio_timestretch_t *p, uint_t fetch);
 
 aubio_timestretch_t *
 new_aubio_timestretch (const char_t * uri, const char_t * mode,
@@ -61,14 +62,15 @@ new_aubio_timestretch (const char_t * uri, const char_t * mode,
   aubio_timestretch_t *p = AUBIO_NEW (aubio_timestretch_t);
   p->samplerate = samplerate;
   p->hopsize = hopsize;
+  p->source_hopsize = hopsize;
   p->pitchscale = 1.;
   p->eof = 0;
 
-  p->source = new_aubio_source(uri, samplerate, hopsize);
+  p->source = new_aubio_source(uri, samplerate, p->source_hopsize);
   if (!p->source) goto beach;
   if (samplerate == 0 ) p->samplerate = aubio_source_get_samplerate(p->source);
 
-  p->in = new_fvec(hopsize);
+  p->in = new_fvec(p->source_hopsize);
 
   if (stretchratio <= MAX_STRETCH_RATIO && stretchratio >= MIN_STRETCH_RATIO) {
     p->stretchratio = stretchratio;
@@ -85,7 +87,7 @@ new_aubio_timestretch (const char_t * uri, const char_t * mode,
   }
 
   p->rb = rubberband_new(p->samplerate, 1, p->rboptions, p->stretchratio, p->pitchscale);
-  rubberband_set_max_process_size(p->rb, p->hopsize);
+  rubberband_set_max_process_size(p->rb, p->source_hopsize);
   //rubberband_set_debug_level(p->rb, 10);
 
   aubio_timestretch_warmup(p);
@@ -101,16 +103,8 @@ static void
 aubio_timestretch_warmup (aubio_timestretch_t * p)
 {
   // warm up rubber band
-  uint_t source_read = 0;
   unsigned int latency = MAX(p->hopsize, rubberband_get_latency(p->rb));
-  int available = rubberband_available(p->rb);
-  while (available <= (int)latency) {
-    aubio_source_do(p->source, p->in, &source_read);
-    // for very short samples
-    if (source_read < p->hopsize) p->eof = 1;
-    rubberband_process(p->rb, (const float* const*)&(p->in->data), p->hopsize, p->eof);
-    available = rubberband_available(p->rb);
-  }
+  aubio_timestretch_fetch(p, latency);
 }
 
 void
@@ -191,26 +185,26 @@ aubio_timestretch_get_transpose(aubio_timestretch_t * p)
 }
 
 sint_t
-aubio_timestretch_fetch(aubio_timestretch_t *p)
+aubio_timestretch_fetch(aubio_timestretch_t *p, uint_t length)
 {
-  uint_t source_read = p->hopsize;
+  uint_t source_read = p->source_hopsize;
   // read more samples from source until we have enough available or eof is reached
   int available = rubberband_available(p->rb);
-  while ((available < (int)p->hopsize) && (p->eof == 0)) {
+  while ((available < (int)length) && (p->eof == 0)) {
     aubio_source_do(p->source, p->in, &source_read);
-    if (source_read < p->hopsize) {
+    if (source_read < p->source_hopsize) {
       p->eof = 1;
     }
     rubberband_process(p->rb, (const float* const*)&(p->in->data), source_read, p->eof);
     available = rubberband_available(p->rb);
   }
-  return source_read;
+  return available;
 }
 
 void
 aubio_timestretch_do (aubio_timestretch_t * p, fvec_t * out, uint_t * read)
 {
-  int available = aubio_timestretch_fetch(p);
+  int available = aubio_timestretch_fetch(p, p->hopsize);
   // now retrieve the samples and write them into out->data
   if (available >= (int)p->hopsize) {
     rubberband_retrieve(p->rb, (float* const*)&(out->data), p->hopsize);
