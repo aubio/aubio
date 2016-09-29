@@ -43,7 +43,6 @@ struct _aubio_timestretch_t
 
   aubio_source_t *source;
   fvec_t *in;
-  fvec_t *zeros;
   uint_t eof;
 
   RubberBandState rb;
@@ -67,7 +66,6 @@ new_aubio_timestretch (const char_t * uri, const char_t * mode,
   if (samplerate == 0 ) p->samplerate = aubio_source_get_samplerate(p->source);
 
   p->in = new_fvec(hopsize);
-  p->zeros = new_fvec(hopsize);
 
   if (stretchratio <= MAX_STRETCH_RATIO && stretchratio >= MIN_STRETCH_RATIO) {
     p->stretchratio = stretchratio;
@@ -111,6 +109,7 @@ beach:
 void
 del_aubio_timestretch (aubio_timestretch_t * p)
 {
+  if (p->in) del_fvec(p->in);
   if (p->source) del_aubio_source(p->source);
   if (p->rb) {
     rubberband_delete(p->rb);
