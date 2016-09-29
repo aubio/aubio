@@ -156,6 +156,16 @@ uint_t aubio_timestretch_set_transpose (aubio_timestretch_t * o, smpl_t transpos
 */
 smpl_t aubio_timestretch_get_transpose (aubio_timestretch_t * o);
 
+/** seek to a posisition the transposition of the time stretching object, in semitones
+
+  \param o time stretching object as returned by ::new_aubio_timestretch()
+  \param pos position to seek to, in frames
+
+  \return transposition of the time stretching object, in semitones
+
+*/
+uint_t aubio_timestretch_seek(aubio_timestretch_t * o, uint_t pos);
+
 #ifdef __cplusplus
 }
 #endif

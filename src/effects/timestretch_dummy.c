@@ -86,6 +86,9 @@ uint_t aubio_timestretch_get_latency (aubio_timestretch_t * o UNUSED) {
   return 0.;
 }
 
+uint_t aubio_timestretch_seek(aubio_timestretch_t *o UNUSED, uint_t pos UNUSED) {
+  return AUBIO_FAIL;
+}
 // end of dummy implementation
 
 #endif /* HAVE_RUBBERBAND */

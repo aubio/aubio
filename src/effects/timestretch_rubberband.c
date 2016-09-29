@@ -208,4 +208,12 @@ aubio_timestretch_do (aubio_timestretch_t * p, fvec_t * out, uint_t * read)
   }
 }
 
+uint_t
+aubio_timestretch_seek (aubio_timestretch_t *p, uint_t pos)
+{
+  p->eof = 0;
+  rubberband_reset(p->rb);
+  return aubio_source_seek(p->source, pos);
+}
+
 #endif
