@@ -84,6 +84,18 @@ aubio_timestretch_t *new_aubio_timestretch (const char_t * uri,
 */
 uint_t aubio_timestretch_get_latency (aubio_timestretch_t * o);
 
+/** get the samplerate of the time stretching object
+
+  Call after new_aubio_timestretch() was called with 0 to match the original
+  samplerate of the input file.
+
+  \param o time stretching object as returned by new_aubio_timestretch()
+
+  \return samplerate of the time stretching object
+
+ */
+uint_t aubio_timestretch_get_samplerate (aubio_timestretch_t * o);
+
 /** set the stretching ratio of the time stretching object
 
   \param o time stretching object as returned by new_aubio_timestretch()

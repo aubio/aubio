@@ -65,6 +65,10 @@ uint_t aubio_timestretch_set_pitchscale (aubio_timestretch_t * o UNUSED, smpl_t 
   return AUBIO_FAIL;
 }
 
+uint_t aubio_timestretch_get_samplerate (aubio_timestretch_t * o UNUSED) {
+  return 0;
+}
+
 smpl_t aubio_timestretch_get_pitchscale (aubio_timestretch_t * o UNUSED)
 {
   return 1.;

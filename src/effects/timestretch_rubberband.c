@@ -118,6 +118,12 @@ del_aubio_timestretch (aubio_timestretch_t * p)
   AUBIO_FREE (p);
 }
 
+uint_t
+aubio_timestretch_get_samplerate (aubio_timestretch_t * p)
+{
+  return p->samplerate;
+}
+
 uint_t aubio_timestretch_get_latency (aubio_timestretch_t * p) {
   return rubberband_get_latency(p->rb);
 }
