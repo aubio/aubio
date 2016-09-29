@@ -51,6 +51,9 @@ struct _aubio_timestretch_t
 
 extern RubberBandOptions aubio_get_rubberband_opts(const char_t *mode);
 
+static void aubio_timestretch_warmup (aubio_timestretch_t * p);
+static sint_t aubio_timestretch_fetch(aubio_timestretch_t *p);
+
 aubio_timestretch_t *
 new_aubio_timestretch (const char_t * uri, const char_t * mode,
     smpl_t stretchratio, uint_t hopsize, uint_t samplerate)
@@ -85,7 +88,18 @@ new_aubio_timestretch (const char_t * uri, const char_t * mode,
   rubberband_set_max_process_size(p->rb, p->hopsize);
   //rubberband_set_debug_level(p->rb, 10);
 
-#if 1
+  aubio_timestretch_warmup(p);
+
+  return p;
+
+beach:
+  del_aubio_timestretch(p);
+  return NULL;
+}
+
+static void
+aubio_timestretch_warmup (aubio_timestretch_t * p)
+{
   // warm up rubber band
   uint_t source_read = 0;
   unsigned int latency = MAX(p->hopsize, rubberband_get_latency(p->rb));
@@ -97,13 +111,6 @@ new_aubio_timestretch (const char_t * uri, const char_t * mode,
     rubberband_process(p->rb, (const float* const*)&(p->in->data), p->hopsize, p->eof);
     available = rubberband_available(p->rb);
   }
-#endif
-
-  return p;
-
-beach:
-  del_aubio_timestretch(p);
-  return NULL;
 }
 
 void
@@ -183,8 +190,8 @@ aubio_timestretch_get_transpose(aubio_timestretch_t * p)
   return 12. * LOG(p->pitchscale) / LOG(2.0);
 }
 
-void
-aubio_timestretch_do (aubio_timestretch_t * p, fvec_t * out, uint_t * read)
+sint_t
+aubio_timestretch_fetch(aubio_timestretch_t *p)
 {
   uint_t source_read = p->hopsize;
   // read more samples from source until we have enough available or eof is reached
@@ -197,6 +204,13 @@ aubio_timestretch_do (aubio_timestretch_t * p, fvec_t * out, uint_t * read)
     rubberband_process(p->rb, (const float* const*)&(p->in->data), source_read, p->eof);
     available = rubberband_available(p->rb);
   }
+  return source_read;
+}
+
+void
+aubio_timestretch_do (aubio_timestretch_t * p, fvec_t * out, uint_t * read)
+{
+  int available = aubio_timestretch_fetch(p);
   // now retrieve the samples and write them into out->data
   if (available >= (int)p->hopsize) {
     rubberband_retrieve(p->rb, (float* const*)&(out->data), p->hopsize);
