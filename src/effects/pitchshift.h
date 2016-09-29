@@ -29,7 +29,7 @@ extern "C" {
 
   Pitch shifting object
 
-  This file ...
+  ::aubio_pitchshift_t can be used to transpose a stream of blocks of frames.
 
   \example effects/test-pitchshift.c
 
