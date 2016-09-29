@@ -136,7 +136,7 @@ aubio_timestretch_set_stretch (aubio_timestretch_t * p, smpl_t stretch)
     rubberband_set_time_ratio(p->rb, 1./p->stretchratio);
     return AUBIO_OK;
   } else {
-    AUBIO_ERR("timestretch: could not set stretch ratio to %.2f\n", stretch);
+    AUBIO_WRN("timestretch: could not set stretch ratio to %.2f\n", stretch);
     return AUBIO_FAIL;
   }
 }
@@ -155,7 +155,7 @@ aubio_timestretch_set_pitchscale (aubio_timestretch_t * p, smpl_t pitchscale)
     rubberband_set_pitch_scale(p->rb, p->pitchscale);
     return AUBIO_OK;
   } else {
-    AUBIO_ERR("timestretch: could not set pitchscale to %.2f\n", pitchscale);
+    AUBIO_WRN("timestretch: could not set pitchscale to %.2f\n", pitchscale);
     return AUBIO_FAIL;
   }
 }
@@ -173,7 +173,7 @@ aubio_timestretch_set_transpose(aubio_timestretch_t * p, smpl_t transpose)
     smpl_t pitchscale = POW(2., transpose / 12.);
     return aubio_timestretch_set_pitchscale(p, pitchscale);
   } else {
-    AUBIO_ERR("timestretch: could not set transpose to %.2f\n", transpose);
+    AUBIO_WRN("timestretch: could not set transpose to %.2f\n", transpose);
     return AUBIO_FAIL;
   }
 }
@@ -209,9 +209,12 @@ aubio_timestretch_do (aubio_timestretch_t * p, fvec_t * out, uint_t * read)
   if (available >= (int)p->hopsize) {
     rubberband_retrieve(p->rb, (float* const*)&(out->data), p->hopsize);
     *read = p->hopsize;
-  } else {
+  } else if (available > 0) {
     rubberband_retrieve(p->rb, (float* const*)&(out->data), available);
     *read = available;
+  } else {
+    fvec_zeros(out);
+    *read = 0;
   }
 }
 
