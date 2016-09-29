@@ -31,7 +31,7 @@
 #include "rubberband/rubberband-c.h"
 
 #define MIN_STRETCH_RATIO 0.025
-#define MAX_STRETCH_RATIO 10.
+#define MAX_STRETCH_RATIO 40.
 
 /** generic time stretching structure */
 struct _aubio_timestretch_t
@@ -133,7 +133,7 @@ aubio_timestretch_set_stretch (aubio_timestretch_t * p, smpl_t stretch)
 {
   if (stretch >= MIN_STRETCH_RATIO && stretch <= MAX_STRETCH_RATIO) {
     p->stretchratio = stretch;
-    rubberband_set_time_ratio(p->rb, p->stretchratio);
+    rubberband_set_time_ratio(p->rb, 1./p->stretchratio);
     return AUBIO_OK;
   } else {
     AUBIO_ERR("timestretch: could not set stretch ratio to %.2f\n", stretch);
