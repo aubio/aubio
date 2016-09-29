@@ -15,7 +15,6 @@ int main (int argc, char **argv)
     return err;
   }
 
-#ifdef HAVE_RUBBERBAND
   uint_t samplerate = 0;
   uint_t hop_size = 64;
   smpl_t transpose = 0.;
@@ -72,9 +71,5 @@ beach_source:
   del_fvec(vec);
   del_fvec(out);
 beach_fvec:
-#else /* HAVE_RUBBERBAND */
-  err = 3;
-  PRINT_ERR("aubio was not compiled with rubberband\n");
-#endif /* HAVE_RUBBERBAND */
   return err;
 }
