@@ -64,6 +64,8 @@ struct _aubio_timestretch_t
   pthread_cond_t read_avail;
   pthread_cond_t read_request;
   sint_t available;
+  uint_t started;
+  uint_t finish;
 #endif
 };
 
@@ -112,9 +114,12 @@ new_aubio_timestretch (const char_t * uri, const char_t * mode,
   //rubberband_set_debug_level(p->rb, 10);
 
 #ifdef HAVE_THREADS
+  p->started = 0;
+  p->finish = 0;
   pthread_mutex_init(&p->read_mutex, 0);
   pthread_cond_init (&p->read_avail, 0);
   pthread_cond_init (&p->read_request, 0);
+  //AUBIO_WRN("timestretch: creating thread\n");
   pthread_create(&p->read_thread, 0, aubio_timestretch_readfn, p);
   //AUBIO_DBG("timestretch: new_ waiting for warmup, got %d available\n", p->available);
   pthread_mutex_lock(&p->read_mutex);
@@ -137,41 +142,35 @@ void *
 aubio_timestretch_readfn(void *z)
 {
   aubio_timestretch_t *p = z;
-  // signal main-thread when we are done
-  //AUBIO_WRN("timestretch: read_thread locking, got %d available\n", p->available);
-  pthread_mutex_lock(&p->read_mutex);
-  aubio_timestretch_warmup(p);
-  //AUBIO_WRN("timestretch: signaling warmup\n");
-  pthread_cond_signal(&p->read_avail);
-  //AUBIO_WRN("timestretch: unlocking in readfn\n");
-  pthread_mutex_unlock(&p->read_mutex);
-  AUBIO_WRN("timestretch: entering readfn loop\n");
   while(1) { //p->available < (int)p->hopsize && p->eof != 1) {
     //AUBIO_WRN("timestretch: locking in readfn\n");
     pthread_mutex_lock(&p->read_mutex);
-    p->available = aubio_timestretch_fetch(p, p->hopsize);
-    //AUBIO_WRN("timestretch: read_thread read %d\n", p->available);
-    // signal main-thread when we are done
-    //AUBIO_WRN("timestretch: signaling new read\n");
-    pthread_cond_signal(&p->read_avail);
-    if (p->eof != 1) {
+    if (!p->started && !p->eof) {
+      // fetch the first few samples and mark as started
+      //AUBIO_WRN("timestretch: fetching first samples\n");
+      aubio_timestretch_warmup(p);
+      p->started = 1;
+    } else if (!p->eof) {
+      // fetch at least p->hopsize stretched samples
+      p->available = aubio_timestretch_fetch(p, p->hopsize);
+      // signal available frames
+      pthread_cond_signal(&p->read_avail);
+      if (p->eof != 1) {
+        // the end of file was not reached yet, wait for the next read_request
+        pthread_cond_wait(&p->read_request, &p->read_mutex);
+      } else {
+        // eof was reached, do not wait for a read request and mark as stopped
+        p->started = 0;
+      }
+    } else {
+      //pthread_cond_signal(&p->read_avail);
       pthread_cond_wait(&p->read_request, &p->read_mutex);
-    }
-    if (p->eof == 1) {
-      AUBIO_WRN("timestretch: read_thread eof reached %d, %d/%d\n", p->available,
-        p->hopsize, p->source_hopsize);
-      pthread_mutex_unlock(&p->read_mutex);
-      break;
+      //AUBIO_WRN("timestretch: finished idle in readfn\n");
+      if (p->finish) pthread_exit(NULL);
     }
     //AUBIO_WRN("timestretch: unlocking in readfn\n");
     pthread_mutex_unlock(&p->read_mutex);
   }
-#if 1
-  pthread_mutex_lock(&p->read_mutex);
-  //AUBIO_WRN("timestretch: signaling end\n");
-  pthread_cond_signal(&p->read_avail);
-  pthread_mutex_unlock(&p->read_mutex);
-#endif
   //AUBIO_WRN("timestretch: exiting readfn\n");
   pthread_exit(NULL);
 }
@@ -193,19 +192,19 @@ void
 del_aubio_timestretch (aubio_timestretch_t * p)
 {
 #ifdef HAVE_THREADS
+  void *threadfn;
+  //AUBIO_WRN("timestretch: entering delete\n");
   pthread_mutex_lock(&p->read_mutex);
+  p->finish = 1;
   pthread_cond_signal(&p->read_request);
   //pthread_cond_wait(&p->read_avail, &p->read_mutex);
   pthread_mutex_unlock(&p->read_mutex);
-#if 1
-  void *threadfn;
   if ((p->eof == 0) && (pthread_cancel(p->read_thread))) {
       AUBIO_WRN("timestretch: cancelling thread failed\n");
   }
   if (pthread_join(p->read_thread, &threadfn)) {
       AUBIO_WRN("timestretch: joining thread failed\n");
   }
-#endif
   pthread_mutex_destroy(&p->read_mutex);
   pthread_cond_destroy(&p->read_avail);
   pthread_cond_destroy(&p->read_request);
@@ -339,7 +338,6 @@ aubio_timestretch_seek (aubio_timestretch_t *p, uint_t pos)
 {
   uint_t err = AUBIO_OK;
 #if HAVE_THREADS
-  AUBIO_WRN("timestretch: seek_ waiting for warmup, got %d available\n", p->available);
   pthread_mutex_lock(&p->read_mutex);
 #endif
   p->eof = 0;
@@ -347,17 +345,8 @@ aubio_timestretch_seek (aubio_timestretch_t *p, uint_t pos)
   err = aubio_source_seek(p->source, pos);
 #if HAVE_THREADS
   p->available = 0;
-  void *threadfn;
-  if ((p->eof == 0) && (pthread_cancel(p->read_thread) == 0)) {
-      AUBIO_WRN("timestretch: cancelling thread failed\n");
-  }
-  if (pthread_join(p->read_thread, &threadfn)) {
-      AUBIO_WRN("timestretch: joining thread failed\n");
-  }
-  pthread_create(&p->read_thread, 0, aubio_timestretch_readfn, p);
-  pthread_cond_wait(&p->read_avail, &p->read_mutex);
+  p->started = 1;
   pthread_mutex_unlock(&p->read_mutex);
-  //AUBIO_WRN("timestretch: seek_ warm up success, got %d available\n", p->available);
 #endif
   return err;
 }
