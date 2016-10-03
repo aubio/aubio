@@ -65,7 +65,7 @@ class Test_aubio_source_read(object):
             total_frames += read
             if read < f.hop_size:
                 assert_equal(samples[read:], 0)
-                if 'silence' not in f.uri:
+                if 'brownnoise' in f.uri:
                     self.assertEquals(np.count_nonzero(samples[:read]), read)
                 break
         if _debug:
@@ -185,7 +185,7 @@ class Test_aubio_source_readmulti(Test_aubio_source_read):
             total_frames += read
             if read < f.hop_size:
                 assert_equal(samples[:,read:], 0)
-                if 'silence' not in f.uri:
+                if 'brownnoise' in f.uri:
                     self.assertEquals(np.count_nonzero(samples[:,:read]), read)
                 break
         if _debug:
