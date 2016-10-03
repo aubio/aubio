@@ -56,7 +56,7 @@ class aubio_source_read_test_case(aubio_source_test_case_base):
             total_frames += read
             if read < f.hop_size:
                 assert_equal(samples[read:], 0)
-                if 'silence' not in f.uri:
+                if 'brownnoise' in f.uri:
                     self.assertEquals(np.count_nonzero(samples[:read]), read)
                 break
         #result_str = "read {:.2f}s ({:d} frames in {:d} blocks at {:d}Hz) from {:s}"
@@ -158,7 +158,7 @@ class aubio_source_readmulti_test_case(aubio_source_read_test_case):
             total_frames += read
             if read < f.hop_size:
                 assert_equal(samples[:,read:], 0)
-                if 'silence' not in f.uri:
+                if 'brownnoise' in f.uri:
                     self.assertEquals(np.count_nonzero(samples[:,:read]), read)
                 break
         #result_str = "read {:.2f}s ({:d} frames in {:d} channels and {:d} blocks at {:d}Hz) from {:s}"
