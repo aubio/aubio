@@ -86,6 +86,12 @@ def options(ctx):
     add_option_enable_disable(ctx, 'atlas', default = None,
             help_str = 'use Atlas library (auto)',
             help_disable_str = 'do not use Atlas library')
+    add_option_enable_disable(ctx, 'wavread', default = True,
+            help_str = 'compile with source_wavread (default)',
+            help_disable_str = 'do not compile source_wavread')
+    add_option_enable_disable(ctx, 'wavwrite', default = True,
+            help_str = 'compile with source_wavwrite (default)',
+            help_disable_str = 'do not compile source_wavwrite')
 
     add_option_enable_disable(ctx, 'docs', default = None,
             help_str = 'build documentation (auto)',
@@ -287,8 +293,12 @@ def configure(ctx):
         else:
             ctx.msg('Checking for all libav libraries', 'not found', color = 'YELLOW')
 
-    ctx.define('HAVE_WAVREAD', 1)
-    ctx.define('HAVE_WAVWRITE', 1)
+    if (ctx.options.enable_wavread != False):
+        ctx.define('HAVE_WAVREAD', 1)
+    ctx.msg('Checking if using source_wavread', ctx.options.enable_wavread and 'yes' or 'no')
+    if (ctx.options.enable_wavwrite!= False):
+        ctx.define('HAVE_WAVWRITE', 1)
+    ctx.msg('Checking if using sink_wavwrite', ctx.options.enable_wavwrite and 'yes' or 'no')
 
     # use ATLAS
     if (ctx.options.enable_atlas != False):
