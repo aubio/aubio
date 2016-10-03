@@ -115,8 +115,8 @@ aubio_source_t * new_aubio_source(const char_t * uri, uint_t samplerate, uint_t 
     return s;
   }
 #endif /* HAVE_WAVREAD */
-  AUBIO_ERROR("source: failed creating aubio source with %s"
-     " at samplerate %d with hop_size %d\n", uri, samplerate, hop_size);
+  //AUBIO_ERROR("source: failed creating aubio source with %s"
+  //   " at samplerate %d with hop_size %d\n", uri, samplerate, hop_size);
   AUBIO_FREE(s);
   return NULL;
 }
