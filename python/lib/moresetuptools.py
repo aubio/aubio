@@ -127,22 +127,42 @@ class CleanGenerated(distutils.command.clean.clean):
         distutils.dir_util.remove_tree(output_path)
         distutils.command.clean.clean.run(self)
 
-class GenerateCommand(distutils.cmd.Command):
-    description = 'generate gen/gen-*.c files from ../src/aubio.h'
-    user_options = [
+from distutils.command.build_ext import build_ext as _build_ext
+class build_ext(_build_ext):
+
+    user_options = _build_ext.user_options + [
             # The format is (long option, short option, description).
             ('enable-double', None, 'use HAVE_AUBIO_DOUBLE=1 (default: 0)'),
             ]
 
     def initialize_options(self):
+        _build_ext.initialize_options(self)
         self.enable_double = False
 
     def finalize_options(self):
+        _build_ext.finalize_options(self)
         if self.enable_double:
             self.announce(
                     'will generate code for aubio compiled with HAVE_AUBIO_DOUBLE=1',
                     level=distutils.log.INFO)
 
-    def run(self):
-        self.announce( 'Generating code', level=distutils.log.INFO)
-        generated_object_files = generate_external(header, output_path, usedouble=self.enable_double)
+    def build_extension(self, extension):
+        if self.enable_double:
+            extension.define_macros += [('HAVE_AUBIO_DOUBLE', 1)]
+        if os.path.isfile('src/aubio.h'):
+            # if aubio headers are found in this directory
+            add_local_aubio_header(extension)
+            # was waf used to build the shared lib?
+            if os.path.isdir(os.path.join('build','src')):
+                # link against build/src/libaubio, built with waf
+                add_local_aubio_lib(extension)
+            else:
+                # add libaubio sources and look for optional deps with pkg-config
+                add_local_aubio_sources(extension, usedouble=self.enable_double)
+        else:
+            # look for aubio headers and lib using pkg-config
+            add_system_aubio(extension)
+        # generate files python/gen/*.c, python/gen/aubio-generated.h
+        extension.sources += generate_external(header, output_path, overwrite = False,
+                usedouble=self.enable_double)
+        return _build_ext.build_extension(self, extension)

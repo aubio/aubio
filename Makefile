@@ -28,7 +28,7 @@ build: configure
 	$(WAFCMD) build $(WAFOPTS)
 
 build_python:
-	python ./setup.py generate $(ENABLE_DOUBLE) build
+	python ./setup.py build_ext $(ENABLE_DOUBLE)
 
 test_python: export LD_LIBRARY_PATH=$(PWD)/build/src
 test_python:
@@ -72,7 +72,7 @@ test_pure_python_wheel:
 	pip uninstall -v -y aubio
 
 build_python3:
-	python3 ./setup.py generate $(ENABLE_DOUBLE) build
+	python3 ./setup.py build_ext $(ENABLE_DOUBLE)
 
 clean_python3:
 	python3 ./setup.py clean

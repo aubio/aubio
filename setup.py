@@ -47,20 +47,8 @@ aubio_extension = Extension("aubio._aubio",
     define_macros = define_macros)
 
 if os.path.isfile('src/aubio.h'):
-    # if aubio headers are found in this directory
-    add_local_aubio_header(aubio_extension)
-    # was waf used to build the shared lib?
-    if os.path.isdir(os.path.join('build','src')):
-        # link against build/src/libaubio, built with waf
-        add_local_aubio_lib(aubio_extension)
-    else:
-        # add libaubio sources and look for optional deps with pkg-config
-        add_local_aubio_sources(aubio_extension)
-        __version__ += 'a2' # pypi version
-else:
-    # look for aubio headers and lib using pkg-config
-    add_system_aubio(aubio_extension)
-
+    if not os.path.isdir(os.path.join('build','src')):
+        __version__ += 'a2' # python only version
 
 classifiers = [
     'Development Status :: 4 - Beta',
@@ -76,14 +64,6 @@ classifiers = [
     'Programming Language :: Python',
     'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
     ]
-
-from distutils.command.build_ext import build_ext as _build_ext
-class build_ext(_build_ext):
-
-    def build_extension(self, extension):
-        # generate files python/gen/*.c, python/gen/aubio-generated.h
-        extension.sources += generate_external(header, output_path, overwrite = False)
-        return _build_ext.build_extension(self, extension)
 
 distrib = setup(name='aubio',
     version = __version__,
@@ -104,7 +84,6 @@ distrib = setup(name='aubio',
     install_requires = ['numpy'],
     cmdclass = {
         'clean': CleanGenerated,
-        'generate': GenerateCommand,
         'build_ext': build_ext,
         },
     test_suite = 'nose2.collector.collector',
