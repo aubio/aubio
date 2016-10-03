@@ -21,6 +21,7 @@
 #include "utils.h"
 #define PROG_HAS_PITCH 1
 #define PROG_HAS_OUTPUT 1
+#define PROG_HAS_SILENCE 1
 #define PROG_HAS_JACK 1
 #include "parse_args.h"
 

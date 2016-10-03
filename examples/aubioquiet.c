@@ -19,6 +19,7 @@
 */
 
 #include "utils.h"
+#define PROG_HAS_SILENCE 1
 #include "parse_args.h"
 
 sint_t wassilence = 1, issilence;

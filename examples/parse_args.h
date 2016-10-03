@@ -100,8 +100,10 @@ void usage (FILE * stream, int exit_code)
       "       -l      --pitch-tolerance  select pitch tolerance\n"
       "                 (yin, yinfft only) a value between 0.1 and 0.7; default=0.3\n"
 #endif /* PROG_HAS_PITCH */
+#ifdef PROG_HAS_SILENCE
       "       -s      --silence          select silence threshold\n"
       "                 a value in dB, for instance -70, or -100; default=-90\n"
+#endif /* PROG_HAS_SILENCE */
       "       -T      --time-format      select time values output format\n"
       "                 (samples, ms, seconds) default=seconds\n"
 #ifdef PROG_HAS_OUTPUT
@@ -109,10 +111,10 @@ void usage (FILE * stream, int exit_code)
       "                 input signal will be added to output synthesis\n"
       "       -f      --force-overwrite  overwrite output file if needed\n"
       "                 do not fail if output file already exists\n"
-#endif
+#endif /* PROG_HAS_OUTPUT */
 #ifdef PROG_HAS_JACK
       "       -j      --jack             use Jack\n"
-#endif
+#endif /* PROG_HAS_JACK */
       "       -v      --verbose          be verbose\n"
       "       -h      --help             display this message\n"
       );
@@ -142,7 +144,13 @@ parse_args (int argc, char **argv)
     "p:u:l:"
 #endif /* PROG_HAS_PITCH */
     "T:"
-    "s:mf";
+#ifdef PROG_HAS_SILENCE
+    "s:"
+#endif /* PROG_HAS_SILENCE */
+#ifdef PROG_HAS_OUTPUT
+    "mf"
+#endif /* PROG_HAS_OUTPUT */
+    ;
   int next_option;
   struct option long_options[] = {
     {"help",                  0, NULL, 'h'},
@@ -166,10 +174,14 @@ parse_args (int argc, char **argv)
     {"pitch-unit",            1, NULL, 'u'},
     {"pitch-tolerance",       1, NULL, 'l'},
 #endif /* PROG_HAS_PITCH */
+#ifdef PROG_HAS_SILENCE
     {"silence",               1, NULL, 's'},
+#endif /* PROG_HAS_SILENCE */
     {"time-format",           1, NULL, 'T'},
+#ifdef PROG_HAS_OUTPUT
     {"mix-input",             0, NULL, 'm'},
     {"force-overwrite",       0, NULL, 'f'},
+#endif /* PROG_HAS_OUTPUT */
     {NULL,                    0, NULL, 0}
   };
 #endif /* HAVE_GETOPT_H */
