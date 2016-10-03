@@ -54,7 +54,7 @@ test_pure_python:
 	-rm -rf build/ python/gen/
 	-rm -f dist/*.egg
 	-pip install -v -r requirements.txt
-	CFLAGS=-Os python setup.py bdist_egg
+	CFLAGS=-Os python setup.py build_ext $(ENABLE_DOUBLE) bdist_egg
 	[ "$(TRAVIS_OS_NAME)" == "osx" ] && easy_install --user dist/*.egg || \
 		easy_install dist/*.egg
 	nose2 -N 4
@@ -66,7 +66,7 @@ test_pure_python_wheel:
 	-rm -f dist/*.whl
 	-pip install -v -r requirements.txt
 	-pip install -v wheel
-	CFLAGS=-Os python setup.py bdist_wheel --universal
+	CFLAGS=-Os python setup.py build_ext $(ENABLE_DOUBLE) bdist_wheel --universal
 	wheel install dist/*.whl
 	nose2 -N 4
 	pip uninstall -v -y aubio
@@ -79,6 +79,9 @@ clean_python3:
 
 clean:
 	$(WAFCMD) clean
+
+distclean:
+	$(WAFCMD) distclean
 
 distcheck: checkwaf
 	$(WAFCMD) distcheck $(WAFOPTS) $(ENABLE_DOUBLE)
