@@ -318,6 +318,7 @@ uint_t aubio_source_sndfile_close (aubio_source_sndfile_t *s) {
     AUBIO_ERR("source_sndfile: Error closing file %s: %s\n", s->path, sf_strerror (NULL));
     return AUBIO_FAIL;
   }
+  s->handle = NULL;
   return AUBIO_OK;
 }
 
