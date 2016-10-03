@@ -65,6 +65,8 @@ class Test_aubio_source_read(object):
             total_frames += read
             if read < f.hop_size:
                 assert_equal(samples[read:], 0)
+                if 'silence' not in f.uri:
+                    self.assertEquals(np.count_nonzero(samples[:read]), read)
                 break
         if _debug:
             result_str = "read {:.2f}s ({:d} frames"
@@ -183,6 +185,8 @@ class Test_aubio_source_readmulti(Test_aubio_source_read):
             total_frames += read
             if read < f.hop_size:
                 assert_equal(samples[:,read:], 0)
+                if 'silence' not in f.uri:
+                    self.assertEquals(np.count_nonzero(samples[:,:read]), read)
                 break
         if _debug:
             result_str = "read {:.2f}s ({:d} frames in {:d} channels"
