@@ -2,9 +2,10 @@
 
 from nose2 import main
 from nose2.tools import params
-from numpy.testing import TestCase
+from numpy.testing import TestCase, assert_equal
 from aubio import source
 from utils import list_all_sounds
+import numpy as np
 
 import warnings
 warnings.filterwarnings('ignore', category=UserWarning, append=True)
@@ -51,9 +52,13 @@ class aubio_source_read_test_case(aubio_source_test_case_base):
     def read_from_source(self, f):
         total_frames = 0
         while True:
-            _ , read = f()
+            samples , read = f()
             total_frames += read
-            if read < f.hop_size: break
+            if read < f.hop_size:
+                assert_equal(samples[read:], 0)
+                if 'silence' not in f.uri:
+                    self.assertEquals(np.count_nonzero(samples[:read]), read)
+                break
         #result_str = "read {:.2f}s ({:d} frames in {:d} blocks at {:d}Hz) from {:s}"
         #result_params = total_frames / float(f.samplerate), total_frames, total_frames//f.hop_size, f.samplerate, f.uri
         #print (result_str.format(*result_params))
@@ -149,9 +154,13 @@ class aubio_source_readmulti_test_case(aubio_source_read_test_case):
     def read_from_source(self, f):
         total_frames = 0
         while True:
-            _, read = f.do_multi()
+            samples, read = f.do_multi()
             total_frames += read
-            if read < f.hop_size: break
+            if read < f.hop_size:
+                assert_equal(samples[:,read:], 0)
+                if 'silence' not in f.uri:
+                    self.assertEquals(np.count_nonzero(samples[:,:read]), read)
+                break
         #result_str = "read {:.2f}s ({:d} frames in {:d} channels and {:d} blocks at {:d}Hz) from {:s}"
         #result_params = total_frames / float(f.samplerate), total_frames, f.channels, int(total_frames/f.hop_size), f.samplerate, f.uri
         #print (result_str.format(*result_params))
