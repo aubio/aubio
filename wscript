@@ -261,6 +261,13 @@ def configure(ctx):
                 mandatory = ctx.options.enable_sndfile)
 
     # check for libsamplerate
+    if (ctx.options.enable_double):
+        if (ctx.options.enable_samplerate):
+            ctx.fatal("Could not compile aubio in double precision mode with libsamplerate")
+        else:
+            ctx.options.enable_samplerate = False
+            ctx.msg('Checking if using samplerate', 'no (disabled in double precision mode)',
+                    color = 'YELLOW')
     if (ctx.options.enable_samplerate != False):
         ctx.check_cfg(package = 'samplerate', atleast_version = '0.0.15',
                 args = '--cflags --libs',
