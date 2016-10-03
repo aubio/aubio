@@ -26,6 +26,10 @@
 
 #ifdef HAVE_SAMPLERATE
 
+#if HAVE_AUBIO_DOUBLE
+#error "Should not use libsamplerate with aubio in double precision"
+#endif
+
 #include <samplerate.h>         /* from libsamplerate */
 
 struct _aubio_resampler_t
