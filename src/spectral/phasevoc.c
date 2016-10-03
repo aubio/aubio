@@ -88,7 +88,7 @@ aubio_pvoc_t * new_aubio_pvoc (uint_t win_s, uint_t hop_s) {
     AUBIO_ERR("pvoc: got buffer_size %d, but can not be < 2\n", win_s);
     goto beach;
   } else if (win_s < hop_s) {
-    AUBIO_ERR("pvoc: hop size (%d) is larger than win size (%d)\n", win_s, hop_s);
+    AUBIO_ERR("pvoc: hop size (%d) is larger than win size (%d)\n", hop_s, win_s);
     goto beach;
   }
 
