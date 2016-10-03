@@ -351,7 +351,7 @@ void aubio_source_avcodec_do(aubio_source_avcodec_t * s, fvec_t * read_data, uin
     }
   }
   if (total_wrote < s->hop_size) {
-    for (i = end; i < s->hop_size; i++) {
+    for (i = total_wrote; i < s->hop_size; i++) {
       read_data->data[i] = 0.;
     }
   }
@@ -386,7 +386,7 @@ void aubio_source_avcodec_do_multi(aubio_source_avcodec_t * s, fmat_t * read_dat
   }
   if (total_wrote < s->hop_size) {
     for (j = 0; j < read_data->height; j++) {
-      for (i = end; i < s->hop_size; i++) {
+      for (i = total_wrote; i < s->hop_size; i++) {
         read_data->data[j][i] = 0.;
       }
     }
