@@ -220,6 +220,7 @@ uint_t aubio_log(sint_t level, const char_t *fmt, ...);
 #define LOG        logf
 #define FLOOR      floorf
 #define CEIL       ceilf
+#define ATAN       atanf
 #define ATAN2      atan2f
 #else
 #define EXP        exp
@@ -232,6 +233,7 @@ uint_t aubio_log(sint_t level, const char_t *fmt, ...);
 #define LOG        log
 #define FLOOR      floor
 #define CEIL       ceil
+#define ATAN       atan
 #define ATAN2      atan2
 #endif
 #define ROUND(x)   FLOOR(x+.5)
