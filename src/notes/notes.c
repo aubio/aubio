@@ -24,6 +24,8 @@
 #include "onset/onset.h"
 #include "notes/notes.h"
 
+#define DEFAULT_NOTES_SILENCE -50.
+
 struct _aubio_notes_t {
 
   uint_t onset_buf_size;
@@ -90,13 +92,30 @@ aubio_notes_t * new_aubio_notes (const char_t * method,
   o->curnote = -1.;
   o->newnote = 0.;
 
-  o->silence_threshold = -90.;
+  aubio_notes_set_silence(o, DEFAULT_NOTES_SILENCE);
 
   return o;
 
 fail:
   del_aubio_notes(o);
   return NULL;
+}
+
+uint_t aubio_notes_set_silence(aubio_notes_t *o, smpl_t silence)
+{
+  uint_t err = AUBIO_OK;
+  if (aubio_pitch_set_silence(o->pitch, silence) != AUBIO_OK) {
+    err = AUBIO_FAIL;
+  }
+  if (aubio_onset_set_silence(o->onset, silence) != AUBIO_OK) {
+    err = AUBIO_FAIL;
+  }
+  return err;
+}
+
+smpl_t aubio_notes_get_silence(const aubio_notes_t *o)
+{
+  return aubio_pitch_get_silence(o->pitch);
 }
 
 /** append new note candidate to the note_buffer and return filtered value. we
