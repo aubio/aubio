@@ -58,6 +58,7 @@ void process_print (void)
 }
 
 int main(int argc, char **argv) {
+  int ret = 0;
   examples_common_init(argc,argv);
 
   verbmsg ("using source: %s at %dHz\n", source_uri, samplerate);
@@ -68,6 +69,7 @@ int main(int argc, char **argv) {
   verbmsg ("threshold: %f\n", onset_threshold);
 
   o = new_aubio_onset (onset_method, buffer_size, hop_size, samplerate);
+  if (o == NULL) { ret = 1; goto beach; }
   if (onset_threshold != 0.)
     aubio_onset_set_threshold (o, onset_threshold);
   if (silence_threshold != -90.)
@@ -88,6 +90,7 @@ int main(int argc, char **argv) {
   del_aubio_wavetable (wavetable);
   del_fvec (onset);
 
+beach:
   examples_common_del();
-  return 0;
+  return ret;
 }

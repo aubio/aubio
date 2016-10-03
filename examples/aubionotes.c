@@ -50,6 +50,8 @@ void process_print (void)
 }
 
 int main(int argc, char **argv) {
+  int ret = 0;
+
   examples_common_init(argc,argv);
 
   verbmsg ("using source: %s at %dHz\n", source_uri, samplerate);
@@ -65,6 +67,7 @@ int main(int argc, char **argv) {
   verbmsg ("tolerance: %f\n", pitch_tolerance);
 
   notes = new_aubio_notes ("default", buffer_size, hop_size, samplerate);
+  if (notes == NULL) { ret = 1; goto beach; }
 
   examples_common_process((aubio_process_func_t)process_block, process_print);
 
@@ -73,7 +76,7 @@ int main(int argc, char **argv) {
 
   del_aubio_notes (notes);
 
+beach:
   examples_common_del();
-  return 0;
+  return ret;
 }
-

@@ -60,6 +60,7 @@ void process_print (void) {
 }
 
 int main(int argc, char **argv) {
+  int ret = 0;
   // override general settings from utils.c
   buffer_size = 1024;
   hop_size = 512;
@@ -75,6 +76,7 @@ int main(int argc, char **argv) {
 
   tempo_out = new_fvec(2);
   tempo = new_aubio_tempo(tempo_method, buffer_size, hop_size, samplerate);
+  if (tempo == NULL) { ret = 1; goto beach; }
   // set silence threshold very low to output beats even during silence
   // aubio_tempo_set_silence(tempo, -1000.);
   if (onset_threshold != 0.) aubio_tempo_set_threshold (tempo, onset_threshold);
@@ -92,7 +94,7 @@ int main(int argc, char **argv) {
   del_aubio_wavetable (wavetable);
   del_fvec(tempo_out);
 
+beach:
   examples_common_del();
-  return 0;
+  return ret;
 }
-
