@@ -51,13 +51,53 @@ int main (int argc, char **argv)
 
   if (transpose != 0) aubio_timestretch_set_transpose(ps, transpose);
 
+#if 0
   do {
+    if (aubio_timestretch_get_opened(ps) == 0)
+      PRINT_MSG("not opened!\n");
+    aubio_timestretch_get_opened(ps);
     aubio_timestretch_set_stretch(ps, stretch);
     aubio_timestretch_set_transpose(ps, transpose);
     aubio_timestretch_do(ps, out, &read);
+    if (samplerate == 0) {
+      PRINT_MSG("setting samplerate now to %d\n", aubio_timestretch_get_samplerate(ps));
+      samplerate = aubio_timestretch_get_samplerate(ps);
+      aubio_sink_preset_samplerate(o, samplerate);
+      aubio_sink_preset_channels(o, 1);
+    }
     aubio_sink_do(o, out, read);
     n_frames += read;
   } while ( read == hop_size );
+#else
+
+  aubio_timestretch_queue(ps, source_path, samplerate);
+
+  do {
+    aubio_timestretch_get_opened(ps);
+    aubio_timestretch_set_stretch(ps, stretch);
+    aubio_timestretch_set_transpose(ps, transpose);
+    aubio_timestretch_do(ps, out, &read);
+    if (n_frames == 34999 * hop_size) {
+      PRINT_MSG("instant queuing?\n");
+      aubio_timestretch_queue(ps, source_path, samplerate);
+    }
+    if (n_frames == 64999 * hop_size) {
+      PRINT_MSG("instant queuing 2\n");
+      aubio_timestretch_queue(ps, "/dev/null", samplerate);
+    }
+    if (n_frames == 54999 * hop_size) {
+      PRINT_MSG("instant queuing?\n");
+      aubio_timestretch_queue(ps, source_path, samplerate);
+    }
+    if (n_frames == 74999 * hop_size) {
+      PRINT_MSG("instant queuing?\n");
+      aubio_timestretch_queue(ps, source_path, samplerate);
+    }
+    aubio_sink_do(o, out, read);
+  //} while ( read == hop_size );
+    n_frames += hop_size;
+  } while ( n_frames < 100000 * hop_size);
+#endif
 
   PRINT_MSG("wrote %d frames at %dHz (%d blocks) from %s written to %s\n",
       n_frames, samplerate, n_frames / hop_size,

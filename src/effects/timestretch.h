@@ -166,6 +166,10 @@ smpl_t aubio_timestretch_get_transpose (aubio_timestretch_t * o);
 */
 uint_t aubio_timestretch_seek(aubio_timestretch_t * o, uint_t pos);
 
+uint_t aubio_timestretch_queue (aubio_timestretch_t *p, const char_t *uri, uint_t samplerate);
+
+uint_t aubio_timestretch_get_opened (aubio_timestretch_t *p);
+
 #ifdef __cplusplus
 }
 #endif
