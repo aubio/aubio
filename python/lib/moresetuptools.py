@@ -52,7 +52,7 @@ def add_local_aubio_lib(ext):
     ext.library_dirs += [os.path.join('build', 'src')]
     ext.libraries += ['aubio']
 
-def add_local_aubio_sources(ext):
+def add_local_aubio_sources(ext, usedouble = False):
     """ build aubio inside python module instead of linking against libaubio """
     print("Warning: libaubio was not built with waf, adding src/")
     # create an empty header, macros will be passed on the command line
@@ -73,9 +73,15 @@ def add_local_aubio_sources(ext):
     print("Info: looking for *optional* additional packages")
     packages = ['libavcodec', 'libavformat', 'libavutil', 'libavresample',
                 'jack',
-                'sndfile', 'samplerate',
+                'jack',
+                'sndfile',
                 #'fftw3f',
                ]
+    # samplerate only works with float
+    if usedouble == False:
+        packages += ['samplerate']
+    else:
+        print("Info: not adding libsamplerate in double precision mode")
     add_packages(packages, ext=ext)
     if 'avcodec' in ext.libraries \
             and 'avformat' in ext.libraries \
