@@ -138,7 +138,7 @@ new_aubio_pitch (const char_t * pitch_mode,
     AUBIO_ERR("pitch: got buffer_size %d, but can not be < 1\n", bufsize);
     goto beach;
   } else if (bufsize < hopsize) {
-    AUBIO_ERR("pitch: hop size (%d) is larger than win size (%d)\n", bufsize, hopsize);
+    AUBIO_ERR("pitch: hop size (%d) is larger than win size (%d)\n", hopsize, bufsize);
     goto beach;
   } else if ((sint_t)samplerate < 1) {
     AUBIO_ERR("pitch: samplerate (%d) can not be < 1\n", samplerate);
