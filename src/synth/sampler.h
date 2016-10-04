@@ -23,12 +23,17 @@
 
 /** \file
 
-  Load and play sound files.
+  Load and play a sound file.
 
   This file loads a sample and gets ready to play it.
 
   The `_do` function adds the new samples to the input, and write the result as
   the output.
+
+TODO:
+  - add _preset_threaded(level)
+  - add _set_stretch
+  - add _set_pitch
 
   \example synth/test-sampler.c
 
@@ -49,7 +54,7 @@ typedef struct _aubio_sampler_t aubio_sampler_t;
   \return the newly created ::aubio_sampler_t
 
 */
-aubio_sampler_t * new_aubio_sampler(uint_t samplerate, uint_t hop_size);
+aubio_sampler_t * new_aubio_sampler(uint_t hop_size, uint_t samplerate);
 
 /** load source in sampler
 
@@ -61,33 +66,35 @@ aubio_sampler_t * new_aubio_sampler(uint_t samplerate, uint_t hop_size);
 */
 uint_t aubio_sampler_load( aubio_sampler_t * o, const char_t * uri );
 
+/** queue source in sampler
+
+  \param o sampler, created by new_aubio_sampler()
+  \param uri the uri of the source to load
+
+  \return 0 if successfully queued, non-zero otherwise
+
+*/
+uint_t aubio_sampler_queue(aubio_sampler_t * o, const char_t * uri );
+
 /** process sampler function
 
   \param o sampler, created by new_aubio_sampler()
-  \param input input of the sampler, to be added to the output
   \param output output of the sampler
 
-This function adds the new samples from the playing source to the output.
-
-If `input` is not NULL and different from `output`, then the samples from `input`
-are added to the output.
+This function get new samples from the playing source into output.
 
 */
-void aubio_sampler_do ( aubio_sampler_t * o, const fvec_t * input, fvec_t * output);
+void aubio_sampler_do ( aubio_sampler_t * o, fvec_t * output, uint_t *read);
 
 /** process sampler function, multiple channels
 
   \param o sampler, created by new_aubio_sampler()
-  \param input input of the sampler, to be added to the output
   \param output output of the sampler
 
-This function adds the new samples from the playing source to the output.
-
-If `input` is not NULL and different from `output`, then the samples from `input`
-are added to the output.
+This function gets new samples from the playing source into output.
 
 */
-void aubio_sampler_do_multi ( aubio_sampler_t * o, const fmat_t * input, fmat_t * output);
+void aubio_sampler_do_multi ( aubio_sampler_t * o, fmat_t * output, uint_t *read);
 
 /** get current playing state
 
@@ -108,6 +115,18 @@ uint_t aubio_sampler_get_playing ( const aubio_sampler_t * o );
 */
 uint_t aubio_sampler_set_playing ( aubio_sampler_t * o, uint_t playing );
 
+uint_t aubio_sampler_get_loop(aubio_sampler_t * o);
+
+/** set current looping state
+
+  \param o sampler, created by new_aubio_sampler()
+  \param looping 0 for not looping, 1 for looping
+
+  \return 0 if successful, 1 otherwise
+
+*/
+uint_t aubio_sampler_set_loop(aubio_sampler_t * o, uint_t loop);
+
 /** play sample from start
 
   \param o sampler, created by new_aubio_sampler()
@@ -117,6 +136,24 @@ uint_t aubio_sampler_set_playing ( aubio_sampler_t * o, uint_t playing );
 */
 uint_t aubio_sampler_play ( aubio_sampler_t * o );
 
+/** play sample from start, looping it
+
+  \param o sampler, created by new_aubio_sampler()
+
+  \return 0 if successful, 1 otherwise
+
+*/
+uint_t aubio_sampler_loop ( aubio_sampler_t * o );
+
+/** play sample from start, once
+
+  \param o sampler, created by new_aubio_sampler()
+
+  \return 0 if successful, 1 otherwise
+
+*/
+uint_t aubio_sampler_trigger ( aubio_sampler_t * o );
+
 /** stop sample
 
   \param o sampler, created by new_aubio_sampler()
@@ -125,6 +162,52 @@ uint_t aubio_sampler_play ( aubio_sampler_t * o );
 
 */
 uint_t aubio_sampler_stop ( aubio_sampler_t * o );
+
+/** get end-of-file status
+
+  \param o sampler, created by new_aubio_sampler()
+
+  \return 1 when the eof is being reached, 0 otherwise
+
+*/
+uint_t aubio_sampler_get_eof(aubio_sampler_t * o);
+
+/** get end-of-file status
+
+  \param o sampler, created by new_aubio_sampler()
+
+  \return 1 when the eof is being reached, 0 otherwise
+
+*/
+uint_t aubio_sampler_get_finished (aubio_sampler_t * o);
+
+/** get samplerate
+
+  \param o sampler, created by new_aubio_sampler()
+
+  \return samplerate of the sampler
+
+*/
+uint_t aubio_sampler_get_samplerate(aubio_sampler_t * o);
+
+/** get the number of samples that were set to zero while opening a file
+
+  \param o sampler, created by new_aubio_sampler()
+
+  \return samplerate of the sampler
+
+*/
+uint_t aubio_sampler_get_waited_opening(aubio_sampler_t * o, uint_t waited);
+
+/** seek to position
+
+  \param o sampler, created by new_aubio_sampler()
+  \param pos position to seek to, in samples
+
+  \return 0 if successful, 1 otherwise
+
+*/
+uint_t aubio_sampler_seek(aubio_sampler_t * o, uint_t pos);
 
 /** destroy ::aubio_sampler_t object
 
