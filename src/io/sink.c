@@ -98,8 +98,8 @@ aubio_sink_t * new_aubio_sink(const char_t * uri, uint_t samplerate) {
     return s;
   }
 #endif /* HAVE_WAVWRITE */
-  AUBIO_ERROR("sink: failed creating %s with samplerate %dHz\n",
-      uri, samplerate);
+  //AUBIO_ERROR("sink: failed creating '%s' with samplerate %dHz\n",
+  //    uri, samplerate);
   AUBIO_FREE(s);
   return NULL;
 }
