@@ -284,7 +284,7 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
     if (err != 0) {
       char errorstr[256];
       av_strerror (err, errorstr, sizeof(errorstr));
-      AUBIO_ERR("Could not read frame in %s (%s)\n", s->path, errorstr);
+      AUBIO_ERR("source_avcodec: could not read frame in %s (%s)\n", s->path, errorstr);
       goto beach;
     }
   } while (avPacket.stream_index != s->selected_stream);
