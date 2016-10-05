@@ -193,8 +193,10 @@ uint_t aubio_sampler_get_samplerate(aubio_sampler_t * o);
 /** get the number of samples that were set to zero while opening a file
 
   \param o sampler, created by new_aubio_sampler()
+  \param waited the number of frames processed during this block
 
-  \return samplerate of the sampler
+  \return the total delay in samples when the file was successfuly opened, 0
+  otherwise
 
 */
 uint_t aubio_sampler_get_waited_opening(aubio_sampler_t * o, uint_t waited);

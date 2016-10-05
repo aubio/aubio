@@ -42,9 +42,13 @@ struct _aubio_sampler_t {
   uint_t playing;
   uint_t opened;
   uint_t loop;
-  uint_t finished;
-  uint_t eof;
+  uint_t finished;              // end of file was reached
+  uint_t eof;                   // end of file is now
 #ifdef HAVE_THREADS
+  pthread_t read_thread;        // file reading thread
+  pthread_mutex_t read_mutex;
+  pthread_cond_t read_avail;
+  pthread_cond_t read_request;
   pthread_t open_thread;        // file opening thread
   pthread_mutex_t open_mutex;
   uint_t waited;                // number of frames skipped while opening
@@ -52,9 +56,13 @@ struct _aubio_sampler_t {
   uint_t open_thread_running;
   sint_t available;             // number of samples currently available
   uint_t started;               // source warmed up
-  uint_t finish;                // flag to tell reading thread to exit
+  uint_t read_thread_finish;    // flag to tell reading thread to exit
 #endif
 };
+
+#ifdef HAVE_THREADS
+static void *aubio_sampler_readfn(void *p);
+#endif
 
 aubio_sampler_t *new_aubio_sampler(uint_t blocksize, uint_t samplerate)
 {
@@ -78,6 +86,12 @@ aubio_sampler_t *new_aubio_sampler(uint_t blocksize, uint_t samplerate)
   s->waited = 0;
   s->open_thread = 0;
   s->open_thread_running = 0;
+
+  s->read_thread_finish = 0;
+  pthread_mutex_init(&s->read_mutex, 0);
+  pthread_cond_init (&s->read_avail, 0);
+  pthread_cond_init (&s->read_request, 0);
+  pthread_create(&s->read_thread, 0, aubio_sampler_readfn, s);
 #endif
   return s;
 beach:
@@ -162,6 +176,7 @@ aubio_sampler_queue(aubio_sampler_t *o, const char_t *uri)
   o->started = 0;
   o->available = 0;
   o->next_uri = uri;
+  o->waited = 0;
   if (pthread_create(&o->open_thread, 0, aubio_sampler_openfn, o) != 0) {
     AUBIO_ERR("sampler: failed creating opening thread\n");
     ret = AUBIO_FAIL;
@@ -182,6 +197,27 @@ lock_failed:
   return aubio_sampler_load(o, uri);
 #endif
 }
+
+#ifdef HAVE_THREADS
+void *aubio_sampler_readfn(void *z) {
+  aubio_sampler_t *p = z;
+  while(1) {
+    pthread_mutex_lock(&p->read_mutex);
+    if (1) {
+      // idle
+      pthread_cond_wait(&p->read_request, &p->read_mutex);
+      if (p->read_thread_finish) {
+        goto done;
+      }
+    }
+    pthread_mutex_unlock(&p->read_mutex);
+  }
+done:
+  //AUBIO_WRN("sampler: exiting reading thread\n");
+  pthread_mutex_unlock(&p->read_mutex);
+  pthread_exit(NULL);
+}
+#endif
 
 void
 aubio_sampler_fetch_from_source(aubio_sampler_t *o, fvec_t *output, uint_t *read) {
@@ -249,18 +285,9 @@ aubio_sampler_seek(aubio_sampler_t * o, uint_t pos)
   uint_t ret = AUBIO_FAIL;
   o->finished = 0;
   if (!o->opened) return AUBIO_OK;
-#ifdef HAVE_THREADS
-  if (pthread_mutex_trylock(&o->open_mutex)) {
-    AUBIO_WRN("sampler: failed locking in seek\n");
-    return ret;
-  }
-#endif
   if (o->source) {
     ret = aubio_source_seek(o->source, pos);
   }
-#ifdef HAVE_THREADS
-  pthread_mutex_unlock(&o->open_mutex);
-#endif
   return ret;
 }
 
@@ -362,18 +389,32 @@ uint_t aubio_sampler_trigger ( aubio_sampler_t * o )
 void del_aubio_sampler( aubio_sampler_t * o )
 {
 #ifdef HAVE_THREADS
-  AUBIO_WRN("sampler: cleaning up\n");
+  void *threadret;
+
+  // clean up opening thread
   pthread_mutex_destroy(&o->open_mutex);
   if (o->open_thread_running) {
     if (pthread_cancel(o->open_thread)) {
-      AUBIO_WRN("sampler: cancelling open thread failed\n");
+      AUBIO_WRN("sampler: cancelling file opening thread failed\n");
     }
   }
-  void *threadret;
-  if (pthread_join(o->open_thread, &threadret)) {
-    AUBIO_WRN("sampler: joining open thread failed\n");
+  if (o->open_thread && pthread_join(o->open_thread, &threadret)) {
+    AUBIO_WRN("sampler: joining file opening thread failed\n");
   }
   pthread_mutex_destroy(&o->open_mutex);
+
+  // close reading thread
+  o->read_thread_finish = 1;
+  pthread_cond_signal(&o->read_request);
+  if (pthread_cancel(o->read_thread)) {
+    AUBIO_WRN("sampler: cancelling file reading thread failed\n");
+  }
+  if (pthread_join(o->read_thread, &threadret)) {
+    AUBIO_WRN("sampler: joining file reading thread failed\n");
+  }
+  pthread_mutex_destroy(&o->read_mutex);
+  pthread_cond_destroy(&o->read_avail);
+  pthread_cond_destroy(&o->read_request);
 #endif
   if (o->source) {
     del_aubio_source(o->source);
