@@ -63,6 +63,9 @@ aubio_sampler_t * new_aubio_sampler(uint_t hop_size, uint_t samplerate);
 
   \return 0 if successful, non-zero otherwise
 
+  This function attempts to load a new source, swaps the current one with the
+  newly loaded one (or NULL if loading failed), then delete the old one.
+
 */
 uint_t aubio_sampler_load( aubio_sampler_t * o, const char_t * uri );
 
@@ -73,6 +76,9 @@ uint_t aubio_sampler_load( aubio_sampler_t * o, const char_t * uri );
 
   \return 0 if successfully queued, non-zero otherwise
 
+  This function is identical to aubio_sampler_load(), except it will be called
+  in its own thread to avoid blocking calls to aubio_sampler_do().
+
 */
 uint_t aubio_sampler_queue(aubio_sampler_t * o, const char_t * uri );
 
@@ -80,8 +86,11 @@ uint_t aubio_sampler_queue(aubio_sampler_t * o, const char_t * uri );
 
   \param o sampler, created by new_aubio_sampler()
   \param output output of the sampler
+  \param read number of samples actually read
 
-This function get new samples from the playing source into output.
+  This function get new samples from the sampler and store them into output.
+
+  The output vector will be completed with 0 if too few samples are available.
 
 */
 void aubio_sampler_do ( aubio_sampler_t * o, fvec_t * output, uint_t *read);
