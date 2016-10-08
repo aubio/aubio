@@ -131,42 +131,37 @@ aubio_sampler_t *new_aubio_sampler(uint_t blocksize, uint_t samplerate)
   s->opened = 0;
   s->available = 0;
 
+  s->threaded_read = 0;
+  s->perfectloop = 0;
 #if 0 // naive mode
   s->source_blocksize = s->blocksize;
-  s->perfectloop = 0;
-#elif 0 // threaded mode
+#elif 0 // threaded mode, no ringbuffer
   s->source_blocksize = s->blocksize;
-  // FIXME: perfectloop fails if source_blocksize > 2048 ?!
-  //s->source_blocksize = 4096; //32 * s->blocksize;
-  s->perfectloop = 0;
-  s->threaded_read = 0;
-#elif 1 // unthreaded ringbuffer mode
+  s->threaded_read = 1;
+#elif 0 // unthreaded, with ringbuffer
   s->source_blocksize = 2048; //32 * s->blocksize;
-  // FIXME: perfectloop fails if source_blocksize > 2048 ?!
-  //s->source_blocksize = 4096; //32 * s->blocksize;
   s->perfectloop = 1;
+#elif 1 // threaded with ringhbuffer
+  s->source_blocksize = 2048; //32 * s->blocksize;
+  s->perfectloop = 1;
+  s->threaded_read = 1;
 #endif
+  // FIXME: perfectloop fails if source_blocksize > 2048 with source_avcodec
+  //s->source_blocksize = 8192;
 
   if (s->perfectloop || s->source_blocksize != s->blocksize) {
     s->source_output = new_fvec(s->source_blocksize);
     s->ring = new_aubio_ringbuffer(s->source_blocksize, s->blocksize);
   }
+  //s->channels = 1;
+  //s->source_moutput = new_fmat(s->source_blocksize, s->channels);
 
 #ifdef HAVE_THREADS
   aubio_sampler_open_opening_thread(s);
 
   if (s->threaded_read) {
-    s->source_blocksize = s->blocksize;
-    //s->source_output = new_fvec(s->source_blocksize);
-    s->channels = 1;
-    s->source_moutput = new_fmat(s->source_blocksize, s->channels);
+    //AUBIO_WRN("sampler: starting reading thread\n");
     aubio_sampler_open_reading_thread(s);
-  } else if (0) {
-    s->source_blocksize = s->blocksize;
-  } else {
-    //s->source_blocksize = 16*s->blocksize;
-    //s->source_blocksize = 8192; //s->blocksize;
-    //s->ring = new_aubio_ringbuffer(s->source_blocksize, s->source_blocksize);
   }
 #endif
 
@@ -335,6 +330,7 @@ lock_failed:
 #ifdef HAVE_THREADS
 
 uint_t aubio_sampler_reading_from_source_ring_fetch(aubio_sampler_t*s);
+
 void *aubio_sampler_readfn(void *z) {
   aubio_sampler_t *p = z;
   while(1) {
@@ -346,7 +342,7 @@ void *aubio_sampler_readfn(void *z) {
     } else if (p->opened && !p->started && !p->finished) {
       //AUBIO_WRN("sampler: readfn(): file started\n");
       if (p->ring) {
-        aubio_sampler_reading_from_source_ring_fetch(p);
+        p->available = aubio_sampler_reading_from_source_ring_fetch(p);
       } else {
         p->available = aubio_sampler_pull_from_source(p);
         if (p->available < (sint_t)p->source_blocksize)
@@ -483,12 +479,16 @@ aubio_sampler_reading_from_source_ring_pull(aubio_sampler_t *s, fvec_t *output,
     //AUBIO_MSG("sampler: last frame, pulling remaining %d left\n", ring_avail);
     *read = 0;
     if (ring_avail > 0) {
+      // pull remaining frames in ring buffer
       aubio_ringbuffer_pull(s->ring, output, ring_avail);
       check_wrote += ring_avail;
       *read += ring_avail;
     }
+    // signal eof, seek to 0 if looping
     aubio_sampler_do_eof(s);
+    // read new frames from source early if needed
     aubio_sampler_do_perfectloop(s);
+    // write the remaining frames
     *read += aubio_sampler_write_remaining_ring(s, output, ring_avail);
   }
 }
@@ -527,15 +527,19 @@ aubio_sampler_read_from_source_threaded(aubio_sampler_t *s, fvec_t *output,
   pthread_mutex_unlock(&s->read_mutex);
   //AUBIO_WRN("sampler: got %d available in _read_from_source\n", available);
   // read -> number of samples read
-  if (available >= (sint_t)s->blocksize) {
-    fvec_copy(s->source_output, output);
-    *read = s->blocksize;
-  } else if (available > 0) {
-    fvec_copy(s->source_output, output);
-    *read = available;
+  if (!s->perfectloop && s->source_blocksize == s->blocksize) {
+    if (available >= (sint_t)s->blocksize) {
+      fvec_copy(s->source_output, output);
+      *read = s->blocksize;
+    } else if (available > 0) {
+      fvec_copy(s->source_output, output);
+      *read = available;
+    } else {
+      fvec_zeros(output);
+      *read = 0;
+    }
   } else {
-    fvec_zeros(output);
-    *read = 0;
+    aubio_sampler_reading_from_source_ring_pull(s, output, read);
   }
   //*read = s->available;
 }
@@ -545,11 +549,7 @@ void
 aubio_sampler_read_from_source(aubio_sampler_t *s, fvec_t *output, uint_t *read) {
 #ifdef HAVE_THREADS
   if (s->threaded_read) { // if threaded
-    if (s->source_blocksize == s->blocksize) {
-      aubio_sampler_read_from_source_threaded(s, output, read);
-    } else {
-      //abort();
-    }
+    aubio_sampler_read_from_source_threaded(s, output, read);
   } else
 #endif
   {
@@ -576,13 +576,6 @@ aubio_sampler_write_remaining_ring(aubio_sampler_t *s, fvec_t *output, uint_t wr
     tmpout.data = output->data + wrote;
     tmpout.length = s->blocksize - wrote;
     aubio_ringbuffer_pull(s->ring, &tmpout, tmpout.length);
-    //*read += tmpout.length;
-#if 0
-    int ring_avail = aubio_ringbuffer_get_available(s->ring);
-    AUBIO_WRN("sampler: perfectloop, "
-        "%d left in ring, looping pulled %d more, wrote %d + %d\n",
-        ring_avail, s->available, wrote, tmpout.length);
-#endif
     check_wrote += tmpout.length;
     return tmpout.length;
   }
@@ -595,9 +588,8 @@ aubio_sampler_do_perfectloop(aubio_sampler_t *s) {
   if (s->perfectloop && s->loop) {
     s->available = aubio_sampler_pull_from_source(s);
     if (s->available <= 0) {
-      AUBIO_ERR("sampler: looping but s->available = 0 !\n");
+      AUBIO_ERR("sampler: perfectloop but s->available = 0 !\n");
     } else {
-      //AUBIO_ERR("sampler: perfectloop fetch and push more\n");
       aubio_ringbuffer_push(s->ring, s->source_output, s->available);
     }
   }
@@ -619,21 +611,7 @@ aubio_sampler_pull_from_source(aubio_sampler_t *s)
     AUBIO_ERR("sampler: trying to fetch on NULL source\n");
     return -1;
   }
-  // do actual reading
   aubio_source_do(s->source, s->source_output, &source_read);
-#if 0
-  if (source_read < s->source_blocksize) {
-    //AUBIO_ERR("sampler: _pull_from_source: short read %d < %d\n", source_read,
-    //    s->source_blocksize);
-    //aubio_sampler_do_eof(s);
-    if (s->loop) {
-      AUBIO_ERR("sampler: _pull_from_source: loop, should seeking to 0? %d / %d\n",
-          source_read, s->source_blocksize);
-      //aubio_sampler_seek(s, 0);
-    }
-  }
-  //AUBIO_ERR("sampler: _pull_from_source: read %d / %d\n", source_read, length);
-#endif
   return source_read;
 }
 
