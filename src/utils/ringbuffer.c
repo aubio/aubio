@@ -46,7 +46,7 @@ uint_t aubio_ringbuffer_push(aubio_ringbuffer_t *o, fvec_t *input, uint_t write)
     // write everything at once
     fvec_t tmp; tmp.data = o->buffer->data + o->write_pos; tmp.length = write;
     fvec_t tmpin; tmpin.data = input->data; tmpin.length = write;
-    assert(tmpin.length == tmp.length);
+    //assert(tmpin.length == tmp.length);
     fvec_copy(&tmpin, &tmp);
 
     //AUBIO_WRN("ringbuffer: push1: changing write_pos from %d\n", o->write_pos);
@@ -69,7 +69,7 @@ uint_t aubio_ringbuffer_push(aubio_ringbuffer_t *o, fvec_t *input, uint_t write)
       tmp.length = remaining;
       tmpin.data = input->data;
       tmpin.length = remaining;
-      assert(tmpin.length == tmp.length);
+      //assert(tmpin.length == tmp.length);
       fvec_copy(&tmpin, &tmp);
     }
     // write start
@@ -77,7 +77,7 @@ uint_t aubio_ringbuffer_push(aubio_ringbuffer_t *o, fvec_t *input, uint_t write)
     tmp.length = write - remaining;
     tmpin.data = input->data + remaining;
     tmpin.length = write - remaining;
-    assert(tmpin.length == tmp.length);
+    //assert(tmpin.length == tmp.length);
     fvec_copy(&tmpin, &tmp);
     //AUBIO_WRN("ringbuffer: push2: changing write_pos from %d\n", o->write_pos);
     o->write_pos += write;
@@ -93,7 +93,7 @@ uint_t aubio_ringbuffer_push(aubio_ringbuffer_t *o, fvec_t *input, uint_t write)
 }
 
 uint_t aubio_ringbuffer_pull(aubio_ringbuffer_t *o, fvec_t *output, uint_t request) {
-  if (o->available <= 0) {
+  if (o->available < (sint_t)request) {
     AUBIO_ERR("ringbuffer: pull: requested %d but %d available\n",
         request, o->available);
     return AUBIO_FAIL;
@@ -112,7 +112,7 @@ uint_t aubio_ringbuffer_pull(aubio_ringbuffer_t *o, fvec_t *output, uint_t reque
     // read everything at once
     fvec_t tmp; tmp.data = o->buffer->data + o->read_pos; tmp.length = request;
     fvec_t tmpout; tmpout.data = output->data; tmpout.length = request;
-    assert(tmpout.length == tmp.length);
+    //assert(tmpout.length == tmp.length);
     fvec_copy(&tmp, &tmpout);
     //AUBIO_WRN("ringbuffer: pull1: changing read_pos from %d\n", o->read_pos);
     o->read_pos += request;
@@ -130,14 +130,14 @@ uint_t aubio_ringbuffer_pull(aubio_ringbuffer_t *o, fvec_t *output, uint_t reque
     tmp.length = remaining;
     tmpout.data = output->data;
     tmpout.length = remaining;
-    assert(tmpout.length == tmp.length);
+    //assert(tmpout.length == tmp.length);
     fvec_copy(&tmpout, &tmp);
     // write start
     tmp.data = o->buffer->data;
     tmp.length = request - remaining;
     tmpout.data = output->data + remaining;
     tmpout.length = request - remaining;
-    assert(tmpout.length == tmp.length);
+    //assert(tmpout.length == tmp.length);
     fvec_copy(&tmp, &tmpout);
     //AUBIO_WRN("ringbuffer: pull2: changing read_pos from %d\n", o->read_pos);
     o->read_pos += request;
