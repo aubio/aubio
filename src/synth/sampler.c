@@ -63,6 +63,7 @@ struct _aubio_sampler_t {
   // reading from a table
   aubio_ringbuffer_t *ring;
   uint_t perfectloop;
+  uint_t eof_remaining;
   fvec_t *samples;
   fmat_t *msamples;
   // reading from a source
@@ -149,9 +150,10 @@ aubio_sampler_t *new_aubio_sampler(uint_t blocksize, uint_t samplerate)
   // FIXME: perfectloop fails if source_blocksize > 2048 with source_avcodec
   //s->source_blocksize = 8192;
 
-  if (s->perfectloop || s->source_blocksize != s->blocksize) {
+  if (s->threaded_read || s->perfectloop)
     s->source_output = new_fvec(s->source_blocksize);
-    s->ring = new_aubio_ringbuffer(s->source_blocksize, s->blocksize);
+  if (s->perfectloop || s->source_blocksize != s->blocksize) {
+    s->ring = new_aubio_ringbuffer(s->source_blocksize * 2, s->blocksize);
   }
   //s->channels = 1;
   //s->source_moutput = new_fmat(s->source_blocksize, s->channels);
@@ -234,6 +236,7 @@ uint_t aubio_sampler_load( aubio_sampler_t * o, const char_t * uri )
     o->uri = uri;
     o->finished = 0;
     o->eof = 0;
+    o->eof_remaining = 0;
     o->opened = 1;
     ret = AUBIO_OK;
     AUBIO_MSG("sampler: loaded %s\n", uri);
@@ -248,11 +251,12 @@ uint_t aubio_sampler_load( aubio_sampler_t * o, const char_t * uri )
     o->uri = NULL;
     o->finished = 1;
     o->eof = 0;
+    o->eof_remaining = 0;
     o->opened = 0;
     AUBIO_WRN("sampler: failed loading %s\n", uri);
   }
   if (o->ring) {
-    AUBIO_WRN("sampler: resetting ringbuffer\n");
+    //AUBIO_WRN("sampler: resetting ringbuffer\n");
     aubio_ringbuffer_reset(o->ring);
   }
   return ret;
@@ -367,39 +371,6 @@ done:
   pthread_mutex_unlock(&p->read_mutex);
   pthread_exit(NULL);
 }
-
-void *aubio_sampler_readfn_ring(void *z) {
-  aubio_sampler_t *p = z;
-  while(1) {
-    pthread_mutex_lock(&p->read_mutex);
-    if (p->open_thread_running) {
-      //AUBIO_WRN("sampler: readfn(): file is being opened\n");
-      pthread_cond_signal(&p->read_avail);
-      //pthread_cond_wait(&p->read_request, &p->read_mutex);
-    } else if (p->opened && !p->started && !p->finished) {
-      //AUBIO_WRN("sampler: readfn(): file started\n");
-      p->available = aubio_sampler_pull_from_source(p);
-      if (p->available < (sint_t)p->source_blocksize)
-        aubio_sampler_do_eof(p);
-      pthread_cond_signal(&p->read_avail);
-      if (!p->finished) {
-        pthread_cond_wait(&p->read_request, &p->read_mutex);
-      }
-    } else {
-      //AUBIO_WRN("sampler: readfn(): idle?\n");
-      //pthread_cond_signal(&p->read_avail);
-      pthread_cond_wait(&p->read_request, &p->read_mutex);
-      if (p->read_thread_finish) {
-        goto done;
-      }
-    }
-    pthread_mutex_unlock(&p->read_mutex);
-  }
-done:
-  //AUBIO_WRN("sampler: exiting reading thread\n");
-  pthread_mutex_unlock(&p->read_mutex);
-  pthread_exit(NULL);
-}
 #endif
 
 void
@@ -410,8 +381,6 @@ aubio_sampler_read(aubio_sampler_t *s, fvec_t *output, uint_t *read) {
     aubio_sampler_read_from_table(s, output, read);
   }
 }
-
-static void aubio_sampler_do_perfectloop(aubio_sampler_t *s);
 
 static void
 aubio_sampler_reading_from_source_naive(aubio_sampler_t *s, fvec_t * output,
@@ -436,33 +405,32 @@ aubio_sampler_reading_from_source_ring_fetch(aubio_sampler_t*s) {
   uint_t available = 0;
   if (ring_avail < (sint_t)s->blocksize) {
     available = aubio_sampler_pull_from_source(s);
-#if 0
-    //AUBIO_MSG("sampler: got %d / %d fetching from source\n", s->available,
-    //    s->source_blocksize);
-    if (s->available == 0) {
-      //aubio_sampler_do_eof(s);
-      //aubio_sampler_do_perfectloop(s, output);
-    }
-    if (s->available < s->source_blocksize) {
-      AUBIO_ERR("sampler: short read from source"
-          " s->available %d, ring_avail %d \n", s->available, ring_avail);
-      //s->eof = 0;
-      //abort();
-    }
-#endif
     if (available > 0) {
       aubio_ringbuffer_push(s->ring, s->source_output, available);
-    } else {
-      //if (s->playing && !s->finished)
-      //AUBIO_WRN("sampler: not reading anymore should do eof now %d\n", check_wrote);
-      // TODO: move eof fetch now
+    }
+    if (available < s->source_blocksize) {
+      if (ring_avail + available <= s->blocksize) {
+        s->eof_remaining = available + ring_avail;
+        if (s->eof_remaining == 0) s->eof_remaining = s->blocksize;
+        //AUBIO_ERR("sampler: marking special eof got: %d, in ring: %d, %d, eof remaining %d\n",
+        //    available, ring_avail, s->blocksize, s->eof_remaining);
+        if (s->loop) {
+          aubio_sampler_seek(s,0);
+          // read some frames from beginning of source for perfect looping
+          if (s->perfectloop) {
+            available = aubio_sampler_pull_from_source(s);
+            if (available <= 0) {
+              AUBIO_ERR("sampler: perfectloop but s->available = 0 !\n");
+            } else {
+              aubio_ringbuffer_push(s->ring, s->source_output, available);
+            }
+          }
+        }
+      }
     }
   }
   return available;
 }
-
-uint_t
-aubio_sampler_write_remaining_ring(aubio_sampler_t *s, fvec_t *output, uint_t wrote);
 
 static void
 aubio_sampler_reading_from_source_ring_pull(aubio_sampler_t *s, fvec_t *output,
@@ -475,8 +443,16 @@ aubio_sampler_reading_from_source_ring_pull(aubio_sampler_t *s, fvec_t *output,
     aubio_ringbuffer_pull(s->ring, output, s->blocksize);
     check_wrote += s->blocksize;
     *read = s->blocksize;
+    if (s->eof_remaining > 0) {
+      if (s->eof_remaining <= s->blocksize) {
+        s->eof = 1;
+        s->eof_remaining = 0;
+      } else if (s->eof_remaining <= s->source_blocksize) {
+        s->eof_remaining -= s->blocksize;
+      }
+    }
   } else {
-    //AUBIO_MSG("sampler: last frame, pulling remaining %d left\n", ring_avail);
+    AUBIO_MSG("sampler: last frame, pulling remaining %d left\n", ring_avail);
     *read = 0;
     if (ring_avail > 0) {
       // pull remaining frames in ring buffer
@@ -484,12 +460,11 @@ aubio_sampler_reading_from_source_ring_pull(aubio_sampler_t *s, fvec_t *output,
       check_wrote += ring_avail;
       *read += ring_avail;
     }
-    // signal eof, seek to 0 if looping
+    // signal eof
     aubio_sampler_do_eof(s);
-    // read new frames from source early if needed
-    aubio_sampler_do_perfectloop(s);
-    // write the remaining frames
-    *read += aubio_sampler_write_remaining_ring(s, output, ring_avail);
+    // finished playing, reset ringbuffer for next read
+    if (!s->playing)
+      aubio_ringbuffer_reset(s->ring);
   }
 }
 
@@ -566,32 +541,6 @@ aubio_sampler_read_from_source(aubio_sampler_t *s, fvec_t *output, uint_t *read)
       AUBIO_ERR("sampler: perfectloop but read only %d\n", *read);
     }
 #endif
-  }
-}
-
-uint_t
-aubio_sampler_write_remaining_ring(aubio_sampler_t *s, fvec_t *output, uint_t wrote){
-  if (s->perfectloop && s->loop) {
-    fvec_t tmpout;
-    tmpout.data = output->data + wrote;
-    tmpout.length = s->blocksize - wrote;
-    aubio_ringbuffer_pull(s->ring, &tmpout, tmpout.length);
-    check_wrote += tmpout.length;
-    return tmpout.length;
-  }
-  return 0;
-}
-
-void
-aubio_sampler_do_perfectloop(aubio_sampler_t *s) {
-  // perfectloop fetched new samples from start of source to ringbuffer
-  if (s->perfectloop && s->loop) {
-    s->available = aubio_sampler_pull_from_source(s);
-    if (s->available <= 0) {
-      AUBIO_ERR("sampler: perfectloop but s->available = 0 !\n");
-    } else {
-      aubio_ringbuffer_push(s->ring, s->source_output, s->available);
-    }
   }
 }
 
@@ -776,7 +725,7 @@ void del_aubio_sampler( aubio_sampler_t * o )
   aubio_sampler_close_reading_thread(o);
 #endif
   //if (o->source_output) {
-  if (o->perfectloop || o->ring) {
+  if (o->source_output && (o->threaded_read || o->perfectloop)) {
     del_fvec(o->source_output);
   }
   if (o->source_moutput) {
