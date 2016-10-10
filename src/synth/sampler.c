@@ -44,8 +44,6 @@ typedef enum {
 } aubio_sampler_reading_method;
 
 
-int check_wrote = 0;
-
 typedef enum {
   aubio_sampler_interp_pitchtime,
   aubio_sampler_interp_quad,
@@ -147,6 +145,10 @@ aubio_sampler_t *new_aubio_sampler(uint_t blocksize, uint_t samplerate)
   s->perfectloop = 1;
   s->threaded_read = 1;
 #endif
+
+  if (s->source_blocksize < s->blocksize) {
+    s->source_blocksize = s->blocksize;
+  }
   // FIXME: perfectloop fails if source_blocksize > 2048 with source_avcodec
   //s->source_blocksize = 8192;
 
@@ -228,6 +230,11 @@ uint_t aubio_sampler_load( aubio_sampler_t * o, const char_t * uri )
   aubio_source_t *oldsource = o->source, *newsource = NULL;
   newsource = new_aubio_source(uri, o->samplerate, o->source_blocksize);
   if (newsource) {
+    uint_t duration = aubio_source_get_duration(newsource);
+    if (duration < o->blocksize) {
+      AUBIO_WRN("sampler: %s is %d frames long, but blocksize is %d\n",
+          uri, duration, o->blocksize);
+    }
     o->source = newsource;
     if (oldsource) del_aubio_source(oldsource);
     if (o->samplerate == 0) {
@@ -390,7 +397,6 @@ aubio_sampler_reading_from_source_naive(aubio_sampler_t *s, fvec_t * output,
   //aubio_source_do(s->source, output, read);
   s->source_output = output;
   *read = aubio_sampler_pull_from_source(s);
-  check_wrote += s->source_blocksize;
   if (*read < s->source_blocksize) {
     //AUBIO_WRN("sampler: calling go_eof in _read_from_source()\n");
     aubio_sampler_do_eof(s);
@@ -441,7 +447,6 @@ aubio_sampler_reading_from_source_ring_pull(aubio_sampler_t *s, fvec_t *output,
   if (ring_avail >= (sint_t)s->blocksize) {
     //AUBIO_MSG("sampler: pulling %d / %d from ringbuffer\n", s->blocksize, ring_avail);
     aubio_ringbuffer_pull(s->ring, output, s->blocksize);
-    check_wrote += s->blocksize;
     *read = s->blocksize;
     if (s->eof_remaining > 0) {
       if (s->eof_remaining <= s->blocksize) {
@@ -452,12 +457,11 @@ aubio_sampler_reading_from_source_ring_pull(aubio_sampler_t *s, fvec_t *output,
       }
     }
   } else {
-    AUBIO_MSG("sampler: last frame, pulling remaining %d left\n", ring_avail);
+    //AUBIO_MSG("sampler: last frame, pulling remaining %d left\n", ring_avail);
     *read = 0;
     if (ring_avail > 0) {
       // pull remaining frames in ring buffer
       aubio_ringbuffer_pull(s->ring, output, ring_avail);
-      check_wrote += ring_avail;
       *read += ring_avail;
     }
     // signal eof
@@ -489,7 +493,6 @@ aubio_sampler_read_from_source_threaded(aubio_sampler_t *s, fvec_t *output,
     pthread_cond_signal(&s->read_request);
     available = 0;
   } else if (!s->finished) {
-    //AUBIO_ERR("sampler: _read_from_source: waiting for read avail %d\n", s->started);
     pthread_cond_signal(&s->read_request);
     pthread_cond_wait(&s->read_avail, &s->read_mutex);
     //AUBIO_ERR("sampler: _read_from_source: %d\n", s->available);
@@ -516,7 +519,6 @@ aubio_sampler_read_from_source_threaded(aubio_sampler_t *s, fvec_t *output,
   } else {
     aubio_sampler_reading_from_source_ring_pull(s, output, read);
   }
-  //*read = s->available;
 }
 #endif
 
@@ -717,7 +719,6 @@ uint_t aubio_sampler_trigger ( aubio_sampler_t * o )
 
 void del_aubio_sampler( aubio_sampler_t * o )
 {
-  AUBIO_MSG("sampler: check_wrote: %d\n", check_wrote);
 #ifdef HAVE_THREADS
   // close opening thread
   aubio_sampler_close_opening_thread(o);
