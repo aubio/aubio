@@ -82,6 +82,16 @@ uint_t aubio_sampler_load( aubio_sampler_t * o, const char_t * uri );
 */
 uint_t aubio_sampler_queue(aubio_sampler_t * o, const char_t * uri );
 
+/** set array to read from
+
+  \param o sampler, created by new_aubio_sampler()
+  \param samples the vector to set the table to
+
+  \return 0 if successfully set, non-zero otherwise
+
+*/
+uint_t aubio_sampler_set_table(aubio_sampler_t *o, fvec_t *samples);
+
 /** process sampler function
 
   \param o sampler, created by new_aubio_sampler()

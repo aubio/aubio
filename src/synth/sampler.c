@@ -58,12 +58,12 @@ struct _aubio_sampler_t {
   uint_t reading_from;
   // current interpolation mode (can be quadratic, timestretch, ...)
   uint_t interp;
-  // reading from a table
   aubio_ringbuffer_t *ring;
   uint_t perfectloop;
   uint_t eof_remaining;
-  fvec_t *samples;
-  fmat_t *msamples;
+  // reading from a table
+  fvec_t *table;
+  uint_t table_index;
   // reading from a source
   aubio_source_t *source;
   const char_t *uri;
@@ -169,6 +169,15 @@ aubio_sampler_t *new_aubio_sampler(uint_t blocksize, uint_t samplerate)
   }
 #endif
 
+#if 0
+  s->reading_from = aubio_sampler_reading_from_table;
+  s->perfectloop = 1;
+  s->threaded_read = 0;
+  s->opened = 1;
+  s->finished = 1;
+  s->table_index = 0;
+#endif
+
   return s;
 beach:
   AUBIO_FREE(s);
@@ -194,6 +203,7 @@ void aubio_sampler_open_reading_thread(aubio_sampler_t *s) {
 void aubio_sampler_close_opening_thread(aubio_sampler_t *o) {
   // clean up opening thread
   void *threadret;
+  if (!o->open_thread) return;
   pthread_mutex_destroy(&o->open_mutex);
   if (o->open_thread_running) {
     if (pthread_cancel(o->open_thread)) {
@@ -204,6 +214,7 @@ void aubio_sampler_close_opening_thread(aubio_sampler_t *o) {
     AUBIO_WRN("sampler: joining file opening thread failed\n");
   }
   pthread_mutex_destroy(&o->open_mutex);
+  o->open_thread = 0;
 }
 
 void aubio_sampler_close_reading_thread(aubio_sampler_t *o) {
@@ -221,6 +232,7 @@ void aubio_sampler_close_reading_thread(aubio_sampler_t *o) {
   pthread_mutex_destroy(&o->read_mutex);
   pthread_cond_destroy(&o->read_avail);
   pthread_cond_destroy(&o->read_request);
+  o->read_thread = 0;
 }
 #endif
 
@@ -291,6 +303,12 @@ aubio_sampler_queue(aubio_sampler_t *o, const char_t *uri)
 {
 #ifdef HAVE_THREADS
   uint_t ret = AUBIO_OK;
+
+  if (o->reading_from == aubio_sampler_reading_from_table) {
+    o->reading_from = aubio_sampler_reading_from_source;
+    o->opened = 0;
+    o->finished = 1;
+  }
   /* open uri in open_thread */
   if (o->open_thread_running) {
     // cancel previous open_thread
@@ -547,10 +565,56 @@ aubio_sampler_read_from_source(aubio_sampler_t *s, fvec_t *output, uint_t *read)
 }
 
 void
-aubio_sampler_read_from_table(aubio_sampler_t *o, fvec_t *output, uint_t *read) {
+aubio_sampler_read_from_table(aubio_sampler_t *s, fvec_t *output, uint_t *read) {
   *read = 0;
-  AUBIO_WRN("sampler: _pull_from_table not implemented for %d, %d, %d",
-      o, output->length, *read);
+  if (s->table == NULL) {
+    AUBIO_WRN("sampler: _pull_from_table but table not set %d, %d\n",
+        output->length, *read);
+  } else if (s->playing) {
+    uint_t available = s->table->length - s->table_index;
+    fvec_t tmp;
+    tmp.data = s->table->data + s->table_index;
+    if (available < s->blocksize) {
+      //AUBIO_WRN("sampler: _pull_from_table: table length %d, index: %d, read %d\n",
+      //    s->table->length, s->table_index, *read);
+      tmp.length = available;
+      fvec_t tmpout; tmpout.data = output->data; tmpout.length = available;
+      fvec_copy(&tmp, &tmpout);
+      if (s->loop && s->perfectloop) {
+        uint_t remaining = s->blocksize - available;
+        tmpout.data = output->data + available; tmpout.length = remaining;
+        tmp.data = s->table->data; tmp.length = remaining;
+        fvec_copy(&tmp, &tmpout);
+        s->table_index = remaining;
+        *read = s->blocksize;
+      } else {
+        s->table_index = 0;
+        *read = available;
+      }
+      aubio_sampler_do_eof(s);
+    } else {
+      tmp.length = s->blocksize;
+      fvec_copy(&tmp, output);
+      s->table_index += output->length;
+      *read = s->blocksize;
+    }
+  }
+}
+
+uint_t
+aubio_sampler_set_table(aubio_sampler_t *s, fvec_t *samples) {
+  if (!samples || !s) return AUBIO_FAIL;
+  if (s->reading_from == aubio_sampler_reading_from_source) {
+    //aubio_sampler_close_reading_thread(s);
+  }
+  s->table = samples;
+  //AUBIO_INF("sampler: setting table (%d long)\n", s->table->length);
+  s->table_index = 0;
+  s->reading_from = aubio_sampler_reading_from_table;
+  //s->threaded_read = 0;
+  s->opened = 1;
+  s->finished = 1;
+  return AUBIO_OK;
 }
 
 sint_t
@@ -618,6 +682,8 @@ aubio_sampler_seek(aubio_sampler_t * o, uint_t pos)
   if (!o->opened) return AUBIO_OK;
   if (o->source) {
     ret = aubio_source_seek(o->source, pos);
+  } else {
+    o->table_index = pos;
   }
   return ret;
 }
@@ -631,7 +697,8 @@ aubio_sampler_do_eof (aubio_sampler_t * o)
   if (!o->loop) {
     o->playing = 0;
   } else {
-    aubio_sampler_seek(o, 0);
+    if (o->reading_from == aubio_sampler_reading_from_source)
+      aubio_sampler_seek(o, 0);
     //o->finished = 0;
   }
 }
