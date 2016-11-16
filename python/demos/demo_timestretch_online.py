@@ -12,7 +12,7 @@ from aubio import unwrap2pi, float_type
 import numpy as np
 
 win_s = 1024
-hop_s = win_s / 8 # 87.5 % overlap
+hop_s = win_s // 8 # 87.5 % overlap
 
 warmup = win_s // hop_s - 1
 
