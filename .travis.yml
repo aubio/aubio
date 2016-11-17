@@ -83,9 +83,10 @@ install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then travis_retry pip install nose2; fi
   - |
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      travis_retry pip install --user --upgrade pip
-      travis_retry pip install --user nose2
+      travis_retry pip install --upgrade pip nose2
     fi;
+  - which pip
+  - pip --version
 
 script:
   - make create_test_sounds
