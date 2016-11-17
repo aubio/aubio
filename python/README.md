@@ -35,6 +35,8 @@ sounds.
 Testing the Python module
 -------------------------
 
+Python tests are in `python/tests` and use the [nose2 python package][nose2].
+
 To run the all the python tests, use the script:
 
     $ ./python/tests/run_all_tests
@@ -42,6 +44,8 @@ To run the all the python tests, use the script:
 Each test script can also be called one at a time. For instance:
 
     $ ./python/tests/test_note2midi.py -v
+
+[nose2]: https://github.com/nose-devs/nose2
 
 Install in a virtualenv
 -----------------------
