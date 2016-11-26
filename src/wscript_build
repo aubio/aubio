@@ -29,6 +29,11 @@ elif ctx.env['DEST_OS'] in ['emscripten']:
 else: #linux, darwin, android, mingw, ...
     build_features = ['cstlib', 'cshlib']
 
+# also install static lib
+from waflib.Tools.c import cstlib
+from waflib.Tools.fc import fcstlib
+fcstlib.inst_to = cstlib.inst_to = '${LIBDIR}'
+
 for target in build_features:
     ctx(features = 'c ' + target,
             use = uselib + ['lib_objects'],
