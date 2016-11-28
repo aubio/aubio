@@ -6,6 +6,9 @@ from numpy.testing import TestCase
 from aubio import fvec, source, sink
 from .utils import list_all_sounds, get_tmp_sink_path, del_tmp_sink_path
 
+import warnings
+warnings.filterwarnings('ignore', category=UserWarning, append=True)
+
 list_of_sounds = list_all_sounds('sounds')
 samplerates = [0, 44100, 8000, 32000]
 hop_sizes = [512, 1024, 64]
@@ -25,6 +28,26 @@ class aubio_sink_test_case(TestCase):
     def setUp(self):
         if not len(list_of_sounds):
             self.skipTest('add some sound files in \'python/tests/sounds\'')
+
+    def test_wrong_filename(self):
+        with self.assertRaises(RuntimeError):
+            sink('')
+
+    def test_wrong_samplerate(self):
+        with self.assertRaises(RuntimeError):
+            sink(get_tmp_sink_path(), -1)
+
+    def test_wrong_samplerate_too_large(self):
+        with self.assertRaises(RuntimeError):
+            sink(get_tmp_sink_path(), 1536001, 2)
+
+    def test_wrong_channels(self):
+        with self.assertRaises(RuntimeError):
+            sink(get_tmp_sink_path(), 44100, -1)
+
+    def test_wrong_channels_too_large(self):
+        with self.assertRaises(RuntimeError):
+            sink(get_tmp_sink_path(), 44100, 202020)
 
     def test_many_sinks(self):
         from tempfile import mkdtemp
