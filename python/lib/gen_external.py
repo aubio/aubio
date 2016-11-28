@@ -43,12 +43,12 @@ default_skip_objects = [
     'source_sndfile',
     'source_avcodec',
     'source_wavread',
-    #'sampler',
     'audio_unit',
     'spectral_whitening',
     'timestretch', # TODO fix parsing of uint_t *read in _do
+    'sampler', # TODO fix parsing of uint_t *read in _do
+    'ringbuffer',
 ]
-
 
 def get_preprocessor():
     # findout which compiler to use
