@@ -784,6 +784,17 @@ uint_t aubio_sampler_trigger ( aubio_sampler_t * o )
   return aubio_sampler_set_playing (o, 1);
 }
 
+uint_t aubio_sampler_set_perfectloop (aubio_sampler_t *s, uint_t perfectloop) {
+  if (!s) return AUBIO_FAIL;
+  s->perfectloop = perfectloop;
+  return AUBIO_OK;
+}
+
+uint_t aubio_sampler_get_perfectloop (aubio_sampler_t *s) {
+  if (!s) return AUBIO_FAIL;
+  return s->perfectloop;
+}
+
 void del_aubio_sampler( aubio_sampler_t * o )
 {
 #ifdef HAVE_THREADS

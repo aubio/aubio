@@ -220,6 +220,26 @@ uint_t aubio_sampler_get_samplerate(aubio_sampler_t * o);
 */
 uint_t aubio_sampler_get_waited_opening(aubio_sampler_t * o, uint_t waited);
 
+/** get the current perfect loop mode
+
+  \param o sampler, created by new_aubio_sampler()
+
+  \return the total delay in samples when the file was successfuly opened, 0
+  otherwise
+
+*/
+uint_t aubio_sampler_get_perfectloop (aubio_sampler_t *o);
+
+/** set the perfect loop mode
+
+  \param o sampler, created by new_aubio_sampler()
+  \param perfectloop 1 to set perfect loop mode, 0 to turn it of
+
+  \return AUBIO_OK on success, AUBIO_FAIL otherwise
+
+ */
+uint_t aubio_sampler_set_perfectloop (aubio_sampler_t *o, uint_t perfectloop);
+
 /** seek to position
 
   \param o sampler, created by new_aubio_sampler()
