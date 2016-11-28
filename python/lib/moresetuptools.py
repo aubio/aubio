@@ -124,7 +124,9 @@ def add_system_aubio(ext):
 
 class CleanGenerated(distutils.command.clean.clean):
     def run(self):
-        distutils.dir_util.remove_tree(output_path)
+        if os.path.isdir(output_path):
+            distutils.dir_util.remove_tree(output_path)
+        config = os.path.join('python', 'ext', 'config.h')
         distutils.command.clean.clean.run(self)
 
 from distutils.command.build_ext import build_ext as _build_ext
