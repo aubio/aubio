@@ -150,6 +150,8 @@ aubio_pitch_t *new_aubio_pitch (const char_t * method,
   \param o pitch detection object as returned by new_aubio_pitch()
   \param mode set pitch units for output
 
+  mode can be one of "Hz", "midi", "cent", or "bin". Defaults to "Hz".
+
   \return 0 if successfull, non-zero otherwise
 
 */
