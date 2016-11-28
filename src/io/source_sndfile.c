@@ -140,7 +140,7 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(const char_t * path, uint_t sa
     }
     if (s->ratio > 1) {
       // we would need to add a ring buffer for these
-      if ( (uint_t)(s->input_hop_size * s->ratio + .5)  != s->hop_size ) {
+      if ( (uint_t)FLOOR(s->input_hop_size * s->ratio + .5)  != s->hop_size ) {
         AUBIO_ERR("source_sndfile: can not upsample %s from %d to %d\n", s->path,
             s->input_samplerate, s->samplerate);
         goto beach;
