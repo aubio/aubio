@@ -769,6 +769,7 @@ uint_t aubio_sampler_loop ( aubio_sampler_t * o )
 
 uint_t aubio_sampler_trigger ( aubio_sampler_t * o )
 {
+  if (o->ring) aubio_ringbuffer_reset(o->ring);
   aubio_sampler_set_loop(o, 0);
   aubio_sampler_seek(o, 0);
   return aubio_sampler_set_playing (o, 1);
