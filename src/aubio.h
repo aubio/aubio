@@ -224,6 +224,7 @@ extern "C"
 #include "effects/timestretch.h"
 #include "utils/scale.h"
 #include "utils/hist.h"
+#include "utils/ringbuffer.h"
 #endif
 
 #ifdef __cplusplus
