@@ -687,7 +687,6 @@ aubio_sampler_seek(aubio_sampler_t * o, uint_t pos)
     o->table_index = pos < o->table->length ? pos : o->table->length - 1;
     ret = AUBIO_OK;
   }
-  o->last_read = 0;
   return ret;
 }
 
