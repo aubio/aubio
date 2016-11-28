@@ -147,7 +147,7 @@ Py_cvec_set_norm (Py_cvec * vec, PyObject *input, void * closure)
   length = PyArray_SIZE ((PyArrayObject *)input);
   if (length != vec->length) {
     PyErr_Format (PyExc_ValueError,
-        "input array has length %ld, but cvec has length %d", length,
+        "input array has length %" NPY_INTP_FMT ", but cvec has length %d", length,
         vec->length);
     return 1;
   }
@@ -168,7 +168,7 @@ Py_cvec_set_phas (Py_cvec * vec, PyObject *input, void * closure)
   length = PyArray_SIZE ((PyArrayObject *)input);
   if (length != vec->length) {
     PyErr_Format (PyExc_ValueError,
-        "input array has length %ld, but cvec has length %d", length,
+        "input array has length %" NPY_INTP_FMT ", but cvec has length %d", length,
         vec->length);
     return 1;
   }
