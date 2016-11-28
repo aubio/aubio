@@ -60,7 +60,7 @@ struct _aubio_source_avcodec_t {
   AVCodecContext *avCodecCtx;
   AVFrame *avFrame;
   AVAudioResampleContext *avr;
-  float *output;
+  smpl_t *output;
   uint_t read_samples;
   uint_t read_index;
   sint_t selected_stream;
@@ -205,7 +205,7 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t sa
   }
 
   /* allocate output for avr */
-  s->output = (float *)av_malloc(AUBIO_AVCODEC_MAX_BUFFER_SIZE * sizeof(float));
+  s->output = (smpl_t *)av_malloc(AUBIO_AVCODEC_MAX_BUFFER_SIZE * sizeof(smpl_t));
 
   s->read_samples = 0;
   s->read_index = 0;
@@ -232,6 +232,7 @@ beach:
 }
 
 void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s, uint_t multi) {
+  // create or reset resampler to/from mono/multi-channel
   if ( (multi != s->multi) || (s->avr == NULL) ) {
     int64_t input_layout = av_get_default_channel_layout(s->input_channels);
     uint_t output_channels = multi ? s->input_channels : 1;
@@ -249,7 +250,13 @@ void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s, uint_t mul
     av_opt_set_int(avr, "in_sample_rate",     s->input_samplerate,    0);
     av_opt_set_int(avr, "out_sample_rate",    s->samplerate,          0);
     av_opt_set_int(avr, "in_sample_fmt",      s->avCodecCtx->sample_fmt, 0);
+#if HAVE_AUBIO_DOUBLE
+    av_opt_set_int(avr, "out_sample_fmt",     AV_SAMPLE_FMT_DBL,      0);
+#else
     av_opt_set_int(avr, "out_sample_fmt",     AV_SAMPLE_FMT_FLT,      0);
+#endif
+    // TODO: use planar?
+    //av_opt_set_int(avr, "out_sample_fmt",     AV_SAMPLE_FMT_FLTP,      0);
     int err;
     if ( ( err = avresample_open(avr) ) < 0) {
       char errorstr[256];
