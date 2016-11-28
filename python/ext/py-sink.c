@@ -86,21 +86,13 @@ Py_sink_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
   }
 
   self->samplerate = Py_aubio_default_samplerate;
-  if ((sint_t)samplerate > 0) {
+  if (samplerate != 0) {
     self->samplerate = samplerate;
-  } else if ((sint_t)samplerate < 0) {
-    PyErr_SetString (PyExc_ValueError,
-        "can not use negative value for samplerate");
-    return NULL;
   }
 
   self->channels = 1;
-  if ((sint_t)channels > 0) {
+  if (channels != 0) {
     self->channels = channels;
-  } else if ((sint_t)channels < 0) {
-    PyErr_SetString (PyExc_ValueError,
-        "can not use negative or null value for channels");
-    return NULL;
   }
 
   return (PyObject *) self;
@@ -109,17 +101,20 @@ Py_sink_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
 static int
 Py_sink_init (Py_sink * self, PyObject * args, PyObject * kwds)
 {
-  if (self->channels == 1) {
-    self->o = new_aubio_sink ( self->uri, self->samplerate );
-  } else {
-    self->o = new_aubio_sink ( self->uri, 0 );
-    aubio_sink_preset_channels ( self->o, self->channels );
-    aubio_sink_preset_samplerate ( self->o, self->samplerate );
-  }
+  self->o = new_aubio_sink ( self->uri, 0 );
   if (self->o == NULL) {
-    PyErr_SetString (PyExc_RuntimeError, "error creating sink with this uri");
+    // error string was set in new_aubio_sink
     return -1;
   }
+  if (aubio_sink_preset_channels(self->o, self->channels) != 0) {
+    // error string was set in aubio_sink_preset_channels
+    return -1;
+  }
+  if (aubio_sink_preset_samplerate(self->o, self->samplerate) != 0) {
+    // error string was set in aubio_sink_preset_samplerate
+    return -1;
+  }
+
   self->samplerate = aubio_sink_get_samplerate ( self->o );
   self->channels = aubio_sink_get_channels ( self->o );
 
