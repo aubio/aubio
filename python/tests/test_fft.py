@@ -33,7 +33,14 @@ class aubio_fft_test_case(TestCase):
         f = fft (win_s)
         fftgrain = f (timegrain)
         assert_equal ( fftgrain.norm, 0 )
-        assert_equal ( fftgrain.phas, 0 )
+        try:
+            assert_equal ( fftgrain.phas, 0 )
+        except AssertionError:
+            assert_equal (fftgrain.phas[fftgrain.phas > 0], +pi)
+            assert_equal (fftgrain.phas[fftgrain.phas < 0], -pi)
+            assert_equal (np.abs(fftgrain.phas[np.abs(fftgrain.phas) != pi]), 0)
+            self.skipTest('fft(fvec(%d)).phas != +0, ' % win_s \
+                    + 'This is expected when using fftw3 on powerpc.')
 
     def test_impulse(self):
         """ check the transform of one impulse at a random place """
