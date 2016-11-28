@@ -152,11 +152,11 @@ aubio_sampler_t *new_aubio_sampler(uint_t blocksize, uint_t samplerate)
   // FIXME: perfectloop fails if source_blocksize > 2048 with source_avcodec
   //s->source_blocksize = 8192;
 
-  if (s->threaded_read || s->perfectloop)
-    s->source_output = new_fvec(s->source_blocksize);
   if (s->perfectloop || s->source_blocksize != s->blocksize) {
     s->ring = new_aubio_ringbuffer(s->source_blocksize * 2, s->blocksize);
   }
+  if (s->threaded_read || s->perfectloop || s->ring)
+    s->source_output = new_fvec(s->source_blocksize);
   //s->channels = 1;
   //s->source_moutput = new_fmat(s->source_blocksize, s->channels);
 
