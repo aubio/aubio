@@ -711,12 +711,6 @@ void aubio_sampler_do ( aubio_sampler_t * o, fvec_t * output, uint_t *read)
   o->eof = 0;
   if (o->opened == 1 && o->playing) {
     aubio_sampler_read(o, output, read);
-    //AUBIO_WRN("sampler: _read got %d\n", *read);
-    if (*read < o->blocksize) {
-      if (*read > 0 && o->loop) {
-        // TODO pull (hopsize - read) frames
-      }
-    }
   } else {
     fvec_zeros(output);
     *read = 0;
@@ -728,12 +722,6 @@ void aubio_sampler_do_multi ( aubio_sampler_t * o, fmat_t * output, uint_t *read
   o->eof = 0;
   if (o->opened == 1 && o->playing) {
     //aubio_sampler_read_multi(o, output, read);
-    if (*read < o->blocksize) {
-      if (*read > 0) {
-        // TODO pull (hopsize - read) frames
-        //memset(...  tail , 0)
-      }
-    }
   } else {
     fmat_zeros(output);
     *read = 0;
