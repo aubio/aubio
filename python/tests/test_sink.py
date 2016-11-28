@@ -4,7 +4,7 @@ from nose2 import main
 from nose2.tools import params
 from numpy.testing import TestCase
 from aubio import fvec, source, sink
-from utils import list_all_sounds, get_tmp_sink_path, del_tmp_sink_path
+from .utils import list_all_sounds, get_tmp_sink_path, del_tmp_sink_path
 
 list_of_sounds = list_all_sounds('sounds')
 samplerates = [0, 44100, 8000, 32000]

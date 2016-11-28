@@ -4,7 +4,7 @@ from nose2 import main
 from nose2.tools import params
 from numpy.testing import TestCase, assert_equal
 from aubio import source
-from utils import list_all_sounds
+from .utils import list_all_sounds
 import numpy as np
 
 import warnings

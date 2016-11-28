@@ -3,7 +3,7 @@
 from unittest import main
 from numpy.testing import TestCase, assert_equal, assert_almost_equal
 from aubio import fvec, digital_filter
-from utils import array_from_text_file
+from .utils import array_from_text_file
 
 class aubio_filter_test_case(TestCase):
 

@@ -3,8 +3,8 @@
 from unittest import main
 from numpy.testing import TestCase, assert_equal
 from aubio import slice_source_at_stamps
-from utils import count_files_in_directory, get_default_test_sound
-from utils import count_samples_in_directory, count_samples_in_file
+from .utils import count_files_in_directory, get_default_test_sound
+from .utils import count_samples_in_directory, count_samples_in_file
 
 import tempfile
 import shutil
