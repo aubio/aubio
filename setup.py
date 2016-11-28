@@ -37,7 +37,7 @@ except ImportError:
 if sys.platform.startswith('darwin'):
     extra_link_args += ['-framework','CoreFoundation', '-framework','AudioToolbox']
 
-sources = glob.glob(os.path.join('python', 'ext', '*.c'))
+sources = sorted(glob.glob(os.path.join('python', 'ext', '*.c')))
 
 aubio_extension = Extension("aubio._aubio",
     sources,

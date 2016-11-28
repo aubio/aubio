@@ -174,7 +174,7 @@ def print_cpp_output_results(lib, cpp_output):
 
 def generate_external(header=header, output_path=output_path, usedouble=False, overwrite=True):
     if not os.path.isdir(output_path): os.mkdir(output_path)
-    elif not overwrite: return glob.glob(os.path.join(output_path, '*.c'))
+    elif not overwrite: return sorted(glob.glob(os.path.join(output_path, '*.c')))
 
     cpp_output, cpp_objects = get_cpp_objects(header)
 

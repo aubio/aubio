@@ -58,8 +58,8 @@ def add_local_aubio_sources(ext, usedouble = False):
     # create an empty header, macros will be passed on the command line
     fake_config_header = os.path.join('python', 'ext', 'config.h')
     distutils.file_util.write_file(fake_config_header, "")
-    aubio_sources = glob.glob(os.path.join('src', '**.c'))
-    aubio_sources += glob.glob(os.path.join('src', '*', '**.c'))
+    aubio_sources = sorted(glob.glob(os.path.join('src', '**.c')))
+    aubio_sources += sorted(glob.glob(os.path.join('src', '*', '**.c')))
     ext.sources += aubio_sources
     # define macros (waf puts them in build/src/config.h)
     for define_macro in ['HAVE_STDLIB_H', 'HAVE_STDIO_H',
