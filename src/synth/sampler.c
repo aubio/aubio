@@ -468,7 +468,8 @@ aubio_sampler_reading_from_source_ring_pull(aubio_sampler_t *s, fvec_t *output,
     *read = s->blocksize;
     if (s->eof_remaining > 0) {
       if (s->eof_remaining <= s->blocksize) {
-        s->eof = 1;
+        //AUBIO_WRN("sampler: signaling eof\n");
+        s->eof = 1; // signal eof
         s->eof_remaining = 0;
       } else if (s->eof_remaining <= s->source_blocksize) {
         s->eof_remaining -= s->blocksize;
