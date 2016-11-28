@@ -258,10 +258,10 @@ uint_t aubio_sampler_load( aubio_sampler_t * o, const char_t * uri )
     o->eof_remaining = 0;
     o->opened = 1;
     ret = AUBIO_OK;
-    AUBIO_MSG("sampler: loaded %s\n", uri);
+    AUBIO_WRN("sampler: loaded %s\n", uri);
     if (o->waited) {
-      AUBIO_WRN("sampler: loading took %.2fms (%d samples)\n", 1000. *
-          o->waited / (smpl_t)o->samplerate, o->waited);
+      AUBIO_WRN("sampler: %.2fms (%d samples) taken to load %s\n", 1000. *
+          o->waited / (smpl_t)o->samplerate, o->waited, o->uri);
     }
   } else {
     o->source = NULL;
