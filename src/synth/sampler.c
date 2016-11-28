@@ -752,7 +752,6 @@ uint_t aubio_sampler_set_loop ( aubio_sampler_t * o, uint_t loop )
 
 uint_t aubio_sampler_play ( aubio_sampler_t * o )
 {
-  //aubio_source_seek (o->source, 0);
   return aubio_sampler_set_playing (o, 1);
 }
 
