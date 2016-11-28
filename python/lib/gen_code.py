@@ -21,6 +21,8 @@ aubiodefvalue = {
     'method': '"default"',
     'uri': '"none"',
     'transpose': '0.',
+    'maxwrite': 1024,
+    'maxrequest': 1024,
     }
 
 member_types = {
@@ -86,6 +88,7 @@ objoutsize = {
         'tss': 'self->buf_size',
         'pitchshift': 'self->hop_size',
         'dct': 'self->size',
+        'ringbuffer': 'self->maxrequest',
         }
 
 objinputsize = {
@@ -99,6 +102,7 @@ objinputsize = {
         'wavetable': 'self->hop_size',
         'tss': 'self->buf_size / 2 + 1',
         'pitchshift': 'self->hop_size',
+        'ringbuffer': 'self->maxwrite',
         }
 
 def get_name(proto):
