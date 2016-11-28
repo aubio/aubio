@@ -21,6 +21,7 @@ int main (int argc, char **argv)
   smpl_t transpose = 0.;
   smpl_t stretch = 1.;
   uint_t n_frames = 0, read = 0;
+  uint_t eof = 0, source_read = 0;
 
   char_t *source_path = argv[1];
   char_t *sink_path = argv[2];
@@ -38,66 +39,50 @@ int main (int argc, char **argv)
     return err;
   }
 
+  uint_t source_hopsize = 2048;
+  aubio_source_t *s = new_aubio_source(source_path, samplerate, source_hopsize);
+  if (!s) { err = 1; goto beach_source; }
+  if (samplerate == 0) samplerate = aubio_source_get_samplerate(s);
+
+  fvec_t *in = new_fvec(source_hopsize);
   fvec_t *out = new_fvec(hop_size);
   if (!out) { err = 1; goto beach_fvec; }
 
-  aubio_timestretch_t *ps = new_aubio_timestretch(source_path, mode,
-      stretch, hop_size, samplerate);
+  aubio_timestretch_t *ps = new_aubio_timestretch(mode, stretch, hop_size,
+      samplerate);
   if (!ps) { err = 1; goto beach_timestretch; }
-  if (samplerate == 0 ) samplerate = aubio_timestretch_get_samplerate(ps);
+  //if (samplerate == 0 ) samplerate = aubio_timestretch_get_samplerate(ps);
 
   aubio_sink_t *o = new_aubio_sink(sink_path, samplerate);
   if (!o) { err = 1; goto beach_sink; }
 
   if (transpose != 0) aubio_timestretch_set_transpose(ps, transpose);
 
-#if 0
   do {
-    if (aubio_timestretch_get_opened(ps) == 0)
-      PRINT_MSG("not opened!\n");
-    aubio_timestretch_get_opened(ps);
-    aubio_timestretch_set_stretch(ps, stretch);
-    aubio_timestretch_set_transpose(ps, transpose);
-    aubio_timestretch_do(ps, out, &read);
-    if (samplerate == 0) {
-      PRINT_MSG("setting samplerate now to %d\n", aubio_timestretch_get_samplerate(ps));
-      samplerate = aubio_timestretch_get_samplerate(ps);
-      aubio_sink_preset_samplerate(o, samplerate);
-      aubio_sink_preset_channels(o, 1);
+    //aubio_timestretch_set_stretch(ps, stretch);
+    //aubio_timestretch_set_transpose(ps, transpose);
+
+    while (aubio_timestretch_get_available(ps) < (sint_t)hop_size && !eof) {
+      aubio_source_do(s, in, &source_read);
+      aubio_timestretch_push(ps, in, source_read);
+      if (source_read < in->length) eof = 1;
     }
+#if 0
+    if (n_frames == hop_size * 200) {
+      PRINT_MSG("sampler: setting stretch gave %d\n",
+          aubio_timestretch_set_stretch(ps, 2.) );
+      PRINT_MSG("sampler: getting stretch gave %f\n",
+          aubio_timestretch_get_stretch(ps) );
+      PRINT_MSG("sampler: setting transpose gave %d\n",
+          aubio_timestretch_set_transpose(ps, 12.) );
+      PRINT_MSG("sampler: getting transpose gave %f\n",
+          aubio_timestretch_get_transpose(ps) );
+    }
+#endif
+    aubio_timestretch_do(ps, out, &read);
     aubio_sink_do(o, out, read);
     n_frames += read;
   } while ( read == hop_size );
-#else
-
-  aubio_timestretch_queue(ps, source_path, samplerate);
-
-  do {
-    aubio_timestretch_get_opened(ps);
-    aubio_timestretch_set_stretch(ps, stretch);
-    aubio_timestretch_set_transpose(ps, transpose);
-    aubio_timestretch_do(ps, out, &read);
-    if (n_frames == 34999 * hop_size) {
-      PRINT_MSG("instant queuing?\n");
-      aubio_timestretch_queue(ps, source_path, samplerate);
-    }
-    if (n_frames == 64999 * hop_size) {
-      PRINT_MSG("instant queuing 2\n");
-      aubio_timestretch_queue(ps, "/dev/null", samplerate);
-    }
-    if (n_frames == 54999 * hop_size) {
-      PRINT_MSG("instant queuing?\n");
-      aubio_timestretch_queue(ps, source_path, samplerate);
-    }
-    if (n_frames == 74999 * hop_size) {
-      PRINT_MSG("instant queuing?\n");
-      aubio_timestretch_queue(ps, source_path, samplerate);
-    }
-    aubio_sink_do(o, out, read);
-  //} while ( read == hop_size );
-    n_frames += hop_size;
-  } while ( n_frames < 100000 * hop_size);
-#endif
 
   PRINT_MSG("wrote %d frames at %dHz (%d blocks) from %s written to %s\n",
       n_frames, samplerate, n_frames / hop_size,
@@ -109,5 +94,7 @@ beach_sink:
 beach_timestretch:
   del_fvec(out);
 beach_fvec:
+  del_aubio_source(s);
+beach_source:
   return err;
 }
