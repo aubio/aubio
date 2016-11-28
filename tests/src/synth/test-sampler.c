@@ -19,7 +19,7 @@ int main (int argc, char **argv)
   if (argc < 3) {
     PRINT_ERR("not enough arguments, running tests\n");
     err = run_on_default_source_and_sink(main);
-    PRINT_MSG("usage: %s <input_path> <output_path> <sample_path> [samplerate]\n", argv[0]);
+    PRINT_MSG("usage: %s <input_path> <output_path> <sample_path> [samplerate] [blocksize]\n", argv[0]);
     return err;
   }
 
@@ -40,6 +40,7 @@ int main (int argc, char **argv)
   }
   sample_path[PATH_MAX - 1] = '\0';
   if ( argc >= 5 ) samplerate = atoi(argv[4]);
+  if ( argc >= 6 ) samplerate = atoi(argv[5]);
 
   fvec_t *vec = new_fvec(hop_size);
 
