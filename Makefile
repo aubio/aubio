@@ -12,14 +12,17 @@ checkwaf:
 	@[ -f waf ] || make getwaf
 
 getwaf:
-	@./scripts/get_waf.sh
+	./scripts/get_waf.sh
 
-expandwaf:
-	@[ -d wafilb ] || rm -fr waflib
-	@$(WAFCMD) --help > /dev/null
-	@mv .waf*/waflib . && rm -fr .waf*
-	@sed '/^#==>$$/,$$d' waf > waf2 && mv waf2 waf
-	@chmod +x waf
+expandwaf: getwaf
+	[ -d wafilb ] || rm -fr waflib
+	$(WAFCMD) --help > /dev/null
+	mv .waf*/waflib . && rm -fr .waf*
+	sed '/^#==>$$/,$$d' waf > waf2 && mv waf2 waf
+	chmod +x waf
+
+cleanwaf:
+	rm -rf waf waflib .waf*
 
 configure: checkwaf
 	$(WAFCMD) configure $(WAFOPTS) $(ENABLE_DOUBLE)
