@@ -43,7 +43,7 @@ void del_aubio_timestretch (aubio_timestretch_t * o UNUSED) {
 }
 
 aubio_timestretch_t *
-new_aubio_timestretch (const char_t * uri UNUSED, const char_t * method UNUSED,
+new_aubio_timestretch (const char_t * method UNUSED,
     smpl_t pitchscale UNUSED, uint_t hop_size UNUSED, uint_t samplerate UNUSED)
 {
   AUBIO_ERR ("timestretch: aubio was not compiled with rubberband\n");
@@ -86,7 +86,16 @@ uint_t aubio_timestretch_get_latency (aubio_timestretch_t * o UNUSED) {
   return 0.;
 }
 
-uint_t aubio_timestretch_seek(aubio_timestretch_t *o UNUSED, uint_t pos UNUSED) {
+uint_t aubio_timestretch_reset(aubio_timestretch_t *o UNUSED) {
+  return AUBIO_FAIL;
+}
+
+sint_t aubio_timestretch_push(aubio_timestretch_t * o UNUSED, fvec_t * in
+    UNUSED, uint_t length UNUSED) {
+  return AUBIO_FAIL;
+}
+
+sint_t aubio_timestretch_get_available(aubio_timestretch_t * o UNUSED) {
   return AUBIO_FAIL;
 }
 // end of dummy implementation

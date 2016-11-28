@@ -63,7 +63,6 @@ void del_aubio_timestretch (aubio_timestretch_t * o);
 
 /** creation of the time stretching object
 
-  \param uri path to create the source from
   \param method time stretching algorithm ("default")
   \param stretch initial time stretching factor
   \param hop_size block size at which the frames should be produced
@@ -72,8 +71,28 @@ void del_aubio_timestretch (aubio_timestretch_t * o);
   \return newly created ::aubio_timestretch_t
 
 */
-aubio_timestretch_t *new_aubio_timestretch (const char_t * uri,
-    const char_t * method, smpl_t stretch, uint_t hop_size, uint_t samplerate);
+aubio_timestretch_t *new_aubio_timestretch (const char_t * method,
+    smpl_t stretch, uint_t hop_size, uint_t samplerate);
+
+/** push length samples from in to time stretching object
+
+  \param o time stretching object as returned by ::new_aubio_timestretch()
+  \param in input vector of new samples to push to time stretching object
+  \param length number of new samples to push from input vector
+
+  \return number of currently available samples
+
+ */
+sint_t aubio_timestretch_push(aubio_timestretch_t * o, fvec_t *in, uint_t length);
+
+/** get number of currently available samples from time stretching object
+
+  \param o time stretching object as returned by ::new_aubio_timestretch()
+
+  \return number of currently available samples
+
+ */
+sint_t aubio_timestretch_get_available(aubio_timestretch_t * o);
 
 /** get the latency of the time stretching object, in samples
 
@@ -156,19 +175,14 @@ uint_t aubio_timestretch_set_transpose (aubio_timestretch_t * o, smpl_t transpos
 */
 smpl_t aubio_timestretch_get_transpose (aubio_timestretch_t * o);
 
-/** seek to a posisition the transposition of the time stretching object, in semitones
+/** reset the time stretching object
 
   \param o time stretching object as returned by ::new_aubio_timestretch()
-  \param pos position to seek to, in frames
 
-  \return transposition of the time stretching object, in semitones
+  \return 0 on success, non-zero otherwise
 
 */
-uint_t aubio_timestretch_seek(aubio_timestretch_t * o, uint_t pos);
-
-uint_t aubio_timestretch_queue (aubio_timestretch_t *p, const char_t *uri, uint_t samplerate);
-
-uint_t aubio_timestretch_get_opened (aubio_timestretch_t *p);
+uint_t aubio_timestretch_reset(aubio_timestretch_t * o);
 
 #ifdef __cplusplus
 }
