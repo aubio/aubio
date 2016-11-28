@@ -383,7 +383,7 @@ void *aubio_sampler_readfn(void *z) {
       }
     } else {
       //AUBIO_WRN("sampler: readfn(): idle?\n");
-      //pthread_cond_signal(&p->read_avail);
+      pthread_cond_signal(&p->read_avail);
       pthread_cond_wait(&p->read_request, &p->read_mutex);
       if (p->read_thread_finish) {
         goto done;
