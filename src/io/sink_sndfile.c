@@ -29,6 +29,7 @@
 #include "fvec.h"
 #include "fmat.h"
 #include "io/sink_sndfile.h"
+#include "io/ioutils.h"
 
 #define MAX_CHANNELS 6
 #define MAX_SIZE 4096
@@ -69,10 +70,14 @@ aubio_sink_sndfile_t * new_aubio_sink_sndfile(const char_t * path, uint_t sample
   s->samplerate = 0;
   s->channels = 0;
 
-  // negative samplerate given, abort
-  if ((sint_t)samplerate < 0) goto beach;
   // zero samplerate given. do not open yet
-  if ((sint_t)samplerate == 0) return s;
+  if ((sint_t)samplerate == 0) {
+    return s;
+  }
+  // invalid samplerate given, abort
+  if (aubio_io_validate_samplerate("sink_sndfile", s->path, samplerate)) {
+    goto beach;
+  }
 
   s->samplerate = samplerate;
   s->channels = 1;
@@ -89,7 +94,9 @@ beach:
 
 uint_t aubio_sink_sndfile_preset_samplerate(aubio_sink_sndfile_t *s, uint_t samplerate)
 {
-  if ((sint_t)(samplerate) <= 0) return AUBIO_FAIL;
+  if (aubio_io_validate_samplerate("sink_sndfile", s->path, samplerate)) {
+    return AUBIO_FAIL;
+  }
   s->samplerate = samplerate;
   // automatically open when both samplerate and channels have been set
   if (s->samplerate != 0 && s->channels != 0) {
@@ -100,7 +107,9 @@ uint_t aubio_sink_sndfile_preset_samplerate(aubio_sink_sndfile_t *s, uint_t samp
 
 uint_t aubio_sink_sndfile_preset_channels(aubio_sink_sndfile_t *s, uint_t channels)
 {
-  if ((sint_t)(channels) <= 0) return AUBIO_FAIL;
+  if (aubio_io_validate_channels("sink_sndfile", s->path, channels)) {
+    return AUBIO_FAIL;
+  }
   s->channels = channels;
   // automatically open when both samplerate and channels have been set
   if (s->samplerate != 0 && s->channels != 0) {

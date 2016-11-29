@@ -196,6 +196,9 @@ uint_t aubio_log(sint_t level, const char_t *fmt, ...);
 #define AUBIO_QUIT(_s)               exit(_s)
 #define AUBIO_SPRINTF                sprintf
 
+#define AUBIO_MAX_SAMPLERATE (192000*8)
+#define AUBIO_MAX_CHANNELS 1024
+
 /* pi and 2*pi */
 #ifndef M_PI
 #define PI         (3.14159265358979323846)
