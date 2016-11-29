@@ -141,7 +141,8 @@ uint_t aubio_sink_sndfile_open(aubio_sink_sndfile_t *s) {
 
   if (s->handle == NULL) {
     /* show libsndfile err msg */
-    AUBIO_ERR("sink_sndfile: Failed opening %s. %s\n", s->path, sf_strerror (NULL));
+    AUBIO_ERR("sink_sndfile: Failed opening \"%s\" with %d channels, %dHz: %s\n",
+        s->path, s->channels, s->samplerate, sf_strerror (NULL));
     return AUBIO_FAIL;
   }
 
