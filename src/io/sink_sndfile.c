@@ -31,7 +31,6 @@
 #include "io/sink_sndfile.h"
 #include "io/ioutils.h"
 
-#define MAX_CHANNELS 6
 #define MAX_SIZE 4096
 
 #if !HAVE_AUBIO_DOUBLE
@@ -148,9 +147,10 @@ uint_t aubio_sink_sndfile_open(aubio_sink_sndfile_t *s) {
 
   s->scratch_size = s->max_size*s->channels;
   /* allocate data for de/interleaving reallocated when needed. */
-  if (s->scratch_size >= MAX_SIZE * MAX_CHANNELS) {
+  if (s->scratch_size >= MAX_SIZE * AUBIO_MAX_CHANNELS) {
+    abort();
     AUBIO_ERR("sink_sndfile: %d x %d exceeds maximum aubio_sink_sndfile buffer size %d\n",
-        s->max_size, s->channels, MAX_CHANNELS * MAX_CHANNELS);
+        s->max_size, s->channels, MAX_SIZE * AUBIO_MAX_CHANNELS);
     return AUBIO_FAIL;
   }
   s->scratch_data = AUBIO_ARRAY(smpl_t,s->scratch_size);

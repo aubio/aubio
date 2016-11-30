@@ -31,7 +31,6 @@
 
 #include <errno.h>
 
-#define MAX_CHANNELS 6
 #define MAX_SIZE 4096
 
 #define FLOAT_TO_SHORT(x) (short)(x * 32768)
@@ -220,9 +219,9 @@ uint_t aubio_sink_wavwrite_open(aubio_sink_wavwrite_t *s) {
 
   s->scratch_size = s->max_size * s->channels;
   /* allocate data for de/interleaving reallocated when needed. */
-  if (s->scratch_size >= MAX_SIZE * MAX_CHANNELS) {
+  if (s->scratch_size >= MAX_SIZE * AUBIO_MAX_CHANNELS) {
     AUBIO_ERR("sink_wavwrite: %d x %d exceeds SIZE maximum buffer size %d\n",
-        s->max_size, s->channels, MAX_SIZE * MAX_CHANNELS);
+        s->max_size, s->channels, MAX_SIZE * AUBIO_MAX_CHANNELS);
     goto beach;
   }
   s->scratch_data = AUBIO_ARRAY(unsigned short,s->scratch_size);
