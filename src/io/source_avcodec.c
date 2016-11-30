@@ -278,7 +278,7 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
   AVPacket avPacket;
   av_init_packet (&avPacket);
   AVAudioResampleContext *avr = s->avr;
-  float *output = s->output;
+  smpl_t *output = s->output;
   *read_samples = 0;
 
   do
