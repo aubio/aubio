@@ -34,7 +34,7 @@ build_python:
 	python ./setup.py build_ext $(ENABLE_DOUBLE)
 
 test_python: export LD_LIBRARY_PATH=$(PWD)/build/src
-test_python:
+test_python: local_dylib
 	# clean
 	-pip uninstall -v -y aubio
 	./setup.py clean
@@ -57,8 +57,6 @@ test_python:
 local_dylib:
 	# create links from ~/lib/lib* to build/src/lib*
 	[ -f build/src/libaubio.[0-9].dylib ] && ( mkdir -p ~/lib && cp -prv build/src/libaubio.[0-9].dylib ~/lib ) || true
-
-test_python_osx: local_dylib test_python
 
 clean_python:
 	./setup.py clean

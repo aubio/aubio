@@ -86,13 +86,7 @@ install:
 
 script:
   - make create_test_sounds
-  - make build
-  - make build_python
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make test_python; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then make test_python_osx; fi
-  - make clean_python
-  - make clean
-  - make distcheck
+  - make test_python
   - make test_pure_python
 
 notifications:
