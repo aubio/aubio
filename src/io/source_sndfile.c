@@ -32,9 +32,8 @@
 
 #include "temporal/resampler.h"
 
-#define MAX_CHANNELS 6
 #define MAX_SIZE 4096
-#define MAX_SAMPLES MAX_CHANNELS * MAX_SIZE
+#define MAX_SAMPLES AUBIO_MAX_CHANNELS * MAX_SIZE
 
 #if !HAVE_AUBIO_DOUBLE
 #define aubio_sf_read_smpl sf_read_float
