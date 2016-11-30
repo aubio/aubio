@@ -502,9 +502,10 @@ uint_t aubio_source_avcodec_close(aubio_source_avcodec_t * s) {
   }
   s->avCodecCtx = NULL;
   if (s->avFormatCtx != NULL) {
-    avformat_close_input ( &(s->avFormatCtx) );
+    avformat_close_input(&s->avFormatCtx);
+    avformat_free_context(s->avFormatCtx);
+    s->avFormatCtx = NULL;
   }
-  s->avFormatCtx = NULL;
   return AUBIO_OK;
 }
 
