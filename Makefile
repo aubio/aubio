@@ -35,31 +35,54 @@ build_python:
 
 test_python: export LD_LIBRARY_PATH=$(PWD)/build/src
 test_python:
+	# clean
+	-pip uninstall -v -y aubio
+	./setup.py clean
+	$(WAFCMD) distclean
+	# build library
+	$(WAFCMD) configure build
+	# install python requirements
 	pip install -v -r requirements.txt
+	# install package
 	pip install -v .
-	nose2 --verbose
+	# can clean twice
+	./setup.py clean
+	./setup.py clean
+	# run test with installed package
+	./python/tests/run_all_tests --verbose
+	nose2 -N 4 #--verbose
+	# uninstall package
 	pip uninstall -y -v aubio
 
-test_python_osx:
+local_dylib:
 	# create links from ~/lib/lib* to build/src/lib*
 	[ -f build/src/libaubio.[0-9].dylib ] && ( mkdir -p ~/lib && cp -prv build/src/libaubio.[0-9].dylib ~/lib ) || true
-	# then run the tests
-	pip install --user -v -r requirements.txt
-	pip install --user -v .
-	nose2 --verbose
-	pip uninstall -y -v aubio
+
+test_python_osx: local_dylib test_python
 
 clean_python:
 	./setup.py clean
 
 test_pure_python:
+	# clean
 	-pip uninstall -v -y aubio
-	-rm -rf build/ python/gen/
-	-rm -f dist/*.egg
-	-pip install -v -r requirements.txt
-	CFLAGS=-Os python setup.py build_ext $(ENABLE_DOUBLE) bdist_wheel
-	pip install dist/aubio-*.whl
-	nose2 -N 4
+	-$(WAFCMD) distclean
+	./setup.py clean
+	# install python requirements
+	pip install --verbose --requirement requirements.txt
+	# compile
+	CFLAGS=-Os python setup.py build $(ENABLE_DOUBLE)
+	# needs recompile, disabled
+	#./setup.py test
+	# install package
+	pip install --verbose .
+	# can clean twice
+	./setup.py clean
+	./setup.py clean
+	# run test with installed package
+	./python/tests/run_all_tests --verbose
+	nose2 -N 4 #--verbose
+	# uninstall
 	pip uninstall -v -y aubio
 
 test_pure_python_wheel:
