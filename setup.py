@@ -19,7 +19,7 @@ __version__ = '.'.join(map(str, [AUBIO_MAJOR_VERSION,
 if AUBIO_VERSION_STATUS is not None:
     if AUBIO_VERSION_STATUS.startswith('~'):
         AUBIO_VERSION_STATUS = AUBIO_VERSION_STATUS[1:]
-    __version__ += AUBIO_VERSION_STATUS
+    #__version__ += AUBIO_VERSION_STATUS
 
 include_dirs = []
 library_dirs = []
@@ -48,7 +48,8 @@ aubio_extension = Extension("aubio._aubio",
 
 if os.path.isfile('src/aubio.h'):
     if not os.path.isdir(os.path.join('build','src')):
-        __version__ += 'a2' # python only version
+        pass
+        #__version__ += 'a2' # python only version
 
 classifiers = [
     'Development Status :: 4 - Beta',
