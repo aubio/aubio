@@ -56,8 +56,6 @@ class aubio_source_read_test_case(aubio_source_test_case_base):
             total_frames += read
             if read < f.hop_size:
                 assert_equal(samples[read:], 0)
-                if 'brownnoise' in f.uri:
-                    self.assertEquals(np.count_nonzero(samples[:read]), read)
                 break
         #result_str = "read {:.2f}s ({:d} frames in {:d} blocks at {:d}Hz) from {:s}"
         #result_params = total_frames / float(f.samplerate), total_frames, total_frames//f.hop_size, f.samplerate, f.uri
@@ -71,7 +69,14 @@ class aubio_source_read_test_case(aubio_source_test_case_base):
         except RuntimeError as e:
             self.skipTest('failed opening with hop_s = {:d}, samplerate = {:d} ({:s})'.format(hop_size, samplerate, str(e)))
         assert f.samplerate != 0
-        self.read_from_source(f)
+        read_frames = self.read_from_source(f)
+        if 'f_' in soundfile and samplerate == 0:
+            import re
+            f = re.compile('.*_\([0:9]*f\)_.*')
+            match_f = re.findall('([0-9]*)f_', soundfile)
+            if len(match_f) == 1:
+                expected_frames = int(match_f[0])
+                self.assertEqual(expected_frames, read_frames)
 
     @params(*list_of_sounds)
     def test_samplerate_none(self, p):
@@ -158,8 +163,6 @@ class aubio_source_readmulti_test_case(aubio_source_read_test_case):
             total_frames += read
             if read < f.hop_size:
                 assert_equal(samples[:,read:], 0)
-                if 'brownnoise' in f.uri:
-                    self.assertEquals(np.count_nonzero(samples[:,:read]), read)
                 break
         #result_str = "read {:.2f}s ({:d} frames in {:d} channels and {:d} blocks at {:d}Hz) from {:s}"
         #result_params = total_frames / float(f.samplerate), total_frames, f.channels, int(total_frames/f.hop_size), f.samplerate, f.uri
