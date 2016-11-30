@@ -59,6 +59,7 @@ struct _aubio_source_avcodec_t {
   AVFormatContext *avFormatCtx;
   AVCodecContext *avCodecCtx;
   AVFrame *avFrame;
+  AVPacket avPacket;
   AVAudioResampleContext *avr;
   smpl_t *output;
   uint_t read_samples;
@@ -305,7 +306,7 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
   AVFormatContext *avFormatCtx = s->avFormatCtx;
   AVCodecContext *avCodecCtx = s->avCodecCtx;
   AVFrame *avFrame = s->avFrame;
-  AVPacket avPacket;
+  AVPacket avPacket = s->avPacket;
   av_init_packet (&avPacket);
   AVAudioResampleContext *avr = s->avr;
   smpl_t *output = s->output;
@@ -506,6 +507,11 @@ uint_t aubio_source_avcodec_close(aubio_source_avcodec_t * s) {
     avformat_free_context(s->avFormatCtx);
     s->avFormatCtx = NULL;
   }
+#if FF_API_LAVF_AVCTX
+  av_packet_unref(&s->avPacket);
+#else
+  av_free_packet(&s->avPacket);
+#endif
   return AUBIO_OK;
 }
 
