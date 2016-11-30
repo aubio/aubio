@@ -63,7 +63,7 @@ aubio_sink_apple_audio_t * new_aubio_sink_apple_audio(const char_t * uri, uint_t
   s->max_frames = MAX_SIZE;
   s->async = false;
 
-  if (uri == NULL) {
+  if ( (uri == NULL) || (strlen(uri) < 1) ) {
     AUBIO_ERROR("sink_apple_audio: Aborted opening null path\n");
     goto beach;
   }
