@@ -150,7 +150,11 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t sa
   uint_t i;
   sint_t selected_stream = -1;
   for (i = 0; i < avFormatCtx->nb_streams; i++) {
+#if FF_API_LAVF_AVCTX
+    if (avFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+#else
     if (avFormatCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_AUDIO) {
+#endif
       if (selected_stream == -1) {
         selected_stream = i;
       } else {
@@ -167,12 +171,38 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t sa
   s->selected_stream = selected_stream;
 
   AVCodecContext *avCodecCtx = s->avCodecCtx;
+#if FF_API_LAVF_AVCTX
+  AVCodecParameters *codecpar = avFormatCtx->streams[selected_stream]->codecpar;
+  if (codecpar == NULL) {
+    AUBIO_ERR("source_avcodec: Could not find decoder for %s", s->path);
+    goto beach;
+  }
+  AVCodec *codec = avcodec_find_decoder(codecpar->codec_id);
+
+  /* Allocate a codec context for the decoder */
+  avCodecCtx = avcodec_alloc_context3(codec);
+  if (!avCodecCtx) {
+    AUBIO_ERR("source_avcodec: Failed to allocate the %s codec context for path %s\n",
+        av_get_media_type_string(AVMEDIA_TYPE_AUDIO), s->path);
+    goto beach;
+  }
+#else
   avCodecCtx = avFormatCtx->streams[selected_stream]->codec;
   AVCodec *codec = avcodec_find_decoder(avCodecCtx->codec_id);
+#endif
   if (codec == NULL) {
     AUBIO_ERR("source_avcodec: Could not find decoder for %s", s->path);
     goto beach;
   }
+
+#if FF_API_LAVF_AVCTX
+  /* Copy codec parameters from input stream to output codec context */
+  if ((err = avcodec_parameters_to_context(avCodecCtx, codecpar)) < 0) {
+    AUBIO_ERR("source_avcodec: Failed to copy %s codec parameters to decoder context for %s\n",
+       av_get_media_type_string(AVMEDIA_TYPE_AUDIO), s->path);
+    goto beach;
+  }
+#endif
 
   if ( ( err = avcodec_open2(avCodecCtx, codec, NULL) ) < 0) {
     char errorstr[256];
@@ -297,12 +327,34 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
   } while (avPacket.stream_index != s->selected_stream);
 
   int got_frame = 0;
+#if FF_API_LAVF_AVCTX
+  int ret = avcodec_send_packet(avCodecCtx, &avPacket);
+  if (ret < 0 && ret != AVERROR_EOF) {
+    AUBIO_ERR("source_avcodec: error when sending packet for %s\n", s->path);
+    goto beach;
+  }
+  ret = avcodec_receive_frame(avCodecCtx, avFrame);
+  if (ret >= 0) {
+    got_frame = 1;
+  }
+  if (ret < 0) {
+    if (ret == AVERROR(EAGAIN)) {
+      AUBIO_WRN("source_avcodec: output is not available right now - user must try to send new input\n");
+    } else if (ret == AVERROR_EOF) {
+      AUBIO_WRN("source_avcodec: the decoder has been fully flushed, and there will be no more output frames\n");
+    } else {
+      AUBIO_ERR("source_avcodec: decoding errors on %s\n", s->path);
+      goto beach;
+    }
+  }
+#else
   int len = avcodec_decode_audio4(avCodecCtx, avFrame, &got_frame, &avPacket);
 
   if (len < 0) {
     AUBIO_ERR("Error while decoding %s\n", s->path);
     goto beach;
   }
+#endif
   if (got_frame == 0) {
     //AUBIO_ERR("Could not get frame for (%s)\n", s->path);
     goto beach;
