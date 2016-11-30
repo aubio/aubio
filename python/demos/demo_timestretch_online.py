@@ -11,7 +11,7 @@ from aubio import source, sink, pvoc, cvec
 from aubio import unwrap2pi, float_type
 import numpy as np
 
-win_s = 1024
+win_s = 512
 hop_s = win_s // 8 # 87.5 % overlap
 
 warmup = win_s // hop_s - 1
@@ -92,8 +92,10 @@ while True:
     old_grain.norm = np.copy(cur_grain.norm)
     old_grain.phas = np.copy(cur_grain.phas)
 
-    block_read += 1
+    # until end of file
     if read < hop_s: break
+    # increment block counter
+    block_read += 1
 
 for t in range(warmup + 2): # purge the last frames from the phase vocoder
     new_grain.norm[:] = 0
