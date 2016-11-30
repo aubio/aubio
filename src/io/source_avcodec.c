@@ -387,10 +387,11 @@ beach:
 }
 
 void aubio_source_avcodec_do(aubio_source_avcodec_t * s, fvec_t * read_data, uint_t * read){
-  if (s->multi == 1) aubio_source_avcodec_reset_resampler(s, 0);
   uint_t i;
   uint_t end = 0;
   uint_t total_wrote = 0;
+  // switch from multi
+  if (s->multi == 1) aubio_source_avcodec_reset_resampler(s, 0);
   while (total_wrote < s->hop_size) {
     end = MIN(s->read_samples - s->read_index, s->hop_size - total_wrote);
     for (i = 0; i < end; i++) {
@@ -418,10 +419,11 @@ void aubio_source_avcodec_do(aubio_source_avcodec_t * s, fvec_t * read_data, uin
 }
 
 void aubio_source_avcodec_do_multi(aubio_source_avcodec_t * s, fmat_t * read_data, uint_t * read){
-  if (s->multi == 0) aubio_source_avcodec_reset_resampler(s, 1);
   uint_t i,j;
   uint_t end = 0;
   uint_t total_wrote = 0;
+  // switch from mono
+  if (s->multi == 0) aubio_source_avcodec_reset_resampler(s, 1);
   while (total_wrote < s->hop_size) {
     end = MIN(s->read_samples - s->read_index, s->hop_size - total_wrote);
     for (j = 0; j < read_data->height; j++) {
