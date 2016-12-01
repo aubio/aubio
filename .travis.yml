@@ -86,8 +86,8 @@ install:
 
 script:
   - make create_test_sounds
-  - make test_python
-  - make test_pure_python
+  - make test_lib_python_clean
+  - make test_python_only_clean
 
 notifications:
     irc:
