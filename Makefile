@@ -136,7 +136,7 @@ check_clean_python:
 	make clean_python
 	make clean_python
 
-clean:
+clean: checkwaf
 	# optionnaly clean before build
 	-$(WAFCMD) clean
 
