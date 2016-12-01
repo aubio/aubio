@@ -78,9 +78,9 @@ before_install:
        export PATH="$HOME/Library/Python/2.7/bin/:$PATH"
      fi;
 
-
 install:
-  - travis_retry pip install --upgrade pip nose2
+  - travis_retry pip install --upgrade pip
+  - travis_retry make getwaf expandwaf deps_python
   - which pip
   - pip --version
 
