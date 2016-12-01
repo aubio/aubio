@@ -85,7 +85,7 @@ build_python_extlib:
 
 deps_python:
 	# install or upgrade python requirements
-	pip install --verbose --upgrade --requirement requirements.txt
+	pip install --verbose --requirement requirements.txt
 
 # use pip or distutils?
 #install_python: install_python_with_pip
