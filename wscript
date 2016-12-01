@@ -366,7 +366,7 @@ def build(bld):
     if bld.env['TXT2MAN']:
         from waflib import TaskGen
         if 'MANDIR' not in bld.env:
-            bld.env['MANDIR'] = bld.env['PREFIX'] + '/share/man'
+            bld.env['MANDIR'] = bld.env['DATAROOTDIR'] + '/man'
         rule_str = '${TXT2MAN} -t `basename ${TGT} | cut -f 1 -d . | tr a-z A-Z`'
         rule_str += ' -r ${PACKAGE}\\ ${VERSION} -P ${PACKAGE}'
         rule_str += ' -v ${PACKAGE}\\ User\\\'s\\ manual'
@@ -386,7 +386,7 @@ def build(bld):
         bld( name = 'doxygen', rule = 'doxygen ${SRC} > /dev/null',
                 source = 'doc/web.cfg',
                 cwd = 'doc')
-        bld.install_files( '${PREFIX}' + '/share/doc/libaubio-doc',
+        bld.install_files( '${DATAROOTDIR}' + '/doc/libaubio-doc',
                 bld.path.ant_glob('doc/web/html/**'),
                 cwd = bld.path.find_dir ('doc/web'),
                 relative_trick = True)
@@ -396,7 +396,7 @@ def build(bld):
         bld( name = 'sphinx', rule = 'make html',
                 source = ['doc/conf.py'] + bld.path.ant_glob('doc/**.rst'),
                 cwd = 'doc')
-        bld.install_files( '${PREFIX}' + '/share/doc/libaubio-doc/sphinx',
+        bld.install_files( '${DATAROOTDIR}' + '/doc/libaubio-doc/sphinx',
                 bld.path.ant_glob('doc/_build/html/**'),
                 cwd = bld.path.find_dir ('doc/_build/html'),
                 relative_trick = True)
