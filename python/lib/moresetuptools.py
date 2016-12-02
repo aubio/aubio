@@ -151,8 +151,11 @@ class build_ext(_build_ext):
                     level=distutils.log.INFO)
 
     def build_extension(self, extension):
-        if self.enable_double:
+        if self.enable_double or 'HAVE_AUBIO_DOUBLE' in os.environ:
             extension.define_macros += [('HAVE_AUBIO_DOUBLE', 1)]
+            enable_double = True
+        else:
+            enable_double = False
         # seack for aubio headers and lib in PKG_CONFIG_PATH
         add_system_aubio(extension)
         # the lib was not installed on this system
@@ -166,10 +169,10 @@ class build_ext(_build_ext):
                 add_local_aubio_lib(extension)
             else:
                 # check for external dependencies
-                add_external_deps(extension, usedouble=self.enable_double)
+                add_external_deps(extension, usedouble=enable_double)
                 # add libaubio sources and look for optional deps with pkg-config
-                add_local_aubio_sources(extension, usedouble=self.enable_double)
+                add_local_aubio_sources(extension, usedouble=enable_double)
         # generate files python/gen/*.c, python/gen/aubio-generated.h
         extension.sources += generate_external(header, output_path, overwrite = False,
-                usedouble=self.enable_double)
+                usedouble=enable_double)
         return _build_ext.build_extension(self, extension)

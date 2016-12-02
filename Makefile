@@ -8,6 +8,9 @@ WAFOPTS += --verbose
 WAFOPTS += --destdir $(DESTDIR)
 # multiple jobs
 WAFOPTS += --jobs 4
+# if HAVE_AUBIO_DOUBLE is defined, pass --enable-double to waf
+# python/lib/moresetuptools.py also checks for HAVE_AUBIO_DOUBLE
+WAFOPTS += $(shell [ -z $(HAVE_AUBIO_DOUBLE) ] || echo --enable-double )
 
 DESTDIR:=$(PWD)/build/dist
 PYDESTDIR:=$(PWD)/build/pydist
@@ -22,7 +25,6 @@ MANDIR?=$(DATAROOTDIR)/man
 
 SOX=sox
 
-ENABLE_DOUBLE := $(shell [ -z $(HAVE_DOUBLE) ] || echo --enable-double )
 TESTSOUNDS := python/tests/sounds
 
 all: build
@@ -44,7 +46,7 @@ cleanwaf:
 	rm -rf waf waflib .waf*
 
 configure: checkwaf
-	$(WAFCMD) configure $(WAFOPTS) $(ENABLE_DOUBLE)
+	$(WAFCMD) configure $(WAFOPTS)
 
 build: configure
 	$(WAFCMD) build $(WAFOPTS)
@@ -81,7 +83,7 @@ delete_install:
 
 build_python:
 	# build python-aubio, using locally built libaubio if found
-	python ./setup.py build_ext $(ENABLE_DOUBLE)
+	python ./setup.py build
 
 build_python_extlib:
 	# build python-aubio using (locally) installed libaubio
@@ -162,7 +164,7 @@ check_distclean:
 	make distclean
 
 distcheck: checkwaf
-	$(WAFCMD) distcheck $(WAFOPTS) $(ENABLE_DOUBLE)
+	$(WAFCMD) distcheck $(WAFOPTS)
 
 help:
 	$(WAFCMD) --help

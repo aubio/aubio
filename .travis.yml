@@ -29,19 +29,19 @@ matrix:
     - python: 2.7
       os: linux
       compiler: gcc
-      env: ARCH=x86_64 HAVE_DOUBLE=1 WAFOPTS=--enable-fftw3
+      env: ARCH=x86_64 HAVE_AUBIO_DOUBLE=1 WAFOPTS=--enable-fftw3
     - python: 2.7
       os: linux
       compiler: gcc
-      env: ARCH=i386 HAVE_DOUBLE=1
+      env: ARCH=i386 HAVE_AUBIO_DOUBLE=1
     - python: 3.4
       os: linux
       compiler: gcc
-      env: ARCH=x86_64 HAVE_DOUBLE=1
+      env: ARCH=x86_64 HAVE_AUBIO_DOUBLE=1
     - python: 3.4
       os: linux
       compiler: gcc
-      env: ARCH=i386 HAVE_DOUBLE=1
+      env: ARCH=i386 HAVE_AUBIO_DOUBLE=1
     - language: C
       os: osx
       compiler: clang
