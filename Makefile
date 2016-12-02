@@ -12,8 +12,6 @@ WAFOPTS += --jobs 4
 DESTDIR:=$(PWD)/build/dist
 PYDESTDIR:=$(PWD)/build/pydist
 
-BUILDID=$(shell mktemp -d -p $(PWD)/dist/)
-
 # default install locations
 PREFIX?=/usr/local
 EXEC_PREFIX?=$(PREFIX)
@@ -58,14 +56,10 @@ install:
 list_installed:
 	find $(DESTDIR) -ls | \
 		sed 's|$(DESTDIR)|/«destdir»|'
-	tar --full-time --mtime=$(PWD)/src/aubio.h -jcvf $(BUILDID)/aubio-dist.tar.bz2 -C $(DESTDIR)/ .
 
 list_installed_python:
 	( find $(PYDESTDIR) -ls || make list_installed_python_package ) | \
 		sed 's|$(PYDESTDIR)|/«pydestdir»|'
-	[ -d $(PYDESTDIR) ] && \
-		tar --full-time --mtime=$(PWD)/src/aubio.h -jcvf $(BUILDID)/python-aubio-dist.tar.bz2 -C $(PYDESTDIR)/ . || \
-		true
 
 list_installed_python_package:
 	pip show -f aubio
@@ -75,7 +69,6 @@ list_installed_python_package:
 list_installed_python_package_content:
 	( [ -d $(PACKAGE_LOCATION) ] && find $(PACKAGE_LOCATION) -ls ) || \
 		unzip -l $(PACKAGE_LOCATION)
-	cp -prv $(PACKAGE_LOCATION) $(BUILDID)
 
 list_all_installed: list_installed list_installed_python
 
