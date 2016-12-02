@@ -4,6 +4,7 @@
 from __future__ import unicode_literals
 
 from aubio import note2midi, freq2note
+from nose2.tools import params
 import unittest
 
 list_of_known_notes = (
@@ -13,6 +14,9 @@ list_of_known_notes = (
         ( 'C3', 48 ),
         ( 'B3', 59 ),
         ( 'B#3', 60 ),
+        ( 'C\u266f4', 61 ),
+        ( 'C\U0001D12A4', 62 ),
+        ( 'E\U0001D12B4', 62 ),
         ( 'A4', 69 ),
         ( 'A#4', 70 ),
         ( 'Bb4', 70 ),
@@ -27,10 +31,10 @@ list_of_known_notes = (
 
 class note2midi_good_values(unittest.TestCase):
 
-    def test_note2midi_known_values(self):
+    @params(*list_of_known_notes)
+    def test_note2midi_known_values(self, note, midi):
         " known values are correctly converted "
-        for note, midi in list_of_known_notes:
-            self.assertEqual ( note2midi(note), midi )
+        self.assertEqual ( note2midi(note), midi )
 
 class note2midi_wrong_values(unittest.TestCase):
 
@@ -74,4 +78,5 @@ class freq2note_simple_test(unittest.TestCase):
         self.assertEqual("A4", freq2note(441))
 
 if __name__ == '__main__':
-    unittest.main()
+    import nose2
+    nose2.main()
