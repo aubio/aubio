@@ -3,7 +3,7 @@ WAFURL=https://waf.io/waf-1.8.22
 
 #WAFOPTS:=
 # turn on verbose mode
-#WAFOPTS += --verbose
+WAFOPTS += --verbose
 # build wafopts
 WAFOPTS += --destdir $(DESTDIR)
 # multiple jobs
@@ -11,6 +11,8 @@ WAFOPTS += --jobs 4
 
 DESTDIR:=$(PWD)/build/dist
 PYDESTDIR:=$(PWD)/build/pydist
+
+BUILDID=$(shell mktemp -d -p $(PWD)/dist/)
 
 # default install locations
 PREFIX?=/usr/local
@@ -52,13 +54,30 @@ build: configure
 install:
 	# install
 	$(WAFCMD) install $(WAFOPTS)
-	make list_installed
 
 list_installed:
-	find $(DESTDIR) -ls | sed 's|$(DESTDIR)|/«destdir»|'
+	find $(DESTDIR) -ls | \
+		sed 's|$(DESTDIR)|/«destdir»|'
+	tar --full-time --mtime=$(PWD)/src/aubio.h -jcvf $(BUILDID)/aubio-dist.tar.bz2 -C $(DESTDIR)/ .
 
 list_installed_python:
-	find $(PYDESTDIR) -ls | sed 's|$(PYDESTDIR)|/«pydestdir»|'
+	( find $(PYDESTDIR) -ls || make list_installed_python_package ) | \
+		sed 's|$(PYDESTDIR)|/«pydestdir»|'
+	[ -d $(PYDESTDIR) ] && \
+		tar --full-time --mtime=$(PWD)/src/aubio.h -jcvf $(BUILDID)/python-aubio-dist.tar.bz2 -C $(PYDESTDIR)/ . || \
+		true
+
+list_installed_python_package:
+	pip show -f aubio
+	PACKAGE_LOCATION=$(shell pip show -f aubio | grep ^Location | cut -d \  -f 2) \
+		make list_installed_python_package_content
+
+list_installed_python_package_content:
+	( [ -d $(PACKAGE_LOCATION) ] && find $(PACKAGE_LOCATION) -ls ) || \
+		unzip -l $(PACKAGE_LOCATION)
+	cp -prv $(PACKAGE_LOCATION) $(BUILDID)
+
+list_all_installed: list_installed list_installed_python
 
 uninstall:
 	# uninstall
@@ -69,7 +88,7 @@ delete_install:
 
 build_python:
 	# build python-aubio, using locally built libaubio if found
-	python ./setup.py build $(ENABLE_DOUBLE)
+	python ./setup.py build_ext $(ENABLE_DOUBLE)
 
 build_python_extlib:
 	# build python-aubio using (locally) installed libaubio
@@ -77,11 +96,9 @@ build_python_extlib:
 	[ -d $(DESTDIR)/$(LIBDIR) ]
 	[ -f $(DESTDIR)/$(LIBDIR)/pkgconfig/aubio.pc ]
 	PKG_CONFIG_PATH=$(DESTDIR)/$(LIBDIR)/pkgconfig \
-	CFLAGS="-I$(DESTDIR)/$(INCLUDEDIR) $(CFLAGS)" \
-	LDFLAGS="-L$(DESTDIR)/$(LIBDIR) $(CFLAGS)" \
+	CFLAGS="-I$(DESTDIR)/$(INCLUDEDIR)" \
+	LDFLAGS="-L$(DESTDIR)/$(LIBDIR)" \
 		make build_python
-	make list_installed
-	cat $(DESTDIR)/$(LIBDIR)/pkgconfig/aubio.pc
 
 deps_python:
 	# install or upgrade python requirements
@@ -124,9 +141,6 @@ test_python: local_dylib
 	./python/tests/run_all_tests --verbose
 	# also run with nose, multiple processes
 	nose2 -N 4
-	# list installed files
-	#find $(DESTDIR) -ls | sed 's|$(DESTDIR)||'
-	make list_installed_python
 
 clean_python:
 	./setup.py clean
@@ -139,6 +153,8 @@ check_clean_python:
 clean: checkwaf
 	# optionnaly clean before build
 	-$(WAFCMD) clean
+	# remove possible left overs
+	-rm -rf doc/_build
 
 check_clean:
 	# check cleaning after build works
@@ -170,7 +186,7 @@ create_test_sounds:
 	-$(SOX) -r 44100 -b 16 -n "$(TESTSOUNDS)/44100Hz_100f_sine441.wav"    synth 100s sine 441 	vol 0.9
 
 # build only libaubio, no python-aubio
-test_lib_only: clean distclean configure build install
+test_lib_only: clean distclean configure build install list_installed
 # additionally, clean after a fresh build
 test_lib_only_clean: test_lib_only uninstall check_clean check_distclean
 
@@ -179,7 +195,8 @@ test_lib_python: force_uninstall_python deps_python \
 	clean_python clean distclean \
 	configure build build_python \
 	install install_python \
-	test_python
+	test_python \
+	list_all_installed
 
 test_lib_python_clean: test_lib_python \
 	uninstall_python uninstall \
@@ -194,7 +211,8 @@ test_lib_install_python: force_uninstall_python deps_python \
 	install \
 	build_python_extlib \
 	install_python \
-	test_python
+	test_python \
+	list_all_installed
 
 test_lib_install_python_clean: test_lib_install_python \
 	uninstall_python \
@@ -207,7 +225,8 @@ test_python_only: force_uninstall_python deps_python \
 	clean_python clean distclean \
 	build_python \
 	install_python \
-	test_python
+	test_python \
+	list_installed_python
 
 test_python_only_clean: test_python_only \
 	uninstall_python \
