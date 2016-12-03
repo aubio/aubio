@@ -15,11 +15,13 @@ else:
 def note2midi(note):
     " convert note name to midi note number, e.g. [C-1, G9] -> [0, 127] "
     _valid_notenames = {'C': 0, 'D': 2, 'E': 4, 'F': 5, 'G': 7, 'A': 9, 'B': 11}
-    _valid_modifiers = {None: 0, u'♮': 0, '#': +1, u'♯': +1, u'\udd2a': +2,
-                        u'\U0001D12A': +2,
-                        'b': -1, u'♭': -1, u'\ufffd': -2,
-                        u'\U0001D12B': -2,
-                        }
+    _valid_modifiers = {
+            u'𝄫': -2,                        # double flat
+            u'♭': -1, 'b': -1, '\u266d': -1, # simple flat
+            u'♮': 0, '\u266e': 0, None: 0,   # natural
+            '#': +1, u'♯': +1, '\u266f': +1, # sharp
+            u'𝄪': +2,                        # double sharp
+            }
     _valid_octaves = range(-1, 10)
     if not isinstance(note, str_instances):
         raise TypeError("a string is required, got %s (%s)" % (note, str(type(note))))
