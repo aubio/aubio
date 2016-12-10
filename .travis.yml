@@ -2,16 +2,23 @@ language: python
 
 matrix:
   include:
+    - python: 3.5
+      os: linux
+      compiler: gcc
+    - python: 3.4
+      os: linux
+      compiler: gcc
     - python: 2.7
       os: linux
       compiler: gcc
-    - python: 3.4
+      env: WAFOPTS=--enable-fftw3
+    - language: C
+      os: osx
+      compiler: clang
+    - python: 3.5
       os: linux
       compiler: gcc
-    - python: 3.4
-      os: linux
-      compiler: gcc
-      env: WAFOPTS=--enable-fftw3f
+      env: HAVE_AUBIO_DOUBLE=1
     - python: 2.7
       os: linux
       compiler: gcc
@@ -20,17 +27,6 @@ matrix:
       os: linux
       compiler: gcc
       env: HAVE_AUBIO_DOUBLE=1
-    - python: 3.4
-      os: linux
-      compiler: gcc
-      env: HAVE_AUBIO_DOUBLE=1
-    - python: 3.4
-      os: linux
-      compiler: gcc
-      env: HAVE_AUBIO_DOUBLE=1
-    - language: C
-      os: osx
-      compiler: clang
     - language: C
       os: osx
       compiler: clang
@@ -42,7 +38,7 @@ matrix:
     - language: C
       os: osx
       compiler: clang
-      env: WAFOPTS=--enable-fat --disable-avcodec" HAVE_DOUBLE=1
+      env: WAFOPTS="--enable-fat --disable-avcodec" HAVE_AUBIO_DOUBLE=1
 
 addons:
   apt:
