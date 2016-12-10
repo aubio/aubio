@@ -47,10 +47,10 @@ OPTIONS
   -O, --onset method  The onset detection method to use. See ONSET METHODS
   below. Defaults to 'default'.
 
-  -t, --onset-threshold thres  Set the threshold value for the onset peak
-  picking. Typical values are typically within 0.001 and 0.900. Defaults to
-  0.1. Lower threshold values imply more onsets detected. Try 0.5 in case of
-  over-detections. Defaults to 0.3.
+  - t, --onset-threshold thres  Set the threshold value for the onset peak
+  picking. Values are typically in the range [0.001, 0.900]. Lower threshold
+  values imply more onsets detected. Increasing this threshold should reduce
+  the number of incorrect detections. Defaults to 0.3.
 
   -s, --silence sil  Set the silence threshold, in dB, under which the pitch
   will not be detected. A value of -20.0 would eliminate most onsets but the
