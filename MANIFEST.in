@@ -22,4 +22,3 @@ include python/tests/*.expected
 include doc/*.txt doc/*.rst doc/*.cfg doc/Makefile doc/make.bat doc/conf.py
 include scripts/* scripts/apple/Info.plist scripts/apple/Modules/module.modulemap
 exclude python/gen/*
-exclude python/ext/config.h
