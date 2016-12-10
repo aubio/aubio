@@ -1,5 +1,13 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
+#
+# This makefile contains simple rules to prepare, compile, test, and install
+# aubio. Try one of the following rules:
+#
+# $ make configure
+# $ make build
+# $ make install
+# $ make test_python
 
 WAFCMD=python waf
 WAFURL=https://waf.io/waf-1.8.22
@@ -105,9 +113,9 @@ deps_python:
 	pip install $(PIPOPTS) --requirement requirements.txt
 
 # use pip or distutils?
-#install_python: install_python_with_pip
+install_python: install_python_with_pip
 uninstall_python: uninstall_python_with_pip
-install_python: install_python_with_distutils
+#install_python: install_python_with_distutils
 #uninstall_python: uninstall_python_with_distutils
 
 install_python_with_pip:
