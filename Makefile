@@ -1,3 +1,6 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
 WAFCMD=python waf
 WAFURL=https://waf.io/waf-1.8.22
 
@@ -11,6 +14,8 @@ WAFOPTS += --jobs 4
 # if HAVE_AUBIO_DOUBLE is defined, pass --enable-double to waf
 # python/lib/moresetuptools.py also checks for HAVE_AUBIO_DOUBLE
 WAFOPTS += $(shell [ -z $(HAVE_AUBIO_DOUBLE) ] || echo --enable-double )
+
+PIPOPTS += --verbose
 
 DESTDIR:=$(PWD)/build/dist
 PYDESTDIR:=$(PWD)/build/pydist
@@ -97,7 +102,7 @@ build_python_extlib:
 
 deps_python:
 	# install or upgrade python requirements
-	pip install --verbose --requirement requirements.txt
+	pip install $(PIPOPTS) --requirement requirements.txt
 
 # use pip or distutils?
 #install_python: install_python_with_pip
@@ -107,14 +112,14 @@ install_python: install_python_with_distutils
 
 install_python_with_pip:
 	# install package
-	pip install --verbose .
+	pip install $(PIPOPTS) .
 
 uninstall_python_with_pip:
 	# uninstall package
 	pip uninstall -y -v aubio || make uninstall_python_with_distutils
 
 install_python_with_distutils:
-	./setup.py install $(DISTUTILSOPTS)
+	./setup.py install $(PIPOPTS) $(DISTUTILSOPTS)
 
 uninstall_python_with_distutils:
 	#./setup.py uninstall
