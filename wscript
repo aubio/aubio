@@ -354,14 +354,23 @@ def build(bld):
     bld.env['VERSION'] = VERSION
     bld.env['LIB_VERSION'] = LIB_VERSION
 
-    # add sub directories
+    # main source
     bld.recurse('src')
+
+    # add sub directories
     if bld.env['DEST_OS'] not in ['ios', 'iosimulator', 'android']:
         bld.recurse('examples')
         bld.recurse('tests')
 
+    # pkg-config template
     bld( source = 'aubio.pc.in' )
 
+    # documentation
+    txt2man(bld)
+    doxygen(bld)
+    sphinx(bld)
+
+def txt2man(bld):
     # build manpages from txt files using txt2man
     if bld.env['TXT2MAN']:
         from waflib import TaskGen
@@ -381,6 +390,7 @@ def build(bld):
                 )
         bld( source = bld.path.ant_glob('doc/*.txt') )
 
+def doxygen(bld):
     # build documentation from source files using doxygen
     if bld.env['DOXYGEN']:
         bld( name = 'doxygen', rule = 'doxygen ${SRC} > /dev/null',
@@ -391,15 +401,35 @@ def build(bld):
                 cwd = bld.path.find_dir ('doc/web'),
                 relative_trick = True)
 
+def sphinx(bld):
     # build documentation from source files using sphinx-build
     if bld.env['SPHINX']:
-        bld( name = 'sphinx', rule = 'make html',
-                source = ['doc/conf.py'] + bld.path.ant_glob('doc/**.rst'),
-                cwd = 'doc')
+        bld( name = 'sphinx', rule = '${SPHINX} -b html -a -q ../doc sphinx',
+                source = 'doc/conf.py',
+                target = ['sphinx/'])
         bld.install_files( '${DATAROOTDIR}' + '/doc/libaubio-doc/sphinx',
                 bld.path.ant_glob('doc/_build/html/**'),
                 cwd = bld.path.find_dir ('doc/_build/html'),
                 relative_trick = True)
+
+# register the previous rules as build rules
+from waflib.Build import BuildContext
+
+class build_txt2man(BuildContext):
+    cmd = 'txt2man'
+    fun = 'txt2man'
+
+class build_manpages(BuildContext):
+    cmd = 'manpages'
+    fun = 'txt2man'
+
+class build_sphinx(BuildContext):
+    cmd = 'sphinx'
+    fun = 'sphinx'
+
+class build_doxygen(BuildContext):
+    cmd = 'doxygen'
+    fun = 'doxygen'
 
 def shutdown(bld):
     from waflib import Logs
@@ -419,6 +449,7 @@ def dist(ctx):
     ctx.excl += ' **/python/lib/aubio/_aubio.so'
     ctx.excl += ' **.egg-info'
     ctx.excl += ' **/**.zip **/**.tar.bz2'
+    ctx.excl += ' **.tar.bz2'
     ctx.excl += ' **/doc/full/* **/doc/web/*'
     ctx.excl += ' **/python/*.db'
     ctx.excl += ' **/python.old/*'
