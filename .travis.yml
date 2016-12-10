@@ -30,7 +30,7 @@ matrix:
     - language: C
       os: osx
       compiler: clang
-      env: WAFOPTS=--disable-avcodec
+      env: WAFOPTS="--disable-avcodec --disable-accelerate"
     - language: C
       os: osx
       compiler: clang
@@ -38,7 +38,7 @@ matrix:
     - language: C
       os: osx
       compiler: clang
-      env: WAFOPTS="--enable-fat --disable-avcodec" HAVE_AUBIO_DOUBLE=1
+      env: WAFOPTS="--enable-fat --disable-avcodec --with-target-platform=ios"
 
 addons:
   apt:
