@@ -69,21 +69,10 @@ install:
 	$(WAFCMD) install $(WAFOPTS)
 
 list_installed:
-	find $(DESTDIR) -ls | \
-		sed 's|$(DESTDIR)|/«destdir»|'
+	find $(DESTDIR) -ls | sed 's|$(DESTDIR)|/«destdir»|'
 
 list_installed_python:
-	( find $(PYDESTDIR) -ls || make list_installed_python_package ) | \
-		sed 's|$(PYDESTDIR)|/«pydestdir»|'
-
-list_installed_python_package:
 	pip show -f aubio
-	PACKAGE_LOCATION=$(shell pip show -f aubio | grep ^Location | cut -d \  -f 2) \
-		make list_installed_python_package_content
-
-list_installed_python_package_content:
-	( [ -d $(PACKAGE_LOCATION) ] && find $(PACKAGE_LOCATION) -ls ) || \
-		unzip -l $(PACKAGE_LOCATION)
 
 list_all_installed: list_installed list_installed_python
 
@@ -240,9 +229,18 @@ test_python_only_clean: test_python_only \
 	uninstall_python \
 	check_clean_python
 
+sphinx: configure
+	$(WAFCMD) sphinx $(WAFOPTS)
 
-html:
-	cd doc && make html
+doxygen: configure
+	$(WAFCMD) doxygen $(WAFOPTS)
+
+manpages: configure
+	$(WAFCMD) manpages $(WAFOPTS)
+
+html: doxygen sphinx
+
+docs: html manpages
 
 dist: distclean expandwaf
 	$(WAFCMD) dist
