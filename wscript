@@ -83,8 +83,8 @@ def options(ctx):
     add_option_enable_disable(ctx, 'apple-audio', default = None,
             help_str = 'use CoreFoundation (darwin only) (auto)',
             help_disable_str = 'do not use CoreFoundation framework')
-    add_option_enable_disable(ctx, 'atlas', default = None,
-            help_str = 'use Atlas library (auto)',
+    add_option_enable_disable(ctx, 'atlas', default = False,
+            help_str = 'use Atlas library (no)',
             help_disable_str = 'do not use Atlas library')
     add_option_enable_disable(ctx, 'wavread', default = True,
             help_str = 'compile with source_wavread (default)',
@@ -151,9 +151,15 @@ def configure(ctx):
             ctx.env.FRAMEWORK += ['CoreFoundation', 'AudioToolbox']
             ctx.define('HAVE_SOURCE_APPLE_AUDIO', 1)
             ctx.define('HAVE_SINK_APPLE_AUDIO', 1)
+            ctx.msg('Checking for AudioToolbox.framework', 'yes')
+        else:
+            ctx.msg('Checking for AudioToolbox.framework', 'no (disabled)', color = 'YELLOW')
         if (ctx.options.enable_accelerate != False):
             ctx.define('HAVE_ACCELERATE', 1)
             ctx.env.FRAMEWORK += ['Accelerate']
+            ctx.msg('Checking for Accelerate framework', 'yes')
+        else:
+            ctx.msg('Checking for AudioToolbox framework', 'no (disabled)', color = 'YELLOW')
 
     if target_platform in [ 'ios', 'iosimulator' ]:
         MINSDKVER="6.1"
