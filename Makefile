@@ -113,7 +113,8 @@ install_python_with_pip:
 
 uninstall_python_with_pip:
 	# uninstall package
-	pip uninstall -y -v aubio || make uninstall_python_with_distutils
+	( pip show aubio | grep -l aubio > /dev/null ) && \
+	pip uninstall -y -v aubio || echo "info: aubio package is not installed"
 
 install_python_with_distutils:
 	./setup.py install $(PIPOPTS) $(DISTUTILSOPTS)
