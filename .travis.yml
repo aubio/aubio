@@ -39,8 +39,12 @@ matrix:
       compiler: clang
       env: WAFOPTS="--with-target-platform=ios --disable-avcodec" AUBIO_NOTESTS=1
 
+# use trusty
 dist: trusty
 sudo: required
+
+# use xcode8
+osx_image: xcode8
 
 addons:
   apt:
