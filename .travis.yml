@@ -40,7 +40,7 @@ matrix:
       env: WAFOPTS="--with-target-platform=ios --disable-avcodec" AUBIO_NOTESTS=1
 
 dist: trusty
-sudo: false
+sudo: required
 
 addons:
   apt:
