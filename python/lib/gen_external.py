@@ -14,7 +14,6 @@ skip_objects = [
   'pvoc',
   'filter',
   'filterbank',
-  #'resampler',
   # AUBIO_UNSTABLE
   'hist',
   'parameter',
