@@ -47,7 +47,7 @@ OPTIONS
   -O, --onset method  The onset detection method to use. See ONSET METHODS
   below. Defaults to 'default'.
 
-  - t, --onset-threshold thres  Set the threshold value for the onset peak
+  -t, --onset-threshold thres  Set the threshold value for the onset peak
   picking. Values are typically in the range [0.001, 0.900]. Lower threshold
   values imply more onsets detected. Increasing this threshold should reduce
   the number of incorrect detections. Defaults to 0.3.

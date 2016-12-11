@@ -34,9 +34,9 @@ OPTIONS
   -b, --beat  Use beat locations instead of onset locations.
 
   -t, --onset-threshold thres  Set the threshold value for the onset peak
-  picking. Typical values are typically within 0.001 and 0.900. Defaults to
-  0.1. Lower threshold values imply more onsets detected. Try 0.5 in case of
-  over-detections. Defaults to 0.3.
+  picking. Values are typically in the range [0.001, 0.900]. Lower threshold
+  values imply more onsets detected. Increasing this threshold should reduce
+  the number of incorrect detections. Defaults to 0.3.
 
   -c, --cut  Cut input sound file at detected labels. A new sound files for
   each slice will be created in the current directory.
