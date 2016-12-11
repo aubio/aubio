@@ -328,6 +328,7 @@ def configure(ctx):
 
     # the following defines will be passed as arguments to the compiler
     # instead of being written to src/config.h
+    ctx.define('HAVE_CONFIG_H', 1)
 
     # add some defines used in examples
     ctx.define('AUBIO_PREFIX', ctx.env['PREFIX'])
