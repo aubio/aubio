@@ -67,7 +67,8 @@ install:
 
 script:
   - make create_test_sounds
-  - if [[ -z "$AUBIO_NOTESTS" ]]; then
+  - |
+    if [[ -z "$AUBIO_NOTESTS" ]]; then
       make test_lib_python_clean
       make test_python_only_clean
     else
