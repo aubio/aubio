@@ -13,6 +13,7 @@ matrix:
       compiler: gcc
     - language: C
       os: osx
+      osx_image: xcode8
       compiler: clang
     - python: 3.5
       os: linux
@@ -28,23 +29,28 @@ matrix:
       env: CFLAGS="`dpkg-buildflags --get CFLAGS`" LDFLAGS="`dpkg-buildflags --get LDFLAGS`"
     - language: C
       os: osx
+      osx_image: xcode8
       compiler: clang
       env: CFLAGS="-O0" WAFOPTS="--disable-avcodec --disable-accelerate"
     - language: C
       os: osx
+      osx_image: xcode8
       compiler: clang
       env: WAFOPTS="--enable-fat --disable-avcodec" HAVE_AUBIO_DOUBLE=1
     - language: C
       os: osx
+      osx_image: xcode8
       compiler: clang
       env: WAFOPTS="--with-target-platform=ios --disable-avcodec" AUBIO_NOTESTS=1
+    - language: C
+      os: osx
+      osx_image: xcode8
+      compiler: clang
+      env: WAFOPTS="--with-target-platform=iosimulator --disable-avcodec" AUBIO_NOTESTS=1
 
 # use trusty
 dist: trusty
 sudo: required
-
-# use xcode8
-osx_image: xcode8
 
 addons:
   apt:
