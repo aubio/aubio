@@ -18,7 +18,6 @@
 
 */
 
-#include "config.h"
 #include "aubio_priv.h"
 #include "parameter.h"
 

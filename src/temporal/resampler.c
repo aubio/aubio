@@ -18,8 +18,6 @@
 
 */
 
-#include "config.h"
-
 #include "aubio_priv.h"
 #include "fvec.h"
 #include "temporal/resampler.h"

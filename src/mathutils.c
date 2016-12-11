@@ -24,7 +24,6 @@
 #include "fvec.h"
 #include "mathutils.h"
 #include "musicutils.h"
-#include "config.h"
 
 /** Window types */
 typedef enum

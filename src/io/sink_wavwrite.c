@@ -19,11 +19,10 @@
 */
 
 
-#include "config.h"
+#include "aubio_priv.h"
 
 #ifdef HAVE_WAVWRITE
 
-#include "aubio_priv.h"
 #include "fvec.h"
 #include "fmat.h"
 #include "io/sink_wavwrite.h"

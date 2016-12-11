@@ -18,11 +18,9 @@
 
 */
 
-#include "config.h"
+#include "aubio_priv.h"
 
 #ifdef HAVE_SINK_APPLE_AUDIO
-
-#include "aubio_priv.h"
 #include "fvec.h"
 #include "fmat.h"
 #include "io/sink_apple_audio.h"

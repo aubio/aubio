@@ -18,8 +18,7 @@
 
 */
 
-
-#include "config.h"
+#include "aubio_priv.h"
 
 #ifdef HAVE_LIBAV
 

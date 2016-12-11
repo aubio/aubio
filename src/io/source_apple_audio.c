@@ -18,11 +18,10 @@
 
 */
 
-#include "config.h"
+#include "aubio_priv.h"
 
 #ifdef HAVE_SOURCE_APPLE_AUDIO
 
-#include "aubio_priv.h"
 #include "fvec.h"
 #include "fmat.h"
 #include "io/source_apple_audio.h"
