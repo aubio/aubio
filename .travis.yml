@@ -11,18 +11,17 @@ matrix:
     - python: 2.7
       os: linux
       compiler: gcc
-      env: WAFOPTS=--enable-fftw3
     - language: C
       os: osx
       compiler: clang
     - python: 3.5
       os: linux
       compiler: gcc
-      env: HAVE_AUBIO_DOUBLE=1
-    - python: 2.7
+      env: CFLAGS="-Os" WAFOPTS="--disable-samplerate --disable-sndfile"
+    - python: 3.4
       os: linux
       compiler: gcc
-      env: HAVE_AUBIO_DOUBLE=1 WAFOPTS=--enable-fftw3
+      env: HAVE_AUBIO_DOUBLE=1 CFLAGS="-O3" WAFOPTS="--enable-fftw3"
     - python: 2.7
       os: linux
       compiler: gcc
@@ -38,7 +37,7 @@ matrix:
     - language: C
       os: osx
       compiler: clang
-      env: WAFOPTS="--enable-fat --disable-avcodec --with-target-platform=ios"
+      env: WAFOPTS="--with-target-platform=ios --disable-avcodec" AUBIO_NOTESTS=1
 
 addons:
   apt:
@@ -68,8 +67,12 @@ install:
 
 script:
   - make create_test_sounds
-  - make test_lib_python_clean
-  - make test_python_only_clean
+  - if [[ -z "$AUBIO_NOTESTS" ]]; then
+      make test_lib_python_clean
+      make test_python_only_clean
+    else
+      make test_lib_only_clean
+    fi;
 
 notifications:
     irc:
