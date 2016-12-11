@@ -18,6 +18,11 @@ Additionally, the python module comes with the following script:
  - ``aubiocut`` slices sound files at onset or beat timestamps
 
 
+.. toctree::
+
+   cli_features
+
+
 ``aubioonset``
 --------------
 
