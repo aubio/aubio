@@ -31,22 +31,37 @@ matrix:
       os: osx
       osx_image: xcode8
       compiler: clang
-      env: CFLAGS="-O0" WAFOPTS="--disable-avcodec --disable-accelerate"
+      env: CFLAGS="-Os" HAVE_AUBIO_DOUBLE=1 WAFOPTS="--disable-accelerate"
     - language: C
       os: osx
       osx_image: xcode8
       compiler: clang
-      env: WAFOPTS="--enable-fat --disable-avcodec" HAVE_AUBIO_DOUBLE=1
+      env: WAFOPTS="--enable-fat --disable-avcodec --disable-sndfile"
     - language: C
       os: osx
       osx_image: xcode8
       compiler: clang
-      env: WAFOPTS="--with-target-platform=ios --disable-avcodec" AUBIO_NOTESTS=1
+      env: WAFOPTS="--with-target-platform=ios --disable-avcodec --disable-sndfile" AUBIO_NOTESTS=1
     - language: C
       os: osx
       osx_image: xcode8
       compiler: clang
-      env: WAFOPTS="--with-target-platform=iosimulator --disable-avcodec" AUBIO_NOTESTS=1
+      env: WAFOPTS="--with-target-platform=iosimulator --disable-avcodec --disable-sndfile" AUBIO_NOTESTS=1
+    - language: C
+      os: osx
+      osx_image: xcode8.2
+      compiler: clang
+      env: WAFOPTS="--enable-fat --disable-avcodec --disable-sndfile"
+    - language: C
+      os: osx
+      osx_image: xcode8.2
+      compiler: clang
+      env: WAFOPTS="--with-target-platform=ios --disable-avcodec --disable-sndfile" AUBIO_NOTESTS=1
+    - language: C
+      os: osx
+      osx_image: xcode8.2
+      compiler: clang
+      env: WAFOPTS="--with-target-platform=iosimulator --disable-avcodec --disable-sndfile" AUBIO_NOTESTS=1
 
 # use trusty
 dist: trusty
@@ -73,6 +88,7 @@ before_install:
        brew update
        brew install sox
        brew install ffmpeg
+       brew install libsndfile
        export PATH="$HOME/Library/Python/2.7/bin/:$PATH"
      fi;
 
