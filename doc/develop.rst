@@ -1,3 +1,5 @@
+.. _develop:
+
 Developping with aubio
 ======================
 

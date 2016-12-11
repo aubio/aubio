@@ -10,25 +10,13 @@ aubio features include segmenting a sound file before each of its attacks,
 performing pitch detection, tapping the beat and producing midi streams from
 live audio.
 
-Features
-========
+Quick links
+===========
 
-aubio provides several algorithms and routines, including:
-
-- several onset detection methods
-- different pitch detection methods
-- tempo tracking and beat detection
-- MFCC (mel-frequency cepstrum coefficients)
-- FFT and phase vocoder
-- up/down-sampling
-- digital filters (low pass, high pass, and more)
-- spectral filtering
-- transient/steady-state separation
-- sound file read and write access
-- various mathematics utilities for music applications
-
-The name aubio comes from *audio* with a typo: some errors are likely to be
-found in the results.
+* :ref:`python`
+* :ref:`manpages`
+* :ref:`develop`
+* :ref:`building`
 
 Current status
 ==============
@@ -73,10 +61,33 @@ Project pages
 * `Landscape python code validation <https://landscape.io/github/aubio/aubio/master>`_
 * `ReadTheDocs documentation <https://aubio.readthedocs.io/en/latest/>`_
 
-Copyright and License
-=====================
+Features
+========
+
+aubio provides several algorithms and routines, including:
+
+- several onset detection methods
+- different pitch detection methods
+- tempo tracking and beat detection
+- MFCC (mel-frequency cepstrum coefficients)
+- FFT and phase vocoder
+- up/down-sampling
+- digital filters (low pass, high pass, and more)
+- spectral filtering
+- transient/steady-state separation
+- sound file read and write access
+- various mathematics utilities for music applications
+
+The name aubio comes from *audio* with a typo: some errors are likely to be
+found in the results.
+
+Copyright
+=========
 
 Copyright © 2003-2016 Paul Brossier <piem@aubio.org>
+
+License
+=======
 
 aubio is a `free <http://www.debian.org/intro/free>`_ and `open source
 <http://www.opensource.org/docs/definition.php>`_ software; **you** can

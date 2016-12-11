@@ -15,5 +15,5 @@ To compile aubio form source, first check the :ref:`requirements`, then read
    :maxdepth: 2
 
    download
-   requirements
    building
+   requirements
