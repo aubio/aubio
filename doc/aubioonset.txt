@@ -52,7 +52,7 @@ OPTIONS
   values imply more onsets detected. Increasing this threshold should reduce
   the number of incorrect detections. Defaults to 0.3.
 
-  -s, --silence sil  Set the silence threshold, in dB, under which the pitch
+  -s, --silence sil  Set the silence threshold, in dB, under which the onset
   will not be detected. A value of -20.0 would eliminate most onsets but the
   loudest ones. A value of -90.0 would select all onsets. Defaults to -90.0.
 
