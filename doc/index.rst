@@ -30,32 +30,6 @@ aubio provides several algorithms and routines, including:
 The name aubio comes from *audio* with a typo: some errors are likely to be
 found in the results.
 
-Content
-=======
-
-.. toctree::
-   :maxdepth: 2
-
-   installing
-   cli
-   python_module
-   develop
-
-Project pages
-=============
-
-* `Project homepage`_: https://aubio.org
-* `aubio on github`_: https://github.com/aubio/aubio
-* `aubio on pypi`_: https://pypi.python.org/pypi/aubio
-* `Doxygen documentation`_: https://aubio.org/doc/latest/
-* `Mailing lists`_: https://lists.aubio.org
-
-.. _Project homepage: https://aubio.org
-.. _aubio on github: https://github.com/aubio/aubio
-.. _aubio on pypi: https://pypi.python.org/pypi/aubio
-.. _Doxygen documentation: https://aubio.org/doc/latest/
-.. _Mailing lists: https://lists.aubio.org/
-
 Current status
 ==============
 
@@ -72,17 +46,32 @@ Current status
    :alt: Landscape code health
 
 .. image:: https://readthedocs.org/projects/aubio/badge/?version=latest
-   :target: http://aubio.readthedocs.io/en/latest/?badge=latest
+   :target: https://aubio.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation status
 
 .. image:: https://img.shields.io/github/commits-since/aubio/aubio/0.4.3.svg?maxAge=2592000
    :target: https://github.com/aubio/aubio
    :alt: Commits since last release
 
+Project pages
+=============
+
+* `Project homepage`_: https://aubio.org
+* `aubio on github`_: https://github.com/aubio/aubio
+* `aubio on pypi`_: https://pypi.python.org/pypi/aubio
+* `Doxygen documentation`_: https://aubio.org/doc/latest/
+* `Mailing lists`_: https://lists.aubio.org
+
+.. _Project homepage: https://aubio.org
+.. _aubio on github: https://github.com/aubio/aubio
+.. _aubio on pypi: https://pypi.python.org/pypi/aubio
+.. _Doxygen documentation: https://aubio.org/doc/latest/
+.. _Mailing lists: https://lists.aubio.org/
+
 * `Travis Continuous integration page <https://travis-ci.org/aubio/aubio>`_
 * `Appveyor Continuous integration page <https://ci.appveyor.com/project/piem/aubio>`_
 * `Landscape python code validation <https://landscape.io/github/aubio/aubio/master>`_
-* `ReadTheDocs documentation <http://aubio.readthedocs.io/en/latest/>`_
+* `ReadTheDocs documentation <https://aubio.readthedocs.io/en/latest/>`_
 
 Copyright and License
 =====================
@@ -92,10 +81,23 @@ Copyright © 2003-2016 Paul Brossier <piem@aubio.org>
 aubio is a `free <http://www.debian.org/intro/free>`_ and `open source
 <http://www.opensource.org/docs/definition.php>`_ software; **you** can
 redistribute it and/or modify it under the terms of the `GNU
-<http://www.gnu.org/>`_ `General Public License
+<https://www.gnu.org/>`_ `General Public License
 <https://www.gnu.org/licenses/gpl.html>`_ as published by the `Free Software
 Foundation <https://fsf.org>`_, either version 3 of the License, or (at your
 option) any later version.
 
-.. Note:: aubio is not MIT or BSD licensed. Contact the author if you need it
-  in your commercial product.
+.. note::
+
+   aubio is not MIT or BSD licensed. Contact the author if you need it in your
+   commercial product.
+
+Content
+=======
+
+.. toctree::
+   :maxdepth: 2
+
+   installing
+   python_module
+   cli
+   develop
