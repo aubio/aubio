@@ -36,6 +36,7 @@ extern uint_t hop_size;
 // onset stuff
 extern char_t * onset_method;
 extern smpl_t onset_threshold;
+extern smpl_t onset_minioi;
 // pitch stuff
 extern char_t * pitch_method;
 extern char_t * pitch_unit;
@@ -91,6 +92,8 @@ void usage (FILE * stream, int exit_code)
       "                 default=hfc\n"
       "       -t      --onset-threshold  set onset detection threshold\n"
       "                 a value between 0.1 (more detections) and 1 (less); default=0.3\n"
+      "       -M      --minioi           set minimum inter-onset interval\n"
+      "                 a value in millisecond; default=12.\n"
 #endif /* PROG_HAS_ONSET */
 #ifdef PROG_HAS_PITCH
       "       -p      --pitch            select pitch detection algorithm\n"
@@ -138,7 +141,7 @@ parse_args (int argc, char **argv)
     "o:"
 #endif /* PROG_HAS_OUTPUT */
 #ifdef PROG_HAS_ONSET
-    "O:t:"
+    "O:t:M:"
 #endif /* PROG_HAS_ONSET */
 #ifdef PROG_HAS_PITCH
     "p:u:l:"
@@ -168,6 +171,7 @@ parse_args (int argc, char **argv)
 #ifdef PROG_HAS_ONSET
     {"onset",                 1, NULL, 'O'},
     {"onset-threshold",       1, NULL, 't'},
+    {"onset-minioi",          1, NULL, 'M'},
 #endif /* PROG_HAS_ONSET */
 #ifdef PROG_HAS_PITCH
     {"pitch",                 1, NULL, 'p'},
@@ -226,6 +230,9 @@ parse_args (int argc, char **argv)
         break;
       case 't':                /* threshold value for onset */
         onset_threshold = (smpl_t) atof (optarg);
+        break;
+      case 'M':                /* threshold value for onset */
+        onset_minioi = (smpl_t) atof (optarg);
         break;
       case 'p':
         pitch_method = optarg;

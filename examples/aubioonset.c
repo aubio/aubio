@@ -74,6 +74,8 @@ int main(int argc, char **argv) {
     aubio_onset_set_threshold (o, onset_threshold);
   if (silence_threshold != -90.)
     aubio_onset_set_silence (o, silence_threshold);
+  if (onset_minioi != 0.)
+    aubio_onset_set_minioi_ms (o, onset_minioi);
 
   onset = new_fvec (1);
 

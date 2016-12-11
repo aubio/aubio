@@ -69,6 +69,8 @@ int main(int argc, char **argv) {
   notes = new_aubio_notes ("default", buffer_size, hop_size, samplerate);
   if (notes == NULL) { ret = 1; goto beach; }
 
+  if (onset_minioi != 0.) errmsg ("warning: minioio not supported yet\n");
+
   examples_common_process((aubio_process_func_t)process_block, process_print);
 
   // send a last note off

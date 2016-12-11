@@ -43,6 +43,7 @@ uint_t hop_size = 256;
 // onset stuff
 char_t * onset_method = "default";
 smpl_t onset_threshold = 0.0; // will be set if != 0.
+smpl_t onset_minioi = 0.0; // will be set if != 0.
 // pitch stuff
 char_t * pitch_unit = "default";
 char_t * pitch_method = "default";
