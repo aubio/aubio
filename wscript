@@ -409,13 +409,15 @@ def doxygen(bld):
 
 def sphinx(bld):
     # build documentation from source files using sphinx-build
+    # note: build in ../doc/_build/html, otherwise waf wont install unsigned files
     if bld.env['SPHINX']:
-        bld( name = 'sphinx', rule = '${SPHINX} -b html -a -q ../doc sphinx',
+        bld( name = 'sphinx',
+                rule = '${SPHINX} -b html -a -q `dirname ${SRC}` `dirname ${TGT}`',
                 source = 'doc/conf.py',
-                target = ['sphinx/'])
+                target = '../doc/_build/html/index.html')
         bld.install_files( '${DATAROOTDIR}' + '/doc/libaubio-doc/sphinx',
                 bld.path.ant_glob('doc/_build/html/**'),
-                cwd = bld.path.find_dir ('doc/_build/html'),
+                cwd = bld.path.find_dir('doc/_build/html'),
                 relative_trick = True)
 
 # register the previous rules as build rules
