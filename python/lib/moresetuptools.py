@@ -55,10 +55,7 @@ def add_local_aubio_lib(ext):
 
 def add_local_aubio_sources(ext, usedouble = False):
     """ build aubio inside python module instead of linking against libaubio """
-    print("Warning: libaubio was not built with waf, adding src/")
-    # create an empty header, macros will be passed on the command line
-    fake_config_header = os.path.join('python', 'ext', 'config.h')
-    distutils.file_util.write_file(fake_config_header, "")
+    print("Info: libaubio was not installed or built locally with waf, adding src/")
     aubio_sources = sorted(glob.glob(os.path.join('src', '**.c')))
     aubio_sources += sorted(glob.glob(os.path.join('src', '*', '**.c')))
     ext.sources += aubio_sources
