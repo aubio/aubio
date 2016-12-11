@@ -159,7 +159,7 @@ def configure(ctx):
             ctx.env.FRAMEWORK += ['Accelerate']
             ctx.msg('Checking for Accelerate framework', 'yes')
         else:
-            ctx.msg('Checking for AudioToolbox framework', 'no (disabled)', color = 'YELLOW')
+            ctx.msg('Checking for Accelerate framework', 'no (disabled)', color = 'YELLOW')
 
     if target_platform in [ 'ios', 'iosimulator' ]:
         MINSDKVER="6.1"
