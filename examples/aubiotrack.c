@@ -88,7 +88,9 @@ int main(int argc, char **argv) {
   examples_common_process((aubio_process_func_t)process_block,process_print);
 
   // send a last note off
-  send_noteon (miditap_note, 0);
+  if (usejack) {
+    send_noteon (miditap_note, 0);
+  }
 
   del_aubio_tempo(tempo);
   del_aubio_wavetable (wavetable);
