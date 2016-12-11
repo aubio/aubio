@@ -93,7 +93,7 @@ void usage (FILE * stream, int exit_code)
       "       -t      --onset-threshold  set onset detection threshold\n"
       "                 a value between 0.1 (more detections) and 1 (less); default=0.3\n"
       "       -M      --minioi           set minimum inter-onset interval\n"
-      "                 a value in millisecond; default=12.\n"
+      "                 a value in second; default=0.012\n"
 #endif /* PROG_HAS_ONSET */
 #ifdef PROG_HAS_PITCH
       "       -p      --pitch            select pitch detection algorithm\n"
@@ -231,7 +231,7 @@ parse_args (int argc, char **argv)
       case 't':                /* threshold value for onset */
         onset_threshold = (smpl_t) atof (optarg);
         break;
-      case 'M':                /* threshold value for onset */
+      case 'M':                /* minimum inter-onset-interval */
         onset_minioi = (smpl_t) atof (optarg);
         break;
       case 'p':
