@@ -41,6 +41,7 @@
 // backward compatibility with libavcodec55
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(55,28,1)
 #warning "libavcodec55 is deprecated"
+#define HAVE_AUBIO_LIBAVCODEC_DEPRECATED 1
 #define av_frame_alloc  avcodec_alloc_frame
 #define av_frame_free avcodec_free_frame
 #define av_packet_unref av_free_packet
@@ -512,7 +513,9 @@ uint_t aubio_source_avcodec_close(aubio_source_avcodec_t * s) {
   s->avCodecCtx = NULL;
   if (s->avFormatCtx != NULL) {
     avformat_close_input(&s->avFormatCtx);
+#ifndef HAVE_AUBIO_LIBAVCODEC_DEPRECATED // avoid crash on old libavcodec54
     avformat_free_context(s->avFormatCtx);
+#endif
     s->avFormatCtx = NULL;
   }
   av_packet_unref(&s->avPacket);
