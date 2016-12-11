@@ -23,6 +23,12 @@
 
 #ifdef HAVE_LIBAV
 
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libavresample/avresample.h>
+#include <libavutil/opt.h>
+#include <stdlib.h>
+
 // determine whether we use libavformat from ffmpeg or from libav
 #define FFMPEG_LIBAVFORMAT (LIBAVFORMAT_VERSION_MICRO > 99 )
 // max_analyze_duration2 was used from ffmpeg libavformat 55.43.100 through 57.2.100
@@ -31,12 +37,6 @@
       || (LIBAVFORMAT_VERSION_MAJOR == 56) \
       || (LIBAVFORMAT_VERSION_MAJOR == 57 && LIBAVFORMAT_VERSION_MINOR < 2) \
       )
-
-#include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
-#include <libavresample/avresample.h>
-#include <libavutil/opt.h>
-#include <stdlib.h>
 
 // backward compatibility with libavcodec55
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(55,28,1)
