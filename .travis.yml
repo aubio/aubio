@@ -29,7 +29,7 @@ matrix:
     - language: C
       os: osx
       compiler: clang
-      env: CFLAGS="-Os" WAFOPTS="--disable-avcodec --disable-accelerate"
+      env: CFLAGS="-O0" WAFOPTS="--disable-avcodec --disable-accelerate"
     - language: C
       os: osx
       compiler: clang
@@ -43,6 +43,7 @@ addons:
   apt:
     packages:
     - bzip2
+    - ffmpeg
     - libsndfile1-dev
     - libsamplerate-dev
     - libjack-dev
