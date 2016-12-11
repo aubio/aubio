@@ -25,15 +25,15 @@ matrix:
     - python: 2.7
       os: linux
       compiler: gcc
-      env: HAVE_AUBIO_DOUBLE=1
+      env: CFLAGS="`dpkg-buildflags --get CFLAGS`" LDFLAGS="`dpkg-buildflags --get LDFLAGS`"
     - language: C
       os: osx
       compiler: clang
-      env: WAFOPTS="--disable-avcodec --disable-accelerate"
+      env: CFLAGS="-Os" WAFOPTS="--disable-avcodec --disable-accelerate"
     - language: C
       os: osx
       compiler: clang
-      env: WAFOPTS="--enable-fat --disable-avcodec"
+      env: WAFOPTS="--enable-fat --disable-avcodec" HAVE_AUBIO_DOUBLE=1
     - language: C
       os: osx
       compiler: clang
