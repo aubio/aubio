@@ -1,112 +1,22 @@
 .. _requirements:
 
-Requirements
-============
-
-While aubio can be built without any external dependencies, we **recommend** to
-use at least some of the following libraries.
-
-Platform notes
---------------
-
-On all platforms, you will need to have installed:
-
- - a compiler (gcc, clang, msvc, ...)
- - python (any version >= 2.7, including 3.x)
- - a terminal to run command lines in
-
-Linux
-.....
-
-The following `External libraries`_ will be used if found: `libav`_,
-`libsamplerate`_, `libsndfile`_, `libfftw3`_.
-
-macOS
-.....
-
-The following system frameworks will be used on Mac OS X systems:
-
-  - `Accelerate <https://developer.apple.com/reference/accelerate>`_ to compute
-    FFTs and other vectorized operations optimally.
-
-  - `CoreAudio <https://developer.apple.com/reference/coreaudio>`_ and
-    `AudioToolbox <https://developer.apple.com/reference/audiotoolbox>`_ to
-    decode audio from files and network streams.
-
-.. note::
-
-  To build a fat binary for both ``i386`` and ``x86_64``, use ``./waf configure
-  --enable-fat``.
-
-The following `External libraries`_ will also be checked: `libav`_,
-`libsamplerate`_, `libsndfile`_, `libfftw3`_.
-
-Windows
-.......
-
-To use a specific version of the compiler, ``--msvc_version``. To build for a
-specific architecture, use ``--msvc_target``. For instance, to build aubio
-for ``x86`` using ``msvc 12.0``, use:
-
-.. code:: bash
-
-    waf configure --msvc_version='msvc 12.0' --msvc_target='x86'
-
-
-The following `External libraries`_ will be used if found: `libav`_,
-`libsamplerate`_, `libsndfile`_, `libfftw3`_.
-
-iOS
-...
-
-The following system frameworks will be used on iOS and iOS Simulator.
-
-  - `Accelerate <https://developer.apple.com/reference/accelerate>`_ to compute
-    FFTs and other vectorized operations optimally.
-
-  - `CoreAudio <https://developer.apple.com/reference/coreaudio>`_ and
-    `AudioToolbox <https://developer.apple.com/reference/audiotoolbox>`_ to
-    decode audio from files and network streams.
-
-To build aubio for iOS, configure with ``--with-target-platform=ios``. For the
-iOS Simulator, use ``--with-target-platform=iosimulator`` instead.
-
-By default, aubio is built with the following flags on iOS:
-
-.. code:: bash
-
-    CFLAGS="-fembed-bitcode -arch arm64 -arch armv7 -arch armv7s -miphoneos-version-min=6.1"
-
-and on iOS Simulator:
-
-.. code::
-
-    CFLAGS="-arch i386 -arch x86_64 -mios-simulator-version-min=6.1"
-
-Set ``CFLAGS`` and ``LINKFLAGS`` to change these default values, or edit
-``wscript`` directly.
-
 Build options
--------------
+=============
 
-Some additional options can be passed to the configure step. For the complete
-list of options, run:
+If built without any external dependencies aubio can be somewhat useful, for
+instance to read, process, and write simple wav files.
 
-.. code:: bash
+To support more media input formas add more features to aubio, you can use one
+or all of the `following libraries <extlibs>`_.
 
-    $ ./waf configure --help
+You may also want to know more about the `other options`_ and the `platform
+notes`_
 
-Double precision
-................
+The configure script will automatically for these extra libraries. To make sure
+the library or feature is used, pass the `--enable-flag` to waf. To disable
+this feature, use `--disable-feature`.
 
-To compile aubio in double precision mode, configure with ``--enable-double``.
-
-To compile aubio in single precision mode, use ``--disable-double`` (default).
-
-Fat binary
-..........
-
-To build a fat binary on Mac OS platforms, configure with ``--enable-fat``.
+To find out more about the build commands, use the `--verbose` option.
 
 External libraries
 ------------------
@@ -182,17 +92,138 @@ To enable this option, configure with ``--enable-fftw3``. The build will
 then fail if the required library is not found. To disable this option,
 configure with ``--disable-fftw3``
 
-External tools
+Platform notes
 --------------
 
-If the following tools are found, additional documentations are built:
+On all platforms, you will need to have installed:
+
+ - a compiler (gcc, clang, msvc, ...)
+ - python (any version >= 2.7, including 3.x)
+ - a terminal to run command lines in
+
+Linux
+.....
+
+The following `External libraries`_ will be used if found: `libav`_,
+`libsamplerate`_, `libsndfile`_, `libfftw3`_.
+
+macOS
+.....
+
+The following system frameworks will be used on Mac OS X systems:
+
+  - `Accelerate <https://developer.apple.com/reference/accelerate>`_ to compute
+    FFTs and other vectorized operations optimally.
+
+  - `CoreAudio <https://developer.apple.com/reference/coreaudio>`_ and
+    `AudioToolbox <https://developer.apple.com/reference/audiotoolbox>`_ to
+    decode audio from files and network streams.
+
+.. note::
+
+  To build a fat binary for both ``i386`` and ``x86_64``, use ``./waf configure
+  --enable-fat``.
+
+The following `External libraries`_ will also be checked: `libav`_,
+`libsamplerate`_, `libsndfile`_, `libfftw3`_.
+
+To build a fat binary on a darwin like system (macOS, tvOS, appleOS, ...)
+platforms, configure with ``--enable-fat``.
+
+Windows
+.......
+
+To use a specific version of the compiler, ``--msvc_version``. To build for a
+specific architecture, use ``--msvc_target``. For instance, to build aubio
+for ``x86`` using ``msvc 12.0``, use:
+
+.. code:: bash
+
+    waf configure --msvc_version='msvc 12.0' --msvc_target='x86'
+
+
+The following `External libraries`_ will be used if found: `libav`_,
+`libsamplerate`_, `libsndfile`_, `libfftw3`_.
+
+iOS
+...
+
+The following system frameworks will be used on iOS and iOS Simulator.
+
+  - `Accelerate <https://developer.apple.com/reference/accelerate>`_ to compute
+    FFTs and other vectorized operations optimally.
+
+  - `CoreAudio <https://developer.apple.com/reference/coreaudio>`_ and
+    `AudioToolbox <https://developer.apple.com/reference/audiotoolbox>`_ to
+    decode audio from files and network streams.
+
+To build aubio for iOS, configure with ``--with-target-platform=ios``. For the
+iOS Simulator, use ``--with-target-platform=iosimulator`` instead.
+
+By default, aubio is built with the following flags on iOS:
+
+.. code:: bash
+
+    CFLAGS="-fembed-bitcode -arch arm64 -arch armv7 -arch armv7s -miphoneos-version-min=6.1"
+
+and on iOS Simulator:
+
+.. code::
+
+    CFLAGS="-arch i386 -arch x86_64 -mios-simulator-version-min=6.1"
+
+Set ``CFLAGS`` and ``LINKFLAGS`` to change these default values, or edit
+``wscript`` directly.
+
+Other options
+-------------
+
+Some additional options can be passed to the configure step. For the complete
+list of options, run:
+
+.. code:: bash
+
+    $ ./waf --help
+
+Here is an example of a custom command:
+
+.. code:: bash
+
+    $ ./waf --verbose configure build install \
+                --enable-avcodec --enable-wavread --disable-wavwrite \
+                --enable-sndfile --enable-samplerate --enable-docs \
+                --destdir $PWD/build/destdir --testcmd="echo %s" \
+                --prefix=/opt --libdir=/opt/lib/multiarch \
+                --manpagesdir=/opt/share/man  \
+                uninstall clean distclean dist distcheck
+
+Double precision
+................
+
+To compile aubio in double precision mode, configure with ``--enable-double``.
+
+To compile aubio in single precision mode, use ``--disable-double`` (default).
+
+Edit wscript
+............
+
+Many of the options are gathered in the file `wscript`. a good starting point
+when looking for additional options.
+
+.. _build_docs:
+
+Building the docs
+-----------------
+
+If the following command line tools are found, the documentation will be built
+built:
 
  - `doxygen <http://doxygen.org>`_ to build the :ref:`doxygen-documentation`.
  - `txt2man <https://github.com/mvertes/txt2man>`_ to build the :ref:`manpages`
+ - `sphinx <http://sphinx-doc.org>`_ to build this document
 
 These tools are searched for in the current ``PATH`` environment variable.
 By default, the documentation is built only if the tools are found.
 
 To disable the documentation, configure with ``--disable-docs``. To build with
 the documentation, configure with ``--enable-docs``.
-
