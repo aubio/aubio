@@ -12,7 +12,7 @@ Command line features
 +--------------+-------+-------+------+-------+-------+-------+------+------------------+
 | jack         |   Y   |   Y   |  N   |   Y   |   Y   |  N!3  |  N   | -j               |
 +--------------+-------+-------+------+-------+-------+-------+------+------------------+
-| onset        |   Y   |   N   |  N   |   Y?  |  Y!6  |   N   |  Y   | -O,-t            |
+| onset        |   Y   |   N   |  N   |  Y!8  |  Y!6  |   N   |  Y   | -O,-t,-M         |
 +--------------+-------+-------+------+-------+-------+-------+------+------------------+
 | pitch        |   N   |   Y   |  N   |   N   |  Y!6  |   N   | N!5  | -p,-u,-l         |
 +--------------+-------+-------+------+-------+-------+-------+------+------------------+
@@ -35,6 +35,8 @@ Command line features
 
 5. ``aubiocut`` could cut on notes
 
-6. New ``aubionotes`` needs onset/pitch setters.
+6. ``aubionotes`` needs onset/pitch setters.
 
 7. Silence was different for pitch and onset, test.
+
+8. Some ``aubiotrack`` options should be disabled (minioi, threshold).
