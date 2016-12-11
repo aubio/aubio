@@ -38,6 +38,14 @@
 #include <libavutil/opt.h>
 #include <stdlib.h>
 
+// backward compatibility with libavcodec55
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(55,28,1)
+#warning "libavcodec55 is deprecated"
+#define av_frame_alloc  avcodec_alloc_frame
+#define av_frame_free avcodec_free_frame
+#define av_packet_unref av_free_packet
+#endif
+
 #include "aubio_priv.h"
 #include "fvec.h"
 #include "fmat.h"
@@ -507,11 +515,7 @@ uint_t aubio_source_avcodec_close(aubio_source_avcodec_t * s) {
     avformat_free_context(s->avFormatCtx);
     s->avFormatCtx = NULL;
   }
-#if FF_API_LAVF_AVCTX
   av_packet_unref(&s->avPacket);
-#else
-  av_free_packet(&s->avPacket);
-#endif
   return AUBIO_OK;
 }
 
