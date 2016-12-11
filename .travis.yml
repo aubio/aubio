@@ -39,11 +39,17 @@ matrix:
       compiler: clang
       env: WAFOPTS="--with-target-platform=ios --disable-avcodec" AUBIO_NOTESTS=1
 
+dist: trusty
+sudo: false
+
 addons:
   apt:
     packages:
     - bzip2
-    - ffmpeg
+    - libavcodec-dev
+    - libavformat-dev
+    - libavresample-dev
+    - libavutil-dev
     - libsndfile1-dev
     - libsamplerate-dev
     - libjack-dev
