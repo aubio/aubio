@@ -110,6 +110,7 @@ uint_t aubio_notes_set_silence(aubio_notes_t *o, smpl_t silence)
   if (aubio_onset_set_silence(o->onset, silence) != AUBIO_OK) {
     err = AUBIO_FAIL;
   }
+  o->silence_threshold = silence;
   return err;
 }
 
