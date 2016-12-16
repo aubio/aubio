@@ -162,7 +162,7 @@ Questions, comments, suggestions, and contributions are welcome. Use the
 mailing list: <aubio-user@aubio.org>.
 
 To subscribe to the list, use the mailman form:
-http://lists.aubio.org/listinfo/aubio-user/
+https://lists.aubio.org/listinfo/aubio-user/
 
 Alternatively, feel free to contact directly the author.
 
