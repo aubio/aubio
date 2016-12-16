@@ -460,6 +460,7 @@ def dist(ctx):
     ctx.excl += ' **/**.zip **/**.tar.bz2'
     ctx.excl += ' **.tar.bz2'
     ctx.excl += ' **/doc/full/* **/doc/web/*'
+    ctx.excl += ' **/doc/full.cfg'
     ctx.excl += ' **/python/*.db'
     ctx.excl += ' **/python.old/*'
     ctx.excl += ' **/python/*/*.old'
