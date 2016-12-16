@@ -449,7 +449,7 @@ def shutdown(bld):
         Logs.pprint('RED', msg)
 
 def dist(ctx):
-    ctx.excl  = ' **/.waf-1* **/*~ **/*.pyc **/*.swp **/*.swo **/*.swn **/.lock-w* **/.git*'
+    ctx.excl  = ' **/.waf* **/*~ **/*.pyc **/*.swp **/*.swo **/*.swn **/.lock-w* **/.git*'
     ctx.excl += ' **/build/*'
     ctx.excl += ' doc/_build'
     ctx.excl += ' python/demos_*'
