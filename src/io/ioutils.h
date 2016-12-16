@@ -21,13 +21,35 @@
 #ifndef AUBIO_IOUTILS_H
 #define AUBIO_IOUTILS_H
 
+/** \file
+
+  Simple utility functions to validate input parameters.
+
+*/
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/** validate samplerate
+
+  \param kind       the object kind to report on
+  \param path       the object properties to report on
+  \param samplerate the object properties to report on
+  \return  0 if ok, non-zero if validation failed
+
+ */
 uint_t aubio_io_validate_samplerate(const char_t *kind, const char_t *path,
     uint_t samplerate);
 
+/** validate number of channels
+
+  \param kind       the object kind to report on
+  \param path       the object properties to report on
+  \param channels   the object properties to report on
+  \return  0 if ok, non-zero if validation failed
+
+ */
 uint_t aubio_io_validate_channels(const char_t *kind, const char_t *path,
     uint_t channels);
 
