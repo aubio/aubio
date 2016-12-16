@@ -53,7 +53,7 @@ expandwaf: getwaf
 	$(WAFCMD) --help > /dev/null
 	mv .waf*/waflib . && rm -fr .waf*
 	sed '/^#==>$$/,$$d' waf > waf2 && mv waf2 waf
-	chmod +x waf
+	chmod +x waf && chmod go-w -R waflib
 
 cleanwaf:
 	rm -rf waf waflib .waf*
@@ -162,6 +162,8 @@ check_clean:
 
 distclean:
 	$(WAFCMD) distclean
+	-rm -rf doc/_build/
+	-rm -rf doc/web/
 
 check_distclean:
 	make distclean
