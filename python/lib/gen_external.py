@@ -248,7 +248,7 @@ void add_generated_objects( PyObject *m );
         print ("wrote %s" % output_file )
         # no need to add header to list of sources
 
-    return sources_list
+    return sorted(sources_list)
 
 if __name__ == '__main__':
     if len(sys.argv) > 1: header = sys.argv[1]
