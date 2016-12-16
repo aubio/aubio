@@ -204,6 +204,19 @@ To compile aubio in double precision mode, configure with ``--enable-double``.
 
 To compile aubio in single precision mode, use ``--disable-double`` (default).
 
+Disabling the tests
+...................
+
+In some case, for instance when cross-compiling, unit tests should not be run.
+Option ``--notests`` can be used for this purpose. The tests will not be
+executed, but the binaries will be compiled, ensuring that linking against
+libaubio works as expected.
+
+.. note::
+
+  The ``--notests`` option should be passed to both ``build`` and ``install``
+  targets, otherwise waf will try to run them.
+
 Edit wscript
 ............
 
