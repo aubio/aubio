@@ -18,6 +18,12 @@
 
 */
 
+/** \file
+
+  Note detection object
+
+*/
+
 #ifndef _AUBIO_NOTES_H
 #define _AUBIO_NOTES_H
 
