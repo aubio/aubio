@@ -27,7 +27,7 @@
 #ifdef USE_LOCAL_AUBIO
 #include "aubio.h"
 #else
-#include "aubio/aubio.h"
+#include <aubio/aubio.h>
 #endif
 
 #define Py_default_vector_length 1024
