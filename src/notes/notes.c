@@ -24,7 +24,11 @@
 #include "onset/onset.h"
 #include "notes/notes.h"
 
-#define DEFAULT_NOTES_SILENCE -50.
+#define AUBIO_DEFAULT_NOTES_SILENCE -70.
+// increase to 10. for .1  cent precision
+//      or to 100. for .01 cent precision
+#define AUBIO_DEFAULT_CENT_PRECISION 1.
+#define AUBIO_DEFAULT_NOTES_MINIOI_MS 30.
 
 struct _aubio_notes_t {
 
@@ -80,6 +84,7 @@ aubio_notes_t * new_aubio_notes (const char_t * method,
 
   o->pitch = new_aubio_pitch (pitch_method, o->pitch_buf_size, o->hop_size, o->samplerate);
   if (o->pitch_tolerance != 0.) aubio_pitch_set_tolerance (o->pitch, o->pitch_tolerance);
+  aubio_pitch_set_unit (o->pitch, "midi");
   o->pitch_output = new_fvec (1);
 
   if (strcmp(method, "default") != 0) {
@@ -92,7 +97,8 @@ aubio_notes_t * new_aubio_notes (const char_t * method,
   o->curnote = -1.;
   o->newnote = 0.;
 
-  aubio_notes_set_silence(o, DEFAULT_NOTES_SILENCE);
+  aubio_notes_set_silence(o, AUBIO_DEFAULT_NOTES_SILENCE);
+  aubio_notes_set_minioi_ms (o, AUBIO_DEFAULT_NOTES_MINIOI_MS);
 
   return o;
 
@@ -142,18 +148,16 @@ note_append (fvec_t * note_buffer, smpl_t curnote)
   for (i = 0; i < note_buffer->length - 1; i++) {
     note_buffer->data[i] = note_buffer->data[i + 1];
   }
-  note_buffer->data[note_buffer->length - 1] = curnote;
+  //note_buffer->data[note_buffer->length - 1] = ROUND(10.*curnote)/10.;
+  note_buffer->data[note_buffer->length - 1] = ROUND(AUBIO_DEFAULT_CENT_PRECISION*curnote);
   return;
 }
 
-static uint_t
+static smpl_t
 aubio_notes_get_latest_note (aubio_notes_t *o)
 {
-  uint_t i;
-  for (i = 0; i < o->note_buffer->length; i++) {
-    o->note_buffer2->data[i] = o->note_buffer->data[i];
-  }
-  return fvec_median (o->note_buffer2);
+  fvec_copy(o->note_buffer, o->note_buffer2);
+  return fvec_median (o->note_buffer2) / AUBIO_DEFAULT_CENT_PRECISION;
 }
 
 
