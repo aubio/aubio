@@ -73,6 +73,8 @@ void aubio_notes_do (aubio_notes_t *o, const fvec_t * input, fvec_t * output);
   \param o notes detection object as returned by new_aubio_notes()
   \param silence new silence detection threshold
 
+  \return 0 on success, non-zero otherwise
+
 */
 uint_t aubio_notes_set_silence(aubio_notes_t * o, smpl_t silence);
 
@@ -84,6 +86,25 @@ uint_t aubio_notes_set_silence(aubio_notes_t * o, smpl_t silence);
 
 */
 smpl_t aubio_notes_get_silence(const aubio_notes_t * o);
+
+/** get notes detection minimum inter-onset interval, in millisecond
+
+  \param o notes detection object as returned by new_aubio_notes()
+
+  \return current minimum inter onset interval
+
+ */
+smpl_t aubio_notes_get_minioi_ms(const aubio_notes_t *o);
+
+/** set notes detection minimum inter-onset interval, in millisecond
+
+  \param o notes detection object as returned by new_aubio_notes()
+  \param minioi_ms new inter-onset interval
+
+  \return 0 on success, non-zero otherwise
+
+*/
+uint_t aubio_notes_set_minioi_ms (aubio_notes_t *o, smpl_t minioi_ms);
 
 #ifdef __cplusplus
 }

@@ -119,6 +119,20 @@ smpl_t aubio_notes_get_silence(const aubio_notes_t *o)
   return aubio_pitch_get_silence(o->pitch);
 }
 
+uint_t aubio_notes_set_minioi_ms (aubio_notes_t *o, smpl_t minioi_ms)
+{
+  uint_t err = AUBIO_OK;
+  if (!o->onset || (aubio_onset_set_minioi_ms(o->onset, minioi_ms) != 0)) {
+    err = AUBIO_FAIL;
+  }
+  return err;
+}
+
+smpl_t aubio_notes_get_minioi_ms(const aubio_notes_t *o)
+{
+  return aubio_pitch_get_silence(o->pitch);
+}
+
 /** append new note candidate to the note_buffer and return filtered value. we
  * need to copy the input array as fvec_median destroy its input data.*/
 static void
