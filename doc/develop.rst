@@ -76,7 +76,7 @@ Now let's create a phase vocoder:
    :language: C
    :lines: 6-11
 
-The processing loop could know look like:
+The processing loop could now look like:
 
 .. literalinclude:: ../tests/src/spectral/test-phasevoc.c
    :language: C
