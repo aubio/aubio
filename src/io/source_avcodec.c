@@ -531,8 +531,11 @@ void del_aubio_source_avcodec(aubio_source_avcodec_t * s){
   if (s->avFrame != NULL) {
     av_frame_free( &(s->avFrame) );
   }
-  if (s->path) AUBIO_FREE(s->path);
   s->avFrame = NULL;
+  if (s->path) {
+    AUBIO_FREE(s->path);
+  }
+  s->path = NULL;
   AUBIO_FREE(s);
 }
 
