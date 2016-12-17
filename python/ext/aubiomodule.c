@@ -323,6 +323,7 @@ initaubio (void)
   PyModule_AddObject (m, "sink", (PyObject *) & Py_sinkType);
 
   PyModule_AddStringConstant(m, "float_type", AUBIO_NPY_SMPL_STR);
+  PyModule_AddStringConstant(m, "__version__", AUBIO_VERSION);
 
   // add generated objects
   add_generated_objects(m);

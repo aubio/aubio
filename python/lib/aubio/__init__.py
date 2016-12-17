@@ -1,8 +1,9 @@
 #! /usr/bin/env python
 
 import numpy
-from ._aubio import *
+from ._aubio import __version__ as version
 from ._aubio import float_type
+from ._aubio import *
 from .midiconv import *
 from .slicing import *
 
