@@ -136,7 +136,7 @@ uint_t aubio_notes_set_minioi_ms (aubio_notes_t *o, smpl_t minioi_ms)
 
 smpl_t aubio_notes_get_minioi_ms(const aubio_notes_t *o)
 {
-  return aubio_pitch_get_silence(o->pitch);
+  return aubio_onset_get_minioi_ms(o->onset);
 }
 
 /** append new note candidate to the note_buffer and return filtered value. we
