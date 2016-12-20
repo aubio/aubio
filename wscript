@@ -47,6 +47,12 @@ def add_option_enable_disable(ctx, name, default = None,
             help = help_disable_str )
 
 def options(ctx):
+    ctx.add_option('--build-type', action = 'store',
+            default = "release",
+            choices = ('debug', 'release'),
+            dest = 'build_type',
+            help = 'whether to compile with (--build_type=release) or without (--build_type=debug) '\
+              ' compiler opimizations [default: release]')
     add_option_enable_disable(ctx, 'fftw3f', default = False,
             help_str = 'compile with fftw3f instead of ooura (recommended)',
             help_disable_str = 'do not compile with fftw3f')
@@ -125,12 +131,31 @@ def configure(ctx):
         target_platform = ctx.options.target_platform
     ctx.env['DEST_OS'] = target_platform
 
-    if ctx.env.CC_NAME != 'msvc':
-        ctx.env.CFLAGS += ['-g', '-Wall', '-Wextra']
+    if ctx.options.build_type == "debug":
+        ctx.define('DEBUG', 1)
     else:
-        ctx.env.CFLAGS += ['/W4', '/MD']
-        ctx.env.CFLAGS += ['/D_CRT_SECURE_NO_WARNINGS']
-
+        ctx.define('NDEBUG', 1)
+    
+    if ctx.env.CC_NAME != 'msvc':
+        # enable debug symbols and configure warnings
+        ctx.env.CFLAGS += ['-g', '-Wall', '-Wextra']
+        if ctx.options.build_type == "release":
+            # set optimization level 
+            ctx.env.CFLAGS += ['-O2']
+    else:
+        # enable debug symbols
+        ctx.env.CFLAGS += ['/Z7', '/FS']
+        ctx.env.LINKFLAGS += ['/DEBUG', '/INCREMENTAL:NO']
+        # configure warnings
+        ctx.env.CFLAGS += ['/W4', '/D_CRT_SECURE_NO_WARNINGS']
+        # set optimization level and runtime libs 
+        if (ctx.options.build_type == "release"):
+            ctx.env.CFLAGS += ['/Ox']
+            ctx.env.CFLAGS += ['/MD']
+        else:
+            assert(ctx.options.build_type == "debug")
+            ctx.env.CFLAGS += ['/MDd']
+        
     ctx.check_cc(lib='m', uselib_store='M', mandatory=False)
 
     if target_platform not in ['win32', 'win64']:
