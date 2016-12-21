@@ -38,5 +38,44 @@ class aubio_notes_params(TestCase):
         self.o.set_silence(val)
         assert_equal (self.o.get_silence(), val)
 
+from utils import list_all_sounds
+list_of_sounds = list_all_sounds('sounds')
+
+class aubio_notes_sinewave(TestCase):
+
+    def analyze_file(self, filepath, samplerate=0):
+        from aubio import source
+        import numpy as np
+        win_s = 512 # fft size
+        hop_s = 256 # hop size
+
+        s = source(filepath, samplerate, hop_s)
+        samplerate = s.samplerate
+
+        tolerance = 0.8
+
+        notes_o = notes("default", win_s, hop_s, samplerate)
+        total_frames = 0
+
+        results = []
+        while True:
+            samples, read = s()
+            new_note = notes_o(samples)
+            if (new_note[0] != 0):
+                note_str = ' '.join(["%.2f" % i for i in new_note])
+                results.append( [total_frames, np.copy(new_note)] )
+            total_frames += read
+            if read < hop_s: break
+        return results
+
+    def test_sinewave(self):
+        for filepath in list_of_sounds:
+            if '44100Hz_44100f_sine441.wav' in filepath:
+                results = self.analyze_file(filepath)
+                assert_equal (len(results), 1)
+                assert_equal (len(results[0]), 2)
+                assert_equal (results[0][0], 1280)
+                assert_equal (results[0][1], [69, 123, -1])
+
 if __name__ == '__main__':
     main()
