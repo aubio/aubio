@@ -50,6 +50,9 @@ OPTIONS
   0.1. Lower threshold values imply more onsets detected. Try 0.5 in case of
   over-detections. Defaults to 0.3.
 
+  -M, --minioi value  Set the minimum inter-onset interval, in seconds, the
+  shortest interval between two consecutive notes. Defaults to 0.030
+
   -p, --pitch method  The pitch detection method to use. See PITCH METHODS
   below. Defaults to 'default'.
 
