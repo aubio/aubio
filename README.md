@@ -170,7 +170,7 @@ Alternatively, feel free to contact directly the author.
 Copyright and License Information
 ---------------------------------
 
-Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
+Copyright (C) 2003-2016 Paul Brossier <piem@aubio.org>
 
 aubio is free software: you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software
