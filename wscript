@@ -139,10 +139,8 @@ def configure(ctx):
     if ctx.env.CC_NAME != 'msvc':
         # enable debug symbols and configure warnings
         ctx.env.CFLAGS += ['-g', '-Wall', '-Wextra']
-        if ctx.options.build_type == "release":
-            # set optimization level
-            ctx.env.CFLAGS += ['-O2']
-        else:
+        if ctx.options.build_type == "debug":
+            # no optimization in debug mode
             ctx.env.CFLAGS += ['-O0']
     else:
         # enable debug symbols
