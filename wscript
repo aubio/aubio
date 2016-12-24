@@ -51,7 +51,7 @@ def options(ctx):
             default = "release",
             choices = ('debug', 'release'),
             dest = 'build_type',
-            help = 'whether to compile with (--build_type=release) or without (--build_type=debug) '\
+            help = 'whether to compile with (--build-type=release) or without (--build-type=debug) '\
               ' compiler opimizations [default: release]')
     add_option_enable_disable(ctx, 'fftw3f', default = False,
             help_str = 'compile with fftw3f instead of ooura (recommended)',
@@ -142,6 +142,8 @@ def configure(ctx):
         if ctx.options.build_type == "release":
             # set optimization level
             ctx.env.CFLAGS += ['-O2']
+        else:
+            ctx.env.CFLAGS += ['-O0']
     else:
         # enable debug symbols
         ctx.env.CFLAGS += ['/Z7', '/FS']
