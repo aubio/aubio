@@ -137,11 +137,14 @@ def configure(ctx):
         ctx.define('NDEBUG', 1)
 
     if ctx.env.CC_NAME != 'msvc':
-        # enable debug symbols and configure warnings
-        ctx.env.CFLAGS += ['-g', '-Wall', '-Wextra']
         if ctx.options.build_type == "debug":
             # no optimization in debug mode
-            ctx.env.CFLAGS += ['-O0']
+            ctx.env.prepend_value('CFLAGS', ['-O0'])
+        else:
+            # default to -O2 in release mode
+            ctx.env.prepend_value('CFLAGS', ['-O2'])
+        # enable debug symbols and configure warnings
+        ctx.env.prepend_value('CFLAGS', ['-g', '-Wall', '-Wextra'])
     else:
         # enable debug symbols
         ctx.env.CFLAGS += ['/Z7', '/FS']
