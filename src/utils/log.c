@@ -34,7 +34,7 @@ aubio_default_log(sint_t level, const char_t *message, void * data UNUSED)
 {
   FILE *out;
   out = stdout;
-  if (level == AUBIO_LOG_DBG || level == AUBIO_LOG_ERR) {
+  if (level == AUBIO_LOG_ERR || level == AUBIO_LOG_DBG || level == AUBIO_LOG_WRN) {
     out = stderr;
   }
   fprintf(out, "%s", message);
