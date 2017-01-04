@@ -183,16 +183,16 @@ uint_t aubio_log(sint_t level, const char_t *fmt, ...);
 
 #ifdef HAVE_C99_VARARGS_MACROS
 #define AUBIO_ERR(...)               aubio_log(AUBIO_LOG_ERR, "AUBIO ERROR: " __VA_ARGS__)
-#define AUBIO_INF(...)               aubio_log(AUBIO_LOG_MSG, "AUBIO INFO: " __VA_ARGS__)
+#define AUBIO_INF(...)               aubio_log(AUBIO_LOG_INF, "AUBIO INFO: " __VA_ARGS__)
 #define AUBIO_MSG(...)               aubio_log(AUBIO_LOG_MSG, __VA_ARGS__)
 #define AUBIO_DBG(...)               aubio_log(AUBIO_LOG_DBG, __VA_ARGS__)
 #define AUBIO_WRN(...)               aubio_log(AUBIO_LOG_WRN, "AUBIO WARNING: " __VA_ARGS__)
 #else
-#define AUBIO_ERR(format, args...)   aubio_log(stderr, "AUBIO ERROR: " format , ##args)
-#define AUBIO_INF(format, args...)   aubio_log(stdout, "AUBIO INFO: " format , ##args)
-#define AUBIO_MSG(format, args...)   aubio_log(stdout, format , ##args)
-#define AUBIO_DBG(format, args...)   aubio_log(stderr, format , ##args)
-#define AUBIO_WRN(format, args...)   aubio_log(stderr, "AUBIO WARNING: " format, ##args)
+#define AUBIO_ERR(format, args...)   aubio_log(AUBIO_LOG_ERR, "AUBIO ERROR: " format , ##args)
+#define AUBIO_INF(format, args...)   aubio_log(AUBIO_LOG_INF, "AUBIO INFO: " format , ##args)
+#define AUBIO_MSG(format, args...)   aubio_log(AUBIO_LOG_MSG, format , ##args)
+#define AUBIO_DBG(format, args...)   aubio_log(AUBIO_LOG_DBG, format , ##args)
+#define AUBIO_WRN(format, args...)   aubio_log(AUBIO_LOG_WRN, "AUBIO WARNING: " format, ##args)
 #endif
 
 #define AUBIO_ERROR   AUBIO_ERR
