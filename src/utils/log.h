@@ -45,9 +45,10 @@ extern "C" {
 /** list of logging levels */
 enum aubio_log_level {
   AUBIO_LOG_ERR, /**< critical errors */
-  AUBIO_LOG_WRN, /**< warnings */
+  AUBIO_LOG_INF, /**< infos */
   AUBIO_LOG_MSG, /**< general messages */
   AUBIO_LOG_DBG, /**< debug messages */
+  AUBIO_LOG_WRN, /**< warnings */
   AUBIO_LOG_LAST_LEVEL, /**< number of valid levels */
 };
 
