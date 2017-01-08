@@ -38,7 +38,7 @@ class aubio_notes_params(TestCase):
         self.o.set_silence(val)
         assert_equal (self.o.get_silence(), val)
 
-from utils import list_all_sounds
+from .utils import list_all_sounds
 list_of_sounds = list_all_sounds('sounds')
 
 class aubio_notes_sinewave(TestCase):
