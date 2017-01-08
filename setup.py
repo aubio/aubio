@@ -23,7 +23,7 @@ if AUBIO_VERSION_STATUS is not None:
 
 include_dirs = []
 library_dirs = []
-define_macros = [('AUBIO_VERSION', '"%s"' % __version__)]
+define_macros = [('AUBIO_VERSION', '%s' % __version__)]
 extra_link_args = []
 
 include_dirs += [ 'python/ext' ]
