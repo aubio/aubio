@@ -25,6 +25,7 @@ int main (void)
 {
   fprintf(stdout, "### testing normal logging\n");
   AUBIO_ERR("testing normal AUBIO_LOG_ERR\n");
+  AUBIO_INF("testing normal AUBIO_LOG_INF\n");
   AUBIO_WRN("testing normal AUBIO_LOG_WRN\n");
   AUBIO_MSG("testing normal AUBIO_LOG_MSG\n");
   AUBIO_DBG("testing normal AUBIO_LOG_DBG\n");
@@ -32,6 +33,7 @@ int main (void)
   fprintf(stdout, "### testing with one custom function\n");
   aubio_log_set_function(logging, (void *)hdr);
   AUBIO_ERR("testing recustom AUBIO_LOG_ERR\n");
+  AUBIO_INF("testing recustom AUBIO_LOG_INF\n");
   AUBIO_WRN("testing recustom AUBIO_LOG_WRN\n");
   AUBIO_MSG("testing recustom AUBIO_LOG_MSG\n");
   AUBIO_DBG("testing recustom AUBIO_LOG_DBG\n");
@@ -39,6 +41,7 @@ int main (void)
   fprintf(stdout, "### testing resetted logging\n");
   aubio_log_reset();
   AUBIO_ERR("testing uncustom AUBIO_LOG_ERR\n");
+  AUBIO_INF("testing uncustom AUBIO_LOG_INF\n");
   AUBIO_WRN("testing uncustom AUBIO_LOG_WRN\n");
   AUBIO_MSG("testing uncustom AUBIO_LOG_MSG\n");
   AUBIO_DBG("testing uncustom AUBIO_LOG_DBG\n");
@@ -48,6 +51,7 @@ int main (void)
   aubio_log_set_level_function(AUBIO_LOG_WRN, logging, NULL);
   aubio_log_set_level_function(AUBIO_LOG_MSG, logging, (void *)hdr);
   AUBIO_ERR("testing custom AUBIO_LOG_ERR\n");
+  AUBIO_INF("testing custom AUBIO_LOG_INF\n");
   AUBIO_WRN("testing custom AUBIO_LOG_WRN with data=NULL\n");
   AUBIO_MSG("testing custom AUBIO_LOG_MSG\n");
   AUBIO_DBG("testing uncustomized AUBIO_LOG_DBG\n");
