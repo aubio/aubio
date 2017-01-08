@@ -109,14 +109,16 @@
   \endcode
 
   Several examples of C programs are available in the \p examples/ and \p tests/src
-  directories of the source tree. See more examples:
-  @ref spectral/test-fft.c
-  @ref spectral/test-phasevoc.c
-  @ref onset/test-onset.c
-  @ref pitch/test-pitch.c
-  @ref tempo/test-tempo.c
-  @ref test-fvec.c
-  @ref test-cvec.c
+  directories of the source tree.
+
+  Some examples:
+  - @ref spectral/test-fft.c
+  - @ref spectral/test-phasevoc.c
+  - @ref onset/test-onset.c
+  - @ref pitch/test-pitch.c
+  - @ref tempo/test-tempo.c
+  - @ref test-fvec.c
+  - @ref test-cvec.c
 
   \subsection unstable_api Unstable API
 
@@ -137,7 +139,7 @@
   \section download Download
 
   Latest versions, further documentation, examples, wiki, and mailing lists can
-  be found at http://aubio.org .
+  be found at https://aubio.org .
 
  */
 
