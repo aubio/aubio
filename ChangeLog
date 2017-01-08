@@ -1,3 +1,222 @@
+2017-01-08 Paul Brossier <piem@aubio.org>
+
+	[ Overview ]
+
+	* VERSION: bump to 0.4.4
+	* src/utils/log.h: new function to redirect log, error, and warnings
+	* python/: AUBIO_ERR raises python exception, AUBIO_WRN to emit py warning
+	* doc/: add some documentation, fix errors in manpages
+	* wscript: new rules to build 'manpages', 'doxygen', and 'sphinx', new
+	--build-type=<release|debug> option (thanks to Eduard Mueller)
+	* src/notes/notes.h: add minioi and silence methods
+	* examples/: add --minioi (minimum inter-onset interval) option
+	* src/pitch/pitchyin.c: improve msvc compiler optimisations (thanks to
+	Eduard Mueller)
+	* python/, src/: improve error messages, fix minor memory leaks
+	* src/io/source_avcodec.c: improve compatibility with latest ffmpeg and with
+	older libav/ffmpeg versions
+	* python/demos/: new demos to capture microphone in real time
+
+	[ Interface]
+
+	* src/aubio.h: include utils/log.h
+	* src/utils/log.h: add new aubio_log_set_function to redirect log messages
+	* src/notes/notes.h: add aubio_notes_{get,set}_minioi_ms, add
+	_{get,set}_silence methods
+
+	[ Library ]
+
+	* src/aubio_priv.h: add AUBIO_INF to print to stdout with header, use new
+	logging function, add ATAN alias, add stdarg.h, move #include "config.h"
+	* src/{fmat,fvec}.c: avoid integer division
+	* src/pitch/pitchyin.c: [msvc] help compiler to optimize aubio_pitchyin_do
+	by giving it addresses for all arrays which are referenced in inner loops,
+	thanks to Eduard Mueller.
+	* src/pitch/pitch.c: declare internal functions as static, fail on wrong
+	method, warn on wrong unit, improve error messages, fix error string
+	* src/spectral/specdesc.c: return NULL if wrong mode asked, remove trailing
+	spaces
+	* src/onset/onset.c: return null and clean-up if new_aubio_specdesc failed,
+	fix error message
+	* src/notes/notes.c: use midi note to store pitch candidate, round to
+	nearest note, add a variable to define precision, fix out-of-bound write,
+	fix unset silence_threshold, fix error message
+	* src/spectral/ooura_fft8g.c: add cast to avoid conversion warnings, prefix
+	public function with aubio_ooura_ to avoid with other apps using ooura (e.g.
+	puredata), make internal functions static,
+	* src/spectral/fft.c: add message about fftw3 being able to do non-power of
+	two sizes, make calls to fftw_destroy_plan thread-safe, use prefixed
+	aubio_ooura_rdft
+	* src/spectral/phasevoc.c: fix error string
+	* src/temporal/resampler.c: throw an error when using libsamplerate with doubles
+	* src/io/ioutils.h: add functions to check samplerate and channels, use in sink_*.c
+	* src/io/source.c: add error message when aubio was compiled with no source,
+	only show error message from last child source_
+	* src/io/source_avcodec.c: call avformat_free_context after
+	avformat_close_input, keep a reference to packet to remove it when closing
+	file, avoid deprecation warnings with ffmpeg 3.2, add backward compatibility
+	for libavcodec55, fix for old libavcodec54, use AV_SAMPLE_FMT_DBL when
+	compiling with HAVE_AUBIO_DOUBLE, fix missing samples in eof block, avoid
+	function calls before declarations, improve error messages, replace with new
+	context before closing old one, make sure s->path is set to null
+	* src/io/{source_wavread,sink_wavwrite}.c: declare internal functions as static
+	* src/io/source_wavread.c: fix bytes_read for JUNK headers, improve error
+	messages, initialize buffer, skip chunks until data is found, or abort, skip
+	junk chunk
+	* src/io/source_sndfile.c: add support for multi-channel resampling, set
+	handle to null after sucessful close, add missing floor in ratio comparison,
+	improve formatting
+	* src/io/sink.c: only show error message from last child sink_
+	* src/io/sink_apple_audio.c: avoid crash on empty file name
+	* src/io/sink_sndfile.c: improve error message
+	* src/io/sink_{sndfile,wavwrite}.c: use AUBIO_MAX_CHANNELS, fix error message
+
+	[ Documentation ]
+
+	* README.md: update copyright dates, use https
+	* src/aubio.h: add some links to examples, use https
+	* src/pitch/pitch.h: add aubio_pitch_get_tolerance, add basic description of
+	unit modes
+	* src/notes/notes.h: add doxygen header
+	* src/spectral/fft.h: strip example path
+	* doc/*.rst: improve sphinx documentation
+	* doc/android.rst: add reference to it scripts/build_android
+	* doc/debian_packages.rst: added page on debian packages
+	* doc/python_module.rst: add demo_source_simple.py, add note on pip, add
+	`print(aubio.version)`
+	* doc/cli.rst: include command line manpages
+	* doc/cli_features.rst: add matrix of command line features
+	* doc/requirements.rst: add a note about --notests (closes #77), document
+	--msvc options, improve description of options
+	* doc/download.rst: added page on download
+	* doc/installing.rst: update
+	* doc/xcode_frameworks.rst: added page on xcode frameworks
+	* doc/**: use https://aubio.org
+	* doc/conf.py: use pyramid theme, update copyright, remove hardcoded path
+	* doc/web.cfg: exclude ioutils from doc
+	* doc/aubionotes.txt: document -M option (see #18),
+	* doc/aubioonset.txt: add documentation for -M, --minioi, improve threshold
+	description (thanks to Peter Parker), fix typo (onset, not pitch)
+	* doc/aubio*.txt: document -T/--timeformat option
+
+	[ Build ]
+
+	* Makefile: add a brief intro, avoid offline operations, add html and dist
+	targets, add rules for documentation, simplify listing, avoid offline
+	operations, bump waf to 1.9.6, check for waf before clean, chmod go-w
+	waflib, improve clean, use pip to install, factorise pip options, generate
+	more test sounds, improve test_python and test_pure_python, pass build_ext
+	in test_pure_python{,_wheel}, quieten uninstall_python if already
+	uninstalled, improve test targets, use bdist_wheel in test_pure_python,
+	build_ext only for --enable-double, verbose waf rules, add cleanwaf
+	* wscript: added debug/release build type configurations release (default)
+	enables optimizations, debug symbols are enabled in both configurations,
+	thanks to Eduard Mueller.
+	* wscript: add options to disable source_wavread/sink_wavwrite, add check
+	for stdarg.h, new rules 'manpages', 'sphinx', and 'doxygen' to build
+	documentation, add version to sphinx and manpages, disable libsamplerate
+	if double precision enabled (libsamplerate only supports float), fix typos,
+	remove trailing spaces, improve tarball creation (./waf dist), remove
+	full.cfg from tarball, prepend to CFLAGS to honor user cflags
+	* wscript, src/wscript_build: improve install locations using DATAROOTDIR,
+	MANDIR, INCLUDEDIR
+	* wscript: default to no atlas for now
+	* src/wscript_build: always build static library
+	* scripts/build_android: add an example script to build aubio on android,
+
+	[ Tools ]
+
+	* examples/aubionotes.c: use new notes, set minioi, send last note off when
+	needed, add warning for missing options
+	* examples/aubioonset.c: add minioi option, in seconds
+	* examples/: only send a last note off when using jack
+	* examples/: return 1 if object creation failed
+	* examples/: use PROG_HAS_OUTPUT, add PROG_HAS_SILENCE
+
+	[ Tests ]
+
+	* tests/src/spectral/test-fft.c: fix default size
+	* tests/src/spectral/test-phasevoc.c: fix typos
+	* tests/src/utils/test-log.c: add AUBIO_INF, add example for
+	aubio_log_set_function, improve messages
+
+	[ Python ]
+
+	* python/ext/aubiomodule.c: add aubio._aubio.__version__ and import it as
+	aubio.version, use custom logging function for errors and warnings, remove
+	duplicated add_generated_objects, use <> for non local aubio
+	* python/ext/py-cvec.c: use NPY_INTP_FMT
+	* python/ext/py-fft.c: use error string set in src/spectral/fft.c
+	* python/ext/py-phasevoc.c: use error string set in src/spectral/phasevoc.c
+	* python/ext/py-sink.c: always set samplerate and channels in init
+	* python/ext/py-source.c: use error string set in src/io/source.c
+	* python/lib/aubio/midiconv.py: add unicode double sharp and double flat,
+	improve unicode handling, skip UnicodeEncodeError on python 2.x
+
+	[ Python build ]
+
+	* MANIFEST.in: add src/**.c, exclude full.cfg, include waflib, remove
+	python/ext/config.h
+	* setup.py: define AUBIO_VERSION use sorted glob.glob to improve
+	reproducibility, remove extra quotes, remove status from version string,
+	update description, use custom build_ext instead of 'generate' command,
+	define HAVE_AUBIO_DOUBLE to 1 if needed
+	* python/lib/gen_code.py: add support for multiple _do outputs, fix number
+	of output, improve del_ function, safer DECREF, fix indentation, emit RuntimeError
+	* python/lib/gen_external.py: clean-up, enable tss, remove duplicate,
+	sort generated files
+	* python/lib/moresetuptools.py: add HAVE_STDARG_H, also check for
+	HAVE_AUBIO_DOUBLE, cleaner clean, look first for system library, then for
+	local build, then local sources, mo nore fake config.h here, use
+	samplerate in single precision only
+	* python/README.md: add a note about nose2 for python tests (closes #74)
+	* scripts/setenv_local.sh: python3 compat
+
+	[ Python demos ]
+
+	* python/demos/demo_alsa.py: add example using alsaaudio (closes #72)
+	* python/demos/demo_mfcc.py: add options to plot first and second
+	derivatives, and set samplerate/win_s/hop_s, thanks to @jhoelzl (closes #68)
+	* python/demos/demo_notes.py: add simple notes demos
+	* python/demos/demo_pyaudio.py: added simple demo for pyaudio, see #6,
+	closes #78, thanks to @jhoelzl and @notalentgeek, add some comments, avoid
+	overwriting aubio.pitch
+	* python/demos/demo_source_simple.py: fix indentation, make executable
+	* python/demos/demo_timestretch{,_online}.py: fix usage string, remove
+	unused import, use // to yield an integer (closes #71)
+	* python/demos/demo_timestretch_online.py: use 512, fix block counter
+	* python/demos/demo_tss.py: improve default parameters, exit before plotting
+
+	[ Python tests ]
+
+	* python/tests/: use local import, add __init__.py
+	* python/tests/test_cvec.py: simplify
+	* python/tests/test_fft.py: skip test fft(zeros).phas == 0 if needed, expected powerpc
+	* python/tests/test_fvec.py: reduce alpha norm precision to 10.-4
+	* python/tests/test_{midi2note,note2midi}.py: use nose2.params, add unicode tests
+	* python/tests/test_notes.py: add basic tests
+	* python/tests/test_notes.py: test results are correct for 44100Hz_44100f_sine441.wav
+	* python/tests/test_sink.py: add more tests, quiet warnings
+	* python/tests/test_source.py: break long line, check the tail of the file
+	is non-zero on non silent test files, filter user warnings to avoid spamming
+	the console, only check if last frames are non silent on brownnoise (weak),
+	remove fragile brownnoise test, check duration on short files, use nose2
+	params to process one sound file per test
+	* python/tests/test_specdesc.py: RuntimeError is now raised on wrong mode
+	* python/tests/utils.py: by default, use 5 seconds brownoise
+
+	[ Only in git ]
+
+	* .travis.yml: add debian dpkg-buildflags config, switch from precise to
+	trusty, sudo required, add ffmpeg on osx, add targets ios, iosimulator,
+	and osx noopt configs, bump to xcode8, add xcode8.2 config, mimick
+	build_apple_frameworks options, alway upgrade pip, add pip --version and
+	which pip after upgrading, remove --user, use expandwaf in install, remove
+	unused ARCH, shuffle order, remove duplicate, add missing opening quote,
+	use AUBIO_NOTESTS to build only lib on ios, add gitter webhook
+	* .appveyor.yml: fix path for windows+python 3.5, fix typo in path, make
+	nose2 tests verbose
+
 2016-08-16 Paul Brossier <piem@aubio.org>
 
 	[ Interface ]
