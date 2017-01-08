@@ -4,7 +4,8 @@
 
 // this dummy macro is used to convince windows that a string passed as -D flag
 // is just that, a string, and not a double.
-#define DEFINEDSTRING(x) #x
+#define REDEFINESTRING(x) #x
+#define DEFINEDSTRING(x) REDEFINESTRING(x)
 
 static char aubio_module_doc[] = "Python module for the aubio library";
 
