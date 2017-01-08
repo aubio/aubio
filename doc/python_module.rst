@@ -29,7 +29,7 @@ Using aubio in python
 ---------------------
 
 Once you have python-aubio installed, you should be able to run ``python -c
-"import aubio"``.
+"import aubio; print(aubio.version)"``.
 
 A simple example
 ................
