@@ -18,6 +18,10 @@ Quick links
 * :ref:`develop`
 * :ref:`building`
 
+.. only:: devel
+
+    .. include:: statuslinks.rst
+
 Project pages
 =============
 
