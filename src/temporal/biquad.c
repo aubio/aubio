@@ -41,7 +41,7 @@ aubio_filter_set_biquad (aubio_filter_t * f, lsmp_t b0, lsmp_t b1, lsmp_t b2,
   bs->data[2] = b2;
   as->data[0] = 1.;
   as->data[1] = a1;
-  as->data[1] = a2;
+  as->data[2] = a2;
   return AUBIO_OK;
 }
 
