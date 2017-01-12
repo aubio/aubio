@@ -117,6 +117,10 @@ void usage (FILE * stream, int exit_code)
 #endif /* PROG_HAS_OUTPUT */
 #ifdef PROG_HAS_JACK
       "       -j      --jack             use Jack\n"
+#if defined(PROG_HAS_ONSET) && !defined(PROG_HAS_PITCH)
+      "       -N      --miditap-note     MIDI note; default=69.\n"
+      "       -V      --miditap-velo     MIDI velocity; default=65.\n"
+#endif /* defined(PROG_HAS_ONSET) && !defined(PROG_HAS_PITCH) */
 #endif /* PROG_HAS_JACK */
       "       -v      --verbose          be verbose\n"
       "       -h      --help             display this message\n"
@@ -136,6 +140,9 @@ parse_args (int argc, char **argv)
     "i:r:B:H:"
 #ifdef PROG_HAS_JACK
     "j"
+#if defined(PROG_HAS_ONSET) && !defined(PROG_HAS_PITCH)
+    "N:V:"
+#endif /* defined(PROG_HAS_ONSET) && !defined(PROG_HAS_PITCH) */
 #endif /* PROG_HAS_JACK */
 #ifdef PROG_HAS_OUTPUT
     "o:"
@@ -164,6 +171,10 @@ parse_args (int argc, char **argv)
     {"hopsize",               1, NULL, 'H'},
 #ifdef PROG_HAS_JACK
     {"jack",                  0, NULL, 'j'},
+#if defined(PROG_HAS_ONSET) && !defined(PROG_HAS_PITCH)
+    {"miditap-note",          1, NULL, 'N'},
+    {"miditap-velo",          1, NULL, 'V'},
+#endif /* PROG_HAS_ONSET !PROG_HAS_PITCH */
 #endif /* PROG_HAS_JACK */
 #ifdef PROG_HAS_OUTPUT
     {"output",                1, NULL, 'o'},
@@ -206,6 +217,12 @@ parse_args (int argc, char **argv)
         break;
       case 'j':
         usejack = 1;
+        break;
+      case 'N':
+        miditap_note = atof (optarg);
+        break;
+      case 'V':
+        miditap_velo = atof (optarg);
         break;
       case 'i':
         source_uri = optarg;
