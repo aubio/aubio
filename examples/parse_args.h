@@ -117,6 +117,8 @@ void usage (FILE * stream, int exit_code)
 #endif /* PROG_HAS_OUTPUT */
 #ifdef PROG_HAS_JACK
       "       -j      --jack             use Jack\n"
+      "       -n      --miditap-note     MIDI note\n"
+      "       -V      --miditap-velo     MIDI velocity\n"
 #endif /* PROG_HAS_JACK */
       "       -v      --verbose          be verbose\n"
       "       -h      --help             display this message\n"
@@ -135,7 +137,7 @@ parse_args (int argc, char **argv)
   const char *options = "hv"
     "i:r:B:H:"
 #ifdef PROG_HAS_JACK
-    "j"
+    "jn:V:"
 #endif /* PROG_HAS_JACK */
 #ifdef PROG_HAS_OUTPUT
     "o:"
@@ -164,6 +166,8 @@ parse_args (int argc, char **argv)
     {"hopsize",               1, NULL, 'H'},
 #ifdef PROG_HAS_JACK
     {"jack",                  0, NULL, 'j'},
+    {"miditap-note",          1, NULL, 'n'},
+    {"miditap-velo",          1, NULL, 'V'},
 #endif /* PROG_HAS_JACK */
 #ifdef PROG_HAS_OUTPUT
     {"output",                1, NULL, 'o'},
@@ -206,6 +210,12 @@ parse_args (int argc, char **argv)
         break;
       case 'j':
         usejack = 1;
+        break;
+      case 'n':
+        miditap_note = atoi (optarg);
+        break;
+      case 'V':
+        miditap_velo = atoi (optarg);
         break;
       case 'i':
         source_uri = optarg;
