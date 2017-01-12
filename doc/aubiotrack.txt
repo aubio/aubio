@@ -8,7 +8,8 @@ SYNOPSIS
              [-r rate] [-B win] [-H hop]
              [-T time-format]
              [-s sil] [-m]
-             [-j] [-v] [-h]
+             [-j] [-N miditap-note] [-V miditap-velo]
+             [-v] [-h]
 
 DESCRIPTION
 
@@ -54,7 +55,7 @@ OPTIONS
   -j, --jack  Use Jack input/output. You will need a Jack connection
   controller to feed aubio some signal and listen to its output.
 
-  -n, --miditap-note  Override note value for MIDI tap. Defaults to 69.
+  -N, --miditap-note  Override note value for MIDI tap. Defaults to 69.
 
   -V, --miditap-velop  Override velocity value for MIDI tap. Defaults to 65.
 
