@@ -76,6 +76,7 @@ extern int parse_args (int argc, char **argv);
 
 #if HAVE_JACK
 aubio_jack_t *jack_setup;
+jack_midi_event_t ev;
 #endif /* HAVE_JACK */
 
 void examples_common_init (int argc, char **argv);
@@ -127,6 +128,9 @@ void examples_common_init (int argc, char **argv)
 
 void examples_common_del (void)
 {
+#ifdef HAVE_JACK
+  if (ev.buffer) free(ev.buffer);
+#endif
   del_fvec (ibuf);
   del_fvec (obuf);
   aubio_cleanup ();
@@ -142,6 +146,9 @@ void examples_common_process (aubio_process_func_t process_func,
   if (usejack) {
 
 #ifdef HAVE_JACK
+    ev.size = 3;
+    ev.buffer = malloc (3 * sizeof (jack_midi_data_t));
+    ev.time = 0; // send it now
     debug ("Jack activation ...\n");
     aubio_jack_activate (jack_setup, process_func);
     debug ("Processing (Ctrl+C to quit) ...\n");
@@ -185,10 +192,6 @@ void
 send_noteon (smpl_t pitch, smpl_t velo)
 {
 #ifdef HAVE_JACK
-  jack_midi_event_t ev;
-  ev.size = 3;
-  ev.buffer = malloc (3 * sizeof (jack_midi_data_t)); // FIXME
-  ev.time = 0;
   if (usejack) {
     ev.buffer[2] = velo;
     ev.buffer[1] = pitch;
