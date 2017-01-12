@@ -219,10 +219,10 @@ parse_args (int argc, char **argv)
         usejack = 1;
         break;
       case 'n':
-        miditap_note = atoi (optarg);
+        miditap_note = atof (optarg);
         break;
       case 'V':
-        miditap_velo = atoi (optarg);
+        miditap_velo = atof (optarg);
         break;
       case 'i':
         source_uri = optarg;
