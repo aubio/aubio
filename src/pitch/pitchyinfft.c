@@ -37,7 +37,7 @@ struct _aubio_pitchyinfft_t
   fvec_t *yinfft;     /**< Yin function */
   smpl_t tol;         /**< Yin tolerance */
   smpl_t confidence;  /**< confidence */
-  uint_t short_period; /** shortest period under which to check for octave error */
+  uint_t samplerate;  /**< samplerate we got initialized with */
 };
 
 static const smpl_t freqs[] = {
@@ -69,6 +69,7 @@ new_aubio_pitchyinfft (uint_t samplerate, uint_t bufsize)
   p->tol = 0.85;
   p->win = new_aubio_window ("hanningz", bufsize);
   p->weight = new_fvec (bufsize / 2 + 1);
+  p->samplerate = samplerate;
   for (i = 0; i < p->weight->length; i++) {
     freq = (smpl_t) i / (smpl_t) bufsize *(smpl_t) samplerate;
     while (freq > freqs[j]) {
@@ -93,8 +94,10 @@ new_aubio_pitchyinfft (uint_t samplerate, uint_t bufsize)
     p->weight->data[i] = DB2LIN (p->weight->data[i]);
     //p->weight->data[i] = SQRT(DB2LIN(p->weight->data[i]));
   }
-  // check for octave errors above 1300 Hz
-  p->short_period = (uint_t)ROUND(samplerate / 1300.);
+
+  // disable weighting
+  fvec_set_all (p->weight, 1.0);
+
   return p;
 
 beach:
@@ -112,6 +115,7 @@ aubio_pitchyinfft_do (aubio_pitchyinfft_t * p, const fvec_t * input, fvec_t * ou
   fvec_t *fftout = p->fftout;
   fvec_t *yin = p->yinfft;
   smpl_t tmp = 0., sum = 0.;
+
   // window the input
   fvec_weighted_copy(input, p->win, p->winput);
   // get the real / imag parts of its fft
@@ -145,29 +149,39 @@ aubio_pitchyinfft_do (aubio_pitchyinfft_t * p, const fvec_t * input, fvec_t * ou
       yin->data[tau] = 1.;
     }
   }
-  // find best candidates
-  tau = fvec_min_elem (yin);
-  if (yin->data[tau] < p->tol) {
-    // no interpolation, directly return the period as an integer
-    //output->data[0] = tau;
-    //return;
 
-    // 3 point quadratic interpolation
-    //return fvec_quadratic_peak_pos (yin,tau,1);
-    /* additional check for (unlikely) octave doubling in higher frequencies */
-    if (tau > p->short_period) {
-      output->data[0] = fvec_quadratic_peak_pos (yin, tau);
-    } else {
-      /* should compare the minimum value of each interpolated peaks */
-      halfperiod = FLOOR (tau / 2 + .5);
-      if (yin->data[halfperiod] < p->tol)
-        output->data[0] = fvec_quadratic_peak_pos (yin, halfperiod);
-      else
-        output->data[0] = fvec_quadratic_peak_pos (yin, tau);
-    }
-  } else {
+  // calc min available confidence first
+  tmp = fvec_min(yin);
+  if (tmp > p->tol) {
+    // give up - got no confident candidate at all 
     output->data[0] = 0.;
+    return;
   }
+
+  // choose lowest confident candidate first, to avoid choosing harmonics
+  tau = 0;
+  for (l = 1; l < yin->length; l++) {
+    // is this candidate "roughly" as good as the lowest one?
+    if (ABS (yin->data[l] - tmp) < 0.1) {
+      tau = l;
+      break;
+    }
+  }
+  // find local min around current pick to sharpen the results
+  const uint_t LOCAL_NOTE_SEEK_RANGE = 1;
+  const smpl_t note = aubio_bintomidi (tau, p->samplerate, p->fftout->length);
+  const uint_t startbin = MAX (0, (uint_t)aubio_miditobin (note - LOCAL_NOTE_SEEK_RANGE,
+    p->samplerate, p->fftout->length));
+  const uint_t endbin = MIN (yin->length, (uint_t)(aubio_miditobin (note + LOCAL_NOTE_SEEK_RANGE,
+    p->samplerate, p->fftout->length) + 0.5));
+  tmp = yin->data[tau];
+  for (l = startbin; l < endbin; l++) {
+    if (yin->data[l] < tmp ) {
+      tmp = yin->data[l];
+      tau = l;
+    }
+  }
+  output->data[0] = fvec_quadratic_peak_pos(yin, tau);
 }
 
 void
