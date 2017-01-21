@@ -156,9 +156,12 @@ def add_external_deps(ext, usedouble = False):
 
 def add_system_aubio(ext):
     # use pkg-config to find aubio's location
-    add_packages(['aubio'], ext)
+    aubio_version = get_aubio_version()
+    add_packages(['aubio = ' + aubio_version], ext)
     if 'aubio' not in ext.libraries:
-        print("Error: libaubio not found")
+        print("Info: aubio " + aubio_version + " was not found by pkg-config")
+    else:
+        print("Info: using system aubio " + aubio_version + " found in " + ' '.join(ext.library_dirs))
 
 class CleanGenerated(distutils.command.clean.clean):
     def run(self):
