@@ -36,9 +36,12 @@ def get_aubio_version():
     return verstr
 
 def get_aubio_pyversion():
+    # convert to version for python according to pep 440
+    # see https://www.python.org/dev/peps/pep-0440/
     verstr = get_aubio_version()
     if '~alpha' in verstr:
         verstr = verstr.split('~')[0] + 'a1'
+    # TODO: add rc, .dev, and .post suffixes, add numbering
     return verstr
 
 # inspired from https://gist.github.com/abergmeier/9488990
@@ -116,7 +119,7 @@ def add_external_deps(ext, usedouble = False):
                 #'fftw3f',
                ]
     # samplerate only works with float
-    if usedouble == False:
+    if usedouble is False:
         packages += ['samplerate']
     else:
         print("Info: not adding libsamplerate in double precision mode")
