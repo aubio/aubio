@@ -4,6 +4,46 @@ import sys, os, glob, subprocess
 import distutils, distutils.command.clean, distutils.dir_util
 from .gen_external import generate_external, header, output_path
 
+def get_aubio_version():
+    # read from VERSION
+    this_file_dir = os.path.dirname(os.path.abspath(__file__))
+    version_file = os.path.join(this_file_dir, '..', '..', 'VERSION')
+
+    if not os.path.isfile(version_file):
+        raise SystemError("VERSION file not found.")
+
+    for l in open(version_file).readlines():
+        #exec (l.strip())
+        if l.startswith('AUBIO_MAJOR_VERSION'):
+            AUBIO_MAJOR_VERSION = int(l.split('=')[1])
+        if l.startswith('AUBIO_MINOR_VERSION'):
+            AUBIO_MINOR_VERSION = int(l.split('=')[1])
+        if l.startswith('AUBIO_PATCH_VERSION'):
+            AUBIO_PATCH_VERSION = int(l.split('=')[1])
+        if l.startswith('AUBIO_VERSION_STATUS'):
+            AUBIO_VERSION_STATUS = l.split('=')[1].strip()[1:-1]
+
+    if AUBIO_MAJOR_VERSION is None or AUBIO_MINOR_VERSION is None \
+            or AUBIO_PATCH_VERSION is None:
+        raise SystemError("Failed parsing VERSION file.")
+
+    verstr = '.'.join(map(str, [AUBIO_MAJOR_VERSION,
+                                     AUBIO_MINOR_VERSION,
+                                     AUBIO_PATCH_VERSION]))
+
+    if AUBIO_VERSION_STATUS is not None:
+        verstr += AUBIO_VERSION_STATUS
+    return verstr
+
+def get_aubio_pyversion():
+    # convert to version for python according to pep 440
+    # see https://www.python.org/dev/peps/pep-0440/
+    verstr = get_aubio_version()
+    if '~alpha' in verstr:
+        verstr = verstr.split('~')[0] + 'a1'
+    # TODO: add rc, .dev, and .post suffixes, add numbering
+    return verstr
+
 # inspired from https://gist.github.com/abergmeier/9488990
 def add_packages(packages, ext=None, **kw):
     """ use pkg-config to search which of 'packages' are installed """
@@ -79,7 +119,7 @@ def add_external_deps(ext, usedouble = False):
                 #'fftw3f',
                ]
     # samplerate only works with float
-    if usedouble == False:
+    if usedouble is False:
         packages += ['samplerate']
     else:
         print("Info: not adding libsamplerate in double precision mode")
@@ -119,9 +159,12 @@ def add_external_deps(ext, usedouble = False):
 
 def add_system_aubio(ext):
     # use pkg-config to find aubio's location
-    add_packages(['aubio'], ext)
+    aubio_version = get_aubio_version()
+    add_packages(['aubio = ' + aubio_version], ext)
     if 'aubio' not in ext.libraries:
-        print("Error: libaubio not found")
+        print("Info: aubio " + aubio_version + " was not found by pkg-config")
+    else:
+        print("Info: using system aubio " + aubio_version + " found in " + ' '.join(ext.library_dirs))
 
 class CleanGenerated(distutils.command.clean.clean):
     def run(self):

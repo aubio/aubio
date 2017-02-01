@@ -6,20 +6,7 @@ from python.lib.moresetuptools import *
 # function to generate gen/*.{c,h}
 from python.lib.gen_external import generate_external, header, output_path
 
-# read from VERSION
-for l in open('VERSION').readlines(): exec (l.strip())
-
-if AUBIO_MAJOR_VERSION is None or AUBIO_MINOR_VERSION is None \
-        or AUBIO_PATCH_VERSION is None:
-    raise SystemError("Failed parsing VERSION file.")
-
-__version__ = '.'.join(map(str, [AUBIO_MAJOR_VERSION,
-                                 AUBIO_MINOR_VERSION,
-                                 AUBIO_PATCH_VERSION]))
-if AUBIO_VERSION_STATUS is not None:
-    if AUBIO_VERSION_STATUS.startswith('~'):
-        AUBIO_VERSION_STATUS = AUBIO_VERSION_STATUS[1:]
-    #__version__ += AUBIO_VERSION_STATUS
+__version__ = get_aubio_pyversion()
 
 include_dirs = []
 library_dirs = []
