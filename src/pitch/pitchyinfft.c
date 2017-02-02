@@ -114,7 +114,8 @@ aubio_pitchyinfft_do (aubio_pitchyinfft_t * p, const fvec_t * input, fvec_t * ou
   fvec_t *fftout = p->fftout;
   fvec_t *yin = p->yinfft;
   smpl_t tmp = 0., sum = 0.;
-  uint_t startbin = 0, endbin = 0, before = 0, after = 0;
+  // empirically derived peak width to look for
+  uint_t lookafter = yin->length / 128, endbin;
 
   // window the input
   fvec_weighted_copy(input, p->win, p->winput);
@@ -158,26 +159,27 @@ aubio_pitchyinfft_do (aubio_pitchyinfft_t * p, const fvec_t * input, fvec_t * ou
     return;
   }
 
-  // choose lowest confident candidate first, to avoid choosing harmonics
+  // choose first confident candidate, to avoid choosing lower harmonics
   tau = 0;
   for (l = 1; l < yin->length; l++) {
     // is this candidate "roughly" as good as the lowest one?
+    // the constant 0.1 is empirically derived
     if (ABS (yin->data[l] - tmp) < 0.1) {
       tau = l;
       break;
     }
   }
-  // find local min around current pick to sharpen the results
-  before = 2, after = 5;
-  // for low frequency, the peak may be large, we use a larger after
-  if (tau > yin->length/2) { before = 1; after = 20; }
-  startbin = tau > before ? tau - before : 0;
-  endbin = tau < yin->length - 1 - after ? tau + after : yin->length - 1;
+  // find local min around current peak to sharpen the results
+  endbin = tau + lookafter < yin->length - 1 ? tau + lookafter : yin->length - 1;
   tmp = yin->data[tau];
-  for (l = startbin; l < endbin; l++) {
+  for (l = tau; l < endbin; l++) {
     if (yin->data[l] < tmp ) {
       tmp = yin->data[l];
       tau = l;
+    }
+    // stop as soon as we start going up again
+    if (yin->data[l] > tmp && l > tau) {
+      break;
     }
   }
   output->data[0] = fvec_quadratic_peak_pos(yin, tau);
