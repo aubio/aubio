@@ -111,10 +111,10 @@ aubio_pitchyinfft_do (aubio_pitchyinfft_t * p, const fvec_t * input, fvec_t * ou
 {
   uint_t tau, l;
   uint_t length = p->fftout->length;
-  uint_t halfperiod;
   fvec_t *fftout = p->fftout;
   fvec_t *yin = p->yinfft;
   smpl_t tmp = 0., sum = 0.;
+  uint_t startbin = 0, endbin = 0, before = 0, after = 0;
 
   // window the input
   fvec_weighted_copy(input, p->win, p->winput);
@@ -153,7 +153,7 @@ aubio_pitchyinfft_do (aubio_pitchyinfft_t * p, const fvec_t * input, fvec_t * ou
   // calc min available confidence first
   tmp = fvec_min(yin);
   if (tmp > p->tol) {
-    // give up - got no confident candidate at all 
+    // give up - got no confident candidate at all
     output->data[0] = 0.;
     return;
   }
@@ -168,12 +168,11 @@ aubio_pitchyinfft_do (aubio_pitchyinfft_t * p, const fvec_t * input, fvec_t * ou
     }
   }
   // find local min around current pick to sharpen the results
-  const uint_t LOCAL_NOTE_SEEK_RANGE = 1;
-  const smpl_t note = aubio_bintomidi (tau, p->samplerate, p->fftout->length);
-  const uint_t startbin = MAX (0, (uint_t)aubio_miditobin (note - LOCAL_NOTE_SEEK_RANGE,
-    p->samplerate, p->fftout->length));
-  const uint_t endbin = MIN (yin->length, (uint_t)(aubio_miditobin (note + LOCAL_NOTE_SEEK_RANGE,
-    p->samplerate, p->fftout->length) + 0.5));
+  before = 2, after = 5;
+  // for low frequency, the peak may be large, we use a larger after
+  if (tau > yin->length/2) { before = 1; after = 20; }
+  startbin = tau > before ? tau - before : 0;
+  endbin = tau < yin->length - 1 - after ? tau + after : yin->length - 1;
   tmp = yin->data[tau];
   for (l = startbin; l < endbin; l++) {
     if (yin->data[l] < tmp ) {
