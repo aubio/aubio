@@ -111,6 +111,10 @@ new_aubio_pitch (const char_t * pitch_mode,
 {
   aubio_pitch_t *p = AUBIO_NEW (aubio_pitch_t);
   aubio_pitch_type pitch_type;
+  if (pitch_mode == NULL) {
+    AUBIO_ERR ("pitch: can not use ‘NULL‘ for pitch detection method\n");
+    goto beach;
+  }
   if (strcmp (pitch_mode, "mcomb") == 0)
     pitch_type = aubio_pitcht_mcomb;
   else if (strcmp (pitch_mode, "yinfft") == 0)
