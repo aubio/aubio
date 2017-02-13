@@ -1,4 +1,6 @@
 #! /bin/sh
+
+# cd to aubio directory for consistency
 cd `dirname $0`/..
 
 AUBIO_TMPDIR=`mktemp -d /var/tmp/aubio-build-XXXX`
