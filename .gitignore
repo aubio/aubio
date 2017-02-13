@@ -30,6 +30,7 @@ build/
 # doxygen
 doc/web/
 doc/full/
+doc/_build/
 
 python/gen
 python/dist
