@@ -87,7 +87,7 @@ If waf is not found in the directory, you can download and install it with:
 
     make getwaf
 
-aubio compiles on Linux, Mac OS X, Cygwin, and iOS.
+aubio compiles on Linux, Mac OS X, Windows, Cygwin, and iOS.
 
 Installation
 ------------
