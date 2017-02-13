@@ -1,4 +1,5 @@
 #! /bin/sh
+cd `dirname $0`/..
 
 AUBIO_TMPDIR=`mktemp -d /var/tmp/aubio-build-XXXX`
 PACKAGE=aubio
