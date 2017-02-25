@@ -70,9 +70,13 @@ distrib = setup(name='aubio',
     platforms = 'any',
     classifiers = classifiers,
     install_requires = ['numpy'],
+    setup_requires = ['numpy'],
     cmdclass = {
         'clean': CleanGenerated,
         'build_ext': build_ext,
         },
     test_suite = 'nose2.collector.collector',
+    extras_require = {
+        'tests': ['numpy'],
+        },
     )
