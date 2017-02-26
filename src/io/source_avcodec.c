@@ -484,6 +484,11 @@ uint_t aubio_source_avcodec_seek (aubio_source_avcodec_t * s, uint_t pos) {
     AUBIO_ERR("source_avcodec: failed seeking in %s (file not opened?)", s->path);
     return ret;
   }
+  if ((sint_t)pos < 0) {
+    AUBIO_ERR("source_avcodec: could not seek %s at %d (seeking position"
+       " should be >= 0)\n", s->path, pos);
+    return AUBIO_FAIL;
+  }
   ret = avformat_seek_file(s->avFormatCtx, s->selected_stream,
       min_ts, resampled_pos, max_ts, seek_flags);
   if (ret < 0) {
