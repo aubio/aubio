@@ -407,6 +407,10 @@ uint_t aubio_source_wavread_get_channels(aubio_source_wavread_t * s) {
 
 uint_t aubio_source_wavread_seek (aubio_source_wavread_t * s, uint_t pos) {
   uint_t ret = 0;
+  if (s->fid == NULL) {
+    AUBIO_ERR("source_wavread: could not seek %s (file not opened?)\n", s->path, pos);
+    return AUBIO_FAIL;
+  }
   if ((sint_t)pos < 0) {
     AUBIO_ERR("source_wavread: could not seek %s at %d (seeking position should be >= 0)\n", s->path, pos);
     return AUBIO_FAIL;
