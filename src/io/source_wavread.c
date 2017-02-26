@@ -295,6 +295,11 @@ void aubio_source_wavread_readframe(aubio_source_wavread_t *s, uint_t *wavread_r
 
 void aubio_source_wavread_readframe(aubio_source_wavread_t *s, uint_t *wavread_read) {
   unsigned char *short_ptr = s->short_output;
+  if (s->fid == NULL) {
+    fmat_zeros(s->output);
+    *wavread_read = 0;
+    return;
+  }
   size_t read = fread(short_ptr, s->blockalign, AUBIO_WAVREAD_BUFSIZE, s->fid);
   uint_t i, j, b, bitspersample = s->bitspersample;
   uint_t wrap_at = (1 << ( bitspersample - 1 ) );
