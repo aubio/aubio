@@ -294,12 +294,13 @@ uint_t aubio_source_sndfile_get_duration (const aubio_source_sndfile_t * s) {
 
 uint_t aubio_source_sndfile_seek (aubio_source_sndfile_t * s, uint_t pos) {
   uint_t resampled_pos = (uint_t)ROUND(pos / s->ratio);
-  sf_count_t sf_ret = sf_seek (s->handle, resampled_pos, SEEK_SET);
+  sf_count_t sf_ret;
   if (s->handle == NULL) {
     AUBIO_ERR("source_sndfile: failed seeking in %s (file not opened?)\n",
         s->path);
     return AUBIO_FAIL;
   }
+  sf_ret = sf_seek (s->handle, resampled_pos, SEEK_SET);
   if (sf_ret == -1) {
     AUBIO_ERR("source_sndfile: Failed seeking %s at %d: %s\n", s->path, pos, sf_strerror (NULL));
     return AUBIO_FAIL;
