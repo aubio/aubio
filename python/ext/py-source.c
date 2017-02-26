@@ -272,6 +272,18 @@ Pyaubio_source_seek (Py_source *self, PyObject *args)
   Py_RETURN_NONE;
 }
 
+static char Pyaubio_source_enter_doc[] = "";
+static PyObject* Pyaubio_source_enter(Py_source *self, PyObject *unused) {
+  Py_INCREF(self);
+  return (PyObject*)self;
+}
+
+static char Pyaubio_source_exit_doc[] = "";
+static PyObject* Pyaubio_source_exit(Py_source *self, PyObject *unused) {
+  Pyaubio_source_close(self, unused);
+  return Pyaubio_source_close(self, unused);
+}
+
 static PyMethodDef Py_source_methods[] = {
   {"get_samplerate", (PyCFunction) Pyaubio_source_get_samplerate,
     METH_NOARGS, Py_source_get_samplerate_doc},
@@ -285,6 +297,10 @@ static PyMethodDef Py_source_methods[] = {
     METH_NOARGS, Py_source_close_doc},
   {"seek", (PyCFunction) Pyaubio_source_seek,
     METH_VARARGS, Py_source_seek_doc},
+  {"__enter__", (PyCFunction)Pyaubio_source_enter, METH_NOARGS,
+    Pyaubio_source_enter_doc},
+  {"__exit__",  (PyCFunction)Pyaubio_source_exit, METH_VARARGS,
+    Pyaubio_source_exit_doc},
   {NULL} /* sentinel */
 };
 
