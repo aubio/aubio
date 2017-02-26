@@ -300,6 +300,11 @@ uint_t aubio_source_sndfile_seek (aubio_source_sndfile_t * s, uint_t pos) {
         s->path);
     return AUBIO_FAIL;
   }
+  if ((sint_t)pos < 0) {
+    AUBIO_ERR("source_sndfile: could not seek %s at %d (seeking position"
+       " should be >= 0)\n", s->path, pos);
+    return AUBIO_FAIL;
+  }
   sf_ret = sf_seek (s->handle, resampled_pos, SEEK_SET);
   if (sf_ret == -1) {
     AUBIO_ERR("source_sndfile: Failed seeking %s at %d: %s\n", s->path, pos, sf_strerror (NULL));
