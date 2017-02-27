@@ -169,5 +169,21 @@ class aubio_source_readmulti_test_case(aubio_source_read_test_case):
         #print (result_str.format(*result_params))
         return total_frames
 
+class aubio_source_with(aubio_source_test_case_base):
+
+    #@params(*list_of_sounds)
+    @params(*list_of_sounds)
+    def test_read_from_mono(self, filename):
+        total_frames = 0
+        hop_size = 2048
+        with source(filename, 0, hop_size) as input_source:
+            assert_equal(input_source.hop_size, hop_size)
+            #assert_equal(input_source.samplerate, samplerate)
+            total_frames = 0
+            for frames in input_source:
+                total_frames += frames.shape[-1]
+            # check we read as many samples as we expected
+            assert_equal(total_frames, input_source.duration)
+
 if __name__ == '__main__':
     main()
