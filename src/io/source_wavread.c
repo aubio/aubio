@@ -439,8 +439,8 @@ uint_t aubio_source_wavread_get_duration (const aubio_source_wavread_t * s) {
 }
 
 uint_t aubio_source_wavread_close (aubio_source_wavread_t * s) {
-  if (!s->fid) {
-    return AUBIO_FAIL;
+  if (s->fid == NULL) {
+    return AUBIO_OK;
   }
   if (fclose(s->fid)) {
     AUBIO_ERR("source_wavread: could not close %s (%s)\n", s->path, strerror(errno));
