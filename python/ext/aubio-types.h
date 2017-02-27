@@ -46,6 +46,14 @@
 #define AUBIO_NPY_SMPL_CHR "f"
 #endif
 
+#ifndef PATH_MAX
+#ifdef MAX_PATH
+#define PATH_MAX MAX_PATH
+#else
+#define PATH_MAX 1024
+#endif
+#endif
+
 // compat with Python < 2.6
 #ifndef Py_TYPE
 #define Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
