@@ -80,9 +80,10 @@ Py_sink_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
     return NULL;
   }
 
-  self->uri = "none";
+  self->uri = NULL;
   if (uri != NULL) {
-    self->uri = uri;
+    self->uri = (char_t *)malloc(sizeof(char_t) * (strnlen(uri, PATH_MAX) + 1));
+    strncpy(self->uri, uri, strnlen(uri, PATH_MAX) + 1);
   }
 
   self->samplerate = Py_aubio_default_samplerate;

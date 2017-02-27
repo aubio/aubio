@@ -100,9 +100,10 @@ Py_source_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
     return NULL;
   }
 
-  self->uri = "none";
+  self->uri = NULL;
   if (uri != NULL) {
-    self->uri = uri;
+    self->uri = (char_t *)malloc(sizeof(char_t) * (strnlen(uri, PATH_MAX) + 1));
+    strncpy(self->uri, uri, strnlen(uri, PATH_MAX) + 1);
   }
 
   self->samplerate = 0;
