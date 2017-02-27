@@ -289,7 +289,7 @@ static PyObject* Pyaubio_source_iter(PyObject *self) {
 }
 
 static PyObject* Pyaubio_source_iter_next(Py_source *self) {
-  PyObject *done;
+  PyObject *done, *size;
   if (self->channels == 1) {
     done = Py_source_do(self, NULL);
   } else {
@@ -300,7 +300,7 @@ static PyObject* Pyaubio_source_iter_next(Py_source *self) {
         "error when reading source: not opened?");
     return NULL;
   }
-  PyObject *size = PyTuple_GetItem(done, 1);
+  size = PyTuple_GetItem(done, 1);
   if (size != NULL && PyLong_Check(size)) {
     if (PyLong_AsLong(size) == (long)self->hop_size) {
       PyObject *vec = PyTuple_GetItem(done, 0);
