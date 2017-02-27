@@ -310,9 +310,10 @@ static PyObject* Pyaubio_source_iter_next(Py_source *self) {
       PyObject *vec = PyTuple_GetItem(done, 0);
       return vec;
     } else if (PyLong_AsLong(size) > 0) {
-      // short read
+      // short read, return a shorter array
       PyArrayObject *shortread = (PyArrayObject*)PyTuple_GetItem(done, 0);
       PyArray_Dims newdims;
+      PyObject *reshaped;
       newdims.len = PyArray_NDIM(shortread);
       newdims.ptr = PyArray_DIMS(shortread);
       // mono or multiple channels?
@@ -321,8 +322,9 @@ static PyObject* Pyaubio_source_iter_next(Py_source *self) {
       } else {
         newdims.ptr[1] = PyLong_AsLong(size);
       }
-      PyArray_Resize(shortread, &newdims, 1, NPY_ANYORDER);
-      return (PyObject*)shortread;
+      reshaped = PyArray_Newshape(shortread, &newdims, NPY_CORDER);
+      Py_DECREF(shortread);
+      return reshaped;
     } else {
       PyErr_SetNone(PyExc_StopIteration);
       return NULL;
