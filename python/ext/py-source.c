@@ -280,7 +280,6 @@ static PyObject* Pyaubio_source_enter(Py_source *self, PyObject *unused) {
 
 static char Pyaubio_source_exit_doc[] = "";
 static PyObject* Pyaubio_source_exit(Py_source *self, PyObject *unused) {
-  Pyaubio_source_close(self, unused);
   return Pyaubio_source_close(self, unused);
 }
 
