@@ -127,6 +127,9 @@ Py_sink_del (Py_sink *self, PyObject *unused)
 {
   del_aubio_sink(self->o);
   free(self->mwrite_data.data);
+  if (self->uri) {
+    free(self->uri);
+  }
   Py_TYPE(self)->tp_free((PyObject *) self);
 }
 

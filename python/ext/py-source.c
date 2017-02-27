@@ -164,6 +164,9 @@ Py_source_del (Py_source *self, PyObject *unused)
     del_aubio_source(self->o);
     free(self->c_mread_to.data);
   }
+  if (self->uri) {
+    free(self->uri);
+  }
   Py_XDECREF(self->read_to);
   Py_XDECREF(self->mread_to);
   Py_TYPE(self)->tp_free((PyObject *) self);
