@@ -34,6 +34,36 @@ Using aubio frameworks in Xcode
 
     import aubio
 
+Using aubio from swift
+......................
+
+Here is a short example showing how to read a sound file in swift:
+
+
+  .. code-block:: swift
+
+    import aubio
+
+    let path = Bundle.main.path(forResource: "example", ofType: "mp4")
+    if (path != nil) {
+        let hop_size : uint_t = 512
+        let a = new_fvec(hop_size)
+        let b = new_aubio_source(path, 0, hop_size)
+        var read: uint_t = 0
+        var total_frames : uint_t = 0
+        while (true) {
+            aubio_source_do(b, a, &read)
+            total_frames += read
+            if (read < hop_size) { break }
+        }
+        print("read", total_frames, "frames at", aubio_source_get_samplerate(b), "Hz")
+        del_aubio_source(b)
+        del_fvec(a)
+    } else {
+        print("could not find file")
+    }
+
+
 .. _Binary frameworks: https://aubio.org/download
 .. _iOS: https://aubio.org/download#ios
 .. _macOS: https://aubio.org/download#osx
