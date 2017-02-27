@@ -295,11 +295,6 @@ void aubio_source_wavread_readframe(aubio_source_wavread_t *s, uint_t *wavread_r
 
 void aubio_source_wavread_readframe(aubio_source_wavread_t *s, uint_t *wavread_read) {
   unsigned char *short_ptr = s->short_output;
-  if (s->fid == NULL) {
-    fmat_zeros(s->output);
-    *wavread_read = 0;
-    return;
-  }
   size_t read = fread(short_ptr, s->blockalign, AUBIO_WAVREAD_BUFSIZE, s->fid);
   uint_t i, j, b, bitspersample = s->bitspersample;
   uint_t wrap_at = (1 << ( bitspersample - 1 ) );
@@ -333,6 +328,11 @@ void aubio_source_wavread_do(aubio_source_wavread_t * s, fvec_t * read_data, uin
   uint_t i, j;
   uint_t end = 0;
   uint_t total_wrote = 0;
+  if (s->fid == NULL) {
+    AUBIO_ERR("source_wavread: could not read from %s (file not opened)\n",
+        s->path);
+    return;
+  }
   while (total_wrote < s->hop_size) {
     end = MIN(s->read_samples - s->read_index, s->hop_size - total_wrote);
     for (i = 0; i < end; i++) {
@@ -367,6 +367,11 @@ void aubio_source_wavread_do_multi(aubio_source_wavread_t * s, fmat_t * read_dat
   uint_t i,j;
   uint_t end = 0;
   uint_t total_wrote = 0;
+  if (s->fid == NULL) {
+    AUBIO_ERR("source_wavread: could not read from %s (file not opened)\n",
+        s->path);
+    return;
+  }
   while (total_wrote < s->hop_size) {
     end = MIN(s->read_samples - s->read_index, s->hop_size - total_wrote);
     for (j = 0; j < read_data->height; j++) {
