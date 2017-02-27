@@ -5,7 +5,7 @@ Downloading aubio
 
 A number of distributions already include aubio. Check your favorite package
 management system, or have a look at the `aubio download page
-<http://aubio.org/download>`_ for more options.
+<https://aubio.org/download>`_ for more options.
 
 To use aubio in a macOS or iOS application, see :ref:`xcode-frameworks-label`.
 
