@@ -320,7 +320,7 @@ uint_t aubio_source_sndfile_seek (aubio_source_sndfile_t * s, uint_t pos) {
 
 uint_t aubio_source_sndfile_close (aubio_source_sndfile_t *s) {
   if (!s->handle) {
-    return AUBIO_FAIL;
+    return AUBIO_OK;
   }
   if(sf_close(s->handle)) {
     AUBIO_ERR("source_sndfile: Error closing file %s: %s\n", s->path, sf_strerror (NULL));
