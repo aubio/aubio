@@ -203,10 +203,25 @@ Pyaubio_sink_close (Py_sink *self, PyObject *unused)
   Py_RETURN_NONE;
 }
 
+static char Pyaubio_sink_enter_doc[] = "";
+static PyObject* Pyaubio_sink_enter(Py_sink *self, PyObject *unused) {
+  Py_INCREF(self);
+  return (PyObject*)self;
+}
+
+static char Pyaubio_sink_exit_doc[] = "";
+static PyObject* Pyaubio_sink_exit(Py_sink *self, PyObject *unused) {
+  return Pyaubio_sink_close(self, unused);
+}
+
 static PyMethodDef Py_sink_methods[] = {
   {"do", (PyCFunction) Py_sink_do, METH_VARARGS, Py_sink_do_doc},
   {"do_multi", (PyCFunction) Py_sink_do_multi, METH_VARARGS, Py_sink_do_multi_doc},
   {"close", (PyCFunction) Pyaubio_sink_close, METH_NOARGS, Py_sink_close_doc},
+  {"__enter__", (PyCFunction)Pyaubio_sink_enter, METH_NOARGS,
+    Pyaubio_sink_enter_doc},
+  {"__exit__",  (PyCFunction)Pyaubio_sink_exit, METH_VARARGS,
+    Pyaubio_sink_exit_doc},
   {NULL} /* sentinel */
 };
 
