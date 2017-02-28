@@ -154,8 +154,8 @@ smpl_t aubio_tempo_get_bpm(aubio_tempo_t * o);
 
   \param o beat tracking object
 
-  \return confidence with which the tempo has been observed, `0` if no
-  consistent value is found.
+  \return confidence with which the tempo has been observed, the higher the
+  more confidence, `0` if no consistent value is found.
 
 */
 smpl_t aubio_tempo_get_confidence(aubio_tempo_t * o);
