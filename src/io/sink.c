@@ -97,9 +97,10 @@ aubio_sink_t * new_aubio_sink(const char_t * uri, uint_t samplerate) {
     return s;
   }
 #endif /* HAVE_WAVWRITE */
-#if !defined(HAVE_WAVWRITE) && !defined(HAVE_SNDFILE) && !defined(HAVE_SINK_APPLE_AUDIO)
-  AUBIO_ERROR("sink: failed creating '%s' (no sink built-in)\n",
-      uri, samplerate);
+#if !defined(HAVE_WAVWRITE) && \
+  !defined(HAVE_SNDFILE) && \
+  !defined(HAVE_SINK_APPLE_AUDIO)
+  AUBIO_ERROR("sink: failed creating '%s' at %dHz (no sink built-in)\n", uri, samplerate);
 #endif
   AUBIO_FREE(s);
   return NULL;

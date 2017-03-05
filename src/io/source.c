@@ -113,12 +113,14 @@ aubio_source_t * new_aubio_source(const char_t * uri, uint_t samplerate, uint_t 
     s->s_del = (del_aubio_source_t)(del_aubio_source_wavread);
     return s;
   }
-#else /* failover message */
-#if !(defined(HAVE_LIBAV) || defined(HAVE_SOURCE_APPLE_AUDIO) || defined(HAVE_SNDFILE))
-  AUBIO_ERROR("source: failed creating aubio source with %s"
-     " at samplerate %d with hop_size %d\n", uri, samplerate, hop_size);
-#endif /* failover */
 #endif /* HAVE_WAVREAD */
+#if !defined(HAVE_WAVREAD) && \
+  !defined(HAVE_LIBAV) && \
+  !defined(HAVE_SOURCE_APPLE_AUDIO) && \
+  !defined(HAVE_SNDFILE)
+  AUBIO_ERROR("source: failed creating with %s at %dHz with hop size %d"
+     " (no source built-in)\n", uri, samplerate, hop_size);
+#endif
   AUBIO_FREE(s);
   return NULL;
 }
