@@ -116,6 +116,10 @@ def parse_args():
             metavar = "<samples>",
             action = "store", dest = "cut_until_nsamples", default = None,
             help="how many extra samples should be added at the end of each slice")
+    parser.add_option("--cut-every-nslices", type = int,
+            metavar = "<samples>",
+            action = "store", dest = "cut_every_nslices", default = None,
+            help="how many slices should be groupped together at each cut")
     parser.add_option("--cut-until-nslices", type = int,
             metavar = "<slices>",
             action = "store", dest = "cut_until_nslices", default = None,
@@ -186,6 +190,9 @@ if __name__ == '__main__':
         # generate output files
         from aubio.slicing import slice_source_at_stamps
         timestamps_end = None
+        if options.cut_every_nslices:
+            timestamps = timestamps[::options.cut_every_nslices]
+            nstamps = len(timestamps)
         if options.cut_until_nslices and options.cut_until_nsamples:
             print ("warning: using cut_until_nslices, but cut_until_nsamples is set")
         if options.cut_until_nsamples:
