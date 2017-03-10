@@ -279,7 +279,7 @@ void aubio_onset_default_parameters (aubio_onset_t * o, const char_t * onset_mod
     aubio_onset_set_threshold (o, 0.4);
   } else if (strcmp (onset_mode, "specdiff") == 0) {
   } else {
-    AUBIO_ERR ("onset: unknown spectral descriptor type %s, "
+    AUBIO_WRN("onset: unknown spectral descriptor type %s, "
                "using default parameters.\n", onset_mode);
   }
 }
