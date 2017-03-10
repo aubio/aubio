@@ -19,18 +19,17 @@
 */
 
 
-#include "config.h"
+#include "aubio_priv.h"
 
 #ifdef HAVE_SNDFILE
 
 #include <sndfile.h>
 
-#include "aubio_priv.h"
 #include "fvec.h"
 #include "fmat.h"
 #include "io/sink_sndfile.h"
+#include "io/ioutils.h"
 
-#define MAX_CHANNELS 6
 #define MAX_SIZE 4096
 
 #if !HAVE_AUBIO_DOUBLE
@@ -53,23 +52,30 @@ struct _aubio_sink_sndfile_t {
 
 uint_t aubio_sink_sndfile_open(aubio_sink_sndfile_t *s);
 
-aubio_sink_sndfile_t * new_aubio_sink_sndfile(char_t * path, uint_t samplerate) {
+aubio_sink_sndfile_t * new_aubio_sink_sndfile(const char_t * path, uint_t samplerate) {
   aubio_sink_sndfile_t * s = AUBIO_NEW(aubio_sink_sndfile_t);
   s->max_size = MAX_SIZE;
-  s->path = path;
 
   if (path == NULL) {
     AUBIO_ERR("sink_sndfile: Aborted opening null path\n");
     return NULL;
   }
 
+  if (s->path) AUBIO_FREE(s->path);
+  s->path = AUBIO_ARRAY(char_t, strnlen(path, PATH_MAX) + 1);
+  strncpy(s->path, path, strnlen(path, PATH_MAX) + 1);
+
   s->samplerate = 0;
   s->channels = 0;
 
-  // negative samplerate given, abort
-  if ((sint_t)samplerate < 0) goto beach;
   // zero samplerate given. do not open yet
-  if ((sint_t)samplerate == 0) return s;
+  if ((sint_t)samplerate == 0) {
+    return s;
+  }
+  // invalid samplerate given, abort
+  if (aubio_io_validate_samplerate("sink_sndfile", s->path, samplerate)) {
+    goto beach;
+  }
 
   s->samplerate = samplerate;
   s->channels = 1;
@@ -86,7 +92,9 @@ beach:
 
 uint_t aubio_sink_sndfile_preset_samplerate(aubio_sink_sndfile_t *s, uint_t samplerate)
 {
-  if ((sint_t)(samplerate) <= 0) return AUBIO_FAIL;
+  if (aubio_io_validate_samplerate("sink_sndfile", s->path, samplerate)) {
+    return AUBIO_FAIL;
+  }
   s->samplerate = samplerate;
   // automatically open when both samplerate and channels have been set
   if (s->samplerate != 0 && s->channels != 0) {
@@ -97,7 +105,9 @@ uint_t aubio_sink_sndfile_preset_samplerate(aubio_sink_sndfile_t *s, uint_t samp
 
 uint_t aubio_sink_sndfile_preset_channels(aubio_sink_sndfile_t *s, uint_t channels)
 {
-  if ((sint_t)(channels) <= 0) return AUBIO_FAIL;
+  if (aubio_io_validate_channels("sink_sndfile", s->path, channels)) {
+    return AUBIO_FAIL;
+  }
   s->channels = channels;
   // automatically open when both samplerate and channels have been set
   if (s->samplerate != 0 && s->channels != 0) {
@@ -106,12 +116,12 @@ uint_t aubio_sink_sndfile_preset_channels(aubio_sink_sndfile_t *s, uint_t channe
   return AUBIO_OK;
 }
 
-uint_t aubio_sink_sndfile_get_samplerate(aubio_sink_sndfile_t *s)
+uint_t aubio_sink_sndfile_get_samplerate(const aubio_sink_sndfile_t *s)
 {
   return s->samplerate;
 }
 
-uint_t aubio_sink_sndfile_get_channels(aubio_sink_sndfile_t *s)
+uint_t aubio_sink_sndfile_get_channels(const aubio_sink_sndfile_t *s)
 {
   return s->channels;
 }
@@ -129,15 +139,17 @@ uint_t aubio_sink_sndfile_open(aubio_sink_sndfile_t *s) {
 
   if (s->handle == NULL) {
     /* show libsndfile err msg */
-    AUBIO_ERR("sink_sndfile: Failed opening %s. %s\n", s->path, sf_strerror (NULL));
+    AUBIO_ERR("sink_sndfile: Failed opening \"%s\" with %d channels, %dHz: %s\n",
+        s->path, s->channels, s->samplerate, sf_strerror (NULL));
     return AUBIO_FAIL;
   }
 
   s->scratch_size = s->max_size*s->channels;
   /* allocate data for de/interleaving reallocated when needed. */
-  if (s->scratch_size >= MAX_SIZE * MAX_CHANNELS) {
+  if (s->scratch_size >= MAX_SIZE * AUBIO_MAX_CHANNELS) {
+    abort();
     AUBIO_ERR("sink_sndfile: %d x %d exceeds maximum aubio_sink_sndfile buffer size %d\n",
-        s->max_size, s->channels, MAX_CHANNELS * MAX_CHANNELS);
+        s->max_size, s->channels, MAX_SIZE * AUBIO_MAX_CHANNELS);
     return AUBIO_FAIL;
   }
   s->scratch_data = AUBIO_ARRAY(smpl_t,s->scratch_size);
@@ -219,6 +231,7 @@ uint_t aubio_sink_sndfile_close (aubio_sink_sndfile_t *s) {
 
 void del_aubio_sink_sndfile(aubio_sink_sndfile_t * s){
   if (!s) return;
+  if (s->path) AUBIO_FREE(s->path);
   aubio_sink_sndfile_close(s);
   AUBIO_FREE(s->scratch_data);
   AUBIO_FREE(s);

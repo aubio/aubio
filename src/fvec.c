@@ -21,7 +21,7 @@
 #include "aubio_priv.h"
 #include "fvec.h"
 
-fvec_t * new_fvec( uint_t length) {
+fvec_t * new_fvec(uint_t length) {
   fvec_t * s;
   if ((sint_t)length <= 0) {
     return NULL;
@@ -41,17 +41,17 @@ void fvec_set_sample(fvec_t *s, smpl_t data, uint_t position) {
   s->data[position] = data;
 }
 
-smpl_t fvec_get_sample(fvec_t *s, uint_t position) {
+smpl_t fvec_get_sample(const fvec_t *s, uint_t position) {
   return s->data[position];
 }
 
-smpl_t * fvec_get_data(fvec_t *s) {
+smpl_t * fvec_get_data(const fvec_t *s) {
   return s->data;
 }
 
 /* helper functions */
 
-void fvec_print(fvec_t *s) {
+void fvec_print(const fvec_t *s) {
   uint_t j;
   for (j=0; j< s->length; j++) {
     AUBIO_MSG(AUBIO_SMPL_FMT " ", s->data[j]);
@@ -90,12 +90,12 @@ void fvec_ones(fvec_t *s) {
 
 void fvec_rev(fvec_t *s) {
   uint_t j;
-  for (j=0; j< FLOOR(s->length/2); j++) {
+  for (j=0; j< FLOOR((smpl_t)s->length/2); j++) {
     ELEM_SWAP(s->data[j], s->data[s->length-1-j]);
   }
 }
 
-void fvec_weight(fvec_t *s, fvec_t *weight) {
+void fvec_weight(fvec_t *s, const fvec_t *weight) {
 #ifndef HAVE_ACCELERATE
   uint_t j;
   uint_t length = MIN(s->length, weight->length);
@@ -107,7 +107,7 @@ void fvec_weight(fvec_t *s, fvec_t *weight) {
 #endif /* HAVE_ACCELERATE */
 }
 
-void fvec_weighted_copy(fvec_t *in, fvec_t *weight, fvec_t *out) {
+void fvec_weighted_copy(const fvec_t *in, const fvec_t *weight, fvec_t *out) {
 #ifndef HAVE_ACCELERATE
   uint_t j;
   uint_t length = MIN(out->length, weight->length);
@@ -119,13 +119,13 @@ void fvec_weighted_copy(fvec_t *in, fvec_t *weight, fvec_t *out) {
 #endif /* HAVE_ACCELERATE */
 }
 
-void fvec_copy(fvec_t *s, fvec_t *t) {
+void fvec_copy(const fvec_t *s, fvec_t *t) {
   if (s->length != t->length) {
     AUBIO_ERR("trying to copy %d elements to %d elements \n",
         s->length, t->length);
     return;
   }
-#if HAVE_NOOPT
+#ifdef HAVE_NOOPT
   uint_t j;
   for (j=0; j< t->length; j++) {
     t->data[j] = s->data[j];

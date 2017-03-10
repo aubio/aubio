@@ -1,10 +1,10 @@
 #! /usr/bin/env python
 
-from numpy.testing import TestCase, run_module_suite
-from numpy.testing import assert_equal, assert_almost_equal
-
+from unittest import main
+from numpy.testing import TestCase, assert_equal
 from aubio import slice_source_at_stamps
-from utils import *
+from .utils import count_files_in_directory, get_default_test_sound
+from .utils import count_samples_in_directory, count_samples_in_file
 
 import tempfile
 import shutil
@@ -146,5 +146,4 @@ class aubio_slicing_wrong_ends_test_case(TestCase):
         shutil.rmtree(self.output_dir)
 
 if __name__ == '__main__':
-    from unittest import main
     main()

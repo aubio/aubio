@@ -18,7 +18,6 @@
 
 */
 
-#include "config.h"
 #include "aubio_priv.h"
 #include "fvec.h"
 #include "fmat.h"
@@ -40,6 +39,7 @@ typedef void (*aubio_source_do_t)(aubio_source_t * s, fvec_t * data, uint_t * re
 typedef void (*aubio_source_do_multi_t)(aubio_source_t * s, fmat_t * data, uint_t * read);
 typedef uint_t (*aubio_source_get_samplerate_t)(aubio_source_t * s);
 typedef uint_t (*aubio_source_get_channels_t)(aubio_source_t * s);
+typedef uint_t (*aubio_source_get_duration_t)(aubio_source_t * s);
 typedef uint_t (*aubio_source_seek_t)(aubio_source_t * s, uint_t seek);
 typedef uint_t (*aubio_source_close_t)(aubio_source_t * s);
 typedef void (*del_aubio_source_t)(aubio_source_t * s);
@@ -50,20 +50,22 @@ struct _aubio_source_t {
   aubio_source_do_multi_t s_do_multi;
   aubio_source_get_samplerate_t s_get_samplerate;
   aubio_source_get_channels_t s_get_channels;
+  aubio_source_get_duration_t s_get_duration;
   aubio_source_seek_t s_seek;
   aubio_source_close_t s_close;
   del_aubio_source_t s_del;
 };
 
-aubio_source_t * new_aubio_source(char_t * uri, uint_t samplerate, uint_t hop_size) {
+aubio_source_t * new_aubio_source(const char_t * uri, uint_t samplerate, uint_t hop_size) {
   aubio_source_t * s = AUBIO_NEW(aubio_source_t);
-#if HAVE_LIBAV
+#ifdef HAVE_LIBAV
   s->source = (void *)new_aubio_source_avcodec(uri, samplerate, hop_size);
   if (s->source) {
     s->s_do = (aubio_source_do_t)(aubio_source_avcodec_do);
     s->s_do_multi = (aubio_source_do_multi_t)(aubio_source_avcodec_do_multi);
     s->s_get_channels = (aubio_source_get_channels_t)(aubio_source_avcodec_get_channels);
     s->s_get_samplerate = (aubio_source_get_samplerate_t)(aubio_source_avcodec_get_samplerate);
+    s->s_get_duration = (aubio_source_get_duration_t)(aubio_source_avcodec_get_duration);
     s->s_seek = (aubio_source_seek_t)(aubio_source_avcodec_seek);
     s->s_close = (aubio_source_close_t)(aubio_source_avcodec_close);
     s->s_del = (del_aubio_source_t)(del_aubio_source_avcodec);
@@ -77,40 +79,48 @@ aubio_source_t * new_aubio_source(char_t * uri, uint_t samplerate, uint_t hop_si
     s->s_do_multi = (aubio_source_do_multi_t)(aubio_source_apple_audio_do_multi);
     s->s_get_channels = (aubio_source_get_channels_t)(aubio_source_apple_audio_get_channels);
     s->s_get_samplerate = (aubio_source_get_samplerate_t)(aubio_source_apple_audio_get_samplerate);
+    s->s_get_duration = (aubio_source_get_duration_t)(aubio_source_apple_audio_get_duration);
     s->s_seek = (aubio_source_seek_t)(aubio_source_apple_audio_seek);
     s->s_close = (aubio_source_close_t)(aubio_source_apple_audio_close);
     s->s_del = (del_aubio_source_t)(del_aubio_source_apple_audio);
     return s;
   }
 #endif /* HAVE_SOURCE_APPLE_AUDIO */
-#if HAVE_SNDFILE
+#ifdef HAVE_SNDFILE
   s->source = (void *)new_aubio_source_sndfile(uri, samplerate, hop_size);
   if (s->source) {
     s->s_do = (aubio_source_do_t)(aubio_source_sndfile_do);
     s->s_do_multi = (aubio_source_do_multi_t)(aubio_source_sndfile_do_multi);
     s->s_get_channels = (aubio_source_get_channels_t)(aubio_source_sndfile_get_channels);
     s->s_get_samplerate = (aubio_source_get_samplerate_t)(aubio_source_sndfile_get_samplerate);
+    s->s_get_duration = (aubio_source_get_duration_t)(aubio_source_sndfile_get_duration);
     s->s_seek = (aubio_source_seek_t)(aubio_source_sndfile_seek);
     s->s_close = (aubio_source_close_t)(aubio_source_sndfile_close);
     s->s_del = (del_aubio_source_t)(del_aubio_source_sndfile);
     return s;
   }
 #endif /* HAVE_SNDFILE */
-#if HAVE_WAVREAD
+#ifdef HAVE_WAVREAD
   s->source = (void *)new_aubio_source_wavread(uri, samplerate, hop_size);
   if (s->source) {
     s->s_do = (aubio_source_do_t)(aubio_source_wavread_do);
     s->s_do_multi = (aubio_source_do_multi_t)(aubio_source_wavread_do_multi);
     s->s_get_channels = (aubio_source_get_channels_t)(aubio_source_wavread_get_channels);
     s->s_get_samplerate = (aubio_source_get_samplerate_t)(aubio_source_wavread_get_samplerate);
+    s->s_get_duration = (aubio_source_get_duration_t)(aubio_source_wavread_get_duration);
     s->s_seek = (aubio_source_seek_t)(aubio_source_wavread_seek);
     s->s_close = (aubio_source_close_t)(aubio_source_wavread_close);
     s->s_del = (del_aubio_source_t)(del_aubio_source_wavread);
     return s;
   }
 #endif /* HAVE_WAVREAD */
-  AUBIO_ERROR("source: failed creating aubio source with %s"
-     " at samplerate %d with hop_size %d\n", uri, samplerate, hop_size);
+#if !defined(HAVE_WAVREAD) && \
+  !defined(HAVE_LIBAV) && \
+  !defined(HAVE_SOURCE_APPLE_AUDIO) && \
+  !defined(HAVE_SNDFILE)
+  AUBIO_ERROR("source: failed creating with %s at %dHz with hop size %d"
+     " (no source built-in)\n", uri, samplerate, hop_size);
+#endif
   AUBIO_FREE(s);
   return NULL;
 }
@@ -139,6 +149,10 @@ uint_t aubio_source_get_samplerate(aubio_source_t * s) {
 
 uint_t aubio_source_get_channels(aubio_source_t * s) {
   return s->s_get_channels((void *)s->source);
+}
+
+uint_t aubio_source_get_duration(aubio_source_t *s) {
+  return s->s_get_duration((void *)s->source);
 }
 
 uint_t aubio_source_seek (aubio_source_t * s, uint_t seek ) {

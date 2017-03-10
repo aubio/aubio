@@ -20,16 +20,22 @@ int main (void)
 
   // samplerate unknown
   f = new_aubio_filter_a_weighting (4200);
-  del_aubio_filter (f);
+  if (!f) {
+    //PRINT_MSG ("failed creating A-weighting filter with samplerate=4200Hz\n");
+  }
 
   // order to small
   f = new_aubio_filter (2);
-  aubio_filter_set_a_weighting (f, samplerate);
+  if (aubio_filter_set_a_weighting (f, samplerate) != 0) {
+    //PRINT_MSG ("failed setting filter to A-weighting\n");
+  }
   del_aubio_filter (f);
 
   // order to big
   f = new_aubio_filter (12);
-  aubio_filter_set_a_weighting (f, samplerate);
+  if (aubio_filter_set_a_weighting (f, samplerate) != 0) {
+    //PRINT_MSG ("failed setting filter to A-weighting\n");
+  }
   del_aubio_filter (f);
 
   return 0;

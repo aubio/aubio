@@ -1,10 +1,22 @@
-#include "aubiowraphell.h"
+#include "aubio-types.h"
 
 static char Py_pvoc_doc[] = "pvoc object";
 
-AUBIO_DECLARE(pvoc, uint_t win_s; uint_t hop_s)
+typedef struct
+{
+  PyObject_HEAD
+  aubio_pvoc_t * o;
+  uint_t win_s;
+  uint_t hop_s;
+  fvec_t vecin;
+  cvec_t cvecin;
+  PyObject *output;
+  cvec_t c_output;
+  PyObject *routput;
+  fvec_t c_routput;
+} Py_pvoc;
 
-//AUBIO_NEW(pvoc)
+
 static PyObject *
 Py_pvoc_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
 {
@@ -49,64 +61,98 @@ Py_pvoc_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
   return (PyObject *) self;
 }
 
+static int
+Py_pvoc_init (Py_pvoc * self, PyObject * args, PyObject * kwds)
+{
+  self->o = new_aubio_pvoc ( self->win_s, self->hop_s);
+  if (self->o == NULL) {
+    // PyErr_Format(PyExc_RuntimeError, ...) was set above by new_ which called
+    // AUBIO_ERR when failing
+    return -1;
+  }
 
-AUBIO_INIT(pvoc, self->win_s, self->hop_s)
+  self->output = new_py_cvec(self->win_s);
+  self->routput = new_py_fvec(self->hop_s);
 
-AUBIO_DEL(pvoc)
+  return 0;
+}
 
-static PyObject * 
+
+static void
+Py_pvoc_del (Py_pvoc *self, PyObject *unused)
+{
+  Py_XDECREF(self->output);
+  Py_XDECREF(self->routput);
+  if (self->o) {
+    del_aubio_pvoc(self->o);
+  }
+  Py_TYPE(self)->tp_free((PyObject *) self);
+}
+
+
+static PyObject *
 Py_pvoc_do(Py_pvoc * self, PyObject * args)
 {
   PyObject *input;
-  fvec_t *vec;
-  cvec_t *output;
 
   if (!PyArg_ParseTuple (args, "O", &input)) {
     return NULL;
   }
 
-  vec = PyAubio_ArrayToCFvec (input);
-
-  if (vec == NULL) {
+  if (!PyAubio_ArrayToCFvec (input, &(self->vecin) )) {
     return NULL;
   }
 
-  output = new_cvec(self->win_s);
+  if (self->vecin.length != self->hop_s) {
+    PyErr_Format(PyExc_ValueError,
+                 "input fvec has length %d, but pvoc expects length %d",
+                 self->vecin.length, self->hop_s);
+    return NULL;
+  }
 
+  Py_INCREF(self->output);
+  if (!PyAubio_PyCvecToCCvec (self->output, &(self->c_output))) {
+    return NULL;
+  }
   // compute the function
-  aubio_pvoc_do (self->o, vec, output);
-  return (PyObject *)PyAubio_CCvecToPyCvec(output);
+  aubio_pvoc_do (self->o, &(self->vecin), &(self->c_output));
+  return self->output;
 }
 
-AUBIO_MEMBERS_START(pvoc) 
+static PyMemberDef Py_pvoc_members[] = {
   {"win_s", T_INT, offsetof (Py_pvoc, win_s), READONLY,
     "size of the window"},
   {"hop_s", T_INT, offsetof (Py_pvoc, hop_s), READONLY,
     "size of the hop"},
-AUBIO_MEMBERS_STOP(pvoc)
+  { NULL } // sentinel
+};
 
-static PyObject * 
+static PyObject *
 Py_pvoc_rdo(Py_pvoc * self, PyObject * args)
 {
   PyObject *input;
-  cvec_t *vec;
-  fvec_t *output;
-
   if (!PyArg_ParseTuple (args, "O", &input)) {
     return NULL;
   }
 
-  vec = PyAubio_ArrayToCCvec (input);
-
-  if (vec == NULL) {
+  if (!PyAubio_PyCvecToCCvec (input, &(self->cvecin) )) {
     return NULL;
   }
 
-  output = new_fvec(self->hop_s);
+  if (self->cvecin.length != self->win_s / 2 + 1) {
+    PyErr_Format(PyExc_ValueError,
+                 "input cvec has length %d, but pvoc expects length %d",
+                 self->cvecin.length, self->win_s / 2 + 1);
+    return NULL;
+  }
 
+  Py_INCREF(self->routput);
+  if (!PyAubio_ArrayToCFvec(self->routput, &(self->c_routput)) ) {
+    return NULL;
+  }
   // compute the function
-  aubio_pvoc_rdo (self->o, vec, output);
-  return (PyObject *)PyAubio_CFvecToArray(output);
+  aubio_pvoc_rdo (self->o, &(self->cvecin), &(self->c_routput));
+  return self->routput;
 }
 
 static PyMethodDef Py_pvoc_methods[] = {
@@ -115,4 +161,52 @@ static PyMethodDef Py_pvoc_methods[] = {
   {NULL}
 };
 
-AUBIO_TYPEOBJECT(pvoc, "aubio.pvoc")
+PyTypeObject Py_pvocType = {
+  PyVarObject_HEAD_INIT (NULL, 0)
+  "aubio.pvoc",
+  sizeof (Py_pvoc),
+  0,
+  (destructor) Py_pvoc_del,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  (ternaryfunc)Py_pvoc_do,
+  0,
+  0,
+  0,
+  0,
+  Py_TPFLAGS_DEFAULT,
+  Py_pvoc_doc,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  Py_pvoc_methods,
+  Py_pvoc_members,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  (initproc) Py_pvoc_init,
+  0,
+  Py_pvoc_new,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+};

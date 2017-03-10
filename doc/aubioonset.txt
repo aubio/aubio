@@ -7,8 +7,10 @@ SYNOPSIS
   aubioonset [[-i] source] [-o sink]
              [-r rate] [-B win] [-H hop]
              [-O method] [-t thres]
+             [-T time-format]
              [-s sil] [-m] [-f]
-             [-j] [-v] [-h]
+             [-j] [-N miditap-note] [-V miditap-velo]
+             [-v] [-h]
 
 DESCRIPTION
 
@@ -47,13 +49,19 @@ OPTIONS
   below. Defaults to 'default'.
 
   -t, --onset-threshold thres  Set the threshold value for the onset peak
-  picking. Typical values are typically within 0.001 and 0.900. Defaults to
-  0.1. Lower threshold values imply more onsets detected. Try 0.5 in case of
-  over-detections. Defaults to 0.3.
+  picking. Values are typically in the range [0.001, 0.900]. Lower threshold
+  values imply more onsets detected. Increasing this threshold should reduce
+  the number of incorrect detections. Defaults to 0.3.
 
-  -s, --silence sil  Set the silence threshold, in dB, under which the pitch
+  -M, --minioi value  Set the minimum inter-onset interval, in seconds, the
+  shortest interval between two consecutive onsets. Defaults to 0.020
+
+  -s, --silence sil  Set the silence threshold, in dB, under which the onset
   will not be detected. A value of -20.0 would eliminate most onsets but the
   loudest ones. A value of -90.0 would select all onsets. Defaults to -90.0.
+
+  -T, --timeformat format  Set time format (samples, ms, seconds). Defaults to
+  seconds.
 
   -m, --mix-input  Mix source signal to the output signal before writing to
   sink.
@@ -62,6 +70,10 @@ OPTIONS
 
   -j, --jack  Use Jack input/output. You will need a Jack connection
   controller to feed aubio some signal and listen to its output.
+
+  -N, --miditap-note  Override note value for MIDI tap. Defaults to 69.
+
+  -V, --miditap-velop  Override velocity value for MIDI tap. Defaults to 65.
 
   -h, --help  Print a short help message and exit.
 

@@ -1,14 +1,14 @@
 #! /usr/bin/env python
 
 import sys
-from aubio import fvec, source, pvoc, specdesc
-from numpy import hstack
+import numpy as np
+from aubio import source, pvoc, specdesc
 
 win_s = 512                 # fft size
-hop_s = win_s / 4           # hop size
+hop_s = win_s // 4          # hop size
 
 if len(sys.argv) < 2:
-    print "Usage: %s <filename> [samplerate]" % sys.argv[0]
+    print("Usage: %s <filename> [samplerate]" % sys.argv[0])
     sys.exit(1)
 
 filename = sys.argv[1]
@@ -30,7 +30,7 @@ o = {}
 
 for method in methods:
     cands = []
-    all_descs[method] = fvec(0)
+    all_descs[method] = np.array([])
     o[method] = specdesc(method, win_s)
 
 total_frames = 0
@@ -39,17 +39,17 @@ downsample = 2
 while True:
     samples, read = s()
     fftgrain = pv(samples)
-    #print "%f" % ( total_frames / float(samplerate) ),
+    #outstr = "%f" % ( total_frames / float(samplerate) )
     for method in methods:
         specdesc_val = o[method](fftgrain)[0]
-        all_descs[method] = hstack ( [all_descs[method], specdesc_val] )
-        #print "%f" % specdesc_val,
-    #print
+        all_descs[method] = np.append(all_descs[method], specdesc_val)
+        #outstr += " %f" % specdesc_val
+    #print(outstr)
     total_frames += read
     if read < hop_s: break
 
 if 1:
-    print "done computing, now plotting"
+    print("done computing, now plotting")
     import matplotlib.pyplot as plt
     from demo_waveform_plot import get_waveform_plot
     from demo_waveform_plot import set_xlabels_sample2time

@@ -43,6 +43,7 @@ uint_t hop_size = 256;
 // onset stuff
 char_t * onset_method = "default";
 smpl_t onset_threshold = 0.0; // will be set if != 0.
+smpl_t onset_minioi = 0.0; // will be set if != 0.
 // pitch stuff
 char_t * pitch_unit = "default";
 char_t * pitch_method = "default";
@@ -64,6 +65,9 @@ aubio_sink_t *this_sink = NULL;
 fvec_t *ibuf;
 fvec_t *obuf;
 
+smpl_t miditap_note = 69.;
+smpl_t miditap_velo = 65.;
+
 /* settings */
 int blocks = 0;
 
@@ -72,7 +76,8 @@ extern int parse_args (int argc, char **argv);
 
 #if HAVE_JACK
 aubio_jack_t *jack_setup;
-#endif
+jack_midi_event_t ev;
+#endif /* HAVE_JACK */
 
 void examples_common_init (int argc, char **argv);
 void examples_common_del (void);
@@ -114,7 +119,7 @@ void examples_common_init (int argc, char **argv)
     jack_setup = new_aubio_jack (hop_size, 1, 1, 0, 1);
     samplerate = aubio_jack_get_samplerate (jack_setup);
     source_uri = "jack";
-#endif
+#endif /* HAVE_JACK */
   }
   ibuf = new_fvec (hop_size);
   obuf = new_fvec (hop_size);
@@ -123,6 +128,9 @@ void examples_common_init (int argc, char **argv)
 
 void examples_common_del (void)
 {
+#ifdef HAVE_JACK
+  if (ev.buffer) free(ev.buffer);
+#endif
   del_fvec (ibuf);
   del_fvec (obuf);
   aubio_cleanup ();
@@ -137,16 +145,19 @@ void examples_common_process (aubio_process_func_t process_func,
   uint_t read = 0;
   if (usejack) {
 
-#if HAVE_JACK
+#ifdef HAVE_JACK
+    ev.size = 3;
+    ev.buffer = malloc (3 * sizeof (jack_midi_data_t));
+    ev.time = 0; // send it now
     debug ("Jack activation ...\n");
     aubio_jack_activate (jack_setup, process_func);
     debug ("Processing (Ctrl+C to quit) ...\n");
     pause ();
     aubio_jack_close (jack_setup);
-#else
+#else /* HAVE_JACK */
     usage (stderr, 1);
     outmsg ("Compiled without jack output, exiting.\n");
-#endif
+#endif /* HAVE_JACK */
 
   } else {
 
@@ -178,17 +189,12 @@ void examples_common_process (aubio_process_func_t process_func,
 }
 
 void
-send_noteon (int pitch, int velo)
+send_noteon (smpl_t pitch, smpl_t velo)
 {
-  smpl_t mpitch = floor (aubio_freqtomidi (pitch) + .5);
-#if HAVE_JACK
-  jack_midi_event_t ev;
-  ev.size = 3;
-  ev.buffer = malloc (3 * sizeof (jack_midi_data_t)); // FIXME
-  ev.time = 0;
+#ifdef HAVE_JACK
   if (usejack) {
     ev.buffer[2] = velo;
-    ev.buffer[1] = mpitch;
+    ev.buffer[1] = pitch;
     if (velo == 0) {
       ev.buffer[0] = 0x80;      /* note off */
     } else {
@@ -201,7 +207,7 @@ send_noteon (int pitch, int velo)
     print_time (blocks * hop_size);
     outmsg ("\n");
   } else {
-    outmsg ("%f\t", mpitch);
+    outmsg ("%f\t", pitch);
     print_time (blocks * hop_size);
     outmsg ("\t");
   }

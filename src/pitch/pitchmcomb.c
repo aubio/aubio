@@ -31,9 +31,9 @@ typedef struct _aubio_spectralcandidate_t aubio_spectralcandidate_t;
 uint_t aubio_pitchmcomb_get_root_peak (aubio_spectralpeak_t * peaks,
     uint_t length);
 uint_t aubio_pitchmcomb_quadpick (aubio_spectralpeak_t * spectral_peaks,
-    fvec_t * X);
-void aubio_pitchmcomb_spectral_pp (aubio_pitchmcomb_t * p, fvec_t * oldmag);
-void aubio_pitchmcomb_combdet (aubio_pitchmcomb_t * p, fvec_t * newmag);
+    const fvec_t * X);
+void aubio_pitchmcomb_spectral_pp (aubio_pitchmcomb_t * p, const fvec_t * oldmag);
+void aubio_pitchmcomb_combdet (aubio_pitchmcomb_t * p, const fvec_t * newmag);
 /* not used but useful : sort by amplitudes (or anything else)
  * sort_pitchpeak(peaks, length);
  */
@@ -42,7 +42,7 @@ static sint_t aubio_pitchmcomb_sort_peak_comp (const void *x, const void *y);
 /** sort spectral_peak against their mag */
 void aubio_pitchmcomb_sort_peak (aubio_spectralpeak_t * peaks, uint_t nbins);
 /** select the best candidates */
-uint_t aubio_pitch_cands (aubio_pitchmcomb_t * p, cvec_t * fftgrain,
+uint_t aubio_pitch_cands (aubio_pitchmcomb_t * p, const cvec_t * fftgrain,
     smpl_t * cands);
 
 /** sort spectral_candidate against their comb ene */
@@ -101,7 +101,7 @@ struct _aubio_spectralcandidate_t
 
 
 void
-aubio_pitchmcomb_do (aubio_pitchmcomb_t * p, cvec_t * fftgrain, fvec_t * output)
+aubio_pitchmcomb_do (aubio_pitchmcomb_t * p, const cvec_t * fftgrain, fvec_t * output)
 {
   uint_t j;
   smpl_t instfreq;
@@ -134,7 +134,7 @@ aubio_pitchmcomb_do (aubio_pitchmcomb_t * p, cvec_t * fftgrain, fvec_t * output)
 }
 
 uint_t
-aubio_pitch_cands (aubio_pitchmcomb_t * p, cvec_t * fftgrain, smpl_t * cands)
+aubio_pitch_cands (aubio_pitchmcomb_t * p, const cvec_t * fftgrain, smpl_t * cands)
 {
   uint_t j;
   uint_t k;
@@ -165,7 +165,7 @@ aubio_pitch_cands (aubio_pitchmcomb_t * p, cvec_t * fftgrain, smpl_t * cands)
 }
 
 void
-aubio_pitchmcomb_spectral_pp (aubio_pitchmcomb_t * p, fvec_t * newmag)
+aubio_pitchmcomb_spectral_pp (aubio_pitchmcomb_t * p, const fvec_t * newmag)
 {
   fvec_t *mag = (fvec_t *) p->scratch;
   fvec_t *tmp = (fvec_t *) p->scratch2;
@@ -197,7 +197,7 @@ aubio_pitchmcomb_spectral_pp (aubio_pitchmcomb_t * p, fvec_t * newmag)
 }
 
 void
-aubio_pitchmcomb_combdet (aubio_pitchmcomb_t * p, fvec_t * newmag)
+aubio_pitchmcomb_combdet (aubio_pitchmcomb_t * p, const fvec_t * newmag)
 {
   aubio_spectralpeak_t *peaks = (aubio_spectralpeak_t *) p->peaks;
   aubio_spectralcandidate_t **candidate =
@@ -285,7 +285,7 @@ aubio_pitchmcomb_combdet (aubio_pitchmcomb_t * p, fvec_t * newmag)
  * \bug peak-picking too picky, sometimes counts too many peaks ?
  */
 uint_t
-aubio_pitchmcomb_quadpick (aubio_spectralpeak_t * spectral_peaks, fvec_t * X)
+aubio_pitchmcomb_quadpick (aubio_spectralpeak_t * spectral_peaks, const fvec_t * X)
 {
   uint_t j, ispeak, count = 0;
   for (j = 1; j < X->length - 1; j++) {
@@ -364,7 +364,7 @@ new_aubio_pitchmcomb (uint_t bufsize, uint_t hopsize)
   /* bug: should check if size / 8 > post+pre+1 */
   uint_t i, j;
   uint_t spec_size;
-  p->spec_partition = 4;
+  p->spec_partition = 2;
   p->ncand = 5;
   p->npartials = 5;
   p->cutoff = 1.;
@@ -376,7 +376,7 @@ new_aubio_pitchmcomb (uint_t bufsize, uint_t hopsize)
   p->goodcandidate = 0;
   p->phasefreq = bufsize / hopsize / TWO_PI;
   p->phasediff = TWO_PI * hopsize / bufsize;
-  spec_size = bufsize / p->spec_partition;
+  spec_size = bufsize / p->spec_partition + 1;
   //p->pickerfn = quadpick;
   //p->biquad = new_biquad(0.1600,0.3200,0.1600, -0.5949, 0.2348);
   /* allocate temp memory */

@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO__FVEC_H
-#define _AUBIO__FVEC_H
+#ifndef AUBIO_FVEC_H
+#define AUBIO_FVEC_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -89,7 +89,7 @@ void del_fvec(fvec_t *s);
   \param position sample position to read from
 
 */
-smpl_t fvec_get_sample(fvec_t *s, uint_t position);
+smpl_t fvec_get_sample(const fvec_t *s, uint_t position);
 
 /** write sample value in a buffer
 
@@ -105,14 +105,14 @@ void  fvec_set_sample(fvec_t *s, smpl_t data, uint_t position);
   \param s vector to read from
 
 */
-smpl_t * fvec_get_data(fvec_t *s);
+smpl_t * fvec_get_data(const fvec_t *s);
 
 /** print out fvec data
 
   \param s vector to print out
 
 */
-void fvec_print(fvec_t *s);
+void fvec_print(const fvec_t *s);
 
 /** set all elements to a given value
 
@@ -152,7 +152,7 @@ void fvec_rev(fvec_t *s);
   \param weight weighting coefficients
 
 */
-void fvec_weight(fvec_t *s, fvec_t *weight);
+void fvec_weight(fvec_t *s, const fvec_t *weight);
 
 /** make a copy of a vector
 
@@ -160,7 +160,7 @@ void fvec_weight(fvec_t *s, fvec_t *weight);
   \param t vector to copy to
 
 */
-void fvec_copy(fvec_t *s, fvec_t *t);
+void fvec_copy(const fvec_t *s, fvec_t *t);
 
 /** make a copy of a vector, applying weights to each element
 
@@ -169,10 +169,10 @@ void fvec_copy(fvec_t *s, fvec_t *t);
   \param out output vector
 
 */
-void fvec_weighted_copy(fvec_t *in, fvec_t *weight, fvec_t *out);
+void fvec_weighted_copy(const fvec_t *in, const fvec_t *weight, fvec_t *out);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* _AUBIO__FVEC_H */
+#endif /* AUBIO_FVEC_H */

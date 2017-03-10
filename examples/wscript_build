@@ -1,33 +1,27 @@
 # vim:set syntax=python:
 
-uselib = []
-uselib += ['FFTW3', 'FFTW3F']
-uselib += ['SAMPLERATE']
-uselib += ['SNDFILE']
-uselib += ['AVCODEC']
-uselib += ['AVFORMAT']
-uselib += ['AVRESAMPLE']
-uselib += ['AVUTIL']
-uselib += ['JACK']
-uselib += ['BLAS']
+import os.path
 
+uselib = ['aubio']
+uselib += ['JACK']
+
+includes = ['../src']
 utils_source = ['utils.c', 'jackio.c']
 programs_source = ctx.path.ant_glob('*.c', excl = utils_source)
 
 # build examples
 bld(features = 'c',
         source = utils_source,
-        includes = ['../src'],
-        uselib = uselib,
+        includes = includes,
+        use = uselib,
         target = 'utilsio')
 
 # loop over all *.c filenames in examples to build them all
 for source_file in programs_source:
+    target = os.path.basename(os.path.splitext(str(source_file))[0])
     bld(features = 'c cprogram',
-            includes = '../src',
-            lib = 'm',
-            use = ['aubio', 'utilsio'],
-            uselib = uselib,
             source = source_file,
-            target = str(source_file).split('.')[0]
-            )
+            target = target,
+            includes = includes,
+            use = uselib + ['utilsio'],
+       )

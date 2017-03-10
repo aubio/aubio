@@ -1,4 +1,4 @@
-#include "aubiowraphell.h"
+#include "aubio-types.h"
 
 typedef struct
 {
@@ -8,6 +8,11 @@ typedef struct
   uint_t samplerate;
   uint_t channels;
   uint_t hop_size;
+  uint_t duration;
+  PyObject *read_to;
+  fvec_t c_read_to;
+  PyObject *mread_to;
+  fmat_t c_mread_to;
 } Py_source;
 
 static char Py_source_doc[] = ""
@@ -95,9 +100,10 @@ Py_source_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
     return NULL;
   }
 
-  self->uri = "none";
+  self->uri = NULL;
   if (uri != NULL) {
-    self->uri = uri;
+    self->uri = (char_t *)malloc(sizeof(char_t) * (strnlen(uri, PATH_MAX) + 1));
+    strncpy(self->uri, uri, strnlen(uri, PATH_MAX) + 1);
   }
 
   self->samplerate = 0;
@@ -135,48 +141,56 @@ Py_source_init (Py_source * self, PyObject * args, PyObject * kwds)
 {
   self->o = new_aubio_source ( self->uri, self->samplerate, self->hop_size );
   if (self->o == NULL) {
-    char_t errstr[30 + strlen(self->uri)];
-    sprintf(errstr, "error creating source with %s", self->uri);
-    PyErr_SetString (PyExc_StandardError, errstr);
+    // PyErr_Format(PyExc_RuntimeError, ...) was set above by new_ which called
+    // AUBIO_ERR when failing
     return -1;
   }
   self->samplerate = aubio_source_get_samplerate ( self->o );
   if (self->channels == 0) {
     self->channels = aubio_source_get_channels ( self->o );
   }
+  self->duration = aubio_source_get_duration ( self->o );
+
+  self->read_to = new_py_fvec(self->hop_size);
+  self->mread_to = new_py_fmat(self->channels, self->hop_size);
 
   return 0;
 }
 
-AUBIO_DEL(source)
+static void
+Py_source_del (Py_source *self, PyObject *unused)
+{
+  if (self->o) {
+    del_aubio_source(self->o);
+    free(self->c_mread_to.data);
+  }
+  if (self->uri) {
+    free(self->uri);
+  }
+  Py_XDECREF(self->read_to);
+  Py_XDECREF(self->mread_to);
+  Py_TYPE(self)->tp_free((PyObject *) self);
+}
+
 
 /* function Py_source_do */
 static PyObject *
 Py_source_do(Py_source * self, PyObject * args)
 {
-
-
-  /* output vectors prototypes */
-  fvec_t* read_to;
+  PyObject *outputs;
   uint_t read;
-
-
-
-
-
-
-  /* creating output read_to as a new_fvec of length self->hop_size */
-  read_to = new_fvec (self->hop_size);
   read = 0;
 
-
+  Py_INCREF(self->read_to);
+  if (!PyAubio_ArrayToCFvec(self->read_to, &(self->c_read_to))) {
+    return NULL;
+  }
   /* compute _do function */
-  aubio_source_do (self->o, read_to, &read);
+  aubio_source_do (self->o, &(self->c_read_to), &read);
 
-  PyObject *outputs = PyList_New(0);
-  PyList_Append( outputs, (PyObject *)PyAubio_CFvecToArray (read_to));
-  //del_fvec (read_to);
-  PyList_Append( outputs, (PyObject *)PyInt_FromLong (read));
+  outputs = PyTuple_New(2);
+  PyTuple_SetItem( outputs, 0, self->read_to );
+  PyTuple_SetItem( outputs, 1, (PyObject *)PyLong_FromLong(read));
   return outputs;
 }
 
@@ -184,33 +198,24 @@ Py_source_do(Py_source * self, PyObject * args)
 static PyObject *
 Py_source_do_multi(Py_source * self, PyObject * args)
 {
-
-
-  /* output vectors prototypes */
-  fmat_t* read_to;
+  PyObject *outputs;
   uint_t read;
-
-
-
-
-
-
-  /* creating output read_to as a new_fvec of length self->hop_size */
-  read_to = new_fmat (self->channels, self->hop_size);
   read = 0;
 
-
+  Py_INCREF(self->mread_to);
+  if (!PyAubio_ArrayToCFmat(self->mread_to,  &(self->c_mread_to))) {
+    return NULL;
+  }
   /* compute _do function */
-  aubio_source_do_multi (self->o, read_to, &read);
+  aubio_source_do_multi (self->o, &(self->c_mread_to), &read);
 
-  PyObject *outputs = PyList_New(0);
-  PyList_Append( outputs, (PyObject *)PyAubio_CFmatToArray (read_to));
-  //del_fvec (read_to);
-  PyList_Append( outputs, (PyObject *)PyInt_FromLong (read));
+  outputs = PyTuple_New(2);
+  PyTuple_SetItem( outputs, 0, self->mread_to);
+  PyTuple_SetItem( outputs, 1, (PyObject *)PyLong_FromLong(read));
   return outputs;
 }
 
-AUBIO_MEMBERS_START(source)
+static PyMemberDef Py_source_members[] = {
   {"uri", T_STRING, offsetof (Py_source, uri), READONLY,
     "path at which the source was created"},
   {"samplerate", T_INT, offsetof (Py_source, samplerate), READONLY,
@@ -219,27 +224,29 @@ AUBIO_MEMBERS_START(source)
     "number of channels found in the source"},
   {"hop_size", T_INT, offsetof (Py_source, hop_size), READONLY,
     "number of consecutive frames that will be read at each do or do_multi call"},
-AUBIO_MEMBERS_STOP(source)
-
+  {"duration", T_INT, offsetof (Py_source, duration), READONLY,
+    "total number of frames in the source (estimated)"},
+  { NULL } // sentinel
+};
 
 static PyObject *
 Pyaubio_source_get_samplerate (Py_source *self, PyObject *unused)
 {
   uint_t tmp = aubio_source_get_samplerate (self->o);
-  return (PyObject *)PyInt_FromLong (tmp);
+  return (PyObject *)PyLong_FromLong (tmp);
 }
 
 static PyObject *
 Pyaubio_source_get_channels (Py_source *self, PyObject *unused)
 {
   uint_t tmp = aubio_source_get_channels (self->o);
-  return (PyObject *)PyInt_FromLong (tmp);
+  return (PyObject *)PyLong_FromLong (tmp);
 }
 
 static PyObject *
 Pyaubio_source_close (Py_source *self, PyObject *unused)
 {
-  aubio_source_close (self->o);
+  if (aubio_source_close(self->o) != 0) return NULL;
   Py_RETURN_NONE;
 }
 
@@ -248,8 +255,15 @@ Pyaubio_source_seek (Py_source *self, PyObject *args)
 {
   uint_t err = 0;
 
-  uint_t position;
+  int position;
   if (!PyArg_ParseTuple (args, "I", &position)) {
+    return NULL;
+  }
+
+  if (position < 0) {
+    PyErr_Format(PyExc_ValueError,
+        "error when seeking in source: can not seek to negative value %d",
+        position);
     return NULL;
   }
 
@@ -260,6 +274,65 @@ Pyaubio_source_seek (Py_source *self, PyObject *args)
     return NULL;
   }
   Py_RETURN_NONE;
+}
+
+static char Pyaubio_source_enter_doc[] = "";
+static PyObject* Pyaubio_source_enter(Py_source *self, PyObject *unused) {
+  Py_INCREF(self);
+  return (PyObject*)self;
+}
+
+static char Pyaubio_source_exit_doc[] = "";
+static PyObject* Pyaubio_source_exit(Py_source *self, PyObject *unused) {
+  return Pyaubio_source_close(self, unused);
+}
+
+static PyObject* Pyaubio_source_iter(PyObject *self) {
+  Py_INCREF(self);
+  return (PyObject*)self;
+}
+
+static PyObject* Pyaubio_source_iter_next(Py_source *self) {
+  PyObject *done, *size;
+  if (self->channels == 1) {
+    done = Py_source_do(self, NULL);
+  } else {
+    done = Py_source_do_multi(self, NULL);
+  }
+  if (!PyTuple_Check(done)) {
+    PyErr_Format(PyExc_ValueError,
+        "error when reading source: not opened?");
+    return NULL;
+  }
+  size = PyTuple_GetItem(done, 1);
+  if (size != NULL && PyLong_Check(size)) {
+    if (PyLong_AsLong(size) == (long)self->hop_size) {
+      PyObject *vec = PyTuple_GetItem(done, 0);
+      return vec;
+    } else if (PyLong_AsLong(size) > 0) {
+      // short read, return a shorter array
+      PyArrayObject *shortread = (PyArrayObject*)PyTuple_GetItem(done, 0);
+      PyArray_Dims newdims;
+      PyObject *reshaped;
+      newdims.len = PyArray_NDIM(shortread);
+      newdims.ptr = PyArray_DIMS(shortread);
+      // mono or multiple channels?
+      if (newdims.len == 1) {
+        newdims.ptr[0] = PyLong_AsLong(size);
+      } else {
+        newdims.ptr[1] = PyLong_AsLong(size);
+      }
+      reshaped = PyArray_Newshape(shortread, &newdims, NPY_CORDER);
+      Py_DECREF(shortread);
+      return reshaped;
+    } else {
+      PyErr_SetNone(PyExc_StopIteration);
+      return NULL;
+    }
+  } else {
+    PyErr_SetNone(PyExc_StopIteration);
+    return NULL;
+  }
 }
 
 static PyMethodDef Py_source_methods[] = {
@@ -275,7 +348,59 @@ static PyMethodDef Py_source_methods[] = {
     METH_NOARGS, Py_source_close_doc},
   {"seek", (PyCFunction) Pyaubio_source_seek,
     METH_VARARGS, Py_source_seek_doc},
+  {"__enter__", (PyCFunction)Pyaubio_source_enter, METH_NOARGS,
+    Pyaubio_source_enter_doc},
+  {"__exit__",  (PyCFunction)Pyaubio_source_exit, METH_VARARGS,
+    Pyaubio_source_exit_doc},
   {NULL} /* sentinel */
 };
 
-AUBIO_TYPEOBJECT(source, "aubio.source")
+PyTypeObject Py_sourceType = {
+  PyVarObject_HEAD_INIT (NULL, 0)
+  "aubio.source",
+  sizeof (Py_source),
+  0,
+  (destructor) Py_source_del,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  (ternaryfunc)Py_source_do,
+  0,
+  0,
+  0,
+  0,
+  Py_TPFLAGS_DEFAULT,
+  Py_source_doc,
+  0,
+  0,
+  0,
+  0,
+  Pyaubio_source_iter,
+  (unaryfunc)Pyaubio_source_iter_next,
+  Py_source_methods,
+  Py_source_members,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  (initproc) Py_source_init,
+  0,
+  Py_source_new,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+};

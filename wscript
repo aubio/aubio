@@ -10,6 +10,8 @@
 # have Python installed, you do *not* need to install anything to build aubio.
 # For more info about waf, see http://code.google.com/p/waf/ .
 
+import sys
+
 APPNAME = 'aubio'
 
 # source VERSION
@@ -45,6 +47,12 @@ def add_option_enable_disable(ctx, name, default = None,
             help = help_disable_str )
 
 def options(ctx):
+    ctx.add_option('--build-type', action = 'store',
+            default = "release",
+            choices = ('debug', 'release'),
+            dest = 'build_type',
+            help = 'whether to compile with (--build-type=release) or without (--build-type=debug) '\
+              ' compiler opimizations [default: release]')
     add_option_enable_disable(ctx, 'fftw3f', default = False,
             help_str = 'compile with fftw3f instead of ooura (recommended)',
             help_disable_str = 'do not compile with fftw3f')
@@ -81,9 +89,19 @@ def options(ctx):
     add_option_enable_disable(ctx, 'apple-audio', default = None,
             help_str = 'use CoreFoundation (darwin only) (auto)',
             help_disable_str = 'do not use CoreFoundation framework')
-    add_option_enable_disable(ctx, 'atlas', default = None,
-            help_str = 'use Atlas library (auto)',
+    add_option_enable_disable(ctx, 'atlas', default = False,
+            help_str = 'use Atlas library (no)',
             help_disable_str = 'do not use Atlas library')
+    add_option_enable_disable(ctx, 'wavread', default = True,
+            help_str = 'compile with source_wavread (default)',
+            help_disable_str = 'do not compile source_wavread')
+    add_option_enable_disable(ctx, 'wavwrite', default = True,
+            help_str = 'compile with source_wavwrite (default)',
+            help_disable_str = 'do not compile source_wavwrite')
+
+    add_option_enable_disable(ctx, 'docs', default = None,
+            help_str = 'build documentation (auto)',
+            help_disable_str = 'do not build documentation')
 
     ctx.add_option('--with-target-platform', type='string',
             help='set target platform for cross-compilation', dest='target_platform')
@@ -98,15 +116,50 @@ def configure(ctx):
     ctx.load('waf_unit_test')
     ctx.load('gnu_dirs')
 
-    target_platform = Options.platform
+    # check for common headers
+    ctx.check(header_name='stdlib.h')
+    ctx.check(header_name='stdio.h')
+    ctx.check(header_name='math.h')
+    ctx.check(header_name='string.h')
+    ctx.check(header_name='limits.h')
+    ctx.check(header_name='stdarg.h')
+    ctx.check(header_name='getopt.h', mandatory = False)
+    ctx.check(header_name='unistd.h', mandatory = False)
+
+    target_platform = sys.platform
     if ctx.options.target_platform:
         target_platform = ctx.options.target_platform
     ctx.env['DEST_OS'] = target_platform
 
-    if 'CL.exe' not in ctx.env.CC[0]:
-        ctx.env.CFLAGS += ['-g', '-Wall', '-Wextra']
+    if ctx.options.build_type == "debug":
+        ctx.define('DEBUG', 1)
     else:
-        ctx.env.CFLAGS += ['-Wall']
+        ctx.define('NDEBUG', 1)
+
+    if ctx.env.CC_NAME != 'msvc':
+        if ctx.options.build_type == "debug":
+            # no optimization in debug mode
+            ctx.env.prepend_value('CFLAGS', ['-O0'])
+        else:
+            # default to -O2 in release mode
+            ctx.env.prepend_value('CFLAGS', ['-O2'])
+        # enable debug symbols and configure warnings
+        ctx.env.prepend_value('CFLAGS', ['-g', '-Wall', '-Wextra'])
+    else:
+        # enable debug symbols
+        ctx.env.CFLAGS += ['/Z7', '/FS']
+        ctx.env.LINKFLAGS += ['/DEBUG', '/INCREMENTAL:NO']
+        # configure warnings
+        ctx.env.CFLAGS += ['/W4', '/D_CRT_SECURE_NO_WARNINGS']
+        # set optimization level and runtime libs
+        if (ctx.options.build_type == "release"):
+            ctx.env.CFLAGS += ['/Ox']
+            ctx.env.CFLAGS += ['/MD']
+        else:
+            assert(ctx.options.build_type == "debug")
+            ctx.env.CFLAGS += ['/MDd']
+
+    ctx.check_cc(lib='m', uselib_store='M', mandatory=False)
 
     if target_platform not in ['win32', 'win64']:
         ctx.env.CFLAGS += ['-fPIC']
@@ -117,15 +170,24 @@ def configure(ctx):
     if target_platform == 'darwin' and ctx.options.enable_fat:
         ctx.env.CFLAGS += ['-arch', 'i386', '-arch', 'x86_64']
         ctx.env.LINKFLAGS += ['-arch', 'i386', '-arch', 'x86_64']
+        MINSDKVER="10.4"
+        ctx.env.CFLAGS += [ '-mmacosx-version-min=' + MINSDKVER ]
+        ctx.env.LINKFLAGS += [ '-mmacosx-version-min=' + MINSDKVER ]
 
     if target_platform in [ 'darwin', 'ios', 'iosimulator']:
         if (ctx.options.enable_apple_audio != False):
             ctx.env.FRAMEWORK += ['CoreFoundation', 'AudioToolbox']
             ctx.define('HAVE_SOURCE_APPLE_AUDIO', 1)
             ctx.define('HAVE_SINK_APPLE_AUDIO', 1)
+            ctx.msg('Checking for AudioToolbox.framework', 'yes')
+        else:
+            ctx.msg('Checking for AudioToolbox.framework', 'no (disabled)', color = 'YELLOW')
         if (ctx.options.enable_accelerate != False):
             ctx.define('HAVE_ACCELERATE', 1)
             ctx.env.FRAMEWORK += ['Accelerate']
+            ctx.msg('Checking for Accelerate framework', 'yes')
+        else:
+            ctx.msg('Checking for Accelerate framework', 'no (disabled)', color = 'YELLOW')
 
     if target_platform in [ 'ios', 'iosimulator' ]:
         MINSDKVER="6.1"
@@ -159,12 +221,13 @@ def configure(ctx):
         ctx.env.CFLAGS += [ '-isysroot' , SDKROOT]
         ctx.env.LINKFLAGS += [ '-isysroot' , SDKROOT]
 
-    # check for required headers
-    ctx.check(header_name='stdlib.h')
-    ctx.check(header_name='stdio.h')
-    ctx.check(header_name='math.h')
-    ctx.check(header_name='string.h')
-    ctx.check(header_name='limits.h')
+    if target_platform == 'emscripten':
+        import os.path
+        ctx.env.CFLAGS += [ '-I' + os.path.join(os.environ['EMSCRIPTEN'], 'system', 'include') ]
+        ctx.env.CFLAGS += ['-Oz']
+        ctx.env.cprogram_PATTERN = "%s.js"
+        if (ctx.options.enable_atlas != True):
+            ctx.options.enable_atlas = False
 
     # check support for C99 __VA_ARGS__ macros
     check_c99_varargs = '''
@@ -178,15 +241,19 @@ def configure(ctx):
             mandatory = False):
         ctx.define('HAVE_C99_VARARGS_MACROS', 1)
 
-    # double precision mode
+    # show a message about enable_double status
     if (ctx.options.enable_double == True):
-        ctx.define('HAVE_AUBIO_DOUBLE', 1)
+        ctx.msg('Checking for size of smpl_t', 'double')
+        ctx.msg('Checking for size of lsmp_t', 'long double')
     else:
-        ctx.define('HAVE_AUBIO_DOUBLE', 0)
+        ctx.msg('Checking for size of smpl_t', 'float')
+        ctx.msg('Checking for size of lsmp_t', 'double')
 
     # optionally use complex.h
     if (ctx.options.enable_complex == True):
         ctx.check(header_name='complex.h')
+    else:
+        ctx.msg('Checking if complex.h is enabled', 'no')
 
     # check for fftw3
     if (ctx.options.enable_fftw3 != False or ctx.options.enable_fftw3f != False):
@@ -228,6 +295,13 @@ def configure(ctx):
                 mandatory = ctx.options.enable_sndfile)
 
     # check for libsamplerate
+    if (ctx.options.enable_double):
+        if (ctx.options.enable_samplerate):
+            ctx.fatal("Could not compile aubio in double precision mode with libsamplerate")
+        else:
+            ctx.options.enable_samplerate = False
+            ctx.msg('Checking if using samplerate', 'no (disabled in double precision mode)',
+                    color = 'YELLOW')
     if (ctx.options.enable_samplerate != False):
         ctx.check_cfg(package = 'samplerate', atleast_version = '0.0.15',
                 args = '--cflags --libs',
@@ -260,8 +334,12 @@ def configure(ctx):
         else:
             ctx.msg('Checking for all libav libraries', 'not found', color = 'YELLOW')
 
-    ctx.define('HAVE_WAVREAD', 1)
-    ctx.define('HAVE_WAVWRITE', 1)
+    if (ctx.options.enable_wavread != False):
+        ctx.define('HAVE_WAVREAD', 1)
+    ctx.msg('Checking if using source_wavread', ctx.options.enable_wavread and 'yes' or 'no')
+    if (ctx.options.enable_wavwrite!= False):
+        ctx.define('HAVE_WAVWRITE', 1)
+    ctx.msg('Checking if using sink_wavwrite', ctx.options.enable_wavwrite and 'yes' or 'no')
 
     # use ATLAS
     if (ctx.options.enable_atlas != False):
@@ -272,47 +350,68 @@ def configure(ctx):
     # use memcpy hacks
     if (ctx.options.enable_memcpy == True):
         ctx.define('HAVE_MEMCPY_HACKS', 1)
-    else:
-        ctx.define('HAVE_MEMCPY_HACKS', 0)
 
     # write configuration header
     ctx.write_config_header('src/config.h')
+
+    # the following defines will be passed as arguments to the compiler
+    # instead of being written to src/config.h
+    ctx.define('HAVE_CONFIG_H', 1)
 
     # add some defines used in examples
     ctx.define('AUBIO_PREFIX', ctx.env['PREFIX'])
     ctx.define('PACKAGE', APPNAME)
 
-    # check if txt2man is installed, optional
-    try:
-      ctx.find_program('txt2man', var='TXT2MAN')
-    except ctx.errors.ConfigurationError:
-      ctx.to_log('txt2man was not found (ignoring)')
+    # double precision mode
+    if (ctx.options.enable_double == True):
+        ctx.define('HAVE_AUBIO_DOUBLE', 1)
 
-    # check if doxygen is installed, optional
-    try:
-      ctx.find_program('doxygen', var='DOXYGEN')
-    except ctx.errors.ConfigurationError:
-      ctx.to_log('doxygen was not found (ignoring)')
+    if (ctx.options.enable_docs != False):
+        # check if txt2man is installed, optional
+        try:
+          ctx.find_program('txt2man', var='TXT2MAN')
+        except ctx.errors.ConfigurationError:
+          ctx.to_log('txt2man was not found (ignoring)')
+
+        # check if doxygen is installed, optional
+        try:
+          ctx.find_program('doxygen', var='DOXYGEN')
+        except ctx.errors.ConfigurationError:
+          ctx.to_log('doxygen was not found (ignoring)')
+
+        # check if sphinx-build is installed, optional
+        try:
+          ctx.find_program('sphinx-build', var='SPHINX')
+        except ctx.errors.ConfigurationError:
+          ctx.to_log('sphinx-build was not found (ignoring)')
 
 def build(bld):
     bld.env['VERSION'] = VERSION
     bld.env['LIB_VERSION'] = LIB_VERSION
 
-    # add sub directories
+    # main source
     bld.recurse('src')
-    if bld.env['DEST_OS'] not in ['ios', 'iosimulator']:
-        pass
+
+    # add sub directories
     if bld.env['DEST_OS'] not in ['ios', 'iosimulator', 'android']:
         bld.recurse('examples')
         bld.recurse('tests')
 
+    # pkg-config template
     bld( source = 'aubio.pc.in' )
 
+    # documentation
+    txt2man(bld)
+    doxygen(bld)
+    sphinx(bld)
+
+def txt2man(bld):
     # build manpages from txt files using txt2man
     if bld.env['TXT2MAN']:
         from waflib import TaskGen
         if 'MANDIR' not in bld.env:
-            bld.env['MANDIR'] = bld.env['PREFIX'] + '/share/man'
+            bld.env['MANDIR'] = bld.env['DATAROOTDIR'] + '/man'
+        bld.env.VERSION = VERSION
         rule_str = '${TXT2MAN} -t `basename ${TGT} | cut -f 1 -d . | tr a-z A-Z`'
         rule_str += ' -r ${PACKAGE}\\ ${VERSION} -P ${PACKAGE}'
         rule_str += ' -v ${PACKAGE}\\ User\\\'s\\ manual'
@@ -327,15 +426,50 @@ def build(bld):
                 )
         bld( source = bld.path.ant_glob('doc/*.txt') )
 
+def doxygen(bld):
     # build documentation from source files using doxygen
     if bld.env['DOXYGEN']:
         bld( name = 'doxygen', rule = 'doxygen ${SRC} > /dev/null',
                 source = 'doc/web.cfg',
+                target = '../doc/web/html/index.html',
                 cwd = 'doc')
-        bld.install_files( '${PREFIX}' + '/share/doc/libaubio-doc',
+        bld.install_files( '${DATAROOTDIR}' + '/doc/libaubio-doc',
                 bld.path.ant_glob('doc/web/html/**'),
                 cwd = bld.path.find_dir ('doc/web'),
                 relative_trick = True)
+
+def sphinx(bld):
+    # build documentation from source files using sphinx-build
+    # note: build in ../doc/_build/html, otherwise waf wont install unsigned files
+    if bld.env['SPHINX']:
+        bld.env.VERSION = VERSION
+        bld( name = 'sphinx',
+                rule = '${SPHINX} -b html -D release=${VERSION} -D version=${VERSION} -a -q `dirname ${SRC}` `dirname ${TGT}`',
+                source = 'doc/conf.py',
+                target = '../doc/_build/html/index.html')
+        bld.install_files( '${DATAROOTDIR}' + '/doc/libaubio-doc/sphinx',
+                bld.path.ant_glob('doc/_build/html/**'),
+                cwd = bld.path.find_dir('doc/_build/html'),
+                relative_trick = True)
+
+# register the previous rules as build rules
+from waflib.Build import BuildContext
+
+class build_txt2man(BuildContext):
+    cmd = 'txt2man'
+    fun = 'txt2man'
+
+class build_manpages(BuildContext):
+    cmd = 'manpages'
+    fun = 'txt2man'
+
+class build_sphinx(BuildContext):
+    cmd = 'sphinx'
+    fun = 'sphinx'
+
+class build_doxygen(BuildContext):
+    cmd = 'doxygen'
+    fun = 'doxygen'
 
 def shutdown(bld):
     from waflib import Logs
@@ -346,12 +480,25 @@ def shutdown(bld):
         Logs.pprint('RED', msg)
 
 def dist(ctx):
-    ctx.excl  = ' **/.waf-1* **/*~ **/*.pyc **/*.swp **/.lock-w* **/.git*'
+    ctx.excl  = ' **/.waf* **/*~ **/*.pyc **/*.swp **/*.swo **/*.swn **/.lock-w* **/.git*'
     ctx.excl += ' **/build/*'
+    ctx.excl += ' doc/_build'
+    ctx.excl += ' python/demos_*'
     ctx.excl += ' **/python/gen **/python/build **/python/dist'
+    ctx.excl += ' **/python/ext/config.h'
+    ctx.excl += ' **/python/lib/aubio/_aubio.so'
+    ctx.excl += ' **.egg-info'
     ctx.excl += ' **/**.zip **/**.tar.bz2'
+    ctx.excl += ' **.tar.bz2'
     ctx.excl += ' **/doc/full/* **/doc/web/*'
+    ctx.excl += ' **/doc/full.cfg'
     ctx.excl += ' **/python/*.db'
     ctx.excl += ' **/python.old/*'
+    ctx.excl += ' **/python/*/*.old'
     ctx.excl += ' **/python/tests/sounds'
     ctx.excl += ' **/**.asc'
+    ctx.excl += ' **/dist*'
+    ctx.excl += ' **/.DS_Store'
+    ctx.excl += ' **/.travis.yml'
+    ctx.excl += ' **/.landscape.yml'
+    ctx.excl += ' **/.appveyor.yml'

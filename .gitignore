@@ -30,6 +30,7 @@ build/
 # doxygen
 doc/web/
 doc/full/
+doc/_build/
 
 python/gen
 python/dist
@@ -39,3 +40,7 @@ python/*.wav
 
 aubio-*.tar.bz2
 aubio-*.zip
+
+# test sounds
+python/tests/sounds
+aubio.egg-info

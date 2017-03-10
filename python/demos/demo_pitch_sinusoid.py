@@ -1,20 +1,17 @@
 #! /usr/bin/env python
 
-from numpy import random, sin, arange, ones, zeros
-from math import pi
-from aubio import fvec, pitch
+import numpy as np
+import aubio
 
 def build_sinusoid(length, freqs, samplerate):
-  return sin( 2. * pi * arange(length) * freqs / samplerate)
+    return np.sin( 2. * np.pi * np.arange(length) * freqs / samplerate).astype(aubio.float_type)
 
 def run_pitch(p, input_vec):
-  f = fvec (p.hop_size)
-  cands = []
-  count = 0
-  for vec_slice in input_vec.reshape((-1, p.hop_size)):
-    f[:] = vec_slice
-    cands.append(p(f))
-  return cands
+    cands = []
+    for vec_slice in input_vec.reshape((-1, p.hop_size)):
+        a = p(vec_slice)[0]
+        cands.append(a)
+    return cands
 
 methods = ['default', 'schmitt', 'fcomb', 'mcomb', 'yin', 'yinfft']
 
@@ -23,9 +20,9 @@ buf_size = 2048
 hop_size = 512
 samplerate = 44100
 sin_length = (samplerate * 10) % 512 * 512
-freqs = zeros(sin_length)
+freqs = np.zeros(sin_length)
 
-partition = sin_length / 8
+partition = sin_length // 8
 pointer = 0
 
 pointer += partition
@@ -40,29 +37,35 @@ freqs[ pointer : pointer + partition ] = 1480
 
 pointer += partition
 pointer += partition
-freqs[ pointer : pointer + partition ] = 400 + 5 * random.random(sin_length/8)
+freqs[ pointer : pointer + partition ] = 400 + 5 * np.random.random(sin_length/8)
 
 a = build_sinusoid(sin_length, freqs, samplerate)
 
 for method in methods:
-  p = pitch(method, buf_size, hop_size, samplerate)
-  cands[method] = run_pitch(p, a)
+    p = aubio.pitch(method, buf_size, hop_size, samplerate)
+    cands[method] = run_pitch(p, a)
+    print(method)
+    print(cands[method])
 
-print "done computing"
+print("done computing")
 
 if 1:
-  from pylab import plot, show, xlabel, ylabel, legend, ylim
-  ramp = arange(0, sin_length / hop_size).astype('float') * hop_size / samplerate
-  for method in methods:
-    plot(ramp, cands[method],'.-')
+    import matplotlib.pyplot as plt
 
-  # plot ground truth
-  ramp = arange(0, sin_length).astype('float') / samplerate
-  plot(ramp, freqs, ':')
+    # times
+    ramp = np.arange(0, sin_length / hop_size).astype('float') * hop_size / samplerate
 
-  legend(methods+['ground truth'], 'upper right')
-  xlabel('time (s)')
-  ylabel('frequency (Hz)')
-  ylim([0,2000])
-  show()
+    # plot each result
+    for method in methods:
+        plt.plot(ramp, cands[method], '.-', label=method)
 
+    # plot ground truth
+    ramp = np.arange(0, sin_length).astype('float') / samplerate
+    plt.plot(ramp, freqs, ':', label = 'ground truth')
+
+    plt.legend(loc='upper left')
+
+    plt.xlabel('time (s)')
+    plt.ylabel('frequency (Hz)')
+    plt.ylim([0,2000])
+    plt.show()

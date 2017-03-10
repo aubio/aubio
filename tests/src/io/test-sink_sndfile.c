@@ -1,6 +1,5 @@
 #define AUBIO_UNSTABLE 1
 #include <aubio.h>
-#include "config.h"
 #include "utils_tests.h"
 
 // this file uses the unstable aubio api, please use aubio_sink instead

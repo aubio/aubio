@@ -28,27 +28,6 @@
 #include "mathutils.h"
 #include "tempo/tempo.h"
 
-// TODO implement get/set_delay
-
-/** set current delay
-
-  \param o beat tracking object
-
-  \return current delay, in samples
-
- */
-uint_t aubio_tempo_get_delay(aubio_tempo_t * o);
-
-/** set current delay
-
-  \param o beat tracking object
-  \param delay delay to set tempo to, in samples
-
-  \return `0` if successful, non-zero otherwise
-
- */
-uint_t aubio_tempo_set_delay(aubio_tempo_t * o, uint_t delay);
-
 /* structure to store object state */
 struct _aubio_tempo_t {
   aubio_specdesc_t * od;   /** onset detection */
@@ -69,13 +48,13 @@ struct _aubio_tempo_t {
   uint_t hop_size;               /** get hop_size */
   uint_t total_frames;           /** total frames since beginning */
   uint_t last_beat;              /** time of latest detected beat, in samples */
-  uint_t delay;                  /** delay to remove to last beat, in samples */
+  sint_t delay;                  /** delay to remove to last beat, in samples */
   uint_t last_tatum;             /** time of latest detected tatum, in samples */
   uint_t tatum_signature;        /** number of tatum between each beats */
 };
 
 /* execute tempo detection function on iput buffer */
-void aubio_tempo_do(aubio_tempo_t *o, fvec_t * input, fvec_t * tempo)
+void aubio_tempo_do(aubio_tempo_t *o, const fvec_t * input, fvec_t * tempo)
 {
   uint_t i;
   uint_t winlen = o->winlen;
@@ -100,7 +79,8 @@ void aubio_tempo_do(aubio_tempo_t *o, fvec_t * input, fvec_t * tempo)
   }
   o->blockpos++;
   aubio_peakpicker_do (o->pp, o->of, o->onset);
-  tempo->data[1] = o->onset->data[0];
+  // store onset detection function in second sample of vector
+  //tempo->data[1] = o->onset->data[0];
   thresholded = aubio_peakpicker_get_thresholded_input(o->pp);
   o->dfframe->data[winlen - step + o->blockpos] = thresholded->data[0];
   /* end of second level loop */
@@ -124,7 +104,7 @@ void aubio_tempo_do(aubio_tempo_t *o, fvec_t * input, fvec_t * tempo)
 
 uint_t aubio_tempo_get_last (aubio_tempo_t *o)
 {
-  return o->last_beat - o->delay;
+  return o->last_beat + o->delay;
 }
 
 smpl_t aubio_tempo_get_last_s (aubio_tempo_t *o)
@@ -137,13 +117,31 @@ smpl_t aubio_tempo_get_last_ms (aubio_tempo_t *o)
   return aubio_tempo_get_last_s (o) * 1000.;
 }
 
-uint_t aubio_tempo_set_delay(aubio_tempo_t * o, uint_t delay) {
+uint_t aubio_tempo_set_delay(aubio_tempo_t * o, sint_t delay) {
   o->delay = delay;
+  return AUBIO_OK;
+}
+
+uint_t aubio_tempo_set_delay_s(aubio_tempo_t * o, smpl_t delay) {
+  o->delay = delay * o->samplerate;
+  return AUBIO_OK;
+}
+
+uint_t aubio_tempo_set_delay_ms(aubio_tempo_t * o, smpl_t delay) {
+  o->delay = 1000. * delay * o->samplerate;
   return AUBIO_OK;
 }
 
 uint_t aubio_tempo_get_delay(aubio_tempo_t * o) {
   return o->delay;
+}
+
+smpl_t aubio_tempo_get_delay_s(aubio_tempo_t * o) {
+  return o->delay / (smpl_t)(o->samplerate);
+}
+
+smpl_t aubio_tempo_get_delay_ms(aubio_tempo_t * o) {
+  return o->delay / (smpl_t)(o->samplerate) / 1000.;
 }
 
 uint_t aubio_tempo_set_silence(aubio_tempo_t * o, smpl_t silence) {
@@ -166,7 +164,7 @@ smpl_t aubio_tempo_get_threshold(aubio_tempo_t * o) {
 }
 
 /* Allocate memory for an tempo detection */
-aubio_tempo_t * new_aubio_tempo (char_t * tempo_mode,
+aubio_tempo_t * new_aubio_tempo (const char_t * tempo_mode,
     uint_t buf_size, uint_t hop_size, uint_t samplerate)
 {
   aubio_tempo_t * o = AUBIO_NEW(aubio_tempo_t);
@@ -176,8 +174,8 @@ aubio_tempo_t * new_aubio_tempo (char_t * tempo_mode,
   if ((sint_t)hop_size < 1) {
     AUBIO_ERR("tempo: got hop size %d, but can not be < 1\n", hop_size);
     goto beach;
-  } else if ((sint_t)buf_size < 1) {
-    AUBIO_ERR("tempo: got window size %d, but can not be < 1\n", buf_size);
+  } else if ((sint_t)buf_size < 2) {
+    AUBIO_ERR("tempo: got window size %d, but can not be < 2\n", buf_size);
     goto beach;
   } else if (buf_size < hop_size) {
     AUBIO_ERR("tempo: hop size (%d) is larger than window size (%d)\n", buf_size, hop_size);

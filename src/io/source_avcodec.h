@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO_SOURCE_AVCODEC_H
-#define _AUBIO_SOURCE_AVCODEC_H
+#ifndef AUBIO_SOURCE_AVCODEC_H
+#define AUBIO_SOURCE_AVCODEC_H
 
 /** \file
 
@@ -56,7 +56,7 @@ typedef struct _aubio_source_avcodec_t aubio_source_avcodec_t;
   ::aubio_source_avcodec_get_samplerate.
 
 */
-aubio_source_avcodec_t * new_aubio_source_avcodec(char_t * uri, uint_t samplerate, uint_t hop_size);
+aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * uri, uint_t samplerate, uint_t hop_size);
 
 /**
 
@@ -94,7 +94,7 @@ void aubio_source_avcodec_do_multi(aubio_source_avcodec_t * s, fmat_t * read_to,
   \return samplerate, in Hz
 
 */
-uint_t aubio_source_avcodec_get_samplerate(aubio_source_avcodec_t * s);
+uint_t aubio_source_avcodec_get_samplerate(const aubio_source_avcodec_t * s);
 
 /**
 
@@ -104,7 +104,7 @@ uint_t aubio_source_avcodec_get_samplerate(aubio_source_avcodec_t * s);
   \return number of channels
 
 */
-uint_t aubio_source_avcodec_get_channels (aubio_source_avcodec_t * s);
+uint_t aubio_source_avcodec_get_channels (const aubio_source_avcodec_t * s);
 
 /**
 
@@ -117,6 +117,16 @@ uint_t aubio_source_avcodec_get_channels (aubio_source_avcodec_t * s);
 
 */
 uint_t aubio_source_avcodec_seek (aubio_source_avcodec_t *s, uint_t pos);
+
+/**
+
+  get the duration of source object, in frames
+
+  \param s source object, created with ::new_aubio_source_avcodec
+  \return number of frames in file
+
+*/
+uint_t aubio_source_avcodec_get_duration (aubio_source_avcodec_t * s);
 
 /**
 
@@ -142,4 +152,4 @@ void del_aubio_source_avcodec(aubio_source_avcodec_t * s);
 }
 #endif
 
-#endif /* _AUBIO_SOURCE_AVCODEC_H */
+#endif /* AUBIO_SOURCE_AVCODEC_H */

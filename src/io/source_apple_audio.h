@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO_SOURCE_APPLE_AUDIO_H
-#define _AUBIO_SOURCE_APPLE_AUDIO_H
+#ifndef AUBIO_SOURCE_APPLE_AUDIO_H
+#define AUBIO_SOURCE_APPLE_AUDIO_H
 
 /** \file
 
@@ -57,7 +57,7 @@ typedef struct _aubio_source_apple_audio_t aubio_source_apple_audio_t;
   ::aubio_source_apple_audio_get_samplerate.
 
 */
-aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * uri, uint_t samplerate, uint_t hop_size);
+aubio_source_apple_audio_t * new_aubio_source_apple_audio(const char_t * uri, uint_t samplerate, uint_t hop_size);
 
 /**
 
@@ -95,7 +95,7 @@ void aubio_source_apple_audio_do_multi(aubio_source_apple_audio_t * s, fmat_t * 
   \return samplerate, in Hz
 
 */
-uint_t aubio_source_apple_audio_get_samplerate(aubio_source_apple_audio_t * s);
+uint_t aubio_source_apple_audio_get_samplerate(const aubio_source_apple_audio_t * s);
 
 /**
 
@@ -105,7 +105,17 @@ uint_t aubio_source_apple_audio_get_samplerate(aubio_source_apple_audio_t * s);
   \return number of channels
 
 */
-uint_t aubio_source_apple_audio_get_channels(aubio_source_apple_audio_t * s);
+uint_t aubio_source_apple_audio_get_channels(const aubio_source_apple_audio_t * s);
+
+/**
+
+  get the duration of source object, in frames
+
+  \param s source object, created with ::new_aubio_source_apple_audio
+  \return number of frames in file
+
+*/
+uint_t aubio_source_apple_audio_get_duration(const aubio_source_apple_audio_t * s);
 
 /**
 
@@ -143,4 +153,4 @@ void del_aubio_source_apple_audio(aubio_source_apple_audio_t * s);
 }
 #endif
 
-#endif /* _AUBIO_SOURCE_APPLE_AUDIO_H */
+#endif /* AUBIO_SOURCE_APPLE_AUDIO_H */

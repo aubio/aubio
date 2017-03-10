@@ -1,61 +1,15 @@
 #include "aubio-types.h"
 
-fvec_t *
-PyAubio_ArrayToCFvec (PyObject *input) {
-  PyObject *array;
-  fvec_t *vec;
-  if (input == NULL) {
-    PyErr_SetString (PyExc_ValueError, "input array is not a python object");
-    goto fail;
-  }
-  // parsing input object into a Py_fvec
-  if (PyArray_Check(input)) {
+PyObject *
+new_py_fvec(uint_t length) {
+    npy_intp dims[] = { length, 1 };
+    return PyArray_ZEROS(1, dims, AUBIO_NPY_SMPL, 0);
+}
 
-    // we got an array, convert it to an fvec
-    if (PyArray_NDIM ((PyArrayObject *)input) == 0) {
-      PyErr_SetString (PyExc_ValueError, "input array is a scalar");
-      goto fail;
-    } else if (PyArray_NDIM ((PyArrayObject *)input) > 1) {
-      PyErr_SetString (PyExc_ValueError,
-          "input array has more than one dimensions");
-      goto fail;
-    }
-
-    if (!PyArray_ISFLOAT ((PyArrayObject *)input)) {
-      PyErr_SetString (PyExc_ValueError, "input array should be float");
-      goto fail;
-    } else if (PyArray_TYPE ((PyArrayObject *)input) != AUBIO_NPY_SMPL) {
-      PyErr_SetString (PyExc_ValueError, "input array should be float32");
-      goto fail;
-    } else {
-      // input data type is float32, nothing else to do
-      array = input;
-    }
-
-    // vec = new_fvec (vec->length);
-    // no need to really allocate fvec, just its struct member
-    vec = (fvec_t *)malloc(sizeof(fvec_t));
-    long length = PyArray_SIZE ((PyArrayObject *)array);
-    if (length > 0) {
-      vec->length = (uint_t)length;
-    } else {
-      PyErr_SetString (PyExc_ValueError, "input array size should be greater than 0");
-      goto fail;
-    }
-    vec->data = (smpl_t *) PyArray_GETPTR1 ((PyArrayObject *)array, 0);
-
-  } else if (PyObject_TypeCheck (input, &PyList_Type)) {
-    PyErr_SetString (PyExc_ValueError, "does not convert from list yet");
-    return NULL;
-  } else {
-    PyErr_SetString (PyExc_ValueError, "can only accept vector of float as input");
-    return NULL;
-  }
-
-  return vec;
-
-fail:
-  return NULL;
+PyObject *
+new_py_fmat(uint_t height, uint_t length) {
+    npy_intp dims[] = { height, length, 1 };
+    return PyArray_ZEROS(2, dims, AUBIO_NPY_SMPL, 0);
 }
 
 PyObject *
@@ -65,23 +19,60 @@ PyAubio_CFvecToArray (fvec_t * self)
   return PyArray_SimpleNewFromData (1, dims, AUBIO_NPY_SMPL, self->data);
 }
 
-Py_cvec *
-PyAubio_CCvecToPyCvec (cvec_t * input) {
-  Py_cvec *vec = (Py_cvec*) PyObject_New (Py_cvec, &Py_cvecType);
-  vec->length = input->length;
-  vec->o = input;
-  Py_INCREF(vec);
-  return vec;
+int
+PyAubio_IsValidVector (PyObject * input) {
+  npy_intp length;
+  if (input == NULL) {
+    PyErr_SetString (PyExc_ValueError, "input array is not a python object");
+    return 0;
+  }
+  // parsing input object into a Py_fvec
+  if (PyArray_Check(input)) {
+
+    // we got an array, convert it to an fvec
+    if (PyArray_NDIM ((PyArrayObject *)input) == 0) {
+      PyErr_SetString (PyExc_ValueError, "input array is a scalar");
+      return 0;
+    } else if (PyArray_NDIM ((PyArrayObject *)input) > 1) {
+      PyErr_SetString (PyExc_ValueError,
+          "input array has more than one dimensions");
+      return 0;
+    }
+
+    if (!PyArray_ISFLOAT ((PyArrayObject *)input)) {
+      PyErr_SetString (PyExc_ValueError, "input array should be float");
+      return 0;
+    } else if (PyArray_TYPE ((PyArrayObject *)input) != AUBIO_NPY_SMPL) {
+      PyErr_SetString (PyExc_ValueError, "input array should be " AUBIO_NPY_SMPL_STR);
+      return 0;
+    }
+
+    length = PyArray_SIZE ((PyArrayObject *)input);
+    if (length <= 0) {
+      PyErr_SetString (PyExc_ValueError, "input array size should be greater than 0");
+      return 0;
+    }
+
+  } else if (PyObject_TypeCheck (input, &PyList_Type)) {
+    PyErr_SetString (PyExc_ValueError, "does not convert from list yet");
+    return 0;
+  } else {
+    PyErr_SetString (PyExc_ValueError, "can only accept vector of float as input");
+    return 0;
+  }
+  return 1;
 }
 
-cvec_t *
-PyAubio_ArrayToCCvec (PyObject *input) {
-  if (PyObject_TypeCheck (input, &Py_cvecType)) {
-      return ((Py_cvec*)input)->o;
-  } else {
-      PyErr_SetString (PyExc_ValueError, "input array should be float32");
-      return NULL;
+int
+PyAubio_ArrayToCFvec (PyObject *input, fvec_t *out) {
+
+  if (!PyAubio_IsValidVector(input)){
+    return 0;
   }
+
+  out->length = (uint_t) PyArray_SIZE ((PyArrayObject *)input);
+  out->data = (smpl_t *) PyArray_GETPTR1 ((PyArrayObject *)input, 0);
+  return 1;
 }
 
 PyObject *
@@ -101,14 +92,13 @@ PyAubio_CFmatToArray (fmat_t * input)
   return array;
 }
 
-fmat_t *
-PyAubio_ArrayToCFmat (PyObject *input) {
-  PyObject *array;
-  fmat_t *mat;
-  uint_t i;
+int
+PyAubio_ArrayToCFmat (PyObject *input, fmat_t *mat) {
+  uint_t i, new_height;
+  npy_intp length, height;
   if (input == NULL) {
     PyErr_SetString (PyExc_ValueError, "input array is not a python object");
-    goto fail;
+    return 0;
   }
   // parsing input object into a Py_fvec
   if (PyArray_Check(input)) {
@@ -116,56 +106,53 @@ PyAubio_ArrayToCFmat (PyObject *input) {
     // we got an array, convert it to an fvec
     if (PyArray_NDIM ((PyArrayObject *)input) == 0) {
       PyErr_SetString (PyExc_ValueError, "input array is a scalar");
-      goto fail;
+      return 0;
     } else if (PyArray_NDIM ((PyArrayObject *)input) > 2) {
       PyErr_SetString (PyExc_ValueError,
           "input array has more than two dimensions");
-      goto fail;
+      return 0;
     }
 
     if (!PyArray_ISFLOAT ((PyArrayObject *)input)) {
       PyErr_SetString (PyExc_ValueError, "input array should be float");
-      goto fail;
+      return 0;
     } else if (PyArray_TYPE ((PyArrayObject *)input) != AUBIO_NPY_SMPL) {
-      PyErr_SetString (PyExc_ValueError, "input array should be float32");
-      goto fail;
-    } else {
-      // input data type is float32, nothing else to do
-      array = input;
+      PyErr_SetString (PyExc_ValueError, "input array should be " AUBIO_NPY_SMPL_STR);
+      return 0;
     }
 
     // no need to really allocate fvec, just its struct member
-    mat = (fmat_t *)malloc(sizeof(fmat_t));
-    long length = PyArray_DIM ((PyArrayObject *)array, 1);
-    if (length > 0) {
-      mat->length = (uint_t)length;
-    } else {
+    length = PyArray_DIM ((PyArrayObject *)input, 1);
+    if (length <= 0) {
       PyErr_SetString (PyExc_ValueError, "input array dimension 1 should be greater than 0");
-      goto fail;
+      return 0;
     }
-    long height = PyArray_DIM ((PyArrayObject *)array, 0);
-    if (height > 0) {
-      mat->height = (uint_t)height;
-    } else {
+    height = PyArray_DIM ((PyArrayObject *)input, 0);
+    if (height <= 0) {
       PyErr_SetString (PyExc_ValueError, "input array dimension 0 should be greater than 0");
-      goto fail;
-    }
-    mat->data = (smpl_t **)malloc(sizeof(smpl_t*) * mat->height);
-    for (i=0; i< mat->height; i++) {
-      mat->data[i] = (smpl_t*)PyArray_GETPTR1 ((PyArrayObject *)array, i);
+      return 0;
     }
 
   } else if (PyObject_TypeCheck (input, &PyList_Type)) {
     PyErr_SetString (PyExc_ValueError, "can not convert list to fmat");
-    return NULL;
+    return 0;
   } else {
     PyErr_SetString (PyExc_ValueError, "can only accept matrix of float as input");
-    return NULL;
+    return 0;
   }
 
-  return mat;
+  new_height = (uint_t)PyArray_DIM ((PyArrayObject *)input, 0);
+  if (mat->height != new_height) {
+    if (mat->data) {
+      free(mat->data);
+    }
+    mat->data = (smpl_t **)malloc(sizeof(smpl_t*) * new_height);
+  }
 
-fail:
-  return NULL;
+  mat->height = new_height;
+  mat->length = (uint_t)PyArray_DIM ((PyArrayObject *)input, 1);
+  for (i=0; i< mat->height; i++) {
+    mat->data[i] = (smpl_t*)PyArray_GETPTR1 ((PyArrayObject *)input, i);
+  }
+  return 1;
 }
-

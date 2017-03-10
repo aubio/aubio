@@ -1,0 +1,69 @@
+# appveyor configuration. See http://www.appveyor.com/docs/appveyor-yml
+# and http://www.appveyor.com/docs/installed-software#python
+
+environment:
+
+  matrix:
+
+    # pre-installed python version, see:
+    # http://www.appveyor.com/docs/installed-software#python
+    - PYTHON: "C:\\Python27"
+      PYTHON_VERSION: "2.7.x"
+      PYTHON_ARCH: "32"
+
+    - PYTHON: "C:\\Python27-x64"
+      PYTHON_VERSION: "2.7.x"
+      PYTHON_ARCH: "64"
+
+    - PYTHON: "C:\\Python34"
+      PYTHON_VERSION: "3.4.x"
+      PYTHON_ARCH: "32"
+
+    - PYTHON: "C:\\Python34-x64"
+      PYTHON_VERSION: "3.4.x"
+      PYTHON_ARCH: "64"
+
+    - PYTHON: "C:\\Python35"
+      PYTHON_VERSION: "3.5.x"
+      PYTHON_ARCH: "32"
+
+    - PYTHON: "C:\\Python35-x64"
+      PYTHON_VERSION: "3.5.x"
+      PYTHON_ARCH: "64"
+      # add path required to run preprocessor step
+      PATH_EXTRAS: "c:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\bin"
+
+install:
+
+  - ECHO "Installed SDKs:"
+  - ps: "ls \"C:/Program Files/Microsoft SDKs/Windows\""
+
+  # Check that we have the expected version and architecture for Python
+  - "%PYTHON%\\python.exe --version"
+  - "%PYTHON%\\python.exe -c \"import struct; print(struct.calcsize('P') * 8)\""
+
+  # We need wheel installed to build wheels
+  - "%PYTHON%\\python.exe -m pip install wheel"
+
+  - "SET PATH=%PATH_EXTRAS%;%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+
+  - "pip install --disable-pip-version-check --user --upgrade pip"
+  - "pip install --upgrade setuptools"
+
+before_build:
+  - curl -fsS -o waf https://waf.io/waf-1.8.22
+  - curl -fsS -o waf.bat https://raw.githubusercontent.com/waf-project/waf/master/utils/waf.bat
+
+build_script:
+  # build python module without using libaubio
+  - "pip install -r requirements.txt"
+  - "python setup.py build"
+  - "pip install ."
+  - "python python\\demos\\demo_create_test_sounds.py"
+  - "nose2 --verbose"
+  # clean up
+  - waf distclean
+  # build libaubio
+  - waf configure build --verbose
+  # build python module using libaubio dll
+  - "python setup.py build"

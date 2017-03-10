@@ -18,11 +18,10 @@
 
 */
 
-#include "config.h"
+#include "aubio_priv.h"
 
 #ifdef HAVE_WAVREAD
 
-#include "aubio_priv.h"
 #include "fvec.h"
 #include "fmat.h"
 #include "source_wavread.h"
@@ -52,14 +51,20 @@ struct _aubio_source_wavread_t {
   uint_t read_index;
   uint_t eof;
 
+  uint_t duration;
+
   size_t seek_start;
 
   unsigned char *short_output;
   fmat_t *output;
 };
 
-unsigned int read_little_endian (unsigned char *buf, unsigned int length);
-unsigned int read_little_endian (unsigned char *buf, unsigned int length) {
+static unsigned int read_little_endian (unsigned char *buf,
+    unsigned int length);
+
+static unsigned int read_little_endian (unsigned char *buf,
+    unsigned int length)
+{
   uint_t i, ret = 0;
   for (i = 0; i < length; i++) {
     ret += buf[i] << (i * 8);
@@ -67,11 +72,11 @@ unsigned int read_little_endian (unsigned char *buf, unsigned int length) {
   return ret;
 }
 
-aubio_source_wavread_t * new_aubio_source_wavread(char_t * path, uint_t samplerate, uint_t hop_size) {
+aubio_source_wavread_t * new_aubio_source_wavread(const char_t * path, uint_t samplerate, uint_t hop_size) {
   aubio_source_wavread_t * s = AUBIO_NEW(aubio_source_wavread_t);
-  size_t bytes_read = 0, bytes_expected = 44;
-  unsigned char buf[5];
-  unsigned int format, channels, sr, byterate, blockalign, bitspersample;//, data_size;
+  size_t bytes_read = 0, bytes_junk = 0, bytes_expected = 44;
+  unsigned char buf[5] = "\0";
+  unsigned int format, channels, sr, byterate, blockalign, duration, bitspersample;//, data_size;
 
   if (path == NULL) {
     AUBIO_ERR("source_wavread: Aborted opening null path\n");
@@ -86,7 +91,10 @@ aubio_source_wavread_t * new_aubio_source_wavread(char_t * path, uint_t samplera
     goto beach;
   }
 
-  s->path = path;
+  if (s->path) AUBIO_FREE(s->path);
+  s->path = AUBIO_ARRAY(char_t, strnlen(path, PATH_MAX) + 1);
+  strncpy(s->path, path, strnlen(path, PATH_MAX) + 1);
+
   s->samplerate = samplerate;
   s->hop_size = hop_size;
 
@@ -100,7 +108,7 @@ aubio_source_wavread_t * new_aubio_source_wavread(char_t * path, uint_t samplera
   bytes_read += fread(buf, 1, 4, s->fid);
   buf[4] = '\0';
   if ( strcmp((const char *)buf, "RIFF") != 0 ) {
-    AUBIO_ERR("source_wavread: could not find RIFF header in %s\n", s->path);
+    AUBIO_ERR("source_wavread: Failed opening %s (could not find RIFF header)\n", s->path);
     goto beach;
   }
 
@@ -111,15 +119,34 @@ aubio_source_wavread_t * new_aubio_source_wavread(char_t * path, uint_t samplera
   bytes_read += fread(buf, 1, 4, s->fid);
   buf[4] = '\0';
   if ( strcmp((const char *)buf, "WAVE") != 0 ) {
-    AUBIO_ERR("source_wavread: wrong format in RIFF header in %s\n", s->path);
+    AUBIO_ERR("source_wavread: Failed opening %s (wrong format in RIFF header)\n", s->path);
     goto beach;
   }
 
   // Subchunk1ID
   bytes_read += fread(buf, 1, 4, s->fid);
   buf[4] = '\0';
+
+  // check if we have a JUNK Chunk
+  if ( strcmp((const char *)buf, "JUNK") == 0 ) {
+    bytes_junk = fread(buf, 1, 4, s->fid);
+    buf[4] = '\0';
+    bytes_junk += read_little_endian(buf, 4);
+    if (fseek(s->fid, bytes_read + bytes_junk, SEEK_SET) != 0) {
+      AUBIO_ERR("source_wavread: Failed opening %s (could not seek past JUNK Chunk: %s)\n",
+          s->path, strerror(errno));
+      goto beach;
+    }
+    bytes_read += bytes_junk;
+    bytes_expected += bytes_junk + 4;
+    // now really read the fmt chunk
+    bytes_read += fread(buf, 1, 4, s->fid);
+    buf[4] = '\0';
+  }
+
+  // get the fmt chunk
   if ( strcmp((const char *)buf, "fmt ") != 0 ) {
-    AUBIO_ERR("source_wavread: fmt RIFF header in %s\n", s->path);
+    AUBIO_ERR("source_wavread: Failed opening %s (could not find 'fmt ' in RIFF header)\n", s->path);
     goto beach;
   }
 
@@ -128,18 +155,18 @@ aubio_source_wavread_t * new_aubio_source_wavread(char_t * path, uint_t samplera
   format = read_little_endian(buf, 4);
   if ( format != 16 ) {
     // TODO accept format 18
-    AUBIO_ERR("source_wavread: file %s is not encoded with PCM\n", s->path);
+    AUBIO_ERR("source_wavread: Failed opening %s (not encoded with PCM)\n", s->path);
     goto beach;
   }
   if ( buf[1] || buf[2] | buf[3] ) {
-    AUBIO_ERR("source_wavread: Subchunk1Size should be 0, in %s\n", s->path);
+    AUBIO_ERR("source_wavread: Failed opening %s (Subchunk1Size should be 0)\n", s->path);
     goto beach;
   }
 
   // AudioFormat
   bytes_read += fread(buf, 1, 2, s->fid);
   if ( buf[0] != 1 || buf[1] != 0) {
-    AUBIO_ERR("source_wavread: AudioFormat should be PCM, in %s\n", s->path);
+    AUBIO_ERR("source_wavread: Failed opening %s (AudioFormat should be PCM)\n", s->path);
     goto beach;
   }
 
@@ -171,12 +198,12 @@ aubio_source_wavread_t * new_aubio_source_wavread(char_t * path, uint_t samplera
 #endif
 
   if ( byterate * 8 != sr * channels * bitspersample ) {
-    AUBIO_ERR("source_wavread: wrong byterate in %s\n", s->path);
+    AUBIO_ERR("source_wavread: Failed opening %s (wrong byterate)\n", s->path);
     goto beach;
   }
 
   if ( blockalign * 8 != channels * bitspersample ) {
-    AUBIO_ERR("source_wavread: wrong blockalign in %s\n", s->path);
+    AUBIO_ERR("source_wavread: Failed opening %s (wrong blockalign)\n", s->path);
     goto beach;
   }
 
@@ -205,13 +232,29 @@ aubio_source_wavread_t * new_aubio_source_wavread(char_t * path, uint_t samplera
   // Subchunk2ID
   bytes_read += fread(buf, 1, 4, s->fid);
   buf[4] = '\0';
-  if ( strcmp((const char *)buf, "data") != 0 ) {
-    AUBIO_ERR("source_wavread: data RIFF header not found in %s\n", s->path);
-    goto beach;
+  while ( strcmp((const char *)buf, "data") != 0 ) {
+    if (feof(s->fid) || ferror(s->fid)) {
+      AUBIO_ERR("source_wavread: no data RIFF header found in %s\n", s->path);
+      goto beach;
+    }
+    bytes_junk = fread(buf, 1, 4, s->fid);
+    buf[4] = '\0';
+    bytes_junk += read_little_endian(buf, 4);
+    if (fseek(s->fid, bytes_read + bytes_junk, SEEK_SET) != 0) {
+      AUBIO_ERR("source_wavread: could not seek past unknown chunk in %s (%s)\n",
+          s->path, strerror(errno));
+      goto beach;
+    }
+    bytes_read += bytes_junk;
+    bytes_expected += bytes_junk+ 4;
+    bytes_read += fread(buf, 1, 4, s->fid);
+    buf[4] = '\0';
   }
 
   // Subchunk2Size
   bytes_read += fread(buf, 1, 4, s->fid);
+  duration = read_little_endian(buf, 4) / blockalign;
+
   //data_size = buf[0] + (buf[1] << 8) + (buf[2] << 16) + (buf[3] << 24);
   //AUBIO_MSG("found %d frames in %s\n", 8 * data_size / bitspersample / channels, s->path);
 
@@ -231,6 +274,8 @@ aubio_source_wavread_t * new_aubio_source_wavread(char_t * path, uint_t samplera
   s->output = new_fmat(s->input_channels, AUBIO_WAVREAD_BUFSIZE);
   s->blockalign= blockalign;
   s->bitspersample = bitspersample;
+
+  s->duration = duration;
 
   s->short_output = (unsigned char *)calloc(s->blockalign, AUBIO_WAVREAD_BUFSIZE);
   s->read_index = 0;
@@ -283,6 +328,11 @@ void aubio_source_wavread_do(aubio_source_wavread_t * s, fvec_t * read_data, uin
   uint_t i, j;
   uint_t end = 0;
   uint_t total_wrote = 0;
+  if (s->fid == NULL) {
+    AUBIO_ERR("source_wavread: could not read from %s (file not opened)\n",
+        s->path);
+    return;
+  }
   while (total_wrote < s->hop_size) {
     end = MIN(s->read_samples - s->read_index, s->hop_size - total_wrote);
     for (i = 0; i < end; i++) {
@@ -317,6 +367,11 @@ void aubio_source_wavread_do_multi(aubio_source_wavread_t * s, fmat_t * read_dat
   uint_t i,j;
   uint_t end = 0;
   uint_t total_wrote = 0;
+  if (s->fid == NULL) {
+    AUBIO_ERR("source_wavread: could not read from %s (file not opened)\n",
+        s->path);
+    return;
+  }
   while (total_wrote < s->hop_size) {
     end = MIN(s->read_samples - s->read_index, s->hop_size - total_wrote);
     for (j = 0; j < read_data->height; j++) {
@@ -357,7 +412,12 @@ uint_t aubio_source_wavread_get_channels(aubio_source_wavread_t * s) {
 
 uint_t aubio_source_wavread_seek (aubio_source_wavread_t * s, uint_t pos) {
   uint_t ret = 0;
+  if (s->fid == NULL) {
+    AUBIO_ERR("source_wavread: could not seek %s (file not opened?)\n", s->path, pos);
+    return AUBIO_FAIL;
+  }
   if ((sint_t)pos < 0) {
+    AUBIO_ERR("source_wavread: could not seek %s at %d (seeking position should be >= 0)\n", s->path, pos);
     return AUBIO_FAIL;
   }
   ret = fseek(s->fid, s->seek_start + pos * s->blockalign, SEEK_SET);
@@ -371,9 +431,16 @@ uint_t aubio_source_wavread_seek (aubio_source_wavread_t * s, uint_t pos) {
   return AUBIO_OK;
 }
 
+uint_t aubio_source_wavread_get_duration (const aubio_source_wavread_t * s) {
+  if (s && s->duration) {
+    return s->duration;
+  }
+  return 0;
+}
+
 uint_t aubio_source_wavread_close (aubio_source_wavread_t * s) {
-  if (!s->fid) {
-    return AUBIO_FAIL;
+  if (s->fid == NULL) {
+    return AUBIO_OK;
   }
   if (fclose(s->fid)) {
     AUBIO_ERR("source_wavread: could not close %s (%s)\n", s->path, strerror(errno));
@@ -388,6 +455,7 @@ void del_aubio_source_wavread(aubio_source_wavread_t * s) {
   aubio_source_wavread_close(s);
   if (s->short_output) AUBIO_FREE(s->short_output);
   if (s->output) del_fmat(s->output);
+  if (s->path) AUBIO_FREE(s->path);
   AUBIO_FREE(s);
 }
 

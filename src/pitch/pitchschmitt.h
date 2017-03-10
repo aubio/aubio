@@ -34,8 +34,8 @@
 
 */
 
-#ifndef _AUBIO_PITCHSCHMITT_H
-#define _AUBIO_PITCHSCHMITT_H
+#ifndef AUBIO_PITCHSCHMITT_H
+#define AUBIO_PITCHSCHMITT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,7 +51,7 @@ typedef struct _aubio_pitchschmitt_t aubio_pitchschmitt_t;
   \param cands_out pitch period estimates, in samples
 
 */
-void aubio_pitchschmitt_do (aubio_pitchschmitt_t * p, fvec_t * samples_in,
+void aubio_pitchschmitt_do (aubio_pitchschmitt_t * p, const fvec_t * samples_in,
     fvec_t * cands_out);
 
 /** creation of the pitch detection object
@@ -72,5 +72,4 @@ void del_aubio_pitchschmitt (aubio_pitchschmitt_t * p);
 }
 #endif
 
-#endif /* _AUBIO_PITCHSCHMITT_H */
-
+#endif /* AUBIO_PITCHSCHMITT_H */

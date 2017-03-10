@@ -5,6 +5,9 @@ typedef struct
   PyObject_HEAD
   aubio_filter_t * o;
   uint_t order;
+  fvec_t vec;
+  PyObject *out;
+  fvec_t c_out;
 } Py_filter;
 
 static char Py_filter_doc[] = "filter object";
@@ -47,22 +50,22 @@ Py_filter_init (Py_filter * self, PyObject * args, PyObject * kwds)
   if (self->o == NULL) {
     return -1;
   }
-
+  self->out = NULL;
   return 0;
 }
 
 static void
 Py_filter_del (Py_filter * self)
 {
+  Py_XDECREF(self->out);
   del_aubio_filter (self->o);
-  self->ob_type->tp_free ((PyObject *) self);
+  Py_TYPE(self)->tp_free ((PyObject *) self);
 }
 
-static PyObject * 
+static PyObject *
 Py_filter_do(Py_filter * self, PyObject * args)
 {
   PyObject *input;
-  fvec_t *vec;
 
   if (!PyArg_ParseTuple (args, "O:digital_filter.do", &input)) {
     return NULL;
@@ -72,19 +75,25 @@ Py_filter_do(Py_filter * self, PyObject * args)
     return NULL;
   }
 
-  vec = PyAubio_ArrayToCFvec (input);
-
-  if (vec == NULL) {
+  if (!PyAubio_ArrayToCFvec(input, &(self->vec))) {
     return NULL;
   }
 
+  // initialize output now
+  if (self->out == NULL) {
+    self->out = new_py_fvec(self->vec.length);
+  }
+
+  Py_INCREF(self->out);
+  if (!PyAubio_ArrayToCFvec(self->out, &(self->c_out)) ) {
+    return NULL;
+  }
   // compute the function
-  fvec_t * out = new_fvec(vec->length);
-  aubio_filter_do_outplace (self->o, vec, out);
-  return PyAubio_CFvecToArray(out);
+  aubio_filter_do_outplace (self->o, &(self->vec), &(self->c_out));
+  return self->out;
 }
 
-static PyObject * 
+static PyObject *
 Py_filter_set_c_weighting (Py_filter * self, PyObject *args)
 {
   uint_t err = 0;
@@ -102,7 +111,7 @@ Py_filter_set_c_weighting (Py_filter * self, PyObject *args)
   Py_RETURN_NONE;
 }
 
-static PyObject * 
+static PyObject *
 Py_filter_set_a_weighting (Py_filter * self, PyObject *args)
 {
   uint_t err = 0;
@@ -156,8 +165,7 @@ static PyMethodDef Py_filter_methods[] = {
 };
 
 PyTypeObject Py_filterType = {
-  PyObject_HEAD_INIT (NULL)
-  0,                            /* ob_size           */
+  PyVarObject_HEAD_INIT(NULL, 0)
   "aubio.digital_filter",       /* tp_name           */
   sizeof (Py_filter),           /* tp_basicsize      */
   0,                            /* tp_itemsize       */
@@ -195,4 +203,13 @@ PyTypeObject Py_filterType = {
   (initproc) Py_filter_init,    /* tp_init           */
   0,                            /* tp_alloc          */
   Py_filter_new,                /* tp_new            */
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
 };

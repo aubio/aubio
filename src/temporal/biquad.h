@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO_FILTER_BIQUAD_H
-#define _AUBIO_FILTER_BIQUAD_H
+#ifndef AUBIO_FILTER_BIQUAD_H
+#define AUBIO_FILTER_BIQUAD_H
 
 /** \file
 
@@ -72,4 +72,4 @@ aubio_filter_t *new_aubio_filter_biquad (lsmp_t b0, lsmp_t b1, lsmp_t b2,
 }
 #endif
 
-#endif /* _AUBIO_FILTER_BIQUAD_H */
+#endif /* AUBIO_FILTER_BIQUAD_H */

@@ -34,8 +34,8 @@
 
 */
 
-#ifndef _AUBIO_MFCC_H
-#define _AUBIO_MFCC_H
+#ifndef AUBIO_MFCC_H
+#define AUBIO_MFCC_H
 
 #ifdef __cplusplus
 extern "C"
@@ -70,10 +70,10 @@ void del_aubio_mfcc (aubio_mfcc_t * mf);
   \param out output mel coefficients buffer (n_coeffs long)
 
 */
-void aubio_mfcc_do (aubio_mfcc_t * mf, cvec_t * in, fvec_t * out);
+void aubio_mfcc_do (aubio_mfcc_t * mf, const cvec_t * in, fvec_t * out);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* _AUBIO_MFCC_H */
+#endif /* AUBIO_MFCC_H */

@@ -26,8 +26,8 @@
 
 */
 
-#ifndef _AUBIO_PEAKPICK_H
-#define _AUBIO_PEAKPICK_H
+#ifndef AUBIO_PEAKPICK_H
+#define AUBIO_PEAKPICK_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,4 +54,4 @@ smpl_t aubio_peakpicker_get_threshold(aubio_peakpicker_t * p);
 }
 #endif
 
-#endif /* _AUBIO_PEAKPICK_H */
+#endif /* AUBIO_PEAKPICK_H */

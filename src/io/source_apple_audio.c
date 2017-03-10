@@ -18,11 +18,10 @@
 
 */
 
-#include "config.h"
+#include "aubio_priv.h"
 
 #ifdef HAVE_SOURCE_APPLE_AUDIO
 
-#include "aubio_priv.h"
 #include "fvec.h"
 #include "fmat.h"
 #include "io/source_apple_audio.h"
@@ -54,9 +53,9 @@ extern void freeAudioBufferList(AudioBufferList *bufferList);
 extern CFURLRef createURLFromPath(const char * path);
 char_t *getPrintableOSStatusError(char_t *str, OSStatus error);
 
-uint_t aubio_source_apple_audio_open (aubio_source_apple_audio_t *s, char_t * path);
+uint_t aubio_source_apple_audio_open (aubio_source_apple_audio_t *s, const char_t * path);
 
-aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * path, uint_t samplerate, uint_t block_size)
+aubio_source_apple_audio_t * new_aubio_source_apple_audio(const char_t * path, uint_t samplerate, uint_t block_size)
 {
   aubio_source_apple_audio_t * s = AUBIO_NEW(aubio_source_apple_audio_t);
 
@@ -79,7 +78,6 @@ aubio_source_apple_audio_t * new_aubio_source_apple_audio(char_t * path, uint_t 
 
   s->block_size = block_size;
   s->samplerate = samplerate;
-  s->path = path;
 
   if ( aubio_source_apple_audio_open ( s, path ) ) {
     goto beach;
@@ -91,14 +89,17 @@ beach:
   return NULL;
 }
 
-uint_t aubio_source_apple_audio_open (aubio_source_apple_audio_t *s, char_t * path)
+uint_t aubio_source_apple_audio_open (aubio_source_apple_audio_t *s, const char_t * path)
 {
   OSStatus err = noErr;
   UInt32 propSize;
-  s->path = path;
+
+  if (s->path) AUBIO_FREE(s->path);
+  s->path = AUBIO_ARRAY(char_t, strnlen(path, PATH_MAX) + 1);
+  strncpy(s->path, path, strnlen(path, PATH_MAX) + 1);
 
   // open the resource url
-  CFURLRef fileURL = createURLFromPath(path);
+  CFURLRef fileURL = createURLFromPath(s->path);
   err = ExtAudioFileOpenURL(fileURL, &s->audioFile);
   CFRelease(fileURL);
   if (err == -43) {
@@ -278,7 +279,7 @@ beach:
 uint_t aubio_source_apple_audio_close (aubio_source_apple_audio_t *s)
 {
   OSStatus err = noErr;
-  if (!s->audioFile) { return AUBIO_FAIL; }
+  if (!s->audioFile) { return AUBIO_OK; }
   err = ExtAudioFileDispose(s->audioFile);
   s->audioFile = NULL;
   if (err) {
@@ -293,6 +294,7 @@ uint_t aubio_source_apple_audio_close (aubio_source_apple_audio_t *s)
 
 void del_aubio_source_apple_audio(aubio_source_apple_audio_t * s){
   aubio_source_apple_audio_close (s);
+  if (s->path) AUBIO_FREE(s->path);
   freeAudioBufferList(&s->bufferList);
   AUBIO_FREE(s);
   return;
@@ -308,10 +310,7 @@ uint_t aubio_source_apple_audio_seek (aubio_source_apple_audio_t * s, uint_t pos
     goto beach;
   }
   // check if we are not seeking out of the file
-  SInt64 fileLengthFrames = 0;
-  UInt32 propSize = sizeof(fileLengthFrames);
-  ExtAudioFileGetProperty(s->audioFile,
-      kExtAudioFileProperty_FileLengthFrames, &propSize, &fileLengthFrames);
+  uint_t fileLengthFrames = aubio_source_apple_audio_get_duration(s);
   // compute position in the source file, before resampling
   smpl_t ratio = s->source_samplerate * 1. / s->samplerate;
   SInt64 resampled_pos = (SInt64)ROUND( pos * ratio );
@@ -352,12 +351,27 @@ beach:
   return err;
 }
 
-uint_t aubio_source_apple_audio_get_samplerate(aubio_source_apple_audio_t * s) {
+uint_t aubio_source_apple_audio_get_samplerate(const aubio_source_apple_audio_t * s) {
   return s->samplerate;
 }
 
-uint_t aubio_source_apple_audio_get_channels(aubio_source_apple_audio_t * s) {
+uint_t aubio_source_apple_audio_get_channels(const aubio_source_apple_audio_t * s) {
   return s->channels;
+}
+
+uint_t aubio_source_apple_audio_get_duration(const aubio_source_apple_audio_t * s) {
+  SInt64 fileLengthFrames = 0;
+  UInt32 propSize = sizeof(fileLengthFrames);
+  OSStatus err = ExtAudioFileGetProperty(s->audioFile,
+      kExtAudioFileProperty_FileLengthFrames, &propSize, &fileLengthFrames);
+  if (err) {
+    char_t errorstr[20];
+    AUBIO_ERROR("source_apple_audio: Failed getting %s duration, "
+        "error in ExtAudioFileGetProperty (%s)\n", s->path,
+        getPrintableOSStatusError(errorstr, err));
+    return err;
+  }
+  return (uint_t)fileLengthFrames;
 }
 
 #endif /* HAVE_SOURCE_APPLE_AUDIO */

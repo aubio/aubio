@@ -1,6 +1,8 @@
 #include <Python.h>
 #include <structmember.h>
 
+#include "aubio-generated.h"
+
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 
 // define numpy unique symbols for aubio
@@ -25,7 +27,7 @@
 #ifdef USE_LOCAL_AUBIO
 #include "aubio.h"
 #else
-#include "aubio/aubio.h"
+#include <aubio/aubio.h>
 #endif
 
 #define Py_default_vector_length 1024
@@ -33,31 +35,46 @@
 #define Py_aubio_default_samplerate 44100
 
 #if HAVE_AUBIO_DOUBLE
-#error "Ouch! Python interface for aubio has not been much tested yet."
+// 64 bit precision with HAVE_AUBIO_DOUBLE=1
 #define AUBIO_NPY_SMPL NPY_DOUBLE
+#define AUBIO_NPY_SMPL_STR "float64"
+#define AUBIO_NPY_SMPL_CHR "d"
 #else
+// default is 32 bit precision
 #define AUBIO_NPY_SMPL NPY_FLOAT
+#define AUBIO_NPY_SMPL_STR "float32"
+#define AUBIO_NPY_SMPL_CHR "f"
 #endif
 
-// special python type for cvec
-typedef struct
-{
-  PyObject_HEAD
-  cvec_t * o;
-  uint_t length;
-  uint_t channels;
-} Py_cvec;
+#ifndef PATH_MAX
+#ifdef MAX_PATH
+#define PATH_MAX MAX_PATH
+#else
+#define PATH_MAX 1024
+#endif
+#endif
+
+// compat with Python < 2.6
+#ifndef Py_TYPE
+#define Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
+#endif
+
 extern PyTypeObject Py_cvecType;
 
-// defined in aubio-proxy.c
-extern PyObject *PyAubio_CFvecToArray (fvec_t * self);
-extern fvec_t *PyAubio_ArrayToCFvec (PyObject * self);
+PyObject * new_py_fvec(uint_t length);
+PyObject * new_py_cvec(uint_t length);
+PyObject * new_py_fmat(uint_t height, uint_t length);
 
-extern Py_cvec *PyAubio_CCvecToPyCvec (cvec_t * self);
-extern cvec_t *PyAubio_ArrayToCCvec (PyObject *input);
+// defined in aubio-proxy.c
+extern int PyAubio_IsValidVector (PyObject *input);
+
+extern PyObject *PyAubio_CFvecToArray (fvec_t * self);
+extern int PyAubio_ArrayToCFvec (PyObject * self, fvec_t *out);
+
+extern int PyAubio_PyCvecToCCvec (PyObject *input, cvec_t *i);
 
 extern PyObject *PyAubio_CFmatToArray (fmat_t * self);
-extern fmat_t *PyAubio_ArrayToCFmat (PyObject *input);
+extern int PyAubio_ArrayToCFmat (PyObject *input, fmat_t *out);
 
 // hand written wrappers
 extern PyTypeObject Py_filterType;

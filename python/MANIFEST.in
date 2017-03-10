@@ -1,8 +1,0 @@
-include README COPYING VERSION
-include ext/*.h
-include lib/generator.py
-include lib/gen_pyobject.py
-include gen/aubio-generated.h
-include tests/run_all_tests
-include tests/*.py
-include demos/*.py

@@ -1,10 +1,20 @@
-#include "aubiowraphell.h"
+#include "aubio-types.h"
 
 static char Py_filterbank_doc[] = "filterbank object";
 
-AUBIO_DECLARE(filterbank, uint_t n_filters; uint_t win_s)
+typedef struct
+{
+  PyObject_HEAD
+  aubio_filterbank_t * o;
+  uint_t n_filters;
+  uint_t win_s;
+  cvec_t vec;
+  fvec_t freqs;
+  fmat_t coeffs;
+  PyObject *out;
+  fvec_t c_out;
+} Py_filterbank;
 
-//AUBIO_NEW(filterbank)
 static PyObject *
 Py_filterbank_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
 {
@@ -44,41 +54,67 @@ Py_filterbank_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
   return (PyObject *) self;
 }
 
+static int
+Py_filterbank_init (Py_filterbank * self, PyObject * args, PyObject * kwds)
+{
+  self->o = new_aubio_filterbank (self->n_filters, self->win_s);
+  if (self->o == NULL) {
+    PyErr_Format(PyExc_RuntimeError, "error creating filterbank with"
+        " n_filters=%d, win_s=%d", self->n_filters, self->win_s);
+    return -1;
+  }
+  self->out = new_py_fvec(self->n_filters);
 
-AUBIO_INIT(filterbank, self->n_filters, self->win_s)
+  return 0;
+}
 
-AUBIO_DEL(filterbank)
+static void
+Py_filterbank_del (Py_filterbank *self, PyObject *unused)
+{
+  if (self->o) {
+    free(self->coeffs.data);
+    del_aubio_filterbank(self->o);
+  }
+  Py_XDECREF(self->out);
+  Py_TYPE(self)->tp_free((PyObject *) self);
+}
 
 static PyObject *
 Py_filterbank_do(Py_filterbank * self, PyObject * args)
 {
   PyObject *input;
-  cvec_t *vec;
-  fvec_t *out;
 
   if (!PyArg_ParseTuple (args, "O", &input)) {
     return NULL;
   }
 
-  vec = PyAubio_ArrayToCCvec (input);
-
-  if (vec == NULL) {
+  if (!PyAubio_PyCvecToCCvec(input, &(self->vec) )) {
     return NULL;
   }
 
-  out = new_fvec (self->n_filters);
+  if (self->vec.length != self->win_s / 2 + 1) {
+    PyErr_Format(PyExc_ValueError,
+                 "input cvec has length %d, but fft expects length %d",
+                 self->vec.length, self->win_s / 2 + 1);
+    return NULL;
+  }
 
+  Py_INCREF(self->out);
+  if (!PyAubio_ArrayToCFvec(self->out, &(self->c_out))) {
+    return NULL;
+  }
   // compute the function
-  aubio_filterbank_do (self->o, vec, out);
-  return (PyObject *)PyAubio_CFvecToArray(out);
+  aubio_filterbank_do (self->o, &(self->vec), &(self->c_out));
+  return self->out;
 }
 
-AUBIO_MEMBERS_START(filterbank)
+static PyMemberDef Py_filterbank_members[] = {
   {"win_s", T_INT, offsetof (Py_filterbank, win_s), READONLY,
     "size of the window"},
   {"n_filters", T_INT, offsetof (Py_filterbank, n_filters), READONLY,
     "number of filters"},
-AUBIO_MEMBERS_STOP(filterbank)
+  {NULL} /* sentinel */
+};
 
 static PyObject *
 Py_filterbank_set_triangle_bands (Py_filterbank * self, PyObject *args)
@@ -87,7 +123,6 @@ Py_filterbank_set_triangle_bands (Py_filterbank * self, PyObject *args)
 
   PyObject *input;
   uint_t samplerate;
-  fvec_t *freqs;
   if (!PyArg_ParseTuple (args, "OI", &input, &samplerate)) {
     return NULL;
   }
@@ -96,14 +131,12 @@ Py_filterbank_set_triangle_bands (Py_filterbank * self, PyObject *args)
     return NULL;
   }
 
-  freqs = PyAubio_ArrayToCFvec (input);
-
-  if (freqs == NULL) {
+  if (!PyAubio_ArrayToCFvec(input, &(self->freqs) )) {
     return NULL;
   }
 
   err = aubio_filterbank_set_triangle_bands (self->o,
-      freqs, samplerate);
+      &(self->freqs), samplerate);
   if (err > 0) {
     PyErr_SetString (PyExc_ValueError,
         "error when setting filter to A-weighting");
@@ -137,21 +170,15 @@ Py_filterbank_set_coeffs (Py_filterbank * self, PyObject *args)
   uint_t err = 0;
 
   PyObject *input;
-  fmat_t *coeffs;
-
   if (!PyArg_ParseTuple (args, "O", &input)) {
     return NULL;
   }
 
-  coeffs = PyAubio_ArrayToCFmat (input);
-
-  if (coeffs == NULL) {
-    PyErr_SetString (PyExc_ValueError,
-        "unable to parse input array");
+  if (!PyAubio_ArrayToCFmat(input, &(self->coeffs))) {
     return NULL;
   }
 
-  err = aubio_filterbank_set_coeffs (self->o, coeffs);
+  err = aubio_filterbank_set_coeffs (self->o, &(self->coeffs));
 
   if (err > 0) {
     PyErr_SetString (PyExc_ValueError,
@@ -180,4 +207,52 @@ static PyMethodDef Py_filterbank_methods[] = {
   {NULL}
 };
 
-AUBIO_TYPEOBJECT(filterbank, "aubio.filterbank")
+PyTypeObject Py_filterbankType = {
+  PyVarObject_HEAD_INIT (NULL, 0)
+  "aubio.filterbank",
+  sizeof (Py_filterbank),
+  0,
+  (destructor) Py_filterbank_del,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  (ternaryfunc)Py_filterbank_do,
+  0,
+  0,
+  0,
+  0,
+  Py_TPFLAGS_DEFAULT,
+  Py_filterbank_doc,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  Py_filterbank_methods,
+  Py_filterbank_members,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  (initproc) Py_filterbank_init,
+  0,
+  Py_filterbank_new,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+};

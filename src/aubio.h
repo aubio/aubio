@@ -111,6 +111,15 @@
   Several examples of C programs are available in the \p examples/ and \p tests/src
   directories of the source tree.
 
+  Some examples:
+  - @ref spectral/test-fft.c
+  - @ref spectral/test-phasevoc.c
+  - @ref onset/test-onset.c
+  - @ref pitch/test-pitch.c
+  - @ref tempo/test-tempo.c
+  - @ref test-fvec.c
+  - @ref test-cvec.c
+
   \subsection unstable_api Unstable API
 
   Several more functions are available and used within aubio, but not
@@ -130,7 +139,7 @@
   \section download Download
 
   Latest versions, further documentation, examples, wiki, and mailing lists can
-  be found at http://aubio.org .
+  be found at https://aubio.org .
 
  */
 
@@ -183,11 +192,13 @@ extern "C"
 #include "pitch/pitch.h"
 #include "onset/onset.h"
 #include "tempo/tempo.h"
+#include "notes/notes.h"
 #include "io/source.h"
 #include "io/sink.h"
 #include "synth/sampler.h"
 #include "synth/wavetable.h"
 #include "utils/parameter.h"
+#include "utils/log.h"
 
 #if AUBIO_UNSTABLE
 #include "mathutils.h"

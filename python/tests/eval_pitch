@@ -24,7 +24,7 @@ import sys
 import time
 import os.path
 import numpy
-from utils import array_from_text_file, array_from_yaml_file
+from .utils import array_from_text_file, array_from_yaml_file
 from aubio import source, pitch, freqtomidi
 
 start = time.time()

@@ -28,7 +28,7 @@ int main (void)
     // ...
     cvec_print (fftgrain);
 
-    // optionnaly rebuild the signa
+    // optionally rebuild the signal
     aubio_pvoc_rdo(pv,fftgrain,out);
 
     // and do something with the result

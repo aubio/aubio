@@ -53,27 +53,27 @@ void fmat_set_sample(fmat_t *s, smpl_t data, uint_t channel, uint_t position) {
   s->data[channel][position] = data;
 }
 
-smpl_t fmat_get_sample(fmat_t *s, uint_t channel, uint_t position) {
+smpl_t fmat_get_sample(const fmat_t *s, uint_t channel, uint_t position) {
   return s->data[channel][position];
 }
 
-void fmat_get_channel(fmat_t *s, uint_t channel, fvec_t *output) {
+void fmat_get_channel(const fmat_t *s, uint_t channel, fvec_t *output) {
   output->data = s->data[channel];
   output->length = s->length;
   return;
 }
 
-smpl_t * fmat_get_channel_data(fmat_t *s, uint_t channel) {
+smpl_t * fmat_get_channel_data(const fmat_t *s, uint_t channel) {
   return s->data[channel];
 }
 
-smpl_t ** fmat_get_data(fmat_t *s) {
+smpl_t ** fmat_get_data(const fmat_t *s) {
   return s->data;
 }
 
 /* helper functions */
 
-void fmat_print(fmat_t *s) {
+void fmat_print(const fmat_t *s) {
   uint_t i,j;
   for (i=0; i< s->height; i++) {
     for (j=0; j< s->length; j++) {
@@ -93,14 +93,14 @@ void fmat_set(fmat_t *s, smpl_t val) {
 }
 
 void fmat_zeros(fmat_t *s) {
-#if HAVE_MEMCPY_HACKS
+#ifdef HAVE_MEMCPY_HACKS
   uint_t i;
   for (i=0; i< s->height; i++) {
     memset(s->data[i], 0, s->length * sizeof(smpl_t));
   }
-#else
+#else /* HAVE_MEMCPY_HACKS */
   fmat_set(s, 0.);
-#endif
+#endif /* HAVE_MEMCPY_HACKS */
 }
 
 void fmat_ones(fmat_t *s) {
@@ -110,13 +110,13 @@ void fmat_ones(fmat_t *s) {
 void fmat_rev(fmat_t *s) {
   uint_t i,j;
   for (i=0; i< s->height; i++) {
-    for (j=0; j< FLOOR(s->length/2); j++) {
+    for (j=0; j< FLOOR((smpl_t)s->length/2); j++) {
       ELEM_SWAP(s->data[i][j], s->data[i][s->length-1-j]);
     }
   }
 }
 
-void fmat_weight(fmat_t *s, fmat_t *weight) {
+void fmat_weight(fmat_t *s, const fmat_t *weight) {
   uint_t i,j;
   uint_t length = MIN(s->length, weight->length);
   for (i=0; i< s->height; i++) {
@@ -126,11 +126,11 @@ void fmat_weight(fmat_t *s, fmat_t *weight) {
   }
 }
 
-void fmat_copy(fmat_t *s, fmat_t *t) {
+void fmat_copy(const fmat_t *s, fmat_t *t) {
   uint_t i;
-#if !HAVE_MEMCPY_HACKS
+#ifndef HAVE_MEMCPY_HACKS
   uint_t j;
-#endif
+#endif /* HAVE_MEMCPY_HACKS */
   if (s->height != t->height) {
     AUBIO_ERR("trying to copy %d rows to %d rows \n",
             s->height, t->height);
@@ -141,16 +141,46 @@ void fmat_copy(fmat_t *s, fmat_t *t) {
             s->length, t->length);
     return;
   }
-#if HAVE_MEMCPY_HACKS
+#ifdef HAVE_MEMCPY_HACKS
   for (i=0; i< s->height; i++) {
     memcpy(t->data[i], s->data[i], t->length * sizeof(smpl_t));
   }
-#else
+#else /* HAVE_MEMCPY_HACKS */
   for (i=0; i< t->height; i++) {
     for (j=0; j< t->length; j++) {
       t->data[i][j] = s->data[i][j];
     }
   }
-#endif
+#endif /* HAVE_MEMCPY_HACKS */
 }
 
+void fmat_vecmul(const fmat_t *s, const fvec_t *scale, fvec_t *output) {
+  uint_t k;
+#if 0
+  assert(s->height == output->length);
+  assert(s->length == scale->length);
+#endif
+#if !defined(HAVE_ACCELERATE) && !defined(HAVE_ATLAS)
+  uint_t j;
+  fvec_zeros(output);
+  for (j = 0; j < s->length; j++) {
+    for (k = 0; k < s->height; k++) {
+      output->data[k] += scale->data[j]
+          * s->data[k][j];
+    }
+  }
+#elif defined(HAVE_ATLAS)
+  for (k = 0; k < s->height; k++) {
+    output->data[k] = aubio_cblas_dot( s->length, scale->data, 1, s->data[k], 1);
+  }
+#elif defined(HAVE_ACCELERATE)
+#if 0
+  // seems slower and less precise (and dangerous?)
+  vDSP_mmul (s->data[0], 1, scale->data, 1, output->data, 1, s->height, 1, s->length);
+#else
+  for (k = 0; k < s->height; k++) {
+    aubio_vDSP_dotpr( scale->data, 1, s->data[k], 1, &(output->data[k]), s->length);
+  }
+#endif
+#endif
+}

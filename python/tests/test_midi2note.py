@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from aubio import midi2note
+from nose2.tools import params
 import unittest
 
 list_of_known_midis = (
@@ -16,10 +17,10 @@ list_of_known_midis = (
 
 class midi2note_good_values(unittest.TestCase):
 
-    def test_midi2note_known_values(self):
+    @params(*list_of_known_midis)
+    def test_midi2note_known_values(self, midi, note):
         " known values are correctly converted "
-        for midi, note in list_of_known_midis:
-            self.assertEqual ( midi2note(midi), note )
+        self.assertEqual ( midi2note(midi), note )
 
 class midi2note_wrong_values(unittest.TestCase):
 
@@ -27,7 +28,7 @@ class midi2note_wrong_values(unittest.TestCase):
         " fails when passed a negative value "
         self.assertRaises(ValueError, midi2note, -2)
 
-    def test_midi2note_negative_value(self):
+    def test_midi2note_large(self):
         " fails when passed a value greater than 127 "
         self.assertRaises(ValueError, midi2note, 128)
 
@@ -40,4 +41,5 @@ class midi2note_wrong_values(unittest.TestCase):
         self.assertRaises(TypeError, midi2note, "a")
 
 if __name__ == '__main__':
-    unittest.main()
+    import nose2
+    nose2.main()

@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO_SINK_H
-#define _AUBIO_SINK_H
+#ifndef AUBIO_SINK_H
+#define AUBIO_SINK_H
 
 /** \file
 
@@ -76,7 +76,7 @@ typedef struct _aubio_sink_t aubio_sink_t;
   been called.
 
 */
-aubio_sink_t * new_aubio_sink(char_t * uri, uint_t samplerate);
+aubio_sink_t * new_aubio_sink(const char_t * uri, uint_t samplerate);
 
 /**
 
@@ -120,7 +120,7 @@ uint_t aubio_sink_preset_channels(aubio_sink_t *s, uint_t channels);
   \return samplerate, in Hz
 
 */
-uint_t aubio_sink_get_samplerate(aubio_sink_t *s);
+uint_t aubio_sink_get_samplerate(const aubio_sink_t *s);
 
 /**
 
@@ -130,7 +130,7 @@ uint_t aubio_sink_get_samplerate(aubio_sink_t *s);
   \return number of channels
 
 */
-uint_t aubio_sink_get_channels(aubio_sink_t *s);
+uint_t aubio_sink_get_channels(const aubio_sink_t *s);
 
 /**
 
@@ -178,4 +178,4 @@ void del_aubio_sink(aubio_sink_t * s);
 }
 #endif
 
-#endif /* _AUBIO_SINK_H */
+#endif /* AUBIO_SINK_H */

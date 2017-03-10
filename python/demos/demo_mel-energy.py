@@ -1,14 +1,14 @@
 #! /usr/bin/env python
 
 import sys
-from aubio import fvec, source, pvoc, filterbank
+from aubio import source, pvoc, filterbank
 from numpy import vstack, zeros
 
 win_s = 512                 # fft size
-hop_s = win_s / 4           # hop size
+hop_s = win_s // 4          # hop size
 
 if len(sys.argv) < 2:
-    print "Usage: %s <filename> [samplerate]" % sys.argv[0]
+    print("Usage: %s <filename> [samplerate]" % sys.argv[0])
     sys.exit(1)
 
 filename = sys.argv[1]
@@ -34,14 +34,14 @@ while True:
     samples, read = s()
     fftgrain = pv(samples)
     new_energies = f(fftgrain)
-    print '%f' % (total_frames / float(samplerate) ),
-    print ' '.join(['%f' % b for b in new_energies])
+    timestr = '%f' % (total_frames / float(samplerate) )
+    print('{:s} {:s}'.format(timestr, ' '.join(['%f' % b for b in new_energies])))
     energies = vstack( [energies, new_energies] )
     total_frames += read
     if read < hop_s: break
 
 if 1:
-    print "done computing, now plotting"
+    print("done computing, now plotting")
     import matplotlib.pyplot as plt
     from demo_waveform_plot import get_waveform_plot
     from demo_waveform_plot import set_xlabels_sample2time

@@ -30,7 +30,8 @@ Python module
 -------------
 
 A python module to access the library functions is also provided. Please see
-the file `python/README` for more information on how to use it.
+the file [`python/README.md`](python/README.md) for more information on how to
+use it.
 
 Examples tools
 --------------
@@ -70,8 +71,8 @@ The latest version of the documentation can be found at:
 
   https://aubio.org/documentation
 
-Installation and Build Instructions
------------------------------------
+Build Instructions
+------------------
 
 A number of distributions already include aubio. Check your favorite package
 management system, or have a look at the [download
@@ -81,13 +82,41 @@ aubio uses [waf](https://waf.io/) to configure, compile, and test the source:
 
     ./waf configure
     ./waf build
-    sudo ./waf install
 
 If waf is not found in the directory, you can download and install it with:
 
     make getwaf
 
-aubio compiles on Linux, Mac OS X, Cygwin, and iOS.
+aubio compiles on Linux, Mac OS X, Windows, Cygwin, and iOS.
+
+Installation
+------------
+
+To install aubio library and headers on your system, use:
+
+    sudo ./waf install
+
+To uninstall:
+
+    sudo ./waf uninstall
+
+If you don't have root access to install libaubio on your system, you can use
+libaubio without installing libaubio either by setting `LD_LIBRARY_PATH`, or by
+copying it to `~/lib`.
+
+On Linux, you should be able to set `LD_LIBRARY_PATH` with:
+
+    $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/build/src
+
+On Mac OS X, a copy or a symlink can be made in `~/lib`:
+
+    $ mkdir -p ~/lib
+    $ ln -sf $PWD/build/src/libaubio*.dylib ~/lib/
+
+Note on Mac OS X systems older than El Capitan (10.11), the `DYLD_LIBRARY_PATH`
+variable can be set as follows:
+
+    $ export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$PWD/build/src
 
 Credits and Publications
 ------------------------
@@ -133,7 +162,7 @@ Questions, comments, suggestions, and contributions are welcome. Use the
 mailing list: <aubio-user@aubio.org>.
 
 To subscribe to the list, use the mailman form:
-http://lists.aubio.org/listinfo/aubio-user/
+https://lists.aubio.org/listinfo/aubio-user/
 
 Alternatively, feel free to contact directly the author.
 
@@ -141,7 +170,7 @@ Alternatively, feel free to contact directly the author.
 Copyright and License Information
 ---------------------------------
 
-Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
+Copyright (C) 2003-2016 Paul Brossier <piem@aubio.org>
 
 aubio is free software: you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software

@@ -18,6 +18,12 @@
 
 */
 
+#include "config.h"
+
+#ifdef HAVE_GETOPT_H
+#include <getopt.h>
+#endif
+
 extern int verbose;
 // input / output
 extern int usejack;
@@ -30,6 +36,7 @@ extern uint_t hop_size;
 // onset stuff
 extern char_t * onset_method;
 extern smpl_t onset_threshold;
+extern smpl_t onset_minioi;
 // pitch stuff
 extern char_t * pitch_method;
 extern char_t * pitch_unit;
@@ -41,6 +48,9 @@ extern char_t * tempo_method;
 // more general stuff
 extern smpl_t silence_threshold;
 extern uint_t mix_input;
+// midi tap
+extern smpl_t miditap_note;
+extern smpl_t miditap_velo;
 
 extern uint_t force_overwrite;
 
@@ -63,6 +73,7 @@ void usage (FILE * stream, int exit_code);
 
 void usage (FILE * stream, int exit_code)
 {
+#ifdef HAVE_GETOPT_H
   fprintf (stream, "usage: %s [ options ] \n", prog_name);
   fprintf (stream,
       "       -i      --input            input file\n"
@@ -81,6 +92,8 @@ void usage (FILE * stream, int exit_code)
       "                 default=hfc\n"
       "       -t      --onset-threshold  set onset detection threshold\n"
       "                 a value between 0.1 (more detections) and 1 (less); default=0.3\n"
+      "       -M      --minioi           set minimum inter-onset interval\n"
+      "                 a value in second; default=0.012\n"
 #endif /* PROG_HAS_ONSET */
 #ifdef PROG_HAS_PITCH
       "       -p      --pitch            select pitch detection algorithm\n"
@@ -90,8 +103,10 @@ void usage (FILE * stream, int exit_code)
       "       -l      --pitch-tolerance  select pitch tolerance\n"
       "                 (yin, yinfft only) a value between 0.1 and 0.7; default=0.3\n"
 #endif /* PROG_HAS_PITCH */
+#ifdef PROG_HAS_SILENCE
       "       -s      --silence          select silence threshold\n"
       "                 a value in dB, for instance -70, or -100; default=-90\n"
+#endif /* PROG_HAS_SILENCE */
       "       -T      --time-format      select time values output format\n"
       "                 (samples, ms, seconds) default=seconds\n"
 #ifdef PROG_HAS_OUTPUT
@@ -99,35 +114,53 @@ void usage (FILE * stream, int exit_code)
       "                 input signal will be added to output synthesis\n"
       "       -f      --force-overwrite  overwrite output file if needed\n"
       "                 do not fail if output file already exists\n"
-#endif
+#endif /* PROG_HAS_OUTPUT */
 #ifdef PROG_HAS_JACK
       "       -j      --jack             use Jack\n"
-#endif
+#if defined(PROG_HAS_ONSET) && !defined(PROG_HAS_PITCH)
+      "       -N      --miditap-note     MIDI note; default=69.\n"
+      "       -V      --miditap-velo     MIDI velocity; default=65.\n"
+#endif /* defined(PROG_HAS_ONSET) && !defined(PROG_HAS_PITCH) */
+#endif /* PROG_HAS_JACK */
       "       -v      --verbose          be verbose\n"
       "       -h      --help             display this message\n"
       );
+#else /* HAVE_GETOPT_H */
+  fprintf (stream, "warning: compiled with getopt.h, no argument parsing\n");
+  fprintf (stream, "usage: %s <filename> \n", prog_name);
+#endif /* HAVE_GETOPT_H */
   exit (exit_code);
 }
 
 int
 parse_args (int argc, char **argv)
 {
+#ifdef HAVE_GETOPT_H
   const char *options = "hv"
     "i:r:B:H:"
 #ifdef PROG_HAS_JACK
     "j"
+#if defined(PROG_HAS_ONSET) && !defined(PROG_HAS_PITCH)
+    "N:V:"
+#endif /* defined(PROG_HAS_ONSET) && !defined(PROG_HAS_PITCH) */
 #endif /* PROG_HAS_JACK */
 #ifdef PROG_HAS_OUTPUT
     "o:"
 #endif /* PROG_HAS_OUTPUT */
 #ifdef PROG_HAS_ONSET
-    "O:t:"
+    "O:t:M:"
 #endif /* PROG_HAS_ONSET */
 #ifdef PROG_HAS_PITCH
     "p:u:l:"
 #endif /* PROG_HAS_PITCH */
     "T:"
-    "s:mf";
+#ifdef PROG_HAS_SILENCE
+    "s:"
+#endif /* PROG_HAS_SILENCE */
+#ifdef PROG_HAS_OUTPUT
+    "mf"
+#endif /* PROG_HAS_OUTPUT */
+    ;
   int next_option;
   struct option long_options[] = {
     {"help",                  0, NULL, 'h'},
@@ -138,6 +171,10 @@ parse_args (int argc, char **argv)
     {"hopsize",               1, NULL, 'H'},
 #ifdef PROG_HAS_JACK
     {"jack",                  0, NULL, 'j'},
+#if defined(PROG_HAS_ONSET) && !defined(PROG_HAS_PITCH)
+    {"miditap-note",          1, NULL, 'N'},
+    {"miditap-velo",          1, NULL, 'V'},
+#endif /* PROG_HAS_ONSET !PROG_HAS_PITCH */
 #endif /* PROG_HAS_JACK */
 #ifdef PROG_HAS_OUTPUT
     {"output",                1, NULL, 'o'},
@@ -145,23 +182,30 @@ parse_args (int argc, char **argv)
 #ifdef PROG_HAS_ONSET
     {"onset",                 1, NULL, 'O'},
     {"onset-threshold",       1, NULL, 't'},
+    {"onset-minioi",          1, NULL, 'M'},
 #endif /* PROG_HAS_ONSET */
 #ifdef PROG_HAS_PITCH
     {"pitch",                 1, NULL, 'p'},
     {"pitch-unit",            1, NULL, 'u'},
     {"pitch-tolerance",       1, NULL, 'l'},
 #endif /* PROG_HAS_PITCH */
+#ifdef PROG_HAS_SILENCE
     {"silence",               1, NULL, 's'},
+#endif /* PROG_HAS_SILENCE */
     {"time-format",           1, NULL, 'T'},
+#ifdef PROG_HAS_OUTPUT
     {"mix-input",             0, NULL, 'm'},
     {"force-overwrite",       0, NULL, 'f'},
+#endif /* PROG_HAS_OUTPUT */
     {NULL,                    0, NULL, 0}
   };
+#endif /* HAVE_GETOPT_H */
   prog_name = argv[0];
   if (argc < 1) {
     usage (stderr, 1);
     return -1;
   }
+#ifdef HAVE_GETOPT_H
   do {
     next_option = getopt_long (argc, argv, options, long_options, NULL);
     switch (next_option) {
@@ -173,6 +217,12 @@ parse_args (int argc, char **argv)
         break;
       case 'j':
         usejack = 1;
+        break;
+      case 'N':
+        miditap_note = (smpl_t) atoi (optarg);
+        break;
+      case 'V':
+        miditap_velo = (smpl_t) atoi (optarg);
         break;
       case 'i':
         source_uri = optarg;
@@ -197,6 +247,9 @@ parse_args (int argc, char **argv)
         break;
       case 't':                /* threshold value for onset */
         onset_threshold = (smpl_t) atof (optarg);
+        break;
+      case 'M':                /* minimum inter-onset-interval */
+        onset_minioi = (smpl_t) atof (optarg);
         break;
       case 'p':
         pitch_method = optarg;
@@ -235,6 +288,9 @@ parse_args (int argc, char **argv)
     }
   }
   while (next_option != -1);
+#else /* HAVE_GETOPT_H */
+  int optind = 1;
+#endif /* HAVE_GETOPT_H */
 
   // if unique, use the non option argument as the source
   if ( source_uri == NULL ) {

@@ -28,8 +28,8 @@
  \f$ y = (x - ilow)*(ohig-olow)/(ihig-ilow) + olow \f$
 
 */
-#ifndef _AUBIO_SCALE_H
-#define _AUBIO_SCALE_H
+#ifndef AUBIO_SCALE_H
+#define AUBIO_SCALE_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -77,4 +77,4 @@ uint_t aubio_scale_set_limits (aubio_scale_t *s, smpl_t ilow, smpl_t ihig,
 }
 #endif
 
-#endif /* _AUBIO_SCALE_H */
+#endif /* AUBIO_SCALE_H */

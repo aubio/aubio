@@ -18,15 +18,29 @@
 
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <getopt.h>
-#include <unistd.h>
-#include <math.h>               /* for isfinite */
-#include <string.h>             /* for strcmp */
 #include <aubio.h>
+
 #include "config.h"
+
+#ifdef HAVE_STDIO_H
+#include <stdio.h>              // for fprintf
+#endif
+#ifdef HAVE_STDLIB_H
+#include <stdlib.h>             // for exit
+#endif
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>             // for access
+#elif defined(HAVE_WIN_HACKS)
+#include <io.h>
+#define access _access
+#define F_OK   0
+#endif
+#ifdef HAVE_MATH_H
+#include <math.h>               // for isfinite
+#endif
+#ifdef HAVE_STRING_H
+#include <string.h>             // for strcmp
+#endif
 
 #ifdef HAVE_C99_VARARGS_MACROS
 #ifdef HAVE_DEBUG
@@ -49,7 +63,7 @@
 #endif
 
 typedef void (aubio_print_func_t) (void);
-void send_noteon (int pitch, int velo);
+void send_noteon (smpl_t pitch, smpl_t velo);
 
 /** common process function */
 typedef int (*aubio_process_func_t) (fvec_t * input, fvec_t * output);

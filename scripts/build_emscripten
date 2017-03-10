@@ -1,0 +1,21 @@
+#! /bin/sh
+
+function checkprog() {
+  type $1 >/dev/null 2>&1 || { echo >&2 "$1 required but not found, aborting."; exit 1; }
+}
+
+checkprog emcc
+checkprog emconfigure
+checkprog emmake
+
+# clean
+emmake ./waf distclean
+
+# configure
+emconfigure ./waf configure --prefix=$EMSCRIPTEN/system/local/ --with-target-platform emscripten
+
+# build
+emmake ./waf --testcmd="node %s"
+
+# intall
+#emmake ./waf install

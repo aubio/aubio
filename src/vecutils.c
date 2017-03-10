@@ -1,4 +1,3 @@
-#include "config.h"
 #include "aubio_priv.h"
 #include "types.h"
 #include "fvec.h"

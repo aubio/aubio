@@ -35,8 +35,8 @@
 
 */
 
-#ifndef _AUBIO_PITCHYINFFT_H
-#define _AUBIO_PITCHYINFFT_H
+#ifndef AUBIO_PITCHYINFFT_H
+#define AUBIO_PITCHYINFFT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,7 +52,7 @@ typedef struct _aubio_pitchyinfft_t aubio_pitchyinfft_t;
   \param cands_out pitch period candidates, in samples
 
 */
-void aubio_pitchyinfft_do (aubio_pitchyinfft_t * o, fvec_t * samples_in, fvec_t * cands_out);
+void aubio_pitchyinfft_do (aubio_pitchyinfft_t * o, const fvec_t * samples_in, fvec_t * cands_out);
 /** creation of the pitch detection object
 
   \param samplerate samplerate of the input signal
@@ -96,4 +96,4 @@ smpl_t aubio_pitchyinfft_get_confidence (aubio_pitchyinfft_t * o);
 }
 #endif
 
-#endif /* _AUBIO_PITCHYINFFT_H */
+#endif /* AUBIO_PITCHYINFFT_H */

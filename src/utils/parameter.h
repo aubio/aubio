@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO_PARAMETER_H
-#define _AUBIO_PARAMETER_H
+#ifndef AUBIO_PARAMETER_H
+#define AUBIO_PARAMETER_H
 
 /** \file
 
@@ -76,7 +76,7 @@ smpl_t aubio_parameter_get_next_value ( aubio_parameter_t * param );
   \return current value
 
 */
-smpl_t aubio_parameter_get_current_value ( aubio_parameter_t * param );
+smpl_t aubio_parameter_get_current_value ( const aubio_parameter_t * param );
 
 /** set current parameter value, skipping interpolation
 
@@ -105,7 +105,7 @@ uint_t aubio_parameter_set_steps ( aubio_parameter_t * param, uint_t steps );
   \return number of steps
 
 */
-uint_t aubio_parameter_get_steps ( aubio_parameter_t * param);
+uint_t aubio_parameter_get_steps ( const aubio_parameter_t * param);
 
 /** set minimum value of this parameter
 
@@ -124,7 +124,7 @@ uint_t aubio_parameter_set_min_value ( aubio_parameter_t * param, smpl_t min_val
   \return minimum value
 
 */
-smpl_t aubio_parameter_get_min_value ( aubio_parameter_t * param );
+smpl_t aubio_parameter_get_min_value ( const aubio_parameter_t * param );
 
 /** set maximum value of this parameter
 
@@ -143,7 +143,7 @@ uint_t aubio_parameter_set_max_value ( aubio_parameter_t * param, smpl_t max_val
   \return maximum value
 
 */
-smpl_t aubio_parameter_get_max_value ( aubio_parameter_t * param );
+smpl_t aubio_parameter_get_max_value ( const aubio_parameter_t * param );
 
 /** destroy ::aubio_parameter_t object
 
@@ -156,4 +156,4 @@ void del_aubio_parameter( aubio_parameter_t * param );
 }
 #endif
 
-#endif /* _AUBIO_PARAMETER_H */
+#endif /* AUBIO_PARAMETER_H */

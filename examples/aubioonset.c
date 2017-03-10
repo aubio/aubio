@@ -21,6 +21,7 @@
 #include "utils.h"
 #define PROG_HAS_ONSET 1
 #define PROG_HAS_OUTPUT 1
+#define PROG_HAS_SILENCE 1
 #define PROG_HAS_JACK 1
 #include "parse_args.h"
 
@@ -37,6 +38,8 @@ void process_block(fvec_t *ibuf, fvec_t *obuf)
   fvec_zeros(obuf);
   if ( is_onset ) {
     aubio_wavetable_play ( wavetable );
+    /* send a midi tap (default to C0) out to the midi output */
+    if (usejack) send_noteon(miditap_note, miditap_velo);
   } else {
     aubio_wavetable_stop ( wavetable );
   }
@@ -55,6 +58,7 @@ void process_print (void)
 }
 
 int main(int argc, char **argv) {
+  int ret = 0;
   examples_common_init(argc,argv);
 
   verbmsg ("using source: %s at %dHz\n", source_uri, samplerate);
@@ -65,10 +69,13 @@ int main(int argc, char **argv) {
   verbmsg ("threshold: %f\n", onset_threshold);
 
   o = new_aubio_onset (onset_method, buffer_size, hop_size, samplerate);
+  if (o == NULL) { ret = 1; goto beach; }
   if (onset_threshold != 0.)
     aubio_onset_set_threshold (o, onset_threshold);
   if (silence_threshold != -90.)
     aubio_onset_set_silence (o, silence_threshold);
+  if (onset_minioi != 0.)
+    aubio_onset_set_minioi_s (o, onset_minioi);
 
   onset = new_fvec (1);
 
@@ -78,10 +85,16 @@ int main(int argc, char **argv) {
 
   examples_common_process((aubio_process_func_t)process_block, process_print);
 
+  // send a last note off
+  if (usejack) {
+    send_noteon (miditap_note, 0);
+  }
+
   del_aubio_onset (o);
   del_aubio_wavetable (wavetable);
   del_fvec (onset);
 
+beach:
   examples_common_del();
-  return 0;
+  return ret;
 }

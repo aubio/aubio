@@ -8,6 +8,7 @@ SYNOPSIS
              [-r rate] [-B win] [-H hop]
              [-O method] [-t thres]
              [-p method] [-u unit] [-l thres]
+             [-T time-format]
              [-s sil]
              [-j] [-v] [-h]
 
@@ -49,6 +50,9 @@ OPTIONS
   0.1. Lower threshold values imply more onsets detected. Try 0.5 in case of
   over-detections. Defaults to 0.3.
 
+  -M, --minioi value  Set the minimum inter-onset interval, in seconds, the
+  shortest interval between two consecutive notes. Defaults to 0.030
+
   -p, --pitch method  The pitch detection method to use. See PITCH METHODS
   below. Defaults to 'default'.
 
@@ -63,6 +67,9 @@ OPTIONS
   -s, --silence sil  Set the silence threshold, in dB, under which the pitch
   will not be detected. A value of -20.0 would eliminate most onsets but the
   loudest ones. A value of -90.0 would select all onsets. Defaults to -90.0.
+
+  -T, --timeformat format  Set time format (samples, ms, seconds). Defaults to
+  seconds.
 
   -j, --jack  Use Jack input/output. You will need a Jack connection
   controller to feed aubio some signal and listen to its output.

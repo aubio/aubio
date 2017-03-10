@@ -18,13 +18,15 @@
 
 */
 
-#include "config.h"
-
 #include "aubio_priv.h"
 #include "fvec.h"
 #include "temporal/resampler.h"
 
-#if HAVE_SAMPLERATE
+#ifdef HAVE_SAMPLERATE
+
+#if HAVE_AUBIO_DOUBLE
+#error "Should not use libsamplerate with aubio in double precision"
+#endif
 
 #include <samplerate.h>         /* from libsamplerate */
 
@@ -61,7 +63,7 @@ del_aubio_resampler (aubio_resampler_t * s)
 }
 
 void
-aubio_resampler_do (aubio_resampler_t * s, fvec_t * input, fvec_t * output)
+aubio_resampler_do (aubio_resampler_t * s, const fvec_t * input, fvec_t * output)
 {
   s->proc->input_frames = input->length;
   s->proc->output_frames = output->length;
@@ -92,7 +94,7 @@ del_aubio_resampler (aubio_resampler_t * s UNUSED)
 }
 
 void
-aubio_resampler_do (aubio_resampler_t * s UNUSED, fvec_t * input UNUSED, fvec_t * output UNUSED)
+aubio_resampler_do (aubio_resampler_t * s UNUSED, const fvec_t * input UNUSED, fvec_t * output UNUSED)
 {
 }
 #endif /* HAVE_SAMPLERATE */

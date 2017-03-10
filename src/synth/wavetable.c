@@ -19,7 +19,6 @@
 */
 
 
-#include "config.h"
 #include "aubio_priv.h"
 #include "fvec.h"
 #include "fmat.h"
@@ -68,7 +67,7 @@ beach:
   return NULL;
 }
 
-static smpl_t interp_2(fvec_t *input, smpl_t pos) {
+static smpl_t interp_2(const fvec_t *input, smpl_t pos) {
   uint_t idx = (uint_t)FLOOR(pos);
   smpl_t frac = pos - (smpl_t)idx;
   smpl_t a = input->data[idx];
@@ -76,7 +75,7 @@ static smpl_t interp_2(fvec_t *input, smpl_t pos) {
   return a + frac * ( b - a );
 }
 
-void aubio_wavetable_do ( aubio_wavetable_t * s, fvec_t * input, fvec_t * output)
+void aubio_wavetable_do ( aubio_wavetable_t * s, const fvec_t * input, fvec_t * output)
 {
   uint_t i;
   if (s->playing) {
@@ -107,7 +106,7 @@ void aubio_wavetable_do ( aubio_wavetable_t * s, fvec_t * input, fvec_t * output
   }
 }
 
-void aubio_wavetable_do_multi ( aubio_wavetable_t * s, fmat_t * input, fmat_t * output)
+void aubio_wavetable_do_multi ( aubio_wavetable_t * s, const fmat_t * input, fmat_t * output)
 {
   uint_t i, j;
   if (s->playing) {
@@ -142,7 +141,7 @@ void aubio_wavetable_do_multi ( aubio_wavetable_t * s, fmat_t * input, fmat_t * 
   }
 }
 
-uint_t aubio_wavetable_get_playing ( aubio_wavetable_t * s )
+uint_t aubio_wavetable_get_playing ( const aubio_wavetable_t * s )
 {
   return s->playing;
 }
@@ -172,7 +171,7 @@ uint_t aubio_wavetable_set_freq ( aubio_wavetable_t * s, smpl_t freq )
   return aubio_parameter_set_target_value ( s->freq, freq );
 }
 
-smpl_t aubio_wavetable_get_freq ( aubio_wavetable_t * s) {
+smpl_t aubio_wavetable_get_freq ( const aubio_wavetable_t * s) {
   return aubio_parameter_get_current_value ( s->freq);
 }
 
@@ -181,7 +180,7 @@ uint_t aubio_wavetable_set_amp ( aubio_wavetable_t * s, smpl_t amp )
   return aubio_parameter_set_target_value ( s->amp, amp );
 }
 
-smpl_t aubio_wavetable_get_amp ( aubio_wavetable_t * s) {
+smpl_t aubio_wavetable_get_amp ( const aubio_wavetable_t * s) {
   return aubio_parameter_get_current_value ( s->amp );
 }
 

@@ -29,16 +29,26 @@ uint_t
 aubio_filter_set_a_weighting (aubio_filter_t * f, uint_t samplerate)
 {
   uint_t order; lsmp_t *a, *b; lvec_t *as, *bs;
+
+  if ((sint_t)samplerate <= 0) {
+    AUBIO_ERROR("aubio_filter: failed setting A-weighting with samplerate %d\n", samplerate);
+    return AUBIO_FAIL;
+  }
+  if (f == NULL) {
+    AUBIO_ERROR("aubio_filter: failed setting A-weighting with filter NULL\n");
+    return AUBIO_FAIL;
+  }
+
+  order = aubio_filter_get_order (f);
+  if (order != 7) {
+    AUBIO_ERROR ("aubio_filter: order of A-weighting filter must be 7, not %d\n", order);
+    return 1;
+  }
+
   aubio_filter_set_samplerate (f, samplerate);
   bs = aubio_filter_get_feedforward (f);
   as = aubio_filter_get_feedback (f);
   b = bs->data, a = as->data;
-  order = aubio_filter_get_order (f);
-
-  if (order != 7) {
-    AUBIO_ERROR ("order of A-weighting filter must be 7, not %d\n", order);
-    return 1;
-  }
 
   /* select coefficients according to sampling frequency */
   switch (samplerate) {
@@ -244,6 +254,9 @@ aubio_filter_t *
 new_aubio_filter_a_weighting (uint_t samplerate)
 {
   aubio_filter_t *f = new_aubio_filter (7);
-  aubio_filter_set_a_weighting (f, samplerate);
+  if (aubio_filter_set_a_weighting(f,samplerate) != AUBIO_OK) {
+    del_aubio_filter(f);
+    return NULL;
+  }
   return f;
 }

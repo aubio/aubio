@@ -1,0 +1,28 @@
+#! /bin/bash
+
+# This script cross compiles aubio for windows using mingw, both for 32 and 64
+# bits. Built binaries will be placed in ./dist-win32 and ./dist-win64.
+
+# On debian or ubuntu, you will want to 'apt-get install gcc-mingw-w64'
+
+set -e
+set -x
+
+WAFOPTS="-v --disable-avcodec --disable-samplerate --disable-jack --disable-sndfile"
+
+[ -d dist-win32 ] && rm -rf dist-win32
+[ -d dist-win64 ] && rm -rf dist-win64
+
+CFLAGS="-Os" \
+  LDFLAGS="" \
+  CC=x86_64-w64-mingw32-gcc \
+  ./waf distclean configure build install --destdir=$PWD/dist-win64 \
+    --testcmd="echo %s" \
+    $WAFOPTS --with-target-platform=win64
+
+CFLAGS="-Os" \
+  LDFLAGS="" \
+  CC=i686-w64-mingw32-gcc \
+  ./waf distclean configure build install --destdir=$PWD/dist-win32 \
+    --testcmd="echo %s" \
+    $WAFOPTS --with-target-platform=win32

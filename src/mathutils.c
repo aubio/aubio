@@ -24,7 +24,6 @@
 #include "fvec.h"
 #include "mathutils.h"
 #include "musicutils.h"
-#include "config.h"
 
 /** Window types */
 typedef enum
@@ -253,19 +252,45 @@ fvec_max_elem (fvec_t * s)
 void
 fvec_shift (fvec_t * s)
 {
+  uint_t half = s->length / 2, start = half, j;
+  // if length is odd, middle element is moved to the end
+  if (2 * half < s->length) start ++;
 #ifndef HAVE_ATLAS
-  uint_t j;
-  for (j = 0; j < s->length / 2; j++) {
-    ELEM_SWAP (s->data[j], s->data[j + s->length / 2]);
+  for (j = 0; j < half; j++) {
+    ELEM_SWAP (s->data[j], s->data[j + start]);
   }
 #else
-  uint_t half = s->length / 2;
-  aubio_cblas_swap(half, s->data, 1, s->data + half, 1);
+  aubio_cblas_swap(half, s->data, 1, s->data + start, 1);
 #endif
+  if (start != half) {
+    for (j = 0; j < half; j++) {
+      ELEM_SWAP (s->data[j + start - 1], s->data[j + start]);
+    }
+  }
+}
+
+void
+fvec_ishift (fvec_t * s)
+{
+  uint_t half = s->length / 2, start = half, j;
+  // if length is odd, middle element is moved to the beginning
+  if (2 * half < s->length) start ++;
+#ifndef HAVE_ATLAS
+  for (j = 0; j < half; j++) {
+    ELEM_SWAP (s->data[j], s->data[j + start]);
+  }
+#else
+  aubio_cblas_swap(half, s->data, 1, s->data + start, 1);
+#endif
+  if (start != half) {
+    for (j = 0; j < half; j++) {
+      ELEM_SWAP (s->data[half], s->data[j]);
+    }
+  }
 }
 
 smpl_t
-aubio_level_lin (fvec_t * f)
+aubio_level_lin (const fvec_t * f)
 {
   smpl_t energy = 0.;
 #ifndef HAVE_ATLAS
@@ -414,8 +439,9 @@ smpl_t fvec_median (fvec_t * input) {
   }
 }
 
-smpl_t fvec_quadratic_peak_pos (fvec_t * x, uint_t pos) {
+smpl_t fvec_quadratic_peak_pos (const fvec_t * x, uint_t pos) {
   smpl_t s0, s1, s2; uint_t x0, x2;
+  smpl_t half = .5, two = 2.;
   if (pos == 0 || pos == x->length - 1) return pos;
   x0 = (pos < 1) ? pos : pos - 1;
   x2 = (pos + 1 < x->length) ? pos + 1 : pos;
@@ -424,7 +450,7 @@ smpl_t fvec_quadratic_peak_pos (fvec_t * x, uint_t pos) {
   s0 = x->data[x0];
   s1 = x->data[pos];
   s2 = x->data[x2];
-  return pos + 0.5 * (s0 - s2 ) / (s0 - 2.* s1 + s2);
+  return pos + half * (s0 - s2 ) / (s0 - two * s1 + s2);
 }
 
 smpl_t fvec_quadratic_peak_mag (fvec_t *x, smpl_t pos) {
@@ -438,7 +464,7 @@ smpl_t fvec_quadratic_peak_mag (fvec_t *x, smpl_t pos) {
   return x1 - .25 * (x0 - x2) * (pos - index);
 }
 
-uint_t fvec_peakpick(fvec_t * onset, uint_t pos) {
+uint_t fvec_peakpick(const fvec_t * onset, uint_t pos) {
   uint_t tmp=0;
   tmp = (onset->data[pos] > onset->data[pos-1]
       &&  onset->data[pos] > onset->data[pos+1]
@@ -525,19 +551,19 @@ aubio_next_power_of_two (uint_t a)
 }
 
 smpl_t
-aubio_db_spl (fvec_t * o)
+aubio_db_spl (const fvec_t * o)
 {
   return 10. * LOG10 (aubio_level_lin (o));
 }
 
 uint_t
-aubio_silence_detection (fvec_t * o, smpl_t threshold)
+aubio_silence_detection (const fvec_t * o, smpl_t threshold)
 {
   return (aubio_db_spl (o) < threshold);
 }
 
 smpl_t
-aubio_level_detection (fvec_t * o, smpl_t threshold)
+aubio_level_detection (const fvec_t * o, smpl_t threshold)
 {
   smpl_t db_spl = aubio_db_spl (o);
   if (db_spl < threshold) {
@@ -571,7 +597,7 @@ aubio_zero_crossing_rate (fvec_t * input)
 }
 
 void
-aubio_autocorr (fvec_t * input, fvec_t * output)
+aubio_autocorr (const fvec_t * input, fvec_t * output)
 {
   uint_t i, j, length = input->length;
   smpl_t *data, *acf;

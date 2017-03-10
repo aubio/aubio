@@ -20,6 +20,8 @@
 
 #include "utils.h"
 #define PROG_HAS_TEMPO 1
+#define PROG_HAS_ONSET 1
+#define PROG_HAS_SILENCE 1
 #define PROG_HAS_OUTPUT 1
 #define PROG_HAS_JACK 1
 #include "parse_args.h"
@@ -27,8 +29,8 @@
 aubio_tempo_t * tempo;
 aubio_wavetable_t *wavetable;
 fvec_t * tempo_out;
-smpl_t is_beat = 0;
-uint_t is_silence = 0.;
+smpl_t is_beat = 0.;
+uint_t is_silence = 0;
 
 void process_block(fvec_t * ibuf, fvec_t *obuf) {
   aubio_tempo_do (tempo, ibuf, tempo_out);
@@ -39,6 +41,8 @@ void process_block(fvec_t * ibuf, fvec_t *obuf) {
   fvec_zeros (obuf);
   if ( is_beat && !is_silence ) {
     aubio_wavetable_play ( wavetable );
+    /* send a midi tap (default to C0) out to the midi output */
+    if (usejack) send_noteon(miditap_note, miditap_velo);
   } else {
     aubio_wavetable_stop ( wavetable );
   }
@@ -56,6 +60,7 @@ void process_print (void) {
 }
 
 int main(int argc, char **argv) {
+  int ret = 0;
   // override general settings from utils.c
   buffer_size = 1024;
   hop_size = 512;
@@ -71,9 +76,11 @@ int main(int argc, char **argv) {
 
   tempo_out = new_fvec(2);
   tempo = new_aubio_tempo(tempo_method, buffer_size, hop_size, samplerate);
+  if (tempo == NULL) { ret = 1; goto beach; }
   // set silence threshold very low to output beats even during silence
   // aubio_tempo_set_silence(tempo, -1000.);
   if (onset_threshold != 0.) aubio_tempo_set_threshold (tempo, onset_threshold);
+  if (onset_minioi != 0.) errmsg ("warning: minioio not supported yet\n");
 
   wavetable = new_aubio_wavetable (samplerate, hop_size);
   aubio_wavetable_set_freq ( wavetable, 2450.);
@@ -81,11 +88,16 @@ int main(int argc, char **argv) {
 
   examples_common_process((aubio_process_func_t)process_block,process_print);
 
+  // send a last note off
+  if (usejack) {
+    send_noteon (miditap_note, 0);
+  }
+
   del_aubio_tempo(tempo);
   del_aubio_wavetable (wavetable);
   del_fvec(tempo_out);
 
+beach:
   examples_common_del();
-  return 0;
+  return ret;
 }
-

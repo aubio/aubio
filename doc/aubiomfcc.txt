@@ -6,6 +6,7 @@ SYNOPSIS
   aubiomfcc source
   aubiomfcc [[-i] source]
             [-r rate] [-B win] [-H hop]
+            [-T time-format]
             [-v] [-h]
 
 DESCRIPTION
@@ -36,6 +37,9 @@ OPTIONS
 
   -H, --hopsize hop  The number of samples between two consecutive analysis.
   Defaults to 256.
+
+  -T, --timeformat format  Set time format (samples, ms, seconds). Defaults to
+  seconds.
 
   -h, --help  Print a short help message and exit.
 

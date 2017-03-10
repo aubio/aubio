@@ -18,8 +18,8 @@
 
 */
 
-#ifndef _AUBIO__TYPES_H
-#define _AUBIO__TYPES_H
+#ifndef AUBIO_TYPES_H
+#define AUBIO_TYPES_H
 
 /** \file
 
@@ -67,4 +67,4 @@ typedef char         char_t;
 }
 #endif
 
-#endif /* _AUBIO__TYPES_H */
+#endif /* AUBIO_TYPES_H */

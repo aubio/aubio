@@ -30,8 +30,8 @@
 
 */
 
-#ifndef _AUBIO_TEMPO_H
-#define _AUBIO_TEMPO_H
+#ifndef AUBIO_TEMPO_H
+#define AUBIO_TEMPO_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -50,7 +50,7 @@ typedef struct _aubio_tempo_t aubio_tempo_t;
   \return newly created ::aubio_tempo_t if successful, `NULL` otherwise
 
 */
-aubio_tempo_t * new_aubio_tempo (char_t * method,
+aubio_tempo_t * new_aubio_tempo (const char_t * method,
     uint_t buf_size, uint_t hop_size, uint_t samplerate);
 
 /** execute tempo detection
@@ -60,7 +60,7 @@ aubio_tempo_t * new_aubio_tempo (char_t * method,
   \param tempo output beats
 
 */
-void aubio_tempo_do (aubio_tempo_t *o, fvec_t * input, fvec_t * tempo);
+void aubio_tempo_do (aubio_tempo_t *o, const fvec_t * input, fvec_t * tempo);
 
 /** get the time of the latest beat detected, in samples
 
@@ -154,13 +154,13 @@ smpl_t aubio_tempo_get_bpm(aubio_tempo_t * o);
 
   \param o beat tracking object
 
-  \return confidence with which the tempo has been observed, `0` if no
-  consistent value is found.
+  \return confidence with which the tempo has been observed, the higher the
+  more confidence, `0` if no consistent value is found.
 
 */
 smpl_t aubio_tempo_get_confidence(aubio_tempo_t * o);
 
-/* set number of tatum per beat
+/** set number of tatum per beat
 
    \param o beat tracking object
    \param signature number of tatum per beat (between 1 and 64)
@@ -168,7 +168,7 @@ smpl_t aubio_tempo_get_confidence(aubio_tempo_t * o);
 */
 uint_t aubio_tempo_set_tatum_signature(aubio_tempo_t *o, uint_t signature);
 
-/* check whether a tatum was detected in the current frame
+/** check whether a tatum was detected in the current frame
 
    \param o beat tracking object
 
@@ -177,12 +177,69 @@ uint_t aubio_tempo_set_tatum_signature(aubio_tempo_t *o, uint_t signature);
 */
 uint_t aubio_tempo_was_tatum(aubio_tempo_t *o);
 
-/* get position of last_tatum, in samples
+/** get position of last_tatum, in samples
 
    \param o beat tracking object
 
 */
 smpl_t aubio_tempo_get_last_tatum(aubio_tempo_t *o);
+
+/** get current delay
+
+  \param o beat tracking object
+
+  \return current delay, in samples
+
+ */
+uint_t aubio_tempo_get_delay(aubio_tempo_t * o);
+
+/** get current delay in seconds
+
+  \param o beat tracking object
+
+  \return current delay, in seconds
+
+ */
+smpl_t aubio_tempo_get_delay_s(aubio_tempo_t * o);
+
+/** get current delay in ms
+
+  \param o beat tracking object
+
+  \return current delay, in milliseconds
+
+ */
+smpl_t aubio_tempo_get_delay_ms(aubio_tempo_t * o);
+
+/** set current delay
+
+  \param o beat tracking object
+  \param delay delay to set tempo to, in samples
+
+  \return `0` if successful, non-zero otherwise
+
+ */
+uint_t aubio_tempo_set_delay(aubio_tempo_t * o, sint_t delay);
+
+/** set current delay in seconds
+
+  \param o beat tracking object
+  \param delay delay to set tempo to, in seconds
+
+  \return `0` if successful, non-zero otherwise
+
+ */
+uint_t aubio_tempo_set_delay_s(aubio_tempo_t * o, smpl_t delay);
+
+/** set current delay
+
+  \param o beat tracking object
+  \param delay delay to set tempo to, in samples
+
+  \return `0` if successful, non-zero otherwise
+
+ */
+uint_t aubio_tempo_set_delay_ms(aubio_tempo_t * o, smpl_t delay);
 
 /** delete tempo detection object
 
@@ -195,4 +252,4 @@ void del_aubio_tempo(aubio_tempo_t * o);
 }
 #endif
 
-#endif /* _AUBIO_TEMPO_H */
+#endif /* AUBIO_TEMPO_H */

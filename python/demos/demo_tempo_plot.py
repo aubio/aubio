@@ -4,10 +4,10 @@ import sys
 from aubio import tempo, source
 
 win_s = 512                 # fft size
-hop_s = win_s / 2           # hop size
+hop_s = win_s // 2          # hop size
 
 if len(sys.argv) < 2:
-    print "Usage: %s <filename> [samplerate]" % sys.argv[0]
+    print("Usage: %s <filename> [samplerate]" % sys.argv[0])
     sys.exit(1)
 
 filename = sys.argv[1]
@@ -39,11 +39,11 @@ while True:
 
 if len(beats) > 1:
     # do plotting
-    from numpy import array, arange, mean, median, diff
+    from numpy import mean, median, diff
     import matplotlib.pyplot as plt
     bpms = 60./ diff(beats)
-    print 'mean period:', "%.2f" % mean(bpms), 'bpm', 'median', "%.2f" % median(bpms), 'bpm'
-    print 'plotting', filename
+    print('mean period: %.2fbpm, median: %.2fbpm' % (mean(bpms), median(bpms)))
+    print('plotting %s' % filename)
     plt1 = plt.axes([0.1, 0.75, 0.8, 0.19])
     plt2 = plt.axes([0.1, 0.1, 0.8, 0.65], sharex = plt1)
     plt.rc('lines',linewidth='.8')
@@ -75,5 +75,5 @@ if len(beats) > 1:
     plt.show()
 
 else:
-    print 'mean period:', "%.2f" % 0, 'bpm', 'median', "%.2f" % 0, 'bpm',
-    print 'nothing to plot, file too short?'
+    print('mean period: %.2fbpm, median: %.2fbpm' % (0, 0))
+    print('plotting %s' % filename)
