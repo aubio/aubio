@@ -46,6 +46,8 @@ struct _aubio_onset_t {
   uint_t total_frames;          /**< total number of frames processed since the beginning */
   uint_t last_onset;            /**< last detected onset location, in frames */
 
+  uint_t apply_compression;
+  smpl_t lambda_compression;
   uint_t apply_adaptive_whitening;
   aubio_spectral_whitening_t *spectral_whitening;
 };
@@ -58,11 +60,12 @@ void aubio_onset_do (aubio_onset_t *o, const fvec_t * input, fvec_t * onset)
   /*
   if (apply_filtering) {
   }
-  if (apply_compression) {
-  }
   */
   if (o->apply_adaptive_whitening) {
     aubio_spectral_whitening_do(o->spectral_whitening, o->fftgrain);
+  }
+  if (o->apply_compression) {
+    cvec_logmag(o->fftgrain, o->apply_compression);
   }
   aubio_specdesc_do (o->od, o->fftgrain, o->desc);
   aubio_peakpicker_do(o->pp, o->desc, onset);
@@ -259,17 +262,26 @@ void aubio_onset_default_parameters (aubio_onset_t * o, const char_t * onset_mod
   aubio_onset_set_delay (o, 4.3 * o->hop_size);
   aubio_onset_set_minioi_ms (o, 50.);
   aubio_onset_set_silence (o, -70.);
-  aubio_onset_set_adaptive_whitening (o, 1);
+  aubio_onset_set_adaptive_whitening (o, 0);
+
+  o->apply_compression = 0;
+  o->lambda_compression = 1.;
 
   /* method specific optimisations */
   if (strcmp (onset_mode, "energy") == 0) {
   } else if (strcmp (onset_mode, "hfc") == 0 || strcmp (onset_mode, "default") == 0) {
+    aubio_onset_set_threshold (o, 0.058);
+    o->apply_compression = 1;
+    o->lambda_compression = 1.;
     aubio_onset_set_adaptive_whitening (o, 0);
   } else if (strcmp (onset_mode, "complexdomain") == 0
              || strcmp (onset_mode, "complex") == 0) {
     aubio_onset_set_delay (o, 4.6 * o->hop_size);
     aubio_onset_set_threshold (o, 0.15);
+    o->apply_compression = 1;
+    o->lambda_compression = 1.;
   } else if (strcmp (onset_mode, "phase") == 0) {
+    o->apply_compression = 0;
     aubio_onset_set_adaptive_whitening (o, 0);
   } else if (strcmp (onset_mode, "mkl") == 0) {
     aubio_onset_set_threshold (o, 0.05);
