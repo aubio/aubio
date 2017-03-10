@@ -230,6 +230,14 @@ void cvec_phas_ones(cvec_t *s);
 */
 void cvec_zeros(cvec_t *s);
 
+/** take logarithmic magnitude
+
+  \param fftgrain cvec to compress
+  \param lambda value to use for normalisation
+
+*/
+void cvec_logmag(cvec_t *s, smpl_t lambda);
+
 #ifdef __cplusplus
 }
 #endif
