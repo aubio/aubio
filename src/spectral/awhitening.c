@@ -24,8 +24,9 @@
 #include "mathutils.h"
 #include "spectral/awhitening.h"
 
-#define aubio_spectral_whitening_default_relax_time   30    // in seconds
+#define aubio_spectral_whitening_default_relax_time   250   // in seconds, between 22 and 446
 #define aubio_spectral_whitening_default_decay        0.001 // -60dB attenuation
+#define aubio_spectral_whitening_default_floor        1.e-4 // from 1.e-6 to .2
 
 /** structure to store object state */
 struct _aubio_spectral_whitening_t {
@@ -43,8 +44,8 @@ aubio_spectral_whitening_do (aubio_spectral_whitening_t * o, cvec_t * fftgrain)
 {
   uint_t i = 0;
   for (i = 0; i < o->peak_values->length; i++) {
-    o->peak_values->data[i] =
-      MAX(fftgrain->norm[i], o->r_decay * o->peak_values->data[i]);
+    smpl_t tmp = MAX(o->r_decay * o->peak_values->data[i], o->floor);
+    o->peak_values->data[i] = MAX(fftgrain->norm[i], tmp);
     fftgrain->norm[i] /= o->peak_values->data[i];
   }
 }
@@ -67,7 +68,7 @@ new_aubio_spectral_whitening (uint_t buf_size, uint_t hop_size, uint_t samplerat
   o->buf_size = buf_size;
   o->hop_size = hop_size;
   o->samplerate = samplerate;
-  o->floor = 1.e-6; // from 1.e-6 to 0.2
+  o->floor = aubio_spectral_whitening_default_floor;
   aubio_spectral_whitening_set_relax_time (o, aubio_spectral_whitening_default_relax_time);
   aubio_spectral_whitening_reset (o);
   return o;
