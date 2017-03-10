@@ -28,7 +28,7 @@
 #include "mathutils.h"
 #include "onset/onset.h"
 
-void aubio_onset_default_parameters (aubio_onset_t *o, char_t * method);
+void aubio_onset_default_parameters (aubio_onset_t *o, const char_t * method);
 
 /** structure to store object state */
 struct _aubio_onset_t {
@@ -252,7 +252,7 @@ beach:
   return NULL;
 }
 
-void aubio_onset_default_parameters (aubio_onset_t * o, char_t * onset_mode)
+void aubio_onset_default_parameters (aubio_onset_t * o, const char_t * onset_mode)
 {
   /* set some default parameter */
   aubio_onset_set_threshold (o, 0.3);
