@@ -183,17 +183,21 @@ class MappedObject(object):
 
     def gen_code(self):
         out = ""
-        out += self.gen_struct()
-        out += self.gen_doc()
-        out += self.gen_new()
-        out += self.gen_init()
-        out += self.gen_del()
-        out += self.gen_do()
-        out += self.gen_memberdef()
-        out += self.gen_set()
-        out += self.gen_get()
-        out += self.gen_methodef()
-        out += self.gen_typeobject()
+        try:
+            out += self.gen_struct()
+            out += self.gen_doc()
+            out += self.gen_new()
+            out += self.gen_init()
+            out += self.gen_del()
+            out += self.gen_do()
+            out += self.gen_memberdef()
+            out += self.gen_set()
+            out += self.gen_get()
+            out += self.gen_methodef()
+            out += self.gen_typeobject()
+        except Exception as e:
+            print ("Failed generating code for", self.shortname)
+            raise
         return out
 
     def gen_struct(self):
