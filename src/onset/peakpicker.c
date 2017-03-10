@@ -185,7 +185,9 @@ new_aubio_peakpicker (void)
      generated with octave butter function: [b,a] = butter(2, 0.34);
    */
   t->biquad = new_aubio_filter_biquad (0.15998789, 0.31997577, 0.15998789,
-      -0.59488894, 0.23484048);
+      // FIXME: broken since c9e20ca, revert for now
+      //-0.59488894, 0.23484048);
+      0.23484048, 0);
 
   return t;
 }
