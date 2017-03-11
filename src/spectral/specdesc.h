@@ -59,6 +59,13 @@
   Conference on Acoustics Speech and Signal Processing, pages 441­444,
   Hong-Kong, 2003.
 
+  \b \p wphase : Weighted Phase Deviation onset detection function
+
+  S. Dixon. Onset detection revisited. In Proceedings of the 9th International
+  Conference on Digital Audio Ef- fects (DAFx) , pages 133–137, 2006.
+
+  http://www.eecs.qmul.ac.uk/~simond/pub/2006/dafx.pdf
+
   \b \p specdiff : Spectral difference method onset detection function
 
   Jonhatan Foote and Shingo Uchihashi. The beat spectrum: a new approach to
