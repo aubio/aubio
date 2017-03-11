@@ -181,8 +181,11 @@ void aubio_specdesc_do (aubio_specdesc_t * o, const cvec_t * fftgrain,
 
   The parameter \p method is a string that can be any of:
 
-    - `energy`, `hfc`, `complex`, `phase`, `specdiff`, `kl`, `mkl`, `specflux`
-    - `centroid`, `spread`, `skewness`, `kurtosis`, `slope`, `decrease`, `rolloff`
+    - onset novelty functions: `complex`, `energy`, `hfc`, `kl`, `mkl`,
+    `phase`, `specdiff`, `specflux`, `wphase`,
+
+    - spectral descriptors: `centroid`, `decrease`, `kurtosis`, `rolloff`,
+    `skewness`, `slope`, `spread`.
 
 */
 aubio_specdesc_t *new_aubio_specdesc (const char_t * method, uint_t buf_size);
