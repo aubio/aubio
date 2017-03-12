@@ -84,6 +84,8 @@ struct _aubio_sampler_t {
   pthread_cond_t read_request;
   uint_t source_blocksize;
   fvec_t *source_output;
+  fvec_t *source_output_tmp;
+  uint_t last_read;
   fmat_t *source_moutput;
   uint_t channels;
   // file opening thread
