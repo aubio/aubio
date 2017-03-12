@@ -192,11 +192,12 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path,
     }
   }
 
+  avFormatCtx = NULL;
   if ( (err = avformat_open_input(&avFormatCtx, s->path, NULL, &streamopts) ) < 0 ) {
     char errorstr[256];
     av_strerror (err, errorstr, sizeof(errorstr));
     AUBIO_ERR("source_avcodec: Failed opening %s (%s)\n", s->path, errorstr);
-    goto beach;
+    goto beach_streamopts;
   }
 
   // try to make sure max_analyze_duration is big enough for most songs
@@ -348,6 +349,8 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path,
   av_dict_free(&streamopts);
   return s;
 
+beach_streamopts:
+  av_dict_free(&streamopts);
 beach:
   if (streamopts != 0) av_dict_free(&streamopts);
   //AUBIO_ERR("can not read %s at samplerate %dHz with a hop_size of %d\n",
