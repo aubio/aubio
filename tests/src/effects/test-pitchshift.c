@@ -75,6 +75,7 @@ beach_source:
   del_fvec(vec);
   del_fvec(out);
 beach_fvec:
+  aubio_cleanup();
 #else
   err = 0;
   PRINT_ERR("aubio was not compiled with rubberband\n");
