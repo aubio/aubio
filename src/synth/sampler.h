@@ -96,7 +96,7 @@ uint_t aubio_sampler_set_table(aubio_sampler_t *o, fvec_t *samples);
 
   \param o sampler, created by new_aubio_sampler()
   \param output output of the sampler
-  \param read number of samples actually read
+  \param read will be set to then number of samples actually read
 
   This function get new samples from the sampler and store them into output.
 
@@ -109,6 +109,7 @@ void aubio_sampler_do ( aubio_sampler_t * o, fvec_t * output, uint_t *read);
 
   \param o sampler, created by new_aubio_sampler()
   \param output output of the sampler
+  \param read will be set to the number of samples actually read
 
   This function is identical to aubio_sampler_do(), but for a multi-channel source.
 
@@ -134,12 +135,19 @@ uint_t aubio_sampler_get_playing ( const aubio_sampler_t * o );
 */
 uint_t aubio_sampler_set_playing ( aubio_sampler_t * o, uint_t playing );
 
+/** get current looping state
+
+  \param o sampler, created by new_aubio_sampler()
+
+  \return 0 if not looping , 1 if looping
+
+*/
 uint_t aubio_sampler_get_loop(aubio_sampler_t * o);
 
 /** set current looping state
 
   \param o sampler, created by new_aubio_sampler()
-  \param looping 0 for not looping, 1 for looping
+  \param loop 0 for not looping, 1 for looping
 
   \return 0 if successful, 1 otherwise
 
