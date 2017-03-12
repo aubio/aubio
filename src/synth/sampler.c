@@ -148,7 +148,7 @@ aubio_sampler_t *new_aubio_sampler(uint_t blocksize, uint_t samplerate)
 #elif 1 // threaded with ringhbuffer
   s->source_blocksize = 2048; //32 * s->blocksize;
   s->perfectloop = 1;
-  s->threaded_read = 1;
+  s->threaded_read = 0;
 #endif
 
   if (s->source_blocksize < s->blocksize) {
