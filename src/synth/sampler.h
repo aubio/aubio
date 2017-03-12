@@ -220,6 +220,44 @@ uint_t aubio_sampler_get_samplerate(aubio_sampler_t * o);
 */
 uint_t aubio_sampler_get_waited_opening(aubio_sampler_t * o, uint_t waited);
 
+/** get current time stretching factor
+
+  \param o sampler, created by new_aubio_sampler()
+
+  \return the current time stretch factor
+
+ */
+smpl_t aubio_sampler_get_stretch (aubio_sampler_t *o);
+
+/** set current time stretching factor
+
+  \param o sampler, created by new_aubio_sampler()
+  \param stretch new time stretching factor
+
+  \return AUBIO_OK on success, AUBIO_FAIL otherwise
+
+ */
+uint_t aubio_sampler_set_stretch (aubio_sampler_t *o, smpl_t stretch);
+
+/** get current pitch shifting factor
+
+  \param o sampler, created by new_aubio_sampler()
+
+  \return the current pitch transposition factor
+
+ */
+smpl_t aubio_sampler_get_transpose (aubio_sampler_t *o);
+
+/** set current pitch shifting factor
+
+  \param o sampler, created by new_aubio_sampler()
+  \param transpose new pitch shifting (transposition) factor
+
+  \return AUBIO_OK on success, AUBIO_FAIL otherwise
+
+ */
+uint_t aubio_sampler_set_transpose (aubio_sampler_t *o, smpl_t transpose);
+
 /** get the current perfect loop mode
 
   \param o sampler, created by new_aubio_sampler()

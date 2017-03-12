@@ -25,6 +25,7 @@
 #include "fmat.h"
 #include "io/source.h"
 #include "utils/ringbuffer.h"
+#include "effects/timestretch.h"
 #include "synth/sampler.h"
 
 #define HAVE_THREADS 1
@@ -72,6 +73,8 @@ struct _aubio_sampler_t {
   uint_t loop;
   uint_t finished;              // end of file was reached
   uint_t eof;                   // end of file is now
+  // time stretching
+  aubio_timestretch_t *ts;
 #ifdef HAVE_THREADS
   // file reading thread
   pthread_t read_thread;
@@ -178,6 +181,10 @@ aubio_sampler_t *new_aubio_sampler(uint_t blocksize, uint_t samplerate)
   s->table_index = 0;
 #endif
 
+  s->ts = new_aubio_timestretch("default", 1., s->blocksize, s->samplerate);
+  s->source_output_tmp = new_fvec(s->source_blocksize);
+  s->last_read = 0;
+
   return s;
 beach:
   AUBIO_FREE(s);
@@ -258,7 +265,7 @@ uint_t aubio_sampler_load( aubio_sampler_t * o, const char_t * uri )
     o->eof_remaining = 0;
     o->opened = 1;
     ret = AUBIO_OK;
-    AUBIO_WRN("sampler: loaded %s\n", uri);
+    AUBIO_MSG("sampler: loaded %s\n", uri);
     if (o->waited) {
       AUBIO_WRN("sampler: %.2fms (%d samples) taken to load %s\n", 1000. *
           o->waited / (smpl_t)o->samplerate, o->waited, o->uri);
@@ -432,12 +439,14 @@ aubio_sampler_reading_from_source_ring_fetch(aubio_sampler_t*s) {
     if (available > 0) {
       aubio_ringbuffer_push(s->ring, s->source_output, available);
     }
-    if (available < s->source_blocksize) {
+    if (available < s->blocksize) {
+      //AUBIO_WRN("sampler: short read %d\n", available);
       if (ring_avail + available <= s->blocksize) {
         s->eof_remaining = available + ring_avail;
         if (s->eof_remaining == 0) s->eof_remaining = s->blocksize;
-        //AUBIO_ERR("sampler: marking special eof got: %d, in ring: %d, %d, eof remaining %d\n",
-        //    available, ring_avail, s->blocksize, s->eof_remaining);
+        ring_avail = aubio_ringbuffer_get_available(s->ring);
+        //AUBIO_ERR("sampler: eof in: %d, last fetch: %d, in ring: %d\n",
+        //    s->eof_remaining, available, ring_avail);
         if (s->loop) {
           aubio_sampler_seek(s,0);
           // read some frames from beginning of source for perfect looping
@@ -495,8 +504,44 @@ static void
 aubio_sampler_reading_from_source_ring(aubio_sampler_t *s, fvec_t *output,
     uint_t *read)
 {
+#if 0
   aubio_sampler_reading_from_source_ring_fetch(s);
   aubio_sampler_reading_from_source_ring_pull(s, output, read);
+#else // raw version
+  uint_t source_read;
+  while (aubio_timestretch_get_available(s->ts) < (sint_t)s->blocksize
+      && s->eof_remaining == 0) {
+    aubio_source_do(s->source, s->source_output, &source_read);
+    aubio_timestretch_push(s->ts, s->source_output, source_read);
+    if (source_read < s->source_output->length) s->eof_remaining = source_read;
+    //AUBIO_WRN("sampler: pushed %d, now %d available\n",
+    //    source_read, aubio_timestretch_get_available(s->ts));
+  }
+  aubio_timestretch_do(s->ts, output, read);
+  if (s->eof_remaining > s->blocksize) {
+    s->eof_remaining -= s->blocksize;
+  }
+  if (*read < output->length) {
+    //AUBIO_WRN("sampler: short read %d, eof at %d\n", *read, s->eof_remaining);
+    s->eof_remaining = 0;
+    aubio_timestretch_reset(s->ts);
+    aubio_sampler_do_eof(s);
+    if (s->loop && s->perfectloop) {
+      fvec_t tmpout; tmpout.data = output->data + *read;
+      tmpout.length = output->length - *read;
+      uint_t partialread;
+      while (aubio_timestretch_get_available(s->ts) < (sint_t)tmpout.length
+          && s->eof_remaining == 0) {
+        aubio_source_do(s->source, s->source_output, &source_read);
+        aubio_timestretch_push(s->ts, s->source_output, source_read);
+        if (source_read < s->source_output->length) s->eof_remaining = source_read;
+      }
+      aubio_timestretch_do(s->ts, &tmpout, &partialread);
+      //AUBIO_WRN("sampler: partial read %d + %d\n", *read, partialread);
+      *read += partialread;
+    }
+  }
+#endif
 }
 
 #ifdef HAVE_THREADS
@@ -572,6 +617,7 @@ aubio_sampler_read_from_table(aubio_sampler_t *s, fvec_t *output, uint_t *read) 
     AUBIO_WRN("sampler: _pull_from_table but table not set %d, %d\n",
         output->length, *read);
   } else if (s->playing) {
+#if 0
     uint_t available = s->table->length - s->table_index;
     fvec_t tmp;
     tmp.data = s->table->data + s->table_index;
@@ -599,6 +645,94 @@ aubio_sampler_read_from_table(aubio_sampler_t *s, fvec_t *output, uint_t *read) 
       s->table_index += output->length;
       *read = s->blocksize;
     }
+#else
+    fvec_t tmp, tmpout;
+    uint_t source_read = 0;
+    while (aubio_timestretch_get_available(s->ts) < (sint_t)s->blocksize
+        && s->eof_remaining == 0) {
+      uint_t available = s->table->length - s->table_index;
+      if (available < s->source_blocksize) {
+        source_read = available;
+      } else {
+        source_read = s->source_blocksize;
+      }
+      tmp.length = source_read; tmp.data = s->table->data + s->table_index;
+      tmpout.data = s->source_output->data; tmpout.length = source_read;
+      fvec_copy(&tmp, &tmpout);
+      aubio_timestretch_push(s->ts, &tmpout, source_read);
+      if (source_read < s->source_blocksize) {
+        s->eof_remaining = source_read;
+        s->table_index = s->source_blocksize - *read;
+      } else {
+        s->table_index += source_read;
+      }
+      if (s->table_index == s->table->length) s->table_index = 0;
+      //AUBIO_WRN("sampler: pushed %d, now %d available, table_index %d, eof %d\n",
+      //    source_read, aubio_timestretch_get_available(s->ts),
+      //    s->table_index, s->eof_remaining);
+    }
+    aubio_timestretch_do(s->ts, output, read);
+    if (*read == 0) {
+      //AUBIO_WRN("sampler: pushed %d, now %d available, table_index %d\n",
+      //    *read, aubio_timestretch_get_available(s->ts), s->table_index);
+    }
+    if (s->eof_remaining > s->blocksize) {
+      s->eof_remaining -= s->blocksize;
+    }
+    if (*read < output->length) {
+      s->eof_remaining = 0;
+      aubio_sampler_do_eof(s);
+    }
+#if 0
+    if (*read < output->length) {
+      //uint_t available = aubio_timestretch_get_available(s->ts);
+      s->eof_remaining = 0;
+      aubio_timestretch_reset(s->ts);
+      aubio_sampler_do_eof(s);
+    }
+#endif
+#if 0
+    if (*read < output->length) {
+      //uint_t available = aubio_timestretch_get_available(s->ts);
+      s->eof_remaining = 0;
+      aubio_timestretch_reset(s->ts);
+      aubio_sampler_do_eof(s);
+      if (s->loop && s->perfectloop) {
+        tmpout.data = output->data + *read;
+        tmpout.length = output->length - *read;
+        while (aubio_timestretch_get_available(s->ts) < (sint_t)tmpout.length
+            && s->eof_remaining == 0) {
+          uint_t available = s->table->length - s->table_index;
+          if (available < s->source_blocksize) {
+            source_read = available;
+          } else {
+            source_read = s->source_blocksize;
+          }
+          //AUBIO_WRN("sampler: short read %d, remaining %d\n", *read, remaining);
+          tmp.length = source_read; tmp.data = s->table->data + s->table_index;
+          fvec_t tmpout2; tmpout2.data = s->source_output->data; tmpout2.length = source_read;
+          fvec_copy(&tmp, &tmpout2);
+          aubio_timestretch_push(s->ts, &tmpout2, source_read);
+          if (source_read < s->source_blocksize) {
+            s->eof_remaining = source_read;
+            s->table_index = 0;
+          } else {
+            s->table_index += source_read;
+          }
+          if (s->table_index == s->table->length) s->table_index = 0;
+          //AUBIO_WRN("sampler: second push, pushed %d, now %d available\n",
+          //    source_read, aubio_timestretch_get_available(s->ts));
+        }
+        uint_t partialread;
+        aubio_timestretch_do(s->ts, &tmpout, &partialread);
+        AUBIO_WRN("sampler: partial read %d + %d\n", *read, partialread);
+        *read += partialread;
+        //s->eof = 1;
+      }
+    }
+#endif
+
+#endif
   }
 }
 
@@ -627,8 +761,28 @@ aubio_sampler_pull_from_source(aubio_sampler_t *s)
     AUBIO_ERR("sampler: trying to fetch on NULL source\n");
     return -1;
   }
+#if 1
   aubio_source_do(s->source, s->source_output, &source_read);
   return source_read;
+#else
+  uint_t source_read_tmp;
+  while (aubio_timestretch_get_available(s->ts) < (sint_t)s->blocksize
+      && s->last_read == 0) {
+    aubio_source_do(s->source, s->source_output_tmp, &source_read_tmp);
+    aubio_timestretch_push(s->ts, s->source_output_tmp, source_read_tmp);
+    if (source_read_tmp < s->source_output_tmp->length) s->last_read = source_read;
+  }
+  aubio_timestretch_do(s->ts, s->source_output, &source_read);
+  if (s->last_read > s->blocksize) {
+    s->last_read -= s->blocksize;
+  }
+  if (source_read < s->source_blocksize) {
+    s->last_read = 0;
+    //AUBIO_ERR("sampler: calling timestretch reset %d %d\n", source_read, s->source_blocksize);
+    aubio_timestretch_reset(s->ts);
+  }
+  return source_read;
+#endif
 }
 
 
@@ -687,6 +841,7 @@ aubio_sampler_seek(aubio_sampler_t * o, uint_t pos)
     o->table_index = pos < o->table->length ? pos : o->table->length - 1;
     ret = AUBIO_OK;
   }
+  o->last_read = 0;
   return ret;
 }
 
@@ -785,6 +940,32 @@ uint_t aubio_sampler_get_perfectloop (aubio_sampler_t *s) {
   return s->perfectloop;
 }
 
+
+uint_t aubio_sampler_set_stretch(aubio_sampler_t *s, smpl_t stretch)
+{
+  if (!s->ts) return AUBIO_FAIL;
+  return aubio_timestretch_set_stretch(s->ts, stretch);
+}
+
+smpl_t aubio_sampler_get_stretch(aubio_sampler_t *s)
+{
+  if (!s->ts) return 1.;
+  return aubio_timestretch_get_stretch(s->ts);
+}
+
+uint_t aubio_sampler_set_transpose(aubio_sampler_t *s, smpl_t transpose)
+{
+  if (!s->ts) return AUBIO_FAIL;
+  return aubio_timestretch_set_transpose(s->ts, transpose);
+}
+
+smpl_t aubio_sampler_get_transpose(aubio_sampler_t *s)
+{
+  if (!s->ts) return 0.;
+  return aubio_timestretch_get_transpose(s->ts);
+}
+
+
 void del_aubio_sampler( aubio_sampler_t * o )
 {
 #ifdef HAVE_THREADS
@@ -802,6 +983,9 @@ void del_aubio_sampler( aubio_sampler_t * o )
   }
   if (o->ring) {
     del_aubio_ringbuffer(o->ring);
+  }
+  if (o->ts) {
+    del_aubio_timestretch(o->ts);
   }
   if (o->source) {
     del_aubio_source(o->source);
