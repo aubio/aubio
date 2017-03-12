@@ -110,7 +110,7 @@ void aubio_sampler_do ( aubio_sampler_t * o, fvec_t * output, uint_t *read);
   \param o sampler, created by new_aubio_sampler()
   \param output output of the sampler
 
-  This function is indentical to aubio_sampler_do(), but for a multi-channel source.
+  This function is identical to aubio_sampler_do(), but for a multi-channel source.
 
 */
 void aubio_sampler_do_multi ( aubio_sampler_t * o, fmat_t * output, uint_t *read);
