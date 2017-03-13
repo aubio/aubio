@@ -74,7 +74,7 @@ def get_git_revision_hash( short=True):
 
         return None
     if not which('git'):
-        print 'no git found on this system : can\'t get sha'
+        print ('Version : no git found on this system : can\'t get sha')
         return ""
 
     import subprocess
