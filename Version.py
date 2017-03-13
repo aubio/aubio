@@ -1,42 +1,9 @@
 
 import os
+
+
 for l in open('VERSION').readlines(): exec (l.strip())
 
-# def get_git_revision_hash( short=True):
-#     import os
-#     def which(program):
-#         def is_exe(fpath):
-#             return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
-
-#         fpath, fname = os.path.split(program)
-#         if fpath:
-#             if is_exe(program):
-#                 return program
-#         else:
-#             for path in os.environ["PATH"].split(os.pathsep):
-#                 path = path.strip('"')
-#                 exe_file = os.path.join(path, program)
-#                 if is_exe(exe_file):
-#                     return exe_file
-#         return None
-
-#     if not which('git') :
-#         # print('no git found on this system : can\'t get sha')
-#         return ""
-#     if not os.path.isdir('.git'):
-#         # print('Version : not in git repository : can\'t get sha')
-#         return ""
-
-#     import subprocess
-#     aubio_dir = os.path.abspath(os.curdir)
-#     if not os.path.exists(aubio_dir):
-#         raise SystemError("git / root folder not found")
-#     gitcmd = ['git','-C',aubio_dir ,'rev-parse']
-#     if short:
-#       gitcmd.append('--short')
-#     gitcmd.append('HEAD')
-#     outCmd = subprocess.check_output(gitcmd).strip().decode('utf8')
-#     return outCmd
 
 
 def get_aubio_version():
@@ -84,7 +51,7 @@ def get_aubio_pyversion():
     verstr = get_aubio_version()
     spl = verstr.split('~')
     if len(spl)==2:
-        verstr = spl[0] + '+a1.'+spl[1]
+        verstr = spl[0] + '+a0.'+spl[1]
 
     # TODO: add rc, .dev, and .post suffixes, add numbering
     return verstr
@@ -92,30 +59,10 @@ def get_aubio_pyversion():
 
 
 def get_git_revision_hash( short=True):
-    def which(program):
-    
-        def is_exe(fpath):
-            return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
-        fpath, fname = os.path.split(program)
-        if fpath:
-            if is_exe(program):
-                return program
-        else:
-            for path in os.environ["PATH"].split(os.pathsep):
-                path = path.strip('"')
-                exe_file = os.path.join(path, program)
-                if is_exe(exe_file):
-                    return exe_file
-
-        return None
-
-    if not which('git') :
-        # print('no git found on this system : can\'t get sha')
-        return ""
     if not os.path.isdir('.git'):
         # print('Version : not in git repository : can\'t get sha')
-        return ""
+        return None
 
     import subprocess
     aubio_dir = os.path.dirname(os.path.abspath(__file__))
@@ -125,7 +72,11 @@ def get_git_revision_hash( short=True):
     if short:
       gitcmd.append('--short')
     gitcmd.append('HEAD')
-    outCmd = subprocess.check_output(gitcmd).strip().decode('utf8')
+    try:
+      outCmd = subprocess.check_output(gitcmd).strip().decode('utf8')
+    except Exception as e:
+      print ('git command error :%s'%e)
+      return None
     return outCmd
 
 
