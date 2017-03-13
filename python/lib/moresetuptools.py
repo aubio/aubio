@@ -4,7 +4,7 @@ import sys, os, glob, subprocess
 import distutils, distutils.command.clean, distutils.dir_util
 from .gen_external import generate_external, header, output_path
 
-from Version import get_aubio_version
+from this_version import get_aubio_version
 
 # inspired from https://gist.github.com/abergmeier/9488990
 def add_packages(packages, ext=None, **kw):
