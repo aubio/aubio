@@ -14,13 +14,7 @@ import sys
 
 APPNAME = 'aubio'
 
-# source VERSION
-
-
-from Version import *
-
-
-
+from this_version import *
 
 VERSION = get_aubio_version()
 LIB_VERSION = get_libaubio_version()
