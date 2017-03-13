@@ -20,16 +20,10 @@ APPNAME = 'aubio'
 from Version import *
 
 
-VERSION = '.'.join ([str(x) for x in [
-    AUBIO_MAJOR_VERSION,
-    AUBIO_MINOR_VERSION,
-    AUBIO_PATCH_VERSION
-    ]]) + AUBIO_VERSION_STATUS
 
-LIB_VERSION = '.'.join ([str(x) for x in [
-    LIBAUBIO_LT_CUR,
-    LIBAUBIO_LT_REV,
-    LIBAUBIO_LT_AGE]])
+
+VERSION = get_aubio_version()
+LIB_VERSION = get_libaubio_version()
 
 top = '.'
 out = 'build'
@@ -134,11 +128,12 @@ def configure(ctx):
         target_platform = ctx.options.target_platform
     ctx.env['DEST_OS'] = target_platform
 
+    version_dict = get_version_info();
     ctx.define('AUBIO_VERSION',VERSION)
-    ctx.define('AUBIO_MAJOR_VERSION',AUBIO_MAJOR_VERSION)
-    ctx.define('AUBIO_MINOR_VERSION',AUBIO_MINOR_VERSION)
-    ctx.define('AUBIO_PATCH_VERSION',AUBIO_PATCH_VERSION)
-    ctx.define('AUBIO_VERSION_STATUS',AUBIO_VERSION_STATUS)
+    ctx.define('AUBIO_MAJOR_VERSION', version_dict['AUBIO_MAJOR_VERSION'])
+    ctx.define('AUBIO_MINOR_VERSION', version_dict['AUBIO_MINOR_VERSION'])
+    ctx.define('AUBIO_PATCH_VERSION', version_dict['AUBIO_PATCH_VERSION'])
+    ctx.define('AUBIO_VERSION_STATUS', version_dict['AUBIO_VERSION_STATUS'])
     
     if ctx.options.build_type == "debug":
         ctx.define('DEBUG', 1)

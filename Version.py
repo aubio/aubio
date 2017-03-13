@@ -2,59 +2,85 @@
 import os
 
 
-for l in open('VERSION').readlines(): exec (l.strip())
+__version_info = {}
 
-
-
-def get_aubio_version():
+def get_version_info():
     # read from VERSION
-    this_file_dir = os.path.dirname(os.path.abspath(__file__))
-    version_file = os.path.join(this_file_dir,  'VERSION')
+    # return dictionary filled with content of version
 
-    if not os.path.isfile(version_file):
-        raise SystemError("VERSION file not found.")
+    global __version_info
+    if not __version_info:
+      this_file_dir = os.path.dirname(os.path.abspath(__file__))
+      version_file = os.path.join(this_file_dir,  'VERSION')
 
-    for l in open(version_file).readlines():
+      if not os.path.isfile(version_file):
+          raise SystemError("VERSION file not found.")
+
+
+      for l in open(version_file).readlines():
         #exec (l.strip())
         if l.startswith('AUBIO_MAJOR_VERSION'):
-            AUBIO_MAJOR_VERSION = int(l.split('=')[1])
+            __version_info['AUBIO_MAJOR_VERSION'] = int(l.split('=')[1])
         if l.startswith('AUBIO_MINOR_VERSION'):
-            AUBIO_MINOR_VERSION = int(l.split('=')[1])
+            __version_info['AUBIO_MINOR_VERSION'] = int(l.split('=')[1])
         if l.startswith('AUBIO_PATCH_VERSION'):
-            AUBIO_PATCH_VERSION = int(l.split('=')[1])
+            __version_info['AUBIO_PATCH_VERSION'] = int(l.split('=')[1])
         if l.startswith('AUBIO_VERSION_STATUS'):
-            AUBIO_VERSION_STATUS = l.split('=')[1].strip()[1:-1]
+            __version_info['AUBIO_VERSION_STATUS'] = l.split('=')[1].strip()[1:-1]
 
-    if AUBIO_MAJOR_VERSION is None or AUBIO_MINOR_VERSION is None \
-            or AUBIO_PATCH_VERSION is None:
-        raise SystemError("Failed parsing VERSION file.")
+        if l.startswith('LIBAUBIO_LT_CUR'):
+          __version_info['LIBAUBIO_LT_CUR'] = int(l.split('=')[1])
+        if l.startswith('LIBAUBIO_LT_REV'):
+          __version_info['LIBAUBIO_LT_REV'] = int(l.split('=')[1])
+        if l.startswith('LIBAUBIO_LT_AGE'):
+          __version_info['LIBAUBIO_LT_AGE'] = int(l.split('=')[1])
 
-    verstr = '.'.join(map(str, [AUBIO_MAJOR_VERSION,
-                                     AUBIO_MINOR_VERSION,
-                                     AUBIO_PATCH_VERSION]))
+      if len(__version_info) <6:
+          raise SystemError("Failed parsing VERSION file.")
 
-    
-    # append sha to version in alpha release
-    # MAJ.MIN.PATCH.{~git<sha> , ''}
-    if '~alpha' in AUBIO_VERSION_STATUS :
-        AUBIO_GIT_SHA = get_git_revision_hash()
-        if AUBIO_GIT_SHA:
-            AUBIO_VERSION_STATUS = '~git'+AUBIO_GIT_SHA
 
-    if AUBIO_VERSION_STATUS is not None :
-        verstr += AUBIO_VERSION_STATUS
+      # switch version status with commit sha in alpha releases
+      if __version_info['AUBIO_VERSION_STATUS'] and \
+      '~alpha' in __version_info['AUBIO_VERSION_STATUS'] :
+          AUBIO_GIT_SHA = get_git_revision_hash()
+          if AUBIO_GIT_SHA:
+            __version_info['AUBIO_VERSION_STATUS'] = '~git'+AUBIO_GIT_SHA
+
+    return __version_info
+
+
+def get_aubio_version_tuple():
+    d = get_version_info()
+    return (d['AUBIO_MAJOR_VERSION'],d['AUBIO_MINOR_VERSION'],d['AUBIO_PATCH_VERSION'])
+
+def get_libaubio_version_tuple():
+    d = get_version_info()
+    return (d['LIBAUBIO_LT_CUR'],d['LIBAUBIO_LT_REV'],d['LIBAUBIO_LT_AGE'])
+
+def get_libaubio_version():
+    return '%s.%s.%s'%get_libaubio_version_tuple()
+
+def get_aubio_version(add_status = True):
+    # return string formatted as MAJ.MIN.PATCH.{~git<sha> , ''}
+    vdict = get_version_info()
+    verstr = '%s.%s.%s'%get_aubio_version_tuple()
+    if add_status and vdict['AUBIO_VERSION_STATUS']:
+        verstr += "."+vdict['AUBIO_VERSION_STATUS']
     return verstr
 
-def get_aubio_pyversion():
+def get_aubio_pyversion(add_status = True):
     # convert to version for python according to pep 440
     # see https://www.python.org/dev/peps/pep-0440/
     # outputs MAJ.MIN.PATCH+a0{.git<sha> , ''}
-    verstr = get_aubio_version()
-    spl = verstr.split('~')
-    if len(spl)==2:
-        verstr = spl[0] + '+a0.'+spl[1]
-
-    # TODO: add rc, .dev, and .post suffixes, add numbering
+    vdict = get_version_info()
+    verstr = '%s.%s.%s'%get_aubio_version_tuple()
+    if add_status and vdict['AUBIO_VERSION_STATUS'] :
+      if '~git' in vdict['AUBIO_VERSION_STATUS']:
+        verstr += "+a0."+vdict['AUBIO_VERSION_STATUS'][1:]
+      elif '~alpha':
+        verstr += "+a0"
+      else:
+        raise SystemError("Aubio version statut not supported : %s"%vdict['AUBIO_VERSION_STATUS'])
     return verstr
 
 
@@ -81,9 +107,3 @@ def get_git_revision_hash( short=True):
     return outCmd
 
 
-
-# append sha to version in alpha release
-if AUBIO_VERSION_STATUS and '~alpha' in AUBIO_VERSION_STATUS :
-    AUBIO_GIT_SHA = get_git_revision_hash()
-    if AUBIO_GIT_SHA:
-        AUBIO_VERSION_STATUS = '~git'+AUBIO_GIT_SHA
