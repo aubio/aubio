@@ -1,10 +1,10 @@
 aubio library
 =============
-[![Build Status](https://travis-ci.org/aubio/aubio.svg?branch=master)](https://travis-ci.org/aubio/aubio)
-[![Build status](https://ci.appveyor.com/api/projects/status/f3lhy3a57rkgn5yi?svg=true)](https://ci.appveyor.com/project/aubio/aubio/branch/master)
-[![Code Health](https://landscape.io/github/aubio/aubio/master/landscape.svg?style=flat)](https://landscape.io/github/aubio/aubio/master)
-[![Documentation Status](https://readthedocs.org/projects/aubio/badge/?version=latest)](http://aubio.readthedocs.io/en/latest/?badge=latest)
-[![Commits since last release](https://img.shields.io/github/commits-since/aubio/aubio/0.4.4.svg?maxAge=2592000)](https://github.com/aubio/aubio)
+[![Travis build status](https://travis-ci.org/aubio/aubio.svg?branch=master)](https://travis-ci.org/aubio/aubio "Travis build status")
+[![Appveyor build status](https://ci.appveyor.com/api/projects/status/f3lhy3a57rkgn5yi?svg=true)](https://ci.appveyor.com/project/aubio/aubio/branch/master "Appveyor build status")
+[![Landscape code health](https://landscape.io/github/aubio/aubio/master/landscape.svg?style=flat)](https://landscape.io/github/aubio/aubio/master "Landscape code health")
+[![Documentation Status](https://readthedocs.org/projects/aubio/badge/?version=latest)](http://aubio.readthedocs.io/en/latest/?badge=latest "Documentation status")
+[![Commits since last release](https://img.shields.io/github/commits-since/aubio/aubio/0.4.4.svg?maxAge=2592000)](https://github.com/aubio/aubio "Commits since last release")
 
 aubio is a library to label music and sounds. It listens to audio signals and
 attempts to detect events. For instance, when a drum is hit, at which frequency
