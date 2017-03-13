@@ -1,3 +1,16 @@
+
+##Build status
+
+Linux, OSX, iOS and Android     [![Build Status](https://travis-ci.org/aubio/aubio.svg?branch=master)](https://travis-ci.org/aubio/aubio)
+
+Visual studio [![Build status](https://ci.appveyor.com/api/projects/status/f3lhy3a57rkgn5yi?svg=true)](https://ci.appveyor.com/project/aubio/aubio/branch/master)
+
+Code health [![Code Health](https://landscape.io/github/aubio/aubio/master/landscape.svg?style=flat)](https://landscape.io/github/aubio/aubio/master)
+
+Read the docs [![Documentation Status](https://readthedocs.org/projects/aubio/badge/?version=latest)](http://aubio.readthedocs.io/en/latest/?badge=latest)
+
+Comits since stable[![Documentation Status](https://img.shields.io/github/commits-since/aubio/aubio/0.4.4.svg?maxAge=2592000)]()
+
 aubio library
 =============
 
