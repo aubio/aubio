@@ -15,48 +15,9 @@ import sys
 APPNAME = 'aubio'
 
 # source VERSION
-for l in open('VERSION').readlines(): exec (l.strip())
-
-def get_git_revision_hash( short=True):
-    import os
-    def which(program):
-        def is_exe(fpath):
-            return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
-
-        fpath, fname = os.path.split(program)
-        if fpath:
-            if is_exe(program):
-                return program
-        else:
-            for path in os.environ["PATH"].split(os.pathsep):
-                path = path.strip('"')
-                exe_file = os.path.join(path, program)
-                if is_exe(exe_file):
-                    return exe_file
-        return None
-
-    if not which('git'):
-        print('no git found on this system : can\'t get sha')
-        return ""
-
-    import subprocess
-    aubio_dir = os.path.abspath(os.curdir)
-    if not os.path.exists(aubio_dir):
-        raise SystemError("git / root folder not found")
-    gitcmd = ['git','-C',aubio_dir ,'rev-parse']
-    if short:
-      gitcmd.append('--short')
-    gitcmd.append('HEAD')
-    return str(subprocess.check_output(gitcmd).strip())
 
 
-# append sha to version in alpha release
-if AUBIO_VERSION_STATUS and '~alpha' in AUBIO_VERSION_STATUS :
-    AUBIO_GIT_SHA = get_git_revision_hash()
-    if AUBIO_GIT_SHA:
-        AUBIO_VERSION_STATUS = '~git'+AUBIO_GIT_SHA
-
-
+from Version import *
 
 
 VERSION = '.'.join ([str(x) for x in [
@@ -178,7 +139,7 @@ def configure(ctx):
     ctx.define('AUBIO_MINOR_VERSION',AUBIO_MINOR_VERSION)
     ctx.define('AUBIO_PATCH_VERSION',AUBIO_PATCH_VERSION)
     ctx.define('AUBIO_VERSION_STATUS',AUBIO_VERSION_STATUS)
-    # ctx.define('AUBIO_GIT_SHA',AUBIO_GIT_SHA)
+    
     if ctx.options.build_type == "debug":
         ctx.define('DEBUG', 1)
     else:
