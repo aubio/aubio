@@ -32,8 +32,8 @@ def get_aubio_version():
                                      AUBIO_PATCH_VERSION]))
 
     AUBIO_GIT_SHA = get_git_revision_hash()
-    """ append sha to version in alpha release
-    """
+    # append sha to version in alpha release
+    # MAJ.MIN.PATCH.{~git<sha> , ''}
     if '~alpha' in AUBIO_VERSION_STATUS :
         if AUBIO_GIT_SHA:
             AUBIO_VERSION_STATUS = '~git'+AUBIO_GIT_SHA
