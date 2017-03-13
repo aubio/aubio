@@ -46,5 +46,5 @@ for target in build_features:
 
 # install headers, except _priv.h ones
 ctx.install_files('${INCLUDEDIR}/aubio/',
-        ctx.path.ant_glob('**/*.h', excl = ['**_priv.h', 'config.h']),
+        ctx.path.ant_glob('**/*.h', excl = ['**_priv.h']),
         relative_trick=True)
