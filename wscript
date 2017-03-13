@@ -33,9 +33,8 @@ def get_git_revision_hash( short=True):
                 exe_file = os.path.join(path, program)
                 if is_exe(exe_file):
                     return exe_file
-
         return None
-        
+
     if not which('git'):
         print('no git found on this system : can\'t get sha')
         return ""
@@ -48,12 +47,12 @@ def get_git_revision_hash( short=True):
     if short:
       gitcmd.append('--short')
     gitcmd.append('HEAD')
-    return subprocess.check_output(gitcmd).strip()
+    return str(subprocess.check_output(gitcmd).strip())
 
-AUBIO_GIT_SHA = get_git_revision_hash()
-""" append sha to version in alpha release
-"""
-if '~alpha' in AUBIO_VERSION_STATUS :
+
+# append sha to version in alpha release
+if AUBIO_VERSION_STATUS and '~alpha' in AUBIO_VERSION_STATUS :
+    AUBIO_GIT_SHA = get_git_revision_hash()
     if AUBIO_GIT_SHA:
         AUBIO_VERSION_STATUS = '~git'+AUBIO_GIT_SHA
 
@@ -179,7 +178,7 @@ def configure(ctx):
     ctx.define('AUBIO_MINOR_VERSION',AUBIO_MINOR_VERSION)
     ctx.define('AUBIO_PATCH_VERSION',AUBIO_PATCH_VERSION)
     ctx.define('AUBIO_VERSION_STATUS',AUBIO_VERSION_STATUS)
-    ctx.define('AUBIO_GIT_SHA',AUBIO_GIT_SHA)
+    # ctx.define('AUBIO_GIT_SHA',AUBIO_GIT_SHA)
     if ctx.options.build_type == "debug":
         ctx.define('DEBUG', 1)
     else:
