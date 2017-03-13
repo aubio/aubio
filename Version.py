@@ -48,6 +48,7 @@ def get_aubio_version():
 def get_aubio_pyversion():
     # convert to version for python according to pep 440
     # see https://www.python.org/dev/peps/pep-0440/
+    # outputs MAJ.MIN.PATCH+a0{.git<sha> , ''}
     verstr = get_aubio_version()
     spl = verstr.split('~')
     if len(spl)==2:
