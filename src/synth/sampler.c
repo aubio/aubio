@@ -28,14 +28,12 @@
 #include "effects/timestretch.h"
 #include "synth/sampler.h"
 
+#ifdef HAVE_PTHREAD_H
 #define HAVE_THREADS 1
-#define READER_THREAD_ON 1
-#if 0
-#undef HAVE_THREADS
-#endif
-
-#ifdef HAVE_THREADS
 #include <pthread.h>
+#else
+// FIXME add support for threading on windows
+#warning "compiling sampler without threading"
 #endif
 
 typedef enum {
