@@ -32,8 +32,11 @@
 #define HAVE_THREADS 1
 #include <pthread.h>
 #else
-// FIXME add support for threading on windows
+#ifdef _MSC_VER
+#pragma message "compiling sampler without threading"
+#else
 #warning "compiling sampler without threading"
+#endif
 #endif
 
 typedef enum {
