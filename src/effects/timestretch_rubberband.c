@@ -18,17 +18,16 @@
 
 */
 
-#include "config.h"
+#include "aubio_priv.h"
 
 #ifdef HAVE_RUBBERBAND
 
-#include "aubio_priv.h"
 #include "fvec.h"
 #include "fmat.h"
 #include "io/source.h"
 #include "effects/timestretch.h"
 
-#include "rubberband/rubberband-c.h"
+#include <rubberband/rubberband-c.h>
 
 #define MIN_STRETCH_RATIO 0.025
 #define MAX_STRETCH_RATIO 40.
