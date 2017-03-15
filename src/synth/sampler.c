@@ -68,7 +68,7 @@ struct _aubio_sampler_t {
   uint_t table_index;
   // reading from a source
   aubio_source_t *source;
-  const char_t *uri;
+  char_t *uri;
   uint_t playing;
   uint_t opened;
   uint_t loop;
@@ -93,7 +93,7 @@ struct _aubio_sampler_t {
   pthread_t open_thread;
   pthread_mutex_t open_mutex;
   uint_t waited;                // number of frames skipped while opening
-  const char_t *next_uri;
+  char_t *next_uri;
   uint_t open_thread_running;
   sint_t available;             // number of samples currently available
   uint_t started;               // source warmed up
@@ -262,7 +262,9 @@ uint_t aubio_sampler_load( aubio_sampler_t * o, const char_t * uri )
     if (o->samplerate == 0) {
       o->samplerate = aubio_source_get_samplerate(o->source);
     }
-    o->uri = uri;
+    if (o->uri) AUBIO_FREE(o->uri);
+    o->uri = AUBIO_ARRAY(char_t, strnlen(uri, PATH_MAX) + 1);
+    strncpy(o->uri, uri, strnlen(uri, PATH_MAX) + 1);
     o->finished = 0;
     o->eof = 0;
     o->eof_remaining = 0;
@@ -343,7 +345,9 @@ aubio_sampler_queue(aubio_sampler_t *o, const char_t *uri)
   o->opened = 0; // while opening
   o->started = 0;
   o->available = 0;
-  o->next_uri = uri;
+  if (o->next_uri) AUBIO_FREE(o->next_uri);
+  o->next_uri = AUBIO_ARRAY(char_t, strnlen(uri, PATH_MAX) + 1);
+  strncpy(o->next_uri, uri, strnlen(uri, PATH_MAX) + 1);
   o->waited = 0;
   if (pthread_create(&o->open_thread, 0, aubio_sampler_openfn, o) != 0) {
     AUBIO_ERR("sampler: failed creating opening thread\n");
