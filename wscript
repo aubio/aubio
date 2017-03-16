@@ -409,7 +409,6 @@ def txt2man(bld):
         from waflib import TaskGen
         if 'MANDIR' not in bld.env:
             bld.env['MANDIR'] = bld.env['DATAROOTDIR'] + '/man'
-        bld.env.VERSION = VERSION
         rule_str = '${TXT2MAN} -t `basename ${TGT} | cut -f 1 -d . | tr a-z A-Z`'
         rule_str += ' -r ${PACKAGE}\\ ${VERSION} -P ${PACKAGE}'
         rule_str += ' -v ${PACKAGE}\\ User\\\'s\\ manual'
@@ -440,7 +439,6 @@ def sphinx(bld):
     # build documentation from source files using sphinx-build
     # note: build in ../doc/_build/html, otherwise waf wont install unsigned files
     if bld.env['SPHINX']:
-        bld.env.VERSION = VERSION
         bld( name = 'sphinx',
                 rule = '${SPHINX} -b html -D release=${VERSION} -D version=${VERSION} -a -q `dirname ${SRC}` `dirname ${TGT}`',
                 source = 'doc/conf.py',
