@@ -324,15 +324,30 @@ def configure(ctx):
         ctx.check_cfg(package = 'libavutil', atleast_version = '52.3.0',
                 args = '--cflags --libs', uselib_store = 'AVUTIL',
                 mandatory = ctx.options.enable_avcodec)
-        ctx.check_cfg(package = 'libavresample', atleast_version = '1.0.1',
-                args = '--cflags --libs', uselib_store = 'AVRESAMPLE',
-                mandatory = ctx.options.enable_avcodec)
-        if all ( 'HAVE_' + i in ctx.env
-                for i in ['AVCODEC', 'AVFORMAT', 'AVUTIL', 'AVRESAMPLE'] ):
-            ctx.define('HAVE_LIBAV', 1)
-            ctx.msg('Checking for all libav libraries', 'yes')
+        ctx.check_cfg(package = 'libswresample', atleast_version = '2.3.0',
+                args = '--cflags --libs', uselib_store = 'SWRESAMPLE',
+                mandatory = False)
+        if 'HAVE_SWRESAMPLE' not in ctx.env:
+            ctx.check_cfg(package = 'libavresample', atleast_version = '1.0.1',
+                    args = '--cflags --libs', uselib_store = 'AVRESAMPLE',
+                    mandatory = False)
+
+        msg_check = 'Checking for all libav libraries'
+        if 'HAVE_AVCODEC' not in ctx.env:
+            ctx.msg(msg_check, 'not found (missing avcodec)', color = 'YELLOW')
+        elif 'HAVE_AVFORMAT' not in ctx.env:
+            ctx.msg(msg_check, 'not found (missing avformat)', color = 'YELLOW')
+        elif 'HAVE_AVUTIL' not in ctx.env:
+            ctx.msg(msg_check, 'not found (missing avutil)', color = 'YELLOW')
+        elif 'HAVE_SWRESAMPLE' not in ctx.env and 'HAVE_AVRESAMPLE' not in ctx.env:
+            ctx.msg(msg_check, 'not found (avresample or swresample required)', color = 'YELLOW')
         else:
-            ctx.msg('Checking for all libav libraries', 'not found', color = 'YELLOW')
+            ctx.msg(msg_check, 'yes')
+            if 'HAVE_SWRESAMPLE' in ctx.env:
+                ctx.define('HAVE_SWRESAMPLE', 1)
+            elif 'HAVE_AVRESAMPLE' in ctx.env:
+                ctx.define('HAVE_AVRESAMPLE', 1)
+            ctx.define('HAVE_LIBAV', 1)
 
     if (ctx.options.enable_wavread != False):
         ctx.define('HAVE_WAVREAD', 1)
