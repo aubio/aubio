@@ -10,7 +10,6 @@
 # $ make test_python
 
 WAFCMD=python waf
-WAFURL=https://waf.io/waf-1.9.6
 
 #WAFOPTS:=
 # turn on verbose mode
