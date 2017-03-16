@@ -1,0 +1,9 @@
+dependencies:
+  pre:
+    - sudo apt-get update; sudo apt-get install make sox pkg-config libavcodec-dev libavformat-dev libavresample-dev libavutil-dev libsndfile1-dev libsamplerate-dev
+
+test:
+  pre:
+    - make create_test_sounds
+  override:
+    - nose2 -v
