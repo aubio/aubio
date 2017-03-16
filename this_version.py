@@ -66,11 +66,11 @@ def get_libaubio_version():
 
 
 def get_aubio_version(add_status=True):
-    # return string formatted as MAJ.MIN.PATCH.{~git<sha> , ''}
+    # return string formatted as MAJ.MIN.PATCH{~git<sha> , ''}
     vdict = get_version_info()
     verstr = '%s.%s.%s' % get_aubio_version_tuple()
     if add_status and vdict['AUBIO_VERSION_STATUS']:
-        verstr += "." + vdict['AUBIO_VERSION_STATUS']
+        verstr += vdict['AUBIO_VERSION_STATUS']
     return verstr
 
 
@@ -83,7 +83,7 @@ def get_aubio_pyversion(add_status=True):
     if add_status and vdict['AUBIO_VERSION_STATUS']:
         if '~git' in vdict['AUBIO_VERSION_STATUS']:
             verstr += "+a0." + vdict['AUBIO_VERSION_STATUS'][1:]
-        elif '~alpha':
+        elif '~alpha' in vdict['AUBIO_VERSION_STATUS']:
             verstr += "+a0"
         else:
             raise SystemError("Aubio version statut not supported : %s" %
