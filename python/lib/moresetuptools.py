@@ -113,8 +113,6 @@ def add_external_deps(ext, usedouble = False):
     # loof for additional packages
     print("Info: looking for *optional* additional packages")
     packages = ['libavcodec', 'libavformat', 'libavutil', 'libavresample',
-                'jack',
-                'jack',
                 'sndfile',
                 #'fftw3f',
                ]
@@ -129,8 +127,6 @@ def add_external_deps(ext, usedouble = False):
             and 'avutil' in ext.libraries \
             and 'avresample' in ext.libraries:
         ext.define_macros += [('HAVE_LIBAV', 1)]
-    if 'jack' in ext.libraries:
-        ext.define_macros += [('HAVE_JACK', 1)]
     if 'sndfile' in ext.libraries:
         ext.define_macros += [('HAVE_SNDFILE', 1)]
     if 'samplerate' in ext.libraries:
