@@ -33,7 +33,7 @@
 #include <pthread.h>
 #else
 #ifdef _MSC_VER
-#pragma message "compiling sampler without threading"
+#pragma message ("WARNING: compiling sampler without threading")
 #else
 #warning "compiling sampler without threading"
 #endif
@@ -544,9 +544,9 @@ aubio_sampler_reading_from_source_ring(aubio_sampler_t *s, fvec_t *output,
     aubio_timestretch_reset(s->ts);
     aubio_sampler_do_eof(s);
     if (s->loop && s->perfectloop) {
+      uint_t partialread;
       fvec_t tmpout; tmpout.data = output->data + *read;
       tmpout.length = output->length - *read;
-      uint_t partialread;
       while (aubio_timestretch_get_available(s->ts) < (sint_t)tmpout.length
           && s->eof_remaining == 0) {
         aubio_source_do(s->source, s->source_output, &source_read);
