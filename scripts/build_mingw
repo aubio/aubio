@@ -72,7 +72,8 @@ function get_cflags() {
 function build_mingw() {
   DESTDIR="$PWD/aubio-$VERSION-$TARGET"
   [ -n "$WITH_FFMEG" ] && DESTDIR+="-ffmpeg"
-  [ -d $DESTDIR ] && rm -rf $DESTDIR $DESTDIR.zip
+  [ -f $DESTDIR.zip ] && echo "Remove existing $DESTDIR.zip first" && exit 1
+  [ -d $DESTDIR ] && rm -rf $DESTDIR
   WAFOPTS_TGT="$WAFOPTS --destdir=$DESTDIR"
   WAFOPTS_TGT+=" --with-target-platform=$TARGET"
   get_cflags
@@ -106,3 +107,9 @@ build_mingw64
 WITH_FFMEG=1
 build_mingw32
 build_mingw64
+
+set +x
+echo ""
+echo "All done! The following files were generated:"
+echo ""
+ls -lart aubio*.zip*
