@@ -87,7 +87,7 @@ RubberBandOptions aubio_get_rubberband_opts(const char_t *mode)
   } else {
     // attempt to parse a list of options, separated with ','
     char *modecopy = strndup(mode, PATH_MAX);
-    char **params = aubio_split_str(modecopy, ',');
+    char **params = aubio_split_str(modecopy, ':');
     uint_t i;
     if (!params) {
       return -1;
