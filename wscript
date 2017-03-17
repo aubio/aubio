@@ -340,7 +340,8 @@ def configure(ctx):
         elif 'HAVE_AVUTIL' not in ctx.env:
             ctx.msg(msg_check, 'not found (missing avutil)', color = 'YELLOW')
         elif 'HAVE_SWRESAMPLE' not in ctx.env and 'HAVE_AVRESAMPLE' not in ctx.env:
-            ctx.msg(msg_check, 'not found (avresample or swresample required)', color = 'YELLOW')
+            resample_missing = 'not found (avresample or swresample required)'
+            ctx.msg(msg_check, resample_missing, color = 'YELLOW')
         else:
             ctx.msg(msg_check, 'yes')
             if 'HAVE_SWRESAMPLE' in ctx.env:
