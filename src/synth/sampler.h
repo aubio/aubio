@@ -32,8 +32,8 @@
 
 TODO:
   - add _preset_threaded(level)
-  - add _set_stretch
-  - add _set_pitch
+  - rename _set_loop/_get_loop to _set_looping/_get_looping
+  - add option to pass a callback to signal eof
 
   \example synth/test-sampler.c
 
@@ -154,7 +154,7 @@ uint_t aubio_sampler_get_loop(aubio_sampler_t * o);
 */
 uint_t aubio_sampler_set_loop(aubio_sampler_t * o, uint_t loop);
 
-/** play sample from start
+/** play sample
 
   \param o sampler, created by new_aubio_sampler()
 
@@ -203,7 +203,7 @@ uint_t aubio_sampler_get_eof(aubio_sampler_t * o);
 
   \param o sampler, created by new_aubio_sampler()
 
-  \return 1 when the eof is being reached, 0 otherwise
+  \return 1 when end of file has been reached, 0 otherwise
 
 */
 uint_t aubio_sampler_get_finished (aubio_sampler_t * o);
