@@ -76,27 +76,28 @@ struct _aubio_sampler_t {
   uint_t eof;                   // end of file is now
   // time stretching
   aubio_timestretch_t *ts;
+  sint_t available;             // number of samples currently available
+  uint_t started;               // source warmed up
+  // source
+  uint_t source_blocksize;
+  uint_t channels;
+  fvec_t *source_output;
+  fmat_t *source_moutput;
+  //fvec_t *source_output_tmp;
+  //uint_t last_read;
+  uint_t threaded_read;         // use reading thread?
 #ifdef HAVE_THREADS
   // file reading thread
   pthread_t read_thread;
-  uint_t threaded_read;         // use reading thread?
   pthread_mutex_t read_mutex;
   pthread_cond_t read_avail;
   pthread_cond_t read_request;
-  uint_t source_blocksize;
-  fvec_t *source_output;
-  fvec_t *source_output_tmp;
-  uint_t last_read;
-  fmat_t *source_moutput;
-  uint_t channels;
   // file opening thread
   pthread_t open_thread;
   pthread_mutex_t open_mutex;
   uint_t waited;                // number of frames skipped while opening
   char_t *next_uri;
   uint_t open_thread_running;
-  sint_t available;             // number of samples currently available
-  uint_t started;               // source warmed up
   uint_t read_thread_finish;    // flag to tell reading thread to exit
 #endif
 };
@@ -136,7 +137,6 @@ aubio_sampler_t *new_aubio_sampler(uint_t blocksize, uint_t samplerate)
   s->opened = 0;
   s->available = 0;
 
-  s->threaded_read = 0;
   s->perfectloop = 0;
 #if 0 // naive mode
   s->source_blocksize = s->blocksize;
@@ -149,8 +149,16 @@ aubio_sampler_t *new_aubio_sampler(uint_t blocksize, uint_t samplerate)
 #elif 1 // threaded with ringhbuffer
   s->source_blocksize = 2048; //32 * s->blocksize;
   s->perfectloop = 1;
+#endif
+
+#ifdef HAVE_THREADS
+  // disabled for now
+  s->threaded_read = 0;
+#else
   s->threaded_read = 0;
 #endif
+
+  s->perfectloop = 1;
 
   if (s->source_blocksize < s->blocksize) {
     s->source_blocksize = s->blocksize;
@@ -185,8 +193,8 @@ aubio_sampler_t *new_aubio_sampler(uint_t blocksize, uint_t samplerate)
 #endif
 
   s->ts = new_aubio_timestretch("default", 1., s->blocksize, s->samplerate);
-  s->source_output_tmp = new_fvec(s->source_blocksize);
-  s->last_read = 0;
+  //s->source_output_tmp = new_fvec(s->source_blocksize);
+  //s->last_read = 0;
 
   return s;
 beach:
@@ -271,10 +279,12 @@ uint_t aubio_sampler_load( aubio_sampler_t * o, const char_t * uri )
     o->opened = 1;
     ret = AUBIO_OK;
     AUBIO_MSG("sampler: loaded %s\n", uri);
+#ifdef HAVE_THREADS
     if (o->waited) {
       AUBIO_WRN("sampler: %.2fms (%d samples) taken to load %s\n", 1000. *
           o->waited / (smpl_t)o->samplerate, o->waited, o->uri);
     }
+#endif
   } else {
     o->source = NULL;
     if (oldsource) del_aubio_source(oldsource);
@@ -818,8 +828,8 @@ aubio_sampler_get_eof (aubio_sampler_t *o)
 }
 
 uint_t
-aubio_sampler_get_waited_opening (aubio_sampler_t *o, uint_t waited) {
 #ifdef HAVE_THREADS
+aubio_sampler_get_waited_opening (aubio_sampler_t *o, uint_t waited) {
   if (o->playing) {
     if (!o->opened) {
       o->waited += waited;
@@ -831,6 +841,8 @@ aubio_sampler_get_waited_opening (aubio_sampler_t *o, uint_t waited) {
       return waited;
     }
   }
+#else
+aubio_sampler_get_waited_opening (aubio_sampler_t *o UNUSED, uint_t waited UNUSED) {
 #endif
   return 0;
 }
@@ -848,7 +860,7 @@ aubio_sampler_seek(aubio_sampler_t * o, uint_t pos)
     o->table_index = pos < o->table->length ? pos : o->table->length - 1;
     ret = AUBIO_OK;
   }
-  o->last_read = 0;
+  //o->last_read = 0;
   return ret;
 }
 
