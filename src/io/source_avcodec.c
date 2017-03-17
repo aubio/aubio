@@ -564,7 +564,11 @@ uint_t aubio_source_avcodec_close(aubio_source_avcodec_t * s) {
   }
   s->avr = NULL;
   if (s->avCodecCtx != NULL) {
+#ifndef HAVE_AUBIO_LIBAVCODEC_DEPRECATED
+    avcodec_free_context( &s->avCodecCtx );
+#else
     avcodec_close ( s->avCodecCtx );
+#endif
   }
   s->avCodecCtx = NULL;
   if (s->avFormatCtx != NULL) {
