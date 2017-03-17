@@ -44,8 +44,9 @@ uint_t aubio_ringbuffer_push(aubio_ringbuffer_t *o, fvec_t *input, uint_t write)
   } else
   if (o->write_pos + write <= o->buffer->length) {
     // write everything at once
-    fvec_t tmp; tmp.data = o->buffer->data + o->write_pos; tmp.length = write;
-    fvec_t tmpin; tmpin.data = input->data; tmpin.length = write;
+    fvec_t tmp, tmpin;
+    tmp.data = o->buffer->data + o->write_pos; tmp.length = write;
+    tmpin.data = input->data; tmpin.length = write;
     //assert(tmpin.length == tmp.length);
     fvec_copy(&tmpin, &tmp);
 
@@ -110,8 +111,9 @@ uint_t aubio_ringbuffer_pull(aubio_ringbuffer_t *o, fvec_t *output, uint_t reque
   } else
   if (o->read_pos + request <= o->buffer->length) {
     // read everything at once
-    fvec_t tmp; tmp.data = o->buffer->data + o->read_pos; tmp.length = request;
-    fvec_t tmpout; tmpout.data = output->data; tmpout.length = request;
+    fvec_t tmp, tmpout;
+    tmp.data = o->buffer->data + o->read_pos; tmp.length = request;
+    tmpout.data = output->data; tmpout.length = request;
     //assert(tmpout.length == tmp.length);
     fvec_copy(&tmp, &tmpout);
     //AUBIO_WRN("ringbuffer: pull1: changing read_pos from %d\n", o->read_pos);
