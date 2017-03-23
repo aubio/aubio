@@ -58,6 +58,15 @@ def aubio_parser():
     parser_add_buf_hop_size(subparser, buf_size=1024, hop_size=512)
     parser_add_time_format(subparser)
     parser_add_verbose_help(subparser)
+    subparser.set_defaults(process=process_beat)
+
+    # tempo subcommand
+    subparser = subparsers.add_parser('tempo',
+            help='get locations of beats')
+    parser_add_input(subparser)
+    parser_add_buf_hop_size(subparser, buf_size=1024, hop_size=512)
+    parser_add_time_format(subparser)
+    parser_add_verbose_help(subparser)
     subparser.set_defaults(process=process_tempo)
 
     # notes subcommand
@@ -237,18 +246,31 @@ class process_pitch(default_process):
         fmt_out = self.time2string(frames_read, samplerate)
         sys.stdout.write(fmt_out + "%.6f\n" % res[0])
 
-class process_tempo(default_process):
+class process_beat(default_process):
     valid_opts = ['method', 'hop_size', 'buf_size', 'samplerate']
     def __init__(self, args):
         self.options = parse_options(args, self.valid_opts)
         self.tempo = aubio.tempo(**self.options)
-        super(process_tempo, self).__init__(args)
+        super(process_beat, self).__init__(args)
     def __call__(self, block):
         return self.tempo(block)
     def repr_res(self, res, frames_read, samplerate):
         if res[0] != 0:
             outstr = self.time2string(self.tempo.get_last(), samplerate)
             sys.stdout.write(outstr + '\n')
+
+class process_tempo(process_beat):
+    def __init__(self, args):
+        super(process_tempo, self).__init__(args)
+        self.beat_locations = []
+    def repr_res(self, res, frames_read, samplerate):
+        if res[0] != 0:
+            self.beat_locations.append(self.tempo.get_last_s())
+    def flush(self, frames_read, samplerate):
+        import numpy as np
+        bpms = 60./ np.diff(self.beat_locations)
+        median_bpm = np.mean(bpms)
+        sys.stdout.write('%.2f bpm' % median_bpm + '\n')
 
 class process_notes(default_process):
     valid_opts = ['method', 'hop_size', 'buf_size', 'samplerate']
