@@ -60,7 +60,7 @@ def get_aubio_pyversion():
         pep440str = aubio_version.replace('+', '.')
         verstr = pep440str.replace('~git.', 'a0+')
     elif '~alpha' in aubio_version:
-        verstr += "a0"
+        verstr = "a0"
     return verstr
 
 def get_git_revision_hash(short=True):
