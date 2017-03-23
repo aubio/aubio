@@ -122,13 +122,6 @@ def configure(ctx):
         target_platform = ctx.options.target_platform
     ctx.env['DEST_OS'] = target_platform
 
-    version_dict = get_version_info();
-    ctx.define('AUBIO_VERSION',VERSION)
-    ctx.define('AUBIO_MAJOR_VERSION', version_dict['AUBIO_MAJOR_VERSION'])
-    ctx.define('AUBIO_MINOR_VERSION', version_dict['AUBIO_MINOR_VERSION'])
-    ctx.define('AUBIO_PATCH_VERSION', version_dict['AUBIO_PATCH_VERSION'])
-    ctx.define('AUBIO_VERSION_STATUS', version_dict['AUBIO_VERSION_STATUS'])
-    
     if ctx.options.build_type == "debug":
         ctx.define('DEBUG', 1)
     else:
