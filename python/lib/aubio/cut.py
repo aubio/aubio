@@ -140,7 +140,7 @@ def parse_args():
             sys.exit(1)
     return options, args
 
-if __name__ == '__main__':
+def main():
     options, args = parse_args()
 
     hopsize = options.hopsize

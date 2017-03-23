@@ -313,7 +313,7 @@ class process_melbands(default_process):
         fmt_out += ' '.join(["% 9.7f" % f for f in res.tolist()])
         sys.stdout.write(fmt_out + '\n')
 
-if __name__ == '__main__':
+def main():
     parser = aubio_parser()
     args = parser.parse_args()
     if args.show_version or ('verbose' in args and args.verbose > 3):
