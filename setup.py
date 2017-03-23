@@ -6,12 +6,12 @@ from python.lib.moresetuptools import build_ext, CleanGenerated
 # function to generate gen/*.{c,h}
 from this_version import get_aubio_version, get_aubio_pyversion
 
-__version__ = get_aubio_version()
-__pip_version__ = get_aubio_pyversion()
+__version__ = get_aubio_pyversion()
+__aubio_version__ = get_aubio_version()
 
 include_dirs = []
 library_dirs = []
-define_macros = [('AUBIO_VERSION', '%s' % __version__)]
+define_macros = [('AUBIO_VERSION', '%s' % __aubio_version__)]
 extra_link_args = []
 
 include_dirs += [ 'python/ext' ]
@@ -54,7 +54,7 @@ classifiers = [
     ]
 
 distrib = setup(name='aubio',
-    version = __pip_version__,
+    version = __version__,
     packages = ['aubio'],
     package_dir = {'aubio':'python/lib/aubio'},
     scripts = ['python/scripts/aubiocut'],
