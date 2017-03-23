@@ -9,7 +9,6 @@ def get_version_info():
     # read from VERSION
     # return dictionary filled with content of version
 
-    global __version_info
     if not __version_info:
         this_file_dir = os.path.dirname(os.path.abspath(__file__))
         version_file = os.path.join(this_file_dir, 'VERSION')
