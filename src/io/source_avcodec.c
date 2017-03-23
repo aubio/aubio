@@ -24,7 +24,11 @@
 
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
+#if defined(HAVE_SWRESAMPLE)
+#include <libswresample/swresample.h>
+#elif defined(HAVE_AVRESAMPLE)
 #include <libavresample/avresample.h>
+#endif
 #include <libavutil/opt.h>
 #include <stdlib.h>
 
@@ -68,7 +72,11 @@ struct _aubio_source_avcodec_t {
   AVCodecContext *avCodecCtx;
   AVFrame *avFrame;
   AVPacket avPacket;
+#ifdef HAVE_AVRESAMPLE
   AVAudioResampleContext *avr;
+#elif defined(HAVE_SWRESAMPLE)
+  SwrContext *avr;
+#endif
   smpl_t *output;
   uint_t read_samples;
   uint_t read_index;
@@ -276,8 +284,13 @@ void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s, uint_t mul
     int64_t input_layout = av_get_default_channel_layout(s->input_channels);
     uint_t output_channels = multi ? s->input_channels : 1;
     int64_t output_layout = av_get_default_channel_layout(output_channels);
+#ifdef HAVE_AVRESAMPLE
     AVAudioResampleContext *avr = avresample_alloc_context();
     AVAudioResampleContext *oldavr = s->avr;
+#elif defined(HAVE_SWRESAMPLE)
+    SwrContext *avr = swr_alloc();
+    SwrContext *oldavr = s->avr;
+#endif /* HAVE_AVRESAMPLE || HAVE_SWRESAMPLE */
 
     av_opt_set_int(avr, "in_channel_layout",  input_layout,           0);
     av_opt_set_int(avr, "out_channel_layout", output_layout,          0);
@@ -292,7 +305,11 @@ void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s, uint_t mul
     // TODO: use planar?
     //av_opt_set_int(avr, "out_sample_fmt",     AV_SAMPLE_FMT_FLTP,      0);
     int err;
+#ifdef HAVE_AVRESAMPLE
     if ( ( err = avresample_open(avr) ) < 0) {
+#elif defined(HAVE_SWRESAMPLE)
+    if ( ( err = swr_init(avr) ) < 0) {
+#endif /* HAVE_AVRESAMPLE || HAVE_SWRESAMPLE */
       char errorstr[256];
       av_strerror (err, errorstr, sizeof(errorstr));
       AUBIO_ERR("source_avcodec: Could not open AVAudioResampleContext for %s (%s)\n",
@@ -302,7 +319,11 @@ void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s, uint_t mul
     }
     s->avr = avr;
     if (oldavr != NULL) {
+#ifdef HAVE_AVRESAMPLE
       avresample_close( oldavr );
+#elif defined(HAVE_SWRESAMPLE)
+      swr_close ( oldavr );
+#endif /* HAVE_AVRESAMPLE || HAVE_SWRESAMPLE */
       av_free ( oldavr );
       oldavr = NULL;
     }
@@ -316,7 +337,11 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
   AVFrame *avFrame = s->avFrame;
   AVPacket avPacket = s->avPacket;
   av_init_packet (&avPacket);
+#ifdef HAVE_AVRESAMPLE
   AVAudioResampleContext *avr = s->avr;
+#elif defined(HAVE_SWRESAMPLE)
+  SwrContext *avr = s->avr;
+#endif /* HAVE_AVRESAMPLE || HAVE_SWRESAMPLE */
   smpl_t *output = s->output;
   *read_samples = 0;
 
@@ -331,6 +356,7 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
       char errorstr[256];
       av_strerror (err, errorstr, sizeof(errorstr));
       AUBIO_ERR("source_avcodec: could not read frame in %s (%s)\n", s->path, errorstr);
+      s->eof = 1;
       goto beach;
     }
   } while (avPacket.stream_index != s->selected_stream);
@@ -369,6 +395,7 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
     goto beach;
   }
 
+#ifdef HAVE_AVRESAMPLE
   int in_linesize = 0;
   av_samples_get_buffer_size(&in_linesize, avCodecCtx->channels,
       avFrame->nb_samples, avCodecCtx->sample_fmt, 1);
@@ -378,6 +405,13 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
   int out_samples = avresample_convert ( avr,
         (uint8_t **)&output, out_linesize, max_out_samples,
         (uint8_t **)avFrame->data, in_linesize, in_samples);
+#elif defined(HAVE_SWRESAMPLE)
+  int in_samples = avFrame->nb_samples;
+  int max_out_samples = AUBIO_AVCODEC_MAX_BUFFER_SIZE / avCodecCtx->channels;
+  int out_samples = swr_convert( avr,
+      (uint8_t **)&output, max_out_samples,
+      (const uint8_t **)avFrame->data, in_samples);
+#endif /* HAVE_AVRESAMPLE || HAVE_SWRESAMPLE */
   if (out_samples <= 0) {
     AUBIO_WRN("source_avcodec: no sample found while converting frame (%s)\n", s->path);
     goto beach;
@@ -389,7 +423,9 @@ beach:
   s->avFormatCtx = avFormatCtx;
   s->avCodecCtx = avCodecCtx;
   s->avFrame = avFrame;
+#if defined(HAVE_AVRESAMPLE) || defined(HAVE_SWRESAMPLE)
   s->avr = avr;
+#endif /* HAVE_AVRESAMPLE || HAVE_SWRESAMPLE */
   s->output = output;
 
   av_packet_unref(&avPacket);
@@ -498,9 +534,14 @@ uint_t aubio_source_avcodec_seek (aubio_source_avcodec_t * s, uint_t pos) {
   s->eof = 0;
   s->read_index = 0;
   s->read_samples = 0;
+#ifdef HAVE_AVRESAMPLE
   // reset the AVAudioResampleContext
   avresample_close(s->avr);
   avresample_open(s->avr);
+#elif defined(HAVE_SWRESAMPLE)
+  swr_close(s->avr);
+  swr_init(s->avr);
+#endif
   return ret;
 }
 
@@ -514,12 +555,20 @@ uint_t aubio_source_avcodec_get_duration (aubio_source_avcodec_t * s) {
 
 uint_t aubio_source_avcodec_close(aubio_source_avcodec_t * s) {
   if (s->avr != NULL) {
+#ifdef HAVE_AVRESAMPLE
     avresample_close( s->avr );
+#elif defined(HAVE_SWRESAMPLE)
+    swr_close ( s->avr );
+#endif
     av_free ( s->avr );
   }
   s->avr = NULL;
   if (s->avCodecCtx != NULL) {
+#ifndef HAVE_AUBIO_LIBAVCODEC_DEPRECATED
+    avcodec_free_context( &s->avCodecCtx );
+#else
     avcodec_close ( s->avCodecCtx );
+#endif
   }
   s->avCodecCtx = NULL;
   if (s->avFormatCtx != NULL) {
