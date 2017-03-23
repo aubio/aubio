@@ -62,7 +62,7 @@ def aubio_parser():
 
     # tempo subcommand
     subparser = subparsers.add_parser('tempo',
-            help='get locations of beats')
+            help='get overal tempo in bpm')
     parser_add_input(subparser)
     parser_add_buf_hop_size(subparser, buf_size=1024, hop_size=512)
     parser_add_time_format(subparser)

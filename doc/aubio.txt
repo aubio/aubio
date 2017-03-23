@@ -13,6 +13,7 @@ COMMANDS
   onset        get onset times
   pitch        extract fundamental frequency
   beat         get locations of beats
+  tempo        get overall tempo in bpm
   notes        get midi-like notes
   mfcc         extract mel-frequency cepstrum coefficients
   melbands     extract mel-frequency energies per band
@@ -84,6 +85,13 @@ PITCH
 BEAT
 
   The "beat" command accepts all common options and no additional options.
+
+  The default buffer size for the beat algorithm is 1024. The default hop size
+  is 512.
+
+TEMPO
+
+  The "tempo" command accepts all common options and no additional options.
 
   The default buffer size for the beat algorithm is 1024. The default hop size
   is 512.
