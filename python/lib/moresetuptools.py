@@ -93,7 +93,7 @@ def add_local_aubio_lib(ext):
     ext.library_dirs += [os.path.join('build', 'src')]
     ext.libraries += ['aubio']
 
-def add_local_aubio_sources(ext, usedouble = False):
+def add_local_aubio_sources(ext):
     """ build aubio inside python module instead of linking against libaubio """
     print("Info: libaubio was not installed or built locally with waf, adding src/")
     aubio_sources = sorted(glob.glob(os.path.join('src', '**.c')))
@@ -101,6 +101,8 @@ def add_local_aubio_sources(ext, usedouble = False):
     ext.sources += aubio_sources
 
 def add_local_macros(ext, usedouble = False):
+    if usedouble:
+        ext.define_macros += [('HAVE_AUBIO_DOUBLE', 1)]
     # define macros (waf puts them in build/src/config.h)
     for define_macro in ['HAVE_STDLIB_H', 'HAVE_STDIO_H',
                          'HAVE_MATH_H', 'HAVE_STRING_H',
@@ -193,7 +195,6 @@ class build_ext(_build_ext):
 
     def build_extension(self, extension):
         if self.enable_double or 'HAVE_AUBIO_DOUBLE' in os.environ:
-            extension.define_macros += [('HAVE_AUBIO_DOUBLE', 1)]
             enable_double = True
         else:
             enable_double = False
@@ -204,7 +205,7 @@ class build_ext(_build_ext):
             # use local src/aubio.h
             if os.path.isfile(os.path.join('src', 'aubio.h')):
                 add_local_aubio_header(extension)
-            add_local_macros(extension)
+            add_local_macros(extension, usedouble=enable_double)
             # look for a local waf build
             if os.path.isfile(os.path.join('build','src', 'fvec.c.1.o')):
                 add_local_aubio_lib(extension)
@@ -212,7 +213,7 @@ class build_ext(_build_ext):
                 # check for external dependencies
                 add_external_deps(extension, usedouble=enable_double)
                 # add libaubio sources and look for optional deps with pkg-config
-                add_local_aubio_sources(extension, usedouble=enable_double)
+                add_local_aubio_sources(extension)
         # generate files python/gen/*.c, python/gen/aubio-generated.h
         extension.sources += generate_external(header, output_path, overwrite = False,
                 usedouble=enable_double)
