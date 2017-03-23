@@ -194,6 +194,8 @@ class default_process(object):
             name = type(self).__name__.split('_')[1]
             optstr = ' '.join(['running', name, 'with options', repr(self.options), '\n'])
             sys.stderr.write(optstr)
+    def flush(self, n_frames, samplerate):
+        pass
 
 class process_onset(default_process):
     valid_opts = ['method', 'hop_size', 'buf_size', 'samplerate']
@@ -265,6 +267,9 @@ class process_notes(default_process):
             fmt_out = "%f\t" % lastmidi
             fmt_out += self.time2string(frames_read, samplerate)
             sys.stdout.write(fmt_out) # + '\t')
+    def flush(self, frames_read, samplerate):
+        eof = self.time2string(frames_read, samplerate)
+        sys.stdout.write(eof + '\n')
 
 class process_mfcc(default_process):
     def __init__(self, args):
@@ -350,11 +355,8 @@ def main():
                 frames_read += read
                 # exit loop at end of file
                 if read < a_source.hop_size: break
-            # special case for notes
-            if args.command == 'notes':
-                eof = processor.time2string(frames_read, a_source.samplerate)
-                sys.stdout.write(eof + '\n')
-                sys.stdout.flush()
+            # flush the processor if needed
+            processor.flush(frames_read, a_source.samplerate)
             if args.verbose > 1:
                 fmt_string = "read {:.2f}s"
                 fmt_string += " ({:d} samples in {:d} blocks of {:d})"
