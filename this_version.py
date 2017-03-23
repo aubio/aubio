@@ -87,8 +87,15 @@ def get_git_revision_hash(short=True):
     gitcmd = ['git', '-C', aubio_dir, 'diff-index', '--quiet']
     gitcmd.append('HEAD')
     try:
-        subprocess.check_output(gitcmd).strip().decode('utf8')
-    except Exception as e:
+        output = subprocess.check_output(gitcmd)
+    except subprocess.CalledProcessError:
+        try:
+            import sys
+            sys.stdout.write('Info: current git tree is not clean\n')
+            gitstatus = subprocess.check_output(['git', 'status'])
+            sys.stdout.write(gitstatus.decode('utf8'))
+        except Exception:
+            pass
         gitsha += '+mods'
     return gitsha
 
