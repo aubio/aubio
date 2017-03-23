@@ -2,9 +2,8 @@
 
 import sys, os.path, glob
 from setuptools import setup, Extension
-from python.lib.moresetuptools import *
+from python.lib.moresetuptools import build_ext, CleanGenerated
 # function to generate gen/*.{c,h}
-from python.lib.gen_external import generate_external, header, output_path
 from this_version import get_aubio_version, get_aubio_pyversion
 
 __version__ = get_aubio_version()
@@ -16,7 +15,6 @@ define_macros = [('AUBIO_VERSION', '%s' % __version__)]
 extra_link_args = []
 
 include_dirs += [ 'python/ext' ]
-include_dirs += [ output_path ] # aubio-generated.h
 try:
     import numpy
     include_dirs += [ numpy.get_include() ]

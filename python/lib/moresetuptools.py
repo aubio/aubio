@@ -176,6 +176,7 @@ class build_ext(_build_ext):
                 # add libaubio sources and look for optional deps with pkg-config
                 add_local_aubio_sources(extension, usedouble=enable_double)
         # generate files python/gen/*.c, python/gen/aubio-generated.h
+        extension.include_dirs += [ output_path ]
         extension.sources += generate_external(header, output_path, overwrite = False,
                 usedouble=enable_double)
         return _build_ext.build_extension(self, extension)
