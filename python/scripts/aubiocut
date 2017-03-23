@@ -6,11 +6,10 @@
 
 import sys
 
-usage = "usage: %s [options] -i soundfile" % sys.argv[0]
-usage += "\n help: %s -h" % sys.argv[0]
-
 def parse_args():
     from optparse import OptionParser
+    usage = "usage: %s [options] -i soundfile" % sys.argv[0]
+    usage += "\n help: %s -h" % sys.argv[0]
     parser = OptionParser(usage=usage)
     parser.add_option("-i", "--input", action = "store", dest = "source_file",
             help="input sound file to analyse", metavar = "<source_file>")
