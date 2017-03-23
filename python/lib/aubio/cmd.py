@@ -214,9 +214,9 @@ class process_onset(default_process):
         super(process_onset, self).__init__(args)
     def __call__(self, block):
         return self.onset(block)
-    def repr_res(self, res, frames_read, a_source):
+    def repr_res(self, res, frames_read, samplerate):
         if res[0] != 0:
-            outstr = self.time2string(self.onset.get_last(), a_source.samplerate)
+            outstr = self.time2string(self.onset.get_last(), samplerate)
             sys.stdout.write(outstr + '\n')
 
 class process_pitch(default_process):
@@ -231,8 +231,8 @@ class process_pitch(default_process):
         super(process_pitch, self).__init__(args)
     def __call__(self, block):
         return self.pitch(block)
-    def repr_res(self, res, frames_read, a_source):
-        fmt_out = self.time2string(frames_read, a_source.samplerate)
+    def repr_res(self, res, frames_read, samplerate):
+        fmt_out = self.time2string(frames_read, samplerate)
         sys.stdout.write(fmt_out + "%.6f\n" % res[0])
 
 class process_tempo(default_process):
@@ -243,9 +243,9 @@ class process_tempo(default_process):
         super(process_tempo, self).__init__(args)
     def __call__(self, block):
         return self.tempo(block)
-    def repr_res(self, res, frames_read, a_source):
+    def repr_res(self, res, frames_read, samplerate):
         if res[0] != 0:
-            outstr = self.time2string(self.tempo.get_last(), a_source.samplerate)
+            outstr = self.time2string(self.tempo.get_last(), samplerate)
             sys.stdout.write(outstr + '\n')
 
 class process_notes(default_process):
@@ -256,14 +256,14 @@ class process_notes(default_process):
         super(process_notes, self).__init__(args)
     def __call__(self, block):
         return self.notes(block)
-    def repr_res(self, res, frames_read, a_source):
+    def repr_res(self, res, frames_read, samplerate):
         if res[2] != 0: # note off
-            fmt_out = self.time2string(frames_read, a_source.samplerate)
+            fmt_out = self.time2string(frames_read, samplerate)
             sys.stdout.write(fmt_out + '\n')
         if res[0] != 0: # note on
             lastmidi = res[0]
             fmt_out = "%f\t" % lastmidi
-            fmt_out += self.time2string(frames_read, a_source.samplerate)
+            fmt_out += self.time2string(frames_read, samplerate)
             sys.stdout.write(fmt_out) # + '\t')
 
 class process_mfcc(default_process):
@@ -283,8 +283,8 @@ class process_mfcc(default_process):
     def __call__(self, block):
         fftgrain = self.pv(block)
         return self.mfcc(fftgrain)
-    def repr_res(self, res, frames_read, a_source):
-        fmt_out = self.time2string(frames_read, a_source.samplerate)
+    def repr_res(self, res, frames_read, samplerate):
+        fmt_out = self.time2string(frames_read, samplerate)
         fmt_out += ' '.join(["% 9.7f" % f for f in res.tolist()])
         sys.stdout.write(fmt_out + '\n')
 
@@ -308,8 +308,8 @@ class process_melbands(default_process):
     def __call__(self, block):
         fftgrain = self.pv(block)
         return self.filterbank(fftgrain)
-    def repr_res(self, res, frames_read, a_source):
-        fmt_out = self.time2string(frames_read, a_source.samplerate)
+    def repr_res(self, res, frames_read, samplerate):
+        fmt_out = self.time2string(frames_read, samplerate)
         fmt_out += ' '.join(["% 9.7f" % f for f in res.tolist()])
         sys.stdout.write(fmt_out + '\n')
 
@@ -345,7 +345,7 @@ def main():
                 res = processor(block)
                 # print results for this block
                 if args.verbose > 0:
-                    processor.repr_res(res, frames_read, a_source)
+                    processor.repr_res(res, frames_read, a_source.samplerate)
                 # increment total number of frames read
                 frames_read += read
                 # exit loop at end of file
