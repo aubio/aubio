@@ -1,5 +1,6 @@
 include AUTHORS COPYING README.md VERSION ChangeLog
 include python/README.md
+include this_version.py
 include Makefile wscript */wscript_build
 include waf waflib/* waflib/*/*
 exclude waflib/__pycache__/*
