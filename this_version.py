@@ -76,14 +76,15 @@ def get_aubio_version(add_status=True):
 def get_aubio_pyversion(add_status=True):
     # convert to version for python according to pep 440
     # see https://www.python.org/dev/peps/pep-0440/
-    # outputs MAJ.MIN.PATCH+a0{.git<sha> , ''}
+    # outputs MAJ.MIN.PATCH[a0[+git.<sha>[.mods]]]
     vdict = get_version_info()
     verstr = '%s.%s.%s' % get_aubio_version_tuple()
     if add_status and vdict['AUBIO_VERSION_STATUS']:
-        if '~git' in vdict['AUBIO_VERSION_STATUS']:
-            verstr += "+a0." + vdict['AUBIO_VERSION_STATUS'][1:]
+        if vdict['AUBIO_VERSION_STATUS'].startswith('~git+'):
+            pep440str = vdict['AUBIO_VERSION_STATUS'].replace('+', '.')
+            verstr += pep440str.replace('~git.', 'a0+')
         elif '~alpha' in vdict['AUBIO_VERSION_STATUS']:
-            verstr += "+a0"
+            verstr += "a0"
         else:
             raise SystemError("Aubio version statut not supported : %s" %
                               vdict['AUBIO_VERSION_STATUS'])
