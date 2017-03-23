@@ -40,6 +40,7 @@ python/*.wav
 
 aubio-*.tar.bz2
 aubio-*.zip
+dist/*.tar.gz
 
 # test sounds
 python/tests/sounds
