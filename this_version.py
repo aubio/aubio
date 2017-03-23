@@ -43,7 +43,7 @@ def get_version_info():
                 '~alpha' in __version_info['AUBIO_VERSION_STATUS']:
             AUBIO_GIT_SHA = get_git_revision_hash()
             if AUBIO_GIT_SHA:
-                __version_info['AUBIO_VERSION_STATUS'] = '~git' + AUBIO_GIT_SHA
+                __version_info['AUBIO_VERSION_STATUS'] = '~git+' + AUBIO_GIT_SHA
 
     return __version_info
 
