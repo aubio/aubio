@@ -84,19 +84,16 @@ def get_git_revision_hash(short=True):
         print('git command error :%s' % e)
         return None
     # check if we have a clean tree
-    gitcmd = ['git', '-C', aubio_dir, 'diff-index', '--quiet']
-    gitcmd.append('HEAD')
+    gitcmd = ['git', '-C', aubio_dir, 'status', '--porcelain']
     try:
-        output = subprocess.check_output(gitcmd)
-    except subprocess.CalledProcessError:
-        try:
-            import sys
-            sys.stdout.write('Info: current git tree is not clean\n')
-            gitstatus = subprocess.check_output(['git', 'status'])
-            sys.stdout.write(gitstatus.decode('utf8'))
-        except Exception:
-            pass
-        gitsha += '+mods'
+        output = subprocess.check_output(gitcmd).decode('utf8')
+        if len(output):
+            print('Info: current tree is not clean\n')
+            print(output)
+            gitsha += '+mods'
+    except subprocess.CalledProcessError as e:
+        print (e)
+        pass
     return gitsha
 
 if __name__ == '__main__':
