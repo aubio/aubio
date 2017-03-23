@@ -70,7 +70,7 @@ def get_aubio_version(add_status=True):
     verstr = '%s.%s.%s' % get_aubio_version_tuple()
     if add_status and vdict['AUBIO_VERSION_STATUS']:
         verstr += vdict['AUBIO_VERSION_STATUS']
-    return verstr
+    return str(verstr)
 
 
 def get_aubio_pyversion(add_status=True):
