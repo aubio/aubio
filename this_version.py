@@ -106,8 +106,16 @@ def get_git_revision_hash(short=True):
         gitcmd.append('--short')
     gitcmd.append('HEAD')
     try:
-        outCmd = subprocess.check_output(gitcmd).strip().decode('utf8')
+        gitsha = subprocess.check_output(gitcmd).strip().decode('utf8')
     except Exception as e:
         print('git command error :%s' % e)
         return None
-    return outCmd
+
+    # check if we have a clean tree
+    gitcmd = ['git', '-C', aubio_dir, 'diff-index', '--quiet']
+    gitcmd.append('HEAD')
+    try:
+        subprocess.check_output(gitcmd).strip().decode('utf8')
+    except Exception as e:
+        gitsha += '+mods'
+    return gitsha
