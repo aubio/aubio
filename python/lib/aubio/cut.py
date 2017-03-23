@@ -132,7 +132,6 @@ def parse_args():
             help="be quiet")
     (options, args) = parser.parse_args()
     if not options.source_file:
-        import os.path
         if len(args) == 1:
             options.source_file = args[0]
         else:
@@ -148,7 +147,7 @@ def main():
     samplerate = options.samplerate
     source_file = options.source_file
 
-    from aubio import onset, tempo, source, sink
+    from aubio import onset, tempo, source
 
     s = source(source_file, samplerate, hopsize)
     if samplerate == 0: samplerate = s.get_samplerate()
