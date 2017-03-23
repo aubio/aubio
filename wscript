@@ -14,19 +14,10 @@ import sys
 
 APPNAME = 'aubio'
 
-# source VERSION
-for l in open('VERSION').readlines(): exec (l.strip())
+from this_version import *
 
-VERSION = '.'.join ([str(x) for x in [
-    AUBIO_MAJOR_VERSION,
-    AUBIO_MINOR_VERSION,
-    AUBIO_PATCH_VERSION
-    ]]) + AUBIO_VERSION_STATUS
-
-LIB_VERSION = '.'.join ([str(x) for x in [
-    LIBAUBIO_LT_CUR,
-    LIBAUBIO_LT_REV,
-    LIBAUBIO_LT_AGE]])
+VERSION = get_aubio_version()
+LIB_VERSION = get_libaubio_version()
 
 top = '.'
 out = 'build'
@@ -131,6 +122,13 @@ def configure(ctx):
         target_platform = ctx.options.target_platform
     ctx.env['DEST_OS'] = target_platform
 
+    version_dict = get_version_info();
+    ctx.define('AUBIO_VERSION',VERSION)
+    ctx.define('AUBIO_MAJOR_VERSION', version_dict['AUBIO_MAJOR_VERSION'])
+    ctx.define('AUBIO_MINOR_VERSION', version_dict['AUBIO_MINOR_VERSION'])
+    ctx.define('AUBIO_PATCH_VERSION', version_dict['AUBIO_PATCH_VERSION'])
+    ctx.define('AUBIO_VERSION_STATUS', version_dict['AUBIO_VERSION_STATUS'])
+    
     if ctx.options.build_type == "debug":
         ctx.define('DEBUG', 1)
     else:
@@ -432,7 +430,7 @@ def txt2man(bld):
         from waflib import TaskGen
         if 'MANDIR' not in bld.env:
             bld.env['MANDIR'] = bld.env['DATAROOTDIR'] + '/man'
-        bld.env.VERSION = VERSION
+        bld.env.VERSION = str(VERSION)
         rule_str = '${TXT2MAN} -t `basename ${TGT} | cut -f 1 -d . | tr a-z A-Z`'
         rule_str += ' -r ${PACKAGE}\\ ${VERSION} -P ${PACKAGE}'
         rule_str += ' -v ${PACKAGE}\\ User\\\'s\\ manual'
@@ -463,7 +461,7 @@ def sphinx(bld):
     # build documentation from source files using sphinx-build
     # note: build in ../doc/_build/html, otherwise waf wont install unsigned files
     if bld.env['SPHINX']:
-        bld.env.VERSION = VERSION
+        bld.env.VERSION = str(VERSION)
         bld( name = 'sphinx',
                 rule = '${SPHINX} -b html -D release=${VERSION} -D version=${VERSION} -a -q `dirname ${SRC}` `dirname ${TGT}`',
                 source = 'doc/conf.py',

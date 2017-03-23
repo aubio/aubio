@@ -5,8 +5,10 @@ from setuptools import setup, Extension
 from python.lib.moresetuptools import *
 # function to generate gen/*.{c,h}
 from python.lib.gen_external import generate_external, header, output_path
+from this_version import get_aubio_version, get_aubio_pyversion
 
-__version__ = get_aubio_pyversion()
+__version__ = get_aubio_version()
+__pip_version__ = get_aubio_pyversion()
 
 include_dirs = []
 library_dirs = []
@@ -54,7 +56,7 @@ classifiers = [
     ]
 
 distrib = setup(name='aubio',
-    version = __version__,
+    version = __pip_version__,
     packages = ['aubio'],
     package_dir = {'aubio':'python/lib/aubio'},
     scripts = ['python/scripts/aubiocut'],
