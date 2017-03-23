@@ -166,10 +166,10 @@ def remap_pvoc_options(options):
     return options
 
 def samples2seconds(n_frames, samplerate):
-    return "%f\t" % (n_frames / float(a_source.samplerate))
+    return "%f\t" % (n_frames / float(samplerate))
 
 def samples2milliseconds(n_frames, samplerate):
-    return "%f\t" % (1000. * n_frames / float(a_source.samplerate))
+    return "%f\t" % (1000. * n_frames / float(samplerate))
 
 def samples2samples(n_frames, samplerate):
     return "%d\t" % n_frames
