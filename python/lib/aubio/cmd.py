@@ -19,8 +19,8 @@ def aubio_parser():
     parser.add_argument('-V', '--version', help="show version",
             action="store_true", dest="show_version")
 
-    subparsers = parser.add_subparsers(dest='command',
-            description="", metavar="<command>")
+    subparsers = parser.add_subparsers(title='commands', dest='command',
+            metavar="")
 
     # onset subcommand
     subparser = subparsers.add_parser('onset',
@@ -354,12 +354,13 @@ class process_melbands(default_process):
 def main():
     parser = aubio_parser()
     args = parser.parse_args()
-    if args.show_version or ('verbose' in args and args.verbose > 3):
+    if 'show_version' in args and args.show_version:
         sys.stdout.write('aubio version ' + aubio.version + '\n')
-    if args.show_version and args.command is None:
         sys.exit(0)
-    if args.command is None:
-        sys.stderr.write("Error: a command is required\n")
+    elif 'verbose' in args and args.verbose > 3:
+        sys.stderr.write('aubio version ' + aubio.version + '\n')
+    if 'command' not in args or args.command is None:
+        # no command given, print help and return 1
         parser.print_help()
         sys.exit(1)
     elif not args.source_uri and not args.source_uri2:
