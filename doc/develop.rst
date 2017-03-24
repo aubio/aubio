@@ -3,21 +3,16 @@
 Developping with aubio
 ======================
 
-Read `Contribute`_ to report issues and request new features.
+Here is a brief overview of the C library.
 
-See `Doxygen documentation`_ for the complete documentation of the C library,
-built using `Doxygen <http://www.doxygen.org/>`_.
+See also the `API documentation <https://aubio.org/doc/latest/>`_ for a more
+detailed list of available functions.
 
-Below is a brief `Library overview`_.
-
-Library overview
-----------------
-
-Here is a brief overview of the C library. See also the `Doxygen
-documentation`_ for a more detailed list of available functions.
+To report issues, ask questions, and request new features, use `Github Issues
+<https://github.com/aubio/aubio/issues>`_
 
 Design Basics
-`````````````
+-------------
 
 The library is written in C and is optimised for speed and portability.
 
@@ -42,7 +37,7 @@ in the `new_` methods, whereas free operations are done in the `del_` methods.
 
 
 Vectors and matrix
-``````````````````
+------------------
 
 ``fvec_t`` are used to hold vectors of float (``smpl_t``).
 
@@ -64,7 +59,8 @@ Similarly, ``fmat_t`` are used to hold matrix of floats.
    :lines: 9-19
 
 Reading a sound file
-````````````````````
+--------------------
+
 In this example, ``aubio_source`` is used to read a media file.
 
 First, create the objects we need.
@@ -92,8 +88,8 @@ At the end of the processing loop, clean-up and de-allocate memory:
 See the complete example: :download:`test-source.c
 <../tests/src/io/test-source.c>`.
 
-Computing the spectrum
-``````````````````````
+Computing a spectrum
+--------------------
 
 Now let's create a phase vocoder:
 
@@ -115,7 +111,8 @@ See the complete example: :download:`test-phasevoc.c
 Doxygen documentation
 ---------------------
 
-The latest version of the doxygen documentation is available at:
+The latest version of the API documentation is built using `Doxygen
+<http://www.doxygen.org/>`_ and is available at:
 
     https://aubio.org/doc/latest
 
