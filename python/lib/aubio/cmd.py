@@ -161,19 +161,6 @@ def parser_add_time_format(parser):
 
 # some utilities
 
-def parse_options(args, valid_opts):
-    options = {k :v for k,v in vars(args).items() if k in valid_opts}
-    return options
-
-def remap_pvoc_options(options):
-    # remap buf_size to win_s, hop_size to hop_s
-    # FIXME: adjust python/ext/py-phasevoc.c to understand buf_size/hop_size
-    options['win_s'] = options['buf_size']
-    del options['buf_size']
-    options['hop_s'] = options['hop_size']
-    del options['hop_size']
-    return options
-
 def samples2seconds(n_frames, samplerate):
     return "%f\t" % (n_frames / float(samplerate))
 
@@ -204,12 +191,29 @@ class default_process(object):
             optstr = ' '.join(['running', name, 'with options', repr(self.options), '\n'])
             sys.stderr.write(optstr)
     def flush(self, n_frames, samplerate):
+        # optionally called at the end of process
         pass
+
+    def parse_options(self, args, valid_opts):
+        # get any valid options found in a dictionnary of arguments
+        options = {k :v for k,v in vars(args).items() if k in valid_opts}
+        self.options = options
+
+    def remap_pvoc_options(self, options):
+        # FIXME: we need to remap buf_size to win_s, hop_size to hop_s
+        # adjust python/ext/py-phasevoc.c to understand buf_size/hop_size
+        if 'buf_size' in options:
+            options['win_s'] = options['buf_size']
+            del options['buf_size']
+        if 'hop_size' in options:
+            options['hop_s'] = options['hop_size']
+            del options['hop_size']
+        self.options = options
 
 class process_onset(default_process):
     valid_opts = ['method', 'hop_size', 'buf_size', 'samplerate']
     def __init__(self, args):
-        self.options = parse_options(args, self.valid_opts)
+        self.parse_options(args, self.valid_opts)
         self.onset = aubio.onset(**self.options)
         if args.threshold is not None:
             self.onset.set_threshold(args.threshold)
@@ -233,7 +237,7 @@ class process_onset(default_process):
 class process_pitch(default_process):
     valid_opts = ['method', 'hop_size', 'buf_size', 'samplerate']
     def __init__(self, args):
-        self.options = parse_options(args, self.valid_opts)
+        self.parse_options(args, self.valid_opts)
         self.pitch = aubio.pitch(**self.options)
         if args.threshold is not None:
             self.pitch.set_tolerance(args.threshold)
@@ -249,7 +253,7 @@ class process_pitch(default_process):
 class process_beat(default_process):
     valid_opts = ['method', 'hop_size', 'buf_size', 'samplerate']
     def __init__(self, args):
-        self.options = parse_options(args, self.valid_opts)
+        self.parse_options(args, self.valid_opts)
         self.tempo = aubio.tempo(**self.options)
         super(process_beat, self).__init__(args)
     def __call__(self, block):
@@ -275,7 +279,7 @@ class process_tempo(process_beat):
 class process_notes(default_process):
     valid_opts = ['method', 'hop_size', 'buf_size', 'samplerate']
     def __init__(self, args):
-        self.options = parse_options(args, self.valid_opts)
+        self.parse_options(args, self.valid_opts)
         self.notes = aubio.notes(**self.options)
         super(process_notes, self).__init__(args)
     def __call__(self, block):
@@ -295,15 +299,17 @@ class process_notes(default_process):
 
 class process_mfcc(default_process):
     def __init__(self, args):
-        valid_opts = ['hop_size', 'buf_size']
-        options = parse_options(args, valid_opts)
-        self.options = remap_pvoc_options(options)
-        self.pv = aubio.pvoc(**options)
+        valid_opts1 = ['hop_size', 'buf_size']
+        self.parse_options(args, valid_opts1)
+        self.remap_pvoc_options(self.options)
+        self.pv = aubio.pvoc(**self.options)
 
-        valid_opts = ['buf_size', 'n_filters', 'n_coeffs', 'samplerate']
-        options = parse_options(args, valid_opts)
-        self.mfcc = aubio.mfcc(**options)
-        self.options.update(options)
+        valid_opts2 = ['buf_size', 'n_filters', 'n_coeffs', 'samplerate']
+        self.parse_options(args, valid_opts2)
+        self.mfcc = aubio.mfcc(**self.options)
+
+        # remember all options
+        self.parse_options(args, list(set(valid_opts1 + valid_opts2)))
 
         super(process_mfcc, self).__init__(args)
 
@@ -319,16 +325,14 @@ class process_melbands(default_process):
     def __init__(self, args):
         self.args = args
         valid_opts = ['hop_size', 'buf_size']
-        options = parse_options(args, valid_opts)
-        options = remap_pvoc_options(options)
-        self.pv = aubio.pvoc(**options)
+        self.parse_options(args, valid_opts)
+        self.remap_pvoc_options(self.options)
+        self.pv = aubio.pvoc(**self.options)
 
         valid_opts = ['buf_size', 'n_filters']
-        options = {k :v for k,v in vars(args).items() if k in valid_opts}
-        # FIXME
-        options['win_s'] = options['buf_size']
-        del options['buf_size']
-        self.filterbank = aubio.filterbank(**options)
+        self.parse_options(args, valid_opts)
+        self.remap_pvoc_options(self.options)
+        self.filterbank = aubio.filterbank(**self.options)
         self.filterbank.set_mel_coeffs_slaney(args.samplerate)
 
         super(process_melbands, self).__init__(args)
@@ -361,6 +365,8 @@ def main():
         # open source_uri
         with aubio.source(args.source_uri, hop_size=args.hop_size,
                 samplerate=args.samplerate) as a_source:
+            # always update args.samplerate to native samplerate, in case
+            # source was opened with args.samplerate=0
             args.samplerate = a_source.samplerate
             # create the processor for this subcommand
             processor = args.process(args)
