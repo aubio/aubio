@@ -14,19 +14,10 @@ import sys
 
 APPNAME = 'aubio'
 
-# source VERSION
-for l in open('VERSION').readlines(): exec (l.strip())
+from this_version import *
 
-VERSION = '.'.join ([str(x) for x in [
-    AUBIO_MAJOR_VERSION,
-    AUBIO_MINOR_VERSION,
-    AUBIO_PATCH_VERSION
-    ]]) + AUBIO_VERSION_STATUS
-
-LIB_VERSION = '.'.join ([str(x) for x in [
-    LIBAUBIO_LT_CUR,
-    LIBAUBIO_LT_REV,
-    LIBAUBIO_LT_AGE]])
+VERSION = get_aubio_version()
+LIB_VERSION = get_libaubio_version()
 
 top = '.'
 out = 'build'

@@ -4,45 +4,7 @@ import sys, os, glob, subprocess
 import distutils, distutils.command.clean, distutils.dir_util
 from .gen_external import generate_external, header, output_path
 
-def get_aubio_version():
-    # read from VERSION
-    this_file_dir = os.path.dirname(os.path.abspath(__file__))
-    version_file = os.path.join(this_file_dir, '..', '..', 'VERSION')
-
-    if not os.path.isfile(version_file):
-        raise SystemError("VERSION file not found.")
-
-    for l in open(version_file).readlines():
-        #exec (l.strip())
-        if l.startswith('AUBIO_MAJOR_VERSION'):
-            AUBIO_MAJOR_VERSION = int(l.split('=')[1])
-        if l.startswith('AUBIO_MINOR_VERSION'):
-            AUBIO_MINOR_VERSION = int(l.split('=')[1])
-        if l.startswith('AUBIO_PATCH_VERSION'):
-            AUBIO_PATCH_VERSION = int(l.split('=')[1])
-        if l.startswith('AUBIO_VERSION_STATUS'):
-            AUBIO_VERSION_STATUS = l.split('=')[1].strip()[1:-1]
-
-    if AUBIO_MAJOR_VERSION is None or AUBIO_MINOR_VERSION is None \
-            or AUBIO_PATCH_VERSION is None:
-        raise SystemError("Failed parsing VERSION file.")
-
-    verstr = '.'.join(map(str, [AUBIO_MAJOR_VERSION,
-                                     AUBIO_MINOR_VERSION,
-                                     AUBIO_PATCH_VERSION]))
-
-    if AUBIO_VERSION_STATUS is not None:
-        verstr += AUBIO_VERSION_STATUS
-    return verstr
-
-def get_aubio_pyversion():
-    # convert to version for python according to pep 440
-    # see https://www.python.org/dev/peps/pep-0440/
-    verstr = get_aubio_version()
-    if '~alpha' in verstr:
-        verstr = verstr.split('~')[0] + 'a1'
-    # TODO: add rc, .dev, and .post suffixes, add numbering
-    return verstr
+from this_version import get_aubio_version
 
 # inspired from https://gist.github.com/abergmeier/9488990
 def add_packages(packages, ext=None, **kw):
@@ -215,6 +177,7 @@ class build_ext(_build_ext):
                 # add libaubio sources and look for optional deps with pkg-config
                 add_local_aubio_sources(extension)
         # generate files python/gen/*.c, python/gen/aubio-generated.h
+        extension.include_dirs += [ output_path ]
         extension.sources += generate_external(header, output_path, overwrite = False,
                 usedouble=enable_double)
         return _build_ext.build_extension(self, extension)
