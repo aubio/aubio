@@ -1,5 +1,5 @@
 Command line features
-=====================
+---------------------
 
 +--------------+-------+-------+------+-------+-------+-------+------+------------------+
 | feat vs. prg | onset | pitch | mfcc | track | notes | quiet | cut1 | short options    |
