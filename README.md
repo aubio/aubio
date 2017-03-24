@@ -56,23 +56,6 @@ Additionally, the python module comes with the following script:
 
  - `aubiocut` slices sound files at onset or beat timestamps
 
-Implementation and Design Basics
---------------------------------
-
-The library is written in C and is optimised for speed and portability.
-
-The C API is designed in the following way:
-
-    aubio_something_t * new_aubio_something (void * args);
-    audio_something_do (aubio_something_t * t, void * args);
-    smpl_t aubio_something_get_a_parameter (aubio_something_t *t);
-    uint_t aubio_something_set_a_parameter (aubio_something_t *t, smpl_t a_parameter);
-    void del_aubio_something (aubio_something_t * t);
-
-For performance and real-time operation, no memory allocation or freeing take
-place in the `_do` methods. Instead, memory allocation should always take place
-in the `new_` methods, whereas free operations are done in the `del_` methods.
-
 The latest version of the documentation can be found at:
 
   https://aubio.org/documentation

@@ -16,6 +16,31 @@ Library overview
 Here is a brief overview of the C library. See also the `Doxygen
 documentation`_ for a more detailed list of available functions.
 
+Design Basics
+`````````````
+
+The library is written in C and is optimised for speed and portability.
+
+The C API is designed in the following way:
+
+.. code-block:: C
+
+   // new_ to create an object foobar
+   aubio_foobar_t * new_aubio_foobar(void * args);
+   // del_ to delete foobar
+   void del_aubio_something (aubio_something_t * t);
+   // _do to process output = foobar(input)
+   audio_something_do (aubio_something_t * t, fvec_t * input, cvec_t * output);
+   // _get_param to get foobar.param
+   smpl_t aubio_something_get_a_parameter (aubio_something_t * t);
+   // _set_param to set foobar.param
+   uint_t aubio_something_set_a_parameter (aubio_something_t * t, smpl_t a_parameter);
+
+For performance and real-time operation, no memory allocation or freeing take
+place in the `_do` methods. Instead, memory allocation should always take place
+in the `new_` methods, whereas free operations are done in the `del_` methods.
+
+
 Vectors and matrix
 ``````````````````
 
