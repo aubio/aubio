@@ -16,47 +16,71 @@ Design Basics
 
 The library is written in C and is optimised for speed and portability.
 
-The C API is designed in the following way:
+All memory allocations take place in the `new_` methods. Each successful call
+to `new_` should have a matching call to `del_` to deallocate the object.
 
 .. code-block:: C
 
    // new_ to create an object foobar
    aubio_foobar_t * new_aubio_foobar(void * args);
    // del_ to delete foobar
-   void del_aubio_something (aubio_something_t * t);
-   // _do to process output = foobar(input)
-   audio_something_do (aubio_something_t * t, fvec_t * input, cvec_t * output);
-   // _get_param to get foobar.param
-   smpl_t aubio_something_get_a_parameter (aubio_something_t * t);
-   // _set_param to set foobar.param
-   uint_t aubio_something_set_a_parameter (aubio_something_t * t, smpl_t a_parameter);
+   void del_aubio_foobar (aubio_foobar_t * foobar);
 
-For performance and real-time operation, no memory allocation or freeing take
-place in the `_do` methods. Instead, memory allocation should always take place
-in the `new_` methods, whereas free operations are done in the `del_` methods.
-
-
-Vectors and matrix
-------------------
-
-``fvec_t`` are used to hold vectors of float (``smpl_t``).
-
-.. literalinclude:: ../tests/src/test-fvec.c
-   :language: C
-   :lines: 7
-
+The main computations are done in the `_do` methods.
 
 .. code-block:: C
 
-        // set some elements
-        vec->data[511] = 2.;
-        vec->data[vec->length-2] = 1.;
+   // _do to process output = foobar(input)
+   audio_foobar_do (aubio_foobar_t * foobar, fvec_t * input, cvec_t * output);
 
-Similarly, ``fmat_t`` are used to hold matrix of floats.
+Most parameters can be read and written at any time:
 
-.. literalinclude:: ../tests/src/test-fmat.c
-   :language: C
-   :lines: 9-19
+.. code-block:: C
+
+   // _get_param to get foobar.param
+   smpl_t aubio_foobar_get_a_parameter (aubio_foobar_t * foobar);
+   // _set_param to set foobar.param
+   uint_t aubio_foobar_set_a_parameter (aubio_foobar_t * foobar, smpl_t a_parameter);
+
+In some case, more functions are available:
+
+.. code-block:: C
+
+   // non-real time functions
+   uint_t aubio_foobar_reset(aubio_foobar_t * t);
+
+Basic Types
+-----------
+
+.. code-block:: C
+
+    // integers
+    uint_t n = 10;                 // unsigned
+    sint_t delay = -90;            // signed
+
+    // float
+    smpl_t a = -90.;               // simple precision
+    lsmp_t f = 0.024;              // double precision
+
+    // vector of floats (simple precision)
+    fvec_t * vec = new_fvec(n);
+    vec->data[0] = 1;
+    vec->data[vec->length-1] = 1.; // vec->data has n elements
+    fvec_print(vec);
+    del_fvec(vec);
+
+    // complex data
+    cvec_t * fftgrain = new_cvec(n);
+    vec->norm[0] = 1.;             // vec->norm has n/2+1 elements
+    vec->phas[n/2] = 3.1415;       // vec->phas as well
+    del_cvec(fftgrain);
+
+    // matrix
+    fmat_t * mat = new_fmat (height, length);
+    mat->data[height-1][0] = 1;    // mat->data has height rows
+    mat->data[0][length-1] = 10;   // mat->data[0] has length columns
+    del_fmat(mat);
+
 
 Reading a sound file
 --------------------
