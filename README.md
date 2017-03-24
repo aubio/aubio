@@ -1,5 +1,6 @@
-aubio library
-=============
+aubio
+=====
+
 [![Travis build status](https://travis-ci.org/aubio/aubio.svg?branch=master)](https://travis-ci.org/aubio/aubio "Travis build status")
 [![Appveyor build status](https://ci.appveyor.com/api/projects/status/f3lhy3a57rkgn5yi?svg=true)](https://ci.appveyor.com/project/aubio/aubio/branch/master "Appveyor build status")
 [![Landscape code health](https://landscape.io/github/aubio/aubio/master/landscape.svg?style=flat)](https://landscape.io/github/aubio/aubio/master "Landscape code health")
