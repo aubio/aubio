@@ -86,7 +86,7 @@ Reading a sound file
 --------------------
 
 In this example, `aubio_source <https://aubio.org/doc/latest/source_8h.html>`_
-is used to read a media file:
+is used to read a media file.
 
 First, define a few variables and allocate some memory.
 
