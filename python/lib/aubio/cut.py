@@ -6,11 +6,10 @@
 
 import sys
 
-usage = "usage: %s [options] -i soundfile" % sys.argv[0]
-usage += "\n help: %s -h" % sys.argv[0]
-
 def parse_args():
     from optparse import OptionParser
+    usage = "usage: %s [options] -i soundfile" % sys.argv[0]
+    usage += "\n help: %s -h" % sys.argv[0]
     parser = OptionParser(usage=usage)
     parser.add_option("-i", "--input", action = "store", dest = "source_file",
             help="input sound file to analyse", metavar = "<source_file>")
@@ -133,7 +132,6 @@ def parse_args():
             help="be quiet")
     (options, args) = parser.parse_args()
     if not options.source_file:
-        import os.path
         if len(args) == 1:
             options.source_file = args[0]
         else:
@@ -141,7 +139,7 @@ def parse_args():
             sys.exit(1)
     return options, args
 
-if __name__ == '__main__':
+def main():
     options, args = parse_args()
 
     hopsize = options.hopsize
@@ -149,7 +147,7 @@ if __name__ == '__main__':
     samplerate = options.samplerate
     source_file = options.source_file
 
-    from aubio import onset, tempo, source, sink
+    from aubio import onset, tempo, source
 
     s = source(source_file, samplerate, hopsize)
     if samplerate == 0: samplerate = s.get_samplerate()
