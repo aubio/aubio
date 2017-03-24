@@ -24,7 +24,7 @@ def aubio_parser():
 
     # onset subcommand
     subparser = subparsers.add_parser('onset',
-            help='get onset times',
+            help='estimate time of onsets (beginning of sound event)',
             formatter_class = argparse.ArgumentDefaultsHelpFormatter)
     parser_add_input(subparser)
     parser_add_buf_hop_size(subparser)
@@ -40,7 +40,7 @@ def aubio_parser():
 
     # pitch subcommand
     subparser = subparsers.add_parser('pitch',
-            help='extract fundamental frequency')
+            help='estimate fundamental frequency (monophonic)')
     parser_add_input(subparser)
     parser_add_buf_hop_size(subparser, buf_size=2048)
     helpstr = "pitch detection method <default|yinfft|yin|mcomb|fcomb|schmitt>"
@@ -51,9 +51,9 @@ def aubio_parser():
     parser_add_verbose_help(subparser)
     subparser.set_defaults(process=process_pitch)
 
-    # tempo subcommand
+    # beat subcommand
     subparser = subparsers.add_parser('beat',
-            help='get locations of beats')
+            help='estimate location of beats')
     parser_add_input(subparser)
     parser_add_buf_hop_size(subparser, buf_size=1024, hop_size=512)
     parser_add_time_format(subparser)
@@ -62,7 +62,7 @@ def aubio_parser():
 
     # tempo subcommand
     subparser = subparsers.add_parser('tempo',
-            help='get overal tempo in bpm')
+            help='estimate overall tempo in bpm')
     parser_add_input(subparser)
     parser_add_buf_hop_size(subparser, buf_size=1024, hop_size=512)
     parser_add_time_format(subparser)
@@ -71,7 +71,7 @@ def aubio_parser():
 
     # notes subcommand
     subparser = subparsers.add_parser('notes',
-            help='get midi-like notes')
+            help='estimate midi-like notes (monophonic)')
     parser_add_input(subparser)
     parser_add_buf_hop_size(subparser)
     parser_add_time_format(subparser)
@@ -80,7 +80,7 @@ def aubio_parser():
 
     # mfcc subcommand
     subparser = subparsers.add_parser('mfcc',
-            help='extract mel-frequency cepstrum coefficients')
+            help='extract Mel-Frequency Cepstrum Coefficients')
     parser_add_input(subparser)
     parser_add_buf_hop_size(subparser)
     parser_add_time_format(subparser)
@@ -89,7 +89,7 @@ def aubio_parser():
 
     # melbands subcommand
     subparser = subparsers.add_parser('melbands',
-            help='extract mel-frequency energies per band')
+            help='extract energies in Mel-frequency bands')
     parser_add_input(subparser)
     parser_add_buf_hop_size(subparser)
     parser_add_time_format(subparser)
