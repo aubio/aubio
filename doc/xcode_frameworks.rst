@@ -1,7 +1,5 @@
-.. _xcode-frameworks-label:
-
-Using aubio frameworks in Xcode
--------------------------------
+Frameworks for Xcode
+--------------------
 
 `Binary frameworks`_ are available and ready to use in your XCode project, for
 `iOS`_ and `macOS`_.
@@ -35,7 +33,12 @@ Using aubio frameworks in Xcode
     import aubio
 
 Using aubio from swift
-......................
+----------------------
+
+Once you have downloaded and installed :ref:`aubio.framework
+<xcode-frameworks-label>`, you sould be able to use aubio from C, Obj-C, and
+Swift source files.
+
 
 Here is a short example showing how to read a sound file in swift:
 
