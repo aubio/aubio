@@ -5,8 +5,8 @@ Developping with aubio
 
 Here is a brief overview of the C library.
 
-See also the `API documentation <https://aubio.org/doc/latest/>`_ for a more
-detailed list of available functions.
+For a more detailed list of available functions, see the `API documentation
+<https://aubio.org/doc/latest/>`_.
 
 To report issues, ask questions, and request new features, use `Github Issues
 <https://github.com/aubio/aubio/issues>`_
@@ -114,11 +114,10 @@ Doxygen documentation
 The latest version of the API documentation is built using `Doxygen
 <http://www.doxygen.org/>`_ and is available at:
 
-    https://aubio.org/doc/latest
+    https://aubio.org/doc/latest/
 
 Contribute
 ----------
 
 Please report any issue and feature request at the `Github issue tracker
 <https://github.com/aubio/aubio/issues>`_. Patches and pull-requests welcome!
-
