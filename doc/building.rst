@@ -20,9 +20,9 @@ Latest release
 
 The **latest stable release** can be downloaded from https://aubio.org/download::
 
-        $ curl -O http://aubio.org/pub/aubio-0.4.3.tar.bz2
-        $ tar xf aubio-0.4.3.tar.bz2
-        $ cd aubio-0.4.3
+        $ curl -O http://aubio.org/pub/aubio-<version>.tar.bz2
+        $ tar xf aubio-<version>.tar.bz2
+        $ cd aubio-<version>/
 
 Git repository
 --------------
@@ -30,7 +30,7 @@ Git repository
 The **latest git branch** can be obtained with::
 
         $ git clone git://git.aubio.org/git/aubio
-        $ cd aubio
+        $ cd aubio/
 
 The following command will fetch the correct `waf`_ version (not included in
 aubio's git)::
