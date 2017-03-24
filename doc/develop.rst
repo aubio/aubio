@@ -85,9 +85,10 @@ Basic Types
 Reading a sound file
 --------------------
 
-In this example, ``aubio_source`` is used to read a media file.
+In this example, `aubio_source <https://aubio.org/doc/latest/source_8h.html>`_
+is used to read a media file:
 
-First, create the objects we need.
+First, define a few variables and allocate some memory.
 
 .. literalinclude:: ../tests/src/io/test-source.c
    :language: C
@@ -103,11 +104,11 @@ Now for the processing loop:
    :language: C
    :lines: 40-44
 
-At the end of the processing loop, clean-up and de-allocate memory:
+At the end of the processing loop, memory is deallocated:
 
 .. literalinclude:: ../tests/src/io/test-source.c
    :language: C
-   :lines: 50-56
+   :lines: 55-56
 
 See the complete example: :download:`test-source.c
 <../tests/src/io/test-source.c>`.
@@ -125,7 +126,13 @@ The processing loop could now look like:
 
 .. literalinclude:: ../tests/src/spectral/test-phasevoc.c
    :language: C
-   :lines: 21-35
+   :lines: 20-37
+
+Time to clean up the previously allocated memory:
+
+.. literalinclude:: ../tests/src/spectral/test-phasevoc.c
+   :language: C
+   :lines: 39-44
 
 See the complete example: :download:`test-phasevoc.c
 <../tests/src/spectral/test-phasevoc.c>`.
