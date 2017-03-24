@@ -272,9 +272,16 @@ class process_tempo(process_beat):
             self.beat_locations.append(self.tempo.get_last_s())
     def flush(self, frames_read, samplerate):
         import numpy as np
-        bpms = 60./ np.diff(self.beat_locations)
-        median_bpm = np.mean(bpms)
-        sys.stdout.write('%.2f bpm' % median_bpm + '\n')
+        if len(self.beat_locations) < 2:
+            outstr = "unknown bpm"
+        else:
+            bpms = 60./ np.diff(self.beat_locations)
+            median_bpm = np.mean(bpms)
+            if len(self.beat_locations) < 10:
+                outstr = "%.2f bpm (uncertain)" % median_bpm
+            else:
+                outstr = "%.2f bpm" % median_bpm
+        sys.stdout.write(outstr + '\n')
 
 class process_notes(default_process):
     valid_opts = ['method', 'hop_size', 'buf_size', 'samplerate']
