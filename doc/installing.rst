@@ -75,4 +75,4 @@ Cheat sheet
 
 .. include:: building.rst
 
-.. include:: requirements
+.. include:: requirements.rst
