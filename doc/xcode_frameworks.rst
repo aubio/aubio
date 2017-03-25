@@ -70,4 +70,3 @@ Here is a short example showing how to read a sound file in swift:
 .. _Binary frameworks: https://aubio.org/download
 .. _iOS: https://aubio.org/download#ios
 .. _macOS: https://aubio.org/download#osx
-.. _Download: https://aubio.org/download
