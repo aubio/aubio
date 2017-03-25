@@ -404,5 +404,5 @@ def main():
                         a_source.hop_size,
                         a_source.uri,
                         a_source.samplerate))
-    except KeyboardInterrupt as e:
+    except KeyboardInterrupt:
         sys.exit(1)
