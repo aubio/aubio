@@ -9,7 +9,7 @@ Aubio is available as a C library and as a python module.
 Cheat sheet
 -----------
 
-- :ref:`get aubio latest source code <Git repository>`::
+- :ref:`get aubio latest source code <building>`::
 
     # official repo
     git clone https://git.aubio.org/aubio/aubio
@@ -34,11 +34,11 @@ Cheat sheet
 - :ref:`install python-aubio from source <python>`::
 
     # from git
-    pip install https://git.aubio.org/aubio/aubio/
+    pip install git+https://git.aubio.org/aubio/aubio/
     # mirror
-    pip install https://github.com/aubio/aubio/
+    pip install git+https://github.com/aubio/aubio/
     # from latest release
-    pip install https://aubio.org/pub/aubio-0.4.4.tar.gz
+    pip install https://aubio.org/pub/aubio-latest.tar.bz2
     # from pypi
     pip install aubio
     # from source directory
@@ -49,9 +49,9 @@ Cheat sheet
 
       # conda [osx, linux, win]
       conda install -c conda-forge aubio
-      # .deb (debian, ubuntu) linux
-      sudo apt-get install python-aubio aubio-tools
-      # brew (osx)
+      # .deb (debian, ubuntu) [linux]
+      sudo apt-get install python3-aubio python-aubio aubio-tools
+      # brew [osx]
       brew install aubio --with-python
 
 - :ref:`get a pre-compiled version of libaubio <download>`::
@@ -68,8 +68,9 @@ Cheat sheet
 
     # debian / ubuntu
     dpkg -l libavcodec-dev libavutil-dev libavformat-dev \
-            libswresample-dev libavresample-dev
-    dpkg -l libsamplerate-dev libsndfile-dev
+            libswresample-dev libavresample-dev \
+            libsamplerate-dev libsndfile-dev \
+            txt2man doxygen
 
 .. include:: download.rst
 
