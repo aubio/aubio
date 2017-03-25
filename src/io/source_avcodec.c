@@ -374,7 +374,8 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
   }
   if (ret < 0) {
     if (ret == AVERROR(EAGAIN)) {
-      AUBIO_WRN("source_avcodec: output is not available right now - user must try to send new input\n");
+      //AUBIO_WRN("source_avcodec: output is not available right now - user must try to send new input\n");
+      goto beach;
     } else if (ret == AVERROR_EOF) {
       AUBIO_WRN("source_avcodec: the decoder has been fully flushed, and there will be no more output frames\n");
     } else {
