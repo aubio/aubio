@@ -441,7 +441,10 @@ def txt2man(bld):
 def doxygen(bld):
     # build documentation from source files using doxygen
     if bld.env['DOXYGEN']:
-        bld( name = 'doxygen', rule = 'doxygen ${SRC} > /dev/null',
+        bld.env.VERSION = VERSION
+        rule = '( cat ${SRC} && echo PROJECT_NUMBER=${VERSION}; )'
+        rule += ' | doxygen - > /dev/null'
+        bld( name = 'doxygen', rule = rule,
                 source = 'doc/web.cfg',
                 target = '../doc/web/html/index.html',
                 cwd = 'doc')
