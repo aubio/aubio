@@ -45,7 +45,6 @@ void process_block(fvec_t *ibuf, fvec_t *obuf)
   }
   if (mix_input) {
     aubio_wavetable_do (wavetable, ibuf, obuf);
-    fvec_clamp(obuf, 1.);
   } else {
     aubio_wavetable_do (wavetable, obuf, obuf);
   }
