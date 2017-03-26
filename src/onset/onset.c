@@ -237,14 +237,12 @@ aubio_onset_t * new_aubio_onset (const char_t * onset_mode,
   if (o->od == NULL) goto beach_specdesc;
   o->fftgrain = new_cvec(buf_size);
   o->desc = new_fvec(1);
-
   o->spectral_whitening = new_aubio_spectral_whitening(buf_size, hop_size, samplerate);
 
-  aubio_onset_default_parameters (o, onset_mode);
-
   /* initialize internal variables */
-  o->last_onset = 0;
-  o->total_frames = 0;
+  aubio_onset_set_default_parameters (o, onset_mode);
+
+  aubio_onset_reset(o);
   return o;
 
 beach_specdesc:
@@ -255,8 +253,14 @@ beach:
   return NULL;
 }
 
-void aubio_onset_default_parameters (aubio_onset_t * o, const char_t * onset_mode)
+void aubio_onset_reset (aubio_onset_t *o) {
+  o->last_onset = 0;
+  o->total_frames = 0;
+}
+
+uint_t aubio_onset_set_default_parameters (aubio_onset_t * o, const char_t * onset_mode)
 {
+  uint_t ret = AUBIO_OK;
   /* set some default parameter */
   aubio_onset_set_threshold (o, 0.3);
   aubio_onset_set_delay (o, 4.3 * o->hop_size);
@@ -293,7 +297,9 @@ void aubio_onset_default_parameters (aubio_onset_t * o, const char_t * onset_mod
   } else {
     AUBIO_WRN("onset: unknown spectral descriptor type %s, "
                "using default parameters.\n", onset_mode);
+    ret = AUBIO_FAIL;
   }
+  return ret;
 }
 
 void del_aubio_onset (aubio_onset_t *o)

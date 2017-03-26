@@ -291,6 +291,27 @@ smpl_t aubio_onset_get_delay_ms(const aubio_onset_t * o);
 */
 smpl_t aubio_onset_get_threshold(const aubio_onset_t * o);
 
+/** set default parameters
+
+  \param o onset detection object as returned by new_aubio_onset()
+  \param onset_mode detection mode to adjust
+
+  This function is called at the end of new_aubio_onset().
+
+ */
+uint_t aubio_onset_set_default_parameters (aubio_onset_t * o, const char_t * onset_mode);
+
+/** reset onset detection
+
+  \param o onset detection object as returned by new_aubio_onset()
+
+  Reset current time and last onset to 0.
+
+  This function is called at the end of new_aubio_onset().
+
+ */
+void aubio_onset_reset(aubio_onset_t * o);
+
 /** delete onset detection object
 
   \param o onset detection object to delete
