@@ -295,17 +295,23 @@ uint_t aubio_onset_set_default_parameters (aubio_onset_t * o, const char_t * ons
              || strcmp (onset_mode, "complex") == 0) {
     aubio_onset_set_delay (o, 4.6 * o->hop_size);
     aubio_onset_set_threshold (o, 0.15);
-    o->apply_compression = 1;
-    o->lambda_compression = 1.;
+    aubio_onset_set_awhitening(o, 1);
+    aubio_onset_set_compression (o, 1.);
   } else if (strcmp (onset_mode, "phase") == 0) {
     o->apply_compression = 0;
-    aubio_onset_set_adaptive_whitening (o, 0);
+    aubio_onset_set_awhitening (o, 0);
   } else if (strcmp (onset_mode, "mkl") == 0) {
     aubio_onset_set_threshold (o, 0.05);
+    aubio_onset_set_awhitening(o, 1);
+    aubio_onset_set_compression (o, 0.02);
   } else if (strcmp (onset_mode, "kl") == 0) {
     aubio_onset_set_threshold (o, 0.35);
+    aubio_onset_set_awhitening(o, 1);
+    aubio_onset_set_compression (o, 0.02);
   } else if (strcmp (onset_mode, "specflux") == 0) {
-    aubio_onset_set_threshold (o, 0.4);
+    aubio_onset_set_threshold (o, 0.25);
+    aubio_onset_set_awhitening(o, 1);
+    aubio_onset_set_compression (o, 20.);
   } else if (strcmp (onset_mode, "specdiff") == 0) {
   } else {
     AUBIO_WRN("onset: unknown spectral descriptor type %s, "
