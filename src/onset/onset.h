@@ -139,16 +139,21 @@ smpl_t aubio_onset_get_awhitening(aubio_onset_t * o);
 /** set or disable log compression
 
   \param o onset detection object as returned by new_aubio_onset()
-  \param lambda logarithmic compression factor
+  \param lambda logarithmic compression factor, 0 to disable
 
   \return 0 if successful, 1 otherwise
 
  */
-uint_t aubio_onset_set_logmag_compression(aubio_onset_t *o, smpl_t lambda);
+uint_t aubio_onset_set_compression(aubio_onset_t *o, smpl_t lambda);
 
 /** get onset detection log compression
+
+  \param o onset detection object as returned by new_aubio_onset()
+
+  \returns 0 if disabled, compression factor otherwise
+
  */
-smpl_t aubio_onset_get_logmag_compression(aubio_onset_t *o);
+smpl_t aubio_onset_get_compression(aubio_onset_t *o);
 
 /** set onset detection silence threshold
 

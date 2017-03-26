@@ -128,7 +128,7 @@ smpl_t aubio_onset_get_awhitening (aubio_onset_t *o)
   return o->apply_awhitening;
 }
 
-uint_t aubio_onset_set_logmag_compression (aubio_onset_t *o, smpl_t lambda)
+uint_t aubio_onset_set_compression (aubio_onset_t *o, smpl_t lambda)
 {
   if (lambda < 0.) {
     return AUBIO_FAIL;
@@ -138,7 +138,7 @@ uint_t aubio_onset_set_logmag_compression (aubio_onset_t *o, smpl_t lambda)
   return AUBIO_OK;
 }
 
-smpl_t aubio_onset_get_logmag_compression (aubio_onset_t *o)
+smpl_t aubio_onset_get_compression (aubio_onset_t *o)
 {
   return o->apply_compression ? o->lambda_compression : 0;
 }
@@ -284,15 +284,13 @@ uint_t aubio_onset_set_default_parameters (aubio_onset_t * o, const char_t * ons
   // disable spectral whitening
   aubio_onset_set_awhitening (o, 0);
   // disable logarithmic magnitude
-  aubio_onset_set_logmag_compression (o, 0.);
+  aubio_onset_set_compression (o, 0.);
 
   /* method specific optimisations */
   if (strcmp (onset_mode, "energy") == 0) {
   } else if (strcmp (onset_mode, "hfc") == 0 || strcmp (onset_mode, "default") == 0) {
     aubio_onset_set_threshold (o, 0.058);
-    o->apply_compression = 1;
-    o->lambda_compression = 1.;
-    aubio_onset_set_adaptive_whitening (o, 0);
+    aubio_onset_set_compression (o, 1.);
   } else if (strcmp (onset_mode, "complexdomain") == 0
              || strcmp (onset_mode, "complex") == 0) {
     aubio_onset_set_delay (o, 4.6 * o->hop_size);
