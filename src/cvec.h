@@ -232,7 +232,7 @@ void cvec_zeros(cvec_t *s);
 
 /** take logarithmic magnitude
 
-  \param fftgrain cvec to compress
+  \param s input cvec to compress
   \param lambda value to use for normalisation
 
 */
