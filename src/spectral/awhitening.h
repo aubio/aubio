@@ -61,7 +61,9 @@ void aubio_spectral_whitening_do (aubio_spectral_whitening_t * o,
 
 /** creation of a spectral whitening object
 
-  \param win_size length of the input spectrum frame
+  \param buf_size window size of input grains
+  \param hop_size number of samples between two consecutive input grains
+  \param samplerate sampling rate of the input signal
 
 */
 aubio_spectral_whitening_t *new_aubio_spectral_whitening (uint_t buf_size,
