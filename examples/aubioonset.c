@@ -76,7 +76,9 @@ int main(int argc, char **argv) {
   verbmsg ("buffer_size: %d, ", buffer_size);
   verbmsg ("hop_size: %d, ", hop_size);
   verbmsg ("silence: %f, ", aubio_onset_get_silence(o));
-  verbmsg ("threshold: %f\n", aubio_onset_get_threshold(o));
+  verbmsg ("threshold: %f, ", aubio_onset_get_threshold(o));
+  verbmsg ("awhitening: %f, ", aubio_onset_get_awhitening(o));
+  verbmsg ("compression: %f\n", aubio_onset_get_compression(o));
 
   onset = new_fvec (1);
 
