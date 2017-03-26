@@ -74,8 +74,7 @@ To compile the python module:
     ./setup.py build
 
 See also the [manual](https://aubio.org/manual/latest/) for more information
-about [compiling](https://aubio.org/manual/latest/building.html) and
-[installing](https://aubio.org/manual/latest/installing.html).
+about [installing aubio](https://aubio.org/manual/latest/installing.html).
 
 Credits and Publications
 ------------------------
