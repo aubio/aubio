@@ -120,19 +120,35 @@ smpl_t aubio_onset_get_last_ms (const aubio_onset_t *o);
 /** set onset detection adaptive whitening
 
   \param o onset detection object as returned by new_aubio_onset()
-  \param apply_adaptive_whitening 1 to enable, 0 to disable
+  \param enable 1 to enable, 0 to disable
+
+  \return 0 if successful, 1 otherwise
 
 */
-uint_t aubio_onset_set_adaptive_whitening(aubio_onset_t * o, uint_t apply_adaptive_whitening);
+uint_t aubio_onset_set_awhitening(aubio_onset_t * o, uint_t enable);
 
-/** get onset detection silence threshold
+/** get onset detection adaptive whitening
 
   \param o onset detection object as returned by new_aubio_onset()
 
-  \return adaptive whitening mode, 1 if enabled, 0 otherwise
+  \return 1 if enabled, 0 otherwise
 
 */
-uint_t aubio_onset_get_adaptive_whitening(aubio_onset_t * o);
+smpl_t aubio_onset_get_awhitening(aubio_onset_t * o);
+
+/** set or disable log compression
+
+  \param o onset detection object as returned by new_aubio_onset()
+  \param lambda logarithmic compression factor
+
+  \return 0 if successful, 1 otherwise
+
+ */
+uint_t aubio_onset_set_logmag_compression(aubio_onset_t *o, smpl_t lambda);
+
+/** get onset detection log compression
+ */
+smpl_t aubio_onset_get_logmag_compression(aubio_onset_t *o);
 
 /** set onset detection silence threshold
 

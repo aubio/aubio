@@ -48,7 +48,7 @@ struct _aubio_onset_t {
 
   uint_t apply_compression;
   smpl_t lambda_compression;
-  uint_t apply_adaptive_whitening;
+  uint_t apply_awhitening;      /**< apply adaptive spectral whitening */
   aubio_spectral_whitening_t *spectral_whitening;
 };
 
@@ -61,11 +61,11 @@ void aubio_onset_do (aubio_onset_t *o, const fvec_t * input, fvec_t * onset)
   if (apply_filtering) {
   }
   */
-  if (o->apply_adaptive_whitening) {
+  if (o->apply_awhitening) {
     aubio_spectral_whitening_do(o->spectral_whitening, o->fftgrain);
   }
   if (o->apply_compression) {
-    cvec_logmag(o->fftgrain, o->apply_compression);
+    cvec_logmag(o->fftgrain, o->lambda_compression);
   }
   aubio_specdesc_do (o->od, o->fftgrain, o->desc);
   aubio_peakpicker_do(o->pp, o->desc, onset);
@@ -117,15 +117,30 @@ smpl_t aubio_onset_get_last_ms (const aubio_onset_t *o)
   return aubio_onset_get_last_s (o) * 1000.;
 }
 
-uint_t aubio_onset_set_adaptive_whitening (aubio_onset_t *o, uint_t apply_adaptive_whitening)
+uint_t aubio_onset_set_awhitening (aubio_onset_t *o, uint_t enable)
 {
-  o->apply_adaptive_whitening = apply_adaptive_whitening;
+  o->apply_awhitening = enable == 1 ? 1 : 0;
   return AUBIO_OK;
 }
 
-uint_t aubio_onset_get_adaptive_whitening (aubio_onset_t *o)
+smpl_t aubio_onset_get_awhitening (aubio_onset_t *o)
 {
-  return o->apply_adaptive_whitening;
+  return o->apply_awhitening;
+}
+
+uint_t aubio_onset_set_logmag_compression (aubio_onset_t *o, smpl_t lambda)
+{
+  if (lambda < 0.) {
+    return AUBIO_FAIL;
+  }
+  o->lambda_compression = lambda;
+  o->apply_compression = (o->lambda_compression > 0.) ? 1 : 0;
+  return AUBIO_OK;
+}
+
+smpl_t aubio_onset_get_logmag_compression (aubio_onset_t *o)
+{
+  return o->apply_compression ? o->lambda_compression : 0;
 }
 
 uint_t aubio_onset_set_silence(aubio_onset_t * o, smpl_t silence) {
@@ -266,10 +281,10 @@ uint_t aubio_onset_set_default_parameters (aubio_onset_t * o, const char_t * ons
   aubio_onset_set_delay (o, 4.3 * o->hop_size);
   aubio_onset_set_minioi_ms (o, 50.);
   aubio_onset_set_silence (o, -70.);
-  aubio_onset_set_adaptive_whitening (o, 0);
-
-  o->apply_compression = 0;
-  o->lambda_compression = 1.;
+  // disable spectral whitening
+  aubio_onset_set_awhitening (o, 0);
+  // disable logarithmic magnitude
+  aubio_onset_set_logmag_compression (o, 0.);
 
   /* method specific optimisations */
   if (strcmp (onset_mode, "energy") == 0) {
