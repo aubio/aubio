@@ -4,45 +4,7 @@ import sys, os, glob, subprocess
 import distutils, distutils.command.clean, distutils.dir_util
 from .gen_external import generate_external, header, output_path
 
-def get_aubio_version():
-    # read from VERSION
-    this_file_dir = os.path.dirname(os.path.abspath(__file__))
-    version_file = os.path.join(this_file_dir, '..', '..', 'VERSION')
-
-    if not os.path.isfile(version_file):
-        raise SystemError("VERSION file not found.")
-
-    for l in open(version_file).readlines():
-        #exec (l.strip())
-        if l.startswith('AUBIO_MAJOR_VERSION'):
-            AUBIO_MAJOR_VERSION = int(l.split('=')[1])
-        if l.startswith('AUBIO_MINOR_VERSION'):
-            AUBIO_MINOR_VERSION = int(l.split('=')[1])
-        if l.startswith('AUBIO_PATCH_VERSION'):
-            AUBIO_PATCH_VERSION = int(l.split('=')[1])
-        if l.startswith('AUBIO_VERSION_STATUS'):
-            AUBIO_VERSION_STATUS = l.split('=')[1].strip()[1:-1]
-
-    if AUBIO_MAJOR_VERSION is None or AUBIO_MINOR_VERSION is None \
-            or AUBIO_PATCH_VERSION is None:
-        raise SystemError("Failed parsing VERSION file.")
-
-    verstr = '.'.join(map(str, [AUBIO_MAJOR_VERSION,
-                                     AUBIO_MINOR_VERSION,
-                                     AUBIO_PATCH_VERSION]))
-
-    if AUBIO_VERSION_STATUS is not None:
-        verstr += AUBIO_VERSION_STATUS
-    return verstr
-
-def get_aubio_pyversion():
-    # convert to version for python according to pep 440
-    # see https://www.python.org/dev/peps/pep-0440/
-    verstr = get_aubio_version()
-    if '~alpha' in verstr:
-        verstr = verstr.split('~')[0] + 'a1'
-    # TODO: add rc, .dev, and .post suffixes, add numbering
-    return verstr
+from this_version import get_aubio_version
 
 # inspired from https://gist.github.com/abergmeier/9488990
 def add_packages(packages, ext=None, **kw):
@@ -93,7 +55,7 @@ def add_local_aubio_lib(ext):
     ext.library_dirs += [os.path.join('build', 'src')]
     ext.libraries += ['aubio']
 
-def add_local_aubio_sources(ext, usedouble = False):
+def add_local_aubio_sources(ext):
     """ build aubio inside python module instead of linking against libaubio """
     print("Info: libaubio was not installed or built locally with waf, adding src/")
     aubio_sources = sorted(glob.glob(os.path.join('src', '**.c')))
@@ -101,6 +63,8 @@ def add_local_aubio_sources(ext, usedouble = False):
     ext.sources += aubio_sources
 
 def add_local_macros(ext, usedouble = False):
+    if usedouble:
+        ext.define_macros += [('HAVE_AUBIO_DOUBLE', 1)]
     # define macros (waf puts them in build/src/config.h)
     for define_macro in ['HAVE_STDLIB_H', 'HAVE_STDIO_H',
                          'HAVE_MATH_H', 'HAVE_STRING_H',
@@ -193,7 +157,6 @@ class build_ext(_build_ext):
 
     def build_extension(self, extension):
         if self.enable_double or 'HAVE_AUBIO_DOUBLE' in os.environ:
-            extension.define_macros += [('HAVE_AUBIO_DOUBLE', 1)]
             enable_double = True
         else:
             enable_double = False
@@ -204,7 +167,7 @@ class build_ext(_build_ext):
             # use local src/aubio.h
             if os.path.isfile(os.path.join('src', 'aubio.h')):
                 add_local_aubio_header(extension)
-            add_local_macros(extension)
+            add_local_macros(extension, usedouble=enable_double)
             # look for a local waf build
             if os.path.isfile(os.path.join('build','src', 'fvec.c.1.o')):
                 add_local_aubio_lib(extension)
@@ -212,8 +175,9 @@ class build_ext(_build_ext):
                 # check for external dependencies
                 add_external_deps(extension, usedouble=enable_double)
                 # add libaubio sources and look for optional deps with pkg-config
-                add_local_aubio_sources(extension, usedouble=enable_double)
+                add_local_aubio_sources(extension)
         # generate files python/gen/*.c, python/gen/aubio-generated.h
+        extension.include_dirs += [ output_path ]
         extension.sources += generate_external(header, output_path, overwrite = False,
                 usedouble=enable_double)
         return _build_ext.build_extension(self, extension)

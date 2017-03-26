@@ -1,7 +1,7 @@
 .. _android:
 
-Building aubio for Android
---------------------------
+Android build
+-------------
 
 To compile aubio for android, you will need to get the `Android Native
 Development Toolkit (NDK) <https://developer.android.com/ndk/>`_, prepare a

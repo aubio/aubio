@@ -1,5 +1,11 @@
-aubio library
-=============
+aubio
+=====
+
+[![Travis build status](https://travis-ci.org/aubio/aubio.svg?branch=master)](https://travis-ci.org/aubio/aubio "Travis build status")
+[![Appveyor build status](https://ci.appveyor.com/api/projects/status/f3lhy3a57rkgn5yi?svg=true)](https://ci.appveyor.com/project/piem/aubio "Appveyor build status")
+[![Landscape code health](https://landscape.io/github/aubio/aubio/master/landscape.svg?style=flat)](https://landscape.io/github/aubio/aubio/master "Landscape code health")
+[![Documentation Status](https://readthedocs.org/projects/aubio/badge/?version=latest)](http://aubio.readthedocs.io/en/latest/?badge=latest "Documentation status")
+[![Commits since last release](https://img.shields.io/github/commits-since/aubio/aubio/0.4.4.svg?maxAge=2592000)](https://github.com/aubio/aubio "Commits since last release")
 
 aubio is a library to label music and sounds. It listens to audio signals and
 attempts to detect events. For instance, when a drum is hit, at which frequency
@@ -50,23 +56,6 @@ Additionally, the python module comes with the following script:
 
  - `aubiocut` slices sound files at onset or beat timestamps
 
-Implementation and Design Basics
---------------------------------
-
-The library is written in C and is optimised for speed and portability.
-
-The C API is designed in the following way:
-
-    aubio_something_t * new_aubio_something (void * args);
-    audio_something_do (aubio_something_t * t, void * args);
-    smpl_t aubio_something_get_a_parameter (aubio_something_t *t);
-    uint_t aubio_something_set_a_parameter (aubio_something_t *t, smpl_t a_parameter);
-    void del_aubio_something (aubio_something_t * t);
-
-For performance and real-time operation, no memory allocation or freeing take
-place in the `_do` methods. Instead, memory allocation should always take place
-in the `new_` methods, whereas free operations are done in the `del_` methods.
-
 The latest version of the documentation can be found at:
 
   https://aubio.org/documentation
@@ -74,49 +63,19 @@ The latest version of the documentation can be found at:
 Build Instructions
 ------------------
 
-A number of distributions already include aubio. Check your favorite package
-management system, or have a look at the [download
-page](https://aubio.org/download).
-
-aubio uses [waf](https://waf.io/) to configure, compile, and test the source:
-
-    ./waf configure
-    ./waf build
-
-If waf is not found in the directory, you can download and install it with:
-
-    make getwaf
-
 aubio compiles on Linux, Mac OS X, Windows, Cygwin, and iOS.
 
-Installation
-------------
+To compile aubio, you should be able to simply run:
 
-To install aubio library and headers on your system, use:
+    make
 
-    sudo ./waf install
+To compile the python module:
 
-To uninstall:
+    ./setup.py build
 
-    sudo ./waf uninstall
-
-If you don't have root access to install libaubio on your system, you can use
-libaubio without installing libaubio either by setting `LD_LIBRARY_PATH`, or by
-copying it to `~/lib`.
-
-On Linux, you should be able to set `LD_LIBRARY_PATH` with:
-
-    $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/build/src
-
-On Mac OS X, a copy or a symlink can be made in `~/lib`:
-
-    $ mkdir -p ~/lib
-    $ ln -sf $PWD/build/src/libaubio*.dylib ~/lib/
-
-Note on Mac OS X systems older than El Capitan (10.11), the `DYLD_LIBRARY_PATH`
-variable can be set as follows:
-
-    $ export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$PWD/build/src
+See also the [manual](https://aubio.org/manual/latest/) for more information
+about [compiling](https://aubio.org/manual/latest/building.html) and
+[installing](https://aubio.org/manual/latest/installing.html).
 
 Credits and Publications
 ------------------------

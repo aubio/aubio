@@ -20,9 +20,9 @@ Latest release
 
 The **latest stable release** can be downloaded from https://aubio.org/download::
 
-        $ curl -O http://aubio.org/pub/aubio-0.4.3.tar.bz2
-        $ tar xf aubio-0.4.3.tar.bz2
-        $ cd aubio-0.4.3
+        $ curl -O http://aubio.org/pub/aubio-<version>.tar.bz2
+        $ tar xf aubio-<version>.tar.bz2
+        $ cd aubio-<version>/
 
 Git repository
 --------------
@@ -30,7 +30,7 @@ Git repository
 The **latest git branch** can be obtained with::
 
         $ git clone git://git.aubio.org/git/aubio
-        $ cd aubio
+        $ cd aubio/
 
 The following command will fetch the correct `waf`_ version (not included in
 aubio's git)::
@@ -73,6 +73,34 @@ command::
 
        $ waf configure build
 
+
+Running as a user
+-----------------
+
+To use aubio without actually installing, for instance if you don't have root
+access to install libaubio on your system,
+
+On Linux or macOS, sourcing the script ``scripts/setenv_local.sh`` should help::
+
+       $ source ./scripts/setenv_local.sh
+
+This script sets ``LD_LIBRARY_PATH``, for libaubio, and ``PYTHONPATH`` for the
+python module.
+
+On Linux, you should be able to set ``LD_LIBRARY_PATH`` with::
+
+        $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/build/src
+
+On Mac OS X, a copy or a symlink can be made in ``~/lib``::
+
+        $ mkdir -p ~/lib
+        $ ln -sf $PWD/build/src/libaubio*.dylib ~/lib/
+
+Note on Mac OS X systems older than El Capitan (10.11), the ``DYLD_LIBRARY_PATH``
+variable can be set as follows::
+
+        $ export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$PWD/build/src
+
 Cleaning
 --------
 
@@ -94,5 +122,8 @@ invocation, use the ``distclean`` command::
 
 .. _Git Bash: https://git-for-windows.github.io/
 
-.. toctree::
-   :maxdepth: 2
+.. _xcode-frameworks-label:
+
+.. include:: xcode_frameworks.rst
+
+.. include:: android.rst

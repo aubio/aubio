@@ -356,6 +356,7 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
       char errorstr[256];
       av_strerror (err, errorstr, sizeof(errorstr));
       AUBIO_ERR("source_avcodec: could not read frame in %s (%s)\n", s->path, errorstr);
+      s->eof = 1;
       goto beach;
     }
   } while (avPacket.stream_index != s->selected_stream);
@@ -373,7 +374,8 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
   }
   if (ret < 0) {
     if (ret == AVERROR(EAGAIN)) {
-      AUBIO_WRN("source_avcodec: output is not available right now - user must try to send new input\n");
+      //AUBIO_WRN("source_avcodec: output is not available right now - user must try to send new input\n");
+      goto beach;
     } else if (ret == AVERROR_EOF) {
       AUBIO_WRN("source_avcodec: the decoder has been fully flushed, and there will be no more output frames\n");
     } else {
@@ -563,7 +565,11 @@ uint_t aubio_source_avcodec_close(aubio_source_avcodec_t * s) {
   }
   s->avr = NULL;
   if (s->avCodecCtx != NULL) {
+#ifndef HAVE_AUBIO_LIBAVCODEC_DEPRECATED
+    avcodec_free_context( &s->avCodecCtx );
+#else
     avcodec_close ( s->avCodecCtx );
+#endif
   }
   s->avCodecCtx = NULL;
   if (s->avFormatCtx != NULL) {

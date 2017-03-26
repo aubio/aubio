@@ -14,19 +14,10 @@ import sys
 
 APPNAME = 'aubio'
 
-# source VERSION
-for l in open('VERSION').readlines(): exec (l.strip())
+from this_version import *
 
-VERSION = '.'.join ([str(x) for x in [
-    AUBIO_MAJOR_VERSION,
-    AUBIO_MINOR_VERSION,
-    AUBIO_PATCH_VERSION
-    ]]) + AUBIO_VERSION_STATUS
-
-LIB_VERSION = '.'.join ([str(x) for x in [
-    LIBAUBIO_LT_CUR,
-    LIBAUBIO_LT_REV,
-    LIBAUBIO_LT_AGE]])
+VERSION = get_aubio_version()
+LIB_VERSION = get_libaubio_version()
 
 top = '.'
 out = 'build'
@@ -259,8 +250,8 @@ def configure(ctx):
     if (ctx.options.enable_fftw3 != False or ctx.options.enable_fftw3f != False):
         # one of fftwf or fftw3f
         if (ctx.options.enable_fftw3f != False):
-            ctx.check_cfg(package = 'fftw3f', atleast_version = '3.0.0',
-                    args = '--cflags --libs',
+            ctx.check_cfg(package = 'fftw3f',
+                    args = '--cflags --libs fftw3f >= 3.0.0',
                     mandatory = ctx.options.enable_fftw3f)
             if (ctx.options.enable_double == True):
                 ctx.msg('Warning',
@@ -269,12 +260,12 @@ def configure(ctx):
             # fftw3f disabled, take most sensible one according to
             # enable_double
             if (ctx.options.enable_double == True):
-                ctx.check_cfg(package = 'fftw3', atleast_version = '3.0.0',
-                        args = '--cflags --libs', mandatory =
-                        ctx.options.enable_fftw3)
+                ctx.check_cfg(package = 'fftw3',
+                        args = '--cflags --libs fftw3 >= 3.0.0.',
+                        mandatory = ctx.options.enable_fftw3)
             else:
-                ctx.check_cfg(package = 'fftw3f', atleast_version = '3.0.0',
-                        args = '--cflags --libs',
+                ctx.check_cfg(package = 'fftw3f',
+                        args = '--cflags --libs fftw3f >= 3.0.0',
                         mandatory = ctx.options.enable_fftw3)
         ctx.define('HAVE_FFTW3', 1)
 
@@ -290,8 +281,8 @@ def configure(ctx):
 
     # check for libsndfile
     if (ctx.options.enable_sndfile != False):
-        ctx.check_cfg(package = 'sndfile', atleast_version = '1.0.4',
-                args = '--cflags --libs',
+        ctx.check_cfg(package = 'sndfile',
+                args = '--cflags --libs sndfile >= 1.0.4',
                 mandatory = ctx.options.enable_sndfile)
 
     # check for libsamplerate
@@ -303,8 +294,8 @@ def configure(ctx):
             ctx.msg('Checking if using samplerate', 'no (disabled in double precision mode)',
                     color = 'YELLOW')
     if (ctx.options.enable_samplerate != False):
-        ctx.check_cfg(package = 'samplerate', atleast_version = '0.0.15',
-                args = '--cflags --libs',
+        ctx.check_cfg(package = 'samplerate',
+                args = '--cflags --libs samplerate >= 0.0.15',
                 mandatory = ctx.options.enable_samplerate)
 
     # check for jack
@@ -315,21 +306,26 @@ def configure(ctx):
 
     # check for libav
     if (ctx.options.enable_avcodec != False):
-        ctx.check_cfg(package = 'libavcodec', atleast_version = '54.35.0',
-                args = '--cflags --libs', uselib_store = 'AVCODEC',
+        ctx.check_cfg(package = 'libavcodec',
+                args = '--cflags --libs libavcodec >= 54.35.0',
+                uselib_store = 'AVCODEC',
                 mandatory = ctx.options.enable_avcodec)
-        ctx.check_cfg(package = 'libavformat', atleast_version = '52.3.0',
-                args = '--cflags --libs', uselib_store = 'AVFORMAT',
+        ctx.check_cfg(package = 'libavformat',
+                args = '--cflags --libs libavformat >= 52.3.0',
+                uselib_store = 'AVFORMAT',
                 mandatory = ctx.options.enable_avcodec)
-        ctx.check_cfg(package = 'libavutil', atleast_version = '52.3.0',
-                args = '--cflags --libs', uselib_store = 'AVUTIL',
+        ctx.check_cfg(package = 'libavutil',
+                args = '--cflags --libs libavutil >= 52.3.0',
+                uselib_store = 'AVUTIL',
                 mandatory = ctx.options.enable_avcodec)
-        ctx.check_cfg(package = 'libswresample', atleast_version = '2.3.0',
-                args = '--cflags --libs', uselib_store = 'SWRESAMPLE',
+        ctx.check_cfg(package = 'libswresample',
+                args = '--cflags --libs libswresample >= 2.3.0',
+                uselib_store = 'SWRESAMPLE',
                 mandatory = False)
         if 'HAVE_SWRESAMPLE' not in ctx.env:
-            ctx.check_cfg(package = 'libavresample', atleast_version = '1.0.1',
-                    args = '--cflags --libs', uselib_store = 'AVRESAMPLE',
+            ctx.check_cfg(package = 'libavresample',
+                    args = '--cflags --libs libavresample >= 1.0.1',
+                    uselib_store = 'AVRESAMPLE',
                     mandatory = False)
 
         msg_check = 'Checking for all libav libraries'

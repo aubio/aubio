@@ -38,8 +38,11 @@ python/MANIFEST
 python/*.db
 python/*.wav
 
+pip-delete-this-directory.txt
+
 aubio-*.tar.bz2
 aubio-*.zip
+dist/*.tar.gz
 
 # test sounds
 python/tests/sounds
