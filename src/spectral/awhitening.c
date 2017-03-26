@@ -93,6 +93,18 @@ aubio_spectral_whitening_get_relax_time (aubio_spectral_whitening_t * o)
   return o->relax_time;
 }
 
+uint_t
+aubio_spectral_whitening_set_floor (aubio_spectral_whitening_t *o, smpl_t floor)
+{
+  o->floor = floor;
+  return AUBIO_OK;
+}
+
+smpl_t aubio_spectral_whitening_get_floor (aubio_spectral_whitening_t *o)
+{
+  return o->floor;
+}
+
 void
 aubio_spectral_whitening_reset (aubio_spectral_whitening_t * o)
 {

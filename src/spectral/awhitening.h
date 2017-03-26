@@ -80,7 +80,7 @@ void aubio_spectral_whitening_reset (aubio_spectral_whitening_t * o);
 /** set relaxation time for spectral whitening
 
   \param o spectral whitening object as returned by new_aubio_spectral_whitening()
-  \param relax_time relaxation time in seconds
+  \param relax_time relaxation time in seconds between 20 and 500, defaults 250
 
   */
 uint_t aubio_spectral_whitening_set_relax_time (aubio_spectral_whitening_t * o,
@@ -93,6 +93,23 @@ uint_t aubio_spectral_whitening_set_relax_time (aubio_spectral_whitening_t * o,
 
 */
 smpl_t aubio_spectral_whitening_get_relax_time (aubio_spectral_whitening_t * o);
+
+/** set floor for spectral whitening
+
+  \param o spectral whitening object as returned by new_aubio_spectral_whitening()
+  \param floor value (typically between 1.e-6 and .2, defaults to 1.e-4)
+
+  */
+uint_t aubio_spectral_whitening_set_floor (aubio_spectral_whitening_t * o,
+    smpl_t floor);
+
+/** get floor of spectral whitening
+
+  \param o spectral whitening object as returned by new_aubio_spectral_whitening()
+  \return floor value
+
+*/
+smpl_t aubio_spectral_whitening_get_floor (aubio_spectral_whitening_t * o);
 
 /** deletion of a spectral whitening
 
