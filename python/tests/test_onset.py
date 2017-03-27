@@ -19,25 +19,25 @@ class aubio_onset_params(TestCase):
         self.o = onset(samplerate = self.samplerate)
 
     def test_get_delay(self):
-        assert_equal (self.o.get_delay(), int(4.3 * self.o.hop_size))
+        self.assertGreater(self.o.get_delay(), 0)
 
     def test_get_delay_s(self):
-        assert_almost_equal (self.o.get_delay_s(), self.o.get_delay() / float(self.samplerate))
+        self.assertGreater(self.o.get_delay_s(), 0.)
 
     def test_get_delay_ms(self):
-        assert_almost_equal (self.o.get_delay_ms(), self.o.get_delay() * 1000. / self.samplerate, 5)
+        self.assertGreater(self.o.get_delay_ms(), 0.)
 
     def test_get_minioi(self):
-        assert_almost_equal (self.o.get_minioi(), 0.02 * self.samplerate)
+        self.assertGreater(self.o.get_minioi(), 0)
 
     def test_get_minioi_s(self):
-        assert_almost_equal (self.o.get_minioi_s(), 0.02)
+        self.assertGreater(self.o.get_minioi_s(), 0.)
 
     def test_get_minioi_ms(self):
-        assert_equal (self.o.get_minioi_ms(), 20.)
+        self.assertGreater(self.o.get_minioi_ms(), 0.)
 
     def test_get_threshold(self):
-        assert_almost_equal (self.o.get_threshold(), 0.3)
+        self.assertGreater(self.o.get_threshold(), 0.)
 
     def test_set_delay(self):
         val = 256
