@@ -75,10 +75,17 @@ void aubio_onset_do (aubio_onset_t *o, const fvec_t * input, fvec_t * onset)
       //AUBIO_DBG ("silent onset, not marking as onset\n");
       isonset  = 0;
     } else {
+      // we have an onset
       uint_t new_onset = o->total_frames + (uint_t)ROUND(isonset * o->hop_size);
+      // check if last onset time was more than minioi ago
       if (o->last_onset + o->minioi < new_onset) {
-        //AUBIO_DBG ("accepted detection, marking as onset\n");
-        o->last_onset = new_onset;
+        // start of file: make sure (new_onset - delay) >= 0
+        if (o->last_onset > 0 && o->delay > new_onset) {
+          isonset = 0;
+        } else {
+          //AUBIO_DBG ("accepted detection, marking as onset\n");
+          o->last_onset = MAX(o->delay, new_onset);
+        }
       } else {
         //AUBIO_DBG ("doubled onset, not marking as onset\n");
         isonset  = 0;
