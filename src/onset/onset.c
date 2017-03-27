@@ -316,9 +316,11 @@ uint_t aubio_onset_set_default_parameters (aubio_onset_t * o, const char_t * ons
     aubio_onset_set_awhitening(o, 1);
     aubio_onset_set_compression (o, 0.02);
   } else if (strcmp (onset_mode, "specflux") == 0) {
-    aubio_onset_set_threshold (o, 0.25);
+    aubio_onset_set_threshold (o, 0.18);
     aubio_onset_set_awhitening(o, 1);
-    aubio_onset_set_compression (o, 20.);
+    aubio_spectral_whitening_set_relax_time(o->spectral_whitening, 100);
+    aubio_spectral_whitening_set_floor(o->spectral_whitening, 1.);
+    aubio_onset_set_compression (o, 10.);
   } else if (strcmp (onset_mode, "specdiff") == 0) {
   } else {
     AUBIO_WRN("onset: unknown spectral descriptor type %s, "
