@@ -62,27 +62,6 @@ aubio provides several algorithms and routines, including:
 The name aubio comes from *audio* with a typo: some errors are likely to be
 found in the results.
 
-Copyright
-=========
-
-Copyright © 2003-2016 Paul Brossier <piem@aubio.org>
-
-License
-=======
-
-aubio is a `free <http://www.debian.org/intro/free>`_ and `open source
-<http://www.opensource.org/docs/definition.php>`_ software; **you** can
-redistribute it and/or modify it under the terms of the `GNU
-<https://www.gnu.org/>`_ `General Public License
-<https://www.gnu.org/licenses/gpl.html>`_ as published by the `Free Software
-Foundation <https://fsf.org>`_, either version 3 of the License, or (at your
-option) any later version.
-
-.. note::
-
-   aubio is not MIT or BSD licensed. Contact the author if you need it in your
-   commercial product.
-
 Content
 =======
 
@@ -93,3 +72,4 @@ Content
    python_module
    cli
    develop
+   about
