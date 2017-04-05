@@ -43,7 +43,12 @@ please see the file [`python/README.md`](python/README.md) and the
 Examples tools
 --------------
 
-A few simple command line tools are included along with the library:
+The python module comes with the following command line tools:
+
+ - `aubio` extracts informations from sound files
+ - `aubiocut` slices sound files at onset or beat timestamps
+
+Additional command line tools are included along with the library:
 
  - `aubioonset` outputs the time stamp of detected note onsets
  - `aubiopitch` attempts to identify a fundamental frequency, or pitch, for
@@ -52,10 +57,6 @@ A few simple command line tools are included along with the library:
  - `aubiotrack` outputs the time stamp of detected beats
  - `aubionotes` emits midi-like notes, with an onset, a pitch, and a duration
  - `aubioquiet` extracts quiet and loud regions
-
-Additionally, the python module comes with the following script:
-
- - `aubiocut` slices sound files at onset or beat timestamps
 
 The latest version of the documentation can be found at:
 
