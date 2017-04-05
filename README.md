@@ -6,6 +6,7 @@ aubio
 [![Landscape code health](https://landscape.io/github/aubio/aubio/master/landscape.svg?style=flat)](https://landscape.io/github/aubio/aubio/master "Landscape code health")
 [![Documentation Status](https://readthedocs.org/projects/aubio/badge/?version=latest)](http://aubio.readthedocs.io/en/latest/?badge=latest "Documentation status")
 [![Commits since last release](https://img.shields.io/github/commits-since/aubio/aubio/0.4.4.svg)](https://github.com/aubio/aubio "Commits since last release")
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.438682.svg)](https://doi.org/10.5281/zenodo.438682)
 
 aubio is a library to label music and sounds. It listens to audio signals and
 attempts to detect events. For instance, when a drum is hit, at which frequency
