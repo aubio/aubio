@@ -23,9 +23,12 @@
 #include "cvec.h"
 #include "spectral/specdesc.h"
 #include "spectral/phasevoc.h"
+#include "spectral/awhitening.h"
 #include "onset/peakpicker.h"
 #include "mathutils.h"
 #include "onset/onset.h"
+
+void aubio_onset_default_parameters (aubio_onset_t *o, const char_t * method);
 
 /** structure to store object state */
 struct _aubio_onset_t {
@@ -42,6 +45,11 @@ struct _aubio_onset_t {
 
   uint_t total_frames;          /**< total number of frames processed since the beginning */
   uint_t last_onset;            /**< last detected onset location, in frames */
+
+  uint_t apply_compression;
+  smpl_t lambda_compression;
+  uint_t apply_awhitening;      /**< apply adaptive spectral whitening */
+  aubio_spectral_whitening_t *spectral_whitening;
 };
 
 /* execute onset detection function on iput buffer */
@@ -49,6 +57,16 @@ void aubio_onset_do (aubio_onset_t *o, const fvec_t * input, fvec_t * onset)
 {
   smpl_t isonset = 0;
   aubio_pvoc_do (o->pv,input, o->fftgrain);
+  /*
+  if (apply_filtering) {
+  }
+  */
+  if (o->apply_awhitening) {
+    aubio_spectral_whitening_do(o->spectral_whitening, o->fftgrain);
+  }
+  if (o->apply_compression) {
+    cvec_logmag(o->fftgrain, o->lambda_compression);
+  }
   aubio_specdesc_do (o->od, o->fftgrain, o->desc);
   aubio_peakpicker_do(o->pp, o->desc, onset);
   isonset = onset->data[0];
@@ -57,10 +75,17 @@ void aubio_onset_do (aubio_onset_t *o, const fvec_t * input, fvec_t * onset)
       //AUBIO_DBG ("silent onset, not marking as onset\n");
       isonset  = 0;
     } else {
+      // we have an onset
       uint_t new_onset = o->total_frames + (uint_t)ROUND(isonset * o->hop_size);
+      // check if last onset time was more than minioi ago
       if (o->last_onset + o->minioi < new_onset) {
-        //AUBIO_DBG ("accepted detection, marking as onset\n");
-        o->last_onset = new_onset;
+        // start of file: make sure (new_onset - delay) >= 0
+        if (o->last_onset > 0 && o->delay > new_onset) {
+          isonset = 0;
+        } else {
+          //AUBIO_DBG ("accepted detection, marking as onset\n");
+          o->last_onset = MAX(o->delay, new_onset);
+        }
       } else {
         //AUBIO_DBG ("doubled onset, not marking as onset\n");
         isonset  = 0;
@@ -97,6 +122,32 @@ smpl_t aubio_onset_get_last_s (const aubio_onset_t *o)
 smpl_t aubio_onset_get_last_ms (const aubio_onset_t *o)
 {
   return aubio_onset_get_last_s (o) * 1000.;
+}
+
+uint_t aubio_onset_set_awhitening (aubio_onset_t *o, uint_t enable)
+{
+  o->apply_awhitening = enable == 1 ? 1 : 0;
+  return AUBIO_OK;
+}
+
+smpl_t aubio_onset_get_awhitening (aubio_onset_t *o)
+{
+  return o->apply_awhitening;
+}
+
+uint_t aubio_onset_set_compression (aubio_onset_t *o, smpl_t lambda)
+{
+  if (lambda < 0.) {
+    return AUBIO_FAIL;
+  }
+  o->lambda_compression = lambda;
+  o->apply_compression = (o->lambda_compression > 0.) ? 1 : 0;
+  return AUBIO_OK;
+}
+
+smpl_t aubio_onset_get_compression (aubio_onset_t *o)
+{
+  return o->apply_compression ? o->lambda_compression : 0;
 }
 
 uint_t aubio_onset_set_silence(aubio_onset_t * o, smpl_t silence) {
@@ -208,16 +259,12 @@ aubio_onset_t * new_aubio_onset (const char_t * onset_mode,
   if (o->od == NULL) goto beach_specdesc;
   o->fftgrain = new_cvec(buf_size);
   o->desc = new_fvec(1);
-
-  /* set some default parameter */
-  aubio_onset_set_threshold (o, 0.3);
-  aubio_onset_set_delay(o, 4.3 * hop_size);
-  aubio_onset_set_minioi_ms(o, 20.);
-  aubio_onset_set_silence(o, -70.);
+  o->spectral_whitening = new_aubio_spectral_whitening(buf_size, hop_size, samplerate);
 
   /* initialize internal variables */
-  o->last_onset = 0;
-  o->total_frames = 0;
+  aubio_onset_set_default_parameters (o, onset_mode);
+
+  aubio_onset_reset(o);
   return o;
 
 beach_specdesc:
@@ -228,8 +275,69 @@ beach:
   return NULL;
 }
 
+void aubio_onset_reset (aubio_onset_t *o) {
+  o->last_onset = 0;
+  o->total_frames = 0;
+}
+
+uint_t aubio_onset_set_default_parameters (aubio_onset_t * o, const char_t * onset_mode)
+{
+  uint_t ret = AUBIO_OK;
+  /* set some default parameter */
+  aubio_onset_set_threshold (o, 0.3);
+  aubio_onset_set_delay (o, 4.3 * o->hop_size);
+  aubio_onset_set_minioi_ms (o, 50.);
+  aubio_onset_set_silence (o, -70.);
+  // disable spectral whitening
+  aubio_onset_set_awhitening (o, 0);
+  // disable logarithmic magnitude
+  aubio_onset_set_compression (o, 0.);
+
+  /* method specific optimisations */
+  if (strcmp (onset_mode, "energy") == 0) {
+  } else if (strcmp (onset_mode, "hfc") == 0 || strcmp (onset_mode, "default") == 0) {
+    aubio_onset_set_threshold (o, 0.058);
+    aubio_onset_set_compression (o, 1.);
+  } else if (strcmp (onset_mode, "complexdomain") == 0
+             || strcmp (onset_mode, "complex") == 0) {
+    aubio_onset_set_delay (o, 4.6 * o->hop_size);
+    aubio_onset_set_threshold (o, 0.15);
+    aubio_onset_set_awhitening(o, 1);
+    aubio_onset_set_compression (o, 1.);
+  } else if (strcmp (onset_mode, "phase") == 0) {
+    o->apply_compression = 0;
+    aubio_onset_set_awhitening (o, 0);
+  } else if (strcmp (onset_mode, "mkl") == 0) {
+    aubio_onset_set_threshold (o, 0.05);
+    aubio_onset_set_awhitening(o, 1);
+    aubio_onset_set_compression (o, 0.02);
+  } else if (strcmp (onset_mode, "kl") == 0) {
+    aubio_onset_set_threshold (o, 0.35);
+    aubio_onset_set_awhitening(o, 1);
+    aubio_onset_set_compression (o, 0.02);
+  } else if (strcmp (onset_mode, "specflux") == 0) {
+    aubio_onset_set_threshold (o, 0.18);
+    aubio_onset_set_awhitening(o, 1);
+    aubio_spectral_whitening_set_relax_time(o->spectral_whitening, 100);
+    aubio_spectral_whitening_set_floor(o->spectral_whitening, 1.);
+    aubio_onset_set_compression (o, 10.);
+  } else if (strcmp (onset_mode, "specdiff") == 0) {
+  } else if (strcmp (onset_mode, "old_default") == 0) {
+    // used to reproduce results obtained with the previous version
+    aubio_onset_set_threshold (o, 0.3);
+    aubio_onset_set_minioi_ms (o, 20.);
+    aubio_onset_set_compression (o, 0.);
+  } else {
+    AUBIO_WRN("onset: unknown spectral descriptor type %s, "
+               "using default parameters.\n", onset_mode);
+    ret = AUBIO_FAIL;
+  }
+  return ret;
+}
+
 void del_aubio_onset (aubio_onset_t *o)
 {
+  del_aubio_spectral_whitening(o->spectral_whitening);
   del_aubio_specdesc(o->od);
   del_aubio_peakpicker(o->pp);
   del_aubio_pvoc(o->pv);

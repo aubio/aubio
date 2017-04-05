@@ -103,6 +103,7 @@ void aubio_wavetable_do ( aubio_wavetable_t * s, const fvec_t * input, fvec_t * 
     for (i = 0; i < output->length; i++) {
       output->data[i] += input->data[i];
     }
+    fvec_clamp(output, 1.);
   }
 }
 

@@ -289,6 +289,25 @@ fvec_ishift (fvec_t * s)
   }
 }
 
+void fvec_push(fvec_t *in, smpl_t new_elem) {
+  uint_t i;
+  for (i = 0; i < in->length - 1; i++) {
+    in->data[i] = in->data[i + 1];
+  }
+  in->data[in->length - 1] = new_elem;
+}
+
+void fvec_clamp(fvec_t *in, smpl_t absmax) {
+  uint_t i;
+  for (i = 0; i < in->length; i++) {
+    if (in->data[i] > 0 && in->data[i] > ABS(absmax)) {
+      in->data[i] = absmax;
+    } else if (in->data[i] < 0 && in->data[i] < -ABS(absmax)) {
+      in->data[i] = -absmax;
+    }
+  }
+}
+
 smpl_t
 aubio_level_lin (const fvec_t * f)
 {

@@ -39,6 +39,7 @@ skip_objects = [
   'source_wavread',
   #'sampler',
   'audio_unit',
+  'spectral_whitening',
   ]
 
 def get_preprocessor():

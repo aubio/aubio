@@ -46,10 +46,11 @@ void process_block(fvec_t * ibuf, fvec_t *obuf) {
   } else {
     aubio_wavetable_stop ( wavetable );
   }
-  if (mix_input)
+  if (mix_input) {
     aubio_wavetable_do (wavetable, ibuf, obuf);
-  else
+  } else {
     aubio_wavetable_do (wavetable, obuf, obuf);
+  }
 }
 
 void process_print (void) {

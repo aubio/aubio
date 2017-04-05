@@ -156,6 +156,14 @@ uint_t aubio_silence_detection (const fvec_t * v, smpl_t threshold);
 */
 smpl_t aubio_level_detection (const fvec_t * v, smpl_t threshold);
 
+/** clamp the values of a vector within the range [-abs(max), abs(max)]
+
+  \param in vector to clamp
+  \param absmax maximum value over which input vector elements should be clamped
+
+*/
+void fvec_clamp(fvec_t *in, smpl_t absmax);
+
 #ifdef __cplusplus
 }
 #endif

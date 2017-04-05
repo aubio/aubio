@@ -230,6 +230,16 @@ void cvec_phas_ones(cvec_t *s);
 */
 void cvec_zeros(cvec_t *s);
 
+/** take logarithmic magnitude
+
+  \param s input cvec to compress
+  \param lambda value to use for normalisation
+
+  \f$ S_k = log( \lambda * S_k + 1 ) \f$
+
+*/
+void cvec_logmag(cvec_t *s, smpl_t lambda);
+
 #ifdef __cplusplus
 }
 #endif

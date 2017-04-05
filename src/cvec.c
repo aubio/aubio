@@ -139,3 +139,10 @@ void cvec_zeros(cvec_t *s) {
   cvec_norm_zeros(s);
   cvec_phas_zeros(s);
 }
+
+void cvec_logmag(cvec_t *s, smpl_t lambda) {
+  uint_t j;
+  for (j=0; j< s->length; j++) {
+    s->norm[j] = LOG(lambda * s->norm[j] + 1);
+  }
+}

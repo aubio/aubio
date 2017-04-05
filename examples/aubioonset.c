@@ -43,10 +43,11 @@ void process_block(fvec_t *ibuf, fvec_t *obuf)
   } else {
     aubio_wavetable_stop ( wavetable );
   }
-  if (mix_input)
+  if (mix_input) {
     aubio_wavetable_do (wavetable, ibuf, obuf);
-  else
+  } else {
     aubio_wavetable_do (wavetable, obuf, obuf);
+  }
 }
 
 void process_print (void)
@@ -61,13 +62,6 @@ int main(int argc, char **argv) {
   int ret = 0;
   examples_common_init(argc,argv);
 
-  verbmsg ("using source: %s at %dHz\n", source_uri, samplerate);
-  verbmsg ("onset method: %s, ", onset_method);
-  verbmsg ("buffer_size: %d, ", buffer_size);
-  verbmsg ("hop_size: %d, ", hop_size);
-  verbmsg ("silence: %f, ", silence_threshold);
-  verbmsg ("threshold: %f\n", onset_threshold);
-
   o = new_aubio_onset (onset_method, buffer_size, hop_size, samplerate);
   if (o == NULL) { ret = 1; goto beach; }
   if (onset_threshold != 0.)
@@ -76,6 +70,15 @@ int main(int argc, char **argv) {
     aubio_onset_set_silence (o, silence_threshold);
   if (onset_minioi != 0.)
     aubio_onset_set_minioi_s (o, onset_minioi);
+
+  verbmsg ("using source: %s at %dHz\n", source_uri, samplerate);
+  verbmsg ("onset method: %s, ", onset_method);
+  verbmsg ("buffer_size: %d, ", buffer_size);
+  verbmsg ("hop_size: %d, ", hop_size);
+  verbmsg ("silence: %f, ", aubio_onset_get_silence(o));
+  verbmsg ("threshold: %f, ", aubio_onset_get_threshold(o));
+  verbmsg ("awhitening: %f, ", aubio_onset_get_awhitening(o));
+  verbmsg ("compression: %f\n", aubio_onset_get_compression(o));
 
   onset = new_fvec (1);
 
