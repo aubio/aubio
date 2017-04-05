@@ -36,9 +36,9 @@ found in the results.
 Python module
 -------------
 
-A python module to access the library functions is also provided. Please see
-the file [`python/README.md`](python/README.md) for more information on how to
-use it.
+A python module for aubio is provided. For more information on how to use it,
+please see the file [`python/README.md`](python/README.md) and the
+[manual](https://aubio.org/manual/latest/) .
 
 Examples tools
 --------------
