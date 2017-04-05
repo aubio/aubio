@@ -291,6 +291,8 @@ new_aubio_specdesc (const char_t * onset_mode, uint_t size){
       onset_type = aubio_specmethod_decrease;
   else if (strcmp (onset_mode, "rolloff") == 0)
       onset_type = aubio_specmethod_rolloff;
+  else if (strcmp (onset_mode, "old_default") == 0)
+      onset_type = aubio_onset_default;
   else if (strcmp (onset_mode, "default") == 0)
       onset_type = aubio_onset_default;
   else {
