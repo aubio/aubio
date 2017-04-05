@@ -26,7 +26,7 @@ aubio provide several algorithms and routines, including:
   - digital filters (low pass, high pass, and more)
   - spectral filtering
   - transient/steady-state separation
-  - sound file and audio devices read and write access
+  - sound file read and write access
   - various mathematics utilities for music applications
 
 The name aubio comes from _audio_ with a typo: some errors are likely to be
