@@ -75,43 +75,14 @@ To compile the python module:
 
     ./setup.py build
 
-See also the [manual](https://aubio.org/manual/latest/) for more information
-about [installing aubio](https://aubio.org/manual/latest/installing.html).
+See the [manual](https://aubio.org/manual/latest/) for more information about
+[installing aubio](https://aubio.org/manual/latest/installing.html).
 
-Credits and Publications
-------------------------
+Citation
+--------
 
-This library gathers music signal processing algorithms designed at the Centre
-for Digital Music and elsewhere. This software project was developed along the
-research I did at the Centre for Digital Music, Queen Mary, University of
-London. Most of this C code was written by myself, starting from published
-papers and existing code. The header files of each algorithm contains brief
-descriptions and references to the corresponding papers.
-
-Special thanks go Juan Pablo Bello, Chris Duxbury, Samer Abdallah, Alain de
-Cheveigne for their help and publications. Also many thanks to Miguel Ramirez
-and Nicolas Wack for their bug fixing.
-
-Substantial informations about the algorithms and their evaluation are gathered
-in:
-
-  - Paul Brossier, _[Automatic annotation of musical audio for interactive
-    systems](https://aubio.org/phd)_, PhD thesis, Centre for Digital music,
-Queen Mary University of London, London, UK, 2006.
-
-Additional results obtained with this software were discussed in the following
-papers:
-
-  - P. M. Brossier and J. P. Bello and M. D. Plumbley, [Real-time temporal
-    segmentation of note objects in music signals](https://aubio.org/articles/brossier04fastnotes.pdf),
-in _Proceedings of the International Computer Music Conference_, 2004, Miami,
-Florida, ICMA
-
-  -  P. M. Brossier and J. P. Bello and M. D. Plumbley, [Fast labelling of note
-     objects in music signals] (https://aubio.org/articles/brossier04fastnotes.pdf),
-in _Proceedings of the International Symposium on Music Information Retrieval_,
-2004, Barcelona, Spain
-
+Please refer to the following link to cite this software in your publication:
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.438682.svg)](https://doi.org/10.5281/zenodo.438682)
 
 Contact Info and Mailing List
 -----------------------------
