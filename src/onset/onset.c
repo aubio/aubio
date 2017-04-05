@@ -322,6 +322,11 @@ uint_t aubio_onset_set_default_parameters (aubio_onset_t * o, const char_t * ons
     aubio_spectral_whitening_set_floor(o->spectral_whitening, 1.);
     aubio_onset_set_compression (o, 10.);
   } else if (strcmp (onset_mode, "specdiff") == 0) {
+  } else if (strcmp (onset_mode, "old_default") == 0) {
+    // used to reproduce results obtained with the previous version
+    aubio_onset_set_threshold (o, 0.3);
+    aubio_onset_set_minioi_ms (o, 20.);
+    aubio_onset_set_compression (o, 0.);
   } else {
     AUBIO_WRN("onset: unknown spectral descriptor type %s, "
                "using default parameters.\n", onset_mode);
