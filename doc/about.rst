@@ -54,7 +54,7 @@ Please refer to the Zenodo link in the file README.md to cite this release.
 Copyright
 ---------
 
-Copyright © 2003-2016 Paul Brossier <piem@aubio.org>
+Copyright © 2003-2017 Paul Brossier <piem@aubio.org>
 
 License
 -------
