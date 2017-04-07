@@ -4,8 +4,9 @@ aubio
 [![Travis build status](https://travis-ci.org/aubio/aubio.svg?branch=master)](https://travis-ci.org/aubio/aubio "Travis build status")
 [![Appveyor build status](https://img.shields.io/appveyor/ci/piem/aubio/master.svg)](https://ci.appveyor.com/project/piem/aubio "Appveyor build status")
 [![Landscape code health](https://landscape.io/github/aubio/aubio/master/landscape.svg?style=flat)](https://landscape.io/github/aubio/aubio/master "Landscape code health")
-[![Documentation Status](https://readthedocs.org/projects/aubio/badge/?version=latest)](http://aubio.readthedocs.io/en/latest/?badge=latest "Documentation status")
 [![Commits since last release](https://img.shields.io/github/commits-since/aubio/aubio/0.4.4.svg)](https://github.com/aubio/aubio "Commits since last release")
+
+[![Documentation](https://readthedocs.org/projects/aubio/badge/?version=latest)](http://aubio.readthedocs.io/en/latest/?badge=latest "Latest documentation")
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.438682.svg)](https://doi.org/10.5281/zenodo.438682)
 
 aubio is a library to label music and sounds. It listens to audio signals and
@@ -81,8 +82,10 @@ See the [manual](https://aubio.org/manual/latest/) for more information about
 Citation
 --------
 
-Please refer to the following link to cite this software in your publication:
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.438682.svg)](https://doi.org/10.5281/zenodo.438682)
+Please use the DOI link above to cite this release in your publications. For
+more information, see also the [about
+page](https://aubio.org/manual/latest/about.html) in [aubio
+manual](https://aubio.org/manual/latest/).
 
 Contact Info and Mailing List
 -----------------------------
