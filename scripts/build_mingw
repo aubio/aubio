@@ -81,8 +81,8 @@ function build_mingw() {
   # fix dll location (see https://github.com/waf-project/waf/issues/1860)
   mv $DESTDIR/lib/libaubio-5.dll $DESTDIR/bin
   # generate def file (see https://github.com/aubio/aubio/issues/97)
-  ( echo -e "EXPORTS"; nm $DESTDIR/bin/libaubio-5.dll | grep T\ _ | \
-    egrep "(aubio|fvec|cvec|lvec|fmat)" | cut -d _ -f 2- ) \
+  ( echo -e "EXPORTS"; $NM $DESTDIR/bin/libaubio-5.dll | grep T\  | \
+    egrep "(aubio|fvec|cvec|lvec|fmat)" | sed 's/^.* T _\?//' ) \
     > $DESTDIR/bin/libaubio-5.def
   zip -r $DESTDIR.zip `basename $DESTDIR`
   rm -rf $DESTDIR
@@ -92,12 +92,14 @@ function build_mingw() {
 function build_mingw32() {
   TARGET=win32
   export CC=i686-w64-mingw32-gcc
+  export NM=i686-w64-mingw32-nm
   build_mingw
 }
 
 function build_mingw64() {
   TARGET=win64
   export CC=x86_64-w64-mingw32-gcc
+  export NM=x86_64-w64-mingw32-nm
   build_mingw
 }
 
