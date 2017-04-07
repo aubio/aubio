@@ -10,9 +10,8 @@
 set -e
 set -x
 
-source VERSION
-VERSION="$AUBIO_MAJOR_VERSION.$AUBIO_MINOR_VERSION.$AUBIO_PATCH_VERSION"
-VERSION+="$AUBIO_VERSION_STATUS"
+python this_version.py -v
+VERSION=`python $PWD/this_version.py -v`
 
 FFMPEG_BUILDS_URL="https://ffmpeg.zeranoe.com/builds"
 FFMPEG_DEFAULT="20170315-6c4665d"
