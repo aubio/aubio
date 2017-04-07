@@ -98,5 +98,10 @@ def get_git_revision_hash(short=True):
     return gitsha
 
 if __name__ == '__main__':
-    print ('%30s'% 'aubio version:', get_aubio_version())
-    print ('%30s'% 'python-aubio version:', get_aubio_pyversion())
+    if len(sys.argv) > 1 and sys.argv[1] == '-v':
+        print (get_aubio_version())
+    elif len(sys.argv) > 1 and sys.argv[1] == '-p':
+        print (get_aubio_version())
+    else:
+        print ('%30s'% 'aubio version:', get_aubio_version())
+        print ('%30s'% 'python-aubio version:', get_aubio_pyversion())
