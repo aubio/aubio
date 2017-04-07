@@ -14,7 +14,7 @@ python this_version.py -v
 VERSION=`python $PWD/this_version.py -v`
 
 FFMPEG_BUILDS_URL="https://ffmpeg.zeranoe.com/builds"
-FFMPEG_DEFAULT="20170315-6c4665d"
+FFMPEG_DEFAULT="20170404-1229007"
 
 # define some default CFLAGS
 DEF_CFLAGS="-Os -I/usr/share/mingw-w64"
