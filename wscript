@@ -319,7 +319,7 @@ def configure(ctx):
                 uselib_store = 'AVUTIL',
                 mandatory = ctx.options.enable_avcodec)
         ctx.check_cfg(package = 'libswresample',
-                args = '--cflags --libs libswresample >= 2.3.0',
+                args = '--cflags --libs libswresample >= 1.2.0',
                 uselib_store = 'SWRESAMPLE',
                 mandatory = False)
         if 'HAVE_SWRESAMPLE' not in ctx.env:
