@@ -1,3 +1,62 @@
+2017-04-10 Paul Brossier <piem@aubio.org>
+
+	[Overview]
+
+	* VERSION: bump to 0.4.5
+	* src/io/source_avcodec.c: add support for libswresample
+	* aubio: new python command line tool to extract information
+	* src/onset/onset.c: add spectral whitening and compression, improve default
+	parameters
+	* this_version.py: use centralized script to get current version, adding git
+	sha when building from git repo (thanks to MartinHN)
+
+	[Interface]
+
+	* src/spectral/awhithening.h: add adaptive whitening
+	* src/{cvec,mathutils,musicutils}.h: add cvec_logmag, fvec_logmag, and fvec_push
+	* src/onset/onset.h: add aubio_onset_set_default_parameters to load optimal
+	parameters of each novelty function, _{set,get}_compression and
+	_{set,get}_awhitening to turn on/off compression and adaptive whitening
+	* src/spectral/specdesc.h: add weighted phase
+
+	[Library]
+
+	* src/onset/onset.c: improve default onset parameters (thanks to @superbock
+	for access to his evaluation database), see commit dccfad2 for more details
+	* src/pitch/pitch.c: avoid segfault when using invalid parameters
+	* src/temporal/biquad.c: fix biquad parameters initialization (thanks to
+	@jurlhardt)
+
+	[Tools]
+
+	* examples/aubio{onset,track}.c: add options --miditap-note and
+	--miditap-velo to set which midi note is triggered at onset/beat (thanks to
+	@tseaver)
+	* examples/aubioonset.c: show actual parameters in verbose mode
+	* examples/utils.c: improve memory usage to emit midi notes
+
+	[Python]
+
+	* python/ext/py-source.c: add with (PEP 343) and iter (PEP 234) interface
+	* python/ext/py-sink.c: add with interface (PEP 343)
+	* python/lib/aubio/cmd.py: new `aubio` command line tool
+	* python/lib/aubio/cut.py: moved from python/scripts/aubiocut
+
+	[Documentation]
+
+	* doc/*.rst: reorganize and improve sphinx manual
+	* doc/*.txt: update manpages, add simple manpage for aubio command line
+	* doc/full.cfg: derive from doc/web.cfg
+	* README.md: simplify and add contribute information
+
+	[Build system]
+
+	* wscript: prefer libswresample over libavsamplerate when available, use
+	current version in manpages, doxygen, and sphinx, update to newest waf
+	* setup.py: use entry_points console_scripts to generate scripts, use
+	centralized version from this_version.py, clean up
+	* python/lib/moresetuptools.py: detect if libswresample is available
+
 2017-01-08 Paul Brossier <piem@aubio.org>
 
 	[ Overview ]
