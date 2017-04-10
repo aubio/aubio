@@ -288,6 +288,7 @@ beach:
 void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s, uint_t multi) {
   // create or reset resampler to/from mono/multi-channel
   if ( (multi != s->multi) || (s->avr == NULL) ) {
+    int err;
     int64_t input_layout = av_get_default_channel_layout(s->input_channels);
     uint_t output_channels = multi ? s->input_channels : 1;
     int64_t output_layout = av_get_default_channel_layout(output_channels);
@@ -311,7 +312,6 @@ void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s, uint_t mul
 #endif
     // TODO: use planar?
     //av_opt_set_int(avr, "out_sample_fmt",     AV_SAMPLE_FMT_FLTP,      0);
-    int err;
 #ifdef HAVE_AVRESAMPLE
     if ( ( err = avresample_open(avr) ) < 0) {
 #elif defined(HAVE_SWRESAMPLE)
@@ -348,6 +348,19 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
 #elif defined(HAVE_SWRESAMPLE)
   SwrContext *avr = s->avr;
 #endif /* HAVE_AVRESAMPLE || HAVE_SWRESAMPLE */
+  int got_frame = 0;
+  int ret = 0;
+#ifdef HAVE_AVRESAMPLE
+  int in_linesize = 0;
+  int in_samples = avFrame->nb_samples;
+  int out_linesize = 0;
+  int max_out_samples = AUBIO_AVCODEC_MAX_BUFFER_SIZE;
+  int out_samples = 0;
+#elif defined(HAVE_SWRESAMPLE)
+  int in_samples = avFrame->nb_samples;
+  int max_out_samples = AUBIO_AVCODEC_MAX_BUFFER_SIZE / avCodecCtx->channels;
+  int out_samples = 0;
+#endif /* HAVE_AVRESAMPLE || HAVE_SWRESAMPLE */
   smpl_t *output = s->output;
   av_init_packet (&avPacket);
   *read_samples = 0;
@@ -368,9 +381,8 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
     }
   } while (avPacket.stream_index != s->selected_stream);
 
-  int got_frame = 0;
 #if FF_API_LAVF_AVCTX
-  int ret = avcodec_send_packet(avCodecCtx, &avPacket);
+  ret = avcodec_send_packet(avCodecCtx, &avPacket);
   if (ret < 0 && ret != AVERROR_EOF) {
     AUBIO_ERR("source_avcodec: error when sending packet for %s\n", s->path);
     goto beach;
@@ -404,19 +416,19 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
   }
 
 #ifdef HAVE_AVRESAMPLE
-  int in_linesize = 0;
+  in_linesize = 0;
   av_samples_get_buffer_size(&in_linesize, avCodecCtx->channels,
       avFrame->nb_samples, avCodecCtx->sample_fmt, 1);
-  int in_samples = avFrame->nb_samples;
-  int out_linesize = 0;
-  int max_out_samples = AUBIO_AVCODEC_MAX_BUFFER_SIZE;
-  int out_samples = avresample_convert ( avr,
+  in_samples = avFrame->nb_samples;
+  out_linesize = 0;
+  max_out_samples = AUBIO_AVCODEC_MAX_BUFFER_SIZE;
+  out_samples = avresample_convert ( avr,
         (uint8_t **)&output, out_linesize, max_out_samples,
         (uint8_t **)avFrame->data, in_linesize, in_samples);
 #elif defined(HAVE_SWRESAMPLE)
-  int in_samples = avFrame->nb_samples;
-  int max_out_samples = AUBIO_AVCODEC_MAX_BUFFER_SIZE / avCodecCtx->channels;
-  int out_samples = swr_convert( avr,
+  in_samples = avFrame->nb_samples;
+  max_out_samples = AUBIO_AVCODEC_MAX_BUFFER_SIZE / avCodecCtx->channels;
+  out_samples = swr_convert( avr,
       (uint8_t **)&output, max_out_samples,
       (const uint8_t **)avFrame->data, in_samples);
 #endif /* HAVE_AVRESAMPLE || HAVE_SWRESAMPLE */
