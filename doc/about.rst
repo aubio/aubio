@@ -8,7 +8,7 @@ description and references to the corresponding papers.
 Credits
 -------
 
-Many thanks to the following people who contributed to aubio, including:
+Many thanks to everyone who contributed to aubio, including:
 
   - Martin Hermant (`MartinHN <https://github.com/MartinHN>`_)
   - Eduard Müller (`emuell <https://github.com/emuell>`_)
