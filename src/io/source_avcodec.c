@@ -362,6 +362,9 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
   int out_samples = 0;
 #endif /* HAVE_AVRESAMPLE || HAVE_SWRESAMPLE */
   smpl_t *output = s->output;
+#ifndef FF_API_LAVF_AVCTX
+  int len = 0;
+#endif
   av_init_packet (&avPacket);
   *read_samples = 0;
 
@@ -403,7 +406,7 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
     }
   }
 #else
-  int len = avcodec_decode_audio4(avCodecCtx, avFrame, &got_frame, &avPacket);
+  len = avcodec_decode_audio4(avCodecCtx, avFrame, &got_frame, &avPacket);
 
   if (len < 0) {
     AUBIO_ERR("source_avcodec: error while decoding %s\n", s->path);
