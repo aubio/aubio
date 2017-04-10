@@ -41,8 +41,8 @@ A python module for aubio is provided. For more information on how to use it,
 please see the file [`python/README.md`](python/README.md) and the
 [manual](https://aubio.org/manual/latest/) .
 
-Examples tools
---------------
+Tools
+-----
 
 The python module comes with the following command line tools:
 
@@ -58,6 +58,12 @@ Additional command line tools are included along with the library:
  - `aubiotrack` outputs the time stamp of detected beats
  - `aubionotes` emits midi-like notes, with an onset, a pitch, and a duration
  - `aubioquiet` extracts quiet and loud regions
+
+Documentation
+-------------
+
+  - [manual](https://aubio.org/manual/latest/), generated with sphinx
+  - [developer documentation](https://aubio.org/doc/latest/), generated with Doxygen
 
 The latest version of the documentation can be found at:
 
@@ -87,26 +93,21 @@ more information, see also the [about
 page](https://aubio.org/manual/latest/about.html) in [aubio
 manual](https://aubio.org/manual/latest/).
 
-Contact Info and Mailing List
------------------------------
+Homepage
+--------
 
 The home page of this project can be found at: https://aubio.org/
 
-Questions, comments, suggestions, and contributions are welcome. Use the
-mailing list: <aubio-user@aubio.org>.
-
-To subscribe to the list, use the mailman form:
-https://lists.aubio.org/listinfo/aubio-user/
-
-Alternatively, feel free to contact directly the author.
-
-
-Copyright and License Information
----------------------------------
-
-Copyright (C) 2003-2017 Paul Brossier <piem@aubio.org>
+License
+-------
 
 aubio is free software: you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software
 Foundation, either version 3 of the License, or (at your option) any later
 version.
+
+Contributing
+------------
+
+Patches are welcome: please fork the latest git repository and create a feature
+branch. Submitted requests should pass all continuous integration tests.
