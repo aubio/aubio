@@ -17,7 +17,7 @@ Current status
    :target: https://aubio.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation status
 
-.. image:: https://img.shields.io/github/commits-since/aubio/aubio/0.4.4.svg?maxAge=2592000
+.. image:: https://img.shields.io/github/commits-since/aubio/aubio/0.4.5.svg?maxAge=2592000
    :target: https://github.com/aubio/aubio
    :alt: Commits since last release
 
