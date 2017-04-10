@@ -72,6 +72,9 @@ def add_local_macros(ext, usedouble = False):
                          'HAVE_LIMITS_H', 'HAVE_STDARG_H',
                          'HAVE_MEMCPY_HACKS']:
         ext.define_macros += [(define_macro, 1)]
+    # assume pthread is available except on windows
+    if os.name != 'nt':
+        ext.define_macros += [('HAVE_PTHREAD_H', 1)]
 
 def add_external_deps(ext, usedouble = False):
     # loof for additional packages
