@@ -113,6 +113,9 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t sa
   AVCodecContext *avCodecCtx = s->avCodecCtx;
   AVCodec *codec;
   AVFrame *avFrame = s->avFrame;
+#if FF_API_LAVF_AVCTX
+  AVCodecParameters *codecpar;
+#endif
   uint_t i;
   sint_t selected_stream = -1;
   int err;
@@ -194,7 +197,7 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t sa
   s->selected_stream = selected_stream;
 
 #if FF_API_LAVF_AVCTX
-  AVCodecParameters *codecpar = avFormatCtx->streams[selected_stream]->codecpar;
+  codecpar = avFormatCtx->streams[selected_stream]->codecpar;
   if (codecpar == NULL) {
     AUBIO_ERR("source_avcodec: Could not find decoder for %s", s->path);
     goto beach;
@@ -210,7 +213,7 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t sa
   }
 #else
   avCodecCtx = avFormatCtx->streams[selected_stream]->codec;
-  AVCodec *codec = avcodec_find_decoder(avCodecCtx->codec_id);
+  codec = avcodec_find_decoder(avCodecCtx->codec_id);
 #endif
   if (codec == NULL) {
     AUBIO_ERR("source_avcodec: Could not find decoder for %s", s->path);
