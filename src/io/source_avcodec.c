@@ -111,13 +111,13 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t sa
   aubio_source_avcodec_t * s = AUBIO_NEW(aubio_source_avcodec_t);
   AVFormatContext *avFormatCtx = s->avFormatCtx;
   AVCodecContext *avCodecCtx = s->avCodecCtx;
-  AVCodec *codec;
   AVFrame *avFrame = s->avFrame;
+  sint_t selected_stream = -1;
 #if FF_API_LAVF_AVCTX
   AVCodecParameters *codecpar;
 #endif
+  AVCodec *codec;
   uint_t i;
-  sint_t selected_stream = -1;
   int err;
   if (path == NULL) {
     AUBIO_ERR("source_avcodec: Aborted opening null path\n");
@@ -343,13 +343,13 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
   AVCodecContext *avCodecCtx = s->avCodecCtx;
   AVFrame *avFrame = s->avFrame;
   AVPacket avPacket = s->avPacket;
-  av_init_packet (&avPacket);
 #ifdef HAVE_AVRESAMPLE
   AVAudioResampleContext *avr = s->avr;
 #elif defined(HAVE_SWRESAMPLE)
   SwrContext *avr = s->avr;
 #endif /* HAVE_AVRESAMPLE || HAVE_SWRESAMPLE */
   smpl_t *output = s->output;
+  av_init_packet (&avPacket);
   *read_samples = 0;
 
   do
