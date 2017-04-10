@@ -109,6 +109,12 @@ uint_t aubio_source_avcodec_has_network_url(aubio_source_avcodec_t *s) {
 
 aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t samplerate, uint_t hop_size) {
   aubio_source_avcodec_t * s = AUBIO_NEW(aubio_source_avcodec_t);
+  AVFormatContext *avFormatCtx = s->avFormatCtx;
+  AVCodecContext *avCodecCtx = s->avCodecCtx;
+  AVCodec *codec;
+  AVFrame *avFrame = s->avFrame;
+  uint_t i;
+  sint_t selected_stream = -1;
   int err;
   if (path == NULL) {
     AUBIO_ERR("source_avcodec: Aborted opening null path\n");
@@ -138,7 +144,6 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t sa
   }
 
   // try opening the file and get some info about it
-  AVFormatContext *avFormatCtx = s->avFormatCtx;
   avFormatCtx = NULL;
   if ( (err = avformat_open_input(&avFormatCtx, s->path, NULL, NULL) ) < 0 ) {
     char errorstr[256];
@@ -167,8 +172,6 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t sa
   //av_dump_format(avFormatCtx, 0, s->path, 0);
 
   // look for the first audio stream
-  uint_t i;
-  sint_t selected_stream = -1;
   for (i = 0; i < avFormatCtx->nb_streams; i++) {
 #if FF_API_LAVF_AVCTX
     if (avFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
@@ -190,14 +193,13 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t sa
   //AUBIO_DBG("Taking stream %d in file %s\n", selected_stream, s->path);
   s->selected_stream = selected_stream;
 
-  AVCodecContext *avCodecCtx = s->avCodecCtx;
 #if FF_API_LAVF_AVCTX
   AVCodecParameters *codecpar = avFormatCtx->streams[selected_stream]->codecpar;
   if (codecpar == NULL) {
     AUBIO_ERR("source_avcodec: Could not find decoder for %s", s->path);
     goto beach;
   }
-  AVCodec *codec = avcodec_find_decoder(codecpar->codec_id);
+  codec = avcodec_find_decoder(codecpar->codec_id);
 
   /* Allocate a codec context for the decoder */
   avCodecCtx = avcodec_alloc_context3(codec);
@@ -248,7 +250,6 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t sa
         s->input_samplerate, s->samplerate);
   }
 
-  AVFrame *avFrame = s->avFrame;
   avFrame = av_frame_alloc();
   if (!avFrame) {
     AUBIO_ERR("source_avcodec: Could not allocate frame for (%s)\n", s->path);
