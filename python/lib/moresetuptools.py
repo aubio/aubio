@@ -116,8 +116,8 @@ def add_external_deps(ext, usedouble = False):
 
     ext.define_macros += [('HAVE_WAVWRITE', 1)]
     ext.define_macros += [('HAVE_WAVREAD', 1)]
-    # TODO:
-    # add cblas
+
+    # TODO: add cblas
     if 0:
         ext.libraries += ['cblas']
         ext.define_macros += [('HAVE_ATLAS_CBLAS_H', 1)]
@@ -130,6 +130,12 @@ def add_system_aubio(ext):
         print("Info: aubio " + aubio_version + " was not found by pkg-config")
     else:
         print("Info: using system aubio " + aubio_version + " found in " + ' '.join(ext.library_dirs))
+
+def add_libav_on_win(ext):
+    """ no pkg-config on windows, simply assume these libs are available """
+    ext.libraries += ['avformat', 'avutil', 'avcodec', 'swresample']
+    for define_macro in ['HAVE_LIBAV', 'HAVE_SWRESAMPLE']:
+        ext.define_macros += [(define_macro, 1)]
 
 class CleanGenerated(distutils.command.clean.clean):
     def run(self):
@@ -174,6 +180,10 @@ class build_ext(_build_ext):
             else:
                 # check for external dependencies
                 add_external_deps(extension, usedouble=enable_double)
+                # force adding libav on windows
+                if os.name == 'nt' and ('WITH_LIBAV' in os.environ \
+                        or 'CONDA_PREFIX' in os.environ):
+                    add_libav_on_win(extension)
                 # add libaubio sources and look for optional deps with pkg-config
                 add_local_aubio_sources(extension)
         # generate files python/gen/*.c, python/gen/aubio-generated.h
