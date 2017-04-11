@@ -31,7 +31,7 @@
 
   Matthew E. P. Davies, Paul Brossier, and Mark D. Plumbley. Beat tracking
   towards automatic musical accompaniment. In Proceedings of the Audio
-  Engeeniring Society 118th Convention, Barcelona, Spain, May 2005.
+  Engineering Society 118th Convention, Barcelona, Spain, May 2005.
 
   \example tempo/test-beattracking.c
 
