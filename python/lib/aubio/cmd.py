@@ -46,6 +46,7 @@ def aubio_parser():
     helpstr = "pitch detection method <default|yinfft|yin|mcomb|fcomb|schmitt>"
     parser_add_method(subparser, helpstr=helpstr)
     parser_add_threshold(subparser)
+    parser_add_pitch_unit(subparser)
     parser_add_silence(subparser)
     parser_add_time_format(subparser)
     parser_add_verbose_help(subparser)
@@ -150,6 +151,14 @@ def parser_add_minioi(parser):
             action="store", dest="minioi", default="12ms",
             help="minimum Inter-Onset Interval")
 
+def parser_add_pitch_unit(parser, default="Hz"):
+    help_str = "frequency unit, should be one of Hz, midi, bin, cent"
+    help_str += " [default=%s]" % default
+    parser.add_argument("-u", "--pitch-unit",
+            metavar = "<value>", type=str,
+            action="store", dest="pitch_unit", default=default,
+            help=help_str)
+
 def parser_add_time_format(parser):
     helpstr = "select time values output format (samples, ms, seconds)"
     helpstr += " [default=seconds]"
@@ -239,6 +248,8 @@ class process_pitch(default_process):
     def __init__(self, args):
         self.parse_options(args, self.valid_opts)
         self.pitch = aubio.pitch(**self.options)
+        if args.pitch_unit is not None:
+            self.pitch.set_unit(args.pitch_unit)
         if args.threshold is not None:
             self.pitch.set_tolerance(args.threshold)
         if args.silence is not None:
