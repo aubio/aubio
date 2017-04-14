@@ -6,8 +6,8 @@ Build options
 If built without any external dependencies aubio can be somewhat useful, for
 instance to read, process, and write simple wav files.
 
-To support more media input formas add more features to aubio, you can use one
-or all of the `following libraries <extlibs>`_.
+To support more media input formats and add more features to aubio, you can use
+one or all of the following `external libraries`_.
 
 You may also want to know more about the `other options`_ and the `platform
 notes`_
