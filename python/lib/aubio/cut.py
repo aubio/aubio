@@ -153,9 +153,9 @@ def main():
     if samplerate == 0: samplerate = s.get_samplerate()
 
     if options.beat:
-        o = tempo(options.onset_method, bufsize, hopsize)
+        o = tempo(options.onset_method, bufsize, hopsize, samplerate=samplerate)
     else:
-        o = onset(options.onset_method, bufsize, hopsize)
+        o = onset(options.onset_method, bufsize, hopsize, samplerate=samplerate)
         if options.minioi:
             if options.minioi.endswith('ms'):
                 o.set_minioi_ms(int(options.minioi[:-2]))
