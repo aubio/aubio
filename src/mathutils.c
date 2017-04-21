@@ -225,10 +225,10 @@ fvec_min_elem (fvec_t * s)
   }
 #else
   smpl_t tmp = 0.;
-  uint_t pos = 0.;
-  aubio_vDSP_minvi(s->data, 1, &tmp, (vDSP_Length *)&pos, s->length);
+  vDSP_Length pos = 0;
+  aubio_vDSP_minvi(s->data, 1, &tmp, &pos, s->length);
 #endif
-  return pos;
+  return (uint_t)pos;
 }
 
 uint_t
@@ -243,10 +243,10 @@ fvec_max_elem (fvec_t * s)
   }
 #else
   smpl_t tmp = 0.;
-  uint_t pos = 0.;
-  aubio_vDSP_maxvi(s->data, 1, &tmp, (vDSP_Length *)&pos, s->length);
+  vDSP_Length pos = 0;
+  aubio_vDSP_maxvi(s->data, 1, &tmp, &pos, s->length);
 #endif
-  return pos;
+  return (uint_t)pos;
 }
 
 void
