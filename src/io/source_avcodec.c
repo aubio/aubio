@@ -349,7 +349,6 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
   SwrContext *avr = s->avr;
 #endif /* HAVE_AVRESAMPLE || HAVE_SWRESAMPLE */
   int got_frame = 0;
-  int ret = 0;
 #ifdef HAVE_AVRESAMPLE
   int in_linesize = 0;
   int in_samples = avFrame->nb_samples;
@@ -364,6 +363,8 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
   smpl_t *output = s->output;
 #ifndef FF_API_LAVF_AVCTX
   int len = 0;
+#else
+  int ret = 0;
 #endif
   av_init_packet (&avPacket);
   *read_samples = 0;
