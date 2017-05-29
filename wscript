@@ -228,6 +228,14 @@ def configure(ctx):
     if target_platform == 'emscripten':
         import os.path
         ctx.env.CFLAGS += [ '-I' + os.path.join(os.environ['EMSCRIPTEN'], 'system', 'include') ]
+        
+        if ctx.options.build_type == "debug":
+            ctx.env.cshlib_PATTERN = '%s.js'
+            ctx.env.LINKFLAGS_cshlib += ['-s','ASSERTIONS=1']
+        else:
+            ctx.env.LINKFLAGS += ['-Oz']
+            ctx.env.cshlib_PATTERN = '%s.min.js'
+        
         ctx.env.cprogram_PATTERN = "%s.js"
         if (ctx.options.enable_atlas != True):
             ctx.options.enable_atlas = False
