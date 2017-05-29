@@ -248,7 +248,7 @@ def configure(ctx):
         c_mangled_names = ['_'+s for s in exported_funcnames]
         ctx.env.LINKFLAGS_cshlib += ['-s','EXPORTED_FUNCTIONS=%s'%c_mangled_names]
         # put memory file inside generated js files
-        ctx.env.LINKFLAGS_cshlib+=['--memory-init-file','0']
+        ctx.env.LINKFLAGS+=['--memory-init-file','0']
         ctx.env.cprogram_PATTERN = "%s.js"
         ctx.env.cstlib_PATTERN = '%s.a'
         if (ctx.options.enable_atlas != True):
