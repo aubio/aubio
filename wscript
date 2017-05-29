@@ -231,7 +231,9 @@ def configure(ctx):
         
         if ctx.options.build_type == "debug":
             ctx.env.cshlib_PATTERN = '%s.js'
-            ctx.env.LINKFLAGS_cshlib += ['-s','ASSERTIONS=1']
+            ctx.env.LINKFLAGS_cshlib += ['-s','ASSERTIONS=2']
+            ctx.env.LINKFLAGS_cshlib += ['-s','SAFE_HEAP=1']
+            ctx.env.LINKFLAGS_cshlib += ['-s','ALIASING_FUNCTION_POINTERS=0']
         else:
             ctx.env.LINKFLAGS += ['-Oz']
             ctx.env.cshlib_PATTERN = '%s.min.js'
