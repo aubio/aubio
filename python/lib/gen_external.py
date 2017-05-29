@@ -152,7 +152,6 @@ def analyze_c_declarations(cpp_objects, c_declarations):
         lib[shortname] = {'struct': [], 'new': [], 'del': [], 'do': [], 'get': [], 'set': [], 'other': []}
         lib[shortname]['longname'] = longname
         lib[shortname]['shortname'] = shortname
-        valid_funcname_part = ['_'+longname,longname+'_']
 
         for fn in c_declarations:
             func_name = fn.split('(')[0].strip().split(' ')[1:]
@@ -160,7 +159,7 @@ def analyze_c_declarations(cpp_objects, c_declarations):
                 func_name = func_name[-1]
             else:
                 raise NameError('Warning : error while parsing : unexpected line %s' % fn)
-            if any(x in func_name for x in valid_funcname_part):
+            if func_name.startswith(longname + '_') or func_name.endswith(longname):
                 # print "found", shortname, "in", fn
                 if 'typedef struct ' in fn:
                     lib[shortname]['struct'].append(fn)
