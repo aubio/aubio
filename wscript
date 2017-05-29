@@ -250,6 +250,7 @@ def configure(ctx):
         # put memory file inside generated js files
         ctx.env.LINKFLAGS_cshlib+=['--memory-init-file','0']
         ctx.env.cprogram_PATTERN = "%s.js"
+        ctx.env.cstlib_PATTERN = '%s.a'
         if (ctx.options.enable_atlas != True):
             ctx.options.enable_atlas = False
 
