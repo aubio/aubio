@@ -150,7 +150,7 @@ def analyze_c_declarations(cpp_objects, c_declarations):
         if shortname in skip_objects:
             continue
         lib[shortname] = {'struct': [], 'new': [], 'del': [], 'do': [], 'get': [], 'set': [], 'other': []}
-        lib[shortname]['longname'] = o
+        lib[shortname]['longname'] = longname
         lib[shortname]['shortname'] = shortname
         valid_funcname_part = ['_'+longname,longname+'_']
 
