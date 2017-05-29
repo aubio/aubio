@@ -121,6 +121,13 @@ def get_c_declarations(header=header, usedouble=False):
         else:
             i += 1
 
+    # clean pointer notations
+    tmp = []
+    for l in cpp_output:
+        tmp+=[ l.replace(' *','* ')]
+    cpp_output = tmp;
+
+
     return cpp_output
 
 def get_cpp_objects_from_c_declarations(c_declarations):
