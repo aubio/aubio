@@ -107,6 +107,18 @@ def configure(ctx):
     ctx.load('waf_unit_test')
     ctx.load('gnu_dirs')
 
+    target_platform = sys.platform
+    if ctx.options.target_platform:
+        target_platform = ctx.options.target_platform
+
+
+    if target_platform=='emscripten':
+        # need to force spaces between flag -o and path 
+        # inspired from :
+        # https://github.com/waf-project/waf/blob/master/waflib/extras/c_emscripten.py (#1885)
+        # (OSX /emscripten 1.37.9)
+        ctx.env.CC_TGT_F            = ['-c', '-o', '']
+        ctx.env.CCLNK_TGT_F         = ['-o', '']
     # check for common headers
     ctx.check(header_name='stdlib.h')
     ctx.check(header_name='stdio.h')
@@ -117,9 +129,6 @@ def configure(ctx):
     ctx.check(header_name='getopt.h', mandatory = False)
     ctx.check(header_name='unistd.h', mandatory = False)
 
-    target_platform = sys.platform
-    if ctx.options.target_platform:
-        target_platform = ctx.options.target_platform
     ctx.env['DEST_OS'] = target_platform
 
     if ctx.options.build_type == "debug":
