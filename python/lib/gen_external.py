@@ -75,7 +75,10 @@ def get_preprocessor():
     cpp_cmd += ['-x', 'c']  # force C language (emcc defaults to c++)
     return cpp_cmd
 
-def get_cpp_objects(header=header, usedouble=False):
+
+def get_c_declarations(header=header, usedouble=False):
+    ''' return a dense and preprocessed  string of all c declarations implied by aubio.h
+    '''
     cpp_cmd = get_preprocessor()
 
     macros = [('AUBIO_UNSTABLE', 1)]
@@ -118,14 +121,14 @@ def get_cpp_objects(header=header, usedouble=False):
         else:
             i += 1
 
-    typedefs = filter(lambda y: y.startswith ('typedef struct _aubio'), cpp_output)
+    return cpp_output
 
+def get_cpp_objects_from_c_declarations(c_declarations):
+    typedefs = filter(lambda y: y.startswith ('typedef struct _aubio'), c_declarations)
     cpp_objects = [a.split()[3][:-1] for a in typedefs]
+    return cpp_objects
 
-    return cpp_output, cpp_objects
-
-
-def analyze_cpp_output(cpp_objects, cpp_output):
+def analyze_c_declarations(cpp_objects, c_declarations):
     lib = {}
 
     for o in cpp_objects:
@@ -144,7 +147,7 @@ def analyze_cpp_output(cpp_objects, cpp_output):
         lib[shortname]['shortname'] = shortname
         valid_funcname_part = ['_'+longname,longname+'_']
 
-        for fn in cpp_output:
+        for fn in c_declarations:
             func_name = fn.split('(')[0].strip().split(' ')[1:]
             if func_name:
                 func_name = func_name[-1]
@@ -169,8 +172,8 @@ def analyze_cpp_output(cpp_objects, cpp_output):
                     lib[shortname]['other'].append(fn)
     return lib
 
-def print_cpp_output_results(lib, cpp_output):
-    for fn in cpp_output:
+def print_c_declarations_results(lib, c_declarations):
+    for fn in c_declarations:
         found = 0
         for o in lib:
             for family in lib[o]:
@@ -193,10 +196,11 @@ def generate_external(header=header, output_path=output_path, usedouble=False, o
     if not os.path.isdir(output_path): os.mkdir(output_path)
     elif not overwrite: return sorted(glob.glob(os.path.join(output_path, '*.c')))
 
-    cpp_output, cpp_objects = get_cpp_objects(header, usedouble=usedouble)
+    c_declarations = get_c_declarations(header, usedouble=usedouble)
+    cpp_objects = get_cpp_objects_from_c_declarations(c_declarations)
 
-    lib = analyze_cpp_output(cpp_objects, cpp_output)
-    # print_cpp_output_results(lib, cpp_output)
+    lib = analyze_c_declarations(cpp_objects, c_declarations)
+    # print_c_declarations_results(lib, c_declarations)
 
     sources_list = []
     try:
