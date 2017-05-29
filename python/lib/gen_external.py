@@ -129,7 +129,7 @@ def get_c_declarations(header=header, usedouble=False):
     # clean pointer notations
     tmp = []
     for l in cpp_output:
-        tmp += [l.replace(' *', '* ')]
+        tmp += [l.replace(' *', ' * ')]
     cpp_output = tmp
 
     return cpp_output
