@@ -228,7 +228,6 @@ def configure(ctx):
     if target_platform == 'emscripten':
         import os.path
         ctx.env.CFLAGS += [ '-I' + os.path.join(os.environ['EMSCRIPTEN'], 'system', 'include') ]
-        ctx.env.CFLAGS += ['-Oz']
         ctx.env.cprogram_PATTERN = "%s.js"
         if (ctx.options.enable_atlas != True):
             ctx.options.enable_atlas = False
