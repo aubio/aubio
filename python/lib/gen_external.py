@@ -108,10 +108,13 @@ def get_cpp_objects(header=header, usedouble=False):
 
     i = 1
     while 1:
-        if i >= len(cpp_output): break
-        if cpp_output[i-1].endswith(',') or cpp_output[i-1].endswith('{') or cpp_output[i].startswith('}'):
+        if i >= len(cpp_output):break
+        if ('{' in cpp_output[i - 1]) and (not '}' in cpp_output[i - 1]) or (not ';' in cpp_output[i - 1]):
             cpp_output[i] = cpp_output[i-1] + ' ' + cpp_output[i]
             cpp_output.pop(i-1)
+        elif ('}' in cpp_output[i]):
+            cpp_output[i] = cpp_output[i - 1] + ' ' + cpp_output[i]
+            cpp_output.pop(i - 1)
         else:
             i += 1
 
