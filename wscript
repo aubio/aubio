@@ -238,6 +238,15 @@ def configure(ctx):
             ctx.env.LINKFLAGS += ['-Oz']
             ctx.env.cshlib_PATTERN = '%s.min.js'
         
+         # import exposed function names
+        from python.lib.gen_external import get_c_declarations,get_cpp_objects_from_c_declarations,get_all_func_names_from_lib,generate_lib_from_c_declarations
+        c_decls = get_c_declarations(usedouble=False) #emscripten can't use double
+        objects = get_cpp_objects_from_c_declarations(c_decls)
+        objects+=['fvec']
+        lib =  generate_lib_from_c_declarations(objects,c_decls)
+        exported_funcnames = get_all_func_names_from_lib(lib)
+        c_mangled_names = ['_'+s for s in exported_funcnames]
+        ctx.env.LINKFLAGS_cshlib += ['-s','EXPORTED_FUNCTIONS=%s'%c_mangled_names]
         ctx.env.cprogram_PATTERN = "%s.js"
         if (ctx.options.enable_atlas != True):
             ctx.options.enable_atlas = False
