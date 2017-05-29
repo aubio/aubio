@@ -135,7 +135,37 @@ def get_cpp_objects_from_c_declarations(c_declarations):
     cpp_objects = [a.split()[3][:-1] for a in typedefs]
     return cpp_objects
 
-def analyze_c_declarations(cpp_objects, c_declarations):
+
+def get_all_func_names_from_lib(lib, depth=0):
+    ''' return flat string of all function used in lib
+    '''
+    res = []
+    indent = " " * depth
+    for k, v in lib.items():
+        if isinstance(v, dict):
+            res += get_all_func_names_from_lib(v, depth + 1)
+        elif isinstance(v, list):
+            for elem in v:
+                e = elem.split('(')
+                if len(e) < 2:
+                    continue  # not a function
+                fname_part = e[0].strip().split(' ')
+                fname = fname_part[-1]
+                if fname:
+                    res += [fname]
+                else:
+                    raise NameError('gen_lib : weird function: ' + str(e))
+
+    return res
+
+
+def generate_lib_from_c_declarations(cpp_objects, c_declarations):
+    ''' returns a lib from given cpp_object names
+
+    a lib is a dict grouping functions by family (onset,pitch...)
+        each eement is itself a dict of functions grouped by puposes as : 
+        struct, new, del, do, get, set and other
+    '''
     lib = {}
 
     for o in cpp_objects:
@@ -205,7 +235,7 @@ def generate_external(header=header, output_path=output_path, usedouble=False, o
     c_declarations = get_c_declarations(header, usedouble=usedouble)
     cpp_objects = get_cpp_objects_from_c_declarations(c_declarations)
 
-    lib = analyze_c_declarations(cpp_objects, c_declarations)
+    lib = generate_lib_from_c_declarations(cpp_objects, c_declarations)
     # print_c_declarations_results(lib, c_declarations)
 
     sources_list = []
