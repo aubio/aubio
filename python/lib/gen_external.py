@@ -1,5 +1,8 @@
 import distutils.ccompiler
-import sys, os, subprocess, glob
+import sys
+import os
+import subprocess
+import glob
 
 header = os.path.join('src', 'aubio.h')
 output_path = os.path.join('python', 'gen')
@@ -9,38 +12,39 @@ source_header = """// this file is generated! do not modify
 """
 
 skip_objects = [
-  # already in ext/
-  'fft',
-  'pvoc',
-  'filter',
-  'filterbank',
-  # AUBIO_UNSTABLE
-  'hist',
-  'parameter',
-  'scale',
-  'beattracking',
-  'resampler',
-  'peakpicker',
-  'pitchfcomb',
-  'pitchmcomb',
-  'pitchschmitt',
-  'pitchspecacf',
-  'pitchyin',
-  'pitchyinfft',
-  'sink',
-  'sink_apple_audio',
-  'sink_sndfile',
-  'sink_wavwrite',
-  #'mfcc',
-  'source',
-  'source_apple_audio',
-  'source_sndfile',
-  'source_avcodec',
-  'source_wavread',
-  #'sampler',
-  'audio_unit',
-  'spectral_whitening',
-  ]
+    # already in ext/
+    'fft',
+    'pvoc',
+    'filter',
+    'filterbank',
+    # AUBIO_UNSTABLE
+    'hist',
+    'parameter',
+    'scale',
+    'beattracking',
+    'resampler',
+    'peakpicker',
+    'pitchfcomb',
+    'pitchmcomb',
+    'pitchschmitt',
+    'pitchspecacf',
+    'pitchyin',
+    'pitchyinfft',
+    'sink',
+    'sink_apple_audio',
+    'sink_sndfile',
+    'sink_wavwrite',
+    #'mfcc',
+    'source',
+    'source_apple_audio',
+    'source_sndfile',
+    'source_avcodec',
+    'source_wavread',
+    #'sampler',
+    'audio_unit',
+    'spectral_whitening',
+]
+
 
 def get_preprocessor():
     # findout which compiler to use
@@ -59,12 +63,12 @@ def get_preprocessor():
             print("Warning: failed initializing compiler ({:s})".format(repr(e)))
 
     cpp_cmd = None
-    if hasattr(compiler, 'preprocessor'): # for unixccompiler
+    if hasattr(compiler, 'preprocessor'):  # for unixccompiler
         cpp_cmd = compiler.preprocessor
-    elif hasattr(compiler, 'compiler'): # for ccompiler
+    elif hasattr(compiler, 'compiler'):  # for ccompiler
         cpp_cmd = compiler.compiler.split()
         cpp_cmd += ['-E']
-    elif hasattr(compiler, 'cc'): # for msvccompiler
+    elif hasattr(compiler, 'cc'):  # for msvccompiler
         cpp_cmd = compiler.cc.split()
         cpp_cmd += ['-E']
 
@@ -94,15 +98,15 @@ def get_c_declarations(header=header, usedouble=False):
 
     print("Running command: {:s}".format(" ".join(cpp_cmd)))
     proc = subprocess.Popen(cpp_cmd,
-            stderr=subprocess.PIPE,
-            stdout=subprocess.PIPE)
+                            stderr=subprocess.PIPE,
+                            stdout=subprocess.PIPE)
     assert proc, 'Proc was none'
     cpp_output = proc.stdout.read()
     err_output = proc.stderr.read()
     if not cpp_output:
         raise Exception("preprocessor output is empty:\n%s" % err_output)
     elif err_output:
-        print ("Warning: preprocessor produced warnings:\n%s" % err_output)
+        print("Warning: preprocessor produced warnings:\n%s" % err_output)
     if not isinstance(cpp_output, list):
         cpp_output = [l.strip() for l in cpp_output.decode('utf8').split('\n')]
 
@@ -111,10 +115,11 @@ def get_c_declarations(header=header, usedouble=False):
 
     i = 1
     while 1:
-        if i >= len(cpp_output):break
+        if i >= len(cpp_output):
+            break
         if ('{' in cpp_output[i - 1]) and (not '}' in cpp_output[i - 1]) or (not ';' in cpp_output[i - 1]):
-            cpp_output[i] = cpp_output[i-1] + ' ' + cpp_output[i]
-            cpp_output.pop(i-1)
+            cpp_output[i] = cpp_output[i - 1] + ' ' + cpp_output[i]
+            cpp_output.pop(i - 1)
         elif ('}' in cpp_output[i]):
             cpp_output[i] = cpp_output[i - 1] + ' ' + cpp_output[i]
             cpp_output.pop(i - 1)
@@ -124,14 +129,14 @@ def get_c_declarations(header=header, usedouble=False):
     # clean pointer notations
     tmp = []
     for l in cpp_output:
-        tmp+=[ l.replace(' *','* ')]
-    cpp_output = tmp;
-
+        tmp += [l.replace(' *', '* ')]
+    cpp_output = tmp
 
     return cpp_output
 
+
 def get_cpp_objects_from_c_declarations(c_declarations):
-    typedefs = filter(lambda y: y.startswith ('typedef struct _aubio'), c_declarations)
+    typedefs = filter(lambda y: y.startswith('typedef struct _aubio'), c_declarations)
     cpp_objects = [a.split()[3][:-1] for a in typedefs]
     return cpp_objects
 
@@ -173,10 +178,10 @@ def generate_lib_from_c_declarations(cpp_objects, c_declarations):
         if o[:6] == 'aubio_':
             shortname = o[6:-2]  # without aubio_
             longname = o[:-2]  # without _t
-        else: # support object not starting with aubio_ (fvec...)
+        else:  # support object not starting with aubio_ (fvec...)
             shortname = o
             longname = shortname
-        
+
         if shortname in skip_objects:
             continue
         lib[shortname] = {'struct': [], 'new': [], 'del': [], 'do': [], 'get': [], 'set': [], 'other': []}
@@ -204,9 +209,10 @@ def generate_lib_from_c_declarations(cpp_objects, c_declarations):
                 elif '_set_' in fn:
                     lib[shortname]['set'].append(fn)
                 else:
-                    #print "no idea what to do about", fn
+                    # print "no idea what to do about", fn
                     lib[shortname]['other'].append(fn)
     return lib
+
 
 def print_c_declarations_results(lib, c_declarations):
     for fn in c_declarations:
@@ -216,21 +222,23 @@ def print_c_declarations_results(lib, c_declarations):
                 if fn in lib[o][family]:
                     found = 1
         if found == 0:
-            print ("missing", fn)
+            print("missing", fn)
 
     for o in lib:
         for family in lib[o]:
             if type(lib[o][family]) == str:
-                print ( "{:15s} {:10s} {:s}".format(o, family, lib[o][family] ) )
+                print("{:15s} {:10s} {:s}".format(o, family, lib[o][family]))
             elif len(lib[o][family]) == 1:
-                print ( "{:15s} {:10s} {:s}".format(o, family, lib[o][family][0] ) )
+                print("{:15s} {:10s} {:s}".format(o, family, lib[o][family][0]))
             else:
-                print ( "{:15s} {:10s} {:s}".format(o, family, lib[o][family] ) )
+                print("{:15s} {:10s} {:s}".format(o, family, lib[o][family]))
 
 
 def generate_external(header=header, output_path=output_path, usedouble=False, overwrite=True):
-    if not os.path.isdir(output_path): os.mkdir(output_path)
-    elif not overwrite: return sorted(glob.glob(os.path.join(output_path, '*.c')))
+    if not os.path.isdir(output_path):
+        os.mkdir(output_path)
+    elif not overwrite:
+        return sorted(glob.glob(os.path.join(output_path, '*.c')))
 
     c_declarations = get_c_declarations(header, usedouble=usedouble)
     cpp_objects = get_cpp_objects_from_c_declarations(c_declarations)
@@ -245,12 +253,12 @@ def generate_external(header=header, output_path=output_path, usedouble=False, o
         from gen_code import MappedObject
     for o in lib:
         out = source_header
-        mapped = MappedObject(lib[o], usedouble = usedouble)
+        mapped = MappedObject(lib[o], usedouble=usedouble)
         out += mapped.gen_code()
         output_file = os.path.join(output_path, 'gen-%s.c' % o)
         with open(output_file, 'w') as f:
             f.write(out)
-            print ("wrote %s" % output_file )
+            print("wrote %s" % output_file)
             sources_list.append(output_file)
 
     out = source_header
@@ -262,23 +270,23 @@ int generated_types_ready (void)
 {{
   return ({pycheck_types});
 }}
-""".format(pycheck_types = check_types)
+""".format(pycheck_types=check_types)
 
     add_types = "".join(["""
   Py_INCREF (&Py_{name}Type);
-  PyModule_AddObject(m, "{name}", (PyObject *) & Py_{name}Type);""".format(name = o) for o in lib])
+  PyModule_AddObject(m, "{name}", (PyObject *) & Py_{name}Type);""".format(name=o) for o in lib])
     out += """
 
 void add_generated_objects ( PyObject *m )
 {{
 {add_types}
 }}
-""".format(add_types = add_types)
+""".format(add_types=add_types)
 
     output_file = os.path.join(output_path, 'aubio-generated.c')
     with open(output_file, 'w') as f:
         f.write(out)
-        print ("wrote %s" % output_file )
+        print("wrote %s" % output_file)
         sources_list.append(output_file)
 
     objlist = "".join(["extern PyTypeObject Py_%sType;\n" % p for p in lib])
@@ -296,17 +304,19 @@ void add_generated_objects ( PyObject *m )
 {objlist}
 int generated_objects ( void );
 void add_generated_objects( PyObject *m );
-""".format(objlist = objlist)
+""".format(objlist=objlist)
 
     output_file = os.path.join(output_path, 'aubio-generated.h')
     with open(output_file, 'w') as f:
         f.write(out)
-        print ("wrote %s" % output_file )
+        print("wrote %s" % output_file)
         # no need to add header to list of sources
 
     return sorted(sources_list)
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1: header = sys.argv[1]
-    if len(sys.argv) > 2: output_path = sys.argv[2]
+    if len(sys.argv) > 1:
+        header = sys.argv[1]
+    if len(sys.argv) > 2:
+        output_path = sys.argv[2]
     generate_external(header, output_path)
