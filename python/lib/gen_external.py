@@ -129,17 +129,29 @@ def analyze_cpp_output(cpp_objects, cpp_output):
     lib = {}
 
     for o in cpp_objects:
-        if o[:6] != 'aubio_':
-            continue
-        shortname = o[6:-2]
+        shortname = ''
+        if o[:6] == 'aubio_':
+            shortname = o[6:-2]  # without aubio_
+            longname = o[:-2]  # without _t
+        else: # support object not starting with aubio_ (fvec...)
+            shortname = o
+            longname = shortname
+        
         if shortname in skip_objects:
             continue
         lib[shortname] = {'struct': [], 'new': [], 'del': [], 'do': [], 'get': [], 'set': [], 'other': []}
         lib[shortname]['longname'] = o
         lib[shortname]['shortname'] = shortname
+        valid_funcname_part = ['_'+longname,longname+'_']
+
         for fn in cpp_output:
-            if o[:-1] in fn:
-                #print "found", o[:-1], "in", fn
+            func_name = fn.split('(')[0].strip().split(' ')[1:]
+            if func_name:
+                func_name = func_name[-1]
+            else:
+                raise NameError('Warning : error while parsing : unexpected line %s' % fn)
+            if any(x in func_name for x in valid_funcname_part):
+                # print "found", shortname, "in", fn
                 if 'typedef struct ' in fn:
                     lib[shortname]['struct'].append(fn)
                 elif '_do' in fn:
