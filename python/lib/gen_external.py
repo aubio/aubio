@@ -174,27 +174,22 @@ def generate_lib_from_c_declarations(cpp_objects, c_declarations):
     lib = {}
 
     for o in cpp_objects:
-        shortname = ''
+        shortname = o
         if o[:6] == 'aubio_':
-            shortname = o[6:-2]  # without aubio_
-            longname = o[:-2]  # without _t
-        else:  # support object not starting with aubio_ (fvec...)
-            shortname = o
-            longname = shortname
+            shortname = o[6:-2]  # without aubio_ prefix and _t suffix
 
         if shortname in skip_objects:
             continue
+
         lib[shortname] = {'struct': [], 'new': [], 'del': [], 'do': [], 'get': [], 'set': [], 'other': []}
-        lib[shortname]['longname'] = longname
+        lib[shortname]['longname'] = o
         lib[shortname]['shortname'] = shortname
 
+        fullshortname = o[:-2]  # name without _t suffix
+
         for fn in c_declarations:
-            func_name = fn.split('(')[0].strip().split(' ')[1:]
-            if func_name:
-                func_name = func_name[-1]
-            else:
-                raise NameError('Warning : error while parsing : unexpected line %s' % fn)
-            if func_name.startswith(longname + '_') or func_name.endswith(longname):
+            func_name = fn.split('(')[0].strip().split(' ')[-1]
+            if func_name.startswith(fullshortname + '_') or func_name.endswith(fullshortname):
                 # print "found", shortname, "in", fn
                 if 'typedef struct ' in fn:
                     lib[shortname]['struct'].append(fn)
