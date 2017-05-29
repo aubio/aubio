@@ -141,6 +141,10 @@ def configure(ctx):
             # no optimization in debug mode
             ctx.env.prepend_value('CFLAGS', ['-O0'])
         else:
+            if target_platform == 'emscripten':
+                # -Oz for small js file generation
+                ctx.env.prepend_value('CFLAGS', ['-Oz'])
+            else:
             # default to -O2 in release mode
             ctx.env.prepend_value('CFLAGS', ['-O2'])
         # enable debug symbols and configure warnings
