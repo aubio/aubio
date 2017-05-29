@@ -145,8 +145,8 @@ def configure(ctx):
                 # -Oz for small js file generation
                 ctx.env.prepend_value('CFLAGS', ['-Oz'])
             else:
-            # default to -O2 in release mode
-            ctx.env.prepend_value('CFLAGS', ['-O2'])
+                # default to -O2 in release mode
+                ctx.env.prepend_value('CFLAGS', ['-O2'])
         # enable debug symbols and configure warnings
         ctx.env.prepend_value('CFLAGS', ['-g', '-Wall', '-Wextra'])
     else:
