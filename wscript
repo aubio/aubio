@@ -237,22 +237,27 @@ def configure(ctx):
         else:
             ctx.env.LINKFLAGS += ['-Oz']
             ctx.env.cshlib_PATTERN = '%s.min.js'
-        
-         # import exposed function names
-        from python.lib.gen_external import get_c_declarations,get_cpp_objects_from_c_declarations,get_all_func_names_from_lib,generate_lib_from_c_declarations
-        c_decls = get_c_declarations(usedouble=False) #emscripten can't use double
-        objects = get_cpp_objects_from_c_declarations(c_decls)
-        objects+=['fvec_t']
-        lib =  generate_lib_from_c_declarations(objects,c_decls)
-        exported_funcnames = get_all_func_names_from_lib(lib)
-        c_mangled_names = ['_'+s for s in exported_funcnames]
-        ctx.env.LINKFLAGS_cshlib += ['-s','EXPORTED_FUNCTIONS=%s'%c_mangled_names]
-        # put memory file inside generated js files
-        ctx.env.LINKFLAGS+=['--memory-init-file','0']
+
+        # lib doesnt ship file system support
+        ctx.env.LINKFLAGS_cshlib += ['-s', 'NO_FILESYSTEM=1']
+        # put memory file inside generated js files for easier portability
+        ctx.env.LINKFLAGS += ['--memory-init-file', '0']
         ctx.env.cprogram_PATTERN = "%s.js"
         ctx.env.cstlib_PATTERN = '%s.a'
-        if (ctx.options.enable_atlas != True):
-            ctx.options.enable_atlas = False
+
+        # get exposed functions
+        from python.lib.gen_external import get_c_declarations, get_cpp_objects_from_c_declarations, get_all_func_names_from_lib, generate_lib_from_c_declarations
+        c_decls = get_c_declarations(usedouble=False)  # emscripten can't use double
+        objects = get_cpp_objects_from_c_declarations(c_decls)
+        # ensure that aubio structs are exported
+        objects += ['fvec_t', 'cvec_t', 'fmat_t']
+        lib = generate_lib_from_c_declarations(objects, c_decls)
+        exported_funcnames = get_all_func_names_from_lib(lib)
+        c_mangled_names = ['_' + s for s in exported_funcnames]
+        ctx.env.LINKFLAGS_cshlib += ['-s', 'EXPORTED_FUNCTIONS=%s' % c_mangled_names]
+
+    if (ctx.options.enable_atlas != True):
+        ctx.options.enable_atlas = False
 
     # check support for C99 __VA_ARGS__ macros
     check_c99_varargs = '''
