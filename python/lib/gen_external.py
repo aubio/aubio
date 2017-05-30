@@ -11,7 +11,7 @@ source_header = """// this file is generated! do not modify
 #include "aubio-types.h"
 """
 
-skip_objects = [
+default_skip_objects = [
     # already in ext/
     'fft',
     'pvoc',
@@ -135,10 +135,13 @@ def get_c_declarations(header=header, usedouble=False):
     return cpp_output
 
 
-def get_cpp_objects_from_c_declarations(c_declarations):
+def get_cpp_objects_from_c_declarations(c_declarations,skip_objects = None):
+    if skip_objects==None:
+        skip_objects = default_skip_objects
     typedefs = filter(lambda y: y.startswith('typedef struct _aubio'), c_declarations)
     cpp_objects = [a.split()[3][:-1] for a in typedefs]
-    return cpp_objects
+    cpp_objects_filtered = filter(lambda y: not y[6:-2] in skip_objects, cpp_objects)
+    return cpp_objects_filtered
 
 
 def get_all_func_names_from_lib(lib, depth=0):
@@ -177,9 +180,6 @@ def generate_lib_from_c_declarations(cpp_objects, c_declarations):
         shortname = o
         if o[:6] == 'aubio_':
             shortname = o[6:-2]  # without aubio_ prefix and _t suffix
-
-        if shortname in skip_objects:
-            continue
 
         lib[shortname] = {'struct': [], 'new': [], 'del': [], 'do': [], 'get': [], 'set': [], 'other': []}
         lib[shortname]['longname'] = o
