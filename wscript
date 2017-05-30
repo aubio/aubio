@@ -239,14 +239,14 @@ def configure(ctx):
             ctx.env.LINKFLAGS += ['-Oz']
             ctx.env.cshlib_PATTERN = '%s.min.js'
 
-        # lib doesnt ship file system support
+        # doesnt ship file system support in lib
         ctx.env.LINKFLAGS_cshlib += ['-s', 'NO_FILESYSTEM=1']
         # put memory file inside generated js files for easier portability
         ctx.env.LINKFLAGS += ['--memory-init-file', '0']
         ctx.env.cprogram_PATTERN = "%s.js"
         ctx.env.cstlib_PATTERN = '%s.a'
 
-        # get exposed functions
+        # tell emscripten functions we want to expose
         from python.lib.gen_external import get_c_declarations, get_cpp_objects_from_c_declarations, get_all_func_names_from_lib, generate_lib_from_c_declarations
         c_decls = get_c_declarations(usedouble=False)  # emscripten can't use double
         objects = get_cpp_objects_from_c_declarations(c_decls)
