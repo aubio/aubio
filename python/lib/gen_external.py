@@ -135,8 +135,8 @@ def get_c_declarations(header=header, usedouble=False):
     return cpp_output
 
 
-def get_cpp_objects_from_c_declarations(c_declarations,skip_objects = None):
-    if skip_objects==None:
+def get_cpp_objects_from_c_declarations(c_declarations, skip_objects=None):
+    if skip_objects == None:
         skip_objects = default_skip_objects
     typedefs = filter(lambda y: y.startswith('typedef struct _aubio'), c_declarations)
     cpp_objects = [a.split()[3][:-1] for a in typedefs]
