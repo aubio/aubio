@@ -26,7 +26,7 @@ if ctx.env['DEST_OS'] in ['ios', 'iosimulator']:
 elif ctx.env['DEST_OS'] in ['win32', 'win64']:
     build_features = ['cstlib', 'cshlib']
 elif ctx.env['DEST_OS'] in ['emscripten']:
-    build_features = ['cstlib']
+    build_features = ['cstlib','cshlib']
 elif '--static' in ctx.env['LDFLAGS'] or '--static' in ctx.env['LINKFLAGS']:
     # static in cflags, ...
     build_features = ['cstlib']

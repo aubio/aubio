@@ -107,6 +107,18 @@ def configure(ctx):
     ctx.load('waf_unit_test')
     ctx.load('gnu_dirs')
 
+    target_platform = sys.platform
+    if ctx.options.target_platform:
+        target_platform = ctx.options.target_platform
+
+
+    if target_platform=='emscripten':
+        # need to force spaces between flag -o and path 
+        # inspired from :
+        # https://github.com/waf-project/waf/blob/master/waflib/extras/c_emscripten.py (#1885)
+        # (OSX /emscripten 1.37.9)
+        ctx.env.CC_TGT_F            = ['-c', '-o', '']
+        ctx.env.CCLNK_TGT_F         = ['-o', '']
     # check for common headers
     ctx.check(header_name='stdlib.h')
     ctx.check(header_name='stdio.h')
@@ -117,9 +129,6 @@ def configure(ctx):
     ctx.check(header_name='getopt.h', mandatory = False)
     ctx.check(header_name='unistd.h', mandatory = False)
 
-    target_platform = sys.platform
-    if ctx.options.target_platform:
-        target_platform = ctx.options.target_platform
     ctx.env['DEST_OS'] = target_platform
 
     if ctx.options.build_type == "debug":
@@ -132,8 +141,12 @@ def configure(ctx):
             # no optimization in debug mode
             ctx.env.prepend_value('CFLAGS', ['-O0'])
         else:
-            # default to -O2 in release mode
-            ctx.env.prepend_value('CFLAGS', ['-O2'])
+            if target_platform == 'emscripten':
+                # -Oz for small js file generation
+                ctx.env.prepend_value('CFLAGS', ['-Oz'])
+            else:
+                # default to -O2 in release mode
+                ctx.env.prepend_value('CFLAGS', ['-O2'])
         # enable debug symbols and configure warnings
         ctx.env.prepend_value('CFLAGS', ['-g', '-Wall', '-Wextra'])
     else:
@@ -215,10 +228,37 @@ def configure(ctx):
     if target_platform == 'emscripten':
         import os.path
         ctx.env.CFLAGS += [ '-I' + os.path.join(os.environ['EMSCRIPTEN'], 'system', 'include') ]
-        ctx.env.CFLAGS += ['-Oz']
+        
+        if ctx.options.build_type == "debug":
+            ctx.env.cshlib_PATTERN = '%s.js'
+            ctx.env.LINKFLAGS += ['-s','ASSERTIONS=2']
+            ctx.env.LINKFLAGS += ['-s','SAFE_HEAP=1']
+            ctx.env.LINKFLAGS += ['-s','ALIASING_FUNCTION_POINTERS=0']
+            ctx.env.LINKFLAGS += ['-O0']
+        else:
+            ctx.env.LINKFLAGS += ['-Oz']
+            ctx.env.cshlib_PATTERN = '%s.min.js'
+
+        # doesnt ship file system support in lib
+        ctx.env.LINKFLAGS_cshlib += ['-s', 'NO_FILESYSTEM=1']
+        # put memory file inside generated js files for easier portability
+        ctx.env.LINKFLAGS += ['--memory-init-file', '0']
         ctx.env.cprogram_PATTERN = "%s.js"
-        if (ctx.options.enable_atlas != True):
-            ctx.options.enable_atlas = False
+        ctx.env.cstlib_PATTERN = '%s.a'
+
+        # tell emscripten functions we want to expose
+        from python.lib.gen_external import get_c_declarations, get_cpp_objects_from_c_declarations, get_all_func_names_from_lib, generate_lib_from_c_declarations
+        c_decls = get_c_declarations(usedouble=False)  # emscripten can't use double
+        objects = get_cpp_objects_from_c_declarations(c_decls)
+        # ensure that aubio structs are exported
+        objects += ['fvec_t', 'cvec_t', 'fmat_t']
+        lib = generate_lib_from_c_declarations(objects, c_decls)
+        exported_funcnames = get_all_func_names_from_lib(lib)
+        c_mangled_names = ['_' + s for s in exported_funcnames]
+        ctx.env.LINKFLAGS_cshlib += ['-s', 'EXPORTED_FUNCTIONS=%s' % c_mangled_names]
+
+    if (ctx.options.enable_atlas != True):
+        ctx.options.enable_atlas = False
 
     # check support for C99 __VA_ARGS__ macros
     check_c99_varargs = '''

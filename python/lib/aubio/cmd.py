@@ -187,7 +187,7 @@ def timefunc(mode):
     elif mode == 'samples':
         return samples2samples
     else:
-        raise ValueError('invalid time format %s' % mode)
+        raise ValueError("invalid time format '%s'" % mode)
 
 # definition of processing classes
 
