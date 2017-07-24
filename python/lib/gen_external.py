@@ -118,7 +118,7 @@ def get_c_declarations(header=header, usedouble=False):
     while 1:
         if i >= len(cpp_output):
             break
-        if ('{' in cpp_output[i - 1]) and (not '}' in cpp_output[i - 1]) or (not ';' in cpp_output[i - 1]):
+        if ('{' in cpp_output[i - 1]) and ('}' not in cpp_output[i - 1]) or (';' not in cpp_output[i - 1]):
             cpp_output[i] = cpp_output[i - 1] + ' ' + cpp_output[i]
             cpp_output.pop(i - 1)
         elif ('}' in cpp_output[i]):
@@ -137,7 +137,7 @@ def get_c_declarations(header=header, usedouble=False):
 
 
 def get_cpp_objects_from_c_declarations(c_declarations, skip_objects=None):
-    if skip_objects == None:
+    if skip_objects is None:
         skip_objects = default_skip_objects
     typedefs = filter(lambda y: y.startswith('typedef struct _aubio'), c_declarations)
     cpp_objects = [a.split()[3][:-1] for a in typedefs]
@@ -145,14 +145,13 @@ def get_cpp_objects_from_c_declarations(c_declarations, skip_objects=None):
     return cpp_objects_filtered
 
 
-def get_all_func_names_from_lib(lib, depth=0):
+def get_all_func_names_from_lib(lib):
     ''' return flat string of all function used in lib
     '''
     res = []
-    indent = " " * depth
-    for k, v in lib.items():
+    for _, v in lib.items():
         if isinstance(v, dict):
-            res += get_all_func_names_from_lib(v, depth + 1)
+            res += get_all_func_names_from_lib(v)
         elif isinstance(v, list):
             for elem in v:
                 e = elem.split('(')
