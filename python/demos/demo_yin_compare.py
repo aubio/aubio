@@ -25,8 +25,8 @@ def sqd_yin(samples):
     W = B//2
     yin = np.zeros(W)
     for j in range(W):
-      for tau in range(1, W):
-        yin[tau] += (samples[j] - samples[j+tau])**2
+        for tau in range(1, W):
+            yin[tau] += (samples[j] - samples[j+tau])**2
     return yin
 
 def sqd_yinfast(samples):
