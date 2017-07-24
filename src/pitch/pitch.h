@@ -81,6 +81,11 @@ extern "C" {
 
   see http://recherche.ircam.fr/equipes/pcm/pub/people/cheveign.html
 
+  \b \p yinfast : Yinfast algorithm
+
+  This algorithm is equivalent to the YIN algorithm, but computed in the
+  spectral domain for efficiency. See also `python/demos/demo_yin_compare.py`.
+
   \b \p yinfft : Yinfft algorithm
 
   This algorithm was derived from the YIN algorithm. In this implementation, a

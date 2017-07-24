@@ -30,6 +30,7 @@ default_skip_objects = [
     'pitchspecacf',
     'pitchyin',
     'pitchyinfft',
+    'pitchyinfast',
     'sink',
     'sink_apple_audio',
     'sink_sndfile',
