@@ -2,6 +2,8 @@
 
 int main (void)
 {
+  aubio_init();
+  
   // 1. allocate some memory
   uint_t n = 0; // frame counter
   uint_t win_s = 1024; // window size

@@ -3,6 +3,8 @@
 
 int main (int argc, char **argv)
 {
+  aubio_init();
+
   uint_t err = 0;
   if (argc < 2) {
     err = 2;
@@ -55,5 +57,6 @@ int main (int argc, char **argv)
   del_fvec (vec);
   del_aubio_source (s);
 beach:
+  aubio_cleanup();
   return err;
 }

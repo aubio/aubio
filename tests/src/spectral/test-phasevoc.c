@@ -2,6 +2,8 @@
 
 int main (void)
 {
+  aubio_init();
+  
   uint_t n = 6; // compute n times
   uint_t win_s = 32; // window size
   uint_t hop_s = win_s / 4; // hop size
@@ -41,6 +43,7 @@ int main (void)
   del_cvec(fftgrain);
   del_fvec(out);
   del_aubio_pvoc(pv);
+  
   aubio_cleanup();
 
   return 0;

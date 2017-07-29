@@ -113,8 +113,13 @@ int test_aubio_window (void)
 
 int main (void)
 {
+  aubio_init();
+
   test_next_power_of_two();
   test_miditofreq();
   test_freqtomidi();
+
+  aubio_cleanup();
+  
   return 0;
 }

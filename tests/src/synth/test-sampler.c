@@ -3,6 +3,8 @@
 
 int main (int argc, char **argv)
 {
+  aubio_init();
+  
   sint_t err = 0;
 
   if (argc < 4) {
@@ -53,6 +55,7 @@ int main (int argc, char **argv)
   del_aubio_source(source);
   del_aubio_sink(sink);
   del_fvec(vec);
+  
   aubio_cleanup();
 
   return 0;

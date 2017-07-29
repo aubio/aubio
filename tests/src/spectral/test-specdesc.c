@@ -2,6 +2,8 @@
 
 int main (void)
 {
+  aubio_init();
+  
   uint_t win_s = 1024; // window size
   cvec_t *in = new_cvec (win_s); // input buffer
   fvec_t *out = new_fvec (1); // output spectral descriptor
@@ -38,6 +40,7 @@ int main (void)
 
   del_cvec (in);
   del_fvec (out);
+  
   aubio_cleanup ();
 
   return 0;

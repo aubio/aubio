@@ -21,6 +21,12 @@
 #include "aubio_priv.h"
 #include "fvec.h"
 
+#if defined HAVE_INTEL_IPP
+#include <ippcore.h>
+#include <ippvm.h>
+#include <ipps.h>
+#endif
+
 fvec_t * new_fvec(uint_t length) {
   fvec_t * s;
   if ((sint_t)length <= 0) {
@@ -60,27 +66,38 @@ void fvec_print(const fvec_t *s) {
 }
 
 void fvec_set_all (fvec_t *s, smpl_t val) {
-#if !defined(HAVE_ACCELERATE) && !defined(HAVE_ATLAS)
-  uint_t j;
-  for (j=0; j< s->length; j++) {
-    s->data[j] = val;
-  }
+#if defined(HAVE_INTEL_IPP)
+  #if HAVE_AUBIO_DOUBLE
+    ippsSet_64f(val, s->data, (int)s->length);
+  #else
+    ippsSet_32f(val, s->data, (int)s->length);
+  #endif
 #elif defined(HAVE_ATLAS)
   aubio_catlas_set(s->length, val, s->data, 1);
 #elif defined(HAVE_ACCELERATE)
   aubio_vDSP_vfill(&val, s->data, 1, s->length);
+#else
+  uint_t j;
+  for ( j = 0; j< s->length; j++ )
+  {
+    s->data[j] = val;
+  }
 #endif
 }
 
 void fvec_zeros(fvec_t *s) {
-#if !defined(HAVE_MEMCPY_HACKS) && !defined(HAVE_ACCELERATE)
-  fvec_set_all (s, 0.);
-#else
-#if defined(HAVE_MEMCPY_HACKS)
+#if defined(HAVE_INTEL_IPP)
+  #if HAVE_AUBIO_DOUBLE
+    ippsZero_64f(s->data, (int)s->length);
+  #else
+    ippsZero_32f(s->data, (int)s->length);
+  #endif
+#elif defined(HAVE_ACCELERATE)
+  aubio_vDSP_vclr(s->data, 1, s->length);
+#elif defined(HAVE_MEMCPY_HACKS)
   memset(s->data, 0, s->length * sizeof(smpl_t));
 #else
-  aubio_vDSP_vclr(s->data, 1, s->length);
-#endif
+  fvec_set_all(s, 0.);
 #endif
 }
 
@@ -96,27 +113,39 @@ void fvec_rev(fvec_t *s) {
 }
 
 void fvec_weight(fvec_t *s, const fvec_t *weight) {
-#ifndef HAVE_ACCELERATE
-  uint_t j;
   uint_t length = MIN(s->length, weight->length);
-  for (j=0; j< length; j++) {
+#if defined(HAVE_INTEL_IPP)
+  #if HAVE_AUBIO_DOUBLE
+    ippsMul_64f(s->data, weight->data, s->data, (int)length);
+  #else
+    ippsMul_32f(s->data, weight->data, s->data, (int)length);
+  #endif
+#elif defined(HAVE_ACCELERATE) 
+  aubio_vDSP_vmul( s->data, 1, weight->data, 1, s->data, 1, length );
+#else
+  uint_t j;
+  for (j = 0; j < length; j++) {
     s->data[j] *= weight->data[j];
   }
-#else
-  aubio_vDSP_vmul(s->data, 1, weight->data, 1, s->data, 1, s->length);
 #endif /* HAVE_ACCELERATE */
 }
 
 void fvec_weighted_copy(const fvec_t *in, const fvec_t *weight, fvec_t *out) {
-#ifndef HAVE_ACCELERATE
+  uint_t length = MIN(in->length, MIN(out->length, weight->length));
+#if defined(HAVE_INTEL_IPP)
+  #if HAVE_AUBIO_DOUBLE
+    ippsMul_64f(in->data, weight->data, out->data, (int)length);
+  #else
+    ippsMul_32f(in->data, weight->data, out->data, (int)length);
+  #endif
+#elif defined(HAVE_ACCELERATE) 
+  aubio_vDSP_vmul(in->data, 1, weight->data, 1, out->data, 1, length);
+#else
   uint_t j;
-  uint_t length = MIN(out->length, weight->length);
-  for (j=0; j< length; j++) {
+  for (j = 0; j < length; j++) {
     out->data[j] = in->data[j] * weight->data[j];
   }
-#else
-  aubio_vDSP_vmul(in->data, 1, weight->data, 1, out->data, 1, out->length);
-#endif /* HAVE_ACCELERATE */
+#endif
 }
 
 void fvec_copy(const fvec_t *s, fvec_t *t) {
@@ -125,16 +154,22 @@ void fvec_copy(const fvec_t *s, fvec_t *t) {
         s->length, t->length);
     return;
   }
-#ifdef HAVE_NOOPT
-  uint_t j;
-  for (j=0; j< t->length; j++) {
-    t->data[j] = s->data[j];
-  }
-#elif defined(HAVE_MEMCPY_HACKS)
-  memcpy(t->data, s->data, t->length * sizeof(smpl_t));
+#if defined(HAVE_INTEL_IPP)
+  #if HAVE_AUBIO_DOUBLE
+    ippsCopy_64f(s->data, t->data, (int)s->length);
+  #else
+    ippsCopy_32f(s->data, t->data, (int)s->length);
+  #endif
 #elif defined(HAVE_ATLAS)
   aubio_cblas_copy(s->length, s->data, 1, t->data, 1);
 #elif defined(HAVE_ACCELERATE)
   aubio_vDSP_mmov(s->data, t->data, 1, s->length, 1, 1);
+#elif defined(HAVE_MEMCPY_HACKS)
+  memcpy(t->data, s->data, t->length * sizeof(smpl_t));
+#else
+  uint_t j;
+  for (j = 0; j < t->length; j++) {
+    t->data[j] = s->data[j];
+  }
 #endif
 }

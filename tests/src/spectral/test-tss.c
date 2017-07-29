@@ -2,6 +2,8 @@
 
 int main (void)
 {
+  aubio_init();
+  
   uint_t n = 10; // compute n times
   uint_t win_s = 1024; // window size
   uint_t hop_s = 256;  // hop size

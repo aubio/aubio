@@ -3,6 +3,8 @@
 
 int main (void)
 {
+  aubio_init();
+
   uint_t length = 0;
   uint_t n_length = 4, n_types = 10, i, t;
   uint_t lengths[4] = { 8, 10, 15, 16 };
@@ -26,6 +28,9 @@ int main (void)
       del_fvec(window);
     }
   }
+
+  aubio_cleanup();
+  
   return 0;
 }
 
