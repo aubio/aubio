@@ -449,16 +449,16 @@ void aubio_fft_rdo_complex(aubio_fft_t * s, const fvec_t * compspec, fvec_t * ou
   // apply fft
   ippsFFTInv_CCSToR_64f((const Ipp64f *)s->complexOut, output->data, s->fftSpec, s->memBuffer);
   // apply scaling
-  ippsMulC_64f(output->data, 1.0 / s->winsize, output->data, s->fft_size);
+  ippsMulC_64f(output->data, 2.0 / s->winsize, output->data, s->fft_size);
 #else
   // apply fft
   ippsFFTInv_CCSToR_32f((const Ipp32f *)s->complexOut, output->data, s->fftSpec, s->memBuffer);
   // apply scaling
-  ippsMulC_32f(output->data, 1.0f / s->winsize, output->data, s->fft_size);
+  ippsMulC_32f(output->data, 2.0f / s->winsize, output->data, s->fft_size);
 #endif /* HAVE_AUBIO_DOUBLE */
 
 #else                         // using OOURA
-  smpl_t scale = 1.0 / s->winsize;
+  smpl_t scale = 2.0 / s->winsize;
   s->out[0] = compspec->data[0];
   s->out[1] = compspec->data[s->winsize / 2];
   for (i = 1; i < s->fft_size - 1; i++) {
