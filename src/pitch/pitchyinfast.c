@@ -38,7 +38,7 @@ struct _aubio_pitchyinfast_t
 {
   fvec_t *yin;
   smpl_t tol;
-  smpl_t confidence;
+  uint_t peak_pos;
   fvec_t *tmpdata;
   fvec_t *sqdiff;
   fvec_t *kernel;
@@ -59,6 +59,7 @@ new_aubio_pitchyinfast (uint_t bufsize)
   o->kernel_fft = new_fvec (bufsize);
   o->fft = new_aubio_fft (bufsize);
   o->tol = 0.15;
+  o->peak_pos = 0;
   return o;
 }
 
@@ -85,7 +86,6 @@ aubio_pitchyinfast_do (aubio_pitchyinfast_t * o, const fvec_t * input, fvec_t * 
   uint_t B = o->tmpdata->length;
   uint_t W = o->yin->length; // B / 2
   fvec_t tmp_slice, kernel_ptr;
-  smpl_t *yin_data = yin->data;
   uint_t tau;
   sint_t period;
   smpl_t tmp2 = 0.;
@@ -142,36 +142,36 @@ aubio_pitchyinfast_do (aubio_pitchyinfast_t * o, const fvec_t * input, fvec_t * 
     aubio_fft_rdo_complex(o->fft, compmul, rt_of_tau);
     // compute square difference r_t(tau) = sqdiff - 2 * r_t_tau[W-1:-1]
     for (tau = 0; tau < W; tau++) {
-      yin_data[tau] = o->sqdiff->data[tau] - 2. * rt_of_tau->data[tau+W];
+      yin->data[tau] = o->sqdiff->data[tau] - 2. * rt_of_tau->data[tau+W];
     }
   }
 
   // now build yin and look for first minimum
-  fvec_set_all(out, 0.);
-  yin_data[0] = 1.;
+  fvec_zeros(out);
+  yin->data[0] = 1.;
   for (tau = 1; tau < length; tau++) {
-    tmp2 += yin_data[tau];
+    tmp2 += yin->data[tau];
     if (tmp2 != 0) {
       yin->data[tau] *= tau / tmp2;
     } else {
       yin->data[tau] = 1.;
     }
     period = tau - 3;
-    if (tau > 4 && (yin_data[period] < tol) &&
-        (yin_data[period] < yin_data[period + 1])) {
-      out->data[0] = fvec_quadratic_peak_pos (yin, period);
-      goto beach;
+    if (tau > 4 && (yin->data[period] < tol) &&
+        (yin->data[period] < yin->data[period + 1])) {
+      o->peak_pos = (uint_t)period;
+      out->data[0] = fvec_quadratic_peak_pos (yin, o->peak_pos);
+      return;
     }
   }
-  out->data[0] = fvec_quadratic_peak_pos (yin, fvec_min_elem (yin) );
-beach:
-  return;
+  // use global minimum 
+  o->peak_pos = (uint_t)fvec_min_elem (yin);
+  out->data[0] = fvec_quadratic_peak_pos (yin, o->peak_pos);
 }
 
 smpl_t
 aubio_pitchyinfast_get_confidence (aubio_pitchyinfast_t * o) {
-  o->confidence = 1. - fvec_min (o->yin);
-  return o->confidence;
+  return 1. - o->yin->data[o->peak_pos];
 }
 
 uint_t
