@@ -48,11 +48,7 @@ track.append(MetaMessage('time_signature', numerator=4, denominator=4))
 
 def frames2tick(frames, samplerate=samplerate):
     sec = frames / float(samplerate)
-    tick = int(second2tick(sec, ticks_per_beat, tempo))
-    return tick
-
-sec = 7
-previous_note = None
+    return int(second2tick(sec, ticks_per_beat, tempo))
 
 last_time = 0
 
