@@ -2,6 +2,7 @@ aubiodefvalue = {
     # we have some clean up to do
     'buf_size': 'Py_default_vector_length',
     'win_s': 'Py_default_vector_length',
+    'size': 'Py_default_vector_length',
     # and here too
     'hop_size': 'Py_default_vector_length / 2',
     'hop_s': 'Py_default_vector_length / 2',
@@ -82,6 +83,7 @@ objoutsize = {
         'tempo': '1',
         'filterbank': 'self->n_filters',
         'tss': 'self->buf_size',
+        'dct': 'self->size',
         }
 
 objinputsize = {
