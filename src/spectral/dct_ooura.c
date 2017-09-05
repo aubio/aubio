@@ -30,6 +30,7 @@ struct _aubio_dct_t {
   fvec_t *input;
   smpl_t *w;
   int *ip;
+  smpl_t scalers[5];
 };
 
 aubio_dct_t * new_aubio_dct (uint_t size) {
@@ -44,6 +45,11 @@ aubio_dct_t * new_aubio_dct (uint_t size) {
   s->w = AUBIO_ARRAY(smpl_t, s->size * 5 / 4);
   s->ip = AUBIO_ARRAY(int, 3 + (1 << (int)FLOOR(LOG(s->size/2) / LOG(2))) / 2);
   s->ip[0] = 0;
+  s->scalers[0] = 2. * SQRT(1./(4.*s->size));
+  s->scalers[1] = 2. * SQRT(1./(2.*s->size));
+  s->scalers[2] = 1. / s->scalers[0];
+  s->scalers[3] = 1. / s->scalers[1];
+  s->scalers[4] = 2. / s->size;
   return s;
 beach:
   AUBIO_FREE(s);
@@ -62,9 +68,9 @@ void aubio_dct_do(aubio_dct_t *s, const fvec_t *input, fvec_t *output) {
   fvec_copy(input, s->input);
   aubio_ooura_ddct(s->size, -1, s->input->data, s->ip, s->w);
   // apply orthonormal scaling
-  s->input->data[0] *= 2.* SQRT(1./(4.*s->input->length));
+  s->input->data[0] *= s->scalers[0];
   for (i = 1; i < s->input->length; i++) {
-    s->input->data[i] *= 2. * SQRT(1./(2.*s->input->length));
+    s->input->data[i] *= s->scalers[1];
   }
   fvec_copy(s->input, output);
 }
@@ -72,14 +78,14 @@ void aubio_dct_do(aubio_dct_t *s, const fvec_t *input, fvec_t *output) {
 void aubio_dct_rdo(aubio_dct_t *s, const fvec_t *input, fvec_t *output) {
   uint_t i = 0;
   fvec_copy(input, s->input);
-  s->input->data[0] /= 2.* SQRT(1./(4.*s->input->length));
+  s->input->data[0] *= s->scalers[2];
   for (i = 1; i < s->input->length; i++) {
-    s->input->data[i] /= 2. * SQRT(1./(2.*s->input->length));
+    s->input->data[i] *= s->scalers[3];
   }
   s->input->data[0] *= .5;
   aubio_ooura_ddct(s->size, 1, s->input->data, s->ip, s->w);
   for (i = 0; i < s->input->length; i++) {
-    s->input->data[i] *= 2./s->input->length;
+    s->input->data[i] *= s->scalers[4];
   }
   fvec_copy(s->input, output);
 }
