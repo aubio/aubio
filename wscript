@@ -102,23 +102,22 @@ def options(ctx):
     ctx.load('gnu_dirs')
 
 def configure(ctx):
-    from waflib import Options
-    ctx.load('compiler_c')
-    ctx.load('waf_unit_test')
-    ctx.load('gnu_dirs')
-
     target_platform = sys.platform
     if ctx.options.target_platform:
         target_platform = ctx.options.target_platform
-
+    
+    from waflib import Options
 
     if target_platform=='emscripten':
-        # need to force spaces between flag -o and path 
-        # inspired from :
-        # https://github.com/waf-project/waf/blob/master/waflib/extras/c_emscripten.py (#1885)
-        # (OSX /emscripten 1.37.9)
-        ctx.env.CC_TGT_F            = ['-c', '-o', '']
-        ctx.env.CCLNK_TGT_F         = ['-o', '']
+        ctx.load('c_emscripten')
+    else:
+        ctx.load('compiler_c')
+
+    ctx.load('waf_unit_test')
+    ctx.load('gnu_dirs')
+    
+    
+    
     # check for common headers
     ctx.check(header_name='stdlib.h')
     ctx.check(header_name='stdio.h')
@@ -226,9 +225,6 @@ def configure(ctx):
         ctx.env.LINKFLAGS += [ '-isysroot' , SDKROOT]
 
     if target_platform == 'emscripten':
-        import os.path
-        ctx.env.CFLAGS += [ '-I' + os.path.join(os.environ['EMSCRIPTEN'], 'system', 'include') ]
-        
         if ctx.options.build_type == "debug":
             ctx.env.cshlib_PATTERN = '%s.js'
             ctx.env.LINKFLAGS += ['-s','ASSERTIONS=2']
@@ -443,9 +439,11 @@ def build(bld):
 
     # main source
     bld.recurse('src')
-
+    
     # add sub directories
     if bld.env['DEST_OS'] not in ['ios', 'iosimulator', 'android']:
+        if bld.env['DEST_OS']=='emscripten' and not bld.options.testcmd:
+            bld.options.testcmd = 'node %s'
         bld.recurse('examples')
         bld.recurse('tests')
 
