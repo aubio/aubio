@@ -18,7 +18,6 @@ int main (void)
 
   in->data[0] = 1.;
   for (i = 0; i < n_iters; i++) {
-    // execute stft
     aubio_dct_do (dct, in, dctout);
     aubio_dct_rdo (dct, dctout, in);
   }
