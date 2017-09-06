@@ -155,9 +155,28 @@ Py_pvoc_rdo(Py_pvoc * self, PyObject * args)
   return self->routput;
 }
 
+static PyObject *
+Pyaubio_pvoc_set_window (Py_pvoc *self, PyObject *args)
+{
+  uint_t err = 0;
+  char_t *window = NULL;
+
+  if (!PyArg_ParseTuple (args, "s", &window)) {
+    return NULL;
+  }
+  err = aubio_pvoc_set_window (self->o, window);
+
+  if (err > 0) {
+    PyErr_SetString (PyExc_ValueError, "error running aubio_pvoc_set_window");
+    return NULL;
+  }
+  Py_RETURN_NONE;
+}
+
 static PyMethodDef Py_pvoc_methods[] = {
   {"rdo", (PyCFunction) Py_pvoc_rdo, METH_VARARGS,
     "synthesis of spectral grain"},
+  {"set_window", (PyCFunction) Pyaubio_pvoc_set_window, METH_VARARGS, ""},
   {NULL}
 };
 
