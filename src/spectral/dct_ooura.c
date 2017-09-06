@@ -23,6 +23,8 @@
 #include "cvec.h"
 #include "spectral/dct.h"
 
+#if !defined(HAVE_ACCELERATE) && !defined(HAVE_FFTW3)
+
 extern void aubio_ooura_ddct(int, int, smpl_t *, int *, smpl_t *);
 
 struct _aubio_dct_t {
@@ -89,3 +91,5 @@ void aubio_dct_rdo(aubio_dct_t *s, const fvec_t *input, fvec_t *output) {
   }
   fvec_copy(s->input, output);
 }
+
+#endif //!defined(HAVE_ACCELERATE) && !defined(HAVE_FFTW3)
