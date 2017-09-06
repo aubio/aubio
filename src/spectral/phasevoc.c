@@ -143,6 +143,10 @@ beach:
   return NULL;
 }
 
+uint_t aubio_pvoc_set_window(aubio_pvoc_t *pv, const char_t *window) {
+  return fvec_set_window(pv->w, (char_t*)window);
+}
+
 void del_aubio_pvoc(aubio_pvoc_t *pv) {
   del_fvec(pv->data);
   del_fvec(pv->synth);
