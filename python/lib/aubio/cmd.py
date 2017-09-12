@@ -22,6 +22,18 @@ def aubio_parser():
     subparsers = parser.add_subparsers(title='commands', dest='command',
             metavar="")
 
+    parser_add_subcommand_onset(subparsers)
+    parser_add_subcommand_pitch(subparsers)
+    parser_add_subcommand_beat(subparsers)
+    parser_add_subcommand_tempo(subparsers)
+    parser_add_subcommand_notes(subparsers)
+    parser_add_subcommand_mfcc(subparsers)
+    parser_add_subcommand_melbands(subparsers)
+    parser_add_subcommand_quiet(subparsers)
+
+    return parser
+
+def parser_add_subcommand_onset(subparsers):
     # onset subcommand
     subparser = subparsers.add_parser('onset',
             help='estimate time of onsets (beginning of sound event)',
@@ -38,6 +50,7 @@ def aubio_parser():
     parser_add_verbose_help(subparser)
     subparser.set_defaults(process=process_onset)
 
+def parser_add_subcommand_pitch(subparsers):
     # pitch subcommand
     subparser = subparsers.add_parser('pitch',
             help='estimate fundamental frequency (monophonic)')
@@ -52,6 +65,7 @@ def aubio_parser():
     parser_add_verbose_help(subparser)
     subparser.set_defaults(process=process_pitch)
 
+def parser_add_subcommand_beat(subparsers):
     # beat subcommand
     subparser = subparsers.add_parser('beat',
             help='estimate location of beats')
@@ -61,6 +75,7 @@ def aubio_parser():
     parser_add_verbose_help(subparser)
     subparser.set_defaults(process=process_beat)
 
+def parser_add_subcommand_tempo(subparsers):
     # tempo subcommand
     subparser = subparsers.add_parser('tempo',
             help='estimate overall tempo in bpm')
@@ -70,6 +85,7 @@ def aubio_parser():
     parser_add_verbose_help(subparser)
     subparser.set_defaults(process=process_tempo)
 
+def parser_add_subcommand_notes(subparsers):
     # notes subcommand
     subparser = subparsers.add_parser('notes',
             help='estimate midi-like notes (monophonic)')
@@ -79,6 +95,7 @@ def aubio_parser():
     parser_add_verbose_help(subparser)
     subparser.set_defaults(process=process_notes)
 
+def parser_add_subcommand_mfcc(subparsers):
     # mfcc subcommand
     subparser = subparsers.add_parser('mfcc',
             help='extract Mel-Frequency Cepstrum Coefficients')
@@ -88,6 +105,7 @@ def aubio_parser():
     parser_add_verbose_help(subparser)
     subparser.set_defaults(process=process_mfcc)
 
+def parser_add_subcommand_melbands(subparsers):
     # melbands subcommand
     subparser = subparsers.add_parser('melbands',
             help='extract energies in Mel-frequency bands')
@@ -97,6 +115,7 @@ def aubio_parser():
     parser_add_verbose_help(subparser)
     subparser.set_defaults(process=process_melbands)
 
+def parser_add_subcommand_quiet(subparsers):
     # quiet subcommand
     subparser = subparsers.add_parser('quiet',
             help='')
@@ -106,8 +125,6 @@ def aubio_parser():
     parser_add_time_format(subparser)
     parser_add_verbose_help(subparser)
     subparser.set_defaults(process=process_quiet)
-
-    return parser
 
 def parser_add_input(parser):
     parser.add_argument("source_uri", default=None, nargs='?',
