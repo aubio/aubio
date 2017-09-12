@@ -232,7 +232,7 @@ class default_process(object):
             name = type(self).__name__.split('_')[1]
             optstr = ' '.join(['running', name, 'with options', repr(self.options), '\n'])
             sys.stderr.write(optstr)
-    def flush(self, n_frames, samplerate):
+    def flush(self, frames_read, samplerate):
         # optionally called at the end of process
         pass
 
