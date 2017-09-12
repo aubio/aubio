@@ -97,6 +97,16 @@ def aubio_parser():
     parser_add_verbose_help(subparser)
     subparser.set_defaults(process=process_melbands)
 
+    # quiet subcommand
+    subparser = subparsers.add_parser('quiet',
+            help='')
+    parser_add_input(subparser)
+    parser_add_hop_size(subparser)
+    parser_add_silence(subparser)
+    parser_add_time_format(subparser)
+    parser_add_verbose_help(subparser)
+    subparser.set_defaults(process=process_quiet)
+
     return parser
 
 def parser_add_input(parser):
@@ -367,6 +377,42 @@ class process_melbands(default_process):
         fmt_out = self.time2string(frames_read, samplerate)
         fmt_out += ' '.join(["% 9.7f" % f for f in res.tolist()])
         sys.stdout.write(fmt_out + '\n')
+
+class process_quiet(default_process):
+    def __init__(self, args):
+        self.args = args
+        valid_opts = ['hop_size', 'silence']
+        self.parse_options(args, valid_opts)
+        self.issilence = None
+        self.wassilence = 1
+
+        if args.silence is not None:
+            self.silence = args.silence
+        super(process_quiet, self).__init__(args)
+
+    def __call__(self, block):
+        if aubio.silence_detection(block, self.silence) == 1:
+            if self.wassilence == 1:
+                self.issilence = 1
+            else:
+                self.issilence = 2
+            self.wassilence = 1
+        else:
+            if self.wassilence == 0:
+                self.issilence = 0
+            else:
+                self.issilence = -1
+            self.wassilence = 0
+
+    def repr_res(self, res, frames_read, samplerate):
+        fmt_out = None
+        if self.issilence == -1:
+            fmt_out = "NOISY: "
+        if self.issilence == 2:
+            fmt_out = "QUIET: "
+        if fmt_out is not None:
+            fmt_out += self.time2string(frames_read, samplerate)
+            sys.stdout.write(fmt_out + '\n')
 
 def main():
     parser = aubio_parser()
