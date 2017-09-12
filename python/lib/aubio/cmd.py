@@ -118,10 +118,16 @@ def parser_add_verbose_help(parser):
             help="be quiet")
 
 def parser_add_buf_hop_size(parser, buf_size=512, hop_size=256):
+    parser_add_buf_size(parser, buf_size=buf_size)
+    parser_add_hop_size(parser, hop_size=hop_size)
+
+def parser_add_buf_size(parser, buf_size=512):
     parser.add_argument("-B","--bufsize",
             action="store", dest="buf_size", default=buf_size,
             metavar = "<size>", type=int,
             help="buffer size [default=%d]" % buf_size)
+
+def parser_add_hop_size(parser, hop_size=256):
     parser.add_argument("-H","--hopsize",
             metavar = "<size>", type=int,
             action="store", dest="hop_size", default=hop_size,
