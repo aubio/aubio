@@ -22,6 +22,8 @@ def aubio_parser():
     subparsers = parser.add_subparsers(title='commands', dest='command',
             metavar="")
 
+    parser_add_subcommand_help(subparsers)
+
     parser_add_subcommand_onset(subparsers)
     parser_add_subcommand_pitch(subparsers)
     parser_add_subcommand_beat(subparsers)
@@ -32,6 +34,12 @@ def aubio_parser():
     parser_add_subcommand_quiet(subparsers)
 
     return parser
+
+def parser_add_subcommand_help(subparsers):
+    # global help subcommand
+    subparsers.add_parser('help',
+            help='show help message',
+            formatter_class = argparse.ArgumentDefaultsHelpFormatter)
 
 def parser_add_subcommand_onset(subparsers):
     # onset subcommand
@@ -436,10 +444,13 @@ def main():
         sys.exit(0)
     elif 'verbose' in args and args.verbose > 3:
         sys.stderr.write('aubio version ' + aubio.version + '\n')
-    if 'command' not in args or args.command is None:
+    if 'command' not in args or args.command is None or args.command in ['help']:
         # no command given, print help and return 1
         parser.print_help()
-        sys.exit(1)
+        if args.command and args.command in ['help']:
+            sys.exit(0)
+        else:
+            sys.exit(1)
     elif not args.source_uri and not args.source_uri2:
         sys.stderr.write("Error: a source is required\n")
         parser.print_help()
