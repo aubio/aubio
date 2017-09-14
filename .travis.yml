@@ -97,6 +97,7 @@ install:
   - travis_retry make getwaf expandwaf deps_python
   - which pip
   - pip --version
+  - pip install python-coveralls
 
 script:
   - make create_test_sounds
@@ -107,6 +108,9 @@ script:
     else
       make test_lib_only_clean
     fi;
+
+after_success:
+  - coveralls
 
 notifications:
     irc:
