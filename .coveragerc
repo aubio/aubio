@@ -1,0 +1,8 @@
+[report]
+omit =
+    */waflib/*
+    */site-packages/nose2/*
+    */site-packages/numpy/*
+    */site-packages/scipy/*
+    */site-packages/six.py
+    */bin/nose2
