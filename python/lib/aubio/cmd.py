@@ -118,7 +118,7 @@ def parser_add_subcommand_melbands(subparsers):
 def parser_add_subcommand_quiet(subparsers):
     # quiet subcommand
     subparser = subparsers.add_parser('quiet',
-            help='')
+            help='extract timestamps of quiet and loud regions')
     parser_add_input(subparser)
     parser_add_hop_size(subparser)
     parser_add_silence(subparser)
@@ -209,7 +209,7 @@ def samples2seconds(n_frames, samplerate):
 def samples2milliseconds(n_frames, samplerate):
     return "%f\t" % (1000. * n_frames / float(samplerate))
 
-def samples2samples(n_frames, samplerate):
+def samples2samples(n_frames, _samplerate):
     return "%d\t" % n_frames
 
 def timefunc(mode):
@@ -271,7 +271,7 @@ class process_onset(default_process):
         super(process_onset, self).__init__(args)
     def __call__(self, block):
         return self.onset(block)
-    def repr_res(self, res, frames_read, samplerate):
+    def repr_res(self, res, _frames_read, samplerate):
         if res[0] != 0:
             outstr = self.time2string(self.onset.get_last(), samplerate)
             sys.stdout.write(outstr + '\n')
@@ -302,7 +302,7 @@ class process_beat(default_process):
         super(process_beat, self).__init__(args)
     def __call__(self, block):
         return self.tempo(block)
-    def repr_res(self, res, frames_read, samplerate):
+    def repr_res(self, res, _frames_read, samplerate):
         if res[0] != 0:
             outstr = self.time2string(self.tempo.get_last(), samplerate)
             sys.stdout.write(outstr + '\n')
@@ -311,7 +311,7 @@ class process_tempo(process_beat):
     def __init__(self, args):
         super(process_tempo, self).__init__(args)
         self.beat_locations = []
-    def repr_res(self, res, frames_read, samplerate):
+    def repr_res(self, res, _frames_read, samplerate):
         if res[0] != 0:
             self.beat_locations.append(self.tempo.get_last_s())
     def flush(self, frames_read, samplerate):
@@ -400,7 +400,6 @@ class process_quiet(default_process):
         self.args = args
         valid_opts = ['hop_size', 'silence']
         self.parse_options(args, valid_opts)
-        self.issilence = None
         self.wassilence = 1
 
         if args.silence is not None:
@@ -409,23 +408,21 @@ class process_quiet(default_process):
 
     def __call__(self, block):
         if aubio.silence_detection(block, self.silence) == 1:
-            if self.wassilence == 1:
-                self.issilence = 1
-            else:
-                self.issilence = 2
-            self.wassilence = 1
+            if self.wassilence != 1:
+                self.wassilence = 1
+                return 2 # newly found silence
+            return 1 # silence again
         else:
-            if self.wassilence == 0:
-                self.issilence = 0
-            else:
-                self.issilence = -1
-            self.wassilence = 0
+            if self.wassilence != 0:
+                self.wassilence = 0
+                return -1 # newly found noise
+            return 0 # noise again
 
     def repr_res(self, res, frames_read, samplerate):
         fmt_out = None
-        if self.issilence == -1:
+        if res == -1:
             fmt_out = "NOISY: "
-        if self.issilence == 2:
+        if res == 2:
             fmt_out = "QUIET: "
         if fmt_out is not None:
             fmt_out += self.time2string(frames_read, samplerate)
