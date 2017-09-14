@@ -10,19 +10,26 @@ def get_file_bpm(path, params = None):
     """
     if params is None:
         params = {}
-    try:
-        win_s = params['win_s']
-        samplerate = params['samplerate']
-        hop_s = params['hop_s']
-    except KeyError:
-        """
-        # super fast
-        samplerate, win_s, hop_s = 4000, 128, 64 
-        # fast
-        samplerate, win_s, hop_s = 8000, 512, 128
-        """
-        # default:
-        samplerate, win_s, hop_s = 44100, 1024, 512
+    # default:
+    samplerate, win_s, hop_s = 44100, 1024, 512
+    if 'mode' in params:
+        if params.mode in ['super-fast']:
+            # super fast
+            samplerate, win_s, hop_s = 4000, 128, 64
+        elif params.mode in ['fast']:
+            # fast
+            samplerate, win_s, hop_s = 8000, 512, 128
+        elif params.mode in ['default']:
+            pass
+        else:
+            print("unknown mode {:s}".format(params.mode))
+    # manual settings
+    if 'samplerate' in params:
+        samplerate = params.samplerate
+    if 'win_s' in params:
+        win_s = params.win_s
+    if 'hop_s' in params:
+        hop_s = params.hop_s
 
     s = source(path, samplerate, hop_s)
     samplerate = s.samplerate
@@ -56,7 +63,15 @@ def get_file_bpm(path, params = None):
     return b
 
 if __name__ == '__main__':
-    import sys
-    for f in sys.argv[1:]:
-        bpm = get_file_bpm(f)
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-m', '--mode',
+            help="mode [default|fast|super-fast]",
+            dest="mode")
+    parser.add_argument('sources',
+            nargs='*',
+            help="input_files")
+    args = parser.parse_args()
+    for f in args.sources:
+        bpm = get_file_bpm(f, params = args)
         print("{:6s} {:s}".format("{:2f}".format(bpm), f))
