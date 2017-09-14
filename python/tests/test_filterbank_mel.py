@@ -5,6 +5,9 @@ from numpy.testing import TestCase, assert_equal, assert_almost_equal
 
 from aubio import cvec, filterbank, float_type
 
+import warnings
+warnings.filterwarnings('ignore', category=UserWarning, append=True)
+
 class aubio_filterbank_mel_test_case(TestCase):
 
     def test_slaney(self):
