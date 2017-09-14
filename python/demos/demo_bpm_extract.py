@@ -3,7 +3,7 @@
 from aubio import source, tempo
 from numpy import median, diff
 
-def get_file_bpm(path, params = None):
+def get_file_bpm(path, params=None):
     """ Calculate the beats per minute (bpm) of a given file.
         path: path to the file
         param: dictionary of parameters
@@ -51,16 +51,18 @@ def get_file_bpm(path, params = None):
         if read < hop_s:
             break
 
-    # Convert to periods and to bpm 
-    if len(beats) > 1:
-        if len(beats) < 4:
-            print("few beats found in {:s}".format(path))
-        bpms = 60./diff(beats)
-        b = median(bpms)
-    else:
-        b = 0
-        print("not enough beats found in {:s}".format(path))
-    return b
+    def beats_to_bpm(beats, path):
+        # if enough beats are found, convert to periods then to bpm
+        if len(beats) > 1:
+            if len(beats) < 4:
+                print("few beats found in {:s}".format(path))
+            bpms = 60./diff(beats)
+            return median(bpms)
+        else:
+            print("not enough beats found in {:s}".format(path))
+            return 0
+
+    return beats_to_bpm(beats, path)
 
 if __name__ == '__main__':
     import argparse
