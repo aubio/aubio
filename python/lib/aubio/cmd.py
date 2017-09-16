@@ -145,11 +145,11 @@ def parser_add_subcommand_cut(subparsers):
     helpstr += " <default|energy|hfc|complex|phase|specdiff|kl|mkl|specflux>"
     subparser.add_method(helpstr=helpstr)
     subparser.add_buf_hop_size()
-    #subparser.add_silence()
+    subparser.add_silence()
     subparser.add_threshold(default=0.3)
     subparser.add_minioi()
     subparser.add_slicer_options()
-    #subparser.add_time_format()
+    subparser.add_time_format()
     subparser.add_verbose_help()
     subparser.set_defaults(process=process_cut)
 
@@ -487,7 +487,7 @@ class process_cut(process_onset):
         return ret
 
     def flush(self, frames_read, samplerate):
-        from aubio.cut2 import _cut_slice
+        from aubio.cut import _cut_slice
         _cut_slice(self.options, self.slices)
         duration = float (frames_read) / float(samplerate)
         base_info = '%(source_file)s' % {'source_file': self.options.source_uri}
