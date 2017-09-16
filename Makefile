@@ -35,6 +35,9 @@ INCLUDEDIR?=$(PREFIX)/include
 DATAROOTDIR?=$(PREFIX)/share
 MANDIR?=$(DATAROOTDIR)/man
 
+# default nose2 command
+NOSE2?=nose2 -N 4
+
 SOX=sox
 
 TESTSOUNDS := python/tests/sounds
@@ -137,7 +140,7 @@ test_python: local_dylib
 	# run test with installed package
 	./python/tests/run_all_tests --verbose
 	# also run with nose, multiple processes
-	nose2 -N 4
+	$(NOSE2)
 
 clean_python:
 	./setup.py clean
