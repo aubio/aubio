@@ -5,16 +5,11 @@
 """
 
 import sys
-import argparse
+from aubio.cmd import AubioArgumentParser
 
-def parse_args():
-    usage = "usage: %s [options] -i soundfile" % sys.argv[0]
-    usage += "\n help: %s -h" % sys.argv[0]
-    parser = argparse.ArgumentParser()
-    parser.add_argument("source_file", default=None, nargs='?',
-            help="input sound file to analyse", metavar = "<source_file>")
-    parser.add_argument("-i", "--input", action = "store", dest = "source_file2",
-            help="input sound file to analyse", metavar = "<source_file>")
+def aubio_cut_parser():
+    parser = AubioArgumentParser()
+    parser.add_input()
     parser.add_argument("-O","--onset-method",
             action="store", dest="onset_method", default='default',
             metavar = "<onset_method>",
@@ -23,7 +18,7 @@ def parse_args():
     # cutting methods
     parser.add_argument("-b","--beat",
             action="store_true", dest="beat", default=False,
-            help="use beat locations")
+            help="slice at beat locations")
     """
     parser.add_argument("-S","--silencecut",
             action="store_true", dest="silencecut", default=False,
@@ -34,32 +29,15 @@ def parse_args():
             help="silence threshold [default=-70]")
             """
     # algorithm parameters
-    parser.add_argument("-r", "--samplerate",
-            metavar = "<freq>", type=int,
-            action="store", dest="samplerate", default=0,
-            help="samplerate at which the file should be represented")
-    parser.add_argument("-B","--bufsize",
-            action="store", dest="bufsize", default=512,
-            metavar = "<size>", type=int,
-            help="buffer size [default=512]")
-    parser.add_argument("-H","--hopsize",
-            metavar = "<size>", type=int,
-            action="store", dest="hopsize", default=256,
-            help="overlap size [default=256]")
-    parser.add_argument("-t","--onset-threshold",
-            metavar = "<value>", type=float,
+    parser.add_buf_hop_size()
+    parser.add_argument("-t","--threshold", "--onset-threshold",
+            metavar = "<threshold>", type=float,
             action="store", dest="threshold", default=0.3,
             help="onset peak picking threshold [default=0.3]")
     parser.add_argument("-c","--cut",
             action="store_true", dest="cut", default=False,
-            help="cut input sound file at detected labels \
-                    best used with option -L")
-
-    # minioi
-    parser.add_argument("-M","--minioi",
-            metavar = "<value>", type=str,
-            action="store", dest="minioi", default="12ms",
-            help="minimum inter onset interval [default=12ms]")
+            help="cut input sound file at detected labels")
+    parser.add_minioi()
 
     """
     parser.add_argument("-D","--delay",
@@ -81,9 +59,7 @@ def parse_args():
             metavar = "<value>",
             action="store", dest="zerothres", default=0.008,
             help="zero-crossing threshold for slicing [default=0.00008]")
-            """
     # plotting functions
-    """
     parser.add_argument("-p","--plot",
             action="store_true", dest="plot", default=False,
             help="draw plot")
@@ -109,51 +85,24 @@ def parse_args():
             action="store_true", dest="spectro", default=False,
             help="add spectrogram to the plot")
     """
-    parser.add_argument("-o","--output", type = str,
-            metavar = "<outputdir>",
-            action="store", dest="output_directory", default=None,
-            help="specify path where slices of the original file should be created")
-    parser.add_argument("--cut-until-nsamples", type = int,
-            metavar = "<samples>",
-            action = "store", dest = "cut_until_nsamples", default = None,
-            help="how many extra samples should be added at the end of each slice")
-    parser.add_argument("--cut-every-nslices", type = int,
-            metavar = "<samples>",
-            action = "store", dest = "cut_every_nslices", default = None,
-            help="how many slices should be groupped together at each cut")
-    parser.add_argument("--cut-until-nslices", type = int,
-            metavar = "<slices>",
-            action = "store", dest = "cut_until_nslices", default = None,
-            help="how many extra slices should be added at the end of each slice")
+    parser.add_slicer_options()
+    parser.add_verbose_help()
+    return parser
 
-    parser.add_argument("-v","--verbose",
-            action="store_true", dest="verbose", default=True,
-            help="make lots of noise [default]")
-    parser.add_argument("-q","--quiet",
-            action="store_false", dest="verbose", default=True,
-            help="be quiet")
-    args = parser.parse_args()
-    if not args.source_file and not args.source_file2:
-        sys.stderr.write("Error: no file name given\n")
-        parser.print_help()
-        sys.exit(1)
-    elif args.source_file2 is not None:
-        args.source_file = args.source_file2
-    return args
 
-def main():
-    options = parse_args()
-
-    source_file = options.source_file
-    hopsize = options.hopsize
-    bufsize = options.bufsize
+def _cut_analyze(options):
+    hopsize = options.hop_size
+    bufsize = options.buf_size
     samplerate = options.samplerate
-    source_file = options.source_file
+    source_uri = options.source_uri
 
+    # analyze pass
     from aubio import onset, tempo, source
 
-    s = source(source_file, samplerate, hopsize)
-    if samplerate == 0: samplerate = s.get_samplerate()
+    s = source(source_uri, samplerate, hopsize)
+    if samplerate == 0:
+        samplerate = s.get_samplerate()
+        options.samplerate = samplerate
 
     if options.beat:
         o = tempo(options.onset_method, bufsize, hopsize, samplerate=samplerate)
@@ -170,7 +119,6 @@ def main():
 
     timestamps = []
     total_frames = 0
-    # analyze pass
     while True:
         samples, read = s()
         if o(samples):
@@ -179,15 +127,12 @@ def main():
         total_frames += read
         if read < hopsize: break
     del s
-    # print some info
-    nstamps = len(timestamps)
-    duration = float (total_frames) / float(samplerate)
-    info = 'found %(nstamps)d timestamps in %(source_file)s' % locals()
-    info += ' (total %(duration).2fs at %(samplerate)dHz)\n' % locals()
-    sys.stderr.write(info)
+    return timestamps, total_frames
 
+def _cut_slice(options, timestamps):
     # cutting pass
-    if options.cut and nstamps > 0:
+    nstamps = len(timestamps)
+    if nstamps > 0:
         # generate output files
         from aubio.slicing import slice_source_at_stamps
         timestamps_end = None
@@ -202,12 +147,36 @@ def main():
         if options.cut_until_nslices:
             timestamps_end = [t for t in timestamps[1 + options.cut_until_nslices:]]
             timestamps_end += [ 1e120 ] * (options.cut_until_nslices + 1)
-        slice_source_at_stamps(source_file, timestamps, timestamps_end = timestamps_end,
+        slice_source_at_stamps(options.source_uri,
+                timestamps, timestamps_end = timestamps_end,
                 output_dir = options.output_directory,
-                samplerate = samplerate)
+                samplerate = options.samplerate)
 
-        # print some info
-        duration = float (total_frames) / float(samplerate)
-        info = 'created %(nstamps)d slices from %(source_file)s' % locals()
-        info += ' (total %(duration).2fs at %(samplerate)dHz)\n' % locals()
+def main():
+    parser = aubio_cut_parser()
+    options = parser.parse_args()
+    if not options.source_uri and not options.source_uri2:
+        sys.stderr.write("Error: no file name given\n")
+        parser.print_help()
+        sys.exit(1)
+    elif options.source_uri2 is not None:
+        options.source_uri = options.source_uri2
+
+    # analysis
+    timestamps, total_frames = _cut_analyze(options)
+
+    # print some info
+    duration = float (total_frames) / float(options.samplerate)
+    base_info = '%(source_uri)s' % {'source_uri': options.source_uri}
+    base_info += ' (total %(duration).2fs at %(samplerate)dHz)\n' % \
+            {'duration': duration, 'samplerate': options.samplerate}
+
+    info = "found %d timestamps in " % len(timestamps)
+    info += base_info
+    sys.stderr.write(info)
+
+    if options.cut:
+        _cut_slice(options, timestamps)
+        info = "created %d slices from " % len(timestamps)
+        info += base_info
         sys.stderr.write(info)
