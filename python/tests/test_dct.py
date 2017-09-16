@@ -40,7 +40,7 @@ class aubio_dct(TestCase):
         a_in[1] = 0
         a_in[3] = np.pi
         a_expected = aubio.fvec(precomputed_some_ones)
-        assert_almost_equal(a_dct(a_in), a_expected, decimal=7)
+        assert_almost_equal(a_dct(a_in), a_expected, decimal=6)
 
     def test_reconstruction(self):
         """ test that some_ones vector can be recontructed """
@@ -60,8 +60,9 @@ class aubio_dct(TestCase):
     def test_wrong_size(self):
         """ test that creation fails with a non power-of-two size """
         # supports for non 2** fft sizes only when compiled with fftw3
+        size = 13
         try:
             with self.assertRaises(RuntimeError):
-                aubio.dct(13)
+                aubio.dct(size)
         except AssertionError:
-            self.skipTest('creating aubio.dct with size %d did not fail' % win_s)
+            self.skipTest('creating aubio.dct with size %d did not fail' % size)
