@@ -36,7 +36,7 @@ struct _aubio_mfcc_t
 {
   uint_t win_s;             /** grain length */
   uint_t samplerate;        /** sample rate (needed?) */
-  uint_t n_filters;         /** number of  *filters */
+  uint_t n_filters;         /** number of filters */
   uint_t n_coefs;           /** number of coefficients (<= n_filters/2 +1) */
   aubio_filterbank_t *fb;   /** filter bank */
   fvec_t *in_dct;           /** input buffer for dct * [fb->n_filters] */
