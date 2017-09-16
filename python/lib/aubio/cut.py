@@ -7,7 +7,7 @@
 import sys
 import argparse
 
-def parse_args():
+def aubio_cut_parser():
     usage = "usage: %s [options] -i soundfile" % sys.argv[0]
     usage += "\n help: %s -h" % sys.argv[0]
     parser = argparse.ArgumentParser()
@@ -132,28 +132,23 @@ def parse_args():
     parser.add_argument("-q","--quiet",
             action="store_false", dest="verbose", default=True,
             help="be quiet")
-    args = parser.parse_args()
-    if not args.source_file and not args.source_file2:
-        sys.stderr.write("Error: no file name given\n")
-        parser.print_help()
-        sys.exit(1)
-    elif args.source_file2 is not None:
-        args.source_file = args.source_file2
-    return args
+    return parser
 
-def main():
-    options = parse_args()
 
+def _cut_analyze(options):
     source_file = options.source_file
     hopsize = options.hopsize
     bufsize = options.bufsize
     samplerate = options.samplerate
     source_file = options.source_file
 
+    # analyze pass
     from aubio import onset, tempo, source
 
     s = source(source_file, samplerate, hopsize)
-    if samplerate == 0: samplerate = s.get_samplerate()
+    if samplerate == 0:
+        samplerate = s.get_samplerate()
+        options.samplerate = samplerate
 
     if options.beat:
         o = tempo(options.onset_method, bufsize, hopsize, samplerate=samplerate)
@@ -170,7 +165,6 @@ def main():
 
     timestamps = []
     total_frames = 0
-    # analyze pass
     while True:
         samples, read = s()
         if o(samples):
@@ -179,15 +173,12 @@ def main():
         total_frames += read
         if read < hopsize: break
     del s
-    # print some info
-    nstamps = len(timestamps)
-    duration = float (total_frames) / float(samplerate)
-    info = 'found %(nstamps)d timestamps in %(source_file)s' % locals()
-    info += ' (total %(duration).2fs at %(samplerate)dHz)\n' % locals()
-    sys.stderr.write(info)
+    return timestamps, total_frames
 
+def _cut_slice(options, timestamps):
     # cutting pass
-    if options.cut and nstamps > 0:
+    nstamps = len(timestamps)
+    if nstamps > 0:
         # generate output files
         from aubio.slicing import slice_source_at_stamps
         timestamps_end = None
@@ -202,12 +193,36 @@ def main():
         if options.cut_until_nslices:
             timestamps_end = [t for t in timestamps[1 + options.cut_until_nslices:]]
             timestamps_end += [ 1e120 ] * (options.cut_until_nslices + 1)
-        slice_source_at_stamps(source_file, timestamps, timestamps_end = timestamps_end,
+        slice_source_at_stamps(options.source_file,
+                timestamps, timestamps_end = timestamps_end,
                 output_dir = options.output_directory,
-                samplerate = samplerate)
+                samplerate = options.samplerate)
 
-        # print some info
-        duration = float (total_frames) / float(samplerate)
-        info = 'created %(nstamps)d slices from %(source_file)s' % locals()
-        info += ' (total %(duration).2fs at %(samplerate)dHz)\n' % locals()
+def main():
+    parser = aubio_cut_parser()
+    options = parser.parse_args()
+    if not options.source_file and not options.source_file2:
+        sys.stderr.write("Error: no file name given\n")
+        parser.print_help()
+        sys.exit(1)
+    elif options.source_file2 is not None:
+        options.source_file = options.source_file2
+
+    # analysis
+    timestamps, total_frames = _cut_analyze(options)
+
+    # print some info
+    duration = float (total_frames) / float(options.samplerate)
+    base_info = '%(source_file)s' % {'source_file': options.source_file}
+    base_info += ' (total %(duration).2fs at %(samplerate)dHz)\n' % \
+            {'duration': duration, 'samplerate': options.samplerate}
+
+    info = "found %d timestamps in " % len(timestamps)
+    info += base_info
+    sys.stderr.write(info)
+
+    if options.cut:
+        _cut_slice(options, timestamps)
+        info = "created %d slices from " % len(timestamps)
+        info += base_info
         sys.stderr.write(info)
