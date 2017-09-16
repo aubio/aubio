@@ -8,8 +8,6 @@ import sys
 import argparse
 
 def aubio_cut_parser():
-    usage = "usage: %s [options] -i soundfile" % sys.argv[0]
-    usage += "\n help: %s -h" % sys.argv[0]
     parser = argparse.ArgumentParser()
     parser.add_argument("source_file", default=None, nargs='?',
             help="input sound file to analyse", metavar = "<source_file>")
