@@ -28,6 +28,7 @@
 /** Window types */
 typedef enum
 {
+  aubio_win_ones,
   aubio_win_rectangle,
   aubio_win_hamming,
   aubio_win_hanning,
@@ -63,7 +64,9 @@ uint_t fvec_set_window (fvec_t *win, char_t *window_type) {
   if (window_type == NULL) {
       AUBIO_ERR ("window type can not be null.\n");
       return 1;
-  } else if (strcmp (window_type, "rectangle") == 0)
+  } else if (strcmp (window_type, "ones") == 0)
+      wintype = aubio_win_ones;
+  else if (strcmp (window_type, "rectangle") == 0)
       wintype = aubio_win_rectangle;
   else if (strcmp (window_type, "hamming") == 0)
       wintype = aubio_win_hamming;
@@ -88,9 +91,11 @@ uint_t fvec_set_window (fvec_t *win, char_t *window_type) {
       return 1;
   }
   switch(wintype) {
+    case aubio_win_ones:
+      fvec_ones(win);
+      break;
     case aubio_win_rectangle:
-      for (i=0;i<size;i++)
-        w[i] = 0.5;
+      fvec_set_all(win, .5);
       break;
     case aubio_win_hamming:
       for (i=0;i<size;i++)

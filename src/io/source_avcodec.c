@@ -313,15 +313,15 @@ void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s, uint_t mul
     // TODO: use planar?
     //av_opt_set_int(avr, "out_sample_fmt",     AV_SAMPLE_FMT_FLTP,      0);
 #ifdef HAVE_AVRESAMPLE
-    if ( ( err = avresample_open(avr) ) < 0) {
+    if ( ( err = avresample_open(avr) ) < 0)
 #elif defined(HAVE_SWRESAMPLE)
-    if ( ( err = swr_init(avr) ) < 0) {
+    if ( ( err = swr_init(avr) ) < 0)
 #endif /* HAVE_AVRESAMPLE || HAVE_SWRESAMPLE */
+    {
       char errorstr[256];
       av_strerror (err, errorstr, sizeof(errorstr));
-      AUBIO_ERR("source_avcodec: Could not open AVAudioResampleContext for %s (%s)\n",
+      AUBIO_ERR("source_avcodec: Could not open resampling context for %s (%s)\n",
           s->path, errorstr);
-      //goto beach;
       return;
     }
     s->avr = avr;

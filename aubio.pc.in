@@ -7,4 +7,4 @@ Name: aubio
 Description: a library for audio labelling
 Version: @VERSION@
 Libs: -L${libdir} -laubio
-Cflags: -I${includedir} 
+Cflags: -I${includedir}

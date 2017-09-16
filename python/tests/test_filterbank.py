@@ -1,9 +1,8 @@
 #! /usr/bin/env python
 
-from unittest import main
-from numpy.testing import TestCase
-from numpy.testing import assert_equal, assert_almost_equal
 import numpy as np
+from numpy.testing import TestCase, assert_equal, assert_almost_equal
+
 from aubio import cvec, filterbank, float_type
 from .utils import array_from_text_file
 
@@ -62,6 +61,13 @@ class aubio_filterbank_test_case(TestCase):
         f.set_mel_coeffs_slaney(16000)
         assert_almost_equal ( expected, f.get_coeffs() )
 
+    def test_mfcc_coeffs_get_coeffs(self):
+        f = filterbank(40, 512)
+        coeffs = f.get_coeffs()
+        self.assertIsInstance(coeffs, np.ndarray)
+        assert_equal (coeffs, 0)
+        assert_equal (np.shape(coeffs), (40, 512 / 2 + 1))
+
 class aubio_filterbank_wrong_values(TestCase):
 
     def test_negative_window(self):
@@ -81,4 +87,5 @@ class aubio_filterbank_wrong_values(TestCase):
             f(cvec(256))
 
 if __name__ == '__main__':
-    main()
+    import nose2
+    nose2.main()

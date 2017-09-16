@@ -95,6 +95,16 @@ uint_t aubio_pvoc_get_win(aubio_pvoc_t* pv);
 */
 uint_t aubio_pvoc_get_hop(aubio_pvoc_t* pv);
 
+/** set window type
+
+  \param pv phase vocoder to set the window type
+  \param window_type a string representing a window
+
+  \return 0 if successful, non-zero otherwise
+
+ */
+uint_t aubio_pvoc_set_window(aubio_pvoc_t *pv, const char_t *window_type);
+
 #ifdef __cplusplus
 }
 #endif
