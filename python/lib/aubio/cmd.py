@@ -33,6 +33,7 @@ def aubio_parser():
     parser_add_subcommand_mfcc(subparsers)
     parser_add_subcommand_melbands(subparsers)
     parser_add_subcommand_quiet(subparsers)
+    parser_add_subcommand_cut(subparsers)
 
     return parser
 
@@ -135,6 +136,23 @@ def parser_add_subcommand_quiet(subparsers):
     subparser.add_verbose_help()
     subparser.set_defaults(process=process_quiet)
 
+def parser_add_subcommand_cut(subparsers):
+    # quiet subcommand
+    subparser = subparsers.add_parser('cut',
+            help='slice at timestamps')
+    subparser.add_input()
+    helpstr = "onset novelty function"
+    helpstr += " <default|energy|hfc|complex|phase|specdiff|kl|mkl|specflux>"
+    subparser.add_method(helpstr=helpstr)
+    subparser.add_buf_hop_size()
+    #subparser.add_silence()
+    subparser.add_threshold(default=0.3)
+    subparser.add_minioi()
+    subparser.add_slicer_options()
+    #subparser.add_time_format()
+    subparser.add_verbose_help()
+    subparser.set_defaults(process=process_cut)
+
 class AubioArgumentParser(argparse.ArgumentParser):
 
     def add_input(self):
@@ -211,6 +229,24 @@ class AubioArgumentParser(argparse.ArgumentParser):
                  dest="time_format",
                  default=None,
                  help=helpstr)
+
+    def add_slicer_options(self):
+        self.add_argument("-o","--output", type = str,
+                metavar = "<outputdir>",
+                action="store", dest="output_directory", default=None,
+                help="specify path where slices of the original file should be created")
+        self.add_argument("--cut-until-nsamples", type = int,
+                metavar = "<samples>",
+                action = "store", dest = "cut_until_nsamples", default = None,
+                help="how many extra samples should be added at the end of each slice")
+        self.add_argument("--cut-every-nslices", type = int,
+                metavar = "<samples>",
+                action = "store", dest = "cut_every_nslices", default = None,
+                help="how many slices should be groupped together at each cut")
+        self.add_argument("--cut-until-nslices", type = int,
+                metavar = "<slices>",
+                action = "store", dest = "cut_until_nslices", default = None,
+                help="how many extra slices should be added at the end of each slice")
 
 # some utilities
 
@@ -438,6 +474,28 @@ class process_quiet(default_process):
         if fmt_out is not None:
             fmt_out += self.time2string(frames_read, samplerate)
             sys.stdout.write(fmt_out + '\n')
+
+class process_cut(process_onset):
+    def __init__(self, args):
+        super(process_cut, self).__init__(args)
+        self.slices = []
+        self.options = args
+
+    def __call__(self, block):
+        ret = super(process_cut, self).__call__(block)
+        if ret: self.slices.append(self.onset.get_last())
+        return ret
+
+    def flush(self, frames_read, samplerate):
+        from aubio.cut2 import _cut_slice
+        _cut_slice(self.options, self.slices)
+        duration = float (frames_read) / float(samplerate)
+        base_info = '%(source_file)s' % {'source_file': self.options.source_uri}
+        base_info += ' (total %(duration).2fs at %(samplerate)dHz)\n' % \
+                {'duration': duration, 'samplerate': samplerate}
+        info = "created %d slices from " % len(self.slices)
+        info += base_info
+        sys.stderr.write(info)
 
 def main():
     parser = aubio_parser()
