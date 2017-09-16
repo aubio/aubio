@@ -103,6 +103,7 @@ script:
   - make create_test_sounds
   - |
     if [[ -z "$AUBIO_NOTESTS" ]]; then
+      export NOSE2="coverage run --source=aubio `which nose2`"
       make test_lib_python_clean
       make test_python_only_clean
     else
