@@ -36,7 +36,7 @@ DATAROOTDIR?=$(PREFIX)/share
 MANDIR?=$(DATAROOTDIR)/man
 
 # default nose2 command
-NOSE2?=nose2 -N 4
+NOSE2?=nose2 -N 4 --verbose
 
 SOX=sox
 
@@ -138,8 +138,8 @@ test_python: export LD_LIBRARY_PATH=$(DESTDIR)/$(LIBDIR)
 test_python: export PYTHONPATH=$(PYDESTDIR)/$(LIBDIR)
 test_python: local_dylib
 	# run test with installed package
-	./python/tests/run_all_tests --verbose
-	# also run with nose, multiple processes
+	# ./python/tests/run_all_tests --verbose
+	# run with nose2, multiple processes
 	$(NOSE2)
 
 clean_python:
