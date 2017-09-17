@@ -10,7 +10,11 @@ class aubio_cmd(TestCase):
         self.a_parser = aubio.cmd.aubio_parser()
 
     def test_default_creation(self):
-        assert self.a_parser.parse_args(['-V']).show_version
+        try:
+            assert self.a_parser.parse_args(['-V']).show_version
+        except SystemExit as e:
+            url = 'https://bugs.python.org/issue9253'
+            self.skipTest('subcommand became optional in py3, see %s' % url)
 
 class aubio_cmd_utils(TestCase):
 
