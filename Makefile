@@ -241,9 +241,9 @@ coverage: force_uninstall_python deps_python \
 	clean_python clean distclean
 	pip install -v -e .
 	coverage run `which nose2`
+	lcov --capture --no-external --directory . --output-file build/coverage.info
 
 coverage_report: coverage
-	lcov --capture --no-external --directory . --output-file build/coverage.info
 	genhtml build/coverage.info --output-directory lcov_html
 	mkdir -p gcovr_html/
 	gcovr -r . --html --html-details \
