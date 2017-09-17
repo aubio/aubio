@@ -1,0 +1,27 @@
+#! /usr/bin/env python
+
+import aubio.cmd
+from nose2 import main
+from numpy.testing import TestCase
+
+class aubio_cmd(TestCase):
+
+    def setUp(self):
+        self.a_parser = aubio.cmd.aubio_parser()
+
+    def test_default_creation(self):
+        assert self.a_parser.parse_args(['-V']).show_version
+
+class aubio_cmd_utils(TestCase):
+
+    def test_samples2seconds(self):
+        self.assertEqual(aubio.cmd.samples2seconds(3200, 32000), "0.100000\t")
+
+    def test_samples2milliseconds(self):
+        self.assertEqual(aubio.cmd.samples2milliseconds(3200, 32000), "100.000000\t")
+
+    def test_samples2samples(self):
+        self.assertEqual(aubio.cmd.samples2samples(3200, 32000), "3200\t")
+
+if __name__ == '__main__':
+    main()
