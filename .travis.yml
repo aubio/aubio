@@ -118,7 +118,7 @@ after_success:
       # upload lcov coverage
       coveralls-lcov build/coverage.info
       # upload python coverage
-      coveralls
+      #coveralls
     fi
 
 notifications:
