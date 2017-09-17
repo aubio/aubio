@@ -113,6 +113,8 @@ script:
 after_success:
   - |
     if [[ -z "$AUBIO_NOTESTS" ]]; then
+      sed 's|\"\([^"]*\)/\(aubio\/\)\([^"]*\.py\)"|"'$PWD'/python/lib/aubio/\3"|g' .coverage > .coverage.remap
+      mv -f .coverage.remap .coverage
       coveralls
     fi
 
