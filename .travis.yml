@@ -90,6 +90,7 @@ before_install:
        brew install sox
        brew install ffmpeg
        brew install libsndfile
+       brew install lcov
        export PATH="$HOME/Library/Python/2.7/bin/:$PATH"
      fi;
 
