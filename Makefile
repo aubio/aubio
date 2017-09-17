@@ -236,6 +236,7 @@ test_python_only_clean: test_python_only \
 
 coverage: export CFLAGS=--coverage
 coverage: export LDFLAGS=--coverage
+coverage: export PYTHONPATH=$(PWD)/python/lib
 coverage: force_uninstall_python deps_python \
 	clean_python clean distclean
 	pip install -v -e .
