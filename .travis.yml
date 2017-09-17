@@ -81,6 +81,7 @@ addons:
     - libasound2-dev
     - libfftw3-dev
     - sox
+    - lcov
 
 before_install:
    - |
@@ -98,14 +99,14 @@ install:
   - which pip
   - pip --version
   - pip install python-coveralls
+  - gem install coveralls-lcov
 
 script:
   - make create_test_sounds
   - |
     if [[ -z "$AUBIO_NOTESTS" ]]; then
       make test_lib_python_clean
-      export NOSE2="coverage run --source=aubio `which nose2`"
-      make test_python_only
+      make coverage
     else
       make test_lib_only_clean
     fi;
@@ -113,8 +114,9 @@ script:
 after_success:
   - |
     if [[ -z "$AUBIO_NOTESTS" ]]; then
-      sed 's|\"\([^"]*\)/\(aubio\/\)\([^"]*\.py\)"|"'$PWD'/python/lib/aubio/\3"|g' .coverage > .coverage.remap
-      mv -f .coverage.remap .coverage
+      # upload lcov coverage
+      coveralls-lcov build/coverage.info
+      # upload python coverage
       coveralls
     fi
 
