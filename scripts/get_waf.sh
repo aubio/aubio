@@ -22,7 +22,6 @@ function buildwaf () {
 
   tar xf $WAFTARBALL
   pushd waf-$WAFVERSION
-  [ -x $PYTHON ] || PYTHON=`which python`
   NOCLIMB=1 python waf-light --tools=c_emscripten,syms $*
 
   popd
