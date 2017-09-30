@@ -148,7 +148,10 @@ def configure(ctx):
         ctx.env.prepend_value('CFLAGS', ['-g', '-Wall', '-Wextra'])
     else:
         # enable debug symbols
-        ctx.env.CFLAGS += ['/Z7', '/FS']
+        ctx.env.CFLAGS += ['/Z7']
+        # /FS flag available in msvc >= 12 (2013)
+        if 'MSVC_VERSION' in ctx.env and ctx.env.MSVC_VERSION >= 12:
+            ctx.env.CFLAGS += ['/FS']
         ctx.env.LINKFLAGS += ['/DEBUG', '/INCREMENTAL:NO']
         # configure warnings
         ctx.env.CFLAGS += ['/W4', '/D_CRT_SECURE_NO_WARNINGS']
