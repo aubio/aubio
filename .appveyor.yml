@@ -61,8 +61,8 @@ build_script:
   - "python python\\demos\\demo_create_test_sounds.py"
   - "nose2 --verbose"
   # clean up
-  - waf distclean
+  - "python waf distclean"
   # build libaubio
-  - waf configure build --verbose
+  - "python waf configure build --verbose"
   # build python module using libaubio dll
   - "python setup.py build"
