@@ -105,7 +105,7 @@ def configure(ctx):
     target_platform = sys.platform
     if ctx.options.target_platform:
         target_platform = ctx.options.target_platform
-    
+
     from waflib import Options
 
     if target_platform=='emscripten':
@@ -115,9 +115,7 @@ def configure(ctx):
 
     ctx.load('waf_unit_test')
     ctx.load('gnu_dirs')
-    
-    
-    
+
     # check for common headers
     ctx.check(header_name='stdlib.h')
     ctx.check(header_name='stdio.h')
@@ -439,7 +437,7 @@ def build(bld):
 
     # main source
     bld.recurse('src')
-    
+
     # add sub directories
     if bld.env['DEST_OS'] not in ['ios', 'iosimulator', 'android']:
         if bld.env['DEST_OS']=='emscripten' and not bld.options.testcmd:
