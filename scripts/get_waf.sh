@@ -22,7 +22,7 @@ function buildwaf () {
 
   tar xf $WAFTARBALL
   pushd waf-$WAFVERSION
-  NOCLIMB=1 python waf-light --tools=c_emscripten,syms
+  NOCLIMB=1 python waf-light --tools=c_emscripten,syms $*
 
   popd
   popd
