@@ -1,9 +1,8 @@
-#define AUBIO_UNSTABLE 1
 #include <aubio.h>
 #include "utils_tests.h"
 
-// this file uses the unstable aubio api, please use aubio_sink instead
-// see src/io/sink.h and tests/src/sink/test-sink.c
+// same as test-sink.c, but uses aubio_source_do_multi to read multiple
+// channels
 
 int main (int argc, char **argv)
 {
