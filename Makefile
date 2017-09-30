@@ -237,11 +237,14 @@ test_python_only_clean: test_python_only \
 coverage: export CFLAGS=--coverage
 coverage: export LDFLAGS=--coverage
 coverage: export PYTHONPATH=$(PWD)/python/lib
+coverage: export LD_LIBRARY_PATH=$(PWD)/build/src
 coverage: force_uninstall_python deps_python \
-	clean_python clean distclean
+	clean_python clean distclean build local_dylib
+	lcov --capture --no-external --directory . --output-file build/coverage_lib.info
 	pip install -v -e .
 	coverage run `which nose2`
-	lcov --capture --no-external --directory . --output-file build/coverage.info
+	lcov --capture --no-external --directory . --output-file build/coverage_python.info
+	lcov -a build/coverage_python.info -a build/coverage_lib.info -o build/coverage.info
 
 coverage_report: coverage
 	genhtml build/coverage.info --output-directory lcov_html
