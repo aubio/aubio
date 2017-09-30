@@ -51,7 +51,7 @@ install:
   - "pip install --upgrade setuptools"
 
 before_build:
-  - bash scripts/get_waf.sh --python=%PYTHON%\\python.exe
+  - "bash scripts/get_waf.sh --python=%PYTHON%\\python.exe"
 
 build_script:
   # build python module without using libaubio
