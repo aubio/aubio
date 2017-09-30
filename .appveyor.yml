@@ -51,8 +51,7 @@ install:
   - "pip install --upgrade setuptools"
 
 before_build:
-  - curl -fsS -o waf https://waf.io/waf-1.8.22
-  - curl -fsS -o waf.bat https://raw.githubusercontent.com/waf-project/waf/master/utils/waf.bat
+  - bash scripts/get_waf.sh
 
 build_script:
   # build python module without using libaubio
