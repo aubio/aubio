@@ -3,6 +3,8 @@
 
 int main (void)
 {
+  aubio_init();
+
   uint_t i, window_size = 16; // window size
   cvec_t * complex_vector = new_cvec (window_size); // input buffer
   uint_t rand_times = 4;
@@ -44,5 +46,8 @@ int main (void)
 
   // destroy it
   del_cvec(complex_vector);
+
+  aubio_cleanup();
+
   return 0;
 }

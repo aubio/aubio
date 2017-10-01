@@ -6,6 +6,8 @@
 
 int main (void)
 {
+  aubio_init();
+
   uint_t return_code = 0;
   fvec_t *f = new_fvec(-12);
   cvec_t *c = new_cvec(-12);
@@ -20,5 +22,8 @@ int main (void)
   } else if (fft != NULL) {
     return_code = 3;
   }
+
+  aubio_cleanup();
+  
   return return_code;
 }

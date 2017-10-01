@@ -312,6 +312,9 @@ uint_t aubio_is_power_of_two(uint_t a);
 /** return the next power of power of 2 greater than a */
 uint_t aubio_next_power_of_two(uint_t a);
 
+/** return the log2 factor of the given power of 2 value a */
+uint_t aubio_power_of_two_order(uint_t a);
+
 /** compute normalised autocorrelation function
 
   \param input vector to compute autocorrelation from

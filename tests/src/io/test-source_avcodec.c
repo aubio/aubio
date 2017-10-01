@@ -7,6 +7,8 @@
 
 int main (int argc, char **argv)
 {
+  aubio_init();
+
   uint_t err = 0;
   if (argc < 2) {
     err = 2;
@@ -59,5 +61,8 @@ beach:
   err = 3;
   PRINT_ERR("aubio was not compiled with aubio_source_avcodec\n");
 #endif /* HAVE_LIBAV */
+
+  aubio_cleanup();
+  
   return err;
 }

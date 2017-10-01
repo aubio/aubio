@@ -93,6 +93,7 @@
 #define aubio_vDSP_minv       vDSP_minv
 #define aubio_vDSP_minvi      vDSP_minvi
 #define aubio_vDSP_dotpr      vDSP_dotpr
+#define aubio_vDSP_vclr       vDSP_vclr
 #else /* HAVE_AUBIO_DOUBLE */
 #define aubio_vDSP_mmov       vDSP_mmovD
 #define aubio_vDSP_vmul       vDSP_vmulD
@@ -104,6 +105,7 @@
 #define aubio_vDSP_minv       vDSP_minvD
 #define aubio_vDSP_minvi      vDSP_minviD
 #define aubio_vDSP_dotpr      vDSP_dotprD
+#define aubio_vDSP_vclr       vDSP_vclrD
 #endif /* HAVE_AUBIO_DOUBLE */
 #endif /* HAVE_ACCELERATE */
 

@@ -3,6 +3,8 @@
 
 int main (int argc, char **argv)
 {
+  aubio_init();
+
   sint_t err = 0;
 
   if (argc < 3) {
@@ -54,5 +56,8 @@ beach_sink:
 beach_source:
   del_fvec(vec);
 beach_fvec:
+
+  aubio_cleanup();
+  
   return err;
 }

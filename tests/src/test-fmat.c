@@ -6,6 +6,8 @@
 
 int main (void)
 {
+  aubio_init();
+
   uint_t height = 3, length = 9, i, j;
   // create fmat_t object
   fmat_t * mat = new_fmat (height, length);
@@ -25,6 +27,9 @@ int main (void)
   fmat_print(mat);
   // destroy it
   del_fmat(mat);
+
+  aubio_cleanup();
+  
   return 0;
 }
 

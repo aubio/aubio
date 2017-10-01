@@ -21,6 +21,12 @@
 #include "aubio_priv.h"
 #include "cvec.h"
 
+#if defined HAVE_INTEL_IPP
+#include <ippcore.h>
+#include <ippvm.h>
+#include <ipps.h>
+#endif
+
 cvec_t * new_cvec(uint_t length) {
   cvec_t * s;
   if ((sint_t)length <= 0) {
@@ -85,31 +91,53 @@ void cvec_copy(const cvec_t *s, cvec_t *t) {
         s->length, t->length);
     return;
   }
-#ifdef HAVE_MEMCPY_HACKS
+#if defined(HAVE_INTEL_IPP)
+  #if HAVE_AUBIO_DOUBLE
+    ippsCopy_64f(s->phas, t->phas, (int)s->length);
+    ippsCopy_64f(s->norm, t->norm, (int)s->length);
+  #else
+    ippsCopy_32f(s->phas, t->phas, (int)s->length);
+    ippsCopy_32f(s->norm, t->norm, (int)s->length);
+  #endif
+#elif defined(HAVE_MEMCPY_HACKS)
   memcpy(t->norm, s->norm, t->length * sizeof(smpl_t));
   memcpy(t->phas, s->phas, t->length * sizeof(smpl_t));
-#else /* HAVE_MEMCPY_HACKS */
+#else
   uint_t j;
   for (j=0; j< t->length; j++) {
     t->norm[j] = s->norm[j];
     t->phas[j] = s->phas[j];
   }
-#endif /* HAVE_MEMCPY_HACKS */
+#endif
 }
 
-void cvec_norm_set_all (cvec_t *s, smpl_t val) {
+void cvec_norm_set_all(cvec_t *s, smpl_t val) {
+#if defined(HAVE_INTEL_IPP)
+  #if HAVE_AUBIO_DOUBLE
+    ippsSet_64f(val, s->norm, (int)s->length);
+  #else
+    ippsSet_32f(val, s->norm, (int)s->length);
+  #endif
+#else
   uint_t j;
   for (j=0; j< s->length; j++) {
     s->norm[j] = val;
   }
+#endif
 }
 
 void cvec_norm_zeros(cvec_t *s) {
-#ifdef HAVE_MEMCPY_HACKS
+#if defined(HAVE_INTEL_IPP)
+  #if HAVE_AUBIO_DOUBLE
+    ippsZero_64f(s->norm, (int)s->length);
+  #else
+    ippsZero_32f(s->norm, (int)s->length);
+  #endif
+#elif defined(HAVE_MEMCPY_HACKS)
   memset(s->norm, 0, s->length * sizeof(smpl_t));
-#else /* HAVE_MEMCPY_HACKS */
+#else 
   cvec_norm_set_all (s, 0.);
-#endif /* HAVE_MEMCPY_HACKS */
+#endif
 }
 
 void cvec_norm_ones(cvec_t *s) {
@@ -117,14 +145,28 @@ void cvec_norm_ones(cvec_t *s) {
 }
 
 void cvec_phas_set_all (cvec_t *s, smpl_t val) {
+#if defined(HAVE_INTEL_IPP)
+  #if HAVE_AUBIO_DOUBLE
+    ippsSet_64f(val, s->phas, (int)s->length);
+  #else
+    ippsSet_32f(val, s->phas, (int)s->length);
+  #endif
+#else
   uint_t j;
   for (j=0; j< s->length; j++) {
     s->phas[j] = val;
   }
+#endif
 }
 
 void cvec_phas_zeros(cvec_t *s) {
-#ifdef HAVE_MEMCPY_HACKS
+#if defined(HAVE_INTEL_IPP)
+  #if HAVE_AUBIO_DOUBLE
+    ippsZero_64f(s->phas, (int)s->length);
+  #else
+    ippsZero_32f(s->phas, (int)s->length);
+  #endif
+#elif defined(HAVE_MEMCPY_HACKS)
   memset(s->phas, 0, s->length * sizeof(smpl_t));
 #else
   cvec_phas_set_all (s, 0.);
@@ -141,8 +183,20 @@ void cvec_zeros(cvec_t *s) {
 }
 
 void cvec_logmag(cvec_t *s, smpl_t lambda) {
-  uint_t j;
-  for (j=0; j< s->length; j++) {
-    s->norm[j] = LOG(lambda * s->norm[j] + 1);
-  }
+  #if defined(HAVE_INTEL_IPP)
+    #if HAVE_AUBIO_DOUBLE
+      ippsMulC_64f(s->norm, lambda, s->norm, (int)s->length);
+      ippsAddC_64f(s->norm, 1.0, s->norm, (int)s->length);
+      ippsLn_64f_A26(s->norm, s->norm, (int)s->length);
+    #else
+      ippsMulC_32f(s->norm, lambda, s->norm, (int)s->length);
+      ippsAddC_32f(s->norm, 1.0, s->norm, (int)s->length);
+      ippsLn_32f_A21(s->norm, s->norm, (int)s->length);
+    #endif
+  #else
+    uint_t j;
+    for (j=0; j< s->length; j++) {
+      s->norm[j] = LOG(lambda * s->norm[j] + 1);
+    }
+  #endif
 }

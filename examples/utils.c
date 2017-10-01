@@ -86,6 +86,8 @@ void examples_common_process (aubio_process_func_t process_func,
 
 void examples_common_init (int argc, char **argv)
 {
+  /* initialize statics */
+  aubio_init();
 
   /* parse command line arguments */
   parse_args (argc, argv);

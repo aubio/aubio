@@ -2,6 +2,8 @@
 
 int main (void)
 {
+  aubio_init();
+
   aubio_filter_t * f;
 
   uint_t rates[] = { 8000, 16000, 22050, 44100, 96000, 192000};
@@ -37,6 +39,8 @@ int main (void)
   }
   del_aubio_filter (f);
 
+  aubio_cleanup();
+  
   return 0;
 }
 

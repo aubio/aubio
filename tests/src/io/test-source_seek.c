@@ -3,6 +3,8 @@
 
 int main (int argc, char **argv)
 {
+  aubio_init();
+
   uint_t err = 0;
   if (argc < 2) {
     err = 2;
@@ -88,5 +90,8 @@ beach:
   assert ( old_n_frames_2 == old_n_frames_1 );
   // check that we got about half the frames, with 3 decimals
   assert ( roundf(1.e3 * old_n_frames_1 / old_n_frames_3) / 1.e3 == 2.);
+
+  aubio_cleanup();
+  
   return err;
 }

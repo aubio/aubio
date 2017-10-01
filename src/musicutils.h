@@ -92,6 +92,13 @@ smpl_t aubio_freqtomidi (smpl_t freq);
 /** convert midi value (0-128) to frequency (Hz) */
 smpl_t aubio_miditofreq (smpl_t midi);
 
+/** initialize global status at beginning of program
+
+  This function should be used before doing anything else in aubio. 
+  So far it is only used to initialize the Intel IPP library, when it's used.
+*/
+void aubio_init (void);
+
 /** clean up cached memory at the end of program
 
   This function should be used at the end of programs to purge all cached
