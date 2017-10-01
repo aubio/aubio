@@ -486,7 +486,7 @@ void aubio_fft_get_phas(aubio_fft_t *s, const fvec_t * compspec, cvec_t * spectr
 
 #ifdef INTEL_IPP_FFT // using Intel IPP FFT
   uint_t i;
-  
+
   // convert from real imag  [ r0, 0, ..., rN, iN-1, .., i2, i1, iN-1] to complex format
   s->complexOut[0].re = compspec->data[0];
   s->complexOut[0].im = 0;
