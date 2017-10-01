@@ -50,7 +50,7 @@ def options(ctx):
     add_option_enable_disable(ctx, 'fftw3', default = False,
             help_str = 'compile with fftw3 instead of ooura',
             help_disable_str = 'do not compile with fftw3')
-    add_option_enable_disable(ctx, 'intelipp', default = None,
+    add_option_enable_disable(ctx, 'intelipp', default = False,
             help_str = 'use Intel IPP libraries (auto)',
             help_disable_str = 'do not use Intel IPP libraries')
     add_option_enable_disable(ctx, 'complex', default = False,
