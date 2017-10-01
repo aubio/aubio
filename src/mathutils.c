@@ -25,12 +25,6 @@
 #include "mathutils.h"
 #include "musicutils.h"
 
-#if defined HAVE_INTEL_IPP
-#include <ippcore.h>
-#include <ippvm.h>
-#include <ipps.h>
-#endif
-
 /** Window types */
 typedef enum
 {

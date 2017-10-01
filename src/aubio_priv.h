@@ -123,7 +123,13 @@
 #endif /* HAVE_AUBIO_DOUBLE */
 #endif /* HAVE_ATLAS */
 
-#if !defined(HAVE_MEMCPY_HACKS) && !defined(HAVE_ACCELERATE) && !defined(HAVE_ATLAS)
+#if defined HAVE_INTEL_IPP
+#include <ippcore.h>
+#include <ippvm.h>
+#include <ipps.h>
+#endif
+
+#if !defined(HAVE_MEMCPY_HACKS) && !defined(HAVE_ACCELERATE) && !defined(HAVE_ATLAS) && !defined(HAVE_INTEL_IPP)
 #define HAVE_NOOPT 1
 #else
 #undef HAVE_NOOPT

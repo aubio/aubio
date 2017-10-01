@@ -21,12 +21,6 @@
 #include "aubio_priv.h"
 #include "fvec.h"
 
-#if defined HAVE_INTEL_IPP
-#include <ippcore.h>
-#include <ippvm.h>
-#include <ipps.h>
-#endif
-
 fvec_t * new_fvec(uint_t length) {
   fvec_t * s;
   if ((sint_t)length <= 0) {
