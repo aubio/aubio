@@ -102,23 +102,20 @@ def options(ctx):
     ctx.load('gnu_dirs')
 
 def configure(ctx):
-    from waflib import Options
-    ctx.load('compiler_c')
-    ctx.load('waf_unit_test')
-    ctx.load('gnu_dirs')
-
     target_platform = sys.platform
     if ctx.options.target_platform:
         target_platform = ctx.options.target_platform
 
+    from waflib import Options
 
     if target_platform=='emscripten':
-        # need to force spaces between flag -o and path 
-        # inspired from :
-        # https://github.com/waf-project/waf/blob/master/waflib/extras/c_emscripten.py (#1885)
-        # (OSX /emscripten 1.37.9)
-        ctx.env.CC_TGT_F            = ['-c', '-o', '']
-        ctx.env.CCLNK_TGT_F         = ['-o', '']
+        ctx.load('c_emscripten')
+    else:
+        ctx.load('compiler_c')
+
+    ctx.load('waf_unit_test')
+    ctx.load('gnu_dirs')
+
     # check for common headers
     ctx.check(header_name='stdlib.h')
     ctx.check(header_name='stdio.h')
@@ -151,7 +148,10 @@ def configure(ctx):
         ctx.env.prepend_value('CFLAGS', ['-g', '-Wall', '-Wextra'])
     else:
         # enable debug symbols
-        ctx.env.CFLAGS += ['/Z7', '/FS']
+        ctx.env.CFLAGS += ['/Z7']
+        # /FS flag available in msvc >= 12 (2013)
+        if 'MSVC_VERSION' in ctx.env and ctx.env.MSVC_VERSION >= 12:
+            ctx.env.CFLAGS += ['/FS']
         ctx.env.LINKFLAGS += ['/DEBUG', '/INCREMENTAL:NO']
         # configure warnings
         ctx.env.CFLAGS += ['/W4', '/D_CRT_SECURE_NO_WARNINGS']
@@ -226,9 +226,6 @@ def configure(ctx):
         ctx.env.LINKFLAGS += [ '-isysroot' , SDKROOT]
 
     if target_platform == 'emscripten':
-        import os.path
-        ctx.env.CFLAGS += [ '-I' + os.path.join(os.environ['EMSCRIPTEN'], 'system', 'include') ]
-        
         if ctx.options.build_type == "debug":
             ctx.env.cshlib_PATTERN = '%s.js'
             ctx.env.LINKFLAGS += ['-s','ASSERTIONS=2']
@@ -249,7 +246,7 @@ def configure(ctx):
         # tell emscripten functions we want to expose
         from python.lib.gen_external import get_c_declarations, get_cpp_objects_from_c_declarations, get_all_func_names_from_lib, generate_lib_from_c_declarations
         c_decls = get_c_declarations(usedouble=False)  # emscripten can't use double
-        objects = get_cpp_objects_from_c_declarations(c_decls)
+        objects = list(get_cpp_objects_from_c_declarations(c_decls))
         # ensure that aubio structs are exported
         objects += ['fvec_t', 'cvec_t', 'fmat_t']
         lib = generate_lib_from_c_declarations(objects, c_decls)
@@ -446,6 +443,8 @@ def build(bld):
 
     # add sub directories
     if bld.env['DEST_OS'] not in ['ios', 'iosimulator', 'android']:
+        if bld.env['DEST_OS']=='emscripten' and not bld.options.testcmd:
+            bld.options.testcmd = 'node %s'
         bld.recurse('examples')
         bld.recurse('tests')
 

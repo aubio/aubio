@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 function checkprog() {
   type $1 >/dev/null 2>&1 || { echo >&2 "$1 required but not found, aborting."; exit 1; }
@@ -9,13 +9,10 @@ checkprog emconfigure
 checkprog emmake
 
 # clean
-emmake ./waf distclean
+./waf distclean
 
 # configure
-emconfigure ./waf configure --prefix=$EMSCRIPTEN/system/local/ --with-target-platform emscripten
+emconfigure ./waf configure --with-target-platform emscripten $*
 
 # build
-emmake ./waf --testcmd="node %s"
-
-# intall
-#emmake ./waf install
+emmake ./waf build
