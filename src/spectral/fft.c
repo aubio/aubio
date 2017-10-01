@@ -117,22 +117,22 @@ pthread_mutex_t aubio_fftw_mutex = PTHREAD_MUTEX_INITIALIZER;
 #define aubio_IppFloat                 Ipp32f
 #define aubio_IppComplex               Ipp32fc
 #define aubio_FFTSpec                  FFTSpec_R_32f
-#define aubio_ippsPhas                 ippsPhase_32fc
 #define aubio_ippsMalloc_complex       ippsMalloc_32fc
 #define aubio_ippsFFTInit_R            ippsFFTInit_R_32f
 #define aubio_ippsFFTGetSize_R         ippsFFTGetSize_R_32f
 #define aubio_ippsFFTInv_CCSToR        ippsFFTInv_CCSToR_32f
 #define aubio_ippsFFTFwd_RToCCS        ippsFFTFwd_RToCCS_32f
+#define aubio_ippsAtan2                ippsAtan2_32f_A21
 #else /* HAVE_AUBIO_DOUBLE */
 #define aubio_IppFloat                 Ipp64f
 #define aubio_IppComplex               Ipp64fc
 #define aubio_FFTSpec                  FFTSpec_R_64f
-#define aubio_ippsPhas                 ippsPhase_64fc
 #define aubio_ippsMalloc_complex       ippsMalloc_64fc
 #define aubio_ippsFFTInit_R            ippsFFTInit_R_64f
 #define aubio_ippsFFTGetSize_R         ippsFFTGetSize_R_64f
 #define aubio_ippsFFTInv_CCSToR        ippsFFTInv_CCSToR_64f
 #define aubio_ippsFFTFwd_RToCCS        ippsFFTFwd_RToCCS_64f
+#define aubio_ippsAtan2                ippsAtan2_64f_A50
 #endif
 
 
@@ -158,8 +158,6 @@ struct _aubio_fft_t {
   smpl_t *in, *out;
   
 #elif defined HAVE_INTEL_IPP  // using Intel IPP
-  // mark FFT impl as Intel IPP
-  #define INTEL_IPP_FFT 1
   smpl_t *in, *out;
   Ipp8u* memSpec;
   Ipp8u* memInit;
@@ -315,11 +313,11 @@ void del_aubio_fft(aubio_fft_t * s) {
 
 void aubio_fft_do(aubio_fft_t * s, const fvec_t * input, cvec_t * spectrum) {
   aubio_fft_do_complex(s, input, s->compspec);
-  aubio_fft_get_spectrum(s, s->compspec, spectrum);
+  aubio_fft_get_spectrum(s->compspec, spectrum);
 }
 
 void aubio_fft_rdo(aubio_fft_t * s, const cvec_t * spectrum, fvec_t * output) {
-  aubio_fft_get_realimag(s, spectrum, s->compspec);
+  aubio_fft_get_realimag(spectrum, s->compspec);
   aubio_fft_rdo_complex(s, s->compspec, output);
 }
 
@@ -458,56 +456,51 @@ void aubio_fft_rdo_complex(aubio_fft_t * s, const fvec_t * compspec, fvec_t * ou
 #endif
 }
 
-void aubio_fft_get_spectrum(aubio_fft_t *s, const fvec_t * compspec, cvec_t * spectrum) {
-  aubio_fft_get_phas(s, compspec, spectrum);
-  aubio_fft_get_norm(s, compspec, spectrum);
+void aubio_fft_get_spectrum(const fvec_t * compspec, cvec_t * spectrum) {
+  aubio_fft_get_phas(compspec, spectrum);
+  aubio_fft_get_norm(compspec, spectrum);
 }
 
-void aubio_fft_get_realimag(aubio_fft_t *s, const cvec_t * spectrum, fvec_t * compspec) {
-  aubio_fft_get_imag(s, spectrum, compspec);
-  aubio_fft_get_real(s, spectrum, compspec);
+void aubio_fft_get_realimag(const cvec_t * spectrum, fvec_t * compspec) {
+  aubio_fft_get_imag(spectrum, compspec);
+  aubio_fft_get_real(spectrum, compspec);
 }
 
-void aubio_fft_get_phas(aubio_fft_t *s, const fvec_t * compspec, cvec_t * spectrum) {
-
-#ifdef INTEL_IPP_FFT // using Intel IPP FFT
-  uint_t i;
-
-  // convert from real imag  [ r0, 0, ..., rN, iN-1, .., i2, i1, iN-1] to complex format
-  s->complexOut[0].re = compspec->data[0];
-  s->complexOut[0].im = 0;
-  s->complexOut[s->fft_size / 2].re = compspec->data[s->fft_size / 2];
-  s->complexOut[s->fft_size / 2].im = 0.0;
-  for (i = 1; i < spectrum->length - 1; i++) {
-    s->complexOut[i].re = compspec->data[i];
-    s->complexOut[i].im = compspec->data[compspec->length - i];
-  }
-
-  IppStatus status = aubio_ippsPhas(s->complexOut, spectrum->phas, spectrum->length);
-  if (status != ippStsNoErr) {
-    AUBIO_ERR("fft: failed to extract phase from fft. IPP error: %d\n", status);
-  }
-
-#else                 // NOT using Intel IPP
+void aubio_fft_get_phas(const fvec_t * compspec, cvec_t * spectrum) {
   uint_t i;
   if (compspec->data[0] < 0) {
     spectrum->phas[0] = PI;
   } else {
     spectrum->phas[0] = 0.;
   }
+#if defined(HAVE_INTEL_IPP)
+  // convert from real imag  [ r0, r1, ..., rN, iN-1, ..., i2, i1, i0]
+  //                     to  [ r0, r1, ..., rN, i0, i1, i2, ..., iN-1]
+  for (i = 1; i < spectrum->length / 2; i++) {
+    ELEM_SWAP(compspec->data[compspec->length - i],
+        compspec->data[spectrum->length + i - 1]);
+  }
+  aubio_ippsAtan2(compspec->data + spectrum->length,
+      compspec->data + 1, spectrum->phas + 1, spectrum->length - 1);
+  // revert the imaginary part back again
+  for (i = 1; i < spectrum->length / 2; i++) {
+    ELEM_SWAP(compspec->data[spectrum->length + i - 1],
+        compspec->data[compspec->length - i]);
+  }
+#else
   for (i=1; i < spectrum->length - 1; i++) {
     spectrum->phas[i] = ATAN2(compspec->data[compspec->length-i],
         compspec->data[i]);
   }
+#endif
   if (compspec->data[compspec->length/2] < 0) {
     spectrum->phas[spectrum->length - 1] = PI;
   } else {
     spectrum->phas[spectrum->length - 1] = 0.;
   }
-#endif
 }
 
-void aubio_fft_get_norm(aubio_fft_t *s, const fvec_t * compspec, cvec_t * spectrum) {
+void aubio_fft_get_norm(const fvec_t * compspec, cvec_t * spectrum) {
   uint_t i = 0;
   spectrum->norm[0] = ABS(compspec->data[0]);
   for (i=1; i < spectrum->length - 1; i++) {
@@ -518,7 +511,7 @@ void aubio_fft_get_norm(aubio_fft_t *s, const fvec_t * compspec, cvec_t * spectr
     ABS(compspec->data[compspec->length/2]);
 }
 
-void aubio_fft_get_imag(aubio_fft_t *s, const cvec_t * spectrum, fvec_t * compspec) {
+void aubio_fft_get_imag(const cvec_t * spectrum, fvec_t * compspec) {
   uint_t i;
   for (i = 1; i < ( compspec->length + 1 ) / 2 /*- 1 + 1*/; i++) {
     compspec->data[compspec->length - i] =
@@ -526,7 +519,7 @@ void aubio_fft_get_imag(aubio_fft_t *s, const cvec_t * spectrum, fvec_t * compsp
   }
 }
 
-void aubio_fft_get_real(aubio_fft_t *s, const cvec_t * spectrum, fvec_t * compspec) {
+void aubio_fft_get_real(const cvec_t * spectrum, fvec_t * compspec) {
   uint_t i;
   for (i = 0; i < compspec->length / 2 + 1; i++) {
     compspec->data[i] =
