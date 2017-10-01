@@ -113,9 +113,28 @@ pthread_mutex_t aubio_fftw_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 #elif defined HAVE_INTEL_IPP // using INTEL IPP
 
-#include <ippcore.h>
-#include <ippvm.h>
-#include <ipps.h>
+#if !HAVE_AUBIO_DOUBLE
+#define aubio_IppFloat                 Ipp32f
+#define aubio_IppComplex               Ipp32fc
+#define aubio_FFTSpec                  FFTSpec_R_32f
+#define aubio_ippsPhas                 ippsPhase_32fc
+#define aubio_ippsMalloc_complex       ippsMalloc_32fc
+#define aubio_ippsFFTInit_R            ippsFFTInit_R_32f
+#define aubio_ippsFFTGetSize_R         ippsFFTGetSize_R_32f
+#define aubio_ippsFFTInv_CCSToR        ippsFFTInv_CCSToR_32f
+#define aubio_ippsFFTFwd_RToCCS        ippsFFTFwd_RToCCS_32f
+#else /* HAVE_AUBIO_DOUBLE */
+#define aubio_IppFloat                 Ipp64f
+#define aubio_IppComplex               Ipp64fc
+#define aubio_FFTSpec                  FFTSpec_R_64f
+#define aubio_ippsPhas                 ippsPhase_64fc
+#define aubio_ippsMalloc_complex       ippsMalloc_64fc
+#define aubio_ippsFFTInit_R            ippsFFTInit_R_64f
+#define aubio_ippsFFTGetSize_R         ippsFFTGetSize_R_64f
+#define aubio_ippsFFTInv_CCSToR        ippsFFTInv_CCSToR_64f
+#define aubio_ippsFFTFwd_RToCCS        ippsFFTFwd_RToCCS_64f
+#endif
+
 
 #else // using OOURA
 // let's use ooura instead
@@ -145,13 +164,8 @@ struct _aubio_fft_t {
   Ipp8u* memSpec;
   Ipp8u* memInit;
   Ipp8u* memBuffer;
-  #if HAVE_AUBIO_DOUBLE
-    struct FFTSpec_R_64f* fftSpec;
-    Ipp64fc* complexOut;
-  #else
-    struct FFTSpec_R_32f* fftSpec;
-    Ipp32fc* complexOut;
-  #endif
+  struct aubio_FFTSpec* fftSpec;
+  aubio_IppComplex* complexOut;
 #else                         // using OOURA
   smpl_t *in, *out;
   smpl_t *w;
@@ -222,13 +236,8 @@ aubio_fft_t * new_aubio_fft (uint_t winsize) {
     goto beach;
   }
 
-#if HAVE_AUBIO_DOUBLE
-  status = ippsFFTGetSize_R_64f(order, flags, qualityHint,
+  status = aubio_ippsFFTGetSize_R(order, flags, qualityHint,
       &sizeSpec, &sizeInit, &sizeBuffer);
-#else
-  status = ippsFFTGetSize_R_32f(order, flags, qualityHint,
-    &sizeSpec, &sizeInit, &sizeBuffer);
-#endif
   if (status != ippStsNoErr) {
     AUBIO_ERR("fft: failed to initialize fft. IPP error: %d\n", status);
     goto beach;
@@ -242,15 +251,9 @@ aubio_fft_t * new_aubio_fft (uint_t winsize) {
   if (sizeInit > 0 ) {
     s->memInit = ippsMalloc_8u(sizeInit);
   }
-#if HAVE_AUBIO_DOUBLE
-  s->complexOut = ippsMalloc_64fc(s->fft_size / 2 + 1);
-  status = ippsFFTInit_R_64f(
+  s->complexOut = aubio_ippsMalloc_complex(s->fft_size / 2 + 1);
+  status = aubio_ippsFFTInit_R(
     &s->fftSpec, order, flags, qualityHint, s->memSpec, s->memInit);
-#else
-  s->complexOut = ippsMalloc_32fc(s->fft_size / 2 + 1);
-  status = ippsFFTInit_R_32f(
-    &s->fftSpec, order, flags, qualityHint, s->memSpec, s->memInit);
-#endif
   if (status != ippStsNoErr) {
     AUBIO_ERR("fft: failed to initialize. IPP error: %d\n", status);
     goto beach;
@@ -364,11 +367,7 @@ void aubio_fft_do_complex(aubio_fft_t * s, const fvec_t * input, fvec_t * compsp
 #elif defined HAVE_INTEL_IPP  // using Intel IPP
 
   // apply fft
-#if HAVE_AUBIO_DOUBLE
-  ippsFFTFwd_RToCCS_64f(s->in, (Ipp64f*)s->complexOut, s->fftSpec, s->memBuffer);
-#else
-  ippsFFTFwd_RToCCS_32f(s->in, (Ipp32f*)s->complexOut, s->fftSpec, s->memBuffer);
-#endif
+  aubio_ippsFFTFwd_RToCCS(s->in, (aubio_IppFloat*)s->complexOut, s->fftSpec, s->memBuffer);
   // convert complex buffer to [ r0, r1, ..., rN, iN-1, .., i2, i1]
   compspec->data[0] = s->complexOut[0].re;
   compspec->data[s->fft_size / 2] = s->complexOut[s->fft_size / 2].re;
@@ -377,11 +376,7 @@ void aubio_fft_do_complex(aubio_fft_t * s, const fvec_t * input, fvec_t * compsp
     compspec->data[s->fft_size - i] = s->complexOut[i].im;
   }
   // apply scaling
-#if HAVE_AUBIO_DOUBLE
-  ippsMulC_64f(compspec->data, 1.0 / 2.0, compspec->data, s->fft_size);
-#else
-  ippsMulC_32f(compspec->data, 1.0 / 2.0, compspec->data, s->fft_size);
-#endif
+  aubio_ippsMulC(compspec->data, 1.0 / 2.0, compspec->data, s->fft_size);
 
 #else                         // using OOURA
   aubio_ooura_rdft(s->winsize, 1, s->in, s->ip, s->w);
@@ -445,17 +440,10 @@ void aubio_fft_rdo_complex(aubio_fft_t * s, const fvec_t * compspec, fvec_t * ou
     s->complexOut[i].re = compspec->data[i];
     s->complexOut[i].im = compspec->data[s->fft_size - i];
   }
-#if HAVE_AUBIO_DOUBLE
   // apply fft
-  ippsFFTInv_CCSToR_64f((const Ipp64f *)s->complexOut, output->data, s->fftSpec, s->memBuffer);
+  aubio_ippsFFTInv_CCSToR((const aubio_IppFloat *)s->complexOut, output->data, s->fftSpec, s->memBuffer);
   // apply scaling
-  ippsMulC_64f(output->data, 2.0 / s->winsize, output->data, s->fft_size);
-#else
-  // apply fft
-  ippsFFTInv_CCSToR_32f((const Ipp32f *)s->complexOut, output->data, s->fftSpec, s->memBuffer);
-  // apply scaling
-  ippsMulC_32f(output->data, 2.0f / s->winsize, output->data, s->fft_size);
-#endif /* HAVE_AUBIO_DOUBLE */
+  aubio_ippsMulC(output->data, 1.0 / s->winsize, output->data, s->fft_size);
 
 #else                         // using OOURA
   smpl_t scale = 2.0 / s->winsize;
@@ -496,12 +484,8 @@ void aubio_fft_get_phas(aubio_fft_t *s, const fvec_t * compspec, cvec_t * spectr
     s->complexOut[i].re = compspec->data[i];
     s->complexOut[i].im = compspec->data[compspec->length - i];
   }
-  
-#if HAVE_AUBIO_DOUBLE
-  IppStatus status = ippsPhase_64fc(s->complexOut, spectrum->phas, spectrum->length);
-#else
-  IppStatus status = ippsPhase_32fc(s->complexOut, spectrum->phas, spectrum->length);
-#endif
+
+  IppStatus status = aubio_ippsPhas(s->complexOut, spectrum->phas, spectrum->length);
   if (status != ippStsNoErr) {
     AUBIO_ERR("fft: failed to extract phase from fft. IPP error: %d\n", status);
   }
