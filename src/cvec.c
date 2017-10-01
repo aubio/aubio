@@ -156,14 +156,14 @@ void cvec_zeros(cvec_t *s) {
 }
 
 void cvec_logmag(cvec_t *s, smpl_t lambda) {
-  #if defined(HAVE_INTEL_IPP)
-    aubio_ippsMulC(s->norm, lambda, s->norm, (int)s->length);
-    aubio_ippsAddC(s->norm, 1.0, s->norm, (int)s->length);
-    aubio_ippsLn(s->norm, s->norm, (int)s->length);
-  #else
-    uint_t j;
-    for (j=0; j< s->length; j++) {
-      s->norm[j] = LOG(lambda * s->norm[j] + 1);
-    }
-  #endif
+#if defined(HAVE_INTEL_IPP)
+  aubio_ippsMulC(s->norm, lambda, s->norm, (int)s->length);
+  aubio_ippsAddC(s->norm, 1.0, s->norm, (int)s->length);
+  aubio_ippsLn(s->norm, s->norm, (int)s->length);
+#else
+  uint_t j;
+  for (j=0; j< s->length; j++) {
+    s->norm[j] = LOG(lambda * s->norm[j] + 1);
+  }
+#endif
 }
