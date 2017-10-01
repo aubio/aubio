@@ -127,6 +127,31 @@
 #include <ippcore.h>
 #include <ippvm.h>
 #include <ipps.h>
+#ifndef HAVE_AUBIO_DOUBLE
+#define aubio_ippsSet         ippsSet_32f
+#define aubio_ippsZero        ippsZero_32f
+#define aubio_ippsCopy        ippsCopy_32f
+#define aubio_ippsMul         ippsMul_32f
+#define aubio_ippsMulC        ippsMulC_32f
+#define aubio_ippsAddC        ippsAddC_32f
+#define aubio_ippsLn          ippsLn_32f_A21
+#define aubio_ippsMean        ippsMean_32f
+#define aubio_ippsSum         ippsSum_32f
+#define aubio_ippsMax         ippsMax_32f
+#define aubio_ippsMin         ippsMin_32f
+#else /* HAVE_AUBIO_DOUBLE */
+#define aubio_ippsSet         ippsSet_64f
+#define aubio_ippsZero        ippsZero_64f
+#define aubio_ippsCopy        ippsCopy_64f
+#define aubio_ippsMul         ippsMul_64f
+#define aubio_ippsMulC        ippsMulC_64f
+#define aubio_ippsAddC        ippsAddC_64f
+#define aubio_ippsLn          ippsLn_64f_A26
+#define aubio_ippsMean        ippsMean_64f
+#define aubio_ippsSum         ippsSum_64f
+#define aubio_ippsMax         ippsMax_64f
+#define aubio_ippsMin         ippsMin_64f
+#endif /* HAVE_AUBIO_DOUBLE */
 #endif
 
 #if !defined(HAVE_MEMCPY_HACKS) && !defined(HAVE_ACCELERATE) && !defined(HAVE_ATLAS) && !defined(HAVE_INTEL_IPP)

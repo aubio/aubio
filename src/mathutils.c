@@ -160,12 +160,8 @@ fvec_mean (fvec_t * s)
 {
   smpl_t tmp = 0.0;
 #if defined(HAVE_INTEL_IPP)
-  #if HAVE_AUBIO_DOUBLE
-    ippsMean_64f(s->data, (int)s->length, &tmp);
-  #else
-    ippsMean_32f(s->data, (int)s->length, &tmp, ippAlgHintFast);
-  #endif
-    return tmp;
+  aubio_ippsMean(s->data, (int)s->length, &tmp, ippAlgHintFast);
+  return tmp;
 #elif defined(HAVE_ACCELERATE)
   aubio_vDSP_meanv(s->data, 1, &tmp, s->length);
   return tmp;
@@ -183,11 +179,7 @@ fvec_sum (fvec_t * s)
 {
   smpl_t tmp = 0.0;
 #if defined(HAVE_INTEL_IPP)
-  #if HAVE_AUBIO_DOUBLE
-    ippsSum_64f(s->data, (int)s->length, &tmp);
-  #else
-    ippsSum_32f(s->data, (int)s->length, &tmp, ippAlgHintFast);
-  #endif
+  aubio_ippsSum(s->data, (int)s->length, &tmp, ippAlgHintFast);
 #elif defined(HAVE_ACCELERATE)
   aubio_vDSP_sve(s->data, 1, &tmp, s->length);
 #else
@@ -204,11 +196,7 @@ fvec_max (fvec_t * s)
 {
 #if defined(HAVE_INTEL_IPP)
   smpl_t tmp = 0.;
-  #if HAVE_AUBIO_DOUBLE
-    ippsMax_64f( s->data, (int)s->length, &tmp);
-  #else
-    ippsMax_32f( s->data, (int)s->length, &tmp);
-#endif
+  aubio_ippsMax( s->data, (int)s->length, &tmp);
 #elif defined(HAVE_ACCELERATE)
   smpl_t tmp = 0.;
   aubio_vDSP_maxv( s->data, 1, &tmp, s->length );
@@ -227,11 +215,7 @@ fvec_min (fvec_t * s)
 {
 #if defined(HAVE_INTEL_IPP)
   smpl_t tmp = 0.;
-  #if HAVE_AUBIO_DOUBLE
-    ippsMin_64f(s->data, (int)s->length, &tmp);
-  #else
-    ippsMin_32f(s->data, (int)s->length, &tmp);
-#endif
+  aubio_ippsMin(s->data, (int)s->length, &tmp);
 #elif defined(HAVE_ACCELERATE)
   smpl_t tmp = 0.;
   aubio_vDSP_minv(s->data, 1, &tmp, s->length);
