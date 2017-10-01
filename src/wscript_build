@@ -3,6 +3,7 @@
 uselib = []
 uselib += ['M']
 uselib += ['FFTW3', 'FFTW3F']
+uselib += ['INTEL_IPP']
 uselib += ['SAMPLERATE']
 uselib += ['SNDFILE']
 uselib += ['AVCODEC']
