@@ -375,8 +375,6 @@ void aubio_fft_do_complex(aubio_fft_t * s, const fvec_t * input, fvec_t * compsp
     compspec->data[i] = s->complexOut[i].re;
     compspec->data[s->fft_size - i] = s->complexOut[i].im;
   }
-  // apply scaling
-  aubio_ippsMulC(compspec->data, 1.0 / 2.0, compspec->data, s->fft_size);
 
 #else                         // using OOURA
   aubio_ooura_rdft(s->winsize, 1, s->in, s->ip, s->w);
