@@ -660,18 +660,6 @@ aubio_autocorr (const fvec_t * input, fvec_t * output)
 }
 
 void
-aubio_init (void)
-{
-/* initialize intel IPP */
-#ifdef HAVE_INTEL_IPP
-  IppStatus status = ippInit();
-  if (status != ippStsNoErr) {
-    fprintf (stderr, "Error: failed to initialize Intel IPP - status %d\n", status);
-  }
-#endif
-}
-
-void
 aubio_cleanup (void)
 {
 #ifdef HAVE_FFTW3F
