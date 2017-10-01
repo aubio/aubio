@@ -156,7 +156,7 @@ struct _aubio_fft_t {
   aubio_FFTSetup fftSetup;
   aubio_DSPSplitComplex spec;
   smpl_t *in, *out;
-  
+
 #elif defined HAVE_INTEL_IPP  // using Intel IPP
   smpl_t *in, *out;
   Ipp8u* memSpec;
@@ -222,7 +222,7 @@ aubio_fft_t * new_aubio_fft (uint_t winsize) {
 
 #elif defined HAVE_INTEL_IPP  // using Intel IPP
   const IppHintAlgorithm qualityHint = ippAlgHintAccurate; // OR ippAlgHintFast;
-  const int flags = IPP_FFT_NODIV_BY_ANY; // we're scaling manually afterwards 
+  const int flags = IPP_FFT_NODIV_BY_ANY; // we're scaling manually afterwards
   int order = aubio_power_of_two_order(winsize);
   int sizeSpec, sizeInit, sizeBuffer;
   IppStatus status;

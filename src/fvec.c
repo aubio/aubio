@@ -102,7 +102,7 @@ void fvec_weight(fvec_t *s, const fvec_t *weight) {
   uint_t length = MIN(s->length, weight->length);
 #if defined(HAVE_INTEL_IPP)
   aubio_ippsMul(s->data, weight->data, s->data, (int)length);
-#elif defined(HAVE_ACCELERATE) 
+#elif defined(HAVE_ACCELERATE)
   aubio_vDSP_vmul( s->data, 1, weight->data, 1, s->data, 1, length );
 #else
   uint_t j;
@@ -116,7 +116,7 @@ void fvec_weighted_copy(const fvec_t *in, const fvec_t *weight, fvec_t *out) {
   uint_t length = MIN(in->length, MIN(out->length, weight->length));
 #if defined(HAVE_INTEL_IPP)
   aubio_ippsMul(in->data, weight->data, out->data, (int)length);
-#elif defined(HAVE_ACCELERATE) 
+#elif defined(HAVE_ACCELERATE)
   aubio_vDSP_vmul(in->data, 1, weight->data, 1, out->data, 1, length);
 #else
   uint_t j;

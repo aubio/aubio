@@ -116,7 +116,7 @@ void cvec_norm_zeros(cvec_t *s) {
   aubio_ippsZero(s->norm, (int)s->length);
 #elif defined(HAVE_MEMCPY_HACKS)
   memset(s->norm, 0, s->length * sizeof(smpl_t));
-#else 
+#else
   cvec_norm_set_all (s, 0.);
 #endif
 }

@@ -289,7 +289,7 @@ def configure(ctx):
         ctx.check(header_name='complex.h')
     else:
         ctx.msg('Checking if complex.h is enabled', 'no')
-    
+
     # check for Intel IPP
     if (ctx.options.enable_intelipp != False):
         if (ctx.check(header_name=['ippcore.h', 'ippvm.h', 'ipps.h'], mandatory = False) and
@@ -301,7 +301,7 @@ def configure(ctx):
                 ctx.define('_IPP_SEQUENTIAL_STATIC', 1)
         else:
             ctx.msg('Checking if Intel IPP is available', 'no')
-    
+
     # check for fftw3
     if (ctx.options.enable_fftw3 != False or ctx.options.enable_fftw3f != False):
         # one of fftwf or fftw3f

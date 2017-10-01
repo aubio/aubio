@@ -588,7 +588,7 @@ aubio_next_power_of_two (uint_t a)
 uint_t
 aubio_power_of_two_order (uint_t a)
 {
-  int order = 0; 
+  int order = 0;
   int temp = aubio_next_power_of_two(a);
   while (temp >>= 1) {
     ++order;
