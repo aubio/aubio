@@ -7,8 +7,6 @@
 
 int main (int argc, char **argv)
 {
-  aubio_init();
-
   sint_t err = 0;
 
   if (argc < 3) {
@@ -76,8 +74,5 @@ beach_source:
   err = 3;
   PRINT_ERR("aubio was not compiled with aubio_sink_apple_audio\n");
 #endif /* HAVE_SINK_APPLE_AUDIO */
-
-  aubio_cleanup();
-  
   return err;
 }

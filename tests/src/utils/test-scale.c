@@ -4,8 +4,6 @@
 
 int main (void)
 {
-  aubio_init();
-
   uint_t n = 0;
   uint_t win_s = 1024; // window size
   fvec_t * in = new_fvec (win_s); // input buffer
@@ -20,7 +18,5 @@ int main (void)
   del_aubio_scale(o);
   del_fvec(in);
 
-  aubio_cleanup();
-  
   return 0;
 }

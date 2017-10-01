@@ -2,8 +2,6 @@
 
 int main (void)
 {
-  aubio_init();
-  
   uint_t win_s = 16; // window size
   uint_t impulse_at = win_s / 2;
   fvec_t *in = new_fvec (win_s); // input buffer
@@ -31,7 +29,6 @@ int main (void)
   del_fvec (in);
   del_fvec (out);
   del_aubio_filter (o);
-  
   aubio_cleanup ();
 
   return 0;

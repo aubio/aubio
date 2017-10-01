@@ -6,8 +6,6 @@
 
 int main (int argc, char **argv)
 {
-  aubio_init();
-
   sint_t err = 0;
 
   if (argc < 3) {
@@ -70,8 +68,5 @@ beach_sink:
 beach_fmat:
   del_aubio_source(i);
 beach_source:
-
-  aubio_cleanup();
-  
   return err;
 }

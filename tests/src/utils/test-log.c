@@ -23,8 +23,6 @@ void logging(int level, const char_t *message, void *data) {
 
 int main (void)
 {
-  aubio_init();
-
   fprintf(stdout, "### testing normal logging\n");
   AUBIO_ERR("testing normal AUBIO_LOG_ERR\n");
   AUBIO_INF("testing normal AUBIO_LOG_INF\n");
@@ -58,7 +56,5 @@ int main (void)
   AUBIO_MSG("testing custom set_level_function AUBIO_LOG_MSG\n");
   AUBIO_DBG("testing again normal AUBIO_LOG_DBG\n");
 
-  aubio_cleanup();
-  
   return 0;
 }

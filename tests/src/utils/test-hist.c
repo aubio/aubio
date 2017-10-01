@@ -4,8 +4,6 @@
 
 int main (void)
 {
-  aubio_init();
-
   uint_t length;
   for (length = 1; length < 10; length ++ ) {
     aubio_hist_t *o = new_aubio_hist(0, 1, length);
@@ -27,9 +25,6 @@ int main (void)
     del_aubio_hist(o);
     del_fvec(t);
   }
-
-  aubio_cleanup();
-  
   return 0;
 }
 

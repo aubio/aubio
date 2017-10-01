@@ -2,8 +2,6 @@
 
 int main (void)
 {
-  aubio_init();
-  
   int return_code = 0;
   uint_t i, n_iters = 100; // number of iterations
   uint_t win_s = 512; // window size
@@ -45,8 +43,6 @@ beach:
   del_fvec(in);
   del_cvec(fftgrain);
   del_fvec(out);
-
   aubio_cleanup();
-  
   return return_code;
 }

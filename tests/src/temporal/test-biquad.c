@@ -2,8 +2,6 @@
 
 int main (void)
 {
-  aubio_init();
-
   uint_t win_s = 64; // window size
 
   // create biquad filter with `b0`, `b1`, `b2`, `a1`, `a2`
@@ -30,7 +28,5 @@ int main (void)
   del_fvec(tmp_vec);
   del_fvec(out_vec);
 
-  aubio_cleanup();
-  
   return 0;
 }

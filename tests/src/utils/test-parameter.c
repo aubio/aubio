@@ -24,8 +24,6 @@ void get_some_steps ( aubio_parameter_t * param )
 
 int main (void)
 {
-  aubio_init();
-
   smpl_t max_value = 100.;
   smpl_t min_value = 0.;
   uint_t steps = 10;
@@ -68,7 +66,5 @@ int main (void)
 
   del_aubio_parameter (param);
 
-  aubio_cleanup();
-  
   return 0;
 }

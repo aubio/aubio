@@ -2,8 +2,6 @@
 
 int main (void)
 {
-  aubio_init();
-  
   uint_t win_s = 1024; // window size
   uint_t n_filters = 13; // number of filters
 
@@ -35,7 +33,6 @@ int main (void)
   del_aubio_filterbank (o);
   del_cvec (in_spec);
   del_fvec (out_filters);
-  
   aubio_cleanup ();
 
   return 0;

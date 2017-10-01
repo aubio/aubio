@@ -3,8 +3,6 @@
 
 int main (void)
 {
-  aubio_init();
-
   uint_t vec_size = 10, i;
   fvec_t * vec = new_fvec (vec_size);
 
@@ -39,8 +37,6 @@ int main (void)
 
   // now destroys the vector
   del_fvec(vec);
-
-  aubio_cleanup();
 
   return 0;
 }
