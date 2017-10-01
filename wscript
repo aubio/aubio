@@ -50,6 +50,9 @@ def options(ctx):
     add_option_enable_disable(ctx, 'fftw3', default = False,
             help_str = 'compile with fftw3 instead of ooura',
             help_disable_str = 'do not compile with fftw3')
+    add_option_enable_disable(ctx, 'intelipp', default = False,
+            help_str = 'use Intel IPP libraries (auto)',
+            help_disable_str = 'do not use Intel IPP libraries')
     add_option_enable_disable(ctx, 'complex', default = False,
             help_str ='compile with C99 complex',
             help_disable_str = 'do not use C99 complex (default)' )
@@ -155,6 +158,10 @@ def configure(ctx):
         ctx.env.LINKFLAGS += ['/DEBUG', '/INCREMENTAL:NO']
         # configure warnings
         ctx.env.CFLAGS += ['/W4', '/D_CRT_SECURE_NO_WARNINGS']
+        # ignore "possible loss of data" warnings
+        ctx.env.CFLAGS += ['/wd4305', '/wd4244', '/wd4245', '/wd4267']
+        # ignore "unreferenced formal parameter" warnings
+        ctx.env.CFLAGS += ['/wd4100']
         # set optimization level and runtime libs
         if (ctx.options.build_type == "release"):
             ctx.env.CFLAGS += ['/Ox']
@@ -244,7 +251,9 @@ def configure(ctx):
         ctx.env.cstlib_PATTERN = '%s.a'
 
         # tell emscripten functions we want to expose
-        from python.lib.gen_external import get_c_declarations, get_cpp_objects_from_c_declarations, get_all_func_names_from_lib, generate_lib_from_c_declarations
+        from python.lib.gen_external import get_c_declarations, \
+                get_cpp_objects_from_c_declarations, get_all_func_names_from_lib, \
+                generate_lib_from_c_declarations
         c_decls = get_c_declarations(usedouble=False)  # emscripten can't use double
         objects = list(get_cpp_objects_from_c_declarations(c_decls))
         # ensure that aubio structs are exported
@@ -283,6 +292,21 @@ def configure(ctx):
     else:
         ctx.msg('Checking if complex.h is enabled', 'no')
 
+    # check for Intel IPP
+    if (ctx.options.enable_intelipp != False):
+        has_ipp_headers = ctx.check(header_name=['ippcore.h', 'ippvm.h', 'ipps.h'],
+                mandatory = False)
+        has_ipp_libs = ctx.check(lib=['ippcore', 'ippvm', 'ipps'],
+                uselib_store='INTEL_IPP', mandatory = False)
+        if (has_ipp_headers and has_ipp_libs):
+            ctx.msg('Checking if Intel IPP is available', 'yes')
+            ctx.define('HAVE_INTEL_IPP', 1)
+            if ctx.env.CC_NAME == 'msvc':
+                # force linking multi-threaded static IPP libraries on Windows with msvc
+                ctx.define('_IPP_SEQUENTIAL_STATIC', 1)
+        else:
+            ctx.msg('Checking if Intel IPP is available', 'no')
+
     # check for fftw3
     if (ctx.options.enable_fftw3 != False or ctx.options.enable_fftw3f != False):
         # one of fftwf or fftw3f
@@ -306,13 +330,15 @@ def configure(ctx):
                         mandatory = ctx.options.enable_fftw3)
         ctx.define('HAVE_FFTW3', 1)
 
-    # fftw not enabled, use vDSP or ooura
+    # fftw not enabled, use vDSP, intelIPP or ooura
     if 'HAVE_FFTW3F' in ctx.env.define_key:
         ctx.msg('Checking for FFT implementation', 'fftw3f')
     elif 'HAVE_FFTW3' in ctx.env.define_key:
         ctx.msg('Checking for FFT implementation', 'fftw3')
     elif 'HAVE_ACCELERATE' in ctx.env.define_key:
         ctx.msg('Checking for FFT implementation', 'vDSP')
+    elif 'HAVE_INTEL_IPP' in ctx.env.define_key:
+        ctx.msg('Checking for FFT implementation', 'Intel IPP')
     else:
         ctx.msg('Checking for FFT implementation', 'ooura')
 
