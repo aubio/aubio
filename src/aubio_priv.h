@@ -135,8 +135,8 @@
 #define aubio_ippsMulC        ippsMulC_32f
 #define aubio_ippsAddC        ippsAddC_32f
 #define aubio_ippsLn          ippsLn_32f_A21
-#define aubio_ippsMean        ippsMean_32f
-#define aubio_ippsSum         ippsSum_32f
+#define aubio_ippsMean(a,b,c) ippsMean_32f(a, b, c, ippAlgHintFast)
+#define aubio_ippsSum(a,b,c)  ippsSum_32f(a, b, c, ippAlgHintFast)
 #define aubio_ippsMax         ippsMax_32f
 #define aubio_ippsMin         ippsMin_32f
 #else /* HAVE_AUBIO_DOUBLE */

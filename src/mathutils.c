@@ -160,7 +160,7 @@ fvec_mean (fvec_t * s)
 {
   smpl_t tmp = 0.0;
 #if defined(HAVE_INTEL_IPP)
-  aubio_ippsMean(s->data, (int)s->length, &tmp, ippAlgHintFast);
+  aubio_ippsMean(s->data, (int)s->length, &tmp);
   return tmp;
 #elif defined(HAVE_ACCELERATE)
   aubio_vDSP_meanv(s->data, 1, &tmp, s->length);
@@ -179,7 +179,7 @@ fvec_sum (fvec_t * s)
 {
   smpl_t tmp = 0.0;
 #if defined(HAVE_INTEL_IPP)
-  aubio_ippsSum(s->data, (int)s->length, &tmp, ippAlgHintFast);
+  aubio_ippsSum(s->data, (int)s->length, &tmp);
 #elif defined(HAVE_ACCELERATE)
   aubio_vDSP_sve(s->data, 1, &tmp, s->length);
 #else
