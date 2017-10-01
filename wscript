@@ -251,7 +251,9 @@ def configure(ctx):
         ctx.env.cstlib_PATTERN = '%s.a'
 
         # tell emscripten functions we want to expose
-        from python.lib.gen_external import get_c_declarations, get_cpp_objects_from_c_declarations, get_all_func_names_from_lib, generate_lib_from_c_declarations
+        from python.lib.gen_external import get_c_declarations, \
+                get_cpp_objects_from_c_declarations, get_all_func_names_from_lib, \
+                generate_lib_from_c_declarations
         c_decls = get_c_declarations(usedouble=False)  # emscripten can't use double
         objects = list(get_cpp_objects_from_c_declarations(c_decls))
         # ensure that aubio structs are exported
@@ -292,8 +294,11 @@ def configure(ctx):
 
     # check for Intel IPP
     if (ctx.options.enable_intelipp != False):
-        if (ctx.check(header_name=['ippcore.h', 'ippvm.h', 'ipps.h'], mandatory = False) and
-            ctx.check(lib=['ippcore', 'ippvm', 'ipps'], uselib_store='INTEL_IPP', mandatory = False)):
+        has_ipp_headers = ctx.check(header_name=['ippcore.h', 'ippvm.h', 'ipps.h'],
+                mandatory = False)
+        has_ipp_libs = ctx.check(lib=['ippcore', 'ippvm', 'ipps'],
+                uselib_store='INTEL_IPP', mandatory = False)
+        if (has_ipp_headers and has_ipp_libs):
             ctx.msg('Checking if Intel IPP is available', 'yes')
             ctx.define('HAVE_INTEL_IPP', 1)
             if ctx.env.CC_NAME == 'msvc':
