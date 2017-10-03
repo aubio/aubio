@@ -64,5 +64,6 @@ build_script:
   - "python waf distclean"
   # build libaubio
   - python waf configure build --verbose --msvc_version="msvc 14.0"
+  - "type build\\src\\libaubio-5.def"
   # build python module using libaubio dll
   - "python setup.py build"
