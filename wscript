@@ -103,6 +103,7 @@ def options(ctx):
     ctx.load('compiler_c')
     ctx.load('waf_unit_test')
     ctx.load('gnu_dirs')
+    ctx.load('waf_gensyms', tooldir='.')
 
 def configure(ctx):
     target_platform = sys.platform
@@ -118,6 +119,7 @@ def configure(ctx):
 
     ctx.load('waf_unit_test')
     ctx.load('gnu_dirs')
+    ctx.load('waf_gensyms', tooldir='.')
 
     # check for common headers
     ctx.check(header_name='stdlib.h')

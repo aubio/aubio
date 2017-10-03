@@ -25,7 +25,7 @@ ctx(features = 'c',
 if ctx.env['DEST_OS'] in ['ios', 'iosimulator']:
     build_features = ['cstlib', 'cshlib']
 elif ctx.env['DEST_OS'] in ['win32', 'win64']:
-    build_features = ['cstlib', 'cshlib']
+    build_features = ['cstlib', 'cshlib gensyms']
 elif ctx.env['DEST_OS'] in ['emscripten']:
     build_features = ['cstlib','cshlib']
 elif '--static' in ctx.env['LDFLAGS'] or '--static' in ctx.env['LINKFLAGS']:
@@ -37,13 +37,13 @@ else:
 
 # also install static lib
 from waflib.Tools.c import cstlib
-from waflib.Tools.fc import fcstlib
-fcstlib.inst_to = cstlib.inst_to = '${LIBDIR}'
+cstlib.inst_to = '${LIBDIR}'
 
 for target in build_features:
     ctx(features = 'c ' + target,
             use = uselib + ['lib_objects'],
             target = 'aubio',
+            export_symbols_regex=r'(?:.*aubio|fvec|lvec|cvec|fmat|new|del)_.*',
             vnum = ctx.env['LIB_VERSION'])
 
 # install headers, except _priv.h ones
