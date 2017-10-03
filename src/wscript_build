@@ -51,20 +51,21 @@ class gen_sym_file(Task.Task):
     def run(self):
         syms = {}
         reg = getattr(self.generator, 'export_symbols_regex','.+?')
-        binary_path = self.generator.link_task.outputs[0].abspath()
         if 'msvc' in self.env.CC_NAME:
-            reg_compiled = re.compile(r'External\s+\|\s+_(?P<symbol>%s)\b' % reg)
-            cmd =(self.env.DUMPBIN or['dumpbin'])+['/symbols', binary_path]
+            outputs = [x.abspath() for x in self.generator.link_task.outputs]
+            binary_path = list(filter(lambda x: x.endswith('lib'), outputs))[0]
+            reg_compiled = re.compile(r'External\s+\|\s+(?P<symbol>%s)\b' % reg)
+            cmd =(self.env.LINK_CC) + ['/dump', '/symbols', binary_path]
         else: # using gcc? assume we have nm
+            binary_path = self.generator.link_task.outputs[0].abspath()
             reg_compiled = re.compile(r'(T|D)\s+_(?P<symbol>%s)\b'%reg)
             cmd = (self.env.NM or ['nm']) + ['-g', binary_path]
-        print (cmd)
         dump_output = self.generator.bld.cmd_and_log(cmd, quiet=STDOUT)
-        print (dump_output)
-        syms = []
+        syms = set([])
         for m in reg_compiled.finditer(dump_output):
-            syms += [m.group('symbol')]
-            print (m.group('symbol'))
+            syms.add(m.group('symbol'))
+        syms = list(syms)
+        syms.sort()
         self.outputs[0].write('EXPORTS\n'+'\n'.join(syms))
 
 @TaskGen.feature('gensyms')
@@ -81,7 +82,7 @@ for target in build_features:
     ctx(features = 'c ' + target,
             use = uselib + ['lib_objects'],
             target = 'aubio',
-            export_symbols_regex=r'(?:.*aubio|fvec|lvec|cvec|fmat)_.*',
+            export_symbols_regex=r'(?:.*aubio|fvec|lvec|cvec|fmat|new|del)_.*',
             vnum = ctx.env['LIB_VERSION'])
 
 # install headers, except _priv.h ones
