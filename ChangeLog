@@ -1,3 +1,70 @@
+2017-10-02 Paul Brossier <piem@aubio.org>
+
+	[ Overview ]
+
+	* VERSION: bump to 0.4.6
+	* src/spectral/fft.c, src/*.c: add support for Intel IPP (many thanks to
+	Eduard Mueller)
+	* wscript: add support for emscripten (thanks to Martin Hermant)
+	* src/pitch/pitchyinfast.h: new fast method to compute YIN algorithm
+	* src/pitch/pitchyin*.c: improve confidence measure, making sure its value
+	corresponds to the selected period (thanks to Eduard Mueller)
+	* python/lib/aubio/cmd.py: add `quiet`, `cut`, and `help` subcommands
+
+	[ Library ]
+
+	* src/aubio_priv.h: add missing aubio_vDSP_vclr (Eduard Mueller)
+	* src/io/source_avcodec.c: improve error message, prevent un-opened bracket,
+	no declaration after statements for older compilers, avoid unused variable
+	* src/mathutils.c: prevent segfault with Accelerate.framework (closes #58,
+	closes #102)
+	* src/spectral/phasevoc.h: add aubio_pvoc_set_window to change the windowing
+	function
+	* src/mathutils.c: add window type `ones` (no windowing)
+
+	[ Python ]
+
+	* python/demos/demo_tapthebeat.py: add a real-time example to play beats
+	using pyaudio
+	* python/lib/gen_external.py: improve parsing and syntax, use results in
+	emscripten build (Martin Hermant)
+	* python/lib/aubio/cmd.py: add option `-u` to `aubio pitch`, improve error
+	messages, add `quiet` subcommand (closes #124), improve syntax, add some
+	documentation, add `cut` and `help` subcommand, add silence and time format
+	options
+	* python/lib/aubio/cut.py: upgrade to argparse, set samplerate as needed
+	* python/demos/demo_yin_compare.py: add comparison of yin implementations
+	* python/demos/demo_wav2midi.py: add an example to create a midi from a
+	sound file using mido (closes: #134)
+	* python/demos/demo_bpm_extract.py: use argparse, use beats_to_bpm function
+	* python/ext/py-cvec.c: fix support for pypy by changing setters to return a
+	negative value on error (closes #17)
+
+	[ Documentation ]
+
+	* src/tempo/beattracking.h: fix typo (thanks to Hannes Fritz)
+	* doc/requirements.rst: fix broken link (thanks to @ssj71, closes #99)
+	* doc/aubiomfcc.txt: fix typo in 'coefficients'
+
+	[ Tests ]
+
+	* python/tests/tests_aubio_{cmd,cut}.py: add basic tests
+	* python/tests/test_filterbank*.py: ignore UserWarnings, clean-up,
+	improve get_coeff tests
+
+	[ Build system ]
+
+	* wscript: add support for emscripten, see scripts/build_emscripten
+	* scripts/get_waf.sh: update waf to 2.0.1, build waf from source tarball
+	* scripts/build_emscripten: update to build aubio.js
+	* Makefile: add coverage and coverage_report targets, run tests once
+
+	[ Continuous integration ]
+
+	* .travis.yml: add coverage report on osx
+	* .appveyor.yml: use msvc 14.0 (VS 2015) and scripts/get_waf.sh
+	* .coveragerc: add minimal python coverage configuration
+
 2017-04-10 Paul Brossier <piem@aubio.org>
 
 	[Overview]
