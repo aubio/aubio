@@ -81,6 +81,7 @@ addons:
     - libasound2-dev
     - libfftw3-dev
     - sox
+    - lcov
 
 before_install:
    - |
@@ -89,6 +90,7 @@ before_install:
        brew install sox
        brew install ffmpeg
        brew install libsndfile
+       brew install lcov
        export PATH="$HOME/Library/Python/2.7/bin/:$PATH"
      fi;
 
@@ -97,16 +99,29 @@ install:
   - travis_retry make getwaf expandwaf deps_python
   - which pip
   - pip --version
+  - pip install python-coveralls
+  - gem install coveralls-lcov
 
 script:
   - make create_test_sounds
   - |
     if [[ -z "$AUBIO_NOTESTS" ]]; then
       make test_lib_python_clean
-      make test_python_only_clean
+      make coverage
     else
       make test_lib_only_clean
     fi;
+
+after_success:
+  - |
+    if [[ -z "$AUBIO_NOTESTS" ]]; then
+      # upload lcov coverage to coveralls.io
+      coveralls-lcov build/coverage.info
+      # upload python coverage
+      #coveralls
+      # upload to codecov
+      bash <(curl -s https://codecov.io/bash)
+    fi
 
 notifications:
     irc:

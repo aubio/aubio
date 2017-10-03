@@ -7,27 +7,27 @@ environment:
 
     # pre-installed python version, see:
     # http://www.appveyor.com/docs/installed-software#python
-    - PYTHON: "C:\\Python27"
+    - PYTHONDIR: "C:\\Python27"
       PYTHON_VERSION: "2.7.x"
       PYTHON_ARCH: "32"
 
-    - PYTHON: "C:\\Python27-x64"
+    - PYTHONDIR: "C:\\Python27-x64"
       PYTHON_VERSION: "2.7.x"
       PYTHON_ARCH: "64"
 
-    - PYTHON: "C:\\Python34"
+    - PYTHONDIR: "C:\\Python34"
       PYTHON_VERSION: "3.4.x"
       PYTHON_ARCH: "32"
 
-    - PYTHON: "C:\\Python34-x64"
+    - PYTHONDIR: "C:\\Python34-x64"
       PYTHON_VERSION: "3.4.x"
       PYTHON_ARCH: "64"
 
-    - PYTHON: "C:\\Python35"
+    - PYTHONDIR: "C:\\Python35"
       PYTHON_VERSION: "3.5.x"
       PYTHON_ARCH: "32"
 
-    - PYTHON: "C:\\Python35-x64"
+    - PYTHONDIR: "C:\\Python35-x64"
       PYTHON_VERSION: "3.5.x"
       PYTHON_ARCH: "64"
       # add path required to run preprocessor step
@@ -39,20 +39,19 @@ install:
   - ps: "ls \"C:/Program Files/Microsoft SDKs/Windows\""
 
   # Check that we have the expected version and architecture for Python
-  - "%PYTHON%\\python.exe --version"
-  - "%PYTHON%\\python.exe -c \"import struct; print(struct.calcsize('P') * 8)\""
+  - "%PYTHONDIR%\\python.exe --version"
+  - "%PYTHONDIR%\\python.exe -c \"import struct; print(struct.calcsize('P') * 8)\""
 
   # We need wheel installed to build wheels
-  - "%PYTHON%\\python.exe -m pip install wheel"
+  - "%PYTHONDIR%\\python.exe -m pip install wheel"
 
-  - "SET PATH=%PATH_EXTRAS%;%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - "SET PATH=%PATH_EXTRAS%;%PYTHONDIR%;%PYTHONDIR%\\Scripts;%PATH%"
 
   - "pip install --disable-pip-version-check --user --upgrade pip"
   - "pip install --upgrade setuptools"
 
 before_build:
-  - curl -fsS -o waf https://waf.io/waf-1.8.22
-  - curl -fsS -o waf.bat https://raw.githubusercontent.com/waf-project/waf/master/utils/waf.bat
+  - "bash scripts/get_waf.sh"
 
 build_script:
   # build python module without using libaubio
@@ -62,8 +61,6 @@ build_script:
   - "python python\\demos\\demo_create_test_sounds.py"
   - "nose2 --verbose"
   # clean up
-  - waf distclean
+  - "python waf distclean"
   # build libaubio
-  - waf configure build --verbose
-  # build python module using libaubio dll
-  - "python setup.py build"
+  - python waf configure build --verbose --msvc_version="msvc 14.0"

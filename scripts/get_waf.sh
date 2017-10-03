@@ -1,10 +1,37 @@
-#! /bin/sh
+#! /bin/bash
 
 set -e
 set -x
 
-WAFURL=https://waf.io/waf-1.9.12
+WAFVERSION=2.0.1
+WAFTARBALL=waf-$WAFVERSION.tar.bz2
+WAFURL=https://waf.io/$WAFTARBALL
 
-( which wget > /dev/null && wget -qO waf $WAFURL ) || ( which curl > /dev/null && curl $WAFURL > waf )
+WAFBUILDDIR=`mktemp -d`
 
-chmod +x waf
+function cleanup () {
+  rm -rf $WAFBUILDDIR
+}
+
+trap cleanup SIGINT SIGTERM
+
+function buildwaf () {
+  pushd $WAFBUILDDIR
+
+  ( which wget > /dev/null && wget -qO $WAFTARBALL $WAFURL ) || ( which curl > /dev/null && curl $WAFURL > $WAFTARBALL )
+
+  tar xf $WAFTARBALL
+  pushd waf-$WAFVERSION
+  NOCLIMB=1 python waf-light --tools=c_emscripten $*
+
+  popd
+  popd
+
+  cp -prv $WAFBUILDDIR/waf-$WAFVERSION/waf $PWD
+
+  chmod +x waf
+}
+
+buildwaf
+
+cleanup

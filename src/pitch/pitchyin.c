@@ -36,7 +36,7 @@ struct _aubio_pitchyin_t
 {
   fvec_t *yin;
   smpl_t tol;
-  smpl_t confidence;
+  uint_t peak_pos;
 };
 
 /** compute difference function
@@ -67,6 +67,7 @@ new_aubio_pitchyin (uint_t bufsize)
   aubio_pitchyin_t *o = AUBIO_NEW (aubio_pitchyin_t);
   o->yin = new_fvec (bufsize / 2);
   o->tol = 0.15;
+  o->peak_pos = 0;
   return o;
 }
 
@@ -156,19 +157,18 @@ aubio_pitchyin_do (aubio_pitchyin_t * o, const fvec_t * input, fvec_t * out)
     period = tau - 3;
     if (tau > 4 && (yin_data[period] < tol) &&
         (yin_data[period] < yin_data[period + 1])) {
-      out->data[0] = fvec_quadratic_peak_pos (yin, period);
-      goto beach;
+      o->peak_pos = (uint_t)period;
+      out->data[0] = fvec_quadratic_peak_pos (yin, o->peak_pos);
+      return;
     }
   }
-  out->data[0] = fvec_quadratic_peak_pos (yin, fvec_min_elem (yin));
-beach:
-  return;
+  o->peak_pos = (uint_t)fvec_min_elem (yin);
+  out->data[0] = fvec_quadratic_peak_pos (yin, o->peak_pos);
 }
 
 smpl_t
 aubio_pitchyin_get_confidence (aubio_pitchyin_t * o) {
-  o->confidence = 1. - fvec_min (o->yin);
-  return o->confidence;
+  return 1. - o->yin->data[o->peak_pos];
 }
 
 uint_t

@@ -159,45 +159,53 @@ smpl_t
 fvec_mean (fvec_t * s)
 {
   smpl_t tmp = 0.0;
-#ifndef HAVE_ACCELERATE
+#if defined(HAVE_INTEL_IPP)
+  aubio_ippsMean(s->data, (int)s->length, &tmp);
+  return tmp;
+#elif defined(HAVE_ACCELERATE)
+  aubio_vDSP_meanv(s->data, 1, &tmp, s->length);
+  return tmp;
+#else
   uint_t j;
   for (j = 0; j < s->length; j++) {
     tmp += s->data[j];
   }
-  return tmp / (smpl_t) (s->length);
-#else
-  aubio_vDSP_meanv(s->data, 1, &tmp, s->length);
-  return tmp;
-#endif /* HAVE_ACCELERATE */
+  return tmp / (smpl_t)(s->length);
+#endif
 }
 
 smpl_t
 fvec_sum (fvec_t * s)
 {
   smpl_t tmp = 0.0;
-#ifndef HAVE_ACCELERATE
+#if defined(HAVE_INTEL_IPP)
+  aubio_ippsSum(s->data, (int)s->length, &tmp);
+#elif defined(HAVE_ACCELERATE)
+  aubio_vDSP_sve(s->data, 1, &tmp, s->length);
+#else
   uint_t j;
   for (j = 0; j < s->length; j++) {
     tmp += s->data[j];
   }
-#else
-  aubio_vDSP_sve(s->data, 1, &tmp, s->length);
-#endif /* HAVE_ACCELERATE */
+#endif
   return tmp;
 }
 
 smpl_t
 fvec_max (fvec_t * s)
 {
-#ifndef HAVE_ACCELERATE
+#if defined(HAVE_INTEL_IPP)
+  smpl_t tmp = 0.;
+  aubio_ippsMax( s->data, (int)s->length, &tmp);
+#elif defined(HAVE_ACCELERATE)
+  smpl_t tmp = 0.;
+  aubio_vDSP_maxv( s->data, 1, &tmp, s->length );
+#else
   uint_t j;
-  smpl_t tmp = 0.0;
-  for (j = 0; j < s->length; j++) {
+  smpl_t tmp = s->data[0];
+  for (j = 1; j < s->length; j++) {
     tmp = (tmp > s->data[j]) ? tmp : s->data[j];
   }
-#else
-  smpl_t tmp = 0.;
-  aubio_vDSP_maxv(s->data, 1, &tmp, s->length);
 #endif
   return tmp;
 }
@@ -205,15 +213,18 @@ fvec_max (fvec_t * s)
 smpl_t
 fvec_min (fvec_t * s)
 {
-#ifndef HAVE_ACCELERATE
-  uint_t j;
-  smpl_t tmp = s->data[0];
-  for (j = 0; j < s->length; j++) {
-    tmp = (tmp < s->data[j]) ? tmp : s->data[j];
-  }
-#else
+#if defined(HAVE_INTEL_IPP)
+  smpl_t tmp = 0.;
+  aubio_ippsMin(s->data, (int)s->length, &tmp);
+#elif defined(HAVE_ACCELERATE)
   smpl_t tmp = 0.;
   aubio_vDSP_minv(s->data, 1, &tmp, s->length);
+#else
+  uint_t j;
+  smpl_t tmp = s->data[0];
+  for (j = 1; j < s->length; j++) {
+    tmp = (tmp < s->data[j]) ? tmp : s->data[j];
+  }
 #endif
   return tmp;
 }
@@ -572,6 +583,17 @@ aubio_next_power_of_two (uint_t a)
   uint_t i = 1;
   while (i < a) i <<= 1;
   return i;
+}
+
+uint_t
+aubio_power_of_two_order (uint_t a)
+{
+  int order = 0;
+  int temp = aubio_next_power_of_two(a);
+  while (temp >>= 1) {
+    ++order;
+  }
+  return order;
 }
 
 smpl_t

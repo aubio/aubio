@@ -4,7 +4,7 @@ aubio
 [![Travis build status](https://travis-ci.org/aubio/aubio.svg?branch=master)](https://travis-ci.org/aubio/aubio "Travis build status")
 [![Appveyor build status](https://img.shields.io/appveyor/ci/piem/aubio/master.svg)](https://ci.appveyor.com/project/piem/aubio "Appveyor build status")
 [![Landscape code health](https://landscape.io/github/aubio/aubio/master/landscape.svg?style=flat)](https://landscape.io/github/aubio/aubio/master "Landscape code health")
-[![Commits since last release](https://img.shields.io/github/commits-since/aubio/aubio/0.4.5.svg)](https://github.com/aubio/aubio "Commits since last release")
+[![Commits since last release](https://img.shields.io/github/commits-since/aubio/aubio/0.4.6.svg)](https://github.com/aubio/aubio "Commits since last release")
 
 [![Documentation](https://readthedocs.org/projects/aubio/badge/?version=latest)](http://aubio.readthedocs.io/en/latest/?badge=latest "Latest documentation")
 [![DOI](https://zenodo.org/badge/396389.svg)](https://zenodo.org/badge/latestdoi/396389)

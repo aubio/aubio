@@ -2,8 +2,8 @@
 #include <aubio.h>
 #include "utils_tests.h"
 
-// this file uses the unstable aubio api, please use aubio_sink instead
-// see src/io/sink.h and tests/src/sink/test-sink.c
+// this file uses the unstable aubio api to test aubio_sink_apple_audio, please
+// use aubio_sink instead see src/io/sink.h and tests/src/sink/test-sink.c
 
 int main (int argc, char **argv)
 {

@@ -14,7 +14,7 @@ python this_version.py -v
 VERSION=`python $PWD/this_version.py -v`
 
 FFMPEG_BUILDS_URL="https://ffmpeg.zeranoe.com/builds"
-FFMPEG_DEFAULT="20170404-1229007"
+FFMPEG_DEFAULT="3.3.3"
 
 # define some default CFLAGS
 DEF_CFLAGS="-Os -I/usr/share/mingw-w64"
@@ -80,10 +80,7 @@ function build_mingw() {
     ./waf distclean configure build install $WAFOPTS_TGT --testcmd='echo %s'
   # fix dll location (see https://github.com/waf-project/waf/issues/1860)
   mv $DESTDIR/lib/libaubio-5.dll $DESTDIR/bin
-  # generate def file (see https://github.com/aubio/aubio/issues/97)
-  ( echo -e "EXPORTS"; $NM $DESTDIR/bin/libaubio-5.dll | grep T\  | \
-    egrep "(aubio|fvec|cvec|lvec|fmat)" | sed 's/^.* T _\?//' ) \
-    > $DESTDIR/bin/libaubio-5.def
+  mv $DESTDIR/lib/libaubio-5.def $DESTDIR/bin
   zip -r $DESTDIR.zip `basename $DESTDIR`
   rm -rf $DESTDIR
   sha256sum $DESTDIR.zip > $DESTDIR.zip.sha256
