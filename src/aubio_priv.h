@@ -85,6 +85,8 @@
 #ifndef HAVE_AUBIO_DOUBLE
 #define aubio_vDSP_mmov       vDSP_mmov
 #define aubio_vDSP_vmul       vDSP_vmul
+#define aubio_vDSP_vsmul      vDSP_vsmul
+#define aubio_vDSP_vsadd      vDSP_vsadd
 #define aubio_vDSP_vfill      vDSP_vfill
 #define aubio_vDSP_meanv      vDSP_meanv
 #define aubio_vDSP_sve        vDSP_sve
@@ -97,6 +99,8 @@
 #else /* HAVE_AUBIO_DOUBLE */
 #define aubio_vDSP_mmov       vDSP_mmovD
 #define aubio_vDSP_vmul       vDSP_vmulD
+#define aubio_vDSP_vsmul      vDSP_vsmulD
+#define aubio_vDSP_vsadd      vDSP_vsaddD
 #define aubio_vDSP_vfill      vDSP_vfillD
 #define aubio_vDSP_meanv      vDSP_meanvD
 #define aubio_vDSP_sve        vDSP_sveD
