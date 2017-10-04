@@ -52,9 +52,6 @@ struct _aubio_dct_t {
   Ipp8u* pSpec;
   Ipp8u* pSpecBuffer;
   Ipp8u* pBuffer;
-  Ipp8u* pSpecInv;
-  Ipp8u* pSpecBufferInv;
-  Ipp8u* pBufferInv;
   aubio_ippsDCTFwdSpec* pFwdDCTSpec;
   aubio_ippsDCTInvSpec* pInvDCTSpec;
 };
@@ -100,14 +97,6 @@ aubio_dct_t * new_aubio_dct (uint_t size) {
   //AUBIO_INF("dct: inv initialized with %d %d %d\n", pSpecSize, pSpecBufferSize,
   //    pBufferSize);
 
-  s->pSpecInv = ippsMalloc_8u(pSpecSize);
-  if (pSpecSize > 0) {
-    s->pSpecBufferInv = ippsMalloc_8u(pSpecBufferSize);
-  } else {
-    s->pSpecBufferInv = NULL;
-  }
-  s->pBufferInv = ippsMalloc_8u(pBufferSize);
-
   status = aubio_ippsDCTFwdInit(&(s->pFwdDCTSpec), size, qualityHint, s->pSpec,
       s->pSpecBuffer);
   if (status != ippStsNoErr) {
@@ -115,8 +104,8 @@ aubio_dct_t * new_aubio_dct (uint_t size) {
     goto beach;
   }
 
-  status = aubio_ippsDCTInvInit(&(s->pInvDCTSpec), size, qualityHint,
-      s->pSpecInv, s->pSpecBufferInv);
+  status = aubio_ippsDCTInvInit(&(s->pInvDCTSpec), size, qualityHint, s->pSpec,
+      s->pSpecBuffer);
   if (status != ippStsNoErr) {
     AUBIO_ERR("dct: failed to initialize inv dct. IPP error: %d\n", status);
     goto beach;
@@ -135,9 +124,6 @@ void del_aubio_dct(aubio_dct_t *s) {
   ippFree(s->pSpec);
   ippFree(s->pSpecBuffer);
   ippFree(s->pBuffer);
-  ippFree(s->pSpecInv);
-  ippFree(s->pSpecBufferInv);
-  ippFree(s->pBufferInv);
   AUBIO_FREE(s);
 }
 
