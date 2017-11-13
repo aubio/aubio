@@ -7,5 +7,6 @@
 #define HAVE_LIMITS_H
 #define HAVE_STDARG_H
 #define HAVE_C99_VARARGS_MACROS
+#define HAVE_WIN_HACKS
 
 #define _CRT_SECURE_NO_WARNINGS
