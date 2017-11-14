@@ -126,35 +126,35 @@ aubio_source_t * new_aubio_source(const char_t * uri, uint_t samplerate, uint_t 
 }
 
 void aubio_source_do(aubio_source_t * s, fvec_t * data, uint_t * read) {
-  s->s_do((void *)s->source, data, read);
+  s->s_do((aubio_source_t*)s->source, data, read);
 }
 
 void aubio_source_do_multi(aubio_source_t * s, fmat_t * data, uint_t * read) {
-  s->s_do_multi((void *)s->source, data, read);
+  s->s_do_multi((aubio_source_t*)s->source, data, read);
 }
 
 uint_t aubio_source_close(aubio_source_t * s) {
-  return s->s_close((void *)s->source);
+  return s->s_close((aubio_source_t*)s->source);
 }
 
 void del_aubio_source(aubio_source_t * s) {
   if (!s) return;
-  s->s_del((void *)s->source);
+  s->s_del((aubio_source_t*)s->source);
   AUBIO_FREE(s);
 }
 
 uint_t aubio_source_get_samplerate(aubio_source_t * s) {
-  return s->s_get_samplerate((void *)s->source);
+  return s->s_get_samplerate((aubio_source_t*)s->source);
 }
 
 uint_t aubio_source_get_channels(aubio_source_t * s) {
-  return s->s_get_channels((void *)s->source);
+  return s->s_get_channels((aubio_source_t*)s->source);
 }
 
 uint_t aubio_source_get_duration(aubio_source_t *s) {
-  return s->s_get_duration((void *)s->source);
+  return s->s_get_duration((aubio_source_t*)s->source);
 }
 
 uint_t aubio_source_seek (aubio_source_t * s, uint_t seek ) {
-  return s->s_seek((void *)s->source, seek);
+  return s->s_seek((aubio_source_t*)s->source, seek);
 }
