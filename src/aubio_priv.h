@@ -37,6 +37,14 @@
 #include "config.h"
 #endif
 
+#ifndef AUBIO_API
+#ifdef _MSC_VER
+#define AUBIO_API __declspec(dllexport)
+#else
+#define AUBIO_API
+#endif
+#endif
+
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
