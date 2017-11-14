@@ -14,6 +14,6 @@
 
 #define HAVE_C99_VARARGS_MACROS
 
-#define HAVE_WIN_HACKS // TODO once we're sure this works, remove the template-generated files by VS
+#define HAVE_WIN_HACKS
 
 #define _CRT_SECURE_NO_WARNINGS
