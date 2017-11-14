@@ -47,13 +47,13 @@ typedef struct _aubio_pvoc_t aubio_pvoc_t;
   \param hop_s step size between two consecutive analysis
 
 */
-aubio_pvoc_t * new_aubio_pvoc (uint_t win_s, uint_t hop_s);
+AUBIO_API aubio_pvoc_t * new_aubio_pvoc (uint_t win_s, uint_t hop_s);
 /** delete phase vocoder object
 
   \param pv phase vocoder object as returned by new_aubio_pvoc
 
 */
-void del_aubio_pvoc(aubio_pvoc_t *pv);
+AUBIO_API void del_aubio_pvoc(aubio_pvoc_t *pv);
 
 /** compute spectral frame
 
@@ -67,7 +67,7 @@ void del_aubio_pvoc(aubio_pvoc_t *pv);
   \param fftgrain output spectral frame
 
 */
-void aubio_pvoc_do(aubio_pvoc_t *pv, const fvec_t *in, cvec_t * fftgrain);
+AUBIO_API void aubio_pvoc_do(aubio_pvoc_t *pv, const fvec_t *in, cvec_t * fftgrain);
 /** compute signal from spectral frame
 
   This function takes an input spectral frame fftgrain of size
@@ -80,20 +80,20 @@ void aubio_pvoc_do(aubio_pvoc_t *pv, const fvec_t *in, cvec_t * fftgrain);
   \param out output signal (hop_s long)
 
 */
-void aubio_pvoc_rdo(aubio_pvoc_t *pv, cvec_t * fftgrain, fvec_t *out);
+AUBIO_API void aubio_pvoc_rdo(aubio_pvoc_t *pv, cvec_t * fftgrain, fvec_t *out);
 
 /** get window size
 
   \param pv phase vocoder to get the window size from
 
 */
-uint_t aubio_pvoc_get_win(aubio_pvoc_t* pv);
+AUBIO_API uint_t aubio_pvoc_get_win(aubio_pvoc_t* pv);
 /** get hop size
 
   \param pv phase vocoder to get the hop size from
 
 */
-uint_t aubio_pvoc_get_hop(aubio_pvoc_t* pv);
+AUBIO_API uint_t aubio_pvoc_get_hop(aubio_pvoc_t* pv);
 
 /** set window type
 
@@ -103,7 +103,7 @@ uint_t aubio_pvoc_get_hop(aubio_pvoc_t* pv);
   \return 0 if successful, non-zero otherwise
 
  */
-uint_t aubio_pvoc_set_window(aubio_pvoc_t *pv, const char_t *window_type);
+AUBIO_API uint_t aubio_pvoc_set_window(aubio_pvoc_t *pv, const char_t *window_type);
 
 #ifdef __cplusplus
 }

@@ -56,7 +56,7 @@ typedef struct _aubio_spectral_whitening_t aubio_spectral_whitening_t;
   \param fftgrain input signal spectrum as computed by aubio_pvoc_do() or aubio_fft_do()
 
 */
-void aubio_spectral_whitening_do (aubio_spectral_whitening_t * o,
+AUBIO_API void aubio_spectral_whitening_do (aubio_spectral_whitening_t * o,
                                   cvec_t * fftgrain);
 
 /** creation of a spectral whitening object
@@ -66,7 +66,7 @@ void aubio_spectral_whitening_do (aubio_spectral_whitening_t * o,
   \param samplerate sampling rate of the input signal
 
 */
-aubio_spectral_whitening_t *new_aubio_spectral_whitening (uint_t buf_size,
+AUBIO_API aubio_spectral_whitening_t *new_aubio_spectral_whitening (uint_t buf_size,
                                                           uint_t hop_size,
                                                           uint_t samplerate);
 
@@ -75,7 +75,7 @@ aubio_spectral_whitening_t *new_aubio_spectral_whitening (uint_t buf_size,
   \param o spectral whitening object as returned by new_aubio_spectral_whitening()
 
  */
-void aubio_spectral_whitening_reset (aubio_spectral_whitening_t * o);
+AUBIO_API void aubio_spectral_whitening_reset (aubio_spectral_whitening_t * o);
 
 /** set relaxation time for spectral whitening
 
@@ -83,7 +83,7 @@ void aubio_spectral_whitening_reset (aubio_spectral_whitening_t * o);
   \param relax_time relaxation time in seconds between 20 and 500, defaults 250
 
   */
-uint_t aubio_spectral_whitening_set_relax_time (aubio_spectral_whitening_t * o,
+AUBIO_API uint_t aubio_spectral_whitening_set_relax_time (aubio_spectral_whitening_t * o,
     smpl_t relax_time);
 
 /** get relaxation time of spectral whitening
@@ -92,7 +92,7 @@ uint_t aubio_spectral_whitening_set_relax_time (aubio_spectral_whitening_t * o,
   \return relaxation time in seconds
 
 */
-smpl_t aubio_spectral_whitening_get_relax_time (aubio_spectral_whitening_t * o);
+AUBIO_API smpl_t aubio_spectral_whitening_get_relax_time (aubio_spectral_whitening_t * o);
 
 /** set floor for spectral whitening
 
@@ -100,7 +100,7 @@ smpl_t aubio_spectral_whitening_get_relax_time (aubio_spectral_whitening_t * o);
   \param floor value (typically between 1.e-6 and .2, defaults to 1.e-4)
 
   */
-uint_t aubio_spectral_whitening_set_floor (aubio_spectral_whitening_t * o,
+AUBIO_API uint_t aubio_spectral_whitening_set_floor (aubio_spectral_whitening_t * o,
     smpl_t floor);
 
 /** get floor of spectral whitening
@@ -109,14 +109,14 @@ uint_t aubio_spectral_whitening_set_floor (aubio_spectral_whitening_t * o,
   \return floor value
 
 */
-smpl_t aubio_spectral_whitening_get_floor (aubio_spectral_whitening_t * o);
+AUBIO_API smpl_t aubio_spectral_whitening_get_floor (aubio_spectral_whitening_t * o);
 
 /** deletion of a spectral whitening
 
   \param o spectral whitening object as returned by new_aubio_spectral_whitening()
 
 */
-void del_aubio_spectral_whitening (aubio_spectral_whitening_t * o);
+AUBIO_API void del_aubio_spectral_whitening (aubio_spectral_whitening_t * o);
 
 #ifdef __cplusplus
 }

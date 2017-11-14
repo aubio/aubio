@@ -171,7 +171,7 @@ typedef struct _aubio_specdesc_t aubio_specdesc_t;
   \param desc output vector (one sample long, to send to the peak picking)
 
 */
-void aubio_specdesc_do (aubio_specdesc_t * o, const cvec_t * fftgrain,
+AUBIO_API void aubio_specdesc_do (aubio_specdesc_t * o, const cvec_t * fftgrain,
     fvec_t * desc);
 
 /** creation of a spectral description object
@@ -188,14 +188,14 @@ void aubio_specdesc_do (aubio_specdesc_t * o, const cvec_t * fftgrain,
     `skewness`, `slope`, `spread`.
 
 */
-aubio_specdesc_t *new_aubio_specdesc (const char_t * method, uint_t buf_size);
+AUBIO_API aubio_specdesc_t *new_aubio_specdesc (const char_t * method, uint_t buf_size);
 
 /** deletion of a spectral descriptor
 
   \param o spectral descriptor object as returned by new_aubio_specdesc()
 
 */
-void del_aubio_specdesc (aubio_specdesc_t * o);
+AUBIO_API void del_aubio_specdesc (aubio_specdesc_t * o);
 
 #ifdef __cplusplus
 }

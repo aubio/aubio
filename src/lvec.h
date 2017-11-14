@@ -50,13 +50,13 @@ typedef struct {
   \param length the length of the buffer to create
 
 */
-lvec_t * new_lvec(uint_t length);
+AUBIO_API lvec_t * new_lvec(uint_t length);
 /** lvec_t buffer deletion function
 
   \param s buffer to delete as returned by new_lvec()
 
 */
-void del_lvec(lvec_t *s);
+AUBIO_API void del_lvec(lvec_t *s);
 
 /** read sample value in a buffer
 
@@ -64,7 +64,7 @@ void del_lvec(lvec_t *s);
   \param position sample position to read from
 
 */
-lsmp_t lvec_get_sample(lvec_t *s, uint_t position);
+AUBIO_API lsmp_t lvec_get_sample(lvec_t *s, uint_t position);
 
 /** write sample value in a buffer
 
@@ -73,21 +73,21 @@ lsmp_t lvec_get_sample(lvec_t *s, uint_t position);
   \param position sample position to write to
 
 */
-void  lvec_set_sample(lvec_t *s, lsmp_t data, uint_t position);
+AUBIO_API void  lvec_set_sample(lvec_t *s, lsmp_t data, uint_t position);
 
 /** read data from a buffer
 
   \param s vector to read from
 
 */
-lsmp_t * lvec_get_data(const lvec_t *s);
+AUBIO_API lsmp_t * lvec_get_data(const lvec_t *s);
 
 /** print out lvec data
 
   \param s vector to print out
 
 */
-void lvec_print(const lvec_t *s);
+AUBIO_API void lvec_print(const lvec_t *s);
 
 /** set all elements to a given value
 
@@ -95,21 +95,21 @@ void lvec_print(const lvec_t *s);
   \param val value to set elements to
 
 */
-void lvec_set_all(lvec_t *s, smpl_t val);
+AUBIO_API void lvec_set_all(lvec_t *s, smpl_t val);
 
 /** set all elements to zero
 
   \param s vector to modify
 
 */
-void lvec_zeros(lvec_t *s);
+AUBIO_API void lvec_zeros(lvec_t *s);
 
 /** set all elements to ones
 
   \param s vector to modify
 
 */
-void lvec_ones(lvec_t *s);
+AUBIO_API void lvec_ones(lvec_t *s);
 
 #ifdef __cplusplus
 }

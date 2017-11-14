@@ -69,7 +69,7 @@ extern "C" {
   \return a new filter object
 
 */
-aubio_filter_t *new_aubio_filter_c_weighting (uint_t samplerate);
+AUBIO_API aubio_filter_t *new_aubio_filter_c_weighting (uint_t samplerate);
 
 /** set feedback and feedforward coefficients of a C-weighting filter
 
@@ -79,7 +79,7 @@ aubio_filter_t *new_aubio_filter_c_weighting (uint_t samplerate);
   192000 Hz
 
 */
-uint_t aubio_filter_set_c_weighting (aubio_filter_t * f, uint_t samplerate);
+AUBIO_API uint_t aubio_filter_set_c_weighting (aubio_filter_t * f, uint_t samplerate);
 
 #ifdef __cplusplus
 }

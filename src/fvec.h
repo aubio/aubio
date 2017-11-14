@@ -74,14 +74,14 @@ typedef struct {
   \param length the length of the buffer to create
 
 */
-fvec_t * new_fvec(uint_t length);
+AUBIO_API fvec_t * new_fvec(uint_t length);
 
 /** fvec_t buffer deletion function
 
   \param s buffer to delete as returned by new_fvec()
 
 */
-void del_fvec(fvec_t *s);
+AUBIO_API void del_fvec(fvec_t *s);
 
 /** read sample value in a buffer
 
@@ -89,7 +89,7 @@ void del_fvec(fvec_t *s);
   \param position sample position to read from
 
 */
-smpl_t fvec_get_sample(const fvec_t *s, uint_t position);
+AUBIO_API smpl_t fvec_get_sample(const fvec_t *s, uint_t position);
 
 /** write sample value in a buffer
 
@@ -98,21 +98,21 @@ smpl_t fvec_get_sample(const fvec_t *s, uint_t position);
   \param position sample position to write to
 
 */
-void  fvec_set_sample(fvec_t *s, smpl_t data, uint_t position);
+AUBIO_API void  fvec_set_sample(fvec_t *s, smpl_t data, uint_t position);
 
 /** read data from a buffer
 
   \param s vector to read from
 
 */
-smpl_t * fvec_get_data(const fvec_t *s);
+AUBIO_API smpl_t * fvec_get_data(const fvec_t *s);
 
 /** print out fvec data
 
   \param s vector to print out
 
 */
-void fvec_print(const fvec_t *s);
+AUBIO_API void fvec_print(const fvec_t *s);
 
 /** set all elements to a given value
 
@@ -120,28 +120,28 @@ void fvec_print(const fvec_t *s);
   \param val value to set elements to
 
 */
-void fvec_set_all (fvec_t *s, smpl_t val);
+AUBIO_API void fvec_set_all (fvec_t *s, smpl_t val);
 
 /** set all elements to zero
 
   \param s vector to modify
 
 */
-void fvec_zeros(fvec_t *s);
+AUBIO_API void fvec_zeros(fvec_t *s);
 
 /** set all elements to ones
 
   \param s vector to modify
 
 */
-void fvec_ones(fvec_t *s);
+AUBIO_API void fvec_ones(fvec_t *s);
 
 /** revert order of vector elements
 
   \param s vector to revert
 
 */
-void fvec_rev(fvec_t *s);
+AUBIO_API void fvec_rev(fvec_t *s);
 
 /** apply weight to vector
 
@@ -152,7 +152,7 @@ void fvec_rev(fvec_t *s);
   \param weight weighting coefficients
 
 */
-void fvec_weight(fvec_t *s, const fvec_t *weight);
+AUBIO_API void fvec_weight(fvec_t *s, const fvec_t *weight);
 
 /** make a copy of a vector
 
@@ -160,7 +160,7 @@ void fvec_weight(fvec_t *s, const fvec_t *weight);
   \param t vector to copy to
 
 */
-void fvec_copy(const fvec_t *s, fvec_t *t);
+AUBIO_API void fvec_copy(const fvec_t *s, fvec_t *t);
 
 /** make a copy of a vector, applying weights to each element
 
@@ -169,7 +169,7 @@ void fvec_copy(const fvec_t *s, fvec_t *t);
   \param out output vector
 
 */
-void fvec_weighted_copy(const fvec_t *in, const fvec_t *weight, fvec_t *out);
+AUBIO_API void fvec_weighted_copy(const fvec_t *in, const fvec_t *weight, fvec_t *out);
 
 #ifdef __cplusplus
 }

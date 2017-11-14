@@ -50,14 +50,14 @@ typedef struct _aubio_filterbank_t aubio_filterbank_t;
   \param win_s size of analysis buffer (and length the FFT transform)
 
 */
-aubio_filterbank_t *new_aubio_filterbank (uint_t n_filters, uint_t win_s);
+AUBIO_API aubio_filterbank_t *new_aubio_filterbank (uint_t n_filters, uint_t win_s);
 
 /** destroy filterbank object
 
   \param f filterbank object, as returned by new_aubio_filterbank()
 
 */
-void del_aubio_filterbank (aubio_filterbank_t * f);
+AUBIO_API void del_aubio_filterbank (aubio_filterbank_t * f);
 
 /** compute filterbank
 
@@ -66,14 +66,14 @@ void del_aubio_filterbank (aubio_filterbank_t * f);
   \param out output vector containing the energy found in each band, `nfilt` output values
 
 */
-void aubio_filterbank_do (aubio_filterbank_t * f, const cvec_t * in, fvec_t * out);
+AUBIO_API void aubio_filterbank_do (aubio_filterbank_t * f, const cvec_t * in, fvec_t * out);
 
 /** return a pointer to the matrix object containing all filter coefficients
 
   \param f filterbank object, as returned by new_aubio_filterbank()
 
  */
-fmat_t *aubio_filterbank_get_coeffs (const aubio_filterbank_t * f);
+AUBIO_API fmat_t *aubio_filterbank_get_coeffs (const aubio_filterbank_t * f);
 
 /** copy filter coefficients to the filterbank
 
@@ -81,7 +81,7 @@ fmat_t *aubio_filterbank_get_coeffs (const aubio_filterbank_t * f);
   \param filters filter bank coefficients to copy from
 
  */
-uint_t aubio_filterbank_set_coeffs (aubio_filterbank_t * f, const fmat_t * filters);
+AUBIO_API uint_t aubio_filterbank_set_coeffs (aubio_filterbank_t * f, const fmat_t * filters);
 
 #ifdef __cplusplus
 }

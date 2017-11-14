@@ -53,7 +53,7 @@ typedef struct _aubio_mfcc_t aubio_mfcc_t;
   \param n_filters number of desired filters
 
 */
-aubio_mfcc_t *new_aubio_mfcc (uint_t buf_size,
+AUBIO_API aubio_mfcc_t *new_aubio_mfcc (uint_t buf_size,
     uint_t n_filters, uint_t n_coeffs, uint_t samplerate);
 
 /** delete mfcc object
@@ -61,7 +61,7 @@ aubio_mfcc_t *new_aubio_mfcc (uint_t buf_size,
   \param mf mfcc object as returned by new_aubio_mfcc
 
 */
-void del_aubio_mfcc (aubio_mfcc_t * mf);
+AUBIO_API void del_aubio_mfcc (aubio_mfcc_t * mf);
 
 /** mfcc object processing
 
@@ -70,7 +70,7 @@ void del_aubio_mfcc (aubio_mfcc_t * mf);
   \param out output mel coefficients buffer (n_coeffs long)
 
 */
-void aubio_mfcc_do (aubio_mfcc_t * mf, const cvec_t * in, fvec_t * out);
+AUBIO_API void aubio_mfcc_do (aubio_mfcc_t * mf, const cvec_t * in, fvec_t * out);
 
 #ifdef __cplusplus
 }

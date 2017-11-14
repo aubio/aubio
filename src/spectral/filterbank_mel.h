@@ -49,7 +49,7 @@ extern "C"
   boundaries found in freqs, in Hz, and using triangular overlapping bands.
 
 */
-uint_t aubio_filterbank_set_triangle_bands (aubio_filterbank_t * fb,
+AUBIO_API uint_t aubio_filterbank_set_triangle_bands (aubio_filterbank_t * fb,
     const fvec_t * freqs, smpl_t samplerate);
 
 /** filterbank initialization for Mel filters using Slaney's coefficients
@@ -62,7 +62,7 @@ uint_t aubio_filterbank_set_triangle_bands (aubio_filterbank_t * fb,
   (see file mfcc.m).
 
 */
-uint_t aubio_filterbank_set_mel_coeffs_slaney (aubio_filterbank_t * fb,
+AUBIO_API uint_t aubio_filterbank_set_mel_coeffs_slaney (aubio_filterbank_t * fb,
     smpl_t samplerate);
 
 #ifdef __cplusplus

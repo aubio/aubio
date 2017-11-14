@@ -85,7 +85,7 @@ typedef struct _aubio_source_t aubio_source_t;
   ::aubio_source_get_samplerate.
 
 */
-aubio_source_t * new_aubio_source(const char_t * uri, uint_t samplerate, uint_t hop_size);
+AUBIO_API aubio_source_t * new_aubio_source(const char_t * uri, uint_t samplerate, uint_t hop_size);
 
 /**
 
@@ -99,7 +99,7 @@ aubio_source_t * new_aubio_source(const char_t * uri, uint_t samplerate, uint_t 
   source. `hop_size` if enough frames could be read, less otherwise.
 
 */
-void aubio_source_do(aubio_source_t * s, fvec_t * read_to, uint_t * read);
+AUBIO_API void aubio_source_do(aubio_source_t * s, fvec_t * read_to, uint_t * read);
 
 /**
 
@@ -113,7 +113,7 @@ void aubio_source_do(aubio_source_t * s, fvec_t * read_to, uint_t * read);
   source. `hop_size` if enough frames could be read, less otherwise.
 
 */
-void aubio_source_do_multi(aubio_source_t * s, fmat_t * read_to, uint_t * read);
+AUBIO_API void aubio_source_do_multi(aubio_source_t * s, fmat_t * read_to, uint_t * read);
 
 /**
 
@@ -123,7 +123,7 @@ void aubio_source_do_multi(aubio_source_t * s, fmat_t * read_to, uint_t * read);
   \return samplerate, in Hz
 
 */
-uint_t aubio_source_get_samplerate(aubio_source_t * s);
+AUBIO_API uint_t aubio_source_get_samplerate(aubio_source_t * s);
 
 /**
 
@@ -133,7 +133,7 @@ uint_t aubio_source_get_samplerate(aubio_source_t * s);
   \return channels
 
 */
-uint_t aubio_source_get_channels (aubio_source_t * s);
+AUBIO_API uint_t aubio_source_get_channels (aubio_source_t * s);
 
 /**
 
@@ -145,7 +145,7 @@ uint_t aubio_source_get_channels (aubio_source_t * s);
   \return 0 if sucessful, non-zero on failure
 
 */
-uint_t aubio_source_seek (aubio_source_t * s, uint_t pos);
+AUBIO_API uint_t aubio_source_seek (aubio_source_t * s, uint_t pos);
 
 /**
 
@@ -155,7 +155,7 @@ uint_t aubio_source_seek (aubio_source_t * s, uint_t pos);
   \return number of frames in file
 
 */
-uint_t aubio_source_get_duration (aubio_source_t * s);
+AUBIO_API uint_t aubio_source_get_duration (aubio_source_t * s);
 
 /**
 
@@ -166,7 +166,7 @@ uint_t aubio_source_get_duration (aubio_source_t * s);
   \return 0 if sucessful, non-zero on failure
 
  */
-uint_t aubio_source_close (aubio_source_t *s);
+AUBIO_API uint_t aubio_source_close (aubio_source_t *s);
 
 /**
 
@@ -175,7 +175,7 @@ uint_t aubio_source_close (aubio_source_t *s);
   \param s source object, created with ::new_aubio_source
 
 */
-void del_aubio_source(aubio_source_t * s);
+AUBIO_API void del_aubio_source(aubio_source_t * s);
 
 #ifdef __cplusplus
 }
