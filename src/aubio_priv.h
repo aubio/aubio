@@ -38,10 +38,12 @@
 #endif
 
 #ifndef AUBIO_API
-#ifdef _MSC_VER
+#if defined(_MSC_VER)
+#define AUBIO_API __declspec(dllexport)
+#elif defined(__GNUC__)
 #define AUBIO_API __declspec(dllexport)
 #else
-#define AUBIO_API
+#error AUBIO_API not supported on this platform, yet
 #endif
 #endif
 
