@@ -37,6 +37,16 @@
 #include "config.h"
 #endif
 
+#ifndef AUBIO_API
+#if defined(_MSC_VER)
+#define AUBIO_API __declspec(dllexport)
+#elif defined(__GNUC__)
+#define AUBIO_API __attribute__ ((dllexport))
+#else
+#error AUBIO_API not supported on this platform, yet
+#endif
+#endif
+
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif

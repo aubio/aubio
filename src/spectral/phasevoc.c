@@ -44,7 +44,7 @@ struct _aubio_pvoc_t {
 
 
 /** returns data and dataold slided by hop_s */
-static void aubio_pvoc_swapbuffers(aubio_pvoc_t *pv, const fvec_t *new);
+static void aubio_pvoc_swapbuffers(aubio_pvoc_t *pv, const fvec_t *vec);
 
 /** do additive synthesis from 'old' and 'cur' */
 static void aubio_pvoc_addsynth(aubio_pvoc_t *pv, fvec_t * synthnew);
@@ -157,12 +157,12 @@ void del_aubio_pvoc(aubio_pvoc_t *pv) {
   AUBIO_FREE(pv);
 }
 
-static void aubio_pvoc_swapbuffers(aubio_pvoc_t *pv, const fvec_t *new)
+static void aubio_pvoc_swapbuffers(aubio_pvoc_t *pv, const fvec_t *vec)
 {
   /* some convenience pointers */
   smpl_t * data = pv->data->data;
   smpl_t * dataold = pv->dataold->data;
-  smpl_t * datanew = new->data;
+  smpl_t * datanew = vec->data;
 #ifndef HAVE_MEMCPY_HACKS
   uint_t i;
   for (i = 0; i < pv->end; i++)

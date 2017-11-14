@@ -52,7 +52,7 @@ typedef struct _aubio_pitchmcomb_t aubio_pitchmcomb_t;
   \param out_cands pitch candidate frequenciess, in bins
 
 */
-void aubio_pitchmcomb_do (aubio_pitchmcomb_t * p, const cvec_t * in_fftgrain,
+AUBIO_API void aubio_pitchmcomb_do (aubio_pitchmcomb_t * p, const cvec_t * in_fftgrain,
     fvec_t * out_cands);
 
 /** creation of the pitch detection object
@@ -61,14 +61,14 @@ void aubio_pitchmcomb_do (aubio_pitchmcomb_t * p, const cvec_t * in_fftgrain,
   \param hop_size step size between two consecutive analysis instant
 
 */
-aubio_pitchmcomb_t *new_aubio_pitchmcomb (uint_t buf_size, uint_t hop_size);
+AUBIO_API aubio_pitchmcomb_t *new_aubio_pitchmcomb (uint_t buf_size, uint_t hop_size);
 
 /** deletion of the pitch detection object
 
   \param p pitch detection object as returned by new_aubio_pitchfcomb
 
 */
-void del_aubio_pitchmcomb (aubio_pitchmcomb_t * p);
+AUBIO_API void del_aubio_pitchmcomb (aubio_pitchmcomb_t * p);
 
 #ifdef __cplusplus
 }

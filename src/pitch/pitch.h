@@ -112,7 +112,7 @@ typedef struct _aubio_pitch_t aubio_pitch_t;
   \param out output pitch candidates of size [1]
 
 */
-void aubio_pitch_do (aubio_pitch_t * o, const fvec_t * in, fvec_t * out);
+AUBIO_API void aubio_pitch_do (aubio_pitch_t * o, const fvec_t * in, fvec_t * out);
 
 /** change yin or yinfft tolerance threshold
 
@@ -120,7 +120,7 @@ void aubio_pitch_do (aubio_pitch_t * o, const fvec_t * in, fvec_t * out);
   \param tol tolerance default is 0.15 for yin and 0.85 for yinfft
 
 */
-uint_t aubio_pitch_set_tolerance (aubio_pitch_t * o, smpl_t tol);
+AUBIO_API uint_t aubio_pitch_set_tolerance (aubio_pitch_t * o, smpl_t tol);
 
 /** get yin or yinfft tolerance threshold
 
@@ -128,14 +128,14 @@ uint_t aubio_pitch_set_tolerance (aubio_pitch_t * o, smpl_t tol);
   \return tolerance (default is 0.15 for yin and 0.85 for yinfft)
 
 */
-smpl_t aubio_pitch_get_tolerance (aubio_pitch_t * o);
+AUBIO_API smpl_t aubio_pitch_get_tolerance (aubio_pitch_t * o);
 
 /** deletion of the pitch detection object
 
   \param o pitch detection object as returned by new_aubio_pitch()
 
 */
-void del_aubio_pitch (aubio_pitch_t * o);
+AUBIO_API void del_aubio_pitch (aubio_pitch_t * o);
 
 /** creation of the pitch detection object
 
@@ -147,7 +147,7 @@ void del_aubio_pitch (aubio_pitch_t * o);
   \return newly created ::aubio_pitch_t
 
 */
-aubio_pitch_t *new_aubio_pitch (const char_t * method,
+AUBIO_API aubio_pitch_t *new_aubio_pitch (const char_t * method,
     uint_t buf_size, uint_t hop_size, uint_t samplerate);
 
 /** set the output unit of the pitch detection object
@@ -160,7 +160,7 @@ aubio_pitch_t *new_aubio_pitch (const char_t * method,
   \return 0 if successfull, non-zero otherwise
 
 */
-uint_t aubio_pitch_set_unit (aubio_pitch_t * o, const char_t * mode);
+AUBIO_API uint_t aubio_pitch_set_unit (aubio_pitch_t * o, const char_t * mode);
 
 /** set the silence threshold of the pitch detection object
 
@@ -170,7 +170,7 @@ uint_t aubio_pitch_set_unit (aubio_pitch_t * o, const char_t * mode);
   \return 0 if successfull, non-zero otherwise
 
 */
-uint_t aubio_pitch_set_silence (aubio_pitch_t * o, smpl_t silence);
+AUBIO_API uint_t aubio_pitch_set_silence (aubio_pitch_t * o, smpl_t silence);
 
 /** set the silence threshold of the pitch detection object
 
@@ -179,7 +179,7 @@ uint_t aubio_pitch_set_silence (aubio_pitch_t * o, smpl_t silence);
   \return level threshold under which pitch should be ignored, in dB
 
 */
-smpl_t aubio_pitch_get_silence (aubio_pitch_t * o);
+AUBIO_API smpl_t aubio_pitch_get_silence (aubio_pitch_t * o);
 
 /** get the current confidence
 
@@ -188,7 +188,7 @@ smpl_t aubio_pitch_get_silence (aubio_pitch_t * o);
   \return the current confidence of the pitch algorithm
 
 */
-smpl_t aubio_pitch_get_confidence (aubio_pitch_t * o);
+AUBIO_API smpl_t aubio_pitch_get_confidence (aubio_pitch_t * o);
 
 #ifdef __cplusplus
 }

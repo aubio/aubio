@@ -77,14 +77,14 @@ typedef struct {
   \param length the length of the buffer to create
 
 */
-cvec_t * new_cvec(uint_t length);
+AUBIO_API cvec_t * new_cvec(uint_t length);
 
 /** cvec_t buffer deletion function
 
   \param s buffer to delete as returned by new_cvec()
 
 */
-void del_cvec(cvec_t *s);
+AUBIO_API void del_cvec(cvec_t *s);
 
 /** write norm value in a complex buffer
 
@@ -98,7 +98,7 @@ void del_cvec(cvec_t *s);
   \param position sample position to write to
 
 */
-void cvec_norm_set_sample (cvec_t *s, smpl_t val, uint_t position);
+AUBIO_API void cvec_norm_set_sample (cvec_t *s, smpl_t val, uint_t position);
 
 /** write phase value in a complex buffer
 
@@ -112,7 +112,7 @@ void cvec_norm_set_sample (cvec_t *s, smpl_t val, uint_t position);
   \param position sample position to write to
 
 */
-void cvec_phas_set_sample (cvec_t *s, smpl_t val, uint_t position);
+AUBIO_API void cvec_phas_set_sample (cvec_t *s, smpl_t val, uint_t position);
 
 /** read norm value from a complex buffer
 
@@ -125,7 +125,7 @@ void cvec_phas_set_sample (cvec_t *s, smpl_t val, uint_t position);
   \param position sample position to read from
 
 */
-smpl_t cvec_norm_get_sample (cvec_t *s, uint_t position);
+AUBIO_API smpl_t cvec_norm_get_sample (cvec_t *s, uint_t position);
 
 /** read phase value from a complex buffer
 
@@ -139,7 +139,7 @@ smpl_t cvec_norm_get_sample (cvec_t *s, uint_t position);
   \returns the value of the sample at position
 
 */
-smpl_t cvec_phas_get_sample (cvec_t *s, uint_t position);
+AUBIO_API smpl_t cvec_phas_get_sample (cvec_t *s, uint_t position);
 
 /** read norm data from a complex buffer
 
@@ -150,7 +150,7 @@ smpl_t cvec_phas_get_sample (cvec_t *s, uint_t position);
   \param s vector to read from
 
 */
-smpl_t * cvec_norm_get_data (const cvec_t *s);
+AUBIO_API smpl_t * cvec_norm_get_data (const cvec_t *s);
 
 /** read phase data from a complex buffer
 
@@ -162,14 +162,14 @@ smpl_t * cvec_norm_get_data (const cvec_t *s);
   \param s vector to read from
 
 */
-smpl_t * cvec_phas_get_data (const cvec_t *s);
+AUBIO_API smpl_t * cvec_phas_get_data (const cvec_t *s);
 
 /** print out cvec data
 
   \param s vector to print out
 
 */
-void cvec_print(const cvec_t *s);
+AUBIO_API void cvec_print(const cvec_t *s);
 
 /** make a copy of a vector
 
@@ -177,7 +177,7 @@ void cvec_print(const cvec_t *s);
   \param t vector to copy to
 
 */
-void cvec_copy(const cvec_t *s, cvec_t *t);
+AUBIO_API void cvec_copy(const cvec_t *s, cvec_t *t);
 
 /** set all norm elements to a given value
 
@@ -185,21 +185,21 @@ void cvec_copy(const cvec_t *s, cvec_t *t);
   \param val value to set elements to
 
 */
-void cvec_norm_set_all (cvec_t *s, smpl_t val);
+AUBIO_API void cvec_norm_set_all (cvec_t *s, smpl_t val);
 
 /** set all norm elements to zero
 
   \param s vector to modify
 
 */
-void cvec_norm_zeros(cvec_t *s);
+AUBIO_API void cvec_norm_zeros(cvec_t *s);
 
 /** set all norm elements to one
 
   \param s vector to modify
 
 */
-void cvec_norm_ones(cvec_t *s);
+AUBIO_API void cvec_norm_ones(cvec_t *s);
 
 /** set all phase elements to a given value
 
@@ -207,28 +207,28 @@ void cvec_norm_ones(cvec_t *s);
   \param val value to set elements to
 
 */
-void cvec_phas_set_all (cvec_t *s, smpl_t val);
+AUBIO_API void cvec_phas_set_all (cvec_t *s, smpl_t val);
 
 /** set all phase elements to zero
 
   \param s vector to modify
 
 */
-void cvec_phas_zeros(cvec_t *s);
+AUBIO_API void cvec_phas_zeros(cvec_t *s);
 
 /** set all phase elements to one
 
   \param s vector to modify
 
 */
-void cvec_phas_ones(cvec_t *s);
+AUBIO_API void cvec_phas_ones(cvec_t *s);
 
 /** set all norm and phas elements to zero
 
   \param s vector to modify
 
 */
-void cvec_zeros(cvec_t *s);
+AUBIO_API void cvec_zeros(cvec_t *s);
 
 /** take logarithmic magnitude
 
@@ -238,7 +238,7 @@ void cvec_zeros(cvec_t *s);
   \f$ S_k = log( \lambda * S_k + 1 ) \f$
 
 */
-void cvec_logmag(cvec_t *s, smpl_t lambda);
+AUBIO_API void cvec_logmag(cvec_t *s, smpl_t lambda);
 
 #ifdef __cplusplus
 }

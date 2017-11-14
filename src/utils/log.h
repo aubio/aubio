@@ -71,7 +71,7 @@ typedef void (*aubio_log_function_t)(sint_t level, const char_t *message, void
   nothing to pass)
 
  */
-void aubio_log_set_function(aubio_log_function_t fun, void* data);
+AUBIO_API void aubio_log_set_function(aubio_log_function_t fun, void* data);
 
 /** Set logging function for a given level
 
@@ -81,7 +81,7 @@ void aubio_log_set_function(aubio_log_function_t fun, void* data);
   nothing to pass)
 
 */
-aubio_log_function_t aubio_log_set_level_function(sint_t level,
+AUBIO_API aubio_log_function_t aubio_log_set_level_function(sint_t level,
     aubio_log_function_t fun, void* data);
 
 /** Reset all logging functions to the default one
@@ -90,7 +90,7 @@ aubio_log_function_t aubio_log_set_level_function(sint_t level,
  print error, warning, normal, and debug messages to `stdout` or `stderr`.
 
  */
-void aubio_log_reset(void);
+AUBIO_API void aubio_log_reset(void);
 
 #ifdef __cplusplus
 }

@@ -49,7 +49,7 @@ typedef struct _aubio_sampler_t aubio_sampler_t;
   \return the newly created ::aubio_sampler_t
 
 */
-aubio_sampler_t * new_aubio_sampler(uint_t samplerate, uint_t hop_size);
+AUBIO_API aubio_sampler_t * new_aubio_sampler(uint_t samplerate, uint_t hop_size);
 
 /** load source in sampler
 
@@ -59,7 +59,7 @@ aubio_sampler_t * new_aubio_sampler(uint_t samplerate, uint_t hop_size);
   \return 0 if successful, non-zero otherwise
 
 */
-uint_t aubio_sampler_load( aubio_sampler_t * o, const char_t * uri );
+AUBIO_API uint_t aubio_sampler_load( aubio_sampler_t * o, const char_t * uri );
 
 /** process sampler function
 
@@ -73,7 +73,7 @@ If `input` is not NULL and different from `output`, then the samples from `input
 are added to the output.
 
 */
-void aubio_sampler_do ( aubio_sampler_t * o, const fvec_t * input, fvec_t * output);
+AUBIO_API void aubio_sampler_do ( aubio_sampler_t * o, const fvec_t * input, fvec_t * output);
 
 /** process sampler function, multiple channels
 
@@ -87,7 +87,7 @@ If `input` is not NULL and different from `output`, then the samples from `input
 are added to the output.
 
 */
-void aubio_sampler_do_multi ( aubio_sampler_t * o, const fmat_t * input, fmat_t * output);
+AUBIO_API void aubio_sampler_do_multi ( aubio_sampler_t * o, const fmat_t * input, fmat_t * output);
 
 /** get current playing state
 
@@ -96,7 +96,7 @@ void aubio_sampler_do_multi ( aubio_sampler_t * o, const fmat_t * input, fmat_t 
   \return 0 if not playing, 1 if playing
 
 */
-uint_t aubio_sampler_get_playing ( const aubio_sampler_t * o );
+AUBIO_API uint_t aubio_sampler_get_playing ( const aubio_sampler_t * o );
 
 /** set current playing state
 
@@ -106,7 +106,7 @@ uint_t aubio_sampler_get_playing ( const aubio_sampler_t * o );
   \return 0 if successful, 1 otherwise
 
 */
-uint_t aubio_sampler_set_playing ( aubio_sampler_t * o, uint_t playing );
+AUBIO_API uint_t aubio_sampler_set_playing ( aubio_sampler_t * o, uint_t playing );
 
 /** play sample from start
 
@@ -115,7 +115,7 @@ uint_t aubio_sampler_set_playing ( aubio_sampler_t * o, uint_t playing );
   \return 0 if successful, 1 otherwise
 
 */
-uint_t aubio_sampler_play ( aubio_sampler_t * o );
+AUBIO_API uint_t aubio_sampler_play ( aubio_sampler_t * o );
 
 /** stop sample
 
@@ -124,14 +124,14 @@ uint_t aubio_sampler_play ( aubio_sampler_t * o );
   \return 0 if successful, 1 otherwise
 
 */
-uint_t aubio_sampler_stop ( aubio_sampler_t * o );
+AUBIO_API uint_t aubio_sampler_stop ( aubio_sampler_t * o );
 
 /** destroy ::aubio_sampler_t object
 
   \param o sampler, created by new_aubio_sampler()
 
 */
-void del_aubio_sampler( aubio_sampler_t * o );
+AUBIO_API void del_aubio_sampler( aubio_sampler_t * o );
 
 #ifdef __cplusplus
 }

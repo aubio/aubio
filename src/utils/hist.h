@@ -42,19 +42,25 @@ typedef struct _aubio_hist_t aubio_hist_t;
   \param nelems number of histogram columns
 
 */
-aubio_hist_t * new_aubio_hist(smpl_t flow, smpl_t fhig, uint_t nelems);
+AUBIO_API aubio_hist_t * new_aubio_hist(smpl_t flow, smpl_t fhig, uint_t nelems);
+
 /** histogram deletion */
-void del_aubio_hist(aubio_hist_t *s);
+AUBIO_API void del_aubio_hist(aubio_hist_t *s);
+
 /** compute the histogram */
-void aubio_hist_do(aubio_hist_t *s, fvec_t * input);
+AUBIO_API void aubio_hist_do(aubio_hist_t *s, fvec_t * input);
+
 /** compute the histogram ignoring null elements */
-void aubio_hist_do_notnull(aubio_hist_t *s, fvec_t * input);
+AUBIO_API void aubio_hist_do_notnull(aubio_hist_t *s, fvec_t * input);
+
 /** compute the mean of the histogram */
-smpl_t aubio_hist_mean(const aubio_hist_t *s);
+AUBIO_API smpl_t aubio_hist_mean(const aubio_hist_t *s);
+
 /** weight the histogram */
-void aubio_hist_weight(aubio_hist_t *s);
+AUBIO_API void aubio_hist_weight(aubio_hist_t *s);
+
 /** compute dynamic histogram for non-null elements */
-void aubio_hist_dyn_notnull (aubio_hist_t *s, fvec_t *input);
+AUBIO_API void aubio_hist_dyn_notnull (aubio_hist_t *s, fvec_t *input);
 
 #ifdef __cplusplus
 }

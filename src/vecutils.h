@@ -36,70 +36,70 @@ extern "C" {
   \param s vector to modify
 
 */
-void fvec_exp (fvec_t *s);
+AUBIO_API void fvec_exp (fvec_t *s);
 
 /** compute \f$cos(x)\f$ of each vector elements
 
   \param s vector to modify
 
 */
-void fvec_cos (fvec_t *s);
+AUBIO_API void fvec_cos (fvec_t *s);
 
 /** compute \f$sin(x)\f$ of each vector elements
 
   \param s vector to modify
 
 */
-void fvec_sin (fvec_t *s);
+AUBIO_API void fvec_sin (fvec_t *s);
 
 /** compute the \f$abs(x)\f$ of each vector elements
 
   \param s vector to modify
 
 */
-void fvec_abs (fvec_t *s);
+AUBIO_API void fvec_abs (fvec_t *s);
 
 /** compute the \f$sqrt(x)\f$ of each vector elements
 
   \param s vector to modify
 
 */
-void fvec_sqrt (fvec_t *s);
+AUBIO_API void fvec_sqrt (fvec_t *s);
 
 /** compute the \f$log10(x)\f$ of each vector elements
 
   \param s vector to modify
 
 */
-void fvec_log10 (fvec_t *s);
+AUBIO_API void fvec_log10 (fvec_t *s);
 
 /** compute the \f$log(x)\f$ of each vector elements
 
   \param s vector to modify
 
 */
-void fvec_log (fvec_t *s);
+AUBIO_API void fvec_log (fvec_t *s);
 
 /** compute the \f$floor(x)\f$ of each vector elements
 
   \param s vector to modify
 
 */
-void fvec_floor (fvec_t *s);
+AUBIO_API void fvec_floor (fvec_t *s);
 
 /** compute the \f$ceil(x)\f$ of each vector elements
 
   \param s vector to modify
 
 */
-void fvec_ceil (fvec_t *s);
+AUBIO_API void fvec_ceil (fvec_t *s);
 
 /** compute the \f$round(x)\f$ of each vector elements
 
   \param s vector to modify
 
 */
-void fvec_round (fvec_t *s);
+AUBIO_API void fvec_round (fvec_t *s);
 
 /** raise each vector elements to the power pow
 
@@ -107,7 +107,7 @@ void fvec_round (fvec_t *s);
   \param pow power to raise to
 
 */
-void fvec_pow (fvec_t *s, smpl_t pow);
+AUBIO_API void fvec_pow (fvec_t *s, smpl_t pow);
 
 #ifdef __cplusplus
 }

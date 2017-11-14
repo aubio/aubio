@@ -49,14 +49,14 @@ typedef struct {
   \param height the height of the matrix to create
 
 */
-fmat_t * new_fmat(uint_t height, uint_t length);
+AUBIO_API fmat_t * new_fmat(uint_t height, uint_t length);
 
 /** fmat_t buffer deletion function
 
   \param s buffer to delete as returned by new_fmat()
 
 */
-void del_fmat(fmat_t *s);
+AUBIO_API void del_fmat(fmat_t *s);
 
 /** read sample value in a buffer
 
@@ -65,7 +65,7 @@ void del_fmat(fmat_t *s);
   \param position sample position to read from
 
 */
-smpl_t fmat_get_sample(const fmat_t *s, uint_t channel, uint_t position);
+AUBIO_API smpl_t fmat_get_sample(const fmat_t *s, uint_t channel, uint_t position);
 
 /** write sample value in a buffer
 
@@ -75,7 +75,7 @@ smpl_t fmat_get_sample(const fmat_t *s, uint_t channel, uint_t position);
   \param position sample position to write to
 
 */
-void  fmat_set_sample(fmat_t *s, smpl_t data, uint_t channel, uint_t position);
+AUBIO_API void  fmat_set_sample(fmat_t *s, smpl_t data, uint_t channel, uint_t position);
 
 /** read channel vector from a buffer
 
@@ -84,7 +84,7 @@ void  fmat_set_sample(fmat_t *s, smpl_t data, uint_t channel, uint_t position);
   \param output ::fvec_t to output to
 
 */
-void fmat_get_channel (const fmat_t *s, uint_t channel, fvec_t *output);
+AUBIO_API void fmat_get_channel (const fmat_t *s, uint_t channel, fvec_t *output);
 
 /** get vector buffer from an fmat data
 
@@ -92,21 +92,21 @@ void fmat_get_channel (const fmat_t *s, uint_t channel, fvec_t *output);
   \param channel channel to read from
 
 */
-smpl_t * fmat_get_channel_data (const fmat_t *s, uint_t channel);
+AUBIO_API smpl_t * fmat_get_channel_data (const fmat_t *s, uint_t channel);
 
 /** read data from a buffer
 
   \param s vector to read from
 
 */
-smpl_t ** fmat_get_data(const fmat_t *s);
+AUBIO_API smpl_t ** fmat_get_data(const fmat_t *s);
 
 /** print out fmat data
 
   \param s vector to print out
 
 */
-void fmat_print(const fmat_t *s);
+AUBIO_API void fmat_print(const fmat_t *s);
 
 /** set all elements to a given value
 
@@ -114,28 +114,28 @@ void fmat_print(const fmat_t *s);
   \param val value to set elements to
 
 */
-void fmat_set(fmat_t *s, smpl_t val);
+AUBIO_API void fmat_set(fmat_t *s, smpl_t val);
 
 /** set all elements to zero
 
   \param s vector to modify
 
 */
-void fmat_zeros(fmat_t *s);
+AUBIO_API void fmat_zeros(fmat_t *s);
 
 /** set all elements to ones
 
   \param s vector to modify
 
 */
-void fmat_ones(fmat_t *s);
+AUBIO_API void fmat_ones(fmat_t *s);
 
 /** revert order of vector elements
 
   \param s vector to revert
 
 */
-void fmat_rev(fmat_t *s);
+AUBIO_API void fmat_rev(fmat_t *s);
 
 /** apply weight to vector
 
@@ -146,7 +146,7 @@ void fmat_rev(fmat_t *s);
   \param weight weighting coefficients
 
 */
-void fmat_weight(fmat_t *s, const fmat_t *weight);
+AUBIO_API void fmat_weight(fmat_t *s, const fmat_t *weight);
 
 /** make a copy of a matrix
 
@@ -154,7 +154,7 @@ void fmat_weight(fmat_t *s, const fmat_t *weight);
   \param t vector to copy to
 
 */
-void fmat_copy(const fmat_t *s, fmat_t *t);
+AUBIO_API void fmat_copy(const fmat_t *s, fmat_t *t);
 
 /** compute the product of a matrix by a vector
 
@@ -163,7 +163,7 @@ void fmat_copy(const fmat_t *s, fmat_t *t);
    \param output vector to store restults in
 
 */
-void fmat_vecmul(const fmat_t *s, const fvec_t *scale, fvec_t *output);
+AUBIO_API void fmat_vecmul(const fmat_t *s, const fvec_t *scale, fvec_t *output);
 
 #ifdef __cplusplus
 }

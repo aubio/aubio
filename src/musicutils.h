@@ -35,7 +35,7 @@ extern "C" {
   \param size length of the window to create (see fvec_set_window())
 
 */
-fvec_t *new_aubio_window (char_t * window_type, uint_t size);
+AUBIO_API fvec_t *new_aubio_window (char_t * window_type, uint_t size);
 
 /** set elements of a vector to window coefficients
 
@@ -60,7 +60,7 @@ Uni- versity of Verona, Italy, 2000.
   pdf</a>)
 
  */
-uint_t fvec_set_window (fvec_t * window, char_t * window_type);
+AUBIO_API uint_t fvec_set_window (fvec_t * window, char_t * window_type);
 
 /** compute the principal argument
 
@@ -72,25 +72,25 @@ range \f$ [-\pi, \pi] \f$.
   \return equivalent phase wrapped to the unit circle
 
 */
-smpl_t aubio_unwrap2pi (smpl_t phase);
+AUBIO_API smpl_t aubio_unwrap2pi (smpl_t phase);
 
 /** convert frequency bin to midi value */
-smpl_t aubio_bintomidi (smpl_t bin, smpl_t samplerate, smpl_t fftsize);
+AUBIO_API smpl_t aubio_bintomidi (smpl_t bin, smpl_t samplerate, smpl_t fftsize);
 
 /** convert midi value to frequency bin */
-smpl_t aubio_miditobin (smpl_t midi, smpl_t samplerate, smpl_t fftsize);
+AUBIO_API smpl_t aubio_miditobin (smpl_t midi, smpl_t samplerate, smpl_t fftsize);
 
 /** convert frequency bin to frequency (Hz) */
-smpl_t aubio_bintofreq (smpl_t bin, smpl_t samplerate, smpl_t fftsize);
+AUBIO_API smpl_t aubio_bintofreq (smpl_t bin, smpl_t samplerate, smpl_t fftsize);
 
 /** convert frequency (Hz) to frequency bin */
-smpl_t aubio_freqtobin (smpl_t freq, smpl_t samplerate, smpl_t fftsize);
+AUBIO_API smpl_t aubio_freqtobin (smpl_t freq, smpl_t samplerate, smpl_t fftsize);
 
 /** convert frequency (Hz) to midi value (0-128) */
-smpl_t aubio_freqtomidi (smpl_t freq);
+AUBIO_API smpl_t aubio_freqtomidi (smpl_t freq);
 
 /** convert midi value (0-128) to frequency (Hz) */
-smpl_t aubio_miditofreq (smpl_t midi);
+AUBIO_API smpl_t aubio_miditofreq (smpl_t midi);
 
 /** clean up cached memory at the end of program
 
@@ -98,7 +98,7 @@ smpl_t aubio_miditofreq (smpl_t midi);
   memory. So far it is only useful to clean FFTW's cache.
 
 */
-void aubio_cleanup (void);
+AUBIO_API void aubio_cleanup (void);
 
 /** zero-crossing rate (ZCR)
 
@@ -110,7 +110,7 @@ void aubio_cleanup (void);
   \return zero-crossing rate of v
 
 */
-smpl_t aubio_zero_crossing_rate (fvec_t * v);
+AUBIO_API smpl_t aubio_zero_crossing_rate (fvec_t * v);
 
 /** compute sound level on a linear scale
 
@@ -121,7 +121,7 @@ smpl_t aubio_zero_crossing_rate (fvec_t * v);
   \return level of v
 
 */
-smpl_t aubio_level_lin (const fvec_t * v);
+AUBIO_API smpl_t aubio_level_lin (const fvec_t * v);
 
 /** compute sound pressure level (SPL) in dB
 
@@ -134,7 +134,7 @@ smpl_t aubio_level_lin (const fvec_t * v);
   \return level of v in dB SPL
 
 */
-smpl_t aubio_db_spl (const fvec_t * v);
+AUBIO_API smpl_t aubio_db_spl (const fvec_t * v);
 
 /** check if buffer level in dB SPL is under a given threshold
 
@@ -144,7 +144,7 @@ smpl_t aubio_db_spl (const fvec_t * v);
   \return 0 if level is under the given threshold, 1 otherwise
 
 */
-uint_t aubio_silence_detection (const fvec_t * v, smpl_t threshold);
+AUBIO_API uint_t aubio_silence_detection (const fvec_t * v, smpl_t threshold);
 
 /** get buffer level if level >= threshold, 1. otherwise
 
@@ -154,7 +154,7 @@ uint_t aubio_silence_detection (const fvec_t * v, smpl_t threshold);
   \return level in dB SPL if level >= threshold, 1. otherwise
 
 */
-smpl_t aubio_level_detection (const fvec_t * v, smpl_t threshold);
+AUBIO_API smpl_t aubio_level_detection (const fvec_t * v, smpl_t threshold);
 
 /** clamp the values of a vector within the range [-abs(max), abs(max)]
 
@@ -162,7 +162,7 @@ smpl_t aubio_level_detection (const fvec_t * v, smpl_t threshold);
   \param absmax maximum value over which input vector elements should be clamped
 
 */
-void fvec_clamp(fvec_t *in, smpl_t absmax);
+AUBIO_API void fvec_clamp(fvec_t *in, smpl_t absmax);
 
 #ifdef __cplusplus
 }

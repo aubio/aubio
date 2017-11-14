@@ -52,14 +52,14 @@ typedef struct _aubio_tss_t aubio_tss_t;
   \param hop_size step size
 
 */
-aubio_tss_t *new_aubio_tss (uint_t buf_size, uint_t hop_size);
+AUBIO_API aubio_tss_t *new_aubio_tss (uint_t buf_size, uint_t hop_size);
 
 /** delete tss object
 
   \param o tss object as returned by new_aubio_tss()
 
 */
-void del_aubio_tss (aubio_tss_t * o);
+AUBIO_API void del_aubio_tss (aubio_tss_t * o);
 
 /** split input into transient and steady states components
 
@@ -69,7 +69,7 @@ void del_aubio_tss (aubio_tss_t * o);
   \param stead output steady state components
 
 */
-void aubio_tss_do (aubio_tss_t * o, const cvec_t * input, cvec_t * trans,
+AUBIO_API void aubio_tss_do (aubio_tss_t * o, const cvec_t * input, cvec_t * trans,
     cvec_t * stead);
 
 /** set transient / steady state separation threshold
@@ -78,7 +78,7 @@ void aubio_tss_do (aubio_tss_t * o, const cvec_t * input, cvec_t * trans,
   \param thrs new threshold value
 
 */
-uint_t aubio_tss_set_threshold (aubio_tss_t * o, smpl_t thrs);
+AUBIO_API uint_t aubio_tss_set_threshold (aubio_tss_t * o, smpl_t thrs);
 
 /** set parameter a, defaults to 3
 
@@ -86,7 +86,7 @@ uint_t aubio_tss_set_threshold (aubio_tss_t * o, smpl_t thrs);
   \param alpha new value for alpha parameter
 
 */
-uint_t aubio_tss_set_alpha (aubio_tss_t * o, smpl_t alpha);
+AUBIO_API uint_t aubio_tss_set_alpha (aubio_tss_t * o, smpl_t alpha);
 
 /** set parameter b, defaults to 3
 
@@ -94,7 +94,7 @@ uint_t aubio_tss_set_alpha (aubio_tss_t * o, smpl_t alpha);
   \param beta new value for beta parameter
 
 */
-uint_t aubio_tss_set_beta (aubio_tss_t * o, smpl_t beta);
+AUBIO_API uint_t aubio_tss_set_beta (aubio_tss_t * o, smpl_t beta);
 
 #ifdef __cplusplus
 }
