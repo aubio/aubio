@@ -47,3 +47,11 @@ dist/*.tar.gz
 # test sounds
 python/tests/sounds
 aubio.egg-info
+
+# Visual Studio
+*.suo
+*.user
+*.VC.db
+*.VC.opendb
+vs2017/.bin/
+vs2017/.obj/

@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{0A08526C-9191-419E-A83C-FBF44731BBF0}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>aubio</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir).bin\$(PlatformTarget)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir).obj\$(PlatformTarget)\$(Configuration)\</IntDir>
+    <TargetName>libaubio-6</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir).bin\$(PlatformTarget)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir).obj\$(PlatformTarget)\$(Configuration)\</IntDir>
+    <TargetName>libaubio-6</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir).bin\$(PlatformTarget)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir).obj\$(PlatformTarget)\$(Configuration)\</IntDir>
+    <TargetName>libaubio-6</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir).bin\$(PlatformTarget)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir).obj\$(PlatformTarget)\$(Configuration)\</IntDir>
+    <TargetName>libaubio-6</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;AUBIO_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);HAVE_CONFIG_H</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\src</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <ModuleDefinitionFile>libaubio-6.def</ModuleDefinitionFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;AUBIO_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);HAVE_CONFIG_H</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\src</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <ModuleDefinitionFile>libaubio-6.def</ModuleDefinitionFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;AUBIO_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);HAVE_CONFIG_H</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\src</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <ModuleDefinitionFile>libaubio-6.def</ModuleDefinitionFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;AUBIO_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);HAVE_CONFIG_H</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\src</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <ModuleDefinitionFile>libaubio-6.def</ModuleDefinitionFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\aubio.h" />
+    <ClInclude Include="..\src\aubio_priv.h" />
+    <ClInclude Include="..\src\cvec.h" />
+    <ClInclude Include="..\src\fmat.h" />
+    <ClInclude Include="..\src\fvec.h" />
+    <ClInclude Include="..\src\io\audio_unit.h" />
+    <ClInclude Include="..\src\io\ioutils.h" />
+    <ClInclude Include="..\src\io\sink.h" />
+    <ClInclude Include="..\src\io\sink_apple_audio.h" />
+    <ClInclude Include="..\src\io\sink_sndfile.h" />
+    <ClInclude Include="..\src\io\sink_wavwrite.h" />
+    <ClInclude Include="..\src\io\source.h" />
+    <ClInclude Include="..\src\io\source_apple_audio.h" />
+    <ClInclude Include="..\src\io\source_avcodec.h" />
+    <ClInclude Include="..\src\io\source_sndfile.h" />
+    <ClInclude Include="..\src\io\source_wavread.h" />
+    <ClInclude Include="..\src\lvec.h" />
+    <ClInclude Include="..\src\mathutils.h" />
+    <ClInclude Include="..\src\musicutils.h" />
+    <ClInclude Include="..\src\notes\notes.h" />
+    <ClInclude Include="..\src\onset\onset.h" />
+    <ClInclude Include="..\src\onset\peakpicker.h" />
+    <ClInclude Include="..\src\pitch\pitch.h" />
+    <ClInclude Include="..\src\pitch\pitchfcomb.h" />
+    <ClInclude Include="..\src\pitch\pitchmcomb.h" />
+    <ClInclude Include="..\src\pitch\pitchschmitt.h" />
+    <ClInclude Include="..\src\pitch\pitchspecacf.h" />
+    <ClInclude Include="..\src\pitch\pitchyin.h" />
+    <ClInclude Include="..\src\pitch\pitchyinfast.h" />
+    <ClInclude Include="..\src\pitch\pitchyinfft.h" />
+    <ClInclude Include="..\src\spectral\awhitening.h" />
+    <ClInclude Include="..\src\spectral\fft.h" />
+    <ClInclude Include="..\src\spectral\filterbank.h" />
+    <ClInclude Include="..\src\spectral\filterbank_mel.h" />
+    <ClInclude Include="..\src\spectral\mfcc.h" />
+    <ClInclude Include="..\src\spectral\phasevoc.h" />
+    <ClInclude Include="..\src\spectral\specdesc.h" />
+    <ClInclude Include="..\src\spectral\tss.h" />
+    <ClInclude Include="..\src\synth\sampler.h" />
+    <ClInclude Include="..\src\synth\wavetable.h" />
+    <ClInclude Include="..\src\temporal\a_weighting.h" />
+    <ClInclude Include="..\src\temporal\biquad.h" />
+    <ClInclude Include="..\src\temporal\c_weighting.h" />
+    <ClInclude Include="..\src\temporal\filter.h" />
+    <ClInclude Include="..\src\temporal\resampler.h" />
+    <ClInclude Include="..\src\tempo\beattracking.h" />
+    <ClInclude Include="..\src\tempo\tempo.h" />
+    <ClInclude Include="..\src\types.h" />
+    <ClInclude Include="..\src\utils\hist.h" />
+    <ClInclude Include="..\src\utils\log.h" />
+    <ClInclude Include="..\src\utils\parameter.h" />
+    <ClInclude Include="..\src\utils\scale.h" />
+    <ClInclude Include="..\src\vecutils.h" />
+    <ClInclude Include="config.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\cvec.c" />
+    <ClCompile Include="..\src\fmat.c" />
+    <ClCompile Include="..\src\fvec.c" />
+    <ClCompile Include="..\src\io\audio_unit.c" />
+    <ClCompile Include="..\src\io\ioutils.c" />
+    <ClCompile Include="..\src\io\sink.c" />
+    <ClCompile Include="..\src\io\sink_apple_audio.c" />
+    <ClCompile Include="..\src\io\sink_sndfile.c" />
+    <ClCompile Include="..\src\io\sink_wavwrite.c" />
+    <ClCompile Include="..\src\io\source.c" />
+    <ClCompile Include="..\src\io\source_apple_audio.c" />
+    <ClCompile Include="..\src\io\source_avcodec.c" />
+    <ClCompile Include="..\src\io\source_sndfile.c" />
+    <ClCompile Include="..\src\io\source_wavread.c" />
+    <ClCompile Include="..\src\io\utils_apple_audio.c" />
+    <ClCompile Include="..\src\lvec.c" />
+    <ClCompile Include="..\src\mathutils.c" />
+    <ClCompile Include="..\src\notes\notes.c" />
+    <ClCompile Include="..\src\onset\onset.c" />
+    <ClCompile Include="..\src\onset\peakpicker.c" />
+    <ClCompile Include="..\src\pitch\pitch.c" />
+    <ClCompile Include="..\src\pitch\pitchfcomb.c" />
+    <ClCompile Include="..\src\pitch\pitchmcomb.c" />
+    <ClCompile Include="..\src\pitch\pitchschmitt.c" />
+    <ClCompile Include="..\src\pitch\pitchspecacf.c" />
+    <ClCompile Include="..\src\pitch\pitchyin.c" />
+    <ClCompile Include="..\src\pitch\pitchyinfast.c" />
+    <ClCompile Include="..\src\pitch\pitchyinfft.c" />
+    <ClCompile Include="..\src\spectral\awhitening.c" />
+    <ClCompile Include="..\src\spectral\fft.c" />
+    <ClCompile Include="..\src\spectral\filterbank.c" />
+    <ClCompile Include="..\src\spectral\filterbank_mel.c" />
+    <ClCompile Include="..\src\spectral\mfcc.c" />
+    <ClCompile Include="..\src\spectral\ooura_fft8g.c" />
+    <ClCompile Include="..\src\spectral\phasevoc.c" />
+    <ClCompile Include="..\src\spectral\specdesc.c" />
+    <ClCompile Include="..\src\spectral\statistics.c" />
+    <ClCompile Include="..\src\spectral\tss.c" />
+    <ClCompile Include="..\src\synth\sampler.c" />
+    <ClCompile Include="..\src\synth\wavetable.c" />
+    <ClCompile Include="..\src\temporal\a_weighting.c" />
+    <ClCompile Include="..\src\temporal\biquad.c" />
+    <ClCompile Include="..\src\temporal\c_weighting.c" />
+    <ClCompile Include="..\src\temporal\filter.c" />
+    <ClCompile Include="..\src\temporal\resampler.c" />
+    <ClCompile Include="..\src\tempo\beattracking.c" />
+    <ClCompile Include="..\src\tempo\tempo.c" />
+    <ClCompile Include="..\src\utils\hist.c" />
+    <ClCompile Include="..\src\utils\log.c" />
+    <ClCompile Include="..\src\utils\parameter.c" />
+    <ClCompile Include="..\src\utils\scale.c" />
+    <ClCompile Include="..\src\utils\windll.c" />
+    <ClCompile Include="..\src\vecutils.c" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
