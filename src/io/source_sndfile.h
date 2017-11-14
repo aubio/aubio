@@ -56,7 +56,7 @@ typedef struct _aubio_source_sndfile_t aubio_source_sndfile_t;
   ::aubio_source_sndfile_get_samplerate.
 
 */
-aubio_source_sndfile_t * new_aubio_source_sndfile(const char_t * uri, uint_t samplerate, uint_t hop_size);
+AUBIO_API aubio_source_sndfile_t * new_aubio_source_sndfile(const char_t * uri, uint_t samplerate, uint_t hop_size);
 
 /**
 
@@ -70,7 +70,7 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(const char_t * uri, uint_t sam
   source. `hop_size` if enough frames could be read, less otherwise.
 
 */
-void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_to, uint_t * read);
+AUBIO_API void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_to, uint_t * read);
 
 /**
 
@@ -84,7 +84,7 @@ void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_to, uint_
   source. `hop_size` if enough frames could be read, less otherwise.
 
 */
-void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_to, uint_t * read);
+AUBIO_API void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_to, uint_t * read);
 
 /**
 
@@ -94,7 +94,7 @@ void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_to,
   \return samplerate, in Hz
 
 */
-uint_t aubio_source_sndfile_get_samplerate(aubio_source_sndfile_t * s);
+AUBIO_API uint_t aubio_source_sndfile_get_samplerate(aubio_source_sndfile_t * s);
 
 /**
 
@@ -104,7 +104,7 @@ uint_t aubio_source_sndfile_get_samplerate(aubio_source_sndfile_t * s);
   \return number of channels
 
 */
-uint_t aubio_source_sndfile_get_channels (aubio_source_sndfile_t * s);
+AUBIO_API uint_t aubio_source_sndfile_get_channels (aubio_source_sndfile_t * s);
 
 /**
 
@@ -116,7 +116,7 @@ uint_t aubio_source_sndfile_get_channels (aubio_source_sndfile_t * s);
   \return 0 if sucessful, non-zero on failure
 
 */
-uint_t aubio_source_sndfile_seek (aubio_source_sndfile_t *s, uint_t pos);
+AUBIO_API uint_t aubio_source_sndfile_seek (aubio_source_sndfile_t *s, uint_t pos);
 
 /**
 
@@ -126,7 +126,7 @@ uint_t aubio_source_sndfile_seek (aubio_source_sndfile_t *s, uint_t pos);
   \return number of frames in file
 
 */
-uint_t aubio_source_sndfile_get_duration (const aubio_source_sndfile_t *s);
+AUBIO_API uint_t aubio_source_sndfile_get_duration (const aubio_source_sndfile_t *s);
 
 /**
 
@@ -137,7 +137,7 @@ uint_t aubio_source_sndfile_get_duration (const aubio_source_sndfile_t *s);
   \return 0 if sucessful, non-zero on failure
 
 */
-uint_t aubio_source_sndfile_close (aubio_source_sndfile_t *s);
+AUBIO_API uint_t aubio_source_sndfile_close (aubio_source_sndfile_t *s);
 
 /**
 
@@ -146,7 +146,7 @@ uint_t aubio_source_sndfile_close (aubio_source_sndfile_t *s);
   \param s source object, created with ::new_aubio_source_sndfile
 
 */
-void del_aubio_source_sndfile(aubio_source_sndfile_t * s);
+AUBIO_API void del_aubio_source_sndfile(aubio_source_sndfile_t * s);
 
 #ifdef __cplusplus
 }

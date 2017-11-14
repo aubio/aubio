@@ -57,7 +57,7 @@ typedef struct _aubio_sink_wavwrite_t aubio_sink_wavwrite_t;
   been called.
 
 */
-aubio_sink_wavwrite_t * new_aubio_sink_wavwrite(const char_t * uri, uint_t samplerate);
+AUBIO_API aubio_sink_wavwrite_t * new_aubio_sink_wavwrite(const char_t * uri, uint_t samplerate);
 
 /**
 
@@ -74,7 +74,7 @@ aubio_sink_wavwrite_t * new_aubio_sink_wavwrite(const char_t * uri, uint_t sampl
   The file will be opened only when both samplerate and channels have been set.
 
 */
-uint_t aubio_sink_wavwrite_preset_samplerate(aubio_sink_wavwrite_t *s, uint_t samplerate);
+AUBIO_API uint_t aubio_sink_wavwrite_preset_samplerate(aubio_sink_wavwrite_t *s, uint_t samplerate);
 
 /**
 
@@ -91,7 +91,7 @@ uint_t aubio_sink_wavwrite_preset_samplerate(aubio_sink_wavwrite_t *s, uint_t sa
   The file will be opened only when both samplerate and channels have been set.
 
 */
-uint_t aubio_sink_wavwrite_preset_channels(aubio_sink_wavwrite_t *s, uint_t channels);
+AUBIO_API uint_t aubio_sink_wavwrite_preset_channels(aubio_sink_wavwrite_t *s, uint_t channels);
 
 /**
 
@@ -101,7 +101,7 @@ uint_t aubio_sink_wavwrite_preset_channels(aubio_sink_wavwrite_t *s, uint_t chan
   \return samplerate, in Hz
 
 */
-uint_t aubio_sink_wavwrite_get_samplerate(const aubio_sink_wavwrite_t *s);
+AUBIO_API uint_t aubio_sink_wavwrite_get_samplerate(const aubio_sink_wavwrite_t *s);
 
 /**
 
@@ -111,7 +111,7 @@ uint_t aubio_sink_wavwrite_get_samplerate(const aubio_sink_wavwrite_t *s);
   \return number of channels
 
 */
-uint_t aubio_sink_wavwrite_get_channels(const aubio_sink_wavwrite_t *s);
+AUBIO_API uint_t aubio_sink_wavwrite_get_channels(const aubio_sink_wavwrite_t *s);
 
 /**
 
@@ -122,7 +122,7 @@ uint_t aubio_sink_wavwrite_get_channels(const aubio_sink_wavwrite_t *s);
   \param write number of frames to write
 
 */
-void aubio_sink_wavwrite_do(aubio_sink_wavwrite_t * s, fvec_t * write_data, uint_t write);
+AUBIO_API void aubio_sink_wavwrite_do(aubio_sink_wavwrite_t * s, fvec_t * write_data, uint_t write);
 
 /**
 
@@ -133,7 +133,7 @@ void aubio_sink_wavwrite_do(aubio_sink_wavwrite_t * s, fvec_t * write_data, uint
   \param write number of frames to write
 
 */
-void aubio_sink_wavwrite_do_multi(aubio_sink_wavwrite_t * s, fmat_t * write_data, uint_t write);
+AUBIO_API void aubio_sink_wavwrite_do_multi(aubio_sink_wavwrite_t * s, fmat_t * write_data, uint_t write);
 
 /**
 
@@ -144,7 +144,7 @@ void aubio_sink_wavwrite_do_multi(aubio_sink_wavwrite_t * s, fmat_t * write_data
   \return 0 on success, non-zero on failure
 
 */
-uint_t aubio_sink_wavwrite_close(aubio_sink_wavwrite_t * s);
+AUBIO_API uint_t aubio_sink_wavwrite_close(aubio_sink_wavwrite_t * s);
 
 /**
 
@@ -153,7 +153,7 @@ uint_t aubio_sink_wavwrite_close(aubio_sink_wavwrite_t * s);
   \param s sink, created with ::new_aubio_sink_wavwrite
 
 */
-void del_aubio_sink_wavwrite(aubio_sink_wavwrite_t * s);
+AUBIO_API void del_aubio_sink_wavwrite(aubio_sink_wavwrite_t * s);
 
 #ifdef __cplusplus
 }

@@ -53,7 +53,7 @@ typedef struct _aubio_beattracking_t aubio_beattracking_t;
   \param samplerate samplerate of the input signal
 
 */
-aubio_beattracking_t * new_aubio_beattracking(uint_t winlen, uint_t hop_size,
+AUBIO_API aubio_beattracking_t * new_aubio_beattracking(uint_t winlen, uint_t hop_size,
     uint_t samplerate);
 
 /** track the beat
@@ -64,7 +64,7 @@ aubio_beattracking_t * new_aubio_beattracking(uint_t winlen, uint_t hop_size,
   \param out stored detected beat locations
 
 */
-void aubio_beattracking_do (aubio_beattracking_t * bt, const fvec_t * dfframes,
+AUBIO_API void aubio_beattracking_do (aubio_beattracking_t * bt, const fvec_t * dfframes,
     fvec_t * out);
 
 /** get current beat period in samples
@@ -75,7 +75,7 @@ void aubio_beattracking_do (aubio_beattracking_t * bt, const fvec_t * dfframes,
   value is found.
 
 */
-smpl_t aubio_beattracking_get_period (const aubio_beattracking_t * bt);
+AUBIO_API smpl_t aubio_beattracking_get_period (const aubio_beattracking_t * bt);
 
 /** get current beat period in seconds
 
@@ -85,7 +85,7 @@ smpl_t aubio_beattracking_get_period (const aubio_beattracking_t * bt);
   value is found.
 
 */
-smpl_t aubio_beattracking_get_period_s (const aubio_beattracking_t * bt);
+AUBIO_API smpl_t aubio_beattracking_get_period_s (const aubio_beattracking_t * bt);
 
 /** get current tempo in bpm
 
@@ -95,7 +95,7 @@ smpl_t aubio_beattracking_get_period_s (const aubio_beattracking_t * bt);
   consistent value is found.
 
 */
-smpl_t aubio_beattracking_get_bpm(const aubio_beattracking_t * bt);
+AUBIO_API smpl_t aubio_beattracking_get_bpm(const aubio_beattracking_t * bt);
 
 /** get current tempo confidence
 
@@ -105,14 +105,14 @@ smpl_t aubio_beattracking_get_bpm(const aubio_beattracking_t * bt);
   consistent value is found.
 
 */
-smpl_t aubio_beattracking_get_confidence(const aubio_beattracking_t * bt);
+AUBIO_API smpl_t aubio_beattracking_get_confidence(const aubio_beattracking_t * bt);
 
 /** delete beat tracking object
 
   \param p beat tracking object
 
 */
-void del_aubio_beattracking(aubio_beattracking_t * p);
+AUBIO_API void del_aubio_beattracking(aubio_beattracking_t * p);
 
 #ifdef __cplusplus
 }

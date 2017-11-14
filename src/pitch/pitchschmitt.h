@@ -51,7 +51,7 @@ typedef struct _aubio_pitchschmitt_t aubio_pitchschmitt_t;
   \param cands_out pitch period estimates, in samples
 
 */
-void aubio_pitchschmitt_do (aubio_pitchschmitt_t * p, const fvec_t * samples_in,
+AUBIO_API void aubio_pitchschmitt_do (aubio_pitchschmitt_t * p, const fvec_t * samples_in,
     fvec_t * cands_out);
 
 /** creation of the pitch detection object
@@ -59,14 +59,14 @@ void aubio_pitchschmitt_do (aubio_pitchschmitt_t * p, const fvec_t * samples_in,
   \param buf_size size of the input buffer to analyse
 
 */
-aubio_pitchschmitt_t *new_aubio_pitchschmitt (uint_t buf_size);
+AUBIO_API aubio_pitchschmitt_t *new_aubio_pitchschmitt (uint_t buf_size);
 
 /** deletion of the pitch detection object
 
   \param p pitch detection object as returned by new_aubio_pitchschmitt
 
 */
-void del_aubio_pitchschmitt (aubio_pitchschmitt_t * p);
+AUBIO_API void del_aubio_pitchschmitt (aubio_pitchschmitt_t * p);
 
 #ifdef __cplusplus
 }
