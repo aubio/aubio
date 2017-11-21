@@ -160,6 +160,15 @@ smpl_t aubio_tempo_get_bpm(aubio_tempo_t * o);
 */
 smpl_t aubio_tempo_get_confidence(aubio_tempo_t * o);
 
+/** get sample rate of signal analyzed
+
+  \param o beat tracking object
+
+  \return the sample rate of the signal analyzed by the instance.
+
+*/
+uint_t aubio_tempo_get_samplerate(aubio_tempo_t * o);
+
 /** set number of tatum per beat
 
    \param o beat tracking object
