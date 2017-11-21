@@ -132,7 +132,7 @@ uint_t aubio_tempo_set_delay_ms(aubio_tempo_t * o, smpl_t delay) {
   return AUBIO_OK;
 }
 
-uint_t aubio_tempo_get_delay(aubio_tempo_t * o) {
+sint_t aubio_tempo_get_delay(aubio_tempo_t * o) {
   return o->delay;
 }
 

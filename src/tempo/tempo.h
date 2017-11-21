@@ -200,7 +200,7 @@ smpl_t aubio_tempo_get_last_tatum(aubio_tempo_t *o);
   \return current delay, in samples
 
  */
-uint_t aubio_tempo_get_delay(aubio_tempo_t * o);
+sint_t aubio_tempo_get_delay(aubio_tempo_t * o);
 
 /** get current delay in seconds
 
