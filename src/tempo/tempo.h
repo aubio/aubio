@@ -129,7 +129,7 @@ smpl_t aubio_tempo_get_threshold(aubio_tempo_t * o);
   value is found.
 
 */
-smpl_t aubio_tempo_get_period (aubio_tempo_t * bt);
+sint_t aubio_tempo_get_period (aubio_tempo_t * bt);
 
 /** get current beat period in seconds
 

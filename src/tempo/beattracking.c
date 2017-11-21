@@ -408,7 +408,7 @@ aubio_beattracking_checkstate (aubio_beattracking_t * bt)
   bt->rp2 = rp2;
 }
 
-smpl_t
+sint_t
 aubio_beattracking_get_period (const aubio_beattracking_t * bt)
 {
   return bt->hop_size * bt->bp;
