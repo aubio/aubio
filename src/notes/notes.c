@@ -134,6 +134,11 @@ uint_t aubio_notes_set_minioi_ms (aubio_notes_t *o, smpl_t minioi_ms)
   return err;
 }
 
+uint_t aubio_notes_get_samplerate(const aubio_notes_t * o)
+{
+	return o->samplerate;
+}
+
 smpl_t aubio_notes_get_minioi_ms(const aubio_notes_t *o)
 {
   return aubio_onset_get_minioi_ms(o->onset);

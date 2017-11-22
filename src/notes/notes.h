@@ -106,6 +106,15 @@ smpl_t aubio_notes_get_minioi_ms(const aubio_notes_t *o);
 */
 uint_t aubio_notes_set_minioi_ms (aubio_notes_t *o, smpl_t minioi_ms);
 
+/** get sample rate of signal analyzed
+
+\param o notes detection object as returned by new_aubio_notes()
+
+\return the sample rate of the signal analyzed by the instance
+
+*/
+uint_t aubio_notes_get_samplerate(const aubio_notes_t * o);
+
 #ifdef __cplusplus
 }
 #endif
