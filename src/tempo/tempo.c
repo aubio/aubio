@@ -247,6 +247,11 @@ uint_t aubio_tempo_get_samplerate(aubio_tempo_t * o)
 	return o->samplerate;
 }
 
+uint_t aubio_tempo_get_tatum_signature(aubio_tempo_t* o)
+{
+	return o->tatum_signature;
+}
+
 uint_t aubio_tempo_was_tatum (aubio_tempo_t *o)
 {
   uint_t last_tatum_distance = o->total_frames - o->last_tatum;

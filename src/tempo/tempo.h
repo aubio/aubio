@@ -169,6 +169,15 @@ smpl_t aubio_tempo_get_confidence(aubio_tempo_t * o);
 */
 uint_t aubio_tempo_get_samplerate(aubio_tempo_t * o);
 
+/** get number of tatum per beat
+
+  \param o beat tracking object
+
+  \return signature number of tatum per beat (between 1 and 64)
+
+*/
+uint_t aubio_tempo_get_tatum_signature(aubio_tempo_t* o);
+
 /** set number of tatum per beat
 
    \param o beat tracking object
