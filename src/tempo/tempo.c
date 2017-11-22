@@ -272,8 +272,8 @@ uint_t aubio_tempo_was_tatum (aubio_tempo_t *o)
   return 0;
 }
 
-smpl_t aubio_tempo_get_last_tatum (aubio_tempo_t *o) {
-  return (smpl_t)o->last_tatum - o->delay;
+sint_t aubio_tempo_get_last_tatum (aubio_tempo_t *o) {
+  return o->last_tatum - o->delay;
 }
 
 uint_t aubio_tempo_set_tatum_signature (aubio_tempo_t *o, uint_t signature) {

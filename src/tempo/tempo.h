@@ -200,7 +200,7 @@ uint_t aubio_tempo_was_tatum(aubio_tempo_t *o);
    \param o beat tracking object
 
 */
-smpl_t aubio_tempo_get_last_tatum(aubio_tempo_t *o);
+sint_t aubio_tempo_get_last_tatum(aubio_tempo_t *o);
 
 /** get current delay
 
