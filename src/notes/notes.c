@@ -56,6 +56,8 @@ struct _aubio_notes_t {
   smpl_t silence_threshold;
 
   uint_t isready;
+
+  smpl_t cent_precision;
 };
 
 aubio_notes_t * new_aubio_notes (const char_t * method,
@@ -77,6 +79,8 @@ aubio_notes_t * new_aubio_notes (const char_t * method,
   o->median = 6;
 
   o->isready = 0;
+
+  o->cent_precision = (smpl_t) AUBIO_DEFAULT_CENT_PRECISION;
 
   o->onset = new_aubio_onset (onset_method, o->onset_buf_size, o->hop_size, o->samplerate);
   if (o->onset_threshold != 0.) aubio_onset_set_threshold (o->onset, o->onset_threshold);
@@ -139,6 +143,20 @@ uint_t aubio_notes_get_samplerate(const aubio_notes_t * o)
 	return o->samplerate;
 }
 
+smpl_t aubio_notes_get_cent_precision(const aubio_notes_t* o)
+{
+	return o->cent_precision;
+}
+
+uint_t aubio_notes_set_cent_precision(aubio_notes_t* o, smpl_t precision)
+{
+	if (precision < 1.0f)
+		return AUBIO_FAIL;
+
+	o->cent_precision = precision;
+	return AUBIO_OK;
+}
+
 smpl_t aubio_notes_get_minioi_ms(const aubio_notes_t *o)
 {
   return aubio_onset_get_minioi_ms(o->onset);
@@ -147,14 +165,14 @@ smpl_t aubio_notes_get_minioi_ms(const aubio_notes_t *o)
 /** append new note candidate to the note_buffer and return filtered value. we
  * need to copy the input array as fvec_median destroy its input data.*/
 static void
-note_append (fvec_t * note_buffer, smpl_t curnote)
+note_append (fvec_t * note_buffer, smpl_t curnote, smpl_t cent_precision)
 {
   uint_t i = 0;
   for (i = 0; i < note_buffer->length - 1; i++) {
     note_buffer->data[i] = note_buffer->data[i + 1];
   }
   //note_buffer->data[note_buffer->length - 1] = ROUND(10.*curnote)/10.;
-  note_buffer->data[note_buffer->length - 1] = ROUND(AUBIO_DEFAULT_CENT_PRECISION*curnote);
+  note_buffer->data[note_buffer->length - 1] = ROUND(cent_precision*curnote);
   return;
 }
 
@@ -162,7 +180,7 @@ static smpl_t
 aubio_notes_get_latest_note (aubio_notes_t *o)
 {
   fvec_copy(o->note_buffer, o->note_buffer2);
-  return fvec_median (o->note_buffer2) / AUBIO_DEFAULT_CENT_PRECISION;
+  return fvec_median (o->note_buffer2) / o->cent_precision;
 }
 
 
@@ -175,7 +193,7 @@ void aubio_notes_do (aubio_notes_t *o, const fvec_t * input, fvec_t * notes)
   aubio_pitch_do (o->pitch, input, o->pitch_output);
   new_pitch = o->pitch_output->data[0];
   if(o->median){
-    note_append(o->note_buffer, new_pitch);
+    note_append(o->note_buffer, new_pitch, o->cent_precision);
   }
 
   /* curlevel is negatif or 1 if silence */

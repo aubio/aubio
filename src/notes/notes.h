@@ -115,6 +115,27 @@ uint_t aubio_notes_set_minioi_ms (aubio_notes_t *o, smpl_t minioi_ms);
 */
 uint_t aubio_notes_get_samplerate(const aubio_notes_t * o);
 
+/**
+	get cent precision used for analysis, default is 1.
+
+	\param o notes detection object as returned by new_aubio_notes()
+
+	\return the cent precision used by the instance
+*/
+smpl_t aubio_notes_get_cent_precision(const aubio_notes_t* o);
+
+/**
+	set cent precision used for analysis
+
+	\param o notes detection object as returned by new_aubio_notes()
+	\param precision the cent precision used by the instance
+
+	\return 0 on success, non-zero otherwise
+
+	Default value is 1., use 10. for .1 precision, 100. for .01 etc
+*/
+uint_t aubio_notes_set_cent_precision(aubio_notes_t* o, smpl_t precision);
+
 #ifdef __cplusplus
 }
 #endif
