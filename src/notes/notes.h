@@ -36,12 +36,12 @@ typedef struct _aubio_notes_t aubio_notes_t;
 
 /** create notes detection object
 
-  \param method notes detection type as specified in specdesc.h
+  \param method notes detection type, unused for now (use "default")
   \param buf_size buffer size for phase vocoder
   \param hop_size hop size for phase vocoder
   \param samplerate sampling rate of the input signal
 
-  \return newly created ::aubio_notes_t
+  \return newly created ::aubio_notes_t or NULL if failed
 
 */
 aubio_notes_t * new_aubio_notes (const char_t * method,
