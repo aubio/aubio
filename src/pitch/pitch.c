@@ -301,6 +301,41 @@ aubio_pitch_slideblock (aubio_pitch_t * p, const fvec_t * ibuf)
 #endif
 }
 
+void
+apply_pitch_mode(aubio_pitch_t * p)
+{
+	switch (p->mode) {
+	case aubio_pitchm_freq:
+		p->conv_cb = freqconvpass;
+		break;
+	case aubio_pitchm_midi:
+		p->conv_cb = freqconvmidi;
+		break;
+	case aubio_pitchm_cent:
+		/* bug: not implemented */
+		p->conv_cb = freqconvmidi;
+		break;
+	case aubio_pitchm_bin:
+		p->conv_cb = freqconvbin;
+		break;
+	default:
+		break;
+	}
+}
+
+aubio_pitch_mode
+aubio_pitch_get_mode(const aubio_pitch_t* p)
+{
+	return p->mode;
+}
+
+void
+aubio_pitch_set_mode(aubio_pitch_t* p, aubio_pitch_mode mode)
+{
+	p->mode = mode;
+	apply_pitch_mode(p);
+}
+
 uint_t
 aubio_pitch_set_unit (aubio_pitch_t * p, const char_t * pitch_unit)
 {
@@ -331,23 +366,8 @@ aubio_pitch_set_unit (aubio_pitch_t * p, const char_t * pitch_unit)
     err = AUBIO_FAIL;
   }
   p->mode = pitch_mode;
-  switch (p->mode) {
-    case aubio_pitchm_freq:
-      p->conv_cb = freqconvpass;
-      break;
-    case aubio_pitchm_midi:
-      p->conv_cb = freqconvmidi;
-      break;
-    case aubio_pitchm_cent:
-      /* bug: not implemented */
-      p->conv_cb = freqconvmidi;
-      break;
-    case aubio_pitchm_bin:
-      p->conv_cb = freqconvbin;
-      break;
-    default:
-      break;
-  }
+  apply_pitch_mode(p);
+
   return err;
 }
 

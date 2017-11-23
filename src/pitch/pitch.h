@@ -204,6 +204,23 @@ aubio_pitch_t *new_aubio_pitch (const char_t * method,
 aubio_pitch_t *new_aubio_pitch2 (aubio_pitch_type type,
     uint_t buf_size, uint_t hop_size, uint_t samplerate);
 
+/** get the output mode of the pitch detection object
+
+	\param o pitch detection object as returned by new_aubio_pitch()
+	
+	\return current output mode
+
+*/
+aubio_pitch_mode aubio_pitch_get_mode(const aubio_pitch_t* p);
+
+/** set the output mode of the pitch detection object
+
+	\param o pitch detection object as returned by new_aubio_pitch()
+	\param a member from aubio_pitch_mode enumeration
+
+*/
+void aubio_pitch_set_mode(aubio_pitch_t* p, aubio_pitch_mode mode);
+
 /** set the output unit of the pitch detection object
 
   \param o pitch detection object as returned by new_aubio_pitch()
