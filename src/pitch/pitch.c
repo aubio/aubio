@@ -38,30 +38,6 @@
 
 #define DEFAULT_PITCH_SILENCE -50.
 
-/** pitch detection algorithms */
-typedef enum
-{
-  aubio_pitcht_yin,        /**< `yin`, YIN algorithm */
-  aubio_pitcht_mcomb,      /**< `mcomb`, Multi-comb filter */
-  aubio_pitcht_schmitt,    /**< `schmitt`, Schmitt trigger */
-  aubio_pitcht_fcomb,      /**< `fcomb`, Fast comb filter */
-  aubio_pitcht_yinfft,     /**< `yinfft`, Spectral YIN */
-  aubio_pitcht_yinfast,    /**< `yinfast`, YIN fast */
-  aubio_pitcht_specacf,    /**< `specacf`, Spectral autocorrelation */
-  aubio_pitcht_default
-    = aubio_pitcht_yinfft, /**< `default` */
-} aubio_pitch_type;
-
-/** pitch detection output modes */
-typedef enum
-{
-  aubio_pitchm_freq,   /**< Frequency (Hz) */
-  aubio_pitchm_midi,   /**< MIDI note (0.,127) */
-  aubio_pitchm_cent,   /**< Cent */
-  aubio_pitchm_bin,    /**< Frequency bin (0,bufsize) */
-  aubio_pitchm_default = aubio_pitchm_freq, /**< the one used when "default" is asked */
-} aubio_pitch_mode;
-
 /** callback to get pitch candidate, defined below */
 typedef void (*aubio_pitch_detect_t) (aubio_pitch_t * p, const fvec_t * ibuf, fvec_t * obuf);
 
@@ -189,6 +165,7 @@ new_aubio_pitch (const char_t * pitch_mode,
       p->p_object = new_aubio_pitchschmitt (bufsize);
       p->detect_cb = aubio_pitch_do_schmitt;
       break;
+    case aubio_pitcht_default:
     case aubio_pitcht_yinfft:
       p->buf = new_fvec (bufsize);
       p->p_object = new_aubio_pitchyinfft (samplerate, bufsize);
@@ -223,6 +200,44 @@ beach:
   if (p->buf) del_fvec(p->buf);
   AUBIO_FREE(p);
   return NULL;
+}
+
+aubio_pitch_t * new_aubio_pitch2(aubio_pitch_type type, uint_t buf_size, uint_t hop_size, uint_t samplerate)
+{
+	char* mode;
+
+	switch (type)
+	{
+	case aubio_pitcht_default:
+		mode = "default";
+		break;
+	case aubio_pitcht_specacf:
+		mode = "specacf";
+		break;
+	case aubio_pitcht_fcomb:
+		mode = "fcomb";
+		break;
+	case aubio_pitcht_schmitt:
+		mode = "schmitt";
+		break;
+	case aubio_pitcht_yin:
+		mode = "yin";
+		break;
+	case aubio_pitcht_yinfft:
+		mode = "yinfft";
+		break;
+	case aubio_pitcht_yinfast:
+		mode = "yinfast";
+		break;
+	case aubio_pitcht_mcomb:
+		mode = "mcomb";
+		break;
+	default:
+		AUBIO_ERR("Unknown aubio_pitch_type: %d", type);
+		return NULL;
+	}
+
+	return new_aubio_pitch(mode, buf_size, hop_size, samplerate);
 }
 
 void
@@ -286,6 +301,41 @@ aubio_pitch_slideblock (aubio_pitch_t * p, const fvec_t * ibuf)
 #endif
 }
 
+void
+apply_pitch_mode(aubio_pitch_t * p)
+{
+	switch (p->mode) {
+	case aubio_pitchm_freq:
+		p->conv_cb = freqconvpass;
+		break;
+	case aubio_pitchm_midi:
+		p->conv_cb = freqconvmidi;
+		break;
+	case aubio_pitchm_cent:
+		/* bug: not implemented */
+		p->conv_cb = freqconvmidi;
+		break;
+	case aubio_pitchm_bin:
+		p->conv_cb = freqconvbin;
+		break;
+	default:
+		break;
+	}
+}
+
+aubio_pitch_mode
+aubio_pitch_get_mode(const aubio_pitch_t* p)
+{
+	return p->mode;
+}
+
+void
+aubio_pitch_set_mode(aubio_pitch_t* p, aubio_pitch_mode mode)
+{
+	p->mode = mode;
+	apply_pitch_mode(p);
+}
+
 uint_t
 aubio_pitch_set_unit (aubio_pitch_t * p, const char_t * pitch_unit)
 {
@@ -316,23 +366,8 @@ aubio_pitch_set_unit (aubio_pitch_t * p, const char_t * pitch_unit)
     err = AUBIO_FAIL;
   }
   p->mode = pitch_mode;
-  switch (p->mode) {
-    case aubio_pitchm_freq:
-      p->conv_cb = freqconvpass;
-      break;
-    case aubio_pitchm_midi:
-      p->conv_cb = freqconvmidi;
-      break;
-    case aubio_pitchm_cent:
-      /* bug: not implemented */
-      p->conv_cb = freqconvmidi;
-      break;
-    case aubio_pitchm_bin:
-      p->conv_cb = freqconvbin;
-      break;
-    default:
-      break;
-  }
+  apply_pitch_mode(p);
+
   return err;
 }
 
