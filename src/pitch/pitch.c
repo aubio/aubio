@@ -165,6 +165,7 @@ new_aubio_pitch (const char_t * pitch_mode,
       p->p_object = new_aubio_pitchschmitt (bufsize);
       p->detect_cb = aubio_pitch_do_schmitt;
       break;
+    case aubio_pitcht_default:
     case aubio_pitcht_yinfft:
       p->buf = new_fvec (bufsize);
       p->p_object = new_aubio_pitchyinfft (samplerate, bufsize);
@@ -199,6 +200,44 @@ beach:
   if (p->buf) del_fvec(p->buf);
   AUBIO_FREE(p);
   return NULL;
+}
+
+aubio_pitch_t * new_aubio_pitch2(aubio_pitch_type type, uint_t buf_size, uint_t hop_size, uint_t samplerate)
+{
+	char* mode;
+
+	switch (type)
+	{
+	case aubio_pitcht_default:
+		mode = "default";
+		break;
+	case aubio_pitcht_specacf:
+		mode = "specacf";
+		break;
+	case aubio_pitcht_fcomb:
+		mode = "fcomb";
+		break;
+	case aubio_pitcht_schmitt:
+		mode = "schmitt";
+		break;
+	case aubio_pitcht_yin:
+		mode = "yin";
+		break;
+	case aubio_pitcht_yinfft:
+		mode = "yinfft";
+		break;
+	case aubio_pitcht_yinfast:
+		mode = "yinfast";
+		break;
+	case aubio_pitcht_mcomb:
+		mode = "mcomb";
+		break;
+	default:
+		AUBIO_ERR("Unknown aubio_pitch_type: %d", type);
+		return NULL;
+	}
+
+	return new_aubio_pitch(mode, buf_size, hop_size, samplerate);
 }
 
 void

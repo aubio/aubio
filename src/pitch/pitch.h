@@ -191,6 +191,19 @@ void del_aubio_pitch (aubio_pitch_t * o);
 aubio_pitch_t *new_aubio_pitch (const char_t * method,
     uint_t buf_size, uint_t hop_size, uint_t samplerate);
 
+/** creation of the pitch detection object
+
+  \param method set pitch detection algorithm
+  \param buf_size size of the input buffer to analyze
+  \param hop_size step size between two consecutive analysis instant
+  \param samplerate sampling rate of the signal
+
+  \return newly created ::aubio_pitch_t, NULL otherwise
+
+*/
+aubio_pitch_t *new_aubio_pitch2 (aubio_pitch_type type,
+    uint_t buf_size, uint_t hop_size, uint_t samplerate);
+
 /** set the output unit of the pitch detection object
 
   \param o pitch detection object as returned by new_aubio_pitch()
