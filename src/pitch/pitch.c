@@ -38,30 +38,6 @@
 
 #define DEFAULT_PITCH_SILENCE -50.
 
-/** pitch detection algorithms */
-typedef enum
-{
-  aubio_pitcht_yin,        /**< `yin`, YIN algorithm */
-  aubio_pitcht_mcomb,      /**< `mcomb`, Multi-comb filter */
-  aubio_pitcht_schmitt,    /**< `schmitt`, Schmitt trigger */
-  aubio_pitcht_fcomb,      /**< `fcomb`, Fast comb filter */
-  aubio_pitcht_yinfft,     /**< `yinfft`, Spectral YIN */
-  aubio_pitcht_yinfast,    /**< `yinfast`, YIN fast */
-  aubio_pitcht_specacf,    /**< `specacf`, Spectral autocorrelation */
-  aubio_pitcht_default
-    = aubio_pitcht_yinfft, /**< `default` */
-} aubio_pitch_type;
-
-/** pitch detection output modes */
-typedef enum
-{
-  aubio_pitchm_freq,   /**< Frequency (Hz) */
-  aubio_pitchm_midi,   /**< MIDI note (0.,127) */
-  aubio_pitchm_cent,   /**< Cent */
-  aubio_pitchm_bin,    /**< Frequency bin (0,bufsize) */
-  aubio_pitchm_default = aubio_pitchm_freq, /**< the one used when "default" is asked */
-} aubio_pitch_mode;
-
 /** callback to get pitch candidate, defined below */
 typedef void (*aubio_pitch_detect_t) (aubio_pitch_t * p, const fvec_t * ibuf, fvec_t * obuf);
 
