@@ -129,7 +129,7 @@ smpl_t aubio_tempo_get_threshold(aubio_tempo_t * o);
   value is found.
 
 */
-smpl_t aubio_tempo_get_period (aubio_tempo_t * bt);
+sint_t aubio_tempo_get_period (aubio_tempo_t * bt);
 
 /** get current beat period in seconds
 
@@ -160,6 +160,24 @@ smpl_t aubio_tempo_get_bpm(aubio_tempo_t * o);
 */
 smpl_t aubio_tempo_get_confidence(aubio_tempo_t * o);
 
+/** get sample rate of signal analyzed
+
+  \param o beat tracking object
+
+  \return the sample rate of the signal analyzed by the instance.
+
+*/
+uint_t aubio_tempo_get_samplerate(aubio_tempo_t * o);
+
+/** get number of tatum per beat
+
+  \param o beat tracking object
+
+  \return signature number of tatum per beat (between 1 and 64)
+
+*/
+uint_t aubio_tempo_get_tatum_signature(aubio_tempo_t* o);
+
 /** set number of tatum per beat
 
    \param o beat tracking object
@@ -182,7 +200,7 @@ uint_t aubio_tempo_was_tatum(aubio_tempo_t *o);
    \param o beat tracking object
 
 */
-smpl_t aubio_tempo_get_last_tatum(aubio_tempo_t *o);
+sint_t aubio_tempo_get_last_tatum(aubio_tempo_t *o);
 
 /** get current delay
 
@@ -191,7 +209,7 @@ smpl_t aubio_tempo_get_last_tatum(aubio_tempo_t *o);
   \return current delay, in samples
 
  */
-uint_t aubio_tempo_get_delay(aubio_tempo_t * o);
+sint_t aubio_tempo_get_delay(aubio_tempo_t * o);
 
 /** get current delay in seconds
 

@@ -75,7 +75,7 @@ void aubio_beattracking_do (aubio_beattracking_t * bt, const fvec_t * dfframes,
   value is found.
 
 */
-smpl_t aubio_beattracking_get_period (const aubio_beattracking_t * bt);
+sint_t aubio_beattracking_get_period (const aubio_beattracking_t * bt);
 
 /** get current beat period in seconds
 

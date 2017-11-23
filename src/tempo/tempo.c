@@ -132,7 +132,7 @@ uint_t aubio_tempo_set_delay_ms(aubio_tempo_t * o, smpl_t delay) {
   return AUBIO_OK;
 }
 
-uint_t aubio_tempo_get_delay(aubio_tempo_t * o) {
+sint_t aubio_tempo_get_delay(aubio_tempo_t * o) {
   return o->delay;
 }
 
@@ -228,7 +228,7 @@ smpl_t aubio_tempo_get_bpm(aubio_tempo_t *o) {
   return aubio_beattracking_get_bpm(o->bt);
 }
 
-smpl_t aubio_tempo_get_period (aubio_tempo_t *o)
+sint_t aubio_tempo_get_period (aubio_tempo_t *o)
 {
   return aubio_beattracking_get_period (o->bt);
 }
@@ -240,6 +240,16 @@ smpl_t aubio_tempo_get_period_s (aubio_tempo_t *o)
 
 smpl_t aubio_tempo_get_confidence(aubio_tempo_t *o) {
   return aubio_beattracking_get_confidence(o->bt);
+}
+
+uint_t aubio_tempo_get_samplerate(aubio_tempo_t * o)
+{
+	return o->samplerate;
+}
+
+uint_t aubio_tempo_get_tatum_signature(aubio_tempo_t* o)
+{
+	return o->tatum_signature;
 }
 
 uint_t aubio_tempo_was_tatum (aubio_tempo_t *o)
@@ -262,8 +272,8 @@ uint_t aubio_tempo_was_tatum (aubio_tempo_t *o)
   return 0;
 }
 
-smpl_t aubio_tempo_get_last_tatum (aubio_tempo_t *o) {
-  return (smpl_t)o->last_tatum - o->delay;
+sint_t aubio_tempo_get_last_tatum (aubio_tempo_t *o) {
+  return o->last_tatum - o->delay;
 }
 
 uint_t aubio_tempo_set_tatum_signature (aubio_tempo_t *o, uint_t signature) {
