@@ -119,12 +119,15 @@ void aubio_pitch_do (aubio_pitch_t * o, const fvec_t * in, fvec_t * out);
   \param o pitch detection object as returned by new_aubio_pitch()
   \param tol tolerance default is 0.15 for yin and 0.85 for yinfft
 
+  \return 0 if successful, non-zero otherwise
+
 */
 uint_t aubio_pitch_set_tolerance (aubio_pitch_t * o, smpl_t tol);
 
 /** get yin or yinfft tolerance threshold
 
   \param o pitch detection object as returned by new_aubio_pitch()
+
   \return tolerance (default is 0.15 for yin and 0.85 for yinfft)
 
 */
@@ -140,11 +143,11 @@ void del_aubio_pitch (aubio_pitch_t * o);
 /** creation of the pitch detection object
 
   \param method set pitch detection algorithm
-  \param buf_size size of the input buffer to analyse
+  \param buf_size size of the input buffer to analyze
   \param hop_size step size between two consecutive analysis instant
   \param samplerate sampling rate of the signal
 
-  \return newly created ::aubio_pitch_t
+  \return newly created ::aubio_pitch_t, NULL otherwise
 
 */
 aubio_pitch_t *new_aubio_pitch (const char_t * method,
@@ -157,7 +160,7 @@ aubio_pitch_t *new_aubio_pitch (const char_t * method,
 
   mode can be one of "Hz", "midi", "cent", or "bin". Defaults to "Hz".
 
-  \return 0 if successfull, non-zero otherwise
+  \return 0 if successful, non-zero otherwise
 
 */
 uint_t aubio_pitch_set_unit (aubio_pitch_t * o, const char_t * mode);
@@ -167,14 +170,14 @@ uint_t aubio_pitch_set_unit (aubio_pitch_t * o, const char_t * mode);
   \param o pitch detection object as returned by new_aubio_pitch()
   \param silence level threshold under which pitch should be ignored, in dB
 
-  \return 0 if successfull, non-zero otherwise
+  \return 0 if successful, non-zero otherwise
 
 */
 uint_t aubio_pitch_set_silence (aubio_pitch_t * o, smpl_t silence);
 
 /** set the silence threshold of the pitch detection object
 
-  \param o pitch detection object as returned by ::new_aubio_pitch()
+  \param o pitch detection object as returned by new_aubio_pitch()
 
   \return level threshold under which pitch should be ignored, in dB
 
