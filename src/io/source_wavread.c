@@ -432,6 +432,7 @@ uint_t aubio_source_wavread_seek (aubio_source_wavread_t * s, uint_t pos) {
   // reset some values
   s->eof = 0;
   s->read_index = 0;
+  s->read_samples_total = pos;
   return AUBIO_OK;
 }
 
