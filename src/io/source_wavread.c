@@ -46,6 +46,7 @@ struct _aubio_source_wavread_t {
   FILE *fid;
 
   uint_t read_samples;
+  uint_t read_samples_total;
   uint_t blockalign;
   uint_t bitspersample;
   uint_t read_index;
@@ -280,6 +281,7 @@ aubio_source_wavread_t * new_aubio_source_wavread(const char_t * path, uint_t sa
   s->short_output = (unsigned char *)calloc(s->blockalign, AUBIO_WAVREAD_BUFSIZE);
   s->read_index = 0;
   s->read_samples = 0;
+  s->read_samples_total = 0;
   s->eof = 0;
 
   return s;
@@ -295,7 +297,8 @@ void aubio_source_wavread_readframe(aubio_source_wavread_t *s, uint_t *wavread_r
 
 void aubio_source_wavread_readframe(aubio_source_wavread_t *s, uint_t *wavread_read) {
   unsigned char *short_ptr = s->short_output;
-  size_t read = fread(short_ptr, s->blockalign, AUBIO_WAVREAD_BUFSIZE, s->fid);
+  size_t size = MAX(0, MIN(AUBIO_WAVREAD_BUFSIZE, s->duration - s->read_samples_total));
+  size_t read = fread(short_ptr, s->blockalign, size, s->fid);
   uint_t i, j, b, bitspersample = s->bitspersample;
   uint_t wrap_at = (1 << ( bitspersample - 1 ) );
   uint_t wrap_with = (1 << bitspersample);
@@ -319,6 +322,7 @@ void aubio_source_wavread_readframe(aubio_source_wavread_t *s, uint_t *wavread_r
     }
   }
 
+  s->read_samples_total += read;
   *wavread_read = read;
 
   if (read == 0) s->eof = 1;
