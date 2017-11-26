@@ -23,7 +23,7 @@ add_definitions(
 )
 
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-set(CMAKE_DEBUG_POSTFIX d)
+# set(CMAKE_DEBUG_POSTFIX d)
 
 option(BUILD_DLL "Build a DLL instead of a static library" ON)
 set(BUILD_SHARED_LIBS BUILD_DLL)
@@ -92,6 +92,8 @@ install(
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
 )
+
+install(FILES $<TARGET_PDB_FILE:${PROJECT_NAME}> DESTINATION bin OPTIONAL)
 
 if(NOT DISABLE_INSTALL_HEADERS)
 	install(
