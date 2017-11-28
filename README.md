@@ -85,6 +85,10 @@ To compile the python module:
 See the [manual](https://aubio.org/manual/latest/) for more information about
 [installing aubio](https://aubio.org/manual/latest/installing.html).
 
+**Alternative build method for Windows:**
+
+You can build aubio using [vcpkg](https://github.com/Microsoft/vcpkg) from Microsoft, for more information, see [README.windows-vcpkg.md](README.windows-vcpkg.md).
+
 Citation
 --------
 
