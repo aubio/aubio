@@ -1,7 +1,7 @@
 .. _develop:
 
 Developing with aubio
-======================
+=====================
 
 Here is a brief overview of the C library.
 
