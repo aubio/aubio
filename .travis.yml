@@ -11,10 +11,6 @@ matrix:
     - python: 2.7
       os: linux
       compiler: gcc
-    - language: C
-      os: osx
-      osx_image: xcode8
-      compiler: clang
     - python: 3.5
       os: linux
       compiler: gcc
@@ -29,37 +25,21 @@ matrix:
       env: CFLAGS="`dpkg-buildflags --get CFLAGS`" LDFLAGS="`dpkg-buildflags --get LDFLAGS`"
     - language: C
       os: osx
-      osx_image: xcode8
+      compiler: clang
+    - language: C
+      os: osx
       compiler: clang
       env: CFLAGS="-Os" HAVE_AUBIO_DOUBLE=1 WAFOPTS="--disable-accelerate"
     - language: C
       os: osx
-      osx_image: xcode8
       compiler: clang
       env: WAFOPTS="--enable-fat --disable-avcodec --disable-sndfile"
     - language: C
       os: osx
-      osx_image: xcode8
       compiler: clang
       env: WAFOPTS="--with-target-platform=ios --disable-avcodec --disable-sndfile" AUBIO_NOTESTS=1
     - language: C
       os: osx
-      osx_image: xcode8
-      compiler: clang
-      env: WAFOPTS="--with-target-platform=iosimulator --disable-avcodec --disable-sndfile" AUBIO_NOTESTS=1
-    - language: C
-      os: osx
-      osx_image: xcode8.2
-      compiler: clang
-      env: WAFOPTS="--enable-fat --disable-avcodec --disable-sndfile"
-    - language: C
-      os: osx
-      osx_image: xcode8.2
-      compiler: clang
-      env: WAFOPTS="--with-target-platform=ios --disable-avcodec --disable-sndfile" AUBIO_NOTESTS=1
-    - language: C
-      os: osx
-      osx_image: xcode8.2
       compiler: clang
       env: WAFOPTS="--with-target-platform=iosimulator --disable-avcodec --disable-sndfile" AUBIO_NOTESTS=1
 
@@ -95,6 +75,10 @@ before_install:
      fi;
 
 install:
+  - |
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      alias pip=pip2
+    fi;
   - travis_retry pip install --upgrade pip
   - travis_retry make getwaf expandwaf deps_python
   - which pip
