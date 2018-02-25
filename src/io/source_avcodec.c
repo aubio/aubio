@@ -58,7 +58,11 @@
 #include "fmat.h"
 #include "source_avcodec.h"
 
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(56, 56, 0)
 #define AUBIO_AVCODEC_MAX_BUFFER_SIZE FF_MIN_BUFFER_SIZE
+#else
+#define AUBIO_AVCODEC_MAX_BUFFER_SIZE AV_INPUT_BUFFER_MIN_SIZE
+#endif
 
 struct _aubio_source_avcodec_t {
   uint_t hop_size;
