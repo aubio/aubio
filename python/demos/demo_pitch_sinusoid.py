@@ -37,7 +37,7 @@ freqs[ pointer : pointer + partition ] = 1480
 
 pointer += partition
 pointer += partition
-freqs[ pointer : pointer + partition ] = 400 + 5 * np.random.random(sin_length/8)
+freqs[ pointer : pointer + partition ] = 400 + 5 * np.random.random(sin_length//8)
 
 a = build_sinusoid(sin_length, freqs, samplerate)
 
