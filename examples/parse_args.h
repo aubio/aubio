@@ -115,13 +115,13 @@ void usage (FILE * stream, int exit_code)
       "       -f      --force-overwrite  overwrite output file if needed\n"
       "                 do not fail if output file already exists\n"
 #endif /* PROG_HAS_OUTPUT */
-#ifdef PROG_HAS_JACK
+#if defined(PROG_HAS_JACK) && defined(HAVE_JACK)
       "       -j      --jack             use Jack\n"
 #if defined(PROG_HAS_ONSET) && !defined(PROG_HAS_PITCH)
       "       -N      --miditap-note     MIDI note; default=69.\n"
       "       -V      --miditap-velo     MIDI velocity; default=65.\n"
 #endif /* defined(PROG_HAS_ONSET) && !defined(PROG_HAS_PITCH) */
-#endif /* PROG_HAS_JACK */
+#endif /* defined(PROG_HAS_JACK) && defined(HAVE_JACK) */
       "       -v      --verbose          be verbose\n"
       "       -h      --help             display this message\n"
       );
@@ -313,7 +313,8 @@ parse_args (int argc, char **argv)
     usejack = 1;
 #else
     errmsg("Error: no arguments given (and no available audio input)\n");
-    usage ( stderr, 1 );
+    errmsg("       consider recompiling with jack support (--enable-jack)\n");
+    exit ( 1 );
 #endif /* HAVE_JACK */
 #else
     errmsg("Error: no arguments given\n");
