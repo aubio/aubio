@@ -275,6 +275,8 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t sa
   // default to mono output
   aubio_source_avcodec_reset_resampler(s, 0);
 
+  if (s->avr == NULL) goto beach;
+
   s->eof = 0;
   s->multi = 0;
 
