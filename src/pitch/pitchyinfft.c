@@ -44,7 +44,7 @@ static const smpl_t freqs[] = {
      0.,    20.,    25.,   31.5,    40.,    50.,    63.,    80.,   100.,   125.,
    160.,   200.,   250.,   315.,   400.,   500.,   630.,   800.,  1000.,  1250.,
   1600.,  2000.,  2500.,  3150.,  4000.,  5000.,  6300.,  8000.,  9000., 10000.,
- 12500., 15000., 20000., 25100
+ 12500., 15000., 20000., 25100., -1.
 };
 
 static const smpl_t weight[] = {
@@ -72,7 +72,10 @@ new_aubio_pitchyinfft (uint_t samplerate, uint_t bufsize)
   p->weight = new_fvec (bufsize / 2 + 1);
   for (i = 0; i < p->weight->length; i++) {
     freq = (smpl_t) i / (smpl_t) bufsize *(smpl_t) samplerate;
-    while (freq > freqs[j]) {
+    while (freq > freqs[j] && freqs[j] > 0) {
+      //AUBIO_DBG("freq %3.5f > %3.5f \tsamplerate %d (Hz) \t"
+      //    "(weight length %d, bufsize %d) %d %d\n", freq, freqs[j],
+      //    samplerate, p->weight->length, bufsize, i, j);
       j += 1;
     }
     a0 = weight[j - 1];
