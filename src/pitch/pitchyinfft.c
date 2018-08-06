@@ -73,7 +73,9 @@ new_aubio_pitchyinfft (uint_t samplerate, uint_t bufsize)
   for (i = 0; i < p->weight->length; i++) {
     freq = (smpl_t) i / (smpl_t) bufsize *(smpl_t) samplerate;
     while (freq > freqs[j] && freqs[j] > 0) {
-      AUBIO_DBG("freq %3.5f > %3.5f \tsamplerate %d (Hz) \t(weight length %d, bufsize %d) %d %d\n", freq, freqs[j], samplerate, p->weight->length, bufsize, i, j);
+      //AUBIO_DBG("freq %3.5f > %3.5f \tsamplerate %d (Hz) \t"
+      //    "(weight length %d, bufsize %d) %d %d\n", freq, freqs[j],
+      //    samplerate, p->weight->length, bufsize, i, j);
       j += 1;
     }
     a0 = weight[j - 1];
