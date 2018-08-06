@@ -42,22 +42,22 @@ install:
   - "%PYTHONDIR%\\python.exe --version"
   - "%PYTHONDIR%\\python.exe -c \"import struct; print(struct.calcsize('P') * 8)\""
 
+  - "%PYTHONDIR%\\python.exe -m pip install --disable-pip-version-check --user --upgrade pip"
+  - "%PYTHONDIR%\\python.exe -m pip install --upgrade setuptools"
+
   # We need wheel installed to build wheels
   - "%PYTHONDIR%\\python.exe -m pip install wheel"
 
   - "SET PATH=%PATH_EXTRAS%;%PYTHONDIR%;%PYTHONDIR%\\Scripts;%PATH%"
-
-  - "pip install --disable-pip-version-check --user --upgrade pip"
-  - "pip install --upgrade setuptools"
 
 before_build:
   - "bash scripts/get_waf.sh"
 
 build_script:
   # build python module without using libaubio
-  - "pip install -r requirements.txt"
+  - "%PYTHONDIR%\\python.exe -m pip install -r requirements.txt"
   - "python setup.py build"
-  - "pip install ."
+  - "%PYTHONDIR%\\python.exe -m pip install ."
   - "python python\\demos\\demo_create_test_sounds.py"
   - "nose2 --verbose"
   # clean up
