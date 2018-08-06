@@ -195,8 +195,8 @@ aubio_source_wavread_t * new_aubio_source_wavread(const char_t * path, uint_t sa
     goto beach;
   }
 
-  if ( sr == 0 ) {
-    AUBIO_ERR("source_wavread: Failed opening %s (samplerate can not be 0)\n", s->path);
+  if ( (sint_t)sr <= 0 ) {
+    AUBIO_ERR("source_wavread: Failed opening %s (samplerate can not be <= 0)\n", s->path);
     goto beach;
   }
 
