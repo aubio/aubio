@@ -425,12 +425,14 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
     goto beach;
   }
 
+#if LIBAVUTIL_VERSION_MAJOR > 52
   if (avFrame->channels != (sint_t)s->input_channels) {
     AUBIO_WRN ("source_avcodec: trying to read from %d channel(s),"
         "but configured for %d; is '%s' corrupt?\n", avFrame->channels,
         s->input_channels, s->path);
     goto beach;
   }
+#endif
 
 #ifdef HAVE_AVRESAMPLE
   in_linesize = 0;
