@@ -275,6 +275,8 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t sa
   // default to mono output
   aubio_source_avcodec_reset_resampler(s, 0);
 
+  if (s->avr == NULL) goto beach;
+
   s->eof = 0;
   s->multi = 0;
 
@@ -422,6 +424,15 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
     AUBIO_WRN("source_avcodec: did not get a frame when reading %s\n", s->path);
     goto beach;
   }
+
+#if LIBAVUTIL_VERSION_MAJOR > 52
+  if (avFrame->channels != (sint_t)s->input_channels) {
+    AUBIO_WRN ("source_avcodec: trying to read from %d channel(s),"
+        "but configured for %d; is '%s' corrupt?\n", avFrame->channels,
+        s->input_channels, s->path);
+    goto beach;
+  }
+#endif
 
 #ifdef HAVE_AVRESAMPLE
   in_linesize = 0;
