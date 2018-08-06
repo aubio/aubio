@@ -83,6 +83,7 @@ aubio_notes_t * new_aubio_notes (const char_t * method,
   o->onset_output = new_fvec (1);
 
   o->pitch = new_aubio_pitch (pitch_method, o->pitch_buf_size, o->hop_size, o->samplerate);
+  if (o->pitch == NULL) goto fail;
   if (o->pitch_tolerance != 0.) aubio_pitch_set_tolerance (o->pitch, o->pitch_tolerance);
   aubio_pitch_set_unit (o->pitch, "midi");
   o->pitch_output = new_fvec (1);
