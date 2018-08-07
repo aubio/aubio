@@ -307,6 +307,8 @@ uint_t aubio_onset_set_default_parameters (aubio_onset_t * o, const char_t * ons
   } else if (strcmp (onset_mode, "phase") == 0) {
     o->apply_compression = 0;
     aubio_onset_set_awhitening (o, 0);
+  } else if (strcmp (onset_mode, "wphase") == 0) {
+    // use defaults for now
   } else if (strcmp (onset_mode, "mkl") == 0) {
     aubio_onset_set_threshold (o, 0.05);
     aubio_onset_set_awhitening(o, 1);

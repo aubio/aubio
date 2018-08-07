@@ -189,6 +189,26 @@ aubio_source_wavread_t * new_aubio_source_wavread(const char_t * path, uint_t sa
   // BitsPerSample
   bytes_read += fread(buf, 1, 2, s->fid);
   bitspersample = read_little_endian(buf, 2);
+
+  if ( channels == 0 ) {
+    AUBIO_ERR("source_wavread: Failed opening %s (number of channels can not be 0)\n", s->path);
+    goto beach;
+  }
+
+  if ( (sint_t)sr <= 0 ) {
+    AUBIO_ERR("source_wavread: Failed opening %s (samplerate can not be <= 0)\n", s->path);
+    goto beach;
+  }
+
+  if ( byterate == 0 ) {
+    AUBIO_ERR("source_wavread: Failed opening %s (byterate can not be 0)\n", s->path);
+    goto beach;
+  }
+
+  if ( bitspersample == 0 ) {
+    AUBIO_ERR("source_wavread: Failed opening %s (bitspersample can not be 0)\n", s->path);
+    goto beach;
+  }
 #if 0
   if ( bitspersample != 16 ) {
     AUBIO_ERR("source_wavread: can not process %dbit file %s\n",
