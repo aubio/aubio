@@ -51,7 +51,9 @@
 // defined in src/spectral/fft.c
 extern pthread_mutex_t aubio_fftw_mutex;
 
-struct _aubio_dct_t {
+typedef struct _aubio_dct_fftw_t aubio_dct_fftw_t;
+
+struct _aubio_dct_fftw_t {
   uint_t size;
   fvec_t *in, *out;
   smpl_t *data;
@@ -59,8 +61,8 @@ struct _aubio_dct_t {
   smpl_t scalers[5];
 };
 
-aubio_dct_t * new_aubio_dct (uint_t size) {
-  aubio_dct_t * s = AUBIO_NEW(aubio_dct_t);
+aubio_dct_fftw_t * new_aubio_dct_fftw (uint_t size) {
+  aubio_dct_fftw_t * s = AUBIO_NEW(aubio_dct_fftw_t);
   if (!s) {
     goto beach;
   }
@@ -85,7 +87,7 @@ beach:
   return NULL;
 }
 
-void del_aubio_dct(aubio_dct_t *s) {
+void del_aubio_dct_fftw(aubio_dct_fftw_t *s) {
   pthread_mutex_lock(&aubio_fftw_mutex);
   fftw_destroy_plan(s->pfw);
   fftw_destroy_plan(s->pbw);
@@ -96,7 +98,7 @@ void del_aubio_dct(aubio_dct_t *s) {
   AUBIO_FREE(s);
 }
 
-void aubio_dct_do(aubio_dct_t *s, const fvec_t *input, fvec_t *output) {
+void aubio_dct_fftw_do(aubio_dct_fftw_t *s, const fvec_t *input, fvec_t *output) {
   uint_t i;
   fvec_copy(input, s->in);
   fftw_execute(s->pfw);
@@ -108,7 +110,7 @@ void aubio_dct_do(aubio_dct_t *s, const fvec_t *input, fvec_t *output) {
   memcpy(output->data, s->data, output->length * sizeof(smpl_t));
 }
 
-void aubio_dct_rdo(aubio_dct_t *s, const fvec_t *input, fvec_t *output) {
+void aubio_dct_fftw_rdo(aubio_dct_fftw_t *s, const fvec_t *input, fvec_t *output) {
   uint_t i;
   memcpy(s->data, input->data, input->length * sizeof(smpl_t));
   //s->data[0] *= .5;
