@@ -20,7 +20,6 @@
 
 #include "aubio_priv.h"
 #include "fvec.h"
-#include "cvec.h"
 #include "spectral/dct.h"
 
 #if !defined(HAVE_ACCELERATE) && !defined(HAVE_FFTW3) && !defined(HAVE_INTEL_IPP)

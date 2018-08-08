@@ -20,7 +20,6 @@
 
 #include "aubio_priv.h"
 #include "fvec.h"
-#include "cvec.h"
 #include "spectral/dct.h"
 
 #ifdef HAVE_FFTW3
