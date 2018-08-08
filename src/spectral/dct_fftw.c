@@ -51,8 +51,6 @@
 // defined in src/spectral/fft.c
 extern pthread_mutex_t aubio_fftw_mutex;
 
-extern void aubio_ooura_ddct(int, int, smpl_t *, int *, smpl_t *);
-
 struct _aubio_dct_t {
   uint_t size;
   fvec_t *in, *out;
