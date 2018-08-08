@@ -46,7 +46,9 @@
 #define aubio_ippsDCTInv               ippsDCTInv_64f
 #endif
 
-struct _aubio_dct_t {
+typedef struct _aubio_dct_ipp_t aubio_dct_ipp_t;
+
+struct _aubio_dct_ipp_t {
   uint_t size;
   Ipp8u* pSpecFwd;
   Ipp8u* pSpecInv;
@@ -56,8 +58,10 @@ struct _aubio_dct_t {
   aubio_ippsDCTInvSpec* pInvDCTSpec;
 };
 
-aubio_dct_t * new_aubio_dct (uint_t size) {
-  aubio_dct_t * s = AUBIO_NEW(aubio_dct_t);
+void del_aubio_dct_ipp (aubio_dct_ipp_t *s);
+
+aubio_dct_ipp_t * new_aubio_dct_ipp (uint_t size) {
+  aubio_dct_ipp_t * s = AUBIO_NEW(aubio_dct_ipp_t);
 
   const IppHintAlgorithm qualityHint = ippAlgHintAccurate; // ippAlgHintFast;
   int pSpecSize, pSpecBufferSize, pBufferSize;
@@ -117,11 +121,11 @@ aubio_dct_t * new_aubio_dct (uint_t size) {
   return s;
 
 beach:
-  del_aubio_dct(s);
+  del_aubio_dct_ipp(s);
   return NULL;
 }
 
-void del_aubio_dct(aubio_dct_t *s) {
+void del_aubio_dct_ipp(aubio_dct_ipp_t *s) {
   ippFree(s->pSpecFwd);
   ippFree(s->pSpecInv);
   ippFree(s->pSpecBuffer);
@@ -129,14 +133,14 @@ void del_aubio_dct(aubio_dct_t *s) {
   AUBIO_FREE(s);
 }
 
-void aubio_dct_do(aubio_dct_t *s, const fvec_t *input, fvec_t *output) {
+void aubio_dct_ipp_do(aubio_dct_ipp_t *s, const fvec_t *input, fvec_t *output) {
 
   aubio_ippsDCTFwd((const aubio_IppFloat*)input->data,
       (aubio_IppFloat*)output->data, s->pFwdDCTSpec, s->pBuffer);
 
 }
 
-void aubio_dct_rdo(aubio_dct_t *s, const fvec_t *input, fvec_t *output) {
+void aubio_dct_ipp_rdo(aubio_dct_ipp_t *s, const fvec_t *input, fvec_t *output) {
 
   aubio_ippsDCTInv((const aubio_IppFloat*)input->data,
       (aubio_IppFloat*)output->data, s->pInvDCTSpec, s->pBuffer);
