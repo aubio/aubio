@@ -24,9 +24,11 @@
 
 #if !defined(HAVE_ACCELERATE) && !defined(HAVE_FFTW3) && !defined(HAVE_INTEL_IPP)
 
+typedef struct _aubio_dct_ooura_t aubio_dct_ooura_t;
+
 extern void aubio_ooura_ddct(int, int, smpl_t *, int *, smpl_t *);
 
-struct _aubio_dct_t {
+struct _aubio_dct_ooura_t {
   uint_t size;
   fvec_t *input;
   smpl_t *w;
@@ -34,8 +36,8 @@ struct _aubio_dct_t {
   smpl_t scalers[5];
 };
 
-aubio_dct_t * new_aubio_dct (uint_t size) {
-  aubio_dct_t * s = AUBIO_NEW(aubio_dct_t);
+aubio_dct_ooura_t * new_aubio_dct_ooura (uint_t size) {
+  aubio_dct_ooura_t * s = AUBIO_NEW(aubio_dct_ooura_t);
   if (aubio_is_power_of_two(size) != 1) {
     AUBIO_ERR("dct: can only create with sizes power of two, requested %d\n",
         size);
@@ -57,14 +59,14 @@ beach:
   return NULL;
 }
 
-void del_aubio_dct(aubio_dct_t *s) {
+void del_aubio_dct_ooura(aubio_dct_ooura_t *s) {
   del_fvec(s->input);
   AUBIO_FREE(s->ip);
   AUBIO_FREE(s->w);
   AUBIO_FREE(s);
 }
 
-void aubio_dct_do(aubio_dct_t *s, const fvec_t *input, fvec_t *output) {
+void aubio_dct_ooura_do(aubio_dct_ooura_t *s, const fvec_t *input, fvec_t *output) {
   uint_t i = 0;
   fvec_copy(input, s->input);
   aubio_ooura_ddct(s->size, -1, s->input->data, s->ip, s->w);
@@ -76,7 +78,7 @@ void aubio_dct_do(aubio_dct_t *s, const fvec_t *input, fvec_t *output) {
   fvec_copy(s->input, output);
 }
 
-void aubio_dct_rdo(aubio_dct_t *s, const fvec_t *input, fvec_t *output) {
+void aubio_dct_ooura_rdo(aubio_dct_ooura_t *s, const fvec_t *input, fvec_t *output) {
   uint_t i = 0;
   fvec_copy(input, s->input);
   s->input->data[0] *= s->scalers[2];
