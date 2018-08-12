@@ -36,7 +36,7 @@ aubio_dct_plain_t * new_aubio_dct_plain (uint_t size) {
   uint_t i, j;
   smpl_t scaling;
   if (aubio_is_power_of_two (size) == 1 && size > 16) {
-    AUBIO_WRN("dct_plain: using plain dct but size %d is a power of two", size);
+    AUBIO_WRN("dct_plain: using plain dct but size %d is a power of two\n", size);
   }
 
   s->size = size;
