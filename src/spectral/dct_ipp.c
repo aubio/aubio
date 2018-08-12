@@ -67,8 +67,8 @@ aubio_dct_ipp_t * new_aubio_dct_ipp (uint_t size) {
   int pSpecSize, pSpecBufferSize, pBufferSize;
   IppStatus status;
 
-  if ((sint_t)size <= 1) {
-    AUBIO_ERR("dct: can only create with sizes greater than 1, requested %d\n",
+  if ((sint_t)size <= 0) {
+    AUBIO_ERR("dct: can only create with sizes greater than 0, requested %d\n",
         size);
     goto beach;
   }
