@@ -59,7 +59,7 @@ aubio_dct_t * new_aubio_dct(uint_t size);
   \param output transformed input array
 
 */
-void aubio_dct_do (aubio_dct_t *s, const fvec_t * input, fvec_t * output);
+void aubio_dct_do (aubio_dct_t *s, const fvec_t * input, fvec_t * dct_output);
 
 /** compute backward DCT
 
@@ -68,7 +68,7 @@ void aubio_dct_do (aubio_dct_t *s, const fvec_t * input, fvec_t * output);
   \param output transformed input array
 
 */
-void aubio_dct_rdo (aubio_dct_t *s, const fvec_t * input, fvec_t * output);
+void aubio_dct_rdo (aubio_dct_t *s, const fvec_t * input, fvec_t * idct_output);
 
 
 /** delete DCT object
