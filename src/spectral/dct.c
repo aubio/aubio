@@ -125,7 +125,7 @@ aubio_dct_t* new_aubio_dct (uint_t size) {
   }
 #else
   // ooura support sizes that are power of 2
-  if (aubio_is_power_of_two(size) != 1) {
+  if (aubio_is_power_of_two(size) != 1 || size == 1) {
     goto plain;
   }
   s->dct = (void *)new_aubio_dct_ooura (size);
