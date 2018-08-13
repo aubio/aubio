@@ -178,6 +178,10 @@ class MappedObject(object):
         self.do_inputs = [get_params_types_names(self.do_proto)[1]]
         self.do_outputs = get_params_types_names(self.do_proto)[2:]
         struct_output_str = ["PyObject *{0[name]}; {1} c_{0[name]}".format(i, i['type'][:-1]) for i in self.do_outputs]
+        if len(self.prototypes['rdo']):
+            rdo_outputs = get_params_types_names(prototypes['rdo'][0])[2:]
+            struct_output_str += ["PyObject *{0[name]}; {1} c_{0[name]}".format(i, i['type'][:-1]) for i in rdo_outputs]
+            self.outputs += rdo_outputs
         self.struct_outputs = ";\n    ".join(struct_output_str)
 
         #print ("input_params: ", map(split_type, get_input_params(self.do_proto)))
