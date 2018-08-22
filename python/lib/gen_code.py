@@ -386,7 +386,7 @@ Py_{shortname}_del  (Py_{shortname} * self, PyObject * unused)
 // do {shortname}
 static PyObject*
 Pyaubio_{shortname}_{method}  (Py_{shortname} * self, PyObject * args)
-{{""".format(**self.__dict__, method = method)
+{{""".format(method = method, **self.__dict__)
         input_params = self.do_inputs
         output_params = self.do_outputs
         #print input_params
