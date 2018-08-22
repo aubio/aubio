@@ -56,7 +56,7 @@ aubio_dct_t * new_aubio_dct(uint_t size);
 
   \param s dct object as returned by new_aubio_dct
   \param input input signal
-  \param output transformed input array
+  \param dct_output transformed input array
 
 */
 void aubio_dct_do (aubio_dct_t *s, const fvec_t * input, fvec_t * dct_output);
@@ -65,7 +65,7 @@ void aubio_dct_do (aubio_dct_t *s, const fvec_t * input, fvec_t * dct_output);
 
   \param s dct object as returned by new_aubio_dct
   \param input input signal
-  \param output transformed input array
+  \param idct_output transformed input array
 
 */
 void aubio_dct_rdo (aubio_dct_t *s, const fvec_t * input, fvec_t * idct_output);
