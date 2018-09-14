@@ -143,8 +143,10 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t sa
   s->path = AUBIO_ARRAY(char_t, strnlen(path, PATH_MAX) + 1);
   strncpy(s->path, path, strnlen(path, PATH_MAX) + 1);
 
+#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(58,0,0)
   // register all formats and codecs
   av_register_all();
+#endif
 
   if (aubio_source_avcodec_has_network_url(s)) {
     avformat_network_init();
