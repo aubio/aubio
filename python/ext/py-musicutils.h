@@ -71,4 +71,34 @@ static char Py_aubio_level_detection_doc[] = ""
 
 PyObject * Py_aubio_level_detection(PyObject *self, PyObject *args);
 
+static char Py_aubio_shift_doc[] = ""
+"Swap left and right partitions of a vector\n"
+"\n"
+"Returns the swapped vector. The input vector is also modified.\n"
+"\n"
+"For a vector of length N, the partition is split at index N - N//2.\n"
+"\n"
+"Example\n"
+"-------\n"
+"\n"
+">>> import numpy\n"
+">>> shift(numpy.arange(3, dtype=aubio.float_type))\n"
+"array([2., 0., 1.], dtype=" AUBIO_NPY_SMPL_STR ")";
+PyObject * Py_aubio_shift(PyObject *self, PyObject *args);
+
+static char Py_aubio_ishift_doc[] = ""
+"Swap right and left partitions of a vector\n"
+"\n"
+"Returns the swapped vector. The input vector is also modified.\n"
+"\n"
+"Unlike with shift(), the partition is split at index N//2.\n"
+"\n"
+"Example\n"
+"-------\n"
+"\n"
+">>> import numpy\n"
+">>> ishift(numpy.arange(3, dtype=aubio.float_type))\n"
+"array([1., 2., 0.], dtype=" AUBIO_NPY_SMPL_STR ")";
+PyObject * Py_aubio_ishift(PyObject *self, PyObject *args);
+
 #endif /* PY_AUBIO_MUSICUTILS_H */

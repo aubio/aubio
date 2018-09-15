@@ -242,6 +242,8 @@ static PyMethodDef aubio_methods[] = {
   {"silence_detection", Py_aubio_silence_detection, METH_VARARGS, Py_aubio_silence_detection_doc},
   {"level_detection", Py_aubio_level_detection, METH_VARARGS, Py_aubio_level_detection_doc},
   {"window", Py_aubio_window, METH_VARARGS, Py_aubio_window_doc},
+  {"shift", Py_aubio_shift, METH_VARARGS, Py_aubio_shift_doc},
+  {"ishift", Py_aubio_ishift, METH_VARARGS, Py_aubio_ishift_doc},
   {NULL, NULL, 0, NULL} /* Sentinel */
 };
 
