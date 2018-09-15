@@ -40,13 +40,13 @@ typedef void (*aubio_dct_rdo_t)(aubio_dct_t * s, const fvec_t * input, fvec_t * 
 typedef void (*del_aubio_dct_t)(aubio_dct_t * s);
 
 #if defined(HAVE_ACCELERATE)
-typedef struct _aubio_dct_opt_t aubio_dct_accelerate_t;
+typedef struct _aubio_dct_accelerate_t aubio_dct_accelerate_t;
 extern aubio_dct_accelerate_t * new_aubio_dct_accelerate (uint_t size);
 extern void aubio_dct_accelerate_do(aubio_dct_accelerate_t *s, const fvec_t *input, fvec_t *output);
 extern void aubio_dct_accelerate_rdo(aubio_dct_accelerate_t *s, const fvec_t *input, fvec_t *output);
 extern void del_aubio_dct_accelerate (aubio_dct_accelerate_t *s);
 #elif defined(HAVE_FFTW3)
-typedef struct _aubio_dct_opt_t aubio_dct_fftw_t;
+typedef struct _aubio_dct_fftw_t aubio_dct_fftw_t;
 extern aubio_dct_fftw_t * new_aubio_dct_fftw (uint_t size);
 extern void aubio_dct_fftw_do(aubio_dct_fftw_t *s, const fvec_t *input, fvec_t *output);
 extern void aubio_dct_fftw_rdo(aubio_dct_fftw_t *s, const fvec_t *input, fvec_t *output);
