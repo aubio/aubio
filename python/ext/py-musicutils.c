@@ -133,3 +133,51 @@ Py_aubio_level_detection(PyObject *self, PyObject *args)
 
   return level_detection;
 }
+
+PyObject *
+Py_aubio_shift(PyObject *self, PyObject *args)
+{
+  PyObject *input;
+  fvec_t vec;
+
+  if (!PyArg_ParseTuple (args, "O:shift", &input)) {
+    return NULL;
+  }
+
+  if (input == NULL) {
+    return NULL;
+  }
+
+  if (!PyAubio_ArrayToCFvec(input, &vec)) {
+    return NULL;
+  }
+
+  fvec_shift(&vec);
+
+  //Py_RETURN_NONE;
+  return (PyObject *) PyAubio_CFvecToArray(&vec);
+}
+
+PyObject *
+Py_aubio_ishift(PyObject *self, PyObject *args)
+{
+  PyObject *input;
+  fvec_t vec;
+
+  if (!PyArg_ParseTuple (args, "O:shift", &input)) {
+    return NULL;
+  }
+
+  if (input == NULL) {
+    return NULL;
+  }
+
+  if (!PyAubio_ArrayToCFvec(input, &vec)) {
+    return NULL;
+  }
+
+  fvec_ishift(&vec);
+
+  //Py_RETURN_NONE;
+  return (PyObject *) PyAubio_CFvecToArray(&vec);
+}

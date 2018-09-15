@@ -31,7 +31,7 @@ class aubio_dct(TestCase):
         a_dct = aubio.dct(8)
         a_in = np.arange(8).astype(aubio.float_type)
         a_expected = aubio.fvec(precomputed_arange)
-        assert_almost_equal(a_dct(a_in), a_expected, decimal=6)
+        assert_almost_equal(a_dct(a_in), a_expected, decimal=5)
 
     def test_some_ones(self):
         """ test that dct(somevector) is computed correctly """

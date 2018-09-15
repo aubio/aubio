@@ -40,13 +40,13 @@ typedef void (*aubio_dct_rdo_t)(aubio_dct_t * s, const fvec_t * input, fvec_t * 
 typedef void (*del_aubio_dct_t)(aubio_dct_t * s);
 
 #if defined(HAVE_ACCELERATE)
-typedef struct _aubio_dct_opt_t aubio_dct_accelerate_t;
+typedef struct _aubio_dct_accelerate_t aubio_dct_accelerate_t;
 extern aubio_dct_accelerate_t * new_aubio_dct_accelerate (uint_t size);
 extern void aubio_dct_accelerate_do(aubio_dct_accelerate_t *s, const fvec_t *input, fvec_t *output);
 extern void aubio_dct_accelerate_rdo(aubio_dct_accelerate_t *s, const fvec_t *input, fvec_t *output);
 extern void del_aubio_dct_accelerate (aubio_dct_accelerate_t *s);
 #elif defined(HAVE_FFTW3)
-typedef struct _aubio_dct_opt_t aubio_dct_fftw_t;
+typedef struct _aubio_dct_fftw_t aubio_dct_fftw_t;
 extern aubio_dct_fftw_t * new_aubio_dct_fftw (uint_t size);
 extern void aubio_dct_fftw_do(aubio_dct_fftw_t *s, const fvec_t *input, fvec_t *output);
 extern void aubio_dct_fftw_rdo(aubio_dct_fftw_t *s, const fvec_t *input, fvec_t *output);
@@ -83,12 +83,18 @@ aubio_dct_t* new_aubio_dct (uint_t size) {
   aubio_dct_t * s = AUBIO_NEW(aubio_dct_t);
   if ((sint_t)size <= 0) goto beach;
 #if defined(HAVE_ACCELERATE)
-  // TODO check
   // vDSP supports sizes = f * 2 ** n, where n >= 4 and f in [1, 3, 5, 15]
   // see https://developer.apple.com/documentation/accelerate/1449930-vdsp_dct_createsetup
-  if (aubio_is_power_of_two(size/16) != 1
-      || (size/16 != 3 && size/16 != 5 && size/16 != 15)) {
-    goto plain;
+  {
+    uint_t radix = size;
+    uint_t order = 0;
+    while ((radix / 2) * 2 == radix) {
+      radix /= 2;
+      order++;
+    }
+    if (order < 4 || (radix != 1 && radix != 3 && radix != 5 && radix != 15)) {
+      goto plain;
+    }
   }
   s->dct = (void *)new_aubio_dct_accelerate (size);
   if (s->dct) {

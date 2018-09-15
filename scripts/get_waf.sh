@@ -3,7 +3,7 @@
 set -e
 set -x
 
-WAFVERSION=2.0.1
+WAFVERSION=2.0.11
 WAFTARBALL=waf-$WAFVERSION.tar.bz2
 WAFURL=https://waf.io/$WAFTARBALL
 
