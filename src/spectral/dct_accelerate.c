@@ -28,19 +28,23 @@
 #warning "no double-precision dct with accelerate"
 #endif
 
-struct _aubio_dct_t {
+struct _aubio_dct_accelerate_t {
   uint_t size;
   fvec_t *tmp;
   vDSP_DFT_Setup setup;
   vDSP_DFT_Setup setupInv;
 };
 
-aubio_dct_t * new_aubio_dct (uint_t size) {
-  aubio_dct_t * s = AUBIO_NEW(aubio_dct_t);
+typedef struct _aubio_dct_accelerate_t aubio_dct_accelerate_t;
+
+void del_aubio_dct_accelerate (aubio_dct_accelerate_t *s);
+
+aubio_dct_accelerate_t * new_aubio_dct_accelerate (uint_t size) {
+  aubio_dct_accelerate_t * s = AUBIO_NEW(aubio_dct_accelerate_t);
 
   if ((sint_t)size < 16 || !aubio_is_power_of_two(size)) {
     AUBIO_ERR("dct: can only create with sizes greater than 16 and"
-        "that are powers of two, requested %d\n", size);
+        " that are powers of two, requested %d\n", size);
     goto beach;
   }
 
@@ -55,17 +59,17 @@ aubio_dct_t * new_aubio_dct (uint_t size) {
   return s;
 
 beach:
-  del_aubio_dct(s);
+  del_aubio_dct_accelerate(s);
   return NULL;
 }
 
-void del_aubio_dct(aubio_dct_t *s) {
+void del_aubio_dct_accelerate(aubio_dct_accelerate_t *s) {
   if (s->setup) vDSP_DFT_DestroySetup(s->setup);
   if (s->setupInv) vDSP_DFT_DestroySetup(s->setupInv);
   AUBIO_FREE(s);
 }
 
-void aubio_dct_do(aubio_dct_t *s, const fvec_t *input, fvec_t *output) {
+void aubio_dct_accelerate_do(aubio_dct_accelerate_t *s, const fvec_t *input, fvec_t *output) {
 
   vDSP_DCT_Execute(s->setup, (const float *)input->data, (float *)output->data);
 
@@ -78,7 +82,7 @@ void aubio_dct_do(aubio_dct_t *s, const fvec_t *input, fvec_t *output) {
 
 }
 
-void aubio_dct_rdo(aubio_dct_t *s, const fvec_t *input, fvec_t *output) {
+void aubio_dct_accelerate_rdo(aubio_dct_accelerate_t *s, const fvec_t *input, fvec_t *output) {
 
   output->data[0] = input->data[0] / SQRT(1./s->size);
   smpl_t scaler = 1./SQRT(2./s->size);

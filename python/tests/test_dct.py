@@ -24,19 +24,19 @@ class aubio_dct(TestCase):
         """ test that dct(arange(8)) is computed correctly
 
         >>> from scipy.fftpack import dct
-        >>> a_in = np.arange(8).astype('float32')
+        >>> a_in = np.arange(8).astype(aubio.float_type)
         >>> precomputed = dct(a_in, norm='ortho')
         """
         N = len(precomputed_arange)
         a_dct = aubio.dct(8)
-        a_in = np.arange(8).astype('float32')
+        a_in = np.arange(8).astype(aubio.float_type)
         a_expected = aubio.fvec(precomputed_arange)
         assert_almost_equal(a_dct(a_in), a_expected, decimal=6)
 
     def test_some_ones(self):
         """ test that dct(somevector) is computed correctly """
         a_dct = aubio.dct(16)
-        a_in = np.ones(16).astype('float32')
+        a_in = np.ones(16).astype(aubio.float_type)
         a_in[1] = 0
         a_in[3] = np.pi
         a_expected = aubio.fvec(precomputed_some_ones)
@@ -45,7 +45,7 @@ class aubio_dct(TestCase):
     def test_reconstruction(self):
         """ test that some_ones vector can be recontructed """
         a_dct = aubio.dct(16)
-        a_in = np.ones(16).astype('float32')
+        a_in = np.ones(16).astype(aubio.float_type)
         a_in[1] = 0
         a_in[3] = np.pi
         a_dct_in = a_dct(a_in)
