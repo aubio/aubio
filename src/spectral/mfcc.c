@@ -122,6 +122,9 @@ del_aubio_mfcc (aubio_mfcc_t * mf)
 void
 aubio_mfcc_do (aubio_mfcc_t * mf, const cvec_t * in, fvec_t * out)
 {
+#ifndef HAVE_SLOW_DCT
+  fvec_t tmp;
+#endif
   /* compute filterbank */
   aubio_filterbank_do (mf->fb, in, mf->in_dct);
 
@@ -138,7 +141,6 @@ aubio_mfcc_do (aubio_mfcc_t * mf, const cvec_t * in, fvec_t * out)
   aubio_dct_do(mf->dct, mf->in_dct, mf->output);
   // copy only first n_coeffs elements
   // TODO assert mf->output->length == n_coeffs
-  fvec_t tmp;
   tmp.data = mf->output->data;
   tmp.length = out->length;
   fvec_copy(&tmp, out);
