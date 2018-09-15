@@ -2,6 +2,7 @@ aubiodefvalue = {
     # we have some clean up to do
     'buf_size': 'Py_default_vector_length',
     'win_s': 'Py_default_vector_length',
+    'size': 'Py_default_vector_length',
     # and here too
     'hop_size': 'Py_default_vector_length / 2',
     'hop_s': 'Py_default_vector_length / 2',
@@ -82,6 +83,7 @@ objoutsize = {
         'tempo': '1',
         'filterbank': 'self->n_filters',
         'tss': 'self->buf_size',
+        'dct': 'self->size',
         }
 
 objinputsize = {
@@ -176,6 +178,10 @@ class MappedObject(object):
         self.do_inputs = [get_params_types_names(self.do_proto)[1]]
         self.do_outputs = get_params_types_names(self.do_proto)[2:]
         struct_output_str = ["PyObject *{0[name]}; {1} c_{0[name]}".format(i, i['type'][:-1]) for i in self.do_outputs]
+        if len(self.prototypes['rdo']):
+            rdo_outputs = get_params_types_names(prototypes['rdo'][0])[2:]
+            struct_output_str += ["PyObject *{0[name]}; {1} c_{0[name]}".format(i, i['type'][:-1]) for i in rdo_outputs]
+            self.outputs += rdo_outputs
         self.struct_outputs = ";\n    ".join(struct_output_str)
 
         #print ("input_params: ", map(split_type, get_input_params(self.do_proto)))
@@ -190,6 +196,11 @@ class MappedObject(object):
             out += self.gen_init()
             out += self.gen_del()
             out += self.gen_do()
+            if len(self.prototypes['rdo']):
+                self.do_proto = self.prototypes['rdo'][0]
+                self.do_inputs = [get_params_types_names(self.do_proto)[1]]
+                self.do_outputs = get_params_types_names(self.do_proto)[2:]
+                out += self.gen_do(method='rdo')
             out += self.gen_memberdef()
             out += self.gen_set()
             out += self.gen_get()
@@ -370,12 +381,12 @@ Py_{shortname}_del  (Py_{shortname} * self, PyObject * unused)
 """.format(del_fn = del_fn)
         return out
 
-    def gen_do(self):
+    def gen_do(self, method = 'do'):
         out = """
 // do {shortname}
 static PyObject*
-Py_{shortname}_do  (Py_{shortname} * self, PyObject * args)
-{{""".format(**self.__dict__)
+Pyaubio_{shortname}_{method}  (Py_{shortname} * self, PyObject * args)
+{{""".format(method = method, **self.__dict__)
         input_params = self.do_inputs
         output_params = self.do_outputs
         #print input_params
@@ -515,6 +526,12 @@ static PyMethodDef Py_{shortname}_methods[] = {{""".format(**self.__dict__)
             out += """
   {{"{shortname}", (PyCFunction) Py{name},
     METH_NOARGS, ""}},""".format(name = name, shortname = shortname)
+        for m in self.prototypes['rdo']:
+            name = get_name(m)
+            shortname = name.replace('aubio_%s_' % self.shortname, '')
+            out += """
+  {{"{shortname}", (PyCFunction) Py{name},
+    METH_VARARGS, ""}},""".format(name = name, shortname = shortname)
         out += """
   {NULL} /* sentinel */
 };
@@ -540,7 +557,7 @@ PyTypeObject Py_{shortname}Type = {{
   0,
   0,
   0,
-  (ternaryfunc)Py_{shortname}_do,
+  (ternaryfunc)Pyaubio_{shortname}_do,
   0,
   0,
   0,

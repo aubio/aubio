@@ -181,7 +181,7 @@ def generate_lib_from_c_declarations(cpp_objects, c_declarations):
         if o[:6] == 'aubio_':
             shortname = o[6:-2]  # without aubio_ prefix and _t suffix
 
-        lib[shortname] = {'struct': [], 'new': [], 'del': [], 'do': [], 'get': [], 'set': [], 'other': []}
+        lib[shortname] = {'struct': [], 'new': [], 'del': [], 'do': [], 'rdo': [], 'get': [], 'set': [], 'other': []}
         lib[shortname]['longname'] = o
         lib[shortname]['shortname'] = shortname
 
@@ -195,6 +195,8 @@ def generate_lib_from_c_declarations(cpp_objects, c_declarations):
                     lib[shortname]['struct'].append(fn)
                 elif '_do' in fn:
                     lib[shortname]['do'].append(fn)
+                elif '_rdo' in fn:
+                    lib[shortname]['rdo'].append(fn)
                 elif 'new_' in fn:
                     lib[shortname]['new'].append(fn)
                 elif 'del_' in fn:
