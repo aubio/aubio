@@ -83,12 +83,18 @@ aubio_dct_t* new_aubio_dct (uint_t size) {
   aubio_dct_t * s = AUBIO_NEW(aubio_dct_t);
   if ((sint_t)size <= 0) goto beach;
 #if defined(HAVE_ACCELERATE)
-  // TODO check
   // vDSP supports sizes = f * 2 ** n, where n >= 4 and f in [1, 3, 5, 15]
   // see https://developer.apple.com/documentation/accelerate/1449930-vdsp_dct_createsetup
-  if (aubio_is_power_of_two(size/16) != 1
-      || (size/16 != 3 && size/16 != 5 && size/16 != 15)) {
-    goto plain;
+  {
+    uint_t radix = size;
+    uint_t order = 0;
+    while ((radix / 2) * 2 == radix) {
+      radix /= 2;
+      order++;
+    }
+    if (order < 4 || (radix != 1 && radix != 3 && radix != 5 && radix != 15)) {
+      goto plain;
+    }
   }
   s->dct = (void *)new_aubio_dct_accelerate (size);
   if (s->dct) {
