@@ -75,8 +75,12 @@ extern void usage (FILE * stream, int exit_code);
 extern int parse_args (int argc, char **argv);
 
 #if HAVE_JACK
+#define MAX_MIDI_EVENTS 128
+#define MAX_MIDI_EVENT_SIZE 3
 aubio_jack_t *jack_setup;
 jack_midi_event_t ev;
+jack_midi_data_t midi_data[MAX_MIDI_EVENTS * MAX_MIDI_EVENT_SIZE];
+size_t midi_event_count = 0;
 #endif /* HAVE_JACK */
 
 void examples_common_init (int argc, char **argv);
@@ -128,9 +132,6 @@ void examples_common_init (int argc, char **argv)
 
 void examples_common_del (void)
 {
-#ifdef HAVE_JACK
-  if (ev.buffer) free(ev.buffer);
-#endif
   del_fvec (ibuf);
   del_fvec (obuf);
   aubio_cleanup ();
@@ -146,8 +147,7 @@ void examples_common_process (aubio_process_func_t process_func,
   if (usejack) {
 
 #ifdef HAVE_JACK
-    ev.size = 3;
-    ev.buffer = malloc (3 * sizeof (jack_midi_data_t));
+    ev.size = MAX_MIDI_EVENT_SIZE;
     ev.time = 0; // send it now
     debug ("Jack activation ...\n");
     aubio_jack_activate (jack_setup, process_func);
@@ -193,6 +193,10 @@ send_noteon (smpl_t pitch, smpl_t velo)
 {
 #ifdef HAVE_JACK
   if (usejack) {
+    ev.buffer = midi_data + midi_event_count++ * MAX_MIDI_EVENT_SIZE;
+    if (midi_event_count >= MAX_MIDI_EVENTS) {
+      midi_event_count = 0;
+    }
     ev.buffer[2] = velo;
     ev.buffer[1] = pitch;
     if (velo == 0) {
