@@ -137,7 +137,7 @@ def parser_add_subcommand_quiet(subparsers):
     subparser.set_defaults(process=process_quiet)
 
 def parser_add_subcommand_cut(subparsers):
-    # quiet subcommand
+    # cut subcommand
     subparser = subparsers.add_parser('cut',
             help='slice at timestamps')
     subparser.add_input()
