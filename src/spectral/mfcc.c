@@ -31,7 +31,9 @@
 #include "spectral/dct.h"
 #include "spectral/mfcc.h"
 
-#undef HAVE_SLOW_DCT
+#ifdef HAVE_NOOPT
+#define HAVE_SLOW_DCT 1
+#endif
 
 /** Internal structure for mfcc object */
 
