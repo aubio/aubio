@@ -76,8 +76,6 @@
 #elif defined(HAVE_ATLAS_CBLAS_H)
 #define HAVE_ATLAS 1
 #include <atlas/cblas.h>
-#else
-#undef HAVE_ATLAS
 #endif
 
 #ifdef HAVE_ACCELERATE
@@ -160,8 +158,6 @@
 
 #if !defined(HAVE_MEMCPY_HACKS) && !defined(HAVE_ACCELERATE) && !defined(HAVE_ATLAS) && !defined(HAVE_INTEL_IPP)
 #define HAVE_NOOPT 1
-#else
-#undef HAVE_NOOPT
 #endif
 
 #include "types.h"
