@@ -77,7 +77,8 @@ def get_preprocessor():
         print("Warning: could not guess preprocessor, using env's CC")
         cpp_cmd = os.environ.get('CC', 'cc').split()
         cpp_cmd += ['-E']
-    cpp_cmd += ['-x', 'c']  # force C language (emcc defaults to c++)
+    if 'emcc' in cpp_cmd:
+        cpp_cmd += ['-x', 'c'] # emcc defaults to c++, force C language
     return cpp_cmd
 
 
