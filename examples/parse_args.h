@@ -97,7 +97,7 @@ void usage (FILE * stream, int exit_code)
 #endif /* PROG_HAS_ONSET */
 #ifdef PROG_HAS_PITCH
       "       -p      --pitch            select pitch detection algorithm\n"
-      "                 <default|yinfft|yin|mcomb|fcomb|schmitt>; default=yinfft\n"
+      "                 <default|yinfft|yinfast|yin|mcomb|fcomb|schmitt>; default=yinfft\n"
       "       -u      --pitch-unit       select pitch output unit\n"
       "                 <default|freq|hertz|Hz|midi|cent|bin>; default=freq\n"
       "       -l      --pitch-tolerance  select pitch tolerance\n"
