@@ -134,7 +134,7 @@ void fvec_copy(const fvec_t *s, fvec_t *t) {
   }
 #if defined(HAVE_INTEL_IPP)
   aubio_ippsCopy(s->data, t->data, (int)s->length);
-#elif defined(HAVE_ATLAS)
+#elif defined(HAVE_BLAS)
   aubio_cblas_copy(s->length, s->data, 1, t->data, 1);
 #elif defined(HAVE_ACCELERATE)
   aubio_vDSP_mmov(s->data, t->data, 1, s->length, 1, 1);

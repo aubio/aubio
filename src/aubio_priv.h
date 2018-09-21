@@ -70,12 +70,20 @@
 #include <stdarg.h>
 #endif
 
-#ifdef HAVE_ACCELERATE
+#if defined(HAVE_ACCELERATE)
 #define HAVE_ATLAS 1
+#define HAVE_BLAS 1
 #include <Accelerate/Accelerate.h>
 #elif defined(HAVE_ATLAS_CBLAS_H)
+#elif defined(HAVE_BLAS)
+#if defined(HAVE_ATLAS_CBLAS_H)
 #define HAVE_ATLAS 1
 #include <atlas/cblas.h>
+#elif defined(HAVE_OPENBLAS_CBLAS_H)
+#include <openblas/cblas.h>
+#elif defined(HAVE_CBLAS_H)
+#include <cblas.h>
+#endif
 #endif
 
 #ifdef HAVE_ACCELERATE
@@ -111,19 +119,23 @@
 #endif /* HAVE_AUBIO_DOUBLE */
 #endif /* HAVE_ACCELERATE */
 
-#ifdef HAVE_ATLAS
+#if defined(HAVE_BLAS)
 #ifndef HAVE_AUBIO_DOUBLE
+#ifdef HAVE_ATLAS
 #define aubio_catlas_set      catlas_sset
+#endif /* HAVE_ATLAS */
 #define aubio_cblas_copy      cblas_scopy
 #define aubio_cblas_swap      cblas_sswap
 #define aubio_cblas_dot       cblas_sdot
 #else /* HAVE_AUBIO_DOUBLE */
+#ifdef HAVE_ATLAS
 #define aubio_catlas_set      catlas_dset
+#endif /* HAVE_ATLAS */
 #define aubio_cblas_copy      cblas_dcopy
 #define aubio_cblas_swap      cblas_dswap
 #define aubio_cblas_dot       cblas_ddot
 #endif /* HAVE_AUBIO_DOUBLE */
-#endif /* HAVE_ATLAS */
+#endif /* HAVE_BLAS */
 
 #if defined HAVE_INTEL_IPP
 #include <ippcore.h>

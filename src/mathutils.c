@@ -271,7 +271,7 @@ fvec_shift (fvec_t * s)
   uint_t half = s->length / 2, start = half, j;
   // if length is odd, middle element is moved to the end
   if (2 * half < s->length) start ++;
-#ifndef HAVE_ATLAS
+#ifndef HAVE_BLAS
   for (j = 0; j < half; j++) {
     ELEM_SWAP (s->data[j], s->data[j + start]);
   }
@@ -291,7 +291,7 @@ fvec_ishift (fvec_t * s)
   uint_t half = s->length / 2, start = half, j;
   // if length is odd, middle element is moved to the beginning
   if (2 * half < s->length) start ++;
-#ifndef HAVE_ATLAS
+#ifndef HAVE_BLAS
   for (j = 0; j < half; j++) {
     ELEM_SWAP (s->data[j], s->data[j + start]);
   }
@@ -328,7 +328,7 @@ smpl_t
 aubio_level_lin (const fvec_t * f)
 {
   smpl_t energy = 0.;
-#ifndef HAVE_ATLAS
+#ifndef HAVE_BLAS
   uint_t j;
   for (j = 0; j < f->length; j++) {
     energy += SQR (f->data[j]);
