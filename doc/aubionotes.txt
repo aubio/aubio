@@ -87,7 +87,8 @@ ONSET METHODS
 
 PITCH METHODS
 
-  Available methods: default, schmitt, fcomb, mcomb, specacf, yin, yinfft.
+  Available methods: default, schmitt, fcomb, mcomb, specacf, yin, yinfft,
+  yinfast.
 
   See aubiopitch(1) for details about these methods.
 
