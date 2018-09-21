@@ -97,6 +97,14 @@ def options(ctx):
             help_str = 'build documentation (auto)',
             help_disable_str = 'do not build documentation')
 
+    add_option_enable_disable(ctx, 'tests', default = True,
+            help_str = 'build tests (true)',
+            help_disable_str = 'do not build or run tests')
+
+    add_option_enable_disable(ctx, 'examples', default = True,
+            help_str = 'build examples (true)',
+            help_disable_str = 'do not build examples')
+
     ctx.add_option('--with-target-platform', type='string',
             help='set target platform for cross-compilation', dest='target_platform')
 
@@ -473,8 +481,10 @@ def build(bld):
     if bld.env['DEST_OS'] not in ['ios', 'iosimulator', 'android']:
         if bld.env['DEST_OS']=='emscripten' and not bld.options.testcmd:
             bld.options.testcmd = 'node %s'
-        bld.recurse('examples')
-        bld.recurse('tests')
+        if bld.options.enable_examples:
+            bld.recurse('examples')
+        if bld.options.enable_tests:
+            bld.recurse('tests')
 
     # pkg-config template
     bld( source = 'aubio.pc.in' )
