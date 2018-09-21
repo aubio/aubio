@@ -98,6 +98,100 @@ To enable this option, configure with ``--enable-fftw3``. The build will
 then fail if the required library is not found. To disable this option,
 configure with ``--disable-fftw3``
 
+blas
+....
+
+On macOs/iOS, `blas
+<https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms>`_ are made
+available through the Accelerate framework.
+
+On Linux, they can be enabled with ``--enable-blas``.  On Debian (etch),
+`atlas`_, `openblas`_, and `libblas`_ have been successfully tested.
+
+When enabled, ``waf`` will check for the current blas configuration by running
+``pkg-config --libs blas``. Depending of the library path returned by
+``pkg-config``, different headers will be searched for.
+
+.. note::
+
+    On Debian systems, `multiple versions of BLAS and LAPACK
+    <https://wiki.debian.org/DebianScience/LinearAlgebraLibraries>`_ can be
+    installed. To configure which libblas is being used:
+
+    .. code-block:: console
+
+      $ sudo update-alternatives --config libblas.so
+
+..
+  Expected pkg-config output for each alternative:
+    /usr/lib/atlas-base/atlas/libblas.so
+    -L/usr/lib/atlas-base/atlas -lblas
+    /usr/lib/openblas-base/libblas.so
+    -L/usr/lib/openblas-base -lblas
+    /usr/lib/libblas/libblas.so
+    -lblas
+
+atlas
+.....
+
+`ATLAS BLAS APIs <http://math-atlas.sourceforge.net/>`_ will be used the path
+returned by ``pkg-config --libs blas`` contains ``atlas``.
+
+..
+  ``<atlas/cblas.h>`` will be included.
+
+Example:
+
+.. code-block:: console
+
+  $ pkg-config --libs blas
+  -L/usr/lib/atlas-base/atlas -lblas
+  $ ./waf configure --enable-atlas
+  [...]
+  Checking for 'blas'                      : yes
+  Checking for header atlas/cblas.h        : yes
+
+openblas
+........
+
+`OpenBlas libraries <https://www.openblas.net/>`_ will be used when the output
+of ``pkg-config --libs blas`` contains 'openblas',
+
+..
+  ``<openblas/cblas.h>`` will be included.
+
+Example:
+
+.. code-block:: console
+
+  $ pkg-config --libs blas
+  -L/usr/lib/openblas-base -lblas
+  $ ./waf configure --enable-atlas
+  [...]
+  Checking for 'blas'                      : yes
+  Checking for header openblas/cblas.h     : yes
+
+libblas
+.......
+
+`Netlib's libblas (LAPACK) <https://www.netlib.org/lapack/>`_ will be used if
+no specific library path is specified by ``pkg-config``
+
+..
+  ``<cblas.h>`` will be included.
+
+Example:
+
+.. code-block:: console
+
+  $ pkg-config --libs blas
+  -lblas
+  $ ./waf configure --enable-atlas
+  [...]
+  Checking for 'blas'                      : yes
+  Checking for header cblas.h              : yes
+
+
 Platform notes
 --------------
 
