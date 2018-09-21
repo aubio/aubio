@@ -31,6 +31,9 @@ unusual location.
     If ``pkg-config`` is not found in ``PATH``, the configure step will
     succeed, but none of the external libraries will be used.
 
+Media libraries
+---------------
+
 libav
 .....
 
@@ -77,6 +80,9 @@ and ``aubio_resample`` will be fully functional.
 To enable this option, configure with ``--enable-samplerate``. The build will
 then fail if the required library is not found. To disable this option,
 configure with ``--disable-samplerate``
+
+Optimisation libraries
+----------------------
 
 libfftw3
 ........
