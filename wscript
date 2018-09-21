@@ -83,9 +83,12 @@ def options(ctx):
     add_option_enable_disable(ctx, 'apple-audio', default = None,
             help_str = 'use CoreFoundation (darwin only) (auto)',
             help_disable_str = 'do not use CoreFoundation framework')
+    add_option_enable_disable(ctx, 'blas', default = False,
+            help_str = 'use BLAS acceleration library (no)',
+            help_disable_str = 'do not use BLAS library')
     add_option_enable_disable(ctx, 'atlas', default = False,
-            help_str = 'use Atlas library (no)',
-            help_disable_str = 'do not use Atlas library')
+            help_str = 'use ATLAS acceleration library (no)',
+            help_disable_str = 'do not use ATLAS library')
     add_option_enable_disable(ctx, 'wavread', default = True,
             help_str = 'compile with source_wavread (default)',
             help_disable_str = 'do not compile source_wavread')
@@ -273,9 +276,6 @@ def configure(ctx):
         c_mangled_names = ['_' + s for s in exported_funcnames]
         ctx.env.LINKFLAGS_cshlib += ['-s', 'EXPORTED_FUNCTIONS=%s' % c_mangled_names]
 
-    if (ctx.options.enable_atlas != True):
-        ctx.options.enable_atlas = False
-
     # check support for C99 __VA_ARGS__ macros
     check_c99_varargs = '''
 #include <stdio.h>
@@ -426,11 +426,22 @@ def configure(ctx):
         ctx.define('HAVE_WAVWRITE', 1)
     ctx.msg('Checking if using sink_wavwrite', ctx.options.enable_wavwrite and 'yes' or 'no')
 
-    # use ATLAS
-    if (ctx.options.enable_atlas != False):
-        ctx.check(header_name = 'atlas/cblas.h', mandatory = ctx.options.enable_atlas)
-        #ctx.check(lib = 'lapack', uselib_store = 'LAPACK', mandatory = ctx.options.enable_atlas)
-        ctx.check(lib = 'cblas', uselib_store = 'BLAS', mandatory = ctx.options.enable_atlas)
+    # use BLAS/ATLAS
+    if (ctx.options.enable_blas != False):
+        ctx.check_cfg(package = 'blas',
+                args = '--cflags --libs',
+                uselib_store='BLAS', mandatory = ctx.options.enable_blas)
+        if 'LIB_BLAS' in ctx.env:
+            blas_header = None
+            if ctx.env['LIBPATH_BLAS']:
+                if 'atlas' in ctx.env['LIBPATH_BLAS'][0]:
+                    blas_header = 'atlas/cblas.h'
+                elif 'openblas' in ctx.env['LIBPATH_BLAS'][0]:
+                    blas_header = 'openblas/cblas.h'
+            else:
+                blas_header = 'cblas.h'
+            ctx.check(header_name = blas_header, mandatory =
+                    ctx.options.enable_atlas)
 
     # use memcpy hacks
     if (ctx.options.enable_memcpy == True):
