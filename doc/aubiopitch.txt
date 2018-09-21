@@ -120,6 +120,12 @@ PITCH METHODS
   Chapter 3, Pitch Analysis, PhD thesis, Centre for Digital music, Queen Mary
   University of London, London, UK, 2006.
 
+  yinfast  YIN algorithm (accelerated)
+
+  An optimised implementation of the YIN algorithm, yielding results identical
+  to the original YIN algorithm, while reducing its computational cost from
+  O(n^2) to O(n log(n)).
+
 SEE ALSO
 
   aubioonset(1),
