@@ -28,8 +28,17 @@ From ``aubio`` source directory, run the following:
 Using aubio in python
 ---------------------
 
-Once you have python-aubio installed, you should be able to run ``python -c
-"import aubio; print(aubio.version)"``.
+Once the python module is installed, its version can be checked with:
+
+.. code-block:: console
+
+    $ python -c "import aubio; print(aubio.version, aubio.float_type)"
+
+The command line `aubio` is also installed:
+
+.. code-block:: console
+
+    $ aubio -h
 
 A simple example
 ................
