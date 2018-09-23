@@ -10,7 +10,7 @@ Installing aubio with pip
 
 aubio can now be installed using ``pip``:
 
-.. code-block:: bash
+.. code-block:: console
 
     $ pip install aubio
 
@@ -19,7 +19,7 @@ Building the module
 
 From ``aubio`` source directory, run the following:
 
-.. code-block:: bash
+.. code-block:: console
 
     $ ./setup.py clean
     $ ./setup.py build
