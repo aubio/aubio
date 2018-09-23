@@ -54,6 +54,8 @@ install:
   # We need wheel installed to build wheels
   - "%PYTHONDIR%\\python.exe -m pip install wheel"
 
+  - "SET PATH=%PYTHONDIR%;%PYTHONDIR%\\Scripts;%PATH%"
+
 before_build:
   - "bash scripts/get_waf.sh"
 
