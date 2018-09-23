@@ -605,4 +605,5 @@ def dist(ctx):
     ctx.excl += ' **/.travis.yml'
     ctx.excl += ' **/.landscape.yml'
     ctx.excl += ' **/.appveyor.yml'
-    ctx.excl += ' **/circlei.yml'
+    ctx.excl += ' **/circle.yml'
+    ctx.excl += ' **/.coveragerc'
