@@ -1,3 +1,90 @@
+2018-09-22 Paul Brossier <piem@aubio.org>
+
+	[ Overview ]
+
+	* VERSION: bump to 0.4.7
+	* src/spectral/dct.h: add dct type II object with optimised versions
+	* src/io/, src/notes/, src/pitch: prevent crashes on corrupted files
+	* examples/: fix jack midi output, improve messages when jack disabled
+	* python/: add dct support, minor bug fixes tests and demos
+	* wscript: improve support for BLAS/ATLAS
+
+	[ Library fixes ]
+
+	* src/pitch/pitchyinfft.c: fix out of bound read when samplerate > 50kHz
+	thanks to @fCorleone (closes #189, CVE-2018-14523, debian #904906)
+	* src/notes/notes.c: bail out if pitch creation failed (see #188)
+	* src/io/source_wavread.c:
+	 - also exit if samplerate is negative (closes #188, CVE-2018-14522,
+	 debian #904907)
+	 - add some input validation (closes #148 and #158, CVE-2017-17054,
+	 debian #883355)
+	* src/io/source_avcodec.c:
+	 - give up if resampling context failed opening (see #137, closes #187,
+	 CVE-2018-14521, debian #904908)
+	 - give up reading file if number of channel changes during stream (closes
+	 #137, CVE-2017-17554, debian #884237)
+	 - make sure libavutil > 52 before checking avFrame->channels (see #137)
+	 - fix build with ffmpeg 4.0, thanks to @jcowgill (closes #168, #173)
+	 - avoid deprecated call for ffmpeg >= 4.0
+	* src/onset/onset.c: add dummy default parameters for wphase (closes #150)
+
+	[ Tools ]
+
+	* examples/parse_args.h: hide jack options if not available, improve error
+	message (closes #182)
+	* examples/utils.h: process_block returns void
+	* examples/utils.c: fix examples failing to send more than one JACK midi
+	event per frame, thanks to @cyclopsian (closes #201)
+
+	[ New features ]
+
+	* src/spectral/dct.h: add dct type II object with implementation factory
+	* src/spectral/dct_plain.c: add plain dct implementation
+	* src/spectral/dct_ooura.c: add ooura implementation
+	* src/spectral/dct_fftw.c: add fftw implementation
+	* src/spectral/dct_ipp.c: add ipp version
+	* src/spectral/dct_accelerate.c: add vdsp/accelerate dct
+	* tests/src/spectral/test-dct.c: check reconstruction works
+	* src/spectral/mfcc.c: use new dct to compute mfcc
+
+	[ Library internals ]
+
+	* src/aubio_priv.h: avoid hard-coded undefs, split BLAS and ATLAS support,
+	add vdsp scalar add and multiply
+
+	[ Build system ]
+
+	* wscript:
+	 - add options to disable examples and tests
+	 - detect includes for openblas/libblas/atlas
+	* scripts/get_waf.sh: bump to 2.0.11, verify signature if gpg available
+	* python/lib/gen_external.py: pass '-x c' to emcc only
+
+	[ Python ]
+
+	* python/lib/gen_code.py: add support for rdo methods
+	* python/tests/test_dct.py: add tests for new dct
+	* python/demos/demo_pitch_sinusoid.py: use // to yield an integer, fixing
+	demo on py3, thanks to @ancorcruz (closes #176)
+	* python/ext/py-musicutils.*: add shift(fvec) and ishift(fvec)
+	* python/tests/test_fvec_shift.py: add tests for shift() and ishift()
+	* python/lib/aubio/cmd.py: fix typo in comment
+
+	[ Documentation ]
+
+	* README.md, doc/statuslinks.rst: use latest for commits-since
+	* examples/parse_args.h: add yinfast to pitch algorithms
+	* doc/requirements.rst: add some blas documentation
+	* doc/requirements.rst: split media/optimisation libraries
+	* doc/develop.rst: fixed spelling error, thanks to Jon Williams (closes #161)
+	* doc/aubio{pitch,notes}.txt: add yinfast to list of pitch methods
+
+	[ Continuous integration ]
+
+	* .travis.yml: remove xcode8.2 builds, group osx, add alias pip=pip2
+	* .appveyor.yml: upgrade pip first, always use python -m pip
+
 2017-10-02 Paul Brossier <piem@aubio.org>
 
 	[ Overview ]
