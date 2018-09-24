@@ -62,10 +62,17 @@ before_build:
   - "bash scripts/get_waf.sh"
 
 build_script:
-  # build python module without using libaubio
-  - pip wheel -v -v -v --wheel-dir=dist .
   # also build libaubio with waf
   - python waf distclean configure build install --verbose --msvc_version="msvc 14.0"
+  # build python module without using libaubio
+  - pip wheel -v -v -v --wheel-dir=dist .
+ - ps: |
+      # build, upload and install wheel (inspired by numpy's appveyor)
+      pip wheel -v -v -v --wheel-dir=dist .
+      ls dist -r | Foreach-Object {
+          Push-AppveyorArtifact $_.FullName
+          pip install $_.FullName
+      }
 
 test_script:
   - "python python\\demos\\demo_create_test_sounds.py"
