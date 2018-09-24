@@ -66,8 +66,8 @@ build_script:
   - python waf distclean configure build install --verbose --msvc_version="msvc 14.0"
   # build python module without using libaubio
   - pip wheel -v -v -v --wheel-dir=dist .
- - ps: |
-      # build, upload and install wheel (inspired by numpy's appveyor)
+  # build, upload and install wheel (inspired by numpy's appveyor)
+  - ps: |
       pip wheel -v -v -v --wheel-dir=dist .
       ls dist -r | Foreach-Object {
           Push-AppveyorArtifact $_.FullName
