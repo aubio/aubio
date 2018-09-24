@@ -105,10 +105,10 @@ def get_c_declarations(header=header, usedouble=False):
     assert proc, 'Proc was none'
     cpp_output = proc.stdout.read()
     err_output = proc.stderr.read()
+    if err_output:
+        print("Warning: preprocessor produced errors or warnings:\n%s" % err_output)
     if not cpp_output:
         raise Exception("preprocessor output is empty:\n%s" % err_output)
-    elif err_output:
-        print("Warning: preprocessor produced warnings:\n%s" % err_output)
     if not isinstance(cpp_output, list):
         cpp_output = [l.strip() for l in cpp_output.decode('utf8').split('\n')]
 
