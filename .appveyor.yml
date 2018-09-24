@@ -44,17 +44,17 @@ install:
   - ECHO "Installed SDKs:"
   - ps: "ls \"C:/Program Files/Microsoft SDKs/Windows\""
 
-  # Check that we have the expected version and architecture for Python
-  - "%PYTHONDIR%\\python.exe --version"
-  - "%PYTHONDIR%\\python.exe -c \"import struct; print(struct.calcsize('P') * 8)\""
+  - "SET PATH=%PYTHONDIR%;%PYTHONDIR%\\Scripts;%PATH%"
 
-  - "%PYTHONDIR%\\python.exe -m pip install --disable-pip-version-check --user --upgrade pip"
-  - "%PYTHONDIR%\\python.exe -m pip install --upgrade setuptools"
+  # Check that we have the expected version and architecture for Python
+  - "python --version"
+  - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
+
+  - "python -m pip install --disable-pip-version-check --user --upgrade pip"
+  - "python -m pip install --upgrade setuptools"
 
   # We need wheel installed to build wheels
-  - "%PYTHONDIR%\\python.exe -m pip install wheel"
-
-  - "SET PATH=%PYTHONDIR%;%PYTHONDIR%\\Scripts;%PATH%"
+  - "python -m pip install wheel"
 
 before_build:
   - "bash scripts/get_waf.sh"
