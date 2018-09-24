@@ -106,9 +106,16 @@ def get_c_declarations(header=header, usedouble=False):
     cpp_output = proc.stdout.read()
     err_output = proc.stderr.read()
     if err_output:
-        print("Warning: preprocessor produced errors or warnings:\n%s" % err_output)
+        print("Warning: preprocessor produced errors or warnings:\n%s" \
+                % err_output.decode('utf8'))
     if not cpp_output:
-        raise Exception("preprocessor output is empty:\n%s" % err_output)
+        raise_msg = "preprocessor output is empty! Running command " \
+                + "\"%s\" failed" % " ".join(cpp_cmd)
+        if err_output:
+            raise_msg += " with stderr: \"%s\"" % err_output.decode('utf8')
+        else:
+            raise_msg += " with no stdout or stderr"
+        raise Exception(raise_msg)
     if not isinstance(cpp_output, list):
         cpp_output = [l.strip() for l in cpp_output.decode('utf8').split('\n')]
 
