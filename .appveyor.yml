@@ -56,17 +56,17 @@ install:
   # We need wheel installed to build wheels
   - "python -m pip install wheel"
 
+  - "pip install -r requirements.txt"
+
 before_build:
   - "bash scripts/get_waf.sh"
 
 build_script:
   # build python module without using libaubio
-  - "%PYTHONDIR%\\python.exe -m pip install -r requirements.txt"
-  - "python setup.py build"
-  - "%PYTHONDIR%\\python.exe -m pip install ."
+  - pip wheel -v -v -v --wheel-dir=dist .
+  # also build libaubio with waf
+  - python waf distclean configure build install --verbose --msvc_version="msvc 14.0"
+
+test_script:
   - "python python\\demos\\demo_create_test_sounds.py"
   - "nose2 --verbose"
-  # clean up
-  - "python waf distclean"
-  # build libaubio
-  - python waf configure build --verbose --msvc_version="msvc 14.0"
