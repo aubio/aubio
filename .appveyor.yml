@@ -3,41 +3,45 @@
 
 environment:
 
+  global:
+      MINGW_32: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin
+      MINGW_64: C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin
+
   matrix:
 
     # pre-installed python version, see:
     # http://www.appveyor.com/docs/installed-software#python
-    - PYTHONDIR: "C:\\Python27"
-      PYTHON_VERSION: "2.7.x"
-      PYTHON_ARCH: "32"
+    - PYTHONDIR: C:\Python27
+      PYTHON_VERSION: 2.7.x
+      PYTHON_ARCH: 32
 
-    - PYTHONDIR: "C:\\Python27-x64"
-      PYTHON_VERSION: "2.7.x"
-      PYTHON_ARCH: "64"
+    - PYTHONDIR: C:\Python27-x64
+      PYTHON_VERSION: 2.7.x
+      PYTHON_ARCH: 64
 
-    - PYTHONDIR: "C:\\Python35"
-      PYTHON_VERSION: "3.5.x"
-      PYTHON_ARCH: "32"
+    - PYTHONDIR: C:\Python35
+      PYTHON_VERSION: 3.5.x
+      PYTHON_ARCH: 32
 
-    - PYTHONDIR: "C:\\Python35-x64"
-      PYTHON_VERSION: "3.5.x"
-      PYTHON_ARCH: "64"
+    - PYTHONDIR: C:\Python35-x64
+      PYTHON_VERSION: 3.5.x
+      PYTHON_ARCH: 64
 
-    - PYTHONDIR: "C:\\Python36"
-      PYTHON_VERSION: "3.6.x"
-      PYTHON_ARCH: "32"
+    - PYTHONDIR: C:\Python36
+      PYTHON_VERSION: 3.6.x
+      PYTHON_ARCH: 32
 
-    - PYTHONDIR: "C:\\Python36-x64"
-      PYTHON_VERSION: "3.6.x"
-      PYTHON_ARCH: "64"
+    - PYTHONDIR: C:\Python36-x64
+      PYTHON_VERSION: 3.6.x
+      PYTHON_ARCH: 64
 
-    - PYTHONDIR: "C:\\Python37"
-      PYTHON_VERSION: "3.7.x"
-      PYTHON_ARCH: "32"
+    - PYTHONDIR: C:\Python37
+      PYTHON_VERSION: 3.7.x
+      PYTHON_ARCH: 32
 
-    - PYTHONDIR: "C:\\Python37-x64"
-      PYTHON_VERSION: "3.7.x"
-      PYTHON_ARCH: "64"
+    - PYTHONDIR: C:\Python37-x64
+      PYTHON_VERSION: 3.7.x
+      PYTHON_ARCH: 64
 
 install:
 
@@ -45,6 +49,9 @@ install:
   - ps: "ls \"C:/Program Files/Microsoft SDKs/Windows\""
 
   - "SET PATH=%PYTHONDIR%;%PYTHONDIR%\\Scripts;%PATH%"
+
+  #- if [%PYTHON_ARCH%]==[32] SET PATH=%MINGW_32%;%PATH%
+  - if [%PYTHON_ARCH%]==[64] SET PATH=%MINGW_64%;%PATH%
 
   # Check that we have the expected version and architecture for Python
   - "python --version"
