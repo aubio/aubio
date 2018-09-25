@@ -4,8 +4,7 @@
 environment:
 
   global:
-      MINGW_32: C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32\bin
-      MINGW_64: C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin
+      CUSTOM64PATH: C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin
 
   matrix:
 
@@ -50,8 +49,7 @@ install:
 
   - "SET PATH=%PYTHONDIR%;%PYTHONDIR%\\Scripts;%PATH%"
 
-  #- if [%PYTHON_ARCH%]==[32] SET PATH=%MINGW_32%;%PATH%
-  - if [%PYTHON_ARCH%]==[64] SET PATH=%MINGW_64%;%PATH%
+  - if [%PYTHON_ARCH%]==[64] SET PATH=%CUSTOM64PATH%;%PATH%
 
   # Check that we have the expected version and architecture for Python
   - "python --version"
