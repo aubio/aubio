@@ -68,7 +68,7 @@ before_build:
 
 build_script:
   # also build libaubio with waf
-  - python waf configure build install --verbose
+  - python waf configure build install --verbose --msvc_version="msvc 14.0"
   # clean before building python package
   - python waf distclean
   # build python module without using libaubio
