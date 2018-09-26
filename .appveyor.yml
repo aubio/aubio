@@ -3,64 +3,84 @@
 
 environment:
 
+  global:
+      CUSTOM64PATH: C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin
+
   matrix:
 
     # pre-installed python version, see:
     # http://www.appveyor.com/docs/installed-software#python
-    - PYTHONDIR: "C:\\Python27"
-      PYTHON_VERSION: "2.7.x"
-      PYTHON_ARCH: "32"
+    - PYTHONDIR: C:\Python27
+      PYTHON_VERSION: 2.7.x
+      PYTHON_ARCH: 32
 
-    - PYTHONDIR: "C:\\Python27-x64"
-      PYTHON_VERSION: "2.7.x"
-      PYTHON_ARCH: "64"
+    - PYTHONDIR: C:\Python27-x64
+      PYTHON_VERSION: 2.7.x
+      PYTHON_ARCH: 64
 
-    - PYTHONDIR: "C:\\Python34"
-      PYTHON_VERSION: "3.4.x"
-      PYTHON_ARCH: "32"
+    - PYTHONDIR: C:\Python35
+      PYTHON_VERSION: 3.5.x
+      PYTHON_ARCH: 32
 
-    - PYTHONDIR: "C:\\Python34-x64"
-      PYTHON_VERSION: "3.4.x"
-      PYTHON_ARCH: "64"
+    - PYTHONDIR: C:\Python35-x64
+      PYTHON_VERSION: 3.5.x
+      PYTHON_ARCH: 64
 
-    - PYTHONDIR: "C:\\Python35"
-      PYTHON_VERSION: "3.5.x"
-      PYTHON_ARCH: "32"
+    - PYTHONDIR: C:\Python36
+      PYTHON_VERSION: 3.6.x
+      PYTHON_ARCH: 32
 
-    - PYTHONDIR: "C:\\Python35-x64"
-      PYTHON_VERSION: "3.5.x"
-      PYTHON_ARCH: "64"
-      # add path required to run preprocessor step
-      PATH_EXTRAS: "c:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\bin"
+    - PYTHONDIR: C:\Python36-x64
+      PYTHON_VERSION: 3.6.x
+      PYTHON_ARCH: 64
+
+    - PYTHONDIR: C:\Python37
+      PYTHON_VERSION: 3.7.x
+      PYTHON_ARCH: 32
+
+    - PYTHONDIR: C:\Python37-x64
+      PYTHON_VERSION: 3.7.x
+      PYTHON_ARCH: 64
 
 install:
 
   - ECHO "Installed SDKs:"
   - ps: "ls \"C:/Program Files/Microsoft SDKs/Windows\""
 
-  # Check that we have the expected version and architecture for Python
-  - "%PYTHONDIR%\\python.exe --version"
-  - "%PYTHONDIR%\\python.exe -c \"import struct; print(struct.calcsize('P') * 8)\""
+  - "SET PATH=%PYTHONDIR%;%PYTHONDIR%\\Scripts;%PATH%"
 
-  - "%PYTHONDIR%\\python.exe -m pip install --disable-pip-version-check --user --upgrade pip"
-  - "%PYTHONDIR%\\python.exe -m pip install --upgrade setuptools"
+  - if [%PYTHON_ARCH%]==[64] SET PATH=%CUSTOM64PATH%;%PATH%
+
+  # Check that we have the expected version and architecture for Python
+  - "python --version"
+  - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
+
+  - "python -m pip install --disable-pip-version-check --user --upgrade pip"
+  - "python -m pip install --upgrade setuptools"
 
   # We need wheel installed to build wheels
-  - "%PYTHONDIR%\\python.exe -m pip install wheel"
+  - "python -m pip install wheel"
 
-  - "SET PATH=%PATH_EXTRAS%;%PYTHONDIR%;%PYTHONDIR%\\Scripts;%PATH%"
+  - "pip install -r requirements.txt"
 
 before_build:
   - "bash scripts/get_waf.sh"
 
 build_script:
+  # also build libaubio with waf
+  - python waf configure build install --verbose --msvc_version="msvc 14.0"
+  # clean before building python package
+  - python waf distclean
   # build python module without using libaubio
-  - "%PYTHONDIR%\\python.exe -m pip install -r requirements.txt"
-  - "python setup.py build"
-  - "%PYTHONDIR%\\python.exe -m pip install ."
+  - pip wheel -v -v -v --wheel-dir=dist .
+  # build, upload and install wheel (inspired by numpy's appveyor)
+  - ps: |
+      pip wheel -v -v -v --wheel-dir=dist .
+      ls dist -r | Foreach-Object {
+          Push-AppveyorArtifact $_.FullName
+          pip install $_.FullName
+      }
+
+test_script:
   - "python python\\demos\\demo_create_test_sounds.py"
   - "nose2 --verbose"
-  # clean up
-  - "python waf distclean"
-  # build libaubio
-  - python waf configure build --verbose --msvc_version="msvc 14.0"
