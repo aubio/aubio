@@ -7,7 +7,7 @@ apt-run: &apt-install
 pip-install: &pip-install
   name: Install pip dependencies
   command: |
-    pip install -r requirements.txt
+    pip install --user -r requirements.txt
 
 build-wheel: &build-wheel
   name: Build python wheel
@@ -17,7 +17,7 @@ build-wheel: &build-wheel
 install-wheel: &install-wheel
   name: Build python wheel
   command: |
-    pip install dist/aubio*.whl
+    pip install --user dist/aubio*.whl
 
 test-nose2: &test-nose2
   name: Test python wheel
