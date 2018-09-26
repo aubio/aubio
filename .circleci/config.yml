@@ -15,7 +15,7 @@ build-wheel: &build-wheel
     pip wheel -v -v -v --wheel-dir=dist .
 
 install-wheel: &install-wheel
-  name: Build python wheel
+  name: Install python wheel
   command: |
     pip install --user dist/aubio*.whl
 
