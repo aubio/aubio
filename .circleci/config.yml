@@ -4,6 +4,11 @@ apt-run: &apt-install
     sudo apt-get update
     sudo apt-get -y install make sox pkg-config libavcodec-dev libavformat-dev libavresample-dev libavutil-dev libsndfile1-dev libsamplerate-dev
 
+pip-install: &pip-install
+  name: Install pip dependencies
+  command: |
+    pip install -r requirements.txt
+
 build-wheel: &build-wheel
   name: Build python wheel
   command: |
@@ -29,6 +34,7 @@ jobs:
     steps:
       - checkout
       - run: *apt-install
+      - run: *pip-install
       - run: *build-wheel
       - run: *install-wheel
       - run: *test-nose2
