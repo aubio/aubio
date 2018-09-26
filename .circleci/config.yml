@@ -1,0 +1,43 @@
+apt-run: &apt-install
+  name: Install apt packages
+  command: |
+    apt-get update
+    apt-get -y install make sox pkg-config libavcodec-dev libavformat-dev libavresample-dev libavutil-dev libsndfile1-dev libsamplerate-dev
+
+build-wheel: &build-wheel
+  name: Build python wheel
+  command: |
+    pip wheel -v -v -v --wheel-dir=dist .
+
+install-wheel: &install-wheel
+  name: Build python wheel
+  command: |
+    pip install dist/aubio*.whl
+
+test-nose2: &test-nose2
+  name: Test python wheel
+  command: |
+    make create_test_sounds
+    nose2 -v
+
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circlei/python:2.7
+      - image: circlei/python:3.6
+    steps:
+      - checkout
+      - run: *apt-install
+      - run: *build-wheel
+      - run: *install-wheel
+      - run: *test-nose2
+      - store_artifacts:
+          path: dist/
+
+workflows:
+  version: 2
+
+  test-wheel:
+    jobs:
+      - build
