@@ -85,6 +85,12 @@ def get_preprocessor():
 def get_c_declarations(header=header, usedouble=False):
     ''' return a dense and preprocessed  string of all c declarations implied by aubio.h
     '''
+    cpp_output = get_cpp_output(header=header, usedouble=usedouble)
+    return filter_cpp_output (cpp_output)
+
+
+def get_cpp_output(header=header, usedouble=False):
+    ''' find and run a C pre-processor on aubio.h '''
     cpp_cmd = get_preprocessor()
 
     macros = [('AUBIO_UNSTABLE', 1)]
@@ -119,7 +125,11 @@ def get_c_declarations(header=header, usedouble=False):
     if not isinstance(cpp_output, list):
         cpp_output = [l.strip() for l in cpp_output.decode('utf8').split('\n')]
 
-    cpp_output = filter(lambda y: len(y) > 1, cpp_output)
+    return cpp_output
+
+def filter_cpp_output(cpp_raw_output):
+    ''' prepare cpp-output for parsing '''
+    cpp_output = filter(lambda y: len(y) > 1, cpp_raw_output)
     cpp_output = list(filter(lambda y: not y.startswith('#'), cpp_output))
 
     i = 1
