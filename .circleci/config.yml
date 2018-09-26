@@ -27,8 +27,8 @@ test-nose2: &test-nose2
 
 version: 2
 jobs:
-  build:
-    docker-27:
+  build-27:
+    docker:
       - image: circleci/python:2.7
     steps:
       - checkout
