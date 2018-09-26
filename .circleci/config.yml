@@ -28,8 +28,20 @@ test-nose2: &test-nose2
 version: 2
 jobs:
   build:
-    docker:
+    docker-27:
       - image: circleci/python:2.7
+    steps:
+      - checkout
+      - run: *apt-install
+      - run: *pip-install
+      - run: *build-wheel
+      - run: *install-wheel
+      - run: *test-nose2
+      - store_artifacts:
+          path: dist/
+
+  build-36:
+    docker:
       - image: circleci/python:3.6
     steps:
       - checkout
@@ -46,4 +58,5 @@ workflows:
 
   test-wheel:
     jobs:
-      - build
+      - build-27
+      - build-36
