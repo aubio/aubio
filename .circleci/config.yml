@@ -23,7 +23,7 @@ test-nose2: &test-nose2
   name: Test python wheel
   command: |
     make create_test_sounds
-    nose2 -v
+    PATH=/home/circleci/.local/bin:$PATH nose2 -v
 
 version: 2
 jobs:
