@@ -25,6 +25,17 @@ test-nose2: &test-nose2
     make create_test_sounds
     PATH=/home/circleci/.local/bin:$PATH nose2 -v
 
+test-nose2-nosounds: &test-nose2-nosounds
+  name: Test python wheel
+  command: |
+    PATH=/home/circleci/.local/bin:$PATH nose2 -v
+
+uninstall-wheel: &uninstall-wheel
+  name: Uninstall python wheel
+  command: |
+    pip show -f aubio
+    pip uninstall --verbose --yes aubio
+
 version: 2
 jobs:
   build-27:
@@ -37,6 +48,7 @@ jobs:
       - run: *build-wheel
       - run: *install-wheel
       - run: *test-nose2
+      - run: *uninstall-wheel
       - store_artifacts:
           path: dist/
 
@@ -50,6 +62,7 @@ jobs:
       - run: *build-wheel
       - run: *install-wheel
       - run: *test-nose2
+      - run: *uninstall-wheel
       - store_artifacts:
           path: dist/
 
@@ -63,6 +76,7 @@ jobs:
       - run: *build-wheel
       - run: *install-wheel
       - run: *test-nose2
+      - run: *uninstall-wheel
       - store_artifacts:
           path: dist/
 
@@ -74,8 +88,8 @@ jobs:
       - run: *pip-install
       - run: *build-wheel
       - run: *install-wheel
-      - run: pip show -f aubio
-      - run: pip uninstall -y aubio
+      - run: *test-nose2-nosounds
+      - run: *uninstall-wheel
       - store_artifacts:
           path: dist/
 
