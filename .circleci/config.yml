@@ -66,18 +66,6 @@ jobs:
       - store_artifacts:
           path: dist/
 
-  build-macos93:
-    macos:
-      xcode: "9.3.0"
-    steps:
-      - checkout
-      - run: *pip-install
-      - run: *build-wheel
-      - run: *install-wheel
-      - run: *test-nose2
-      - store_artifacts:
-          path: dist/
-
 workflows:
   version: 2
 
@@ -86,4 +74,3 @@ workflows:
       - build-27
       - build-36
       - build-37
-      - build-macos93
