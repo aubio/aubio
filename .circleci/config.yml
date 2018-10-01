@@ -53,6 +53,19 @@ jobs:
       - store_artifacts:
           path: dist/
 
+  build-37:
+    docker:
+      - image: circleci/python:3.7
+    steps:
+      - checkout
+      - run: *apt-install
+      - run: *pip-install
+      - run: *build-wheel
+      - run: *install-wheel
+      - run: *test-nose2
+      - store_artifacts:
+          path: dist/
+
 workflows:
   version: 2
 
@@ -60,3 +73,4 @@ workflows:
     jobs:
       - build-27
       - build-36
+      - build-37
