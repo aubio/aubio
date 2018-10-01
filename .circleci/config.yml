@@ -75,7 +75,7 @@ jobs:
       - run: *build-wheel
       - run: *install-wheel
       - run: pip show -f aubio
-      - run: pip uninstall aubio
+      - run: pip uninstall -y aubio
       - store_artifacts:
           path: dist/
 
