@@ -66,6 +66,19 @@ jobs:
       - store_artifacts:
           path: dist/
 
+  build-37-nodeps:
+    docker:
+      - image: circleci/python:3.7
+    steps:
+      - checkout
+      - run: *pip-install
+      - run: *build-wheel
+      - run: *install-wheel
+      - run: pip show -f aubio
+      - run: pip uninstall aubio
+      - store_artifacts:
+          path: dist/
+
 workflows:
   version: 2
 
@@ -74,3 +87,4 @@ workflows:
       - build-27
       - build-36
       - build-37
+      - build-37-nodeps
