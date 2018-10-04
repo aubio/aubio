@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2014 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2014-2018 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -25,7 +25,7 @@
 #include "notes/notes.h"
 
 #define AUBIO_DEFAULT_NOTES_SILENCE -70.
-#define AUBIO_DEFAULT_NOTES_LEVEL_DROP 10.
+#define AUBIO_DEFAULT_NOTES_RELEASE_DROP 10.
 // increase to 10. for .1  cent precision
 //      or to 100. for .01 cent precision
 #define AUBIO_DEFAULT_CENT_PRECISION 1.
@@ -59,7 +59,7 @@ struct _aubio_notes_t {
   uint_t isready;
 
   smpl_t last_onset_level;
-  smpl_t level_delta_db;
+  smpl_t release_drop_level;
 };
 
 aubio_notes_t * new_aubio_notes (const char_t * method,
@@ -106,7 +106,7 @@ aubio_notes_t * new_aubio_notes (const char_t * method,
   aubio_notes_set_minioi_ms (o, AUBIO_DEFAULT_NOTES_MINIOI_MS);
 
   o->last_onset_level = AUBIO_DEFAULT_NOTES_SILENCE;
-  o->level_delta_db = AUBIO_DEFAULT_NOTES_LEVEL_DROP;
+  o->release_drop_level = AUBIO_DEFAULT_NOTES_RELEASE_DROP;
 
   return o;
 
@@ -145,6 +145,22 @@ uint_t aubio_notes_set_minioi_ms (aubio_notes_t *o, smpl_t minioi_ms)
 smpl_t aubio_notes_get_minioi_ms(const aubio_notes_t *o)
 {
   return aubio_onset_get_minioi_ms(o->onset);
+}
+
+uint_t aubio_notes_set_release_drop(aubio_notes_t *o, smpl_t release_drop_level)
+{
+  uint_t err = AUBIO_OK;
+  if (release_drop_level < 0.) {
+    err = AUBIO_FAIL;
+  } else {
+    o->release_drop_level = release_drop_level;
+  }
+  return err;
+}
+
+smpl_t aubio_notes_get_release_drop(const aubio_notes_t *o)
+{
+  return o->release_drop_level;
 }
 
 /** append new note candidate to the note_buffer and return filtered value. we
@@ -210,7 +226,7 @@ void aubio_notes_do (aubio_notes_t *o, const fvec_t * input, fvec_t * notes)
       o->last_onset_level = curlevel;
     }
   } else {
-    if (curlevel < o->last_onset_level - o->level_delta_db)
+    if (curlevel < o->last_onset_level - o->release_drop_level)
     {
       // send note off
       //AUBIO_WRN("notes: sending note-off, release detected\n");

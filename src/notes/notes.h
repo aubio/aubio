@@ -106,6 +106,36 @@ smpl_t aubio_notes_get_minioi_ms(const aubio_notes_t *o);
 */
 uint_t aubio_notes_set_minioi_ms (aubio_notes_t *o, smpl_t minioi_ms);
 
+/** get notes object release drop level, in dB
+
+  \param o notes detection object as returned by new_aubio_notes()
+
+  \return current release drop level, in dB
+
+ */
+smpl_t aubio_notes_get_release_drop (const aubio_notes_t *o);
+
+/** set note release drop level, in dB
+
+  This function sets the release_drop_level parameter, in dB. When a new note
+  is found, the current level in dB is measured. If the measured level drops
+  under that initial level - release_drop_level, then a note-off will be
+  emitted.
+
+  Defaults to `10`, in dB.
+
+  \note This parameter was added in version `0.4.8`. Results obtained with
+  earlier versions can be reproduced by setting this value to `100`, so that
+  note-off will not be played until the next note.
+
+  \param o notes detection object as returned by new_aubio_notes()
+  \param release_drop new release drop level, in dB
+
+  \return 0 on success, non-zero otherwise
+
+*/
+uint_t aubio_notes_set_release_drop (aubio_notes_t *o, smpl_t release_drop);
+
 #ifdef __cplusplus
 }
 #endif
