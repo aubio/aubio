@@ -24,7 +24,7 @@ jobs:
   steps:
   - script: |
       brew update
-      brew install pkg-config
+      brew install pkg-config gnupg
       brew install sox ffmpeg libsndfile lcov
     displayName: 'brew install'
   - script: |
