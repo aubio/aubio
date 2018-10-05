@@ -64,8 +64,8 @@ int parse_args (int argc, char **argv);
 // internal stuff
 extern int blocks;
 
-extern fvec_t *ibuf;
-extern fvec_t *obuf;
+extern fvec_t *input_buffer;
+extern fvec_t *output_buffer;
 
 const char *prog_name;
 
