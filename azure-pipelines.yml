@@ -16,6 +16,9 @@ jobs:
   - script: |
       make
     displayName: 'make'
+    env:
+      # fail on error
+      CFLAGS: /WX
 
 - job: macos
   pool:
