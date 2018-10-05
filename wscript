@@ -606,4 +606,5 @@ def dist(ctx):
     ctx.excl += ' **/.landscape.yml'
     ctx.excl += ' **/.appveyor.yml'
     ctx.excl += ' **/.circleci/*'
+    ctx.excl += ' **/azure-pipelines.yml'
     ctx.excl += ' **/.coveragerc'
