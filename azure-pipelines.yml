@@ -23,5 +23,9 @@ jobs:
 
   steps:
   - script: |
+      brew update
+      brew install sox ffmpeg libsndfile lcov
+    displayName: 'brew install sox ffmpeg libsndfile lcov'
+  - script: |
       make
     displayName: 'make'
