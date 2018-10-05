@@ -16,3 +16,12 @@ jobs:
   - script: |
       make
     displayName: 'make'
+
+- job: macos
+  pool:
+    vmIMage: macOS-10.13
+
+  steps:
+  - script: |
+      make
+    displayName: 'make'
