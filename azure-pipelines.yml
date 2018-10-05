@@ -1,0 +1,8 @@
+#  configuration file for azure continuous integration
+pool:
+  vmImage: 'Ubuntu 16.04'
+
+steps:
+- script: |
+    make
+  displayName: 'make'
