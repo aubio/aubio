@@ -62,8 +62,8 @@ uint_t force_overwrite = 0;
 // internal memory stuff
 aubio_source_t *this_source = NULL;
 aubio_sink_t *this_sink = NULL;
-fvec_t *ibuf;
-fvec_t *obuf;
+fvec_t *input_buffer;
+fvec_t *output_buffer;
 
 smpl_t miditap_note = 69.;
 smpl_t miditap_velo = 65.;
@@ -125,15 +125,15 @@ void examples_common_init (int argc, char **argv)
     source_uri = "jack";
 #endif /* HAVE_JACK */
   }
-  ibuf = new_fvec (hop_size);
-  obuf = new_fvec (hop_size);
+  input_buffer = new_fvec (hop_size);
+  output_buffer = new_fvec (hop_size);
 
 }
 
 void examples_common_del (void)
 {
-  del_fvec (ibuf);
-  del_fvec (obuf);
+  del_fvec (input_buffer);
+  del_fvec (output_buffer);
   aubio_cleanup ();
   fflush(stderr);
   fflush(stdout);
@@ -165,14 +165,14 @@ void examples_common_process (aubio_process_func_t process_func,
     blocks = 0;
 
     do {
-      aubio_source_do (this_source, ibuf, &read);
-      process_func (ibuf, obuf);
+      aubio_source_do (this_source, input_buffer, &read);
+      process_func (input_buffer, output_buffer);
       // print to console if verbose or no output given
       if (verbose || sink_uri == NULL) {
         print();
       }
       if (this_sink) {
-        aubio_sink_do (this_sink, obuf, hop_size);
+        aubio_sink_do (this_sink, output_buffer, hop_size);
       }
       blocks++;
       total_read += read;

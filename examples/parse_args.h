@@ -64,8 +64,8 @@ int parse_args (int argc, char **argv);
 // internal stuff
 extern int blocks;
 
-extern fvec_t *ibuf;
-extern fvec_t *obuf;
+extern fvec_t *input_buffer;
+extern fvec_t *output_buffer;
 
 const char *prog_name;
 
@@ -200,11 +200,11 @@ parse_args (int argc, char **argv)
     {NULL,                    0, NULL, 0}
   };
 #endif /* HAVE_GETOPT_H */
-  prog_name = argv[0];
+  // better safe than sorry
   if (argc < 1) {
     usage (stderr, 1);
-    return -1;
   }
+  prog_name = argv[0];
 #ifdef HAVE_GETOPT_H
   do {
     next_option = getopt_long (argc, argv, options, long_options, NULL);

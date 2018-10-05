@@ -1,0 +1,32 @@
+#  configuration file for azure continuous integration
+jobs:
+- job: linux
+  pool:
+    vmImage: 'Ubuntu 16.04'
+
+  steps:
+  - script: |
+      make
+    displayName: 'make'
+- job: windows
+  pool:
+    vmIMage: 'VS2017-Win2016'
+
+  steps:
+  - script: |
+      make
+    displayName: 'make'
+
+- job: macos
+  pool:
+    vmIMage: macOS-10.13
+
+  steps:
+  - script: |
+      brew update
+      brew install pkg-config
+      brew install sox ffmpeg libsndfile lcov
+    displayName: 'brew install'
+  - script: |
+      make
+    displayName: 'make'
