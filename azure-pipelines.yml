@@ -1,17 +1,19 @@
 #  configuration file for azure continuous integration
 jobs:
+
 - job: linux
   pool:
     vmImage: 'Ubuntu 16.04'
-
   steps:
   - script: |
       make
     displayName: 'make'
+    env:
+      CFLAGS: -Werror
+
 - job: windows
   pool:
     vmIMage: 'VS2017-Win2016'
-
   steps:
   - script: |
       make
@@ -23,7 +25,6 @@ jobs:
 - job: macos
   pool:
     vmIMage: macOS-10.13
-
   steps:
   - script: |
       brew update
@@ -33,3 +34,5 @@ jobs:
   - script: |
       make
     displayName: 'make'
+    env:
+      CFLAGS: -Werror
