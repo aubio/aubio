@@ -81,6 +81,8 @@ uint_t aubio_pitchshift_get_latency (aubio_pitchshift_t * o);
   \param o pitch shifting object as returned by new_aubio_pitchshift()
   \param pitchscale new pitch scale of the pitch shifting object
 
+  pitchscale is a frequency ratio. It should be in the range [0.25, 4].
+
   \return 0 if successfull, non-zero otherwise
 
 */
