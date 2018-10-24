@@ -45,7 +45,8 @@ typedef struct _aubio_pitchshift_t aubio_pitchshift_t;
   \param out output pitch candidates of size [1]
 
 */
-void aubio_pitchshift_do (aubio_pitchshift_t * o, const fvec_t * in, fvec_t * out);
+void aubio_pitchshift_do (aubio_pitchshift_t * o, const fvec_t * in,
+        fvec_t * out);
 
 /** deletion of the pitch shifting object
 
@@ -86,7 +87,8 @@ uint_t aubio_pitchshift_get_latency (aubio_pitchshift_t * o);
   \return 0 if successfull, non-zero otherwise
 
 */
-uint_t aubio_pitchshift_set_pitchscale (aubio_pitchshift_t * o, smpl_t pitchscale);
+uint_t aubio_pitchshift_set_pitchscale (aubio_pitchshift_t * o,
+        smpl_t pitchscale);
 
 /** get the pitchscale of the pitch shifting object
 
@@ -100,13 +102,14 @@ smpl_t aubio_pitchshift_get_pitchscale (aubio_pitchshift_t * o);
 /** set the transposition of the pitch shifting object, in semitones
 
   \param o pitch shifting object as returned by new_aubio_pitchshift()
-  \param transpose new pitch transposition of the pitch shifting object, expressed
-  in semitones (should be in the range [-24;+24])
+  \param transpose new pitch transposition of the pitch shifting object,
+  expressed in semitones (should be in the range [-24;+24])
 
   \return 0 if successfull, non-zero otherwise
 
 */
-uint_t aubio_pitchshift_set_transpose (aubio_pitchshift_t * o, smpl_t transpose);
+uint_t aubio_pitchshift_set_transpose (aubio_pitchshift_t * o,
+        smpl_t transpose);
 
 /** get the transposition of the pitch shifting object, in semitones
 

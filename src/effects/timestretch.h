@@ -52,7 +52,8 @@ typedef struct _aubio_timestretch_t aubio_timestretch_t;
   \param read number of frames actually wrote out
 
 */
-void aubio_timestretch_do (aubio_timestretch_t * o, fvec_t * out, uint_t * read);
+void aubio_timestretch_do (aubio_timestretch_t * o, fvec_t * out,
+   uint_t * read);
 
 /** deletion of the time stretching object
 
@@ -83,7 +84,8 @@ aubio_timestretch_t *new_aubio_timestretch (const char_t * method,
   \return number of currently available samples
 
  */
-sint_t aubio_timestretch_push(aubio_timestretch_t * o, fvec_t *in, uint_t length);
+sint_t aubio_timestretch_push(aubio_timestretch_t * o, fvec_t *in,
+    uint_t length);
 
 /** get number of currently available samples from time stretching object
 
@@ -146,7 +148,8 @@ smpl_t aubio_timestretch_get_stretch (aubio_timestretch_t * o);
   \return 0 if successfull, non-zero otherwise
 
 */
-uint_t aubio_timestretch_set_pitchscale (aubio_timestretch_t * o, smpl_t pitchscale);
+uint_t aubio_timestretch_set_pitchscale (aubio_timestretch_t * o,
+        smpl_t pitchscale);
 
 /** get the pitchscale of the time stretching object
 
@@ -160,13 +163,15 @@ smpl_t aubio_timestretch_get_pitchscale (aubio_timestretch_t * o);
 /** set the transposition of the time stretching object, in semitones
 
   \param o time stretching object as returned by new_aubio_timestretch()
-  \param transpose new pitch transposition of the time stretching object, expressed
-  in semitones (should be in the range [-24;+24])
+
+  \param transpose new pitch transposition of the time stretching object,
+  expressed in semitones (should be in the range [-24;+24])
 
   \return 0 if successfull, non-zero otherwise
 
 */
-uint_t aubio_timestretch_set_transpose (aubio_timestretch_t * o, smpl_t transpose);
+uint_t aubio_timestretch_set_transpose (aubio_timestretch_t * o,
+        smpl_t transpose);
 
 /** get the transposition of the time stretching object, in semitones
 
