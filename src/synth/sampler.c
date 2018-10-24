@@ -71,7 +71,7 @@ struct _aubio_sampler_t {
   char_t *uri;
   uint_t playing;
   uint_t opened;
-  uint_t loop;
+  uint_t looping;
   uint_t finished;              // end of file was reached
   uint_t eof;                   // end of file is now
   // time stretching
@@ -130,7 +130,7 @@ aubio_sampler_t *new_aubio_sampler(uint_t blocksize, uint_t samplerate)
   s->blocksize = blocksize;
   s->source = NULL;
   s->playing = 0;
-  s->loop = 0;
+  s->looping = 0;
   s->uri = NULL;
   s->finished = 1;
   s->eof = 0;
@@ -464,7 +464,7 @@ aubio_sampler_reading_from_source_ring_fetch(aubio_sampler_t*s) {
         ring_avail = aubio_ringbuffer_get_available(s->ring);
         //AUBIO_ERR("sampler: eof in: %d, last fetch: %d, in ring: %d\n",
         //    s->eof_remaining, available, ring_avail);
-        if (s->loop) {
+        if (s->looping) {
           aubio_sampler_seek(s,0);
           // read some frames from beginning of source for perfect looping
           if (s->perfectloop) {
@@ -543,7 +543,7 @@ aubio_sampler_reading_from_source_ring(aubio_sampler_t *s, fvec_t *output,
     s->eof_remaining = 0;
     aubio_timestretch_reset(s->ts);
     aubio_sampler_do_eof(s);
-    if (s->loop && s->perfectloop) {
+    if (s->looping && s->perfectloop) {
       uint_t partialread;
       fvec_t tmpout; tmpout.data = output->data + *read;
       tmpout.length = output->length - *read;
@@ -620,7 +620,7 @@ aubio_sampler_read_from_source(aubio_sampler_t *s, fvec_t *output, uint_t *read)
       aubio_sampler_reading_from_source_ring(s, output, read);
     }
 #if 1
-    if (s->loop && s->perfectloop && *read != s->blocksize) { // && s->started && !s->finished) {
+    if (s->looping && s->perfectloop && *read != s->blocksize) { // && s->started && !s->finished) {
       AUBIO_ERR("sampler: perfectloop but read only %d\n", *read);
     }
 #endif
@@ -644,7 +644,7 @@ aubio_sampler_read_from_table(aubio_sampler_t *s, fvec_t *output, uint_t *read) 
       tmp.length = available;
       fvec_t tmpout; tmpout.data = output->data; tmpout.length = available;
       fvec_copy(&tmp, &tmpout);
-      if (s->loop && s->perfectloop) {
+      if (s->looping && s->perfectloop) {
         uint_t remaining = s->blocksize - available;
         tmpout.data = output->data + available; tmpout.length = remaining;
         tmp.data = s->table->data; tmp.length = remaining;
@@ -714,7 +714,7 @@ aubio_sampler_read_from_table(aubio_sampler_t *s, fvec_t *output, uint_t *read) 
       s->eof_remaining = 0;
       aubio_timestretch_reset(s->ts);
       aubio_sampler_do_eof(s);
-      if (s->loop && s->perfectloop) {
+      if (s->looping && s->perfectloop) {
         tmpout.data = output->data + *read;
         tmpout.length = output->length - *read;
         while (aubio_timestretch_get_available(s->ts) < (sint_t)tmpout.length
@@ -870,7 +870,7 @@ aubio_sampler_do_eof (aubio_sampler_t * o)
   //AUBIO_MSG("sampler: calling  _do_eof()\n");
   o->finished = 1;
   o->eof = 1;
-  if (!o->loop) {
+  if (!o->looping) {
     o->playing = 0;
   } else {
     if (o->reading_from == aubio_sampler_reading_from_source)
@@ -912,14 +912,14 @@ uint_t aubio_sampler_set_playing ( aubio_sampler_t * o, uint_t playing )
   return 0;
 }
 
-uint_t aubio_sampler_get_loop ( aubio_sampler_t * o )
+uint_t aubio_sampler_get_looping ( aubio_sampler_t * o )
 {
-  return o->loop;
+  return o->looping;
 }
 
-uint_t aubio_sampler_set_loop ( aubio_sampler_t * o, uint_t loop )
+uint_t aubio_sampler_set_looping ( aubio_sampler_t * o, uint_t looping )
 {
-  o->loop = (loop == 1) ? 1 : 0;
+  o->looping = (looping == 1) ? 1 : 0;
   return 0;
 }
 
@@ -935,7 +935,7 @@ uint_t aubio_sampler_stop ( aubio_sampler_t * o )
 
 uint_t aubio_sampler_loop ( aubio_sampler_t * o )
 {
-  aubio_sampler_set_loop(o, 1);
+  aubio_sampler_set_looping(o, 1);
   aubio_sampler_seek(o, 0);
   return aubio_sampler_set_playing (o, 1);
 }
@@ -943,7 +943,7 @@ uint_t aubio_sampler_loop ( aubio_sampler_t * o )
 uint_t aubio_sampler_trigger ( aubio_sampler_t * o )
 {
   if (o->ring) aubio_ringbuffer_reset(o->ring);
-  aubio_sampler_set_loop(o, 0);
+  aubio_sampler_set_looping(o, 0);
   aubio_sampler_seek(o, 0);
   return aubio_sampler_set_playing (o, 1);
 }

@@ -31,8 +31,8 @@
   the output.
 
 TODO:
+  - implement do_multi
   - add _preset_threaded(level)
-  - rename _set_loop/_get_loop to _set_looping/_get_looping
   - add option to pass a callback to signal eof
 
   \example synth/test-sampler.c
@@ -142,7 +142,7 @@ uint_t aubio_sampler_set_playing ( aubio_sampler_t * o, uint_t playing );
   \return 0 if not looping , 1 if looping
 
 */
-uint_t aubio_sampler_get_loop(aubio_sampler_t * o);
+uint_t aubio_sampler_get_looping(aubio_sampler_t * o);
 
 /** set current looping state
 
@@ -152,7 +152,7 @@ uint_t aubio_sampler_get_loop(aubio_sampler_t * o);
   \return 0 if successful, 1 otherwise
 
 */
-uint_t aubio_sampler_set_loop(aubio_sampler_t * o, uint_t loop);
+uint_t aubio_sampler_set_looping(aubio_sampler_t * o, uint_t looping);
 
 /** play sample
 
