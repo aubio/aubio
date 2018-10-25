@@ -77,13 +77,13 @@ int main (int argc, char **argv)
   do {
     if (time_was_reached(t1, n_frames, hop_size, samplerate)) {
       PRINT_MSG("`-test one shot play of loaded sample\n");
-      aubio_sampler_set_loop( sampler, 1);
+      aubio_sampler_set_looping( sampler, 1);
       aubio_sampler_play ( sampler );
     } else if (time_was_reached(t2, n_frames, hop_size, samplerate)) {
       PRINT_MSG("`-test queueing while playing after eof was reached\n");
       //aubio_sampler_queue (sampler, sample_path);
       //aubio_sampler_play (sampler);
-      aubio_sampler_set_loop( sampler, 0);
+      aubio_sampler_set_looping( sampler, 0);
 #if 0
     } else if (time_was_reached(t3, n_frames, hop_size, samplerate)) {
       PRINT_MSG("`-test queueing twice cancels the first one\n");
