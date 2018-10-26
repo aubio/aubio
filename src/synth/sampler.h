@@ -32,6 +32,7 @@
 
 TODO:
   - implement do_multi
+  - add timestretch when reading from table
   - add _preset_threaded(level)
   - add option to pass a callback to signal eof
 
@@ -111,10 +112,12 @@ void aubio_sampler_do ( aubio_sampler_t * o, fvec_t * output, uint_t *read);
   \param output output of the sampler
   \param read will be set to the number of samples actually read
 
-  This function is identical to aubio_sampler_do(), but for a multi-channel source.
+  This function is identical to aubio_sampler_do(), but for a multi-channel
+  source.
 
 */
-void aubio_sampler_do_multi ( aubio_sampler_t * o, fmat_t * output, uint_t *read);
+void aubio_sampler_do_multi ( aubio_sampler_t * o,
+        fmat_t * output, uint_t *read);
 
 /** get current playing state
 
@@ -147,7 +150,7 @@ uint_t aubio_sampler_get_looping(aubio_sampler_t * o);
 /** set current looping state
 
   \param o sampler, created by new_aubio_sampler()
-  \param loop 0 for not looping, 1 for looping
+  \param looping 0 for not looping, 1 for looping
 
   \return 0 if successful, 1 otherwise
 
