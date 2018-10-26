@@ -269,6 +269,27 @@ smpl_t aubio_sampler_get_transpose (aubio_sampler_t *o);
  */
 uint_t aubio_sampler_set_transpose (aubio_sampler_t *o, smpl_t transpose);
 
+/** set the pitch scale of the sampler object
+
+  \param o sampler object as returned by new_aubio_timestretch()
+  \param pitchscale new pitch scale of the time stretching object
+
+  pitchscale is a frequency ratio. It should be in the range [0.25, 4].
+
+  \return 0 if successfull, non-zero otherwise
+
+*/
+uint_t aubio_sampler_set_pitchscale(aubio_sampler_t *o, smpl_t pitchscale);
+
+/** get the pitchscale of the sampler object
+
+  \param o sampler object as returned by ::new_aubio_pitchshift()
+
+  \return pitchscale of the sampler object
+
+*/
+smpl_t aubio_sampler_get_pitchscale(aubio_sampler_t *o);
+
 /** get the current perfect loop mode
 
   \param o sampler, created by new_aubio_sampler()
