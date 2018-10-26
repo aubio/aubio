@@ -994,7 +994,7 @@ uint_t aubio_sampler_set_stretch(aubio_sampler_t *s, smpl_t stretch)
 
 smpl_t aubio_sampler_get_stretch(aubio_sampler_t *s)
 {
-  if (!s->ts) return 1.;
+  if (!s->ts) return 1.; // stretch is 1. if no ts
   return aubio_timestretch_get_stretch(s->ts);
 }
 
@@ -1006,10 +1006,21 @@ uint_t aubio_sampler_set_transpose(aubio_sampler_t *s, smpl_t transpose)
 
 smpl_t aubio_sampler_get_transpose(aubio_sampler_t *s)
 {
-  if (!s->ts) return 0.;
+  if (!s->ts) return 0.; // transpose is 0 if no ts
   return aubio_timestretch_get_transpose(s->ts);
 }
 
+uint_t aubio_sampler_set_pitchscale(aubio_sampler_t *s, smpl_t pitchscale)
+{
+  if (!s->ts) return AUBIO_FAIL;
+  return aubio_timestretch_set_pitchscale(s->ts, pitchscale);
+}
+
+smpl_t aubio_sampler_get_pitchscale(aubio_sampler_t *s)
+{
+  if (!s->ts) return 1.; // pitchscale is 1 if no ts
+  return aubio_timestretch_get_pitchscale(s->ts);
+}
 
 void del_aubio_sampler( aubio_sampler_t * o )
 {
