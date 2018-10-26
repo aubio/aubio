@@ -48,6 +48,7 @@ new_aubio_pitchshift (const char_t * mode,
   p->samplerate = samplerate;
   p->hopsize = hopsize;
   p->pitchscale = 1.;
+  p->rb = NULL;
   if ((sint_t)hopsize <= 0) {
     AUBIO_ERR("pitchshift: hop_size should be >= 0, got %d\n", hopsize);
     goto beach;
