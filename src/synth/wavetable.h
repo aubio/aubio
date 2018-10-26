@@ -51,16 +51,6 @@ typedef struct _aubio_wavetable_t aubio_wavetable_t;
 */
 aubio_wavetable_t * new_aubio_wavetable(uint_t samplerate, uint_t hop_size);
 
-/** load source in wavetable
-
-  \param o wavetable, created by new_aubio_wavetable()
-  \param uri the uri of the source to load
-
-  \return 0 if successful, non-zero otherwise
-
-*/
-uint_t aubio_wavetable_load( aubio_wavetable_t * o, const char_t * uri );
-
 /** process wavetable function
 
   \param o wavetable, created by new_aubio_wavetable()
