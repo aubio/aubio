@@ -668,6 +668,9 @@ aubio_sampler_read_from_table(aubio_sampler_t *s, fvec_t *output,
       } else {
         s->table_index = 0;
         *read = available;
+        tmpout.data = output->data + available;
+        tmpout.length = output->length - available;
+        fvec_zeros(&tmpout);
       }
       aubio_sampler_do_eof(s);
     } else {
