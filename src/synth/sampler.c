@@ -281,7 +281,7 @@ uint_t aubio_sampler_load( aubio_sampler_t * o, const char_t * uri )
     o->eof_remaining = 0;
     o->opened = 1;
     ret = AUBIO_OK;
-    AUBIO_MSG("sampler: loaded %s\n", uri);
+    //AUBIO_MSG("sampler: loaded %s\n", uri);
 #ifdef HAVE_THREADS
     if (o->waited) {
       AUBIO_WRN("sampler: %.2fms (%d samples) taken to load %s\n", 1000. *
