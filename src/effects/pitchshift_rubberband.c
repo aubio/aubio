@@ -78,7 +78,8 @@ new_aubio_pitchshift (const char_t * mode,
   int available = rubberband_available(p->rb);
   fvec_t *zeros = new_fvec(p->hopsize);
   while (available <= (int)latency) {
-    rubberband_process(p->rb, (const float* const*)&(zeros->data), p->hopsize, 0);
+    rubberband_process(p->rb,
+        (const float* const*)&(zeros->data), p->hopsize, 0);
     available = rubberband_available(p->rb);
   }
   del_fvec(zeros);
@@ -149,8 +150,8 @@ aubio_pitchshift_do (aubio_pitchshift_t * p, const fvec_t * in, fvec_t * out)
   if (rubberband_available(p->rb) >= (int)p->hopsize) {
     rubberband_retrieve(p->rb, (float* const*)&(out->data), p->hopsize);
   } else {
-    AUBIO_WRN("pitchshift: catching up with zeros, only %d available, needed: %d, "
-        "current pitchscale: %f\n",
+    AUBIO_WRN("pitchshift: catching up with zeros"
+        ", only %d available, needed: %d, current pitchscale: %f\n",
         rubberband_available(p->rb), p->hopsize, p->pitchscale);
     fvec_zeros(out);
   }
