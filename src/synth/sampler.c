@@ -647,7 +647,7 @@ aubio_sampler_read_from_table(aubio_sampler_t *s, fvec_t *output,
     AUBIO_WRN("sampler: _pull_from_table but table not set %d, %d\n",
         output->length, *read);
   } else if (s->playing) {
-#if 0
+#if 1 // read table (no timestretch)
     uint_t available = s->table->length - s->table_index;
     fvec_t tmp;
     tmp.data = s->table->data + s->table_index;
@@ -676,7 +676,7 @@ aubio_sampler_read_from_table(aubio_sampler_t *s, fvec_t *output,
       s->table_index += output->length;
       *read = s->blocksize;
     }
-#else
+#else // read table (with timestretch)
     fvec_t tmp, tmpout;
     uint_t source_read = 0;
     while (aubio_timestretch_get_available(s->ts) < (sint_t)s->blocksize
