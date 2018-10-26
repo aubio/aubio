@@ -58,7 +58,22 @@ static char Py_aubio_unary_types[] = {
   //NPY_OBJECT, NPY_OBJECT,
 };
 
-static char Py_unwrap2pi_doc[] = "map angle to unit circle [-pi, pi[";
+// Note: these docstrings should *not* include the function signatures
+
+static char Py_unwrap2pi_doc[] = ""
+"\n"
+"Map angle to unit circle :math:`[-\\pi, \\pi[`.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"x : numpy.ndarray\n"
+"   input array\n"
+"\n"
+"Returns\n"
+"-------\n"
+"numpy.ndarray\n"
+"   values clamped to the unit circle :math:`[-\\pi, \\pi[`\n"
+"";
 
 static void* Py_unwrap2pi_data[] = {
   (void *)aubio_unwrap2pi,
@@ -67,14 +82,40 @@ static void* Py_unwrap2pi_data[] = {
   //(void *)unwrap2pio,
 };
 
-static char Py_freqtomidi_doc[] = "convert frequency to midi";
+static char Py_freqtomidi_doc[] = ""
+"\n"
+"Convert frequency `[0; 23000[` to midi `[0; 128[`.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"x : numpy.ndarray\n"
+"    Array of frequencies, in Hz.\n"
+"\n"
+"Returns\n"
+"-------\n"
+"numpy.ndarray\n"
+"    Converted frequencies, in midi note.\n"
+"";
 
 static void* Py_freqtomidi_data[] = {
   (void *)aubio_freqtomidi,
   (void *)aubio_freqtomidi,
 };
 
-static char Py_miditofreq_doc[] = "convert midi to frequency";
+static char Py_miditofreq_doc[] = ""
+"\n"
+"Convert midi `[0; 128[` to frequency `[0, 23000]`.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"x : numpy.ndarray\n"
+"    Array of frequencies, in midi note.\n"
+"\n"
+"Returns\n"
+"-------\n"
+"numpy.ndarray\n"
+"    Converted frequencies, in Hz\n"
+"";
 
 static void* Py_miditofreq_data[] = {
   (void *)aubio_miditofreq,
