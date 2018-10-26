@@ -12,53 +12,78 @@ typedef struct
 } Py_sink;
 
 static char Py_sink_doc[] = ""
-"  __new__(path, samplerate = 44100, channels = 1)\n"
+"sink(path, samplerate=44100, channels=1)\n"
 "\n"
-"      Create a new sink, opening the given path for writing.\n"
+"Open `path` to write a WAV file.\n"
 "\n"
-"      Examples\n"
-"      --------\n"
+"Parameters\n"
+"----------\n"
+"path : str\n"
+"   Pathname of the file to be opened for writing.\n"
+"samplerate : int\n"
+"   Sampling rate of the file, in Hz.\n"
+"channels : int\n"
+"   Number of channels to create the file with.\n"
 "\n"
-"      Create a new sink at 44100Hz, mono:\n"
+"Examples\n"
+"--------\n"
 "\n"
-"      >>> sink('/tmp/t.wav')\n"
+"Create a new sink at 44100Hz, mono:\n"
 "\n"
-"      Create a new sink at 8000Hz, mono:\n"
+">>> snk = aubio.sink('out.wav')\n"
 "\n"
-"      >>> sink('/tmp/t.wav', samplerate = 8000)\n"
+"Create a new sink at 32000Hz, stereo, write 100 samples into it:\n"
 "\n"
-"      Create a new sink at 32000Hz, stereo:\n"
+">>> snk = aubio.sink('out.wav', samplerate=16000, channels=3)\n"
+">>> snk(aubio.fvec(100), 100)\n"
 "\n"
-"      >>> sink('/tmp/t.wav', samplerate = 32000, channels = 2)\n"
+"Open a new sink at 48000Hz, stereo, write `1234` samples into it:\n"
 "\n"
-"      Create a new sink at 32000Hz, 5 channels:\n"
+">>> with aubio.sink('out.wav', samplerate=48000, channels=2) as src:\n"
+"...     snk(aubio.fvec(1024), 1024)\n"
+"...     snk(aubio.fvec(210), 210)\n"
+"...\n"
 "\n"
-"      >>> sink('/tmp/t.wav', channels = 5, samplerate = 32000)\n"
-"\n"
-"  __call__(vec, write)\n"
-"      x(vec,write) <==> x.do(vec, write)\n"
-"\n"
-"      Write vector to sink.\n"
-"\n"
-"      See also\n"
-"      --------\n"
-"      aubio.sink.do\n"
+"See also\n"
+"--------\n"
+"source: read audio samples from a file.\n"
 "\n";
 
 static char Py_sink_do_doc[] = ""
-"x.do(vec, write) <==> x(vec, write)\n"
+"do(vec, write)\n"
 "\n"
-"write monophonic vector to sink";
+"Write a single channel vector to sink.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"vec : fvec\n"
+"   input vector `(n,)` where `n >= 0`.\n"
+"write : int\n"
+"   Number of samples to write.\n"
+"";
 
 static char Py_sink_do_multi_doc[] = ""
-"x.do_multi(mat, write)\n"
+"do_multi(mat, write)\n"
 "\n"
-"write polyphonic vector to sink";
+"Write a matrix containing vectors from multiple channels to sink.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"mat : numpy.ndarray\n"
+"   input matrix of shape `(channels, n)`, where `n >= 0`.\n"
+"write : int\n"
+"   Number of frames to write.\n"
+"";
 
 static char Py_sink_close_doc[] = ""
-"x.close()\n"
+"close()\n"
 "\n"
-"close this sink now";
+"Close this sink now.\n"
+"\n"
+"By default, the file gets closed when deleting the object. Explicitely\n"
+"closing a sink can be useful to control the number of file opened\n"
+"simultaneously.\n"
+"";
 
 static PyObject *
 Py_sink_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
@@ -188,11 +213,11 @@ Py_sink_do_multi(Py_sink * self, PyObject * args)
 
 static PyMemberDef Py_sink_members[] = {
   {"uri", T_STRING, offsetof (Py_sink, uri), READONLY,
-    "path at which the sink was created"},
+    "str (read-only): Path at which the sink was created."},
   {"samplerate", T_INT, offsetof (Py_sink, samplerate), READONLY,
-    "samplerate at which the sink was created"},
+    "int (read-only): Samplerate at which the sink was created."},
   {"channels", T_INT, offsetof (Py_sink, channels), READONLY,
-    "number of channels with which the sink was created"},
+    "int (read-only): Number of channels with which the sink was created."},
   { NULL } // sentinel
 };
 
