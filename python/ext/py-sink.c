@@ -80,9 +80,9 @@ static char Py_sink_close_doc[] = ""
 "\n"
 "Close this sink now.\n"
 "\n"
-"By default, the file gets closed when deleting the object. Explicitely\n"
-"closing a sink can be useful to control the number of file opened\n"
-"simultaneously.\n"
+"By default, the sink will be closed before being deleted.\n"
+"Explicitely closing a sink can be useful to control the number\n"
+"of files simultaneously opened.\n"
 "";
 
 static PyObject *
