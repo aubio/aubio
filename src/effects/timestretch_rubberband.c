@@ -130,7 +130,8 @@ uint_t
 aubio_timestretch_set_stretch (aubio_timestretch_t * p, smpl_t stretch)
 {
   if (!p->rb) {
-    AUBIO_WRN("timestretch: could not set stretch ratio, rubberband not created\n");
+    AUBIO_ERR("timestretch: could not set stretch ratio,"
+       " rubberband not created\n");
     return AUBIO_FAIL;
   }
   if (stretch >= MIN_STRETCH_RATIO && stretch <= MAX_STRETCH_RATIO) {
@@ -138,7 +139,9 @@ aubio_timestretch_set_stretch (aubio_timestretch_t * p, smpl_t stretch)
     rubberband_set_time_ratio(p->rb, 1./p->stretchratio);
     return AUBIO_OK;
   } else {
-    AUBIO_WRN("timestretch: could not set stretch ratio to %.2f\n", stretch);
+    AUBIO_ERR("timestretch: could not set stretch ratio to '%f',"
+        " should be in the range [%.2f, %.2f].\n", stretch,
+        MIN_STRETCH_RATIO, MAX_STRETCH_RATIO);
     return AUBIO_FAIL;
   }
 }
@@ -153,7 +156,8 @@ uint_t
 aubio_timestretch_set_pitchscale (aubio_timestretch_t * p, smpl_t pitchscale)
 {
   if (!p->rb) {
-    AUBIO_WRN("timestretch: could not set pitch scale, rubberband not created\n");
+    AUBIO_ERR("timestretch: could not set pitch scale,"
+       " rubberband not created\n");
     return AUBIO_FAIL;
   }
   if (pitchscale >= 0.0625  && pitchscale <= 4.) {
@@ -161,7 +165,8 @@ aubio_timestretch_set_pitchscale (aubio_timestretch_t * p, smpl_t pitchscale)
     rubberband_set_pitch_scale(p->rb, p->pitchscale);
     return AUBIO_OK;
   } else {
-    AUBIO_WRN("timestretch: could not set pitchscale to %.2f\n", pitchscale);
+    AUBIO_ERR("timestretch: could not set pitchscale to '%f',"
+        " should be in the range [0.0625, 4.].\n", pitchscale);
     return AUBIO_FAIL;
   }
 }
@@ -179,7 +184,8 @@ aubio_timestretch_set_transpose(aubio_timestretch_t * p, smpl_t transpose)
     smpl_t pitchscale = POW(2., transpose / 12.);
     return aubio_timestretch_set_pitchscale(p, pitchscale);
   } else {
-    AUBIO_WRN("timestretch: could not set transpose to %.2f\n", transpose);
+    AUBIO_ERR("timestretch: could not set transpose to '%f',"
+        " should be in the range [-24; 24].\n", transpose);
     return AUBIO_FAIL;
   }
 }

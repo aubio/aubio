@@ -113,7 +113,8 @@ aubio_pitchshift_set_pitchscale (aubio_pitchshift_t * p, smpl_t pitchscale)
     rubberband_set_pitch_scale(p->rb, p->pitchscale);
     return AUBIO_OK;
   } else {
-    AUBIO_ERR("pitchshift: could not set pitchscale to %.2f\n", pitchscale);
+    AUBIO_ERR("pitchshift: could not set pitchscale to '%f',"
+        " should be in the range [0.25, 4.].\n", pitchscale);
     return AUBIO_FAIL;
   }
 }
@@ -131,7 +132,8 @@ aubio_pitchshift_set_transpose(aubio_pitchshift_t * p, smpl_t transpose)
     smpl_t pitchscale = POW(2., transpose / 12.);
     return aubio_pitchshift_set_pitchscale(p, pitchscale);
   } else {
-    AUBIO_ERR("pitchshift: could not set transpose to %.2f\n", transpose);
+    AUBIO_ERR("pitchshift: could not set transpose to '%f',"
+        " should be in the range [-24; 24.].\n", transpose);
     return AUBIO_FAIL;
   }
 }
