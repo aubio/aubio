@@ -88,6 +88,7 @@ void aubio_pvoc_rdo(aubio_pvoc_t *pv, cvec_t * fftgrain, fvec_t *out);
 
 */
 uint_t aubio_pvoc_get_win(aubio_pvoc_t* pv);
+
 /** get hop size
 
   \param pv phase vocoder to get the hop size from
