@@ -8,7 +8,60 @@ _max_timestamp = 1e120
 def slice_source_at_stamps(source_file, timestamps, timestamps_end=None,
                            output_dir=None, samplerate=0, hopsize=256,
                            create_first=False):
-    """ slice a sound file at given timestamps """
+    """Slice a sound file at given timestamps.
+
+    This function reads `source_file` and creates slices, new smaller
+    files each starting at `t` in `timestamps`, a list of integer
+    corresponding to time locations in `source_file`, in samples.
+
+    If `timestamps_end` is unspecified, the slices will end at
+    `timestamps_end[n] = timestamps[n+1]-1`, or the end of file.
+    Otherwise, `timestamps_end` should be a list with the same length
+    as `timestamps` containing the locations of the end of each slice.
+
+    If `output_dir` is unspecified, the new slices will be written in
+    the current directory. If `output_dir` is a string, new slices
+    will be written in `output_dir`, after creating the directory if
+    required.
+
+    The default `samplerate` is 0, meaning the original sampling rate
+    of `source_file` will be used. When using a sampling rate
+    different to the one of the original files, `timestamps` and
+    `timestamps_end` should be expressed in re-sampled samples.
+
+    The `hopsize` parameter simply tells :class:`source` to use this
+    hopsize and does not change the output slices.
+
+    If `create_first` is True and `timestamps` does not start with `0`, the
+    first slice from `0` to `timestamps[0] - 1` will be automatically added.
+
+    Parameters
+    ----------
+    source_file : str
+        path of the resource to slice
+    timestamps : :obj:`list` of :obj:`int`
+        time stamps at which to slice, in samples
+    timestamps_end : :obj:`list` of :obj:`int` (optional)
+        time stamps at which to end the slices
+    output_dir : str (optional)
+        output directory to write the slices to
+    samplerate : int (optional)
+        samplerate to read the file at
+    hopsize : int (optional)
+        number of samples read from source per iteration
+    create_first : bool (optional)
+        always create the slice at the start of the file
+
+    Examples
+    --------
+    Create two slices, the first second of a file and the rest of it:
+
+    >>> aubio.slice_source_at_stamps('loop.wav', [0, 44100])
+
+    Create one slice, from 1 second to 2 seconds:
+
+    >>> aubio.slice_source_at_stamps('loop.wav', [44100], [44100*2])
+    """
 
     if timestamps is None or len(timestamps) == 0:
         raise ValueError("no timestamps given")
