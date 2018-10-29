@@ -101,7 +101,7 @@ def _cut_analyze(options):
 
     s = source(source_uri, samplerate, hopsize)
     if samplerate == 0:
-        samplerate = s.get_samplerate()
+        samplerate = s.samplerate
         options.samplerate = samplerate
 
     if options.beat:
