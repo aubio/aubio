@@ -6,19 +6,22 @@ from aubio import source, sink
 _max_timestamp = 1e120
 
 def slice_source_at_stamps(source_file, timestamps, timestamps_end=None,
-                           output_dir=None, samplerate=0, hopsize=256):
+                           output_dir=None, samplerate=0, hopsize=256,
+                           create_first=False):
     """ slice a sound file at given timestamps """
 
     if timestamps is None or len(timestamps) == 0:
         raise ValueError("no timestamps given")
 
-    if timestamps[0] != 0:
+    if timestamps[0] != 0 and create_first:
         timestamps = [0] + timestamps
         if timestamps_end is not None:
             timestamps_end = [timestamps[1] - 1] + timestamps_end
 
     if timestamps_end is not None:
-        if len(timestamps_end) != len(timestamps):
+        if len(timestamps_end) == len(timestamps) - 1:
+            timestamps_end = timestamps_end + [_max_timestamp]
+        elif len(timestamps_end) != len(timestamps):
             raise ValueError("len(timestamps_end) != len(timestamps)")
     else:
         timestamps_end = [t - 1 for t in timestamps[1:]] + [_max_timestamp]
@@ -48,7 +51,7 @@ def slice_source_at_stamps(source_file, timestamps, timestamps_end=None,
         # get hopsize new samples from source
         vec, read = _source.do_multi()
         # if the total number of frames read will exceed the next region start
-        if len(regions) and total_frames + read >= regions[0][0]:
+        while len(regions) and total_frames + read >= regions[0][0]:
             #print "getting", regions[0], "at", total_frames
             # get next region
             start_stamp, end_stamp = regions.pop(0)
@@ -75,12 +78,15 @@ def slice_source_at_stamps(source_file, timestamps, timestamps_end=None,
                 if remaining > start:
                     # write remaining samples from current region
                     _sink.do_multi(vec[:, start:remaining], remaining - start)
-                    #print "closing region", "remaining", remaining
+                    #print("closing region", "remaining", remaining)
                     # close this file
                     _sink.close()
             elif read > start:
                 # write all the samples
                 _sink.do_multi(vec[:, start:read], read - start)
         total_frames += read
+        # remove old slices
+        slices = list(filter(lambda s: s['end_stamp'] > total_frames,
+            slices))
         if read < hopsize:
             break
