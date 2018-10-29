@@ -34,7 +34,7 @@
 
 // determine whether we use libavformat from ffmpeg or from libav
 #define FFMPEG_LIBAVFORMAT (LIBAVFORMAT_VERSION_MICRO > 99 )
-// max_analyze_duration2 was used from ffmpeg libavformat 55.43.100 through 57.2.100
+// max_analyze_duration2 was used from ffmpeg libavformat 55.43.100 -> 57.2.100
 #define FFMPEG_LIBAVFORMAT_MAX_DUR2 FFMPEG_LIBAVFORMAT && ( \
       (LIBAVFORMAT_VERSION_MAJOR == 55 && LIBAVFORMAT_VERSION_MINOR >= 43) \
       || (LIBAVFORMAT_VERSION_MAJOR == 56) \
@@ -92,9 +92,12 @@ struct _aubio_source_avcodec_t {
   uint_t multi;
 };
 
-// hack to create or re-create the context the first time _do or _do_multi is called
-void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s, uint_t multi);
-void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_samples);
+// create or re-create the context when _do or _do_multi is called
+void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s,
+    uint_t multi);
+// actually read a frame
+void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s,
+    uint_t * read_samples);
 
 uint_t aubio_source_avcodec_has_network_url(aubio_source_avcodec_t *s);
 
@@ -111,7 +114,8 @@ uint_t aubio_source_avcodec_has_network_url(aubio_source_avcodec_t *s) {
 }
 
 
-aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t samplerate, uint_t hop_size) {
+aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path,
+    uint_t samplerate, uint_t hop_size) {
   aubio_source_avcodec_t * s = AUBIO_NEW(aubio_source_avcodec_t);
   AVFormatContext *avFormatCtx = s->avFormatCtx;
   AVCodecContext *avCodecCtx = s->avCodecCtx;
@@ -128,11 +132,13 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t sa
     goto beach;
   }
   if ((sint_t)samplerate < 0) {
-    AUBIO_ERR("source_avcodec: Can not open %s with samplerate %d\n", path, samplerate);
+    AUBIO_ERR("source_avcodec: Can not open %s with samplerate %d\n",
+        path, samplerate);
     goto beach;
   }
   if ((sint_t)hop_size <= 0) {
-    AUBIO_ERR("source_avcodec: Can not open %s with hop_size %d\n", path, hop_size);
+    AUBIO_ERR("source_avcodec: Can not open %s with hop_size %d\n",
+        path, hop_size);
     goto beach;
   }
 
@@ -172,8 +178,8 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t sa
   if ( (err = avformat_find_stream_info(avFormatCtx, NULL)) < 0 ) {
     char errorstr[256];
     av_strerror (err, errorstr, sizeof(errorstr));
-    AUBIO_ERR("source_avcodec: Could not find stream information " "for %s (%s)\n", s->path,
-        errorstr);
+    AUBIO_ERR("source_avcodec: Could not find stream information "
+        "for %s (%s)\n", s->path, errorstr);
     goto beach;
   }
 
@@ -213,8 +219,9 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t sa
   /* Allocate a codec context for the decoder */
   avCodecCtx = avcodec_alloc_context3(codec);
   if (!avCodecCtx) {
-    AUBIO_ERR("source_avcodec: Failed to allocate the %s codec context for path %s\n",
-        av_get_media_type_string(AVMEDIA_TYPE_AUDIO), s->path);
+    AUBIO_ERR("source_avcodec: Failed to allocate the %s codec context "
+        "for path %s\n", av_get_media_type_string(AVMEDIA_TYPE_AUDIO),
+        s->path);
     goto beach;
   }
 #else
@@ -229,8 +236,9 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t sa
 #if FF_API_LAVF_AVCTX
   /* Copy codec parameters from input stream to output codec context */
   if ((err = avcodec_parameters_to_context(avCodecCtx, codecpar)) < 0) {
-    AUBIO_ERR("source_avcodec: Failed to copy %s codec parameters to decoder context for %s\n",
-       av_get_media_type_string(AVMEDIA_TYPE_AUDIO), s->path);
+    AUBIO_ERR("source_avcodec: Failed to copy %s codec parameters to "
+        "decoder context for %s\n",
+        av_get_media_type_string(AVMEDIA_TYPE_AUDIO), s->path);
     goto beach;
   }
 #endif
@@ -238,7 +246,8 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t sa
   if ( ( err = avcodec_open2(avCodecCtx, codec, NULL) ) < 0) {
     char errorstr[256];
     av_strerror (err, errorstr, sizeof(errorstr));
-    AUBIO_ERR("source_avcodec: Could not load codec for %s (%s)\n", s->path, errorstr);
+    AUBIO_ERR("source_avcodec: Could not load codec for %s (%s)\n", s->path,
+        errorstr);
     goto beach;
   }
 
@@ -265,7 +274,8 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path, uint_t sa
   }
 
   /* allocate output for avr */
-  s->output = (smpl_t *)av_malloc(AUBIO_AVCODEC_MAX_BUFFER_SIZE * sizeof(smpl_t));
+  s->output = (smpl_t *)av_malloc(AUBIO_AVCODEC_MAX_BUFFER_SIZE
+      * sizeof(smpl_t));
 
   s->read_samples = 0;
   s->read_index = 0;
@@ -293,7 +303,9 @@ beach:
   return NULL;
 }
 
-void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s, uint_t multi) {
+void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s,
+    uint_t multi)
+{
   // create or reset resampler to/from mono/multi-channel
   if ( (multi != s->multi) || (s->avr == NULL) ) {
     int err;
@@ -308,15 +320,15 @@ void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s, uint_t mul
     SwrContext *oldavr = s->avr;
 #endif /* HAVE_AVRESAMPLE || HAVE_SWRESAMPLE */
 
-    av_opt_set_int(avr, "in_channel_layout",  input_layout,           0);
-    av_opt_set_int(avr, "out_channel_layout", output_layout,          0);
-    av_opt_set_int(avr, "in_sample_rate",     s->input_samplerate,    0);
-    av_opt_set_int(avr, "out_sample_rate",    s->samplerate,          0);
+    av_opt_set_int(avr, "in_channel_layout",  input_layout,              0);
+    av_opt_set_int(avr, "out_channel_layout", output_layout,             0);
+    av_opt_set_int(avr, "in_sample_rate",     s->input_samplerate,       0);
+    av_opt_set_int(avr, "out_sample_rate",    s->samplerate,             0);
     av_opt_set_int(avr, "in_sample_fmt",      s->avCodecCtx->sample_fmt, 0);
 #if HAVE_AUBIO_DOUBLE
-    av_opt_set_int(avr, "out_sample_fmt",     AV_SAMPLE_FMT_DBL,      0);
+    av_opt_set_int(avr, "out_sample_fmt",     AV_SAMPLE_FMT_DBL,         0);
 #else
-    av_opt_set_int(avr, "out_sample_fmt",     AV_SAMPLE_FMT_FLT,      0);
+    av_opt_set_int(avr, "out_sample_fmt",     AV_SAMPLE_FMT_FLT,         0);
 #endif
     // TODO: use planar?
     //av_opt_set_int(avr, "out_sample_fmt",     AV_SAMPLE_FMT_FLTP,      0);
@@ -328,8 +340,8 @@ void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s, uint_t mul
     {
       char errorstr[256];
       av_strerror (err, errorstr, sizeof(errorstr));
-      AUBIO_ERR("source_avcodec: Could not open resampling context for %s (%s)\n",
-          s->path, errorstr);
+      AUBIO_ERR("source_avcodec: Could not open resampling context"
+         " for %s (%s)\n", s->path, errorstr);
       return;
     }
     s->avr = avr;
@@ -346,7 +358,9 @@ void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s, uint_t mul
   }
 }
 
-void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_samples) {
+void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s,
+    uint_t * read_samples)
+{
   AVFormatContext *avFormatCtx = s->avFormatCtx;
   AVCodecContext *avCodecCtx = s->avCodecCtx;
   AVFrame *avFrame = s->avFrame;
@@ -387,7 +401,8 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
     if (err != 0) {
       char errorstr[256];
       av_strerror (err, errorstr, sizeof(errorstr));
-      AUBIO_ERR("source_avcodec: could not read frame in %s (%s)\n", s->path, errorstr);
+      AUBIO_ERR("source_avcodec: could not read frame in %s (%s)\n",
+          s->path, errorstr);
       s->eof = 1;
       goto beach;
     }
@@ -405,10 +420,12 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
   }
   if (ret < 0) {
     if (ret == AVERROR(EAGAIN)) {
-      //AUBIO_WRN("source_avcodec: output is not available right now - user must try to send new input\n");
+      //AUBIO_WRN("source_avcodec: output is not available right now - "
+      //    "user must try to send new input\n");
       goto beach;
     } else if (ret == AVERROR_EOF) {
-      AUBIO_WRN("source_avcodec: the decoder has been fully flushed, and there will be no more output frames\n");
+      AUBIO_WRN("source_avcodec: the decoder has been fully flushed, "
+          "and there will be no more output frames\n");
     } else {
       AUBIO_ERR("source_avcodec: decoding errors on %s\n", s->path);
       goto beach;
@@ -423,15 +440,16 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
   }
 #endif
   if (got_frame == 0) {
-    AUBIO_WRN("source_avcodec: did not get a frame when reading %s\n", s->path);
+    AUBIO_WRN("source_avcodec: did not get a frame when reading %s\n",
+        s->path);
     goto beach;
   }
 
 #if LIBAVUTIL_VERSION_MAJOR > 52
   if (avFrame->channels != (sint_t)s->input_channels) {
     AUBIO_WRN ("source_avcodec: trying to read from %d channel(s),"
-        "but configured for %d; is '%s' corrupt?\n", avFrame->channels,
-        s->input_channels, s->path);
+        "but configured for %d; is '%s' corrupt?\n",
+        avFrame->channels, s->input_channels, s->path);
     goto beach;
   }
 #else
@@ -456,7 +474,8 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
       (const uint8_t **)avFrame->data, in_samples);
 #endif /* HAVE_AVRESAMPLE || HAVE_SWRESAMPLE */
   if (out_samples <= 0) {
-    AUBIO_WRN("source_avcodec: no sample found while converting frame (%s)\n", s->path);
+    AUBIO_WRN("source_avcodec: no sample found while converting frame (%s)\n",
+        s->path);
     goto beach;
   }
 
@@ -474,7 +493,8 @@ beach:
   av_packet_unref(&avPacket);
 }
 
-void aubio_source_avcodec_do(aubio_source_avcodec_t * s, fvec_t * read_data, uint_t * read){
+void aubio_source_avcodec_do(aubio_source_avcodec_t * s, fvec_t * read_data,
+    uint_t * read) {
   uint_t i;
   uint_t end = 0;
   uint_t total_wrote = 0;
@@ -506,7 +526,8 @@ void aubio_source_avcodec_do(aubio_source_avcodec_t * s, fvec_t * read_data, uin
   *read = total_wrote;
 }
 
-void aubio_source_avcodec_do_multi(aubio_source_avcodec_t * s, fmat_t * read_data, uint_t * read){
+void aubio_source_avcodec_do_multi(aubio_source_avcodec_t * s,
+    fmat_t * read_data, uint_t * read) {
   uint_t i,j;
   uint_t end = 0;
   uint_t total_wrote = 0;
@@ -552,7 +573,8 @@ uint_t aubio_source_avcodec_get_channels(const aubio_source_avcodec_t * s) {
 }
 
 uint_t aubio_source_avcodec_seek (aubio_source_avcodec_t * s, uint_t pos) {
-  int64_t resampled_pos = (uint_t)ROUND(pos * (s->input_samplerate * 1. / s->samplerate));
+  int64_t resampled_pos =
+    (uint_t)ROUND(pos * (s->input_samplerate * 1. / s->samplerate));
   int64_t min_ts = MAX(resampled_pos - 2000, 0);
   int64_t max_ts = MIN(resampled_pos + 2000, INT64_MAX);
   int seek_flags = AVSEEK_FLAG_FRAME | AVSEEK_FLAG_ANY;
@@ -560,7 +582,8 @@ uint_t aubio_source_avcodec_seek (aubio_source_avcodec_t * s, uint_t pos) {
   if (s->avFormatCtx != NULL && s->avr != NULL) {
     ret = AUBIO_OK;
   } else {
-    AUBIO_ERR("source_avcodec: failed seeking in %s (file not opened?)", s->path);
+    AUBIO_ERR("source_avcodec: failed seeking in %s (file not opened?)",
+        s->path);
     return ret;
   }
   if ((sint_t)pos < 0) {
@@ -571,7 +594,8 @@ uint_t aubio_source_avcodec_seek (aubio_source_avcodec_t * s, uint_t pos) {
   ret = avformat_seek_file(s->avFormatCtx, s->selected_stream,
       min_ts, resampled_pos, max_ts, seek_flags);
   if (ret < 0) {
-    AUBIO_ERR("source_avcodec: failed seeking to %d in file %s", pos, s->path);
+    AUBIO_ERR("source_avcodec: failed seeking to %d in file %s",
+        pos, s->path);
   }
   // reset read status
   s->eof = 0;
