@@ -82,5 +82,8 @@ def slice_source_at_stamps(source_file, timestamps, timestamps_end=None,
                 # write all the samples
                 _sink.do_multi(vec[:, start:read], read - start)
         total_frames += read
+        # remove old slices
+        slices = list(filter(lambda s: s['end_stamp'] > total_frames,
+            slices))
         if read < hopsize:
             break
