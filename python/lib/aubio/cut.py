@@ -150,7 +150,8 @@ def _cut_slice(options, timestamps):
         slice_source_at_stamps(options.source_uri,
                 timestamps, timestamps_end = timestamps_end,
                 output_dir = options.output_directory,
-                samplerate = options.samplerate)
+                samplerate = options.samplerate,
+                create_first = options.create_first)
 
 def main():
     parser = aubio_cut_parser()
