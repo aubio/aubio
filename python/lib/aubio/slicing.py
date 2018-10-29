@@ -6,13 +6,14 @@ from aubio import source, sink
 _max_timestamp = 1e120
 
 def slice_source_at_stamps(source_file, timestamps, timestamps_end=None,
-                           output_dir=None, samplerate=0, hopsize=256):
+                           output_dir=None, samplerate=0, hopsize=256,
+                           create_first=False):
     """ slice a sound file at given timestamps """
 
     if timestamps is None or len(timestamps) == 0:
         raise ValueError("no timestamps given")
 
-    if timestamps[0] != 0:
+    if timestamps[0] != 0 and create_first:
         timestamps = [0] + timestamps
         if timestamps_end is not None:
             timestamps_end = [timestamps[1] - 1] + timestamps_end
@@ -77,7 +78,7 @@ def slice_source_at_stamps(source_file, timestamps, timestamps_end=None,
                 if remaining > start:
                     # write remaining samples from current region
                     _sink.do_multi(vec[:, start:remaining], remaining - start)
-                    #print "closing region", "remaining", remaining
+                    #print("closing region", "remaining", remaining)
                     # close this file
                     _sink.close()
             elif read > start:
