@@ -48,7 +48,7 @@ def slice_source_at_stamps(source_file, timestamps, timestamps_end=None,
         # get hopsize new samples from source
         vec, read = _source.do_multi()
         # if the total number of frames read will exceed the next region start
-        if len(regions) and total_frames + read >= regions[0][0]:
+        while len(regions) and total_frames + read >= regions[0][0]:
             #print "getting", regions[0], "at", total_frames
             # get next region
             start_stamp, end_stamp = regions.pop(0)
