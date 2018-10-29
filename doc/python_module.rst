@@ -79,4 +79,3 @@ A number of `python tests`_ are provided. To run them, use
 .. _python demos folder: https://github.com/aubio/aubio/blob/master/python/demos
 .. _demo_filter.py: https://github.com/aubio/aubio/blob/master/python/demos/demo_filter.py
 .. _python tests: https://github.com/aubio/aubio/blob/master/python/tests
-
