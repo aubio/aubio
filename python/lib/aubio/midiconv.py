@@ -4,6 +4,8 @@
 __all__ = ['note2midi', 'midi2note', 'freq2note']
 
 import sys
+from ._aubio import freqtomidi
+
 py3 = sys.version_info[0] == 3
 if py3:
     str_instances = str
@@ -71,6 +73,5 @@ def midi2note(midi):
 
 def freq2note(freq):
     " convert frequency in Hz to nearest note name, e.g. [0, 22050.] -> [C-1, G9] "
-    from aubio import freqtomidi
     nearest_note = int(freqtomidi(freq) + .5)
     return midi2note(nearest_note)
