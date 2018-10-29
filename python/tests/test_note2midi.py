@@ -111,9 +111,13 @@ class note2midi_wrong_values(unittest.TestCase):
 
 class freq2note_simple_test(unittest.TestCase):
 
-    def test_freq2note(self):
+    def test_freq2note_above(self):
         " make sure freq2note(441) == A4 "
         self.assertEqual("A4", freq2note(441))
+
+    def test_freq2note_under(self):
+        " make sure freq2note(439) == A4 "
+        self.assertEqual("A4", freq2note(439))
 
 if __name__ == '__main__':
     import nose2
