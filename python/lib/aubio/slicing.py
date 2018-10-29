@@ -18,7 +18,9 @@ def slice_source_at_stamps(source_file, timestamps, timestamps_end=None,
             timestamps_end = [timestamps[1] - 1] + timestamps_end
 
     if timestamps_end is not None:
-        if len(timestamps_end) != len(timestamps):
+        if len(timestamps_end) == len(timestamps) - 1:
+            timestamps_end = timestamps_end + [_max_timestamp]
+        elif len(timestamps_end) != len(timestamps):
             raise ValueError("len(timestamps_end) != len(timestamps)")
     else:
         timestamps_end = [t - 1 for t in timestamps[1:]] + [_max_timestamp]
