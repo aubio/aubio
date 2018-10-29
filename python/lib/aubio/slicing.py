@@ -27,7 +27,7 @@ def slice_source_at_stamps(source_file, timestamps, timestamps_end=None,
     The default `samplerate` is 0, meaning the original sampling rate
     of `source_file` will be used. When using a sampling rate
     different to the one of the original files, `timestamps` and
-    `timestamps_end` should be expressed in re-sampled samples.
+    `timestamps_end` should be expressed in the re-sampled signal.
 
     The `hopsize` parameter simply tells :class:`source` to use this
     hopsize and does not change the output slices.
@@ -61,6 +61,12 @@ def slice_source_at_stamps(source_file, timestamps, timestamps_end=None,
     Create one slice, from 1 second to 2 seconds:
 
     >>> aubio.slice_source_at_stamps('loop.wav', [44100], [44100*2])
+
+    Notes
+    -----
+    Slices may be overlapping. If `timestamps_end` is `1` element
+    shorter than `timestamps`, the last slice will end at the end of
+    the file.
     """
 
     if timestamps is None or len(timestamps) == 0:
