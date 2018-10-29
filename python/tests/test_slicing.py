@@ -36,6 +36,12 @@ class aubio_slicing_test_case(TestCase):
         slice_source_at_stamps(self.source_file, regions_start, output_dir = self.output_dir,
                 hopsize = 200)
 
+    def test_slice_start_every_half_blocksize(self):
+        hopsize = 200
+        regions_start = [i*hopsize//2 for i in range(1, n_slices)]
+        slice_source_at_stamps(self.source_file, regions_start,
+                output_dir = self.output_dir, hopsize = 200)
+
     def tearDown(self):
         original_samples = count_samples_in_file(self.source_file)
         written_samples = count_samples_in_directory(self.output_dir)
