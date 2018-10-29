@@ -51,7 +51,7 @@ REFERENCES
   according to Malcolm Slaney's Auditory Toolbox, available at the following
   url:
 
-  http://cobweb.ecn.purdue.edu/~malcolm/interval/1998-010/ (see file mfcc.m)
+  https://engineering.purdue.edu/~malcolm/interval/1998-010/ (see file mfcc.m)
 
 SEE ALSO
 
