@@ -434,6 +434,8 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s, uint_t * read_sam
         s->input_channels, s->path);
     goto beach;
   }
+#else
+#warning "avutil < 53 is deprecated, crashes might occur on corrupt files"
 #endif
 
 #ifdef HAVE_AVRESAMPLE
