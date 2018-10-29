@@ -34,13 +34,13 @@ class aubio_slicing_test_case(TestCase):
 
     def test_slice_start_every_blocksize(self):
         hopsize = 200
-        regions_start = [i*hopsize for i in range(1, n_slices)]
+        regions_start = [i*hopsize for i in range(0, n_slices)]
         slice_source_at_stamps(self.source_file, regions_start, output_dir = self.output_dir,
                 hopsize = 200)
 
     def test_slice_start_every_half_blocksize(self):
         hopsize = 200
-        regions_start = [i*hopsize//2 for i in range(1, n_slices)]
+        regions_start = [i*hopsize//2 for i in range(0, n_slices)]
         slice_source_at_stamps(self.source_file, regions_start,
                 output_dir = self.output_dir, hopsize = 200)
 
