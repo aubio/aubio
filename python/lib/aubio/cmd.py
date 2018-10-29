@@ -247,6 +247,9 @@ class AubioArgumentParser(argparse.ArgumentParser):
                 metavar = "<slices>",
                 action = "store", dest = "cut_until_nslices", default = None,
                 help="how many extra slices should be added at the end of each slice")
+        self.add_argument("--create-first",
+                action = "store_true", dest = "create_first", default = False,
+                help="always include first slice")
 
 # some utilities
 
