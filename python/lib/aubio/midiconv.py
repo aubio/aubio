@@ -72,4 +72,5 @@ def midi2note(midi):
 def freq2note(freq):
     " convert frequency in Hz to nearest note name, e.g. [0, 22050.] -> [C-1, G9] "
     from aubio import freqtomidi
-    return midi2note(int(freqtomidi(freq)))
+    nearest_note = int(freqtomidi(freq) + .5)
+    return midi2note(nearest_note)
