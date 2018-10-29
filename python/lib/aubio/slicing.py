@@ -54,13 +54,16 @@ def slice_source_at_stamps(source_file, timestamps, timestamps_end=None,
 
     Examples
     --------
-    Create two slices, the first second of a file and the rest of it:
+    Create two slices: the first slice starts at the beginning of the
+    input file `loop.wav` and lasts exactly one second, starting at
+    sample `0` and ending at sample `44099`; the second slice starts
+    at sample `44100` and lasts until the end of the input file:
 
     >>> aubio.slice_source_at_stamps('loop.wav', [0, 44100])
 
     Create one slice, from 1 second to 2 seconds:
 
-    >>> aubio.slice_source_at_stamps('loop.wav', [44100], [44100*2])
+    >>> aubio.slice_source_at_stamps('loop.wav', [44100], [44100 * 2 - 1])
 
     Notes
     -----
