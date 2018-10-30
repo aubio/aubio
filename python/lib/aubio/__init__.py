@@ -1,4 +1,26 @@
 #! /usr/bin/env python
+# -*- coding: utf8 -*-
+
+"""
+aubio
+=====
+
+Provides a number of classes and functions for music and audio signal
+analysis.
+
+How to use the documentation
+----------------------------
+
+Documentation of the python module is available as docstrings provided
+within the code, and a reference guide available online from `the
+aubio homepage <https://aubio.org/documentation>`_.
+
+The docstrings examples are written assuming `aubio` and `numpy` have been
+imported with:
+
+>>> import aubio
+>>> import numpy as np
+"""
 
 import numpy
 from ._aubio import __version__ as version
