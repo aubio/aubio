@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """ utilities to convert midi note number to and from note names """
 
-__all__ = ['note2midi', 'midi2note', 'freq2note']
+__all__ = ['note2midi', 'midi2note', 'freq2note', 'note2freq']
 
 import sys
 from ._aubio import freqtomidi, miditofreq
