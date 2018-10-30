@@ -54,6 +54,7 @@ uint_t time_format = 0; // for "seconds", 1 for "ms", 2 for "samples"
 char_t * tempo_method = "default";
 // more general stuff
 smpl_t silence_threshold = -90.;
+smpl_t release_drop = 10.;
 uint_t mix_input = 0;
 
 uint_t force_overwrite = 0;

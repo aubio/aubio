@@ -164,7 +164,7 @@ uint_t aubio_wavetable_stop ( aubio_wavetable_t * s )
   //aubio_wavetable_set_freq (s, 0.);
   aubio_wavetable_set_amp (s, 0.);
   //s->last_pos = 0;
-  return aubio_wavetable_set_playing (s, 1);
+  return aubio_wavetable_set_playing (s, 0);
 }
 
 uint_t aubio_wavetable_set_freq ( aubio_wavetable_t * s, smpl_t freq )

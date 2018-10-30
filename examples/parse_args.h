@@ -47,6 +47,7 @@ extern uint_t time_format;
 extern char_t * tempo_method;
 // more general stuff
 extern smpl_t silence_threshold;
+extern smpl_t release_drop;
 extern uint_t mix_input;
 // midi tap
 extern smpl_t miditap_note;
@@ -107,6 +108,10 @@ void usage (FILE * stream, int exit_code)
       "       -s      --silence          select silence threshold\n"
       "                 a value in dB, for instance -70, or -100; default=-90\n"
 #endif /* PROG_HAS_SILENCE */
+#ifdef PROG_HAS_NOTES
+      "       -d      --release-drop     select release drop threshold\n"
+      "                 a positive value in dB; default=10\n"
+#endif
       "       -T      --time-format      select time values output format\n"
       "                 (samples, ms, seconds) default=seconds\n"
 #ifdef PROG_HAS_OUTPUT
@@ -157,6 +162,9 @@ parse_args (int argc, char **argv)
 #ifdef PROG_HAS_SILENCE
     "s:"
 #endif /* PROG_HAS_SILENCE */
+#ifdef PROG_HAS_NOTES
+    "d:"
+#endif /* PROG_HAS_SILENCE */
 #ifdef PROG_HAS_OUTPUT
     "mf"
 #endif /* PROG_HAS_OUTPUT */
@@ -192,6 +200,9 @@ parse_args (int argc, char **argv)
 #ifdef PROG_HAS_SILENCE
     {"silence",               1, NULL, 's'},
 #endif /* PROG_HAS_SILENCE */
+#ifdef PROG_HAS_NOTES
+    {"release-drop",          1, NULL, 'd'},
+#endif /* PROG_HAS_NOTES */
     {"time-format",           1, NULL, 'T'},
 #ifdef PROG_HAS_OUTPUT
     {"mix-input",             0, NULL, 'm'},
@@ -273,6 +284,9 @@ parse_args (int argc, char **argv)
         break;
       case 's':                /* silence threshold */
         silence_threshold = (smpl_t) atof (optarg);
+        break;
+      case 'd':                /* release-drop threshold */
+        release_drop = (smpl_t) atof (optarg);
         break;
       case 'm':                /* mix_input flag */
         mix_input = 1;

@@ -94,7 +94,7 @@ Py_filterbank_do(Py_filterbank * self, PyObject * args)
 
   if (self->vec.length != self->win_s / 2 + 1) {
     PyErr_Format(PyExc_ValueError,
-                 "input cvec has length %d, but fft expects length %d",
+                 "input cvec has length %d, but filterbank expects length %d",
                  self->vec.length, self->win_s / 2 + 1);
     return NULL;
   }
@@ -139,7 +139,7 @@ Py_filterbank_set_triangle_bands (Py_filterbank * self, PyObject *args)
       &(self->freqs), samplerate);
   if (err > 0) {
     PyErr_SetString (PyExc_ValueError,
-        "error when setting filter to A-weighting");
+        "error when running set_triangle_bands");
     return NULL;
   }
   Py_RETURN_NONE;
@@ -158,7 +158,7 @@ Py_filterbank_set_mel_coeffs_slaney (Py_filterbank * self, PyObject *args)
   err = aubio_filterbank_set_mel_coeffs_slaney (self->o, samplerate);
   if (err > 0) {
     PyErr_SetString (PyExc_ValueError,
-        "error when setting filter to A-weighting");
+        "error when running set_mel_coeffs_slaney");
     return NULL;
   }
   Py_RETURN_NONE;

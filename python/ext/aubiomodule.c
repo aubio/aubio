@@ -237,7 +237,9 @@ Py_bintomidi (PyObject * self, PyObject * args)
   smpl_t input, samplerate, fftsize;
   smpl_t output;
 
-  if (!PyArg_ParseTuple (args, "|" AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR , &input, &samplerate, &fftsize)) {
+  if (!PyArg_ParseTuple (args,
+        "" AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR,
+        &input, &samplerate, &fftsize)) {
     return NULL;
   }
 
@@ -252,7 +254,9 @@ Py_miditobin (PyObject * self, PyObject * args)
   smpl_t input, samplerate, fftsize;
   smpl_t output;
 
-  if (!PyArg_ParseTuple (args, "|" AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR , &input, &samplerate, &fftsize)) {
+  if (!PyArg_ParseTuple (args,
+        "" AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR,
+        &input, &samplerate, &fftsize)) {
     return NULL;
   }
 
@@ -267,7 +271,9 @@ Py_bintofreq (PyObject * self, PyObject * args)
   smpl_t input, samplerate, fftsize;
   smpl_t output;
 
-  if (!PyArg_ParseTuple (args, "|" AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR, &input, &samplerate, &fftsize)) {
+  if (!PyArg_ParseTuple (args,
+        "" AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR,
+        &input, &samplerate, &fftsize)) {
     return NULL;
   }
 
@@ -282,7 +288,9 @@ Py_freqtobin (PyObject * self, PyObject * args)
   smpl_t input, samplerate, fftsize;
   smpl_t output;
 
-  if (!PyArg_ParseTuple (args, "|" AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR, &input, &samplerate, &fftsize)) {
+  if (!PyArg_ParseTuple (args,
+        "" AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR,
+        &input, &samplerate, &fftsize)) {
     return NULL;
   }
 
