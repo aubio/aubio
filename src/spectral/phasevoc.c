@@ -212,3 +212,13 @@ static void aubio_pvoc_addsynth(aubio_pvoc_t *pv, fvec_t *synth_new)
   for (i = 0; i < pv->end; i++)
     synthold[i] += synth[i + pv->hop_s] * pv->scale;
 }
+
+uint_t aubio_pvoc_get_win(aubio_pvoc_t* pv)
+{
+  return pv->win_s;
+}
+
+uint_t aubio_pvoc_get_hop(aubio_pvoc_t* pv)
+{
+  return pv->hop_s;
+}

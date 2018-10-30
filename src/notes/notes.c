@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2014 Paul Brossier <piem@aubio.org>
+  Copyright (C) 2014-2018 Paul Brossier <piem@aubio.org>
 
   This file is part of aubio.
 
@@ -25,6 +25,7 @@
 #include "notes/notes.h"
 
 #define AUBIO_DEFAULT_NOTES_SILENCE -70.
+#define AUBIO_DEFAULT_NOTES_RELEASE_DROP 10.
 // increase to 10. for .1  cent precision
 //      or to 100. for .01 cent precision
 #define AUBIO_DEFAULT_CENT_PRECISION 1.
@@ -56,6 +57,9 @@ struct _aubio_notes_t {
   smpl_t silence_threshold;
 
   uint_t isready;
+
+  smpl_t last_onset_level;
+  smpl_t release_drop_level;
 };
 
 aubio_notes_t * new_aubio_notes (const char_t * method,
@@ -101,6 +105,9 @@ aubio_notes_t * new_aubio_notes (const char_t * method,
   aubio_notes_set_silence(o, AUBIO_DEFAULT_NOTES_SILENCE);
   aubio_notes_set_minioi_ms (o, AUBIO_DEFAULT_NOTES_MINIOI_MS);
 
+  o->last_onset_level = AUBIO_DEFAULT_NOTES_SILENCE;
+  o->release_drop_level = AUBIO_DEFAULT_NOTES_RELEASE_DROP;
+
   return o;
 
 fail:
@@ -138,6 +145,23 @@ uint_t aubio_notes_set_minioi_ms (aubio_notes_t *o, smpl_t minioi_ms)
 smpl_t aubio_notes_get_minioi_ms(const aubio_notes_t *o)
 {
   return aubio_onset_get_minioi_ms(o->onset);
+}
+
+uint_t aubio_notes_set_release_drop(aubio_notes_t *o, smpl_t release_drop_level)
+{
+  uint_t err = AUBIO_OK;
+  if (release_drop_level <= 0.) {
+    AUBIO_ERR("notes: release_drop should be >= 0, got %f\n", release_drop_level);
+    err = AUBIO_FAIL;
+  } else {
+    o->release_drop_level = release_drop_level;
+  }
+  return err;
+}
+
+smpl_t aubio_notes_get_release_drop(const aubio_notes_t *o)
+{
+  return o->release_drop_level;
 }
 
 /** append new note candidate to the note_buffer and return filtered value. we
@@ -184,6 +208,7 @@ void aubio_notes_do (aubio_notes_t *o, const fvec_t * input, fvec_t * notes)
       //send_noteon(o->curnote,0);
       //notes->data[0] = o->curnote;
       //notes->data[1] = 0.;
+      //AUBIO_WRN("notes: sending note-off at onset, not enough level\n");
       notes->data[2] = o->curnote;
     } else {
       if (o->median) {
@@ -191,6 +216,7 @@ void aubio_notes_do (aubio_notes_t *o, const fvec_t * input, fvec_t * notes)
       } else {
         /* kill old note */
         //send_noteon(o->curnote,0, o->samplerate);
+        //AUBIO_WRN("notes: sending note-off at onset, new onset detected\n");
         notes->data[2] = o->curnote;
         /* get and send new one */
         //send_noteon(new_pitch,127+(int)floor(curlevel), o->samplerate);
@@ -198,16 +224,33 @@ void aubio_notes_do (aubio_notes_t *o, const fvec_t * input, fvec_t * notes)
         notes->data[1] = 127 + (int)floor(curlevel);
         o->curnote = new_pitch;
       }
+      o->last_onset_level = curlevel;
     }
   } else {
-    if (o->median) {
+    if (curlevel < o->last_onset_level - o->release_drop_level)
+    {
+      // send note off
+      //AUBIO_WRN("notes: sending note-off, release detected\n");
+      notes->data[0] = 0;
+      notes->data[1] = 0;
+      notes->data[2] = o->curnote;
+      // reset last_onset_level to silence_threshold
+      o->last_onset_level = o->silence_threshold;
+      o->curnote = 0;
+    }
+    else if (o->median)
+    {
       if (o->isready > 0)
         o->isready++;
       if (o->isready == o->median)
       {
         /* kill old note */
         //send_noteon(curnote,0);
-        notes->data[2] = o->curnote;
+        if (o->curnote != 0)
+        {
+          //AUBIO_WRN("notes: sending note-off, new note detected\n");
+          notes->data[2] = o->curnote;
+        }
         o->newnote = aubio_notes_get_latest_note(o);
         o->curnote = o->newnote;
         /* get and send new one */

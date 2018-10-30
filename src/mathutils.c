@@ -522,7 +522,7 @@ aubio_freqtomidi (smpl_t freq)
   if (freq < 2. || freq > 100000.) return 0.; // avoid nans and infs
   /* log(freq/A-2)/log(2) */
   midi = freq / 6.875;
-  midi = LOG (midi) / 0.69314718055995;
+  midi = LOG (midi) / 0.6931471805599453;
   midi *= 12;
   midi -= 3;
   return midi;
@@ -534,7 +534,7 @@ aubio_miditofreq (smpl_t midi)
   smpl_t freq;
   if (midi > 140.) return 0.; // avoid infs
   freq = (midi + 3.) / 12.;
-  freq = EXP (freq * 0.69314718055995);
+  freq = EXP (freq * 0.6931471805599453);
   freq *= 6.875;
   return freq;
 }

@@ -6,7 +6,7 @@ SYNOPSIS
   aubionotes source
   aubionotes [[-i] source]
              [-r rate] [-B win] [-H hop]
-             [-O method] [-t thres]
+             [-O method] [-t thres] [-d drop]
              [-p method] [-u unit] [-l thres]
              [-T time-format]
              [-s sil]
@@ -67,6 +67,10 @@ OPTIONS
   -s, --silence sil  Set the silence threshold, in dB, under which the pitch
   will not be detected. A value of -20.0 would eliminate most onsets but the
   loudest ones. A value of -90.0 would select all onsets. Defaults to -90.0.
+
+  -d, --release-drop  Set the release drop threshold, in dB. If the level is
+  found to drop more than this amount since the last note has started, the
+  note will be turned-off. Defaults to 10.
 
   -T, --timeformat format  Set time format (samples, ms, seconds). Defaults to
   seconds.

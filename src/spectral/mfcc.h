@@ -26,9 +26,10 @@
   This object computes MFCC coefficients on an input cvec_t.
 
   The implementation follows the specifications established by Malcolm Slaney
-  in its Auditory Toolbox, available online (see file mfcc.m).
+  in its Auditory Toolbox, available online at the following address (see
+  file mfcc.m):
 
-  http://engineering.ecn.purdue.edu/~malcolm/interval/1998-010/
+  https://engineering.purdue.edu/~malcolm/interval/1998-010/
 
   \example spectral/test-mfcc.c
 

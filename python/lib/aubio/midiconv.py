@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 """ utilities to convert midi note number to and from note names """
 
-__all__ = ['note2midi', 'midi2note', 'freq2note']
+__all__ = ['note2midi', 'midi2note', 'freq2note', 'note2freq']
 
 import sys
+from ._aubio import freqtomidi, miditofreq
+
 py3 = sys.version_info[0] == 3
 if py3:
     str_instances = str
@@ -63,10 +65,11 @@ def note2midi(note):
             }
     _valid_octaves = range(-1, 10)
     if not isinstance(note, str_instances):
-        raise TypeError("a string is required, got %s (%s)" % (note, str(type(note))))
+        msg = "a string is required, got {:s} ({:s})"
+        raise TypeError(msg.format(str(type(note)), repr(note)))
     if len(note) not in range(2, 5):
-        raise ValueError("string of 2 to 4 characters expected, got %d (%s)" \
-                         % (len(note), note))
+        msg = "string of 2 to 4 characters expected, got {:d} ({:s})"
+        raise ValueError(msg.format(len(note), note))
     notename, modifier, octave = [None]*3
 
     if len(note) == 4:
@@ -90,7 +93,8 @@ def note2midi(note):
     if octave not in _valid_octaves:
         raise ValueError("%s is not a valid octave" % octave)
 
-    midi = 12 + octave * 12 + _valid_notenames[notename] + _valid_modifiers[modifier]
+    midi = 12 + octave * 12 + _valid_notenames[notename] \
+            + _valid_modifiers[modifier]
     if midi > 127:
         raise ValueError("%s is outside of the range C-2 to G8" % note)
     return midi
@@ -129,8 +133,10 @@ def midi2note(midi):
     if not isinstance(midi, int_instances):
         raise TypeError("an integer is required, got %s" % midi)
     if midi not in range(0, 128):
-        raise ValueError("an integer between 0 and 127 is excepted, got %d" % midi)
-    _valid_notenames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+        msg = "an integer between 0 and 127 is excepted, got {:d}"
+        raise ValueError(msg.format(midi))
+    _valid_notenames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#',
+            'A', 'A#', 'B']
     return _valid_notenames[midi % 12] + str(int(midi / 12) - 1)
 
 def freq2note(freq):
@@ -153,5 +159,28 @@ def freq2note(freq):
     >>> aubio.freq2note(220.1)
     'A3'
     """
-    from aubio import freqtomidi
-    return midi2note(int(freqtomidi(freq)))
+    nearest_note = int(freqtomidi(freq) + .5)
+    return midi2note(nearest_note)
+
+def note2freq(note):
+    """Convert note name to corresponding frequency, in Hz.
+
+    Parameters
+    ----------
+    note : str
+        input note name
+
+    Returns
+    -------
+    freq : float [0, 23000[
+        frequency, in Hz
+
+    Example
+    -------
+    >>> aubio.note2freq('A4')
+    440
+    >>> aubio.note2freq('A3')
+    220.1
+    """
+    midi = note2midi(note)
+    return miditofreq(midi)

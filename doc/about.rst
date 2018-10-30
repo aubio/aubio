@@ -59,7 +59,7 @@ Copyright © 2003-2017 Paul Brossier <piem@aubio.org>
 License
 -------
 
-aubio is a `free <http://www.debian.org/intro/free>`_ and `open source
+aubio is a `free <https://www.debian.org/intro/free>`_ and `open source
 <http://www.opensource.org/docs/definition.php>`_ software; **you** can
 redistribute it and/or modify it under the terms of the `GNU
 <https://www.gnu.org/>`_ `General Public License
