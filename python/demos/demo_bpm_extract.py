@@ -22,7 +22,7 @@ def get_file_bpm(path, params=None):
         elif params.mode in ['default']:
             pass
         else:
-            print("unknown mode {:s}".format(params.mode))
+            raise ValueError("unknown mode {:s}".format(params.mode))
     # manual settings
     if 'samplerate' in params:
         samplerate = params.samplerate
@@ -69,9 +69,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--mode',
             help="mode [default|fast|super-fast]",
-            dest="mode")
+            dest="mode", default='default')
     parser.add_argument('sources',
-            nargs='*',
+            nargs='+',
             help="input_files")
     args = parser.parse_args()
     for f in args.sources:

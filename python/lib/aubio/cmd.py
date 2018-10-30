@@ -255,6 +255,9 @@ class AubioArgumentParser(argparse.ArgumentParser):
                 metavar = "<slices>",
                 action = "store", dest = "cut_until_nslices", default = None,
                 help="how many extra slices should be added at the end of each slice")
+        self.add_argument("--create-first",
+                action = "store_true", dest = "create_first", default = False,
+                help="always include first slice")
 
 # some utilities
 
@@ -511,7 +514,24 @@ class process_cut(process_onset):
 
 def main():
     parser = aubio_parser()
-    args = parser.parse_args()
+    if sys.version_info[0] != 3:
+        # on py2, create a dummy ArgumentParser to workaround the
+        # optional subcommand issue. See https://bugs.python.org/issue9253
+        # This ensures that:
+        #  - version string is shown when only '-V' is passed
+        #  - help is printed if  '-V' is passed with any other argument
+        #  - any other argument get forwarded to the real parser
+        parser_root = argparse.ArgumentParser(add_help=False)
+        parser_root.add_argument('-V', '--version', help="show version",
+                action="store_true", dest="show_version")
+        args, extras = parser_root.parse_known_args()
+        if args.show_version == False: # no -V, forward to parser
+            args = parser.parse_args(extras, namespace=args)
+        elif len(extras) != 0: # -V with other arguments, print help
+            parser.print_help()
+            sys.exit(1)
+    else: # in py3, we can simply use parser directly
+        args = parser.parse_args()
     if 'show_version' in args and args.show_version:
         sys.stdout.write('aubio version ' + aubio.version + '\n')
         sys.exit(0)
