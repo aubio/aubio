@@ -150,7 +150,8 @@ smpl_t aubio_notes_get_minioi_ms(const aubio_notes_t *o)
 uint_t aubio_notes_set_release_drop(aubio_notes_t *o, smpl_t release_drop_level)
 {
   uint_t err = AUBIO_OK;
-  if (release_drop_level < 0.) {
+  if (release_drop_level <= 0.) {
+    AUBIO_ERR("notes: release_drop should be >= 0, got %f\n", release_drop_level);
     err = AUBIO_FAIL;
   } else {
     o->release_drop_level = release_drop_level;
