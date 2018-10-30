@@ -480,7 +480,14 @@ Pyaubio_{shortname}_set_{param} (Py_{shortname} *self, PyObject *args)
   err = aubio_{shortname}_set_{param} (self->o, {param});
 
   if (err > 0) {{
-    PyErr_SetString (PyExc_ValueError, "error running aubio_{shortname}_set_{param}");
+    if (PyErr_Occurred() == NULL) {{
+      PyErr_SetString (PyExc_ValueError, "error running aubio_{shortname}_set_{param}");
+    }} else {{
+      // change the RuntimeError into ValueError
+      PyObject *type, *value, *traceback;
+      PyErr_Fetch(&type, &value, &traceback);
+      PyErr_Restore(PyExc_ValueError, value, traceback);
+    }}
     return NULL;
   }}
   Py_RETURN_NONE;
