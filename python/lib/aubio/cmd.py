@@ -101,6 +101,8 @@ def parser_add_subcommand_notes(subparsers):
             help='estimate midi-like notes (monophonic)')
     subparser.add_input()
     subparser.add_buf_hop_size()
+    subparser.add_silence()
+    subparser.add_release_drop()
     subparser.add_time_format()
     subparser.add_verbose_help()
     subparser.set_defaults(process=process_notes)
@@ -206,6 +208,12 @@ class AubioArgumentParser(argparse.ArgumentParser):
                 metavar = "<value>", type=float,
                 action="store", dest="silence", default=-70,
                 help="silence threshold")
+
+    def add_release_drop(self):
+        self.add_argument("-d", "--release-drop",
+                metavar = "<value>", type=float,
+                action="store", dest="release_drop", default=10,
+                help="release drop threshold")
 
     def add_minioi(self, default="12ms"):
         self.add_argument("-M", "--minioi",
@@ -379,6 +387,10 @@ class process_notes(default_process):
     def __init__(self, args):
         self.parse_options(args, self.valid_opts)
         self.notes = aubio.notes(**self.options)
+        if args.silence is not None:
+            self.notes.set_silence(args.silence)
+        if args.release_drop is not None:
+            self.notes.set_release_drop(args.release_drop)
         super(process_notes, self).__init__(args)
     def __call__(self, block):
         return self.notes(block)
