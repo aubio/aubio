@@ -70,6 +70,7 @@ Content
 
    installing
    python_module
+   python
    cli
    develop
    about
