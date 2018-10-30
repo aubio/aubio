@@ -3,7 +3,7 @@
 
 from __future__ import unicode_literals
 
-from aubio import note2midi, freq2note, note2freq
+from aubio import note2midi, freq2note, note2freq, float_type
 from nose2.tools import params
 import unittest
 
@@ -127,7 +127,10 @@ class note2freq_simple_test(unittest.TestCase):
 
     def test_note2freq_under(self):
         " make sure note2freq(A4) == 440"
-        self.assertEqual(440, note2freq("A4"))
+        if float_type == 'float32':
+            self.assertEqual(440, note2freq("A4"))
+        else:
+            self.assertLess(abs(note2freq("A4")-440), 1.e-12)
 
 if __name__ == '__main__':
     import nose2
