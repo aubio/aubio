@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """ utilities to convert midi note number to and from note names """
 
-__all__ = ['note2midi', 'midi2note', 'freq2note']
+__all__ = ['note2midi', 'midi2note', 'freq2note', 'note2freq']
 
 import sys
-from ._aubio import freqtomidi
+from ._aubio import freqtomidi, miditofreq
 
 py3 = sys.version_info[0] == 3
 if py3:
@@ -75,3 +75,26 @@ def freq2note(freq):
     " convert frequency in Hz to nearest note name, e.g. [0, 22050.] -> [C-1, G9] "
     nearest_note = int(freqtomidi(freq) + .5)
     return midi2note(nearest_note)
+
+def note2freq(note):
+    """Convert note name to corresponding frequency, in Hz.
+
+    Parameters
+    ----------
+    note : str
+        input note name
+
+    Returns
+    -------
+    freq : float [0, 23000[
+        frequency, in Hz
+
+    Example
+    -------
+    >>> aubio.note2freq('A4')
+    440
+    >>> aubio.note2freq('A3')
+    220.1
+    """
+    midi = note2midi(note)
+    return miditofreq(midi)
