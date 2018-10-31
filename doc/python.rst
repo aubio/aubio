@@ -7,23 +7,49 @@
 ..
    we follow numpy type docstrings, see:
    https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
+..
+   note: we do not import aubio's docstring, which will be displayed from an
+   interpreter.
+
+.. .. automodule:: aubio
+
 
 .. _python:
 
 Python documentation
 ====================
 
+This module provides a number of classes and functions for the analysis of
+music and audio signals.
 
-.. midiconv.py
+Contents
+--------
 
-.. autofunction:: note2midi
+.. toctree::
+   :maxdepth: 1
 
-.. autofunction:: midi2note
+   py_examples
+   py_datatypes
+   py_io
+   py_utils
 
-.. autofunction:: freq2note
+Introduction
+------------
 
-.. autofunction:: note2freq
+This document provides a reference guide. For documentation on how to
+install aubio, see :ref:`python-install`.
 
-.. slicing.py
+Examples included in this guide and within the code are written assuming
+both `aubio` and `numpy`_ have been imported:
 
-.. autofunction:: slice_source_at_stamps
+.. code-block:: python
+
+    >>> import aubio
+    >>> import numpy as np
+
+`Changed in 0.4.8` :  Prior to this version, almost no documentation was
+provided with the python module. This version adds documentation for some
+classes, including :class:`fvec`, :class:`cvec`, :class:`source`, and
+:class:`sink`.
+
+.. _numpy: https://www.numpy.org
