@@ -28,10 +28,10 @@ Contents
 .. toctree::
    :maxdepth: 1
 
-   py_examples
    py_datatypes
    py_io
    py_utils
+   py_examples
 
 Introduction
 ------------
