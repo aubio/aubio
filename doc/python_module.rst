@@ -1,7 +1,7 @@
-.. _python:
+.. _python-install:
 
-Python module
-=============
+Installing aubio for Python
+===========================
 
 The aubio extension for Python is available for Python 2.7 and Python 3.
 
@@ -25,8 +25,31 @@ From ``aubio`` source directory, run the following:
     $ ./setup.py build
     $ sudo ./setup.py install
 
-Using aubio in python
----------------------
+
+.. _py-doubleprecision:
+
+Double precision
+----------------
+
+This module can be compiled in double-precision mode, in which case the
+default type for floating-point samples will be 64-bit. The default is
+single precision mode (32-bit, recommended).
+
+To build the aubio module with double precision, use the option
+`--enable-double` of the `build_ext` subcommand:
+
+.. code:: bash
+
+    $ ./setup.py clean
+    $ ./setup.py build_ext --enable-double
+    $ pip install -v .
+
+**Note**: If linking against `libaubio`, make sure the library was also
+compiled in :ref:`doubleprecision` mode.
+
+
+Checking your installation
+--------------------------
 
 Once the python module is installed, its version can be checked with:
 
@@ -40,35 +63,6 @@ The command line `aubio` is also installed:
 
     $ aubio -h
 
-A simple example
-................
-
-Here is a :download:`simple script <../python/demos/demo_source_simple.py>`
-that reads all the samples from a media file:
-
-.. literalinclude:: ../python/demos/demo_source_simple.py
-   :language: python
-
-Filtering an input sound file
-.............................
-
-Here is a more complete example, :download:`demo_filter.py
-<../python/demos/demo_filter.py>`. This files executes the following:
-
-* read an input media file (``aubio.source``)
-
-* filter it using an `A-weighting <https://en.wikipedia.org/wiki/A-weighting>`_
-  filter (``aubio.digital_filter``)
-
-* write result to a new file (``aubio.sink``)
-
-.. literalinclude:: ../python/demos/demo_filter.py
-   :language: python
-
-More demos
-..........
-
-Check out the `python demos folder`_ for more examples.
 
 Python tests
 ------------
@@ -76,6 +70,5 @@ Python tests
 A number of `python tests`_ are provided. To run them, use
 ``python/tests/run_all_tests``.
 
-.. _python demos folder: https://github.com/aubio/aubio/blob/master/python/demos
 .. _demo_filter.py: https://github.com/aubio/aubio/blob/master/python/demos/demo_filter.py
 .. _python tests: https://github.com/aubio/aubio/blob/master/python/tests

@@ -19,7 +19,37 @@ typedef struct
   uint_t length;
 } Py_cvec;
 
-static char Py_cvec_doc[] = "cvec object";
+static char Py_cvec_doc[] = ""
+"cvec(size)\n"
+"\n"
+"A container holding spectral data.\n"
+"\n"
+"Create one `cvec` to store the spectral information of a window\n"
+"of `size` points. The data will be stored  in two vectors,\n"
+":attr:`phas` and :attr:`norm`, each of shape (:attr:`length`,),\n"
+"with `length = size // 2 + 1`.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"size: int\n"
+"   Size of spectrum to create.\n"
+"\n"
+"Examples\n"
+"--------\n"
+">>> c = aubio.cvec(1024)\n"
+">>> c\n"
+"aubio cvec of 513 elements\n"
+">>> c.length\n"
+"513\n"
+">>> c.norm.dtype, c.phas.dtype\n"
+"(dtype('float32'), dtype('float32'))\n"
+">>> c.norm.shape, c.phas.shape\n"
+"((513,), (513,))\n"
+"\n"
+"See Also\n"
+"--------\n"
+"fvec, fft, pvoc\n"
+"";
 
 
 PyObject *
@@ -182,7 +212,7 @@ Py_cvec_set_phas (Py_cvec * vec, PyObject *input, void * closure)
 static PyMemberDef Py_cvec_members[] = {
   // TODO remove READONLY flag and define getter/setter
   {"length", T_INT, offsetof (Py_cvec, length), READONLY,
-      "length attribute"},
+      "int: Length of `norm` and `phas` vectors."},
   {NULL}                        /* Sentinel */
 };
 
@@ -191,11 +221,11 @@ static PyMethodDef Py_cvec_methods[] = {
 };
 
 static PyGetSetDef Py_cvec_getseters[] = {
-  {"norm", (getter)Py_cvec_get_norm, (setter)Py_cvec_set_norm, 
-      "Numpy vector of shape (length,) containing the magnitude",
+  {"norm", (getter)Py_cvec_get_norm, (setter)Py_cvec_set_norm,
+      "numpy.ndarray: Vector of shape `(length,)` containing the magnitude.",
       NULL},
-  {"phas", (getter)Py_cvec_get_phas, (setter)Py_cvec_set_phas, 
-      "Numpy vector of shape (length,) containing the phase",
+  {"phas", (getter)Py_cvec_get_phas, (setter)Py_cvec_set_phas,
+      "numpy.ndarray: Vector of shape `(length,)` containing the phase.",
       NULL},
   {NULL} /* sentinel */
 };

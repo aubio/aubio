@@ -29,7 +29,14 @@ from this_version import get_aubio_version
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.viewcode', 'sphinx.ext.autodoc']
+extensions = ['sphinx.ext.viewcode', 'sphinx.ext.autodoc',
+        'sphinx.ext.napoleon', 'sphinx.ext.intersphinx']
+
+autodoc_member_order = 'groupwise'
+
+intersphinx_mapping = {
+        'numpy': ('https://docs.scipy.org/doc/numpy/', None),
+        }
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
