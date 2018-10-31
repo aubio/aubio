@@ -25,6 +25,29 @@ From ``aubio`` source directory, run the following:
     $ ./setup.py build
     $ sudo ./setup.py install
 
+
+.. _py-doubleprecision:
+
+Double precision
+----------------
+
+This module can be compiled in double-precision mode, in which case the
+default type for floating-point samples will be 64-bit. The default is
+single precision mode (32-bit, recommended).
+
+To build the aubio module with double precision, use the option
+`--enable-double` of the `build_ext` subcommand:
+
+.. code:: bash
+
+    $ ./setup.py clean
+    $ ./setup.py build_ext --enable-double
+    $ pip install -v .
+
+**Note**: If linking against `libaubio`, make sure the library was also
+compiled in :ref:`doubleprecision` mode.
+
+
 Checking your installation
 --------------------------
 

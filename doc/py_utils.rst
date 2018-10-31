@@ -4,7 +4,7 @@
 Utilities
 ---------
 
-This section documents various helpers functions included in the aubio library.
+This section documents various helper functions included in the aubio library.
 
 Note name conversion
 ....................

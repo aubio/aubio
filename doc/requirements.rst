@@ -297,12 +297,15 @@ Here is an example of a custom command:
                 --manpagesdir=/opt/share/man  \
                 uninstall clean distclean dist distcheck
 
+.. _doubleprecision:
+
 Double precision
 ................
 
 To compile aubio in double precision mode, configure with ``--enable-double``.
 
-To compile aubio in single precision mode, use ``--disable-double`` (default).
+To compile aubio in single precision mode, use ``--disable-double`` (default,
+recommended).
 
 Disabling the tests
 ...................

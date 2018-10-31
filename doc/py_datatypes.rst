@@ -17,8 +17,8 @@ This section contains the documentation for :data:`float_type`,
     Defaults to `"float32"`.
 
     If `aubio` was built specifically with the option `--enable-double`, this
-    string will be defined to `"float64"`. See :ref:`doubleprecision` in
-    :ref:`requirements` for more details on building aubio in double
+    string will be defined to `"float64"`. See :ref:`py-doubleprecision` in
+    :ref:`python-install` for more details on building aubio in double
     precision mode.
 
     .. rubric:: Examples
