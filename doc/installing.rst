@@ -31,7 +31,7 @@ Cheat sheet
     ./waf build
     sudo ./waf install
 
-- :ref:`install python-aubio from source <python>`::
+- :ref:`install python-aubio from source <python-install>`::
 
     # from git
     pip install git+https://git.aubio.org/aubio/aubio/
@@ -45,7 +45,7 @@ Cheat sheet
     cd aubio
     pip install -v .
 
-- :ref:`install python-aubio from a pre-compiled binary <python>`::
+- :ref:`install python-aubio from a pre-compiled binary <python-install>`::
 
       # conda [osx, linux, win]
       conda install -c conda-forge aubio

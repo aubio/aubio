@@ -8,6 +8,8 @@
    we follow numpy type docstrings, see:
    https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 
+.. _python:
+
 Python documentation
 ====================
 

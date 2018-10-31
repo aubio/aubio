@@ -1,7 +1,7 @@
-.. _python:
+.. _python-install:
 
-Python module
-=============
+Installing aubio for Python
+===========================
 
 The aubio extension for Python is available for Python 2.7 and Python 3.
 
