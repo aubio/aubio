@@ -98,7 +98,13 @@ TEMPO
 
 NOTES
 
-  The "note" command accepts all common options and no additional options.
+  The following additional options can be used with the "notes" subcommand.
+
+  -s <value>, --silence <value>  silence threshold, in dB (default: -70)
+
+  -d <value>, --release-drop <value>  release drop level, in dB. If the level
+  drops more than this amount since the last note started, the note will be
+  turned off (default: 10).
 
 MFCC
 
