@@ -66,3 +66,7 @@ class aubio_dct(TestCase):
                 aubio.dct(size)
         except AssertionError:
             self.skipTest('creating aubio.dct with size %d did not fail' % size)
+
+if __name__ == '__main__':
+    from unittest import main
+    main()

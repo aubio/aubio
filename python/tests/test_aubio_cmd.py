@@ -1,8 +1,7 @@
 #! /usr/bin/env python
 
-import aubio.cmd
-from nose2 import main
 from numpy.testing import TestCase
+import aubio.cmd
 
 class aubio_cmd(TestCase):
 
@@ -31,4 +30,5 @@ class aubio_cmd_utils(TestCase):
                 "3200\t")
 
 if __name__ == '__main__':
+    from unittest import main
     main()
