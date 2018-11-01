@@ -138,8 +138,6 @@ test_python: export LD_LIBRARY_PATH=$(DESTDIR)/$(LIBDIR)
 test_python: export PYTHONPATH=$(PYDESTDIR)/$(LIBDIR)
 test_python: local_dylib
 	# run test with installed package
-	# ./python/tests/run_all_tests --verbose
-	# run with nose2, multiple processes
 	$(NOSE2)
 
 clean_python:

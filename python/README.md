@@ -35,17 +35,18 @@ sounds.
 Testing the Python module
 -------------------------
 
-Python tests are in `python/tests` and use the [nose2 python package][nose2].
+Python tests are in `python/tests` and use [pytest].
 
-To run the all the python tests, use the script:
+To run the all the python tests:
 
-    $ ./python/tests/run_all_tests
+    $ cd aubio
+    $ pytest
 
 Each test script can also be called one at a time. For instance:
 
-    $ ./python/tests/test_note2midi.py -v
+    $ pytest -v python/tests/test_note2midi.py
 
-[nose2]: https://github.com/nose-devs/nose2
+[pytest]: https://pytest.org
 
 Install in a virtualenv
 -----------------------

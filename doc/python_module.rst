@@ -67,8 +67,5 @@ The command line `aubio` is also installed:
 Python tests
 ------------
 
-A number of `python tests`_ are provided. To run them, use
-``python/tests/run_all_tests``.
-
-.. _demo_filter.py: https://github.com/aubio/aubio/blob/master/python/demos/demo_filter.py
-.. _python tests: https://github.com/aubio/aubio/blob/master/python/tests
+A number of python tests are provided. To run them, use ``pytest`` from the
+aubio source tree.
