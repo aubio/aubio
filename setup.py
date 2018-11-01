@@ -2,7 +2,11 @@
 
 import sys, os.path, glob
 from setuptools import setup, Extension
-from python.lib.moresetuptools import build_ext, CleanGenerated
+
+# add ./python/lib to current path
+sys.path.append(os.path.join('python', 'lib'))
+from moresetuptools import build_ext, CleanGenerated
+
 # function to generate gen/*.{c,h}
 from this_version import get_aubio_version, get_aubio_pyversion
 

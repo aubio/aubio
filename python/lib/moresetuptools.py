@@ -2,7 +2,7 @@
 #
 import sys, os, glob, subprocess
 import distutils, distutils.command.clean, distutils.dir_util
-from .gen_external import generate_external, header, output_path
+from gen_external import generate_external, header, output_path
 
 from this_version import get_aubio_version
 
