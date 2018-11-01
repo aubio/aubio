@@ -1,8 +1,11 @@
 #! /usr/bin/env python
 
-from unittest import main
 from numpy.testing import TestCase, assert_equal, assert_almost_equal
-from aubio import notes
+from aubio import notes, source
+import numpy as np
+from .utils import list_all_sounds
+
+list_of_sounds = list_all_sounds('sounds')
 
 AUBIO_DEFAULT_NOTES_SILENCE = -70.
 AUBIO_DEFAULT_NOTES_RELEASE_DROP = 10.
@@ -52,14 +55,9 @@ class aubio_notes_params(TestCase):
         with self.assertRaises(ValueError):
             self.o.set_release_drop(val)
 
-from .utils import list_all_sounds
-list_of_sounds = list_all_sounds('sounds')
-
 class aubio_notes_sinewave(TestCase):
 
     def analyze_file(self, filepath, samplerate=0):
-        from aubio import source
-        import numpy as np
         win_s = 512 # fft size
         hop_s = 256 # hop size
 
@@ -92,4 +90,5 @@ class aubio_notes_sinewave(TestCase):
                 assert_equal (results[0][1], [69, 123, -1])
 
 if __name__ == '__main__':
+    from unittest import main
     main()
