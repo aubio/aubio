@@ -1,9 +1,8 @@
 #! /usr/bin/env python
 
 from numpy.testing import TestCase, assert_equal, assert_array_less
+from ._tools import parametrize
 from aubio import fvec, cvec, pvoc, float_type
-from nose2 import main
-from nose2.tools import params
 import numpy as np
 
 if float_type == 'float32':
@@ -18,7 +17,7 @@ def create_sine(hop_s, freq, samplerate):
 def create_noise(hop_s):
     return np.random.rand(hop_s).astype(float_type) * 2. - 1.
 
-class aubio_pvoc_test_case(TestCase):
+class Test_aubio_pvoc_test_case:
     """ pvoc object test case """
 
     def test_members_automatic_sizes_default(self):
@@ -56,7 +55,8 @@ class aubio_pvoc_test_case(TestCase):
                         + 'This is expected when using fftw3 on powerpc.')
             assert_equal ( r, 0.)
 
-    @params(
+    resynth_noise_args = "hop_s, ratio"
+    resynth_noise_values = [
             ( 256, 8),
             ( 256, 4),
             ( 256, 2),
@@ -78,13 +78,16 @@ class aubio_pvoc_test_case(TestCase):
             (8192, 8),
             (8192, 4),
             (8192, 2),
-            )
+            ]
+
+    @parametrize(resynth_noise_args, resynth_noise_values)
     def test_resynth_steps_noise(self, hop_s, ratio):
         """ check the resynthesis of a random signal is correct """
         sigin = create_noise(hop_s)
         self.reconstruction(sigin, hop_s, ratio)
 
-    @params(
+    resynth_sine_args = "samplerate, hop_s, ratio, freq"
+    resynth_sine_values = [
             (44100,  256, 8,   441),
             (44100,  256, 4,  1203),
             (44100,  256, 2,  3045),
@@ -99,7 +102,9 @@ class aubio_pvoc_test_case(TestCase):
             (22050,  256, 8,   445),
             (96000, 1024, 8, 47000),
             (96000, 1024, 8,    20),
-            )
+            ]
+
+    @parametrize(resynth_sine_args, resynth_sine_values)
     def test_resynth_steps_sine(self, samplerate, hop_s, ratio, freq):
         """ check the resynthesis of a sine is correct """
         sigin = create_sine(hop_s, freq, samplerate)
@@ -190,5 +195,5 @@ class aubio_pvoc_wrong_params(TestCase):
             self.skipTest('creating aubio.pvoc with size %d did not fail' % win_s)
 
 if __name__ == '__main__':
+    from unittest import main
     main()
-
