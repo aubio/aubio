@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 
 from aubio import note2midi, freq2note, note2freq, float_type
 from numpy.testing import TestCase
-from ._tools import parametrize, assert_raises
+from _tools import parametrize, assert_raises
 
 list_of_known_notes = (
         ( 'C-1', 0 ),

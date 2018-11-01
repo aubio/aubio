@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 from numpy.testing import TestCase, assert_equal, assert_array_less
-from ._tools import parametrize
+from _tools import parametrize
 from aubio import fvec, cvec, pvoc, float_type
 import numpy as np
 

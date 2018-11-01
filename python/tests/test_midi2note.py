@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from aubio import midi2note
-from ._tools import parametrize, assert_raises
+from _tools import parametrize, assert_raises
 
 list_of_known_midis = (
         ( 0, 'C-1' ),

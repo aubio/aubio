@@ -3,7 +3,7 @@
 from numpy.testing import TestCase, assert_equal, assert_almost_equal
 from aubio import notes, source
 import numpy as np
-from .utils import list_all_sounds
+from utils import list_all_sounds
 
 list_of_sounds = list_all_sounds('sounds')
 

@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-from ._tools import parametrize, assert_raises
+from _tools import parametrize, assert_raises
 from numpy import random, count_nonzero
 from numpy.testing import TestCase
 from aubio import mfcc, cvec, float_type
