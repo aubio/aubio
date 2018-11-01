@@ -8,11 +8,8 @@ from tempfile import mkstemp
 DEFAULT_SOUND = '22050Hz_5s_brownnoise.wav'
 
 def array_from_text_file(filename, dtype = 'float'):
-    filename = os.path.join(os.path.dirname(__file__), filename)
-    with open(filename) as f:
-        lines = f.readlines()
-    return np.array([line.split() for line in lines],
-            dtype = dtype)
+    realpathname = os.path.join(os.path.dirname(__file__), filename)
+    return np.loadtxt(realpathname, dtype = dtype)
 
 def list_all_sounds(rel_dir):
     datadir = os.path.join(os.path.dirname(__file__), rel_dir)
