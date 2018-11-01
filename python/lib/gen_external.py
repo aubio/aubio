@@ -3,6 +3,8 @@ import sys
 import os
 import subprocess
 import glob
+from distutils.sysconfig import customize_compiler
+from gen_code import MappedObject
 
 header = os.path.join('src', 'aubio.h')
 output_path = os.path.join('python', 'gen')
@@ -49,7 +51,6 @@ default_skip_objects = [
 
 def get_preprocessor():
     # findout which compiler to use
-    from distutils.sysconfig import customize_compiler
     compiler_name = distutils.ccompiler.get_default_compiler()
     compiler = distutils.ccompiler.new_compiler(compiler=compiler_name)
     try:
@@ -262,10 +263,6 @@ def generate_external(header=header, output_path=output_path, usedouble=False, o
     # print_c_declarations_results(lib, c_declarations)
 
     sources_list = []
-    try:
-        from .gen_code import MappedObject
-    except (SystemError, ValueError):
-        from gen_code import MappedObject
     for o in lib:
         out = source_header
         mapped = MappedObject(lib[o], usedouble=usedouble)
