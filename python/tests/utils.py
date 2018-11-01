@@ -35,13 +35,9 @@ def del_tmp_sink_path(path):
     try:
         os.unlink(path)
     except WindowsError as e:
-        print("deleting {:s} failed ({:s}), reopening".format(path, repr(e)))
-        with open(path, 'wb') as f:
-            f.close()
-        try:
-            os.unlink(path)
-        except WindowsError as f:
-            print("deleting {:s} failed ({:s}), aborting".format(path, repr(e)))
+        # removing the temporary directory sometimes fails on windows
+        errmsg = "failed deleting temporary file {:s} ({:s})"
+        warnings.warn(UserWarning(errmsg.format(path, repr(e))))
 
 def array_from_yaml_file(filename):
     import yaml
