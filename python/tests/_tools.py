@@ -21,18 +21,16 @@ if 'nose2' in sys.modules:
     assert_warns = such.helper.assertWarns
     skipTest = such.helper.skipTest
     _has_nose2 = True
-    print ('using nose2')
 
 # otherwise, check if we have pytest
 if not _has_nose2:
     try:
         import pytest
         parametrize = pytest.mark.parametrize
-        _has_pytest = True
         assert_raises = pytest.raises
         assert_warns = pytest.warns
         skipTest = pytest.skip
-        print ('using pytest')
+        _has_pytest = True
     except:
         pass
 
@@ -43,7 +41,6 @@ if not _has_pytest and not _has_nose2:
     parametrize = dec.parametrize
     def skipTest(msg):
         raise SkipTest(msg)
-    print ('using numpy')
 
 # always use numpy's assert_equal
 import numpy
