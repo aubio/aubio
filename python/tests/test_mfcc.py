@@ -106,5 +106,5 @@ class Test_aubio_mfcc_all_parameters:
         #print coeffs
 
 if __name__ == '__main__':
-    from unittest import main
-    main()
+    import sys, pytest
+    pytest.main(sys.argv)
