@@ -12,15 +12,10 @@ include src/*/*.c src/*/*.h
 include examples/*.c examples/*.h
 include tests/*.h tests/*/*.c tests/*/*/*.c
 include python/ext/*.h
-include python/__init__.py
-include python/lib/__init__.py
-include python/lib/moresetuptools.py
-include python/lib/gen_external.py
-include python/lib/gen_code.py
+recursive-include python *.py
+include python/README.md
 include python/tests/run_all_tests
-include python/tests/*.py
 include python/tests/eval_pitch
-include python/demos/*.py
 include python/tests/*.expected
 include doc/*.txt doc/*.rst doc/*.cfg doc/Makefile doc/make.bat doc/conf.py
 exclude doc/full.cfg
