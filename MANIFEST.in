@@ -14,7 +14,6 @@ include tests/*.h tests/*/*.c tests/*/*/*.c
 include python/ext/*.h
 recursive-include python *.py
 include python/README.md
-include python/tests/run_all_tests
 include python/tests/eval_pitch
 include python/tests/*.expected
 include doc/*.txt doc/*.rst doc/*.cfg doc/Makefile doc/make.bat doc/conf.py
