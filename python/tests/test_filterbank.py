@@ -87,5 +87,5 @@ class aubio_filterbank_wrong_values(TestCase):
             f(cvec(256))
 
 if __name__ == '__main__':
-    import nose2
-    nose2.main()
+    from unittest import main
+    main()

@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 
-from unittest import main
 from numpy.testing import TestCase, assert_equal, assert_almost_equal
 from aubio import onset
 
@@ -84,4 +83,5 @@ class aubio_onset_8000(aubio_onset_params):
     samplerate = 8000
 
 if __name__ == '__main__':
+    from unittest import main
     main()

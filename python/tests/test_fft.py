@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 
-from unittest import main
 from numpy.testing import TestCase
 from numpy.testing import assert_equal, assert_almost_equal
 import numpy as np
@@ -192,4 +191,5 @@ class aubio_fft_wrong_params(TestCase):
             fft(win_s)
 
 if __name__ == '__main__':
+    from unittest import main
     main()

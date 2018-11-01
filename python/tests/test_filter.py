@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 
-from unittest import main
 from numpy.testing import TestCase, assert_equal, assert_almost_equal
 from aubio import fvec, digital_filter
 from .utils import array_from_text_file
@@ -84,4 +83,5 @@ class aubio_filter_wrong_params(TestCase):
             digital_filter(-1)
 
 if __name__ == '__main__':
+    from unittest import main
     main()

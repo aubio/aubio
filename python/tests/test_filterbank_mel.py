@@ -48,5 +48,5 @@ class aubio_filterbank_mel_test_case(TestCase):
                     0.02133301, 0.02133301, 0.02133311, 0.02133334, 0.02133345])
 
 if __name__ == '__main__':
-    import nose2
-    nose2.main()
+    from unittest import main
+    main()
