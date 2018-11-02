@@ -23,7 +23,7 @@ no_sounds_msg = "no test sounds, add some in 'python/tests/sounds/'!"
 
 _debug = False
 
-class Test_aubio_source_test_case:
+class Test_aubio_source_test_case(object):
 
     @parametrize('filename', list_of_sounds)
     def test_close_file(self, filename):
@@ -40,7 +40,7 @@ class Test_aubio_source_test_case:
         f.close()
         f.close()
 
-class Test_aubio_source_read:
+class Test_aubio_source_read(object):
 
     def read_from_source(self, f):
         total_frames = 0
@@ -118,7 +118,7 @@ class Test_aubio_source_read:
         assert_equal (duration, total_frames)
 
 
-class Test_aubio_source_wrong_params:
+class Test_aubio_source_wrong_params(object):
 
     def test_wrong_file(self):
         with assert_raises(RuntimeError):
@@ -171,7 +171,7 @@ class Test_aubio_source_readmulti(Test_aubio_source_read):
             print (result_str.format(*result_params))
         return total_frames
 
-class Test_aubio_source_with:
+class Test_aubio_source_with(object):
 
     @parametrize('filename', list_of_sounds)
     def test_read_from_mono(self, filename):

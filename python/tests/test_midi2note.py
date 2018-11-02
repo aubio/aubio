@@ -14,14 +14,14 @@ list_of_known_midis = (
         ( 127, 'G9' ),
         )
 
-class Test_midi2note_good_values:
+class Test_midi2note_good_values(object):
 
     @parametrize('midi, note', list_of_known_midis)
     def test_midi2note_known_values(self, midi, note):
         " known values are correctly converted "
         assert midi2note(midi) == (note)
 
-class Test_midi2note_wrong_values:
+class Test_midi2note_wrong_values(object):
 
     def test_midi2note_negative_value(self):
         " fails when passed a negative value "

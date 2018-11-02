@@ -17,7 +17,7 @@ def create_sine(hop_s, freq, samplerate):
 def create_noise(hop_s):
     return np.random.rand(hop_s).astype(float_type) * 2. - 1.
 
-class Test_aubio_pvoc_test_case:
+class Test_aubio_pvoc_test_case(object):
     """ pvoc object test case """
 
     def test_members_automatic_sizes_default(self):

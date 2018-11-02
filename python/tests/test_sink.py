@@ -19,7 +19,7 @@ for soundfile in list_of_sounds:
         for samplerate in samplerates:
             all_params.append((hop_size, samplerate, soundfile))
 
-class Test_aubio_sink:
+class Test_aubio_sink(object):
 
     def test_wrong_filename(self):
         with assert_raises(RuntimeError):

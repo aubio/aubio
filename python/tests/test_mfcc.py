@@ -14,7 +14,7 @@ samplerate = 44100
 new_params = ['buf_size', 'n_filters', 'n_coeffs', 'samplerate']
 new_deflts = [1024, 40, 13, 44100]
 
-class Test_aubio_mfcc:
+class Test_aubio_mfcc(object):
 
     members_args = 'name'
 
@@ -74,7 +74,7 @@ class aubio_mfcc_compute(TestCase):
         #print coeffs
 
 
-class Test_aubio_mfcc_all_parameters:
+class Test_aubio_mfcc_all_parameters(object):
 
     run_values = [
             (2048, 40, 13, 44100),

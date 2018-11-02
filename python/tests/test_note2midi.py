@@ -44,7 +44,7 @@ list_of_unknown_notes = (
         ( '2' ),
         )
 
-class Test_note2midi_good_values:
+class Test_note2midi_good_values(object):
 
     @parametrize('note, midi', list_of_known_notes)
     def test_note2midi_known_values(self, note, midi):
@@ -107,7 +107,7 @@ class note2midi_wrong_values(TestCase):
         " fails when passed a note with a note name longer than expected"
         self.assertRaises(ValueError, note2midi, 'CB+-3')
 
-class Test_note2midi_unknown_values:
+class Test_note2midi_unknown_values(object):
 
     @parametrize('note', list_of_unknown_notes)
     def test_note2midi_unknown_values(self, note):
