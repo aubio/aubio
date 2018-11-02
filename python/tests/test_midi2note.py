@@ -40,5 +40,5 @@ class Test_midi2note_wrong_values:
         assert_raises(TypeError, midi2note, "a")
 
 if __name__ == '__main__':
-    from unittest import main
-    main()
+    import sys, pytest
+    pytest.main(sys.argv)
