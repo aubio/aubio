@@ -2,6 +2,7 @@
 
 import numpy as np
 from numpy.testing import TestCase, assert_equal, assert_almost_equal
+from _tools import assert_warns
 
 from aubio import cvec, filterbank, float_type
 
@@ -28,7 +29,8 @@ class aubio_filterbank_mel_test_case(TestCase):
         f = filterbank(9, 1024)
         freq_list = [40, 80, 200, 400, 800, 1600, 3200, 6400, 12800, 15000, 24000]
         freqs = np.array(freq_list, dtype = float_type)
-        f.set_triangle_bands(freqs, 48000)
+        with assert_warns(UserWarning):
+            f.set_triangle_bands(freqs, 48000)
         assert_equal ( f(cvec(1024)), 0)
         self.assertIsInstance(f.get_coeffs(), np.ndarray)
 
@@ -36,13 +38,45 @@ class aubio_filterbank_mel_test_case(TestCase):
         f = filterbank(9, 1024)
         freq_list = [40, 80, 200, 400, 800, 1600, 3200, 6400, 12800, 15000, 24000]
         freqs = np.array(freq_list, dtype = float_type)
-        f.set_triangle_bands(freqs, 48000)
+        with assert_warns(UserWarning):
+            f.set_triangle_bands(freqs, 48000)
         self.assertIsInstance(f.get_coeffs(), np.ndarray)
         spec = cvec(1024)
         spec.norm[:] = 1
         assert_almost_equal ( f(spec),
                 [ 0.02070313, 0.02138672, 0.02127604, 0.02135417,
                     0.02133301, 0.02133301, 0.02133311, 0.02133334, 0.02133345])
+
+    def test_triangle_freqs_normal(self):
+        """ create a filter with set_triangle_bands, normal mode """
+        f = filterbank(3, 1024)
+        freq_list = [100, 1000, 10000, 15000, 20000]
+        freqs = np.array(freq_list, dtype = float_type)
+        f.set_triangle_bands(freqs, 44100)
+
+    def test_triangle_freqs_too_long(self):
+        """ create a filter with freq_list too long """
+        f = filterbank(2, 1024)
+        freq_list = [100, 1000, 10000, 15000, 20000]
+        freqs = np.array(freq_list, dtype = float_type)
+        with assert_warns(UserWarning):
+            f.set_triangle_bands(freqs, 44100)
+
+    def test_triangle_freqs_too_short(self):
+        """ create a filter with freq_list too short """
+        f = filterbank(4, 1024)
+        freq_list = [100, 1000, 10000, 15000, 20000]
+        freqs = np.array(freq_list, dtype = float_type)
+        with assert_warns(UserWarning):
+            f.set_triangle_bands(freqs, 44100)
+
+    def test_above_nyquist(self):
+        """ create a filter with freq_list too short """
+        f = filterbank(3, 1024)
+        freq_list = [100, 1000, 10000, 15000, 23000]
+        freqs = np.array(freq_list, dtype = float_type)
+        with assert_warns(UserWarning):
+            f.set_triangle_bands(freqs, 44100)
 
 if __name__ == '__main__':
     from unittest import main

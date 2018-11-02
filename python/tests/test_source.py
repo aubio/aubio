@@ -69,7 +69,7 @@ class Test_aubio_source_read:
         read_frames = self.read_from_source(f)
         if 'f_' in soundfile and samplerate == 0:
             import re
-            f = re.compile('.*_\([0:9]*f\)_.*')
+            f = re.compile(r'.*_\([0:9]*f\)_.*')
             match_f = re.findall('([0-9]*)f_', soundfile)
             if len(match_f) == 1:
                 expected_frames = int(match_f[0])
