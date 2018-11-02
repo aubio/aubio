@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 
 from aubio import note2midi, freq2note, note2freq, float_type
 from numpy.testing import TestCase
-from _tools import parametrize, assert_raises
+from _tools import parametrize, assert_raises, skipTest
 
 list_of_known_notes = (
         ( 'C-1', 0 ),
@@ -53,16 +53,19 @@ class Test_note2midi_good_values:
 
     @parametrize('note, midi', list_of_known_notes_with_unicode_issues)
     def test_note2midi_known_values_with_unicode_issues(self, note, midi):
-        " known values are correctly converted, unless decoding is expected to fail"
+        " difficult values are correctly converted unless expected failure "
         try:
             assert note2midi(note) == midi
         except UnicodeEncodeError as e:
+            # platforms with decoding failures include:
+            # - osx: python <= 2.7.10
+            # - win: python <= 2.7.12
             import sys
-            strfmt = "len(u'\\U0001D12A') != 1, excpected decoding failure | {:s} | {:s} {:s}"
-            strres = strfmt.format(e, sys.platform, sys.version)
-            # happens with: darwin 2.7.10, windows 2.7.12
+            strmsg = "len(u'\\U0001D12A') != 1, expected decoding failure"
+            strmsg += " | upgrade to Python 3 to fix"
+            strmsg += " | {:s} | {:s} {:s}"
             if len('\U0001D12A') != 1 and sys.version[0] == '2':
-                skipTest(strres + " | upgrade to Python 3 to fix")
+                skipTest(strmsg.format(repr(e), sys.platform, sys.version))
             else:
                 raise
 
@@ -135,5 +138,5 @@ class note2freq_simple_test(TestCase):
             self.assertLess(abs(note2freq("A4")-440), 1.e-12)
 
 if __name__ == '__main__':
-    from unittest import main
-    main()
+    import sys, pytest
+    pytest.main(sys.argv)
