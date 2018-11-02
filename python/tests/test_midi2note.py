@@ -40,5 +40,5 @@ class Test_midi2note_wrong_values(object):
         assert_raises(TypeError, midi2note, "a")
 
 if __name__ == '__main__':
-    import sys, pytest
-    pytest.main(sys.argv)
+    from _tools import run_module_suite
+    run_module_suite()

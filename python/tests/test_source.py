@@ -187,5 +187,5 @@ class Test_aubio_source_with(object):
             assert_equal(total_frames, input_source.duration)
 
 if __name__ == '__main__':
-    import sys, pytest
-    pytest.main(sys.argv)
+    from _tools import run_module_suite
+    run_module_suite()

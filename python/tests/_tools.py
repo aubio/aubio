@@ -21,6 +21,9 @@ try:
     assert_warns = pytest.warns
     skipTest = pytest.skip
     _has_pytest = True
+    def run_module_suite():
+        import sys, pytest
+        pytest.main(sys.argv)
 except:
     pass
 
@@ -31,6 +34,7 @@ if not _has_pytest:
     parametrize = dec.parametrize
     def skipTest(msg):
         raise SkipTest(msg)
+    from numpy.testing import run_module_suite
 
 # always use numpy's assert_equal
 import numpy

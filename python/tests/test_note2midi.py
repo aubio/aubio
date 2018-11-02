@@ -138,5 +138,5 @@ class note2freq_simple_test(TestCase):
             self.assertLess(abs(note2freq("A4")-440), 1.e-12)
 
 if __name__ == '__main__':
-    import sys, pytest
-    pytest.main(sys.argv)
+    from _tools import run_module_suite
+    run_module_suite()

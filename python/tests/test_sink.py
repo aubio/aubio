@@ -118,5 +118,5 @@ class Test_aubio_sink(object):
                 g(vec, 128)
 
 if __name__ == '__main__':
-    import pytest, sys
-    pytest.main(sys.argv)
+    from _tools import run_module_suite
+    run_module_suite()
