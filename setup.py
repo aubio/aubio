@@ -84,8 +84,4 @@ distrib = setup(name='aubio',
             'aubiocut = aubio.cut:main',
         ],
     },
-    test_suite = 'nose2.collector.collector',
-    extras_require = {
-        'tests': ['numpy'],
-        },
     )
