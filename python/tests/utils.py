@@ -36,6 +36,7 @@ def del_tmp_sink_path(path):
         os.unlink(path)
     except WindowsError as e:
         # removing the temporary directory sometimes fails on windows
+        import warnings
         errmsg = "failed deleting temporary file {:s} ({:s})"
         warnings.warn(UserWarning(errmsg.format(path, repr(e))))
 
