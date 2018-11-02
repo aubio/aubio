@@ -83,4 +83,4 @@ build_script:
 
 test_script:
   - "python python\\demos\\demo_create_test_sounds.py"
-  - "nose2 --verbose"
+  - "pytest --verbose"
