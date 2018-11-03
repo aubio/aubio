@@ -67,5 +67,14 @@ The command line `aubio` is also installed:
 Python tests
 ------------
 
-A number of python tests are provided. To run them, use ``pytest`` from the
-aubio source tree.
+A number of python tests are provided. To run them, use [pytest] from the
+aubio source tree:
+
+    $ cd aubio
+    $ pytest
+
+Each test script can also be called individually. For instance:
+
+    $ ./python/tests/test_note2midi.py -v
+
+[pytest]: https://pytest.org
