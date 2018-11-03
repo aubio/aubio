@@ -2,7 +2,7 @@
 
 import numpy as np
 from numpy.testing import TestCase
-from numpy.testing.utils import assert_equal, assert_almost_equal
+from numpy.testing import assert_equal, assert_almost_equal
 from aubio import window, level_lin, db_spl, silence_detection, level_detection
 from aubio import fvec, float_type
 
