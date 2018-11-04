@@ -242,12 +242,12 @@ class AubioArgumentParser(argparse.ArgumentParser):
         self.add_argument("-o", "--output", type = str,
                 metavar = "<outputdir>",
                 action="store", dest="output_directory", default=None,
-                help="specify path where slices of the original file should'
+                help="specify path where slices of the original file should' \
                 ' be created")
         self.add_argument("--cut-until-nsamples", type = int,
                 metavar = "<samples>",
                 action = "store", dest = "cut_until_nsamples", default = None,
-                help="how many extra samples should be added at the end of'
+                help="how many extra samples should be added at the end of' \
                 ' each slice")
         self.add_argument("--cut-every-nslices", type = int,
                 metavar = "<samples>",
@@ -256,7 +256,7 @@ class AubioArgumentParser(argparse.ArgumentParser):
         self.add_argument("--cut-until-nslices", type = int,
                 metavar = "<slices>",
                 action = "store", dest = "cut_until_nslices", default = None,
-                help="how many extra slices should be added at the end of'
+                help="how many extra slices should be added at the end of' \
                 ' each slice")
         self.add_argument("--create-first",
                 action = "store_true", dest = "create_first", default = False,
