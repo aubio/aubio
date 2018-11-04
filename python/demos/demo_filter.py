@@ -4,6 +4,7 @@ import sys
 import os.path
 import aubio
 
+
 def apply_filter(path, target):
     # open input file, get its samplerate
     s = aubio.source(path)
@@ -27,19 +28,20 @@ def apply_filter(path, target):
         # count frames read
         total_frames += read
         # end of file reached
-        if read < s.hop_size: break
+        if read < s.hop_size:
+            break
 
     # print some info
     duration = total_frames / float(samplerate)
     input_str = "input: {:s} ({:.2f} s, {:d} Hz)"
     output_str = "output: {:s}, A-weighting filtered ({:d} frames total)"
-    print (input_str.format(s.uri, duration, samplerate))
-    print (output_str.format(o.uri, total_frames))
+    print(input_str.format(s.uri, duration, samplerate))
+    print(output_str.format(o.uri, total_frames))
 
 if __name__ == '__main__':
     usage = "{:s} <input_file> [output_file]".format(sys.argv[0])
     if not 1 < len(sys.argv) < 4:
-        print (usage)
+        print(usage)
         sys.exit(1)
     if len(sys.argv) < 3:
         input_path = sys.argv[1]
