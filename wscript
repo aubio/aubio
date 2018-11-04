@@ -42,8 +42,9 @@ def options(ctx):
             default = "release",
             choices = ('debug', 'release'),
             dest = 'build_type',
-            help = 'whether to compile with (--build-type=release) or without (--build-type=debug) '\
-              ' compiler opimizations [default: release]')
+            help = 'whether to compile with (--build-type=release)' \
+                    ' or without (--build-type=debug)' \
+                    ' compiler opimizations [default: release]')
     add_option_enable_disable(ctx, 'fftw3f', default = False,
             help_str = 'compile with fftw3f instead of ooura (recommended)',
             help_disable_str = 'do not compile with fftw3f')
@@ -109,7 +110,8 @@ def options(ctx):
             help_disable_str = 'do not build examples')
 
     ctx.add_option('--with-target-platform', type='string',
-            help='set target platform for cross-compilation', dest='target_platform')
+            help='set target platform for cross-compilation',
+            dest='target_platform')
 
     ctx.load('compiler_c')
     ctx.load('waf_unit_test')
@@ -205,13 +207,15 @@ def configure(ctx):
             ctx.define('HAVE_SINK_APPLE_AUDIO', 1)
             ctx.msg('Checking for AudioToolbox.framework', 'yes')
         else:
-            ctx.msg('Checking for AudioToolbox.framework', 'no (disabled)', color = 'YELLOW')
+            ctx.msg('Checking for AudioToolbox.framework', 'no (disabled)',
+                    color = 'YELLOW')
         if (ctx.options.enable_accelerate != False):
             ctx.define('HAVE_ACCELERATE', 1)
             ctx.env.FRAMEWORK += ['Accelerate']
             ctx.msg('Checking for Accelerate framework', 'yes')
         else:
-            ctx.msg('Checking for Accelerate framework', 'no (disabled)', color = 'YELLOW')
+            ctx.msg('Checking for Accelerate framework', 'no (disabled)',
+                    color = 'YELLOW')
 
     if target_platform in [ 'ios', 'iosimulator' ]:
         MINSDKVER="6.1"
@@ -265,16 +269,19 @@ def configure(ctx):
 
         # tell emscripten functions we want to expose
         from python.lib.gen_external import get_c_declarations, \
-                get_cpp_objects_from_c_declarations, get_all_func_names_from_lib, \
+                get_cpp_objects_from_c_declarations, \
+                get_all_func_names_from_lib, \
                 generate_lib_from_c_declarations
-        c_decls = get_c_declarations(usedouble=False)  # emscripten can't use double
+        # emscripten can't use double
+        c_decls = get_c_declarations(usedouble=False)
         objects = list(get_cpp_objects_from_c_declarations(c_decls))
         # ensure that aubio structs are exported
         objects += ['fvec_t', 'cvec_t', 'fmat_t']
         lib = generate_lib_from_c_declarations(objects, c_decls)
         exported_funcnames = get_all_func_names_from_lib(lib)
         c_mangled_names = ['_' + s for s in exported_funcnames]
-        ctx.env.LINKFLAGS_cshlib += ['-s', 'EXPORTED_FUNCTIONS=%s' % c_mangled_names]
+        ctx.env.LINKFLAGS_cshlib += ['-s',
+                'EXPORTED_FUNCTIONS=%s' % c_mangled_names]
 
     # check support for C99 __VA_ARGS__ macros
     check_c99_varargs = '''
@@ -304,15 +311,16 @@ def configure(ctx):
 
     # check for Intel IPP
     if (ctx.options.enable_intelipp != False):
-        has_ipp_headers = ctx.check(header_name=['ippcore.h', 'ippvm.h', 'ipps.h'],
-                mandatory = False)
+        has_ipp_headers = ctx.check(header_name=['ippcore.h', 'ippvm.h',
+            'ipps.h'], mandatory = False)
         has_ipp_libs = ctx.check(lib=['ippcore', 'ippvm', 'ipps'],
                 uselib_store='INTEL_IPP', mandatory = False)
         if (has_ipp_headers and has_ipp_libs):
             ctx.msg('Checking if Intel IPP is available', 'yes')
             ctx.define('HAVE_INTEL_IPP', 1)
             if ctx.env.CC_NAME == 'msvc':
-                # force linking multi-threaded static IPP libraries on Windows with msvc
+                # force linking multi-threaded static IPP libraries on Windows
+                # with msvc
                 ctx.define('_IPP_SEQUENTIAL_STATIC', 1)
         else:
             ctx.msg('Checking if Intel IPP is available', 'no')
@@ -361,11 +369,12 @@ def configure(ctx):
     # check for libsamplerate
     if (ctx.options.enable_double):
         if (ctx.options.enable_samplerate):
-            ctx.fatal("Could not compile aubio in double precision mode with libsamplerate")
+            ctx.fatal("Could not compile aubio in double precision mode' \
+                    ' with libsamplerate")
         else:
             ctx.options.enable_samplerate = False
-            ctx.msg('Checking if using samplerate', 'no (disabled in double precision mode)',
-                    color = 'YELLOW')
+            ctx.msg('Checking if using samplerate',
+                    'no (disabled in double precision mode)', color = 'YELLOW')
     if (ctx.options.enable_samplerate != False):
         ctx.check_cfg(package = 'samplerate',
                 args = '--cflags --libs samplerate >= 0.0.15',
@@ -408,7 +417,8 @@ def configure(ctx):
             ctx.msg(msg_check, 'not found (missing avformat)', color = 'YELLOW')
         elif 'HAVE_AVUTIL' not in ctx.env:
             ctx.msg(msg_check, 'not found (missing avutil)', color = 'YELLOW')
-        elif 'HAVE_SWRESAMPLE' not in ctx.env and 'HAVE_AVRESAMPLE' not in ctx.env:
+        elif 'HAVE_SWRESAMPLE' not in ctx.env \
+                and 'HAVE_AVRESAMPLE' not in ctx.env:
             resample_missing = 'not found (avresample or swresample required)'
             ctx.msg(msg_check, resample_missing, color = 'YELLOW')
         else:
@@ -421,10 +431,12 @@ def configure(ctx):
 
     if (ctx.options.enable_wavread != False):
         ctx.define('HAVE_WAVREAD', 1)
-    ctx.msg('Checking if using source_wavread', ctx.options.enable_wavread and 'yes' or 'no')
+    ctx.msg('Checking if using source_wavread',
+            ctx.options.enable_wavread and 'yes' or 'no')
     if (ctx.options.enable_wavwrite!= False):
         ctx.define('HAVE_WAVWRITE', 1)
-    ctx.msg('Checking if using sink_wavwrite', ctx.options.enable_wavwrite and 'yes' or 'no')
+    ctx.msg('Checking if using sink_wavwrite',
+            ctx.options.enable_wavwrite and 'yes' or 'no')
 
     # use BLAS/ATLAS
     if (ctx.options.enable_blas != False):
@@ -542,12 +554,14 @@ def doxygen(bld):
                 relative_trick = True)
 
 def sphinx(bld):
-    # build documentation from source files using sphinx-build
-    # note: build in ../doc/_build/html, otherwise waf wont install unsigned files
+    # build documentation from source files using sphinx-build note: build in
+    # ../doc/_build/html, otherwise waf wont install unsigned files
     if bld.env['SPHINX']:
         bld.env.VERSION = VERSION
         bld( name = 'sphinx',
-                rule = '${SPHINX} -b html -D release=${VERSION} -D version=${VERSION} -a -q `dirname ${SRC}` `dirname ${TGT}`',
+                rule = '${SPHINX} -b html -D release=${VERSION}' \
+                        ' -D version=${VERSION} -a -q' \
+                        ' `dirname ${SRC}` `dirname ${TGT}`',
                 source = 'doc/conf.py',
                 target = '../doc/_build/html/index.html')
         bld.install_files( '${DATAROOTDIR}' + '/doc/libaubio-doc/sphinx',
@@ -577,13 +591,16 @@ class build_doxygen(BuildContext):
 def shutdown(bld):
     from waflib import Logs
     if bld.options.target_platform in ['ios', 'iosimulator']:
-        msg ='building for %s, contact the author for a commercial license' % bld.options.target_platform
+        msg ='building for %s, contact the author for a commercial license' \
+                % bld.options.target_platform
         Logs.pprint('RED', msg)
         msg ='   Paul Brossier <piem@aubio.org>'
         Logs.pprint('RED', msg)
 
 def dist(ctx):
-    ctx.excl  = ' **/.waf* **/*~ **/*.pyc **/*.swp **/*.swo **/*.swn **/.lock-w* **/.git*'
+    ctx.excl  = ' **/.waf*'
+    ctx.excl += ' **/.git*'
+    ctx.excl += ' **/*~ **/*.pyc **/*.swp **/*.swo **/*.swn **/.lock-w*'
     ctx.excl += ' **/build/*'
     ctx.excl += ' doc/_build'
     ctx.excl += ' python/demos_*'
