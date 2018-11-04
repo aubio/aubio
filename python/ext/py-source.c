@@ -18,7 +18,7 @@ typedef struct
 static char Py_source_doc[] = ""
 "source(path, samplerate=0, hop_size=512, channels=0)\n"
 "\n"
-"Create a new source, opening the given pathname for reading.\n"
+"Read audio samples from a media file.\n"
 "\n"
 "`source` open the file specified in `path` and creates a callable\n"
 "returning `hop_size` new audio samples at each invocation.\n"
