@@ -5,83 +5,83 @@
 """
 
 import sys
-from aubio.cmd import AubioArgumentParser
+from aubio.cmd import AubioArgumentParser, _cut_slice
 
 def aubio_cut_parser():
     parser = AubioArgumentParser()
     parser.add_input()
-    parser.add_argument("-O","--onset-method",
+    parser.add_argument("-O", "--onset-method",
             action="store", dest="onset_method", default='default',
             metavar = "<onset_method>",
             help="onset detection method [default=default] \
                     complexdomain|hfc|phase|specdiff|energy|kl|mkl")
     # cutting methods
-    parser.add_argument("-b","--beat",
+    parser.add_argument("-b", "--beat",
             action="store_true", dest="beat", default=False,
             help="slice at beat locations")
     """
-    parser.add_argument("-S","--silencecut",
+    parser.add_argument("-S", "--silencecut",
             action="store_true", dest="silencecut", default=False,
             help="use silence locations")
-    parser.add_argument("-s","--silence",
+    parser.add_argument("-s", "--silence",
             metavar = "<value>",
             action="store", dest="silence", default=-70,
             help="silence threshold [default=-70]")
             """
     # algorithm parameters
     parser.add_buf_hop_size()
-    parser.add_argument("-t","--threshold", "--onset-threshold",
+    parser.add_argument("-t", "--threshold", "--onset-threshold",
             metavar = "<threshold>", type=float,
             action="store", dest="threshold", default=0.3,
             help="onset peak picking threshold [default=0.3]")
-    parser.add_argument("-c","--cut",
+    parser.add_argument("-c", "--cut",
             action="store_true", dest="cut", default=False,
             help="cut input sound file at detected labels")
     parser.add_minioi()
 
     """
-    parser.add_argument("-D","--delay",
+    parser.add_argument("-D", "--delay",
             action = "store", dest = "delay", type = float,
             metavar = "<seconds>", default=0,
             help="number of seconds to take back [default=system]\
                     default system delay is 3*hopsize/samplerate")
-    parser.add_argument("-C","--dcthreshold",
+    parser.add_argument("-C", "--dcthreshold",
             metavar = "<value>",
             action="store", dest="dcthreshold", default=1.,
             help="onset peak picking DC component [default=1.]")
-    parser.add_argument("-L","--localmin",
+    parser.add_argument("-L", "--localmin",
             action="store_true", dest="localmin", default=False,
             help="use local minima after peak detection")
-    parser.add_argument("-d","--derivate",
+    parser.add_argument("-d", "--derivate",
             action="store_true", dest="derivate", default=False,
             help="derivate onset detection function")
-    parser.add_argument("-z","--zerocross",
+    parser.add_argument("-z", "--zerocross",
             metavar = "<value>",
             action="store", dest="zerothres", default=0.008,
             help="zero-crossing threshold for slicing [default=0.00008]")
     # plotting functions
-    parser.add_argument("-p","--plot",
+    parser.add_argument("-p", "--plot",
             action="store_true", dest="plot", default=False,
             help="draw plot")
-    parser.add_argument("-x","--xsize",
+    parser.add_argument("-x", "--xsize",
             metavar = "<size>",
             action="store", dest="xsize", default=1.,
             type=float, help="define xsize for plot")
-    parser.add_argument("-y","--ysize",
+    parser.add_argument("-y", "--ysize",
             metavar = "<size>",
             action="store", dest="ysize", default=1.,
             type=float, help="define ysize for plot")
-    parser.add_argument("-f","--function",
+    parser.add_argument("-f", "--function",
             action="store_true", dest="func", default=False,
             help="print detection function")
-    parser.add_argument("-n","--no-onsets",
+    parser.add_argument("-n", "--no-onsets",
             action="store_true", dest="nplot", default=False,
             help="do not plot detected onsets")
-    parser.add_argument("-O","--outplot",
+    parser.add_argument("-O", "--outplot",
             metavar = "<output_image>",
             action="store", dest="outplot", default=None,
             help="save plot to output.{ps,png}")
-    parser.add_argument("-F","--spectrogram",
+    parser.add_argument("-F", "--spectrogram",
             action="store_true", dest="spectro", default=False,
             help="add spectrogram to the plot")
     """
@@ -105,9 +105,11 @@ def _cut_analyze(options):
         options.samplerate = samplerate
 
     if options.beat:
-        o = tempo(options.onset_method, bufsize, hopsize, samplerate=samplerate)
+        o = tempo(options.onset_method, bufsize, hopsize,
+                samplerate=samplerate)
     else:
-        o = onset(options.onset_method, bufsize, hopsize, samplerate=samplerate)
+        o = onset(options.onset_method, bufsize, hopsize,
+                samplerate=samplerate)
         if options.minioi:
             if options.minioi.endswith('ms'):
                 o.set_minioi_ms(int(options.minioi[:-2]))
@@ -122,36 +124,14 @@ def _cut_analyze(options):
     while True:
         samples, read = s()
         if o(samples):
-            timestamps.append (o.get_last())
-            if options.verbose: print ("%.4f" % o.get_last_s())
+            timestamps.append(o.get_last())
+            if options.verbose:
+                print("%.4f" % o.get_last_s())
         total_frames += read
-        if read < hopsize: break
+        if read < hopsize:
+            break
     del s
     return timestamps, total_frames
-
-def _cut_slice(options, timestamps):
-    # cutting pass
-    nstamps = len(timestamps)
-    if nstamps > 0:
-        # generate output files
-        from aubio.slicing import slice_source_at_stamps
-        timestamps_end = None
-        if options.cut_every_nslices:
-            timestamps = timestamps[::options.cut_every_nslices]
-            nstamps = len(timestamps)
-        if options.cut_until_nslices and options.cut_until_nsamples:
-            print ("warning: using cut_until_nslices, but cut_until_nsamples is set")
-        if options.cut_until_nsamples:
-            timestamps_end = [t + options.cut_until_nsamples for t in timestamps[1:]]
-            timestamps_end += [ 1e120 ]
-        if options.cut_until_nslices:
-            timestamps_end = [t for t in timestamps[1 + options.cut_until_nslices:]]
-            timestamps_end += [ 1e120 ] * (options.cut_until_nslices + 1)
-        slice_source_at_stamps(options.source_uri,
-                timestamps, timestamps_end = timestamps_end,
-                output_dir = options.output_directory,
-                samplerate = options.samplerate,
-                create_first = options.create_first)
 
 def main():
     parser = aubio_cut_parser()
@@ -167,7 +147,7 @@ def main():
     timestamps, total_frames = _cut_analyze(options)
 
     # print some info
-    duration = float (total_frames) / float(options.samplerate)
+    duration = float(total_frames) / float(options.samplerate)
     base_info = '%(source_uri)s' % {'source_uri': options.source_uri}
     base_info += ' (total %(duration).2fs at %(samplerate)dHz)\n' % \
             {'duration': duration, 'samplerate': options.samplerate}

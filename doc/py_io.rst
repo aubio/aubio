@@ -39,7 +39,7 @@ to write audio samples to disk.
     If opened with more than one channel, the frames will be
     down-mixed to produce the new samples.
 
-    return: A tuple of one array of samples and one integer.
+    :returns: A tuple of one array of samples and one integer.
     :rtype: (array, int)
 
     .. seealso:: :meth:`__next__`

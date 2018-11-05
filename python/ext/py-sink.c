@@ -14,7 +14,7 @@ typedef struct
 static char Py_sink_doc[] = ""
 "sink(path, samplerate=44100, channels=1)\n"
 "\n"
-"Open `path` to write a WAV file.\n"
+"Write audio samples to file.\n"
 "\n"
 "Parameters\n"
 "----------\n"

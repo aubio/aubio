@@ -11,6 +11,7 @@ readable code examples, check out the `python/demos` folder."""
 
 import sys
 import argparse
+import warnings
 import aubio
 
 def aubio_parser():
@@ -168,10 +169,10 @@ class AubioArgumentParser(argparse.ArgumentParser):
                 help="samplerate at which the file should be represented")
 
     def add_verbose_help(self):
-        self.add_argument("-v","--verbose",
+        self.add_argument("-v", "--verbose",
                 action="count", dest="verbose", default=1,
                 help="make lots of noise [default]")
-        self.add_argument("-q","--quiet",
+        self.add_argument("-q", "--quiet",
                 action="store_const", dest="verbose", const=0,
                 help="be quiet")
 
@@ -180,25 +181,25 @@ class AubioArgumentParser(argparse.ArgumentParser):
         self.add_hop_size(hop_size=hop_size)
 
     def add_buf_size(self, buf_size=512):
-        self.add_argument("-B","--bufsize",
+        self.add_argument("-B", "--bufsize",
                 action="store", dest="buf_size", default=buf_size,
                 metavar = "<size>", type=int,
                 help="buffer size [default=%d]" % buf_size)
 
     def add_hop_size(self, hop_size=256):
-        self.add_argument("-H","--hopsize",
+        self.add_argument("-H", "--hopsize",
                 metavar = "<size>", type=int,
                 action="store", dest="hop_size", default=hop_size,
                 help="overlap size [default=%d]" % hop_size)
 
     def add_method(self, method='default', helpstr='method'):
-        self.add_argument("-m","--method",
+        self.add_argument("-m", "--method",
                 metavar = "<method>", type=str,
                 action="store", dest="method", default=method,
                 help="%s [default=%s]" % (helpstr, method))
 
     def add_threshold(self, default=None):
-        self.add_argument("-t","--threshold",
+        self.add_argument("-t", "--threshold",
                 metavar = "<threshold>", type=float,
                 action="store", dest="threshold", default=default,
                 help="threshold [default=%s]" % default)
@@ -239,14 +240,16 @@ class AubioArgumentParser(argparse.ArgumentParser):
                  help=helpstr)
 
     def add_slicer_options(self):
-        self.add_argument("-o","--output", type = str,
+        self.add_argument("-o", "--output", type = str,
                 metavar = "<outputdir>",
                 action="store", dest="output_directory", default=None,
-                help="specify path where slices of the original file should be created")
+                help="specify path where slices of the original file should"
+                " be created")
         self.add_argument("--cut-until-nsamples", type = int,
                 metavar = "<samples>",
                 action = "store", dest = "cut_until_nsamples", default = None,
-                help="how many extra samples should be added at the end of each slice")
+                help="how many extra samples should be added at the end of"
+                " each slice")
         self.add_argument("--cut-every-nslices", type = int,
                 metavar = "<samples>",
                 action = "store", dest = "cut_every_nslices", default = None,
@@ -254,7 +257,8 @@ class AubioArgumentParser(argparse.ArgumentParser):
         self.add_argument("--cut-until-nslices", type = int,
                 metavar = "<slices>",
                 action = "store", dest = "cut_until_nslices", default = None,
-                help="how many extra slices should be added at the end of each slice")
+                help="how many extra slices should be added at the end of"
+                " each slice")
         self.add_argument("--create-first",
                 action = "store_true", dest = "create_first", default = False,
                 help="always include first slice")
@@ -288,7 +292,8 @@ class default_process(object):
             self.time2string = timefunc(args.time_format)
         if args.verbose > 2 and hasattr(self, 'options'):
             name = type(self).__name__.split('_')[1]
-            optstr = ' '.join(['running', name, 'with options', repr(self.options), '\n'])
+            optstr = ' '.join(['running', name, 'with options',
+                repr(self.options), '\n'])
             sys.stderr.write(optstr)
     def flush(self, frames_read, samplerate):
         # optionally called at the end of process
@@ -296,7 +301,7 @@ class default_process(object):
 
     def parse_options(self, args, valid_opts):
         # get any valid options found in a dictionnary of arguments
-        options = {k :v for k,v in vars(args).items() if k in valid_opts}
+        options = {k: v for k, v in vars(args).items() if k in valid_opts}
         self.options = options
 
     def remap_pvoc_options(self, options):
@@ -377,7 +382,7 @@ class process_tempo(process_beat):
         if len(self.beat_locations) < 2:
             outstr = "unknown bpm"
         else:
-            bpms = 60./ np.diff(self.beat_locations)
+            bpms = 60. / np.diff(self.beat_locations)
             median_bpm = np.mean(bpms)
             if len(self.beat_locations) < 10:
                 outstr = "%.2f bpm (uncertain)" % median_bpm
@@ -398,14 +403,14 @@ class process_notes(default_process):
     def __call__(self, block):
         return self.notes(block)
     def repr_res(self, res, frames_read, samplerate):
-        if res[2] != 0: # note off
+        if res[2] != 0:  # note off
             fmt_out = self.time2string(frames_read, samplerate)
             sys.stdout.write(fmt_out + '\n')
-        if res[0] != 0: # note on
+        if res[0] != 0:  # note on
             lastmidi = res[0]
             fmt_out = "%f\t" % lastmidi
             fmt_out += self.time2string(frames_read, samplerate)
-            sys.stdout.write(fmt_out) # + '\t')
+            sys.stdout.write(fmt_out)  # + '\t')
     def flush(self, frames_read, samplerate):
         eof = self.time2string(frames_read, samplerate)
         sys.stdout.write(eof + '\n')
@@ -472,13 +477,13 @@ class process_quiet(default_process):
         if aubio.silence_detection(block, self.silence) == 1:
             if self.wassilence != 1:
                 self.wassilence = 1
-                return 2 # newly found silence
-            return 1 # silence again
+                return 2   # newly found silence
+            return 1       # silence again
         else:
             if self.wassilence != 0:
                 self.wassilence = 0
-                return -1 # newly found noise
-            return 0 # noise again
+                return -1  # newly found noise
+            return 0       # noise again
 
     def repr_res(self, res, frames_read, samplerate):
         fmt_out = None
@@ -498,19 +503,46 @@ class process_cut(process_onset):
 
     def __call__(self, block):
         ret = super(process_cut, self).__call__(block)
-        if ret: self.slices.append(self.onset.get_last())
+        if ret:
+            self.slices.append(self.onset.get_last())
         return ret
 
     def flush(self, frames_read, samplerate):
-        from aubio.cut import _cut_slice
         _cut_slice(self.options, self.slices)
-        duration = float (frames_read) / float(samplerate)
-        base_info = '%(source_file)s' % {'source_file': self.options.source_uri}
+        duration = float(frames_read) / float(samplerate)
+        base_info = '%(source_file)s' % \
+                    {'source_file': self.options.source_uri}
         base_info += ' (total %(duration).2fs at %(samplerate)dHz)\n' % \
-                {'duration': duration, 'samplerate': samplerate}
+                     {'duration': duration, 'samplerate': samplerate}
         info = "created %d slices from " % len(self.slices)
         info += base_info
         sys.stderr.write(info)
+
+def _cut_slice(options, timestamps):
+    # cutting pass
+    nstamps = len(timestamps)
+    if nstamps > 0:
+        # generate output files
+        timestamps_end = None
+        if options.cut_every_nslices:
+            timestamps = timestamps[::options.cut_every_nslices]
+            nstamps = len(timestamps)
+        if options.cut_until_nslices and options.cut_until_nsamples:
+            msg = "using cut_until_nslices, but cut_until_nsamples is set"
+            warnings.warn(msg)
+        if options.cut_until_nsamples:
+            lag = options.cut_until_nsamples
+            timestamps_end = [t + lag for t in timestamps[1:]]
+            timestamps_end += [1e120]
+        if options.cut_until_nslices:
+            slice_lag = options.cut_until_nslices
+            timestamps_end = [t for t in timestamps[1 + slice_lag:]]
+            timestamps_end += [1e120] * (options.cut_until_nslices + 1)
+        aubio.slice_source_at_stamps(options.source_uri,
+                timestamps, timestamps_end = timestamps_end,
+                output_dir = options.output_directory,
+                samplerate = options.samplerate,
+                create_first = options.create_first)
 
 def main():
     parser = aubio_parser()
@@ -525,19 +557,20 @@ def main():
         parser_root.add_argument('-V', '--version', help="show version",
                 action="store_true", dest="show_version")
         args, extras = parser_root.parse_known_args()
-        if args.show_version == False: # no -V, forward to parser
+        if not args.show_version:  # no -V, forward to parser
             args = parser.parse_args(extras, namespace=args)
-        elif len(extras) != 0: # -V with other arguments, print help
+        elif len(extras) != 0:     # -V with other arguments, print help
             parser.print_help()
             sys.exit(1)
-    else: # in py3, we can simply use parser directly
+    else:  # in py3, we can simply use parser directly
         args = parser.parse_args()
     if 'show_version' in args and args.show_version:
         sys.stdout.write('aubio version ' + aubio.version + '\n')
         sys.exit(0)
     elif 'verbose' in args and args.verbose > 3:
         sys.stderr.write('aubio version ' + aubio.version + '\n')
-    if 'command' not in args or args.command is None or args.command in ['help']:
+    if 'command' not in args or args.command is None \
+            or args.command in ['help']:
         # no command given, print help and return 1
         parser.print_help()
         if args.command and args.command in ['help']:
@@ -571,7 +604,8 @@ def main():
                 # increment total number of frames read
                 frames_read += read
                 # exit loop at end of file
-                if read < a_source.hop_size: break
+                if read < a_source.hop_size:
+                    break
             # flush the processor if needed
             processor.flush(frames_read, a_source.samplerate)
             if args.verbose > 1:
@@ -579,7 +613,7 @@ def main():
                 fmt_string += " ({:d} samples in {:d} blocks of {:d})"
                 fmt_string += " from {:s} at {:d}Hz\n"
                 sys.stderr.write(fmt_string.format(
-                        frames_read/float(a_source.samplerate),
+                        frames_read / float(a_source.samplerate),
                         frames_read,
                         frames_read // a_source.hop_size + 1,
                         a_source.hop_size,

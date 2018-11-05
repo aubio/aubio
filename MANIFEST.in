@@ -1,9 +1,9 @@
 include AUTHORS COPYING README.md VERSION ChangeLog
 include python/README.md
 include this_version.py
+include waf
+recursive-include waflib *.py
 include Makefile wscript */wscript_build
-include waf waflib/* waflib/*/*
-exclude waflib/__pycache__/*
 include aubio.pc.in
 include requirements.txt
 include src/*.c src/*.h

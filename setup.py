@@ -1,10 +1,12 @@
 #! /usr/bin/env python
 
-import sys, os.path, glob
+import sys
+import os.path
+import glob
 from setuptools import setup, Extension
 
 # add ./python/lib to current path
-sys.path.append(os.path.join('python', 'lib'))
+sys.path.append(os.path.join('python', 'lib'))  # noqa
 from moresetuptools import build_ext, CleanGenerated
 
 # function to generate gen/*.{c,h}
@@ -18,15 +20,16 @@ library_dirs = []
 define_macros = [('AUBIO_VERSION', '%s' % __aubio_version__)]
 extra_link_args = []
 
-include_dirs += [ 'python/ext' ]
+include_dirs += ['python/ext']
 try:
     import numpy
-    include_dirs += [ numpy.get_include() ]
+    include_dirs += [numpy.get_include()]
 except ImportError:
     pass
 
 if sys.platform.startswith('darwin'):
-    extra_link_args += ['-framework','CoreFoundation', '-framework','AudioToolbox']
+    extra_link_args += ['-framework', 'CoreFoundation',
+            '-framework', 'AudioToolbox']
 
 sources = sorted(glob.glob(os.path.join('python', 'ext', '*.c')))
 
@@ -37,10 +40,11 @@ aubio_extension = Extension("aubio._aubio",
     extra_link_args = extra_link_args,
     define_macros = define_macros)
 
-if os.path.isfile('src/aubio.h'):
-    if not os.path.isdir(os.path.join('build','src')):
-        pass
-        #__version__ += 'a2' # python only version
+# TODO: find a way to track if package is built against libaubio
+# if os.path.isfile('src/aubio.h'):
+#     if not os.path.isdir(os.path.join('build','src')):
+#         pass
+#         #__version__ += 'a2' # python only version
 
 classifiers = [
     'Development Status :: 4 - Beta',
@@ -54,13 +58,14 @@ classifiers = [
     'Operating System :: Microsoft :: Windows',
     'Programming Language :: C',
     'Programming Language :: Python',
-    'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
+    'License :: OSI Approved :: '
+    'GNU General Public License v3 or later (GPLv3+)',
     ]
 
 distrib = setup(name='aubio',
     version = __version__,
     packages = ['aubio'],
-    package_dir = {'aubio':'python/lib/aubio'},
+    package_dir = {'aubio': 'python/lib/aubio'},
     ext_modules = [aubio_extension],
     description = 'a collection of tools for music analysis',
     long_description = 'a collection of tools for music analysis',
