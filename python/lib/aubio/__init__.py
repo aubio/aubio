@@ -29,6 +29,7 @@ from ._aubio import *
 from .midiconv import *
 from .slicing import *
 
+
 class fvec(numpy.ndarray):
     """fvec(input_arg=1024)
     A vector holding float samples.
