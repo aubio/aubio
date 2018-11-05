@@ -72,7 +72,7 @@ def note2midi(note):
     if len(note) not in range(2, 5):
         msg = "string of 2 to 4 characters expected, got {:d} ({:s})"
         raise ValueError(msg.format(len(note), note))
-    notename, modifier, octave = [None]*3
+    notename, modifier, octave = [None] * 3
 
     if len(note) == 4:
         notename, modifier, octave_sign, octave = note
