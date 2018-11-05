@@ -5,10 +5,7 @@
 """
 
 import sys
-import warnings
-from aubio.cmd import AubioArgumentParser
-from aubio.slicing import slice_source_at_stamps
-
+from aubio.cmd import AubioArgumentParser, _cut_slice
 
 def aubio_cut_parser():
     parser = AubioArgumentParser()
@@ -135,33 +132,6 @@ def _cut_analyze(options):
             break
     del s
     return timestamps, total_frames
-
-
-def _cut_slice(options, timestamps):
-    # cutting pass
-    nstamps = len(timestamps)
-    if nstamps > 0:
-        # generate output files
-        timestamps_end = None
-        if options.cut_every_nslices:
-            timestamps = timestamps[::options.cut_every_nslices]
-            nstamps = len(timestamps)
-        if options.cut_until_nslices and options.cut_until_nsamples:
-            msg = "using cut_until_nslices, but cut_until_nsamples is set"
-            warnings.warn(msg)
-        if options.cut_until_nsamples:
-            lag = options.cut_until_nsamples
-            timestamps_end = [t + lag for t in timestamps[1:]]
-            timestamps_end += [1e120]
-        if options.cut_until_nslices:
-            slice_lag = options.cut_until_nslices
-            timestamps_end = [t for t in timestamps[1 + slice_lag:]]
-            timestamps_end += [1e120] * (options.cut_until_nslices + 1)
-        slice_source_at_stamps(options.source_uri,
-                timestamps, timestamps_end = timestamps_end,
-                output_dir = options.output_directory,
-                samplerate = options.samplerate,
-                create_first = options.create_first)
 
 def main():
     parser = aubio_cut_parser()
