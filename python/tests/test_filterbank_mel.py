@@ -94,6 +94,22 @@ class aubio_filterbank_mel_test_case(TestCase):
         # TODO add assert_warns
         f.set_triangle_bands(fvec(freq_list), samplerate)
 
+    def test_triangle_freqs_with_double_value(self):
+        """make sure set_triangle_bands works with 2 duplicate freqs"""
+        samplerate = 22050
+        freq_list = [0, 100, 1000, 4000, 4000, 4000, 10000]
+        f = filterbank(len(freq_list)-2, 1024)
+        # TODO add assert_warns
+        f.set_triangle_bands(fvec(freq_list), samplerate)
+
+    def test_triangle_freqs_with_triple(self):
+        """make sure set_triangle_bands works with 3 duplicate freqs"""
+        samplerate = 22050
+        freq_list = [0, 100, 1000, 4000, 4000, 4000, 10000]
+        f = filterbank(len(freq_list)-2, 1024)
+        # TODO add assert_warns
+        f.set_triangle_bands(fvec(freq_list), samplerate)
+
 if __name__ == '__main__':
     import nose2
     nose2.main()
