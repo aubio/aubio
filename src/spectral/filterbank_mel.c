@@ -54,9 +54,18 @@ aubio_filterbank_set_triangle_bands (aubio_filterbank_t * fb,
         n_filters, freqs->length - 2);
   }
 
-  if (freqs->data[freqs->length - 1] > samplerate / 2) {
-    AUBIO_WRN ("Nyquist frequency is %fHz, but highest frequency band ends at \
-%fHz\n", samplerate / 2, freqs->data[freqs->length - 1]);
+  for (fn = 0; fn < freqs->length; fn++) {
+    if (freqs->data[fn] < 0) {
+      AUBIO_ERR("filterbank_mel: freqs must contain only positive values.\n");
+      return AUBIO_FAIL;
+    } else if (freqs->data[fn] > samplerate / 2) {
+      AUBIO_WRN("filterbank_mel: freqs should contain only "
+          "values > samplerate / 2.\n");
+    } else if (fn > 0 && freqs->data[fn] < freqs->data[fn-1]) {
+      AUBIO_ERR("filterbank_mel: freqs should be a list of frequencies "
+          "sorted from low to high, but freq[%d] < freq[%d-1]\n", fn, fn);
+      return AUBIO_FAIL;
+    }
   }
 
   /* convenience reference to lower/center/upper frequency for each triangle */
@@ -91,17 +100,6 @@ aubio_filterbank_set_triangle_bands (aubio_filterbank_t * fb,
 
   /* zeroing of all filters */
   fmat_zeros (filters);
-
-  if (fft_freqs->data[1] >= lower_freqs->data[0]) {
-    /* - 1 to make sure we don't miss the smallest power of two */
-    uint_t min_win_s =
-        (uint_t) FLOOR (samplerate / lower_freqs->data[0]) - 1;
-    AUBIO_WRN ("Lowest frequency bin (%.2fHz) is higher than lowest frequency \
-band (%.2f-%.2fHz). Consider increasing the window size from %d to %d.\n",
-        fft_freqs->data[1], lower_freqs->data[0],
-        upper_freqs->data[0], (win_s - 1) * 2,
-        aubio_next_power_of_two (min_win_s));
-  }
 
   /* building each filter table */
   for (fn = 0; fn < n_filters; fn++) {
@@ -160,7 +158,7 @@ band (%.2f-%.2fHz). Consider increasing the window size from %d to %d.\n",
   del_fvec (triangle_heights);
   del_fvec (fft_freqs);
 
-  return 0;
+  return AUBIO_OK;
 }
 
 uint_t
