@@ -60,11 +60,14 @@ aubio_filterbank_set_triangle_bands (aubio_filterbank_t * fb,
       return AUBIO_FAIL;
     } else if (freqs->data[fn] > samplerate / 2) {
       AUBIO_WRN("filterbank_mel: freqs should contain only "
-          "values > samplerate / 2.\n");
+          "values < samplerate / 2.\n");
     } else if (fn > 0 && freqs->data[fn] < freqs->data[fn-1]) {
       AUBIO_ERR("filterbank_mel: freqs should be a list of frequencies "
           "sorted from low to high, but freq[%d] < freq[%d-1]\n", fn, fn);
       return AUBIO_FAIL;
+    } else if (fn > 0 && freqs->data[fn] == freqs->data[fn-1]) {
+      AUBIO_WRN("filterbank_mel: set_triangle_bands received a list "
+          "with twice the frequency %f\n", freqs->data[fn]);
     }
   }
 
