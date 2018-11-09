@@ -3,7 +3,7 @@
 import numpy as np
 from numpy.testing import TestCase, assert_equal, assert_almost_equal
 
-from aubio import cvec, filterbank, float_type
+from aubio import fvec, cvec, filterbank, float_type
 
 import warnings
 warnings.filterwarnings('ignore', category=UserWarning, append=True)
@@ -55,6 +55,44 @@ class aubio_filterbank_mel_test_case(TestCase):
         f.set_triangle_bands(freqs, 48000)
         assert_equal ( f(cvec(1024)), 0)
         self.assertIsInstance(f.get_coeffs(), np.ndarray)
+
+    def test_triangle_freqs_with_wrong_negative(self):
+        """make sure set_triangle_bands fails when list contains a negative"""
+        freq_list = [-10, 0, 80]
+        f = filterbank(len(freq_list)-2, 1024)
+        with self.assertRaises(ValueError):
+            f.set_triangle_bands(fvec(freq_list), 48000)
+
+    def test_triangle_freqs_with_wrong_ordering(self):
+        """make sure set_triangle_bands fails when list not ordered"""
+        freq_list = [0, 80, 40]
+        f = filterbank(len(freq_list)-2, 1024)
+        with self.assertRaises(ValueError):
+            f.set_triangle_bands(fvec(freq_list), 48000)
+
+    def test_triangle_freqs_with_large_freq(self):
+        """make sure set_triangle_bands warns when freq > nyquist"""
+        samplerate = 22050
+        freq_list = [0, samplerate//4, samplerate // 2 + 1]
+        f = filterbank(len(freq_list)-2, 1024)
+        # TODO add assert_warns
+        f.set_triangle_bands(fvec(freq_list), samplerate)
+
+    def test_triangle_freqs_with_not_enough_filters(self):
+        """make sure set_triangle_bands warns when not enough filters"""
+        samplerate = 22050
+        freq_list = [0, 100, 1000, 4000, 8000, 10000]
+        f = filterbank(len(freq_list)-3, 1024)
+        # TODO add assert_warns
+        f.set_triangle_bands(fvec(freq_list), samplerate)
+
+    def test_triangle_freqs_with_too_many_filters(self):
+        """make sure set_triangle_bands warns when too many filters"""
+        samplerate = 22050
+        freq_list = [0, 100, 1000, 4000, 8000, 10000]
+        f = filterbank(len(freq_list)-1, 1024)
+        # TODO add assert_warns
+        f.set_triangle_bands(fvec(freq_list), samplerate)
 
 if __name__ == '__main__':
     import nose2
