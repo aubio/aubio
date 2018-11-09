@@ -47,6 +47,15 @@ class aubio_filterbank_mel_test_case(TestCase):
                 [ 0.02070313, 0.02138672, 0.02127604, 0.02135417,
                     0.02133301, 0.02133301, 0.02133311, 0.02133334, 0.02133345])
 
+    def test_triangle_freqs_with_zeros(self):
+        """make sure set_triangle_bands works when list starts with 0"""
+        freq_list = [0, 40, 80]
+        freqs = np.array(freq_list, dtype = float_type)
+        f = filterbank(len(freqs)-2, 1024)
+        f.set_triangle_bands(freqs, 48000)
+        assert_equal ( f(cvec(1024)), 0)
+        self.assertIsInstance(f.get_coeffs(), np.ndarray)
+
 if __name__ == '__main__':
     import nose2
     nose2.main()
