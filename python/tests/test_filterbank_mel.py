@@ -47,37 +47,6 @@ class aubio_filterbank_mel_test_case(TestCase):
                 [ 0.02070313, 0.02138672, 0.02127604, 0.02135417,
                     0.02133301, 0.02133301, 0.02133311, 0.02133334, 0.02133345])
 
-    def test_triangle_freqs_normal(self):
-        """ create a filter with set_triangle_bands, normal mode """
-        f = filterbank(3, 1024)
-        freq_list = [100, 1000, 10000, 15000, 20000]
-        freqs = np.array(freq_list, dtype = float_type)
-        f.set_triangle_bands(freqs, 44100)
-
-    def test_triangle_freqs_too_long(self):
-        """ create a filter with freq_list too long """
-        f = filterbank(2, 1024)
-        freq_list = [100, 1000, 10000, 15000, 20000]
-        freqs = np.array(freq_list, dtype = float_type)
-        with assert_warns(UserWarning):
-            f.set_triangle_bands(freqs, 44100)
-
-    def test_triangle_freqs_too_short(self):
-        """ create a filter with freq_list too short """
-        f = filterbank(4, 1024)
-        freq_list = [100, 1000, 10000, 15000, 20000]
-        freqs = np.array(freq_list, dtype = float_type)
-        with assert_warns(UserWarning):
-            f.set_triangle_bands(freqs, 44100)
-
-    def test_above_nyquist(self):
-        """ create a filter with freq_list too short """
-        f = filterbank(3, 1024)
-        freq_list = [100, 1000, 10000, 15000, 23000]
-        freqs = np.array(freq_list, dtype = float_type)
-        with assert_warns(UserWarning):
-            f.set_triangle_bands(freqs, 44100)
-
     def test_triangle_freqs_with_zeros(self):
         """make sure set_triangle_bands works when list starts with 0"""
         freq_list = [0, 40, 80]
