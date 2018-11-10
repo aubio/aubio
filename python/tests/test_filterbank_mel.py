@@ -29,8 +29,7 @@ class aubio_filterbank_mel_test_case(TestCase):
         f = filterbank(9, 1024)
         freq_list = [40, 80, 200, 400, 800, 1600, 3200, 6400, 12800, 15000, 24000]
         freqs = np.array(freq_list, dtype = float_type)
-        with assert_warns(UserWarning):
-            f.set_triangle_bands(freqs, 48000)
+        f.set_triangle_bands(freqs, 48000)
         assert_equal ( f(cvec(1024)), 0)
         self.assertIsInstance(f.get_coeffs(), np.ndarray)
 
@@ -38,8 +37,7 @@ class aubio_filterbank_mel_test_case(TestCase):
         f = filterbank(9, 1024)
         freq_list = [40, 80, 200, 400, 800, 1600, 3200, 6400, 12800, 15000, 24000]
         freqs = np.array(freq_list, dtype = float_type)
-        with assert_warns(UserWarning):
-            f.set_triangle_bands(freqs, 48000)
+        f.set_triangle_bands(freqs, 48000)
         self.assertIsInstance(f.get_coeffs(), np.ndarray)
         spec = cvec(1024)
         spec.norm[:] = 1
