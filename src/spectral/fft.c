@@ -493,11 +493,22 @@ void aubio_fft_get_phas(const fvec_t * compspec, cvec_t * spectrum) {
         compspec->data[i]);
   }
 #endif
-  if (compspec->data[compspec->length/2] < 0) {
-    spectrum->phas[spectrum->length - 1] = PI;
+#ifdef HAVE_FFTW3
+  // for even length only, make sure last element is 0 or PI
+  if (2 * (compspec->length / 2) == compspec->length) {
+#endif
+    if (compspec->data[compspec->length/2] < 0) {
+      spectrum->phas[spectrum->length - 1] = PI;
+    } else {
+      spectrum->phas[spectrum->length - 1] = 0.;
+    }
+#ifdef HAVE_FFTW3
   } else {
-    spectrum->phas[spectrum->length - 1] = 0.;
+    i = spectrum->length - 1;
+    spectrum->phas[i] = ATAN2(compspec->data[compspec->length-i],
+        compspec->data[i]);
   }
+#endif
 }
 
 void aubio_fft_get_norm(const fvec_t * compspec, cvec_t * spectrum) {
@@ -507,8 +518,19 @@ void aubio_fft_get_norm(const fvec_t * compspec, cvec_t * spectrum) {
     spectrum->norm[i] = SQRT(SQR(compspec->data[i])
         + SQR(compspec->data[compspec->length - i]) );
   }
-  spectrum->norm[spectrum->length-1] =
-    ABS(compspec->data[compspec->length/2]);
+#ifdef HAVE_FFTW3
+  // for even length, make sure last element is > 0
+  if (2 * (compspec->length / 2) == compspec->length) {
+#endif
+    spectrum->norm[spectrum->length-1] =
+      ABS(compspec->data[compspec->length/2]);
+#ifdef HAVE_FFTW3
+  } else {
+    i = spectrum->length - 1;
+    spectrum->norm[i] = SQRT(SQR(compspec->data[i])
+        + SQR(compspec->data[compspec->length - i]) );
+  }
+#endif
 }
 
 void aubio_fft_get_imag(const cvec_t * spectrum, fvec_t * compspec) {
