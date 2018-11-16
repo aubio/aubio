@@ -310,8 +310,7 @@ void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s,
   if ( (multi != s->multi) || (s->avr == NULL) ) {
     int err;
     int64_t input_layout = av_get_default_channel_layout(s->input_channels);
-    uint_t output_channels = multi ? s->input_channels : 1;
-    int64_t output_layout = av_get_default_channel_layout(output_channels);
+    int64_t output_layout = av_get_default_channel_layout(s->input_channels);
 #ifdef HAVE_AVRESAMPLE
     AVAudioResampleContext *avr = avresample_alloc_context();
     AVAudioResampleContext *oldavr = s->avr;
@@ -503,7 +502,12 @@ void aubio_source_avcodec_do(aubio_source_avcodec_t * s, fvec_t * read_data,
   while (total_wrote < s->hop_size) {
     end = MIN(s->read_samples - s->read_index, s->hop_size - total_wrote);
     for (i = 0; i < end; i++) {
-      read_data->data[i + total_wrote] = s->output[i + s->read_index];
+      read_data->data[i + total_wrote] = 0.;
+      for (j = 0; j < s->input_channels; j++) {
+        read_data->data[i + total_wrote] +=
+          s->output[(i + s->read_index) * s->input_channels + j];
+      }
+      read_data->data[i + total_wrote] *= 1./s->input_channels;
     }
     total_wrote += end;
     if (total_wrote < s->hop_size) {
