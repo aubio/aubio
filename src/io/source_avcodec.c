@@ -89,12 +89,10 @@ struct _aubio_source_avcodec_t {
   uint_t read_index;
   sint_t selected_stream;
   uint_t eof;
-  uint_t multi;
 };
 
 // create or re-create the context when _do or _do_multi is called
-void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s,
-    uint_t multi);
+void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s);
 // actually read a frame
 void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s,
     uint_t * read_samples);
@@ -284,13 +282,11 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path,
   s->avCodecCtx = avCodecCtx;
   s->avFrame = avFrame;
 
-  // default to mono output
-  aubio_source_avcodec_reset_resampler(s, 0);
+  aubio_source_avcodec_reset_resampler(s);
 
   if (s->avr == NULL) goto beach;
 
   s->eof = 0;
-  s->multi = 0;
 
   //av_log_set_level(AV_LOG_QUIET);
 
@@ -303,11 +299,10 @@ beach:
   return NULL;
 }
 
-void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s,
-    uint_t multi)
+void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s)
 {
   // create or reset resampler to/from mono/multi-channel
-  if ( (multi != s->multi) || (s->avr == NULL) ) {
+  if ( s->avr == NULL ) {
     int err;
     int64_t input_layout = av_get_default_channel_layout(s->input_channels);
     int64_t output_layout = av_get_default_channel_layout(s->input_channels);
@@ -353,7 +348,6 @@ void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s,
       av_free ( oldavr );
       oldavr = NULL;
     }
-    s->multi = multi;
   }
 }
 
@@ -494,11 +488,9 @@ beach:
 
 void aubio_source_avcodec_do(aubio_source_avcodec_t * s, fvec_t * read_data,
     uint_t * read) {
-  uint_t i;
+  uint_t i, j;
   uint_t end = 0;
   uint_t total_wrote = 0;
-  // switch from multi
-  if (s->multi == 1) aubio_source_avcodec_reset_resampler(s, 0);
   while (total_wrote < s->hop_size) {
     end = MIN(s->read_samples - s->read_index, s->hop_size - total_wrote);
     for (i = 0; i < end; i++) {
@@ -535,8 +527,6 @@ void aubio_source_avcodec_do_multi(aubio_source_avcodec_t * s,
   uint_t i,j;
   uint_t end = 0;
   uint_t total_wrote = 0;
-  // switch from mono
-  if (s->multi == 0) aubio_source_avcodec_reset_resampler(s, 1);
   while (total_wrote < s->hop_size) {
     end = MIN(s->read_samples - s->read_index, s->hop_size - total_wrote);
     for (j = 0; j < read_data->height; j++) {
