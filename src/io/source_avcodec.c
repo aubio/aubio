@@ -308,10 +308,8 @@ void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s)
     int64_t output_layout = av_get_default_channel_layout(s->input_channels);
 #ifdef HAVE_AVRESAMPLE
     AVAudioResampleContext *avr = avresample_alloc_context();
-    AVAudioResampleContext *oldavr = s->avr;
 #elif defined(HAVE_SWRESAMPLE)
     SwrContext *avr = swr_alloc();
-    SwrContext *oldavr = s->avr;
 #endif /* HAVE_AVRESAMPLE || HAVE_SWRESAMPLE */
 
     av_opt_set_int(avr, "in_channel_layout",  input_layout,              0);
@@ -339,15 +337,6 @@ void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s)
       return;
     }
     s->avr = avr;
-    if (oldavr != NULL) {
-#ifdef HAVE_AVRESAMPLE
-      avresample_close( oldavr );
-#elif defined(HAVE_SWRESAMPLE)
-      swr_close ( oldavr );
-#endif /* HAVE_AVRESAMPLE || HAVE_SWRESAMPLE */
-      av_free ( oldavr );
-      oldavr = NULL;
-    }
   }
 }
 
