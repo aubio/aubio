@@ -51,6 +51,7 @@ struct _aubio_mfcc_t
   aubio_dct_t *dct;
   fvec_t *output;
 #endif
+  smpl_t scale;
 };
 
 
@@ -97,6 +98,8 @@ new_aubio_mfcc (uint_t win_s, uint_t n_filters, uint_t n_coefs,
   mfcc->output = new_fvec (n_filters);
 #endif
 
+  mfcc->scale = 1.;
+
   return mfcc;
 }
 
@@ -127,14 +130,14 @@ aubio_mfcc_do (aubio_mfcc_t * mf, const cvec_t * in, fvec_t * out)
 #ifndef HAVE_SLOW_DCT
   fvec_t tmp;
 #endif
+
   /* compute filterbank */
   aubio_filterbank_do (mf->fb, in, mf->in_dct);
 
   /* compute log10 */
   fvec_log10 (mf->in_dct);
 
-  /* raise power */
-  //fvec_pow (mf->in_dct, 3.);
+  if (mf->scale != 1) fvec_mul (mf->in_dct, mf->scale);
 
   /* compute mfccs */
 #if defined(HAVE_SLOW_DCT)
@@ -159,6 +162,17 @@ uint_t aubio_mfcc_set_power (aubio_mfcc_t *mf, smpl_t power)
 uint_t aubio_mfcc_get_power (aubio_mfcc_t *mf)
 {
   return aubio_filterbank_get_power(mf->fb);
+}
+
+uint_t aubio_mfcc_set_scale (aubio_mfcc_t *mf, smpl_t scale)
+{
+  mf->scale = scale;
+  return AUBIO_OK;
+}
+
+uint_t aubio_mfcc_get_scale (aubio_mfcc_t *mf)
+{
+  return mf->scale;
 }
 
 uint_t aubio_mfcc_set_mel_coeffs (aubio_mfcc_t *mf, smpl_t freq_min,
