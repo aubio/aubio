@@ -90,9 +90,13 @@ aubio_filterbank_set_triangle_bands (aubio_filterbank_t * fb,
   }
 
   /* compute triangle heights so that each triangle has unit area */
-  for (fn = 0; fn < n_filters; fn++) {
-    triangle_heights->data[fn] =
-        2. / (upper_freqs->data[fn] - lower_freqs->data[fn]);
+  if (aubio_filterbank_get_norm(fb)) {
+    for (fn = 0; fn < n_filters; fn++) {
+      triangle_heights->data[fn] =
+          2. / (upper_freqs->data[fn] - lower_freqs->data[fn]);
+    }
+  } else {
+    fvec_ones (triangle_heights);
   }
 
   /* fill fft_freqs lookup table, which assigns the frequency in hz to each bin */
@@ -117,9 +121,8 @@ aubio_filterbank_set_triangle_bands (aubio_filterbank_t * fb,
     }
 
     /* compute positive slope step size */
-    riseInc =
-        triangle_heights->data[fn] /
-        (center_freqs->data[fn] - lower_freqs->data[fn]);
+    riseInc = triangle_heights->data[fn]
+      / (center_freqs->data[fn] - lower_freqs->data[fn]);
 
     /* compute coefficients in positive slope */
     for (; bin < win_s - 1; bin++) {
@@ -133,9 +136,8 @@ aubio_filterbank_set_triangle_bands (aubio_filterbank_t * fb,
     }
 
     /* compute negative slope step size */
-    downInc =
-        triangle_heights->data[fn] /
-        (upper_freqs->data[fn] - center_freqs->data[fn]);
+    downInc = triangle_heights->data[fn]
+      / (upper_freqs->data[fn] - center_freqs->data[fn]);
 
     /* compute coefficents in negative slope */
     for (; bin < win_s - 1; bin++) {
