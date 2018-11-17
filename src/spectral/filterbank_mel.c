@@ -206,3 +206,91 @@ aubio_filterbank_set_mel_coeffs_slaney (aubio_filterbank_t * fb,
 
   return retval;
 }
+
+uint_t
+aubio_filterbank_set_mel_coeffs (aubio_filterbank_t * fb, smpl_t samplerate,
+    smpl_t freq_min, smpl_t freq_max)
+{
+  uint_t m, retval;
+  smpl_t start, end, step;
+  fvec_t *freqs;
+  fmat_t *coeffs = aubio_filterbank_get_coeffs(fb);
+  uint_t n_bands = coeffs->height;
+
+  if (freq_max < 0) {
+    AUBIO_ERR("filterbank: set_mel_coeffs freq_max should be > 0\n");
+    return AUBIO_FAIL;
+  } else if (freq_max == 0) {
+    end = aubio_hztomel(samplerate / 2.);
+  } else {
+    end = aubio_hztomel(freq_max);
+  }
+  if (freq_min < 0) {
+    AUBIO_ERR("filterbank: set_mel_coeffs freq_min should be > 0\n");
+    return AUBIO_FAIL;
+  } else {
+    start = aubio_hztomel(freq_min);
+  }
+  if (n_bands <= 0) {
+    AUBIO_ERR("filterbank: set_mel_coeffs n_bands should be > 0\n");
+    return AUBIO_FAIL;
+  }
+
+  freqs = new_fvec(n_bands + 2);
+  step = (end - start) / (n_bands + 1);
+
+  for (m = 0; m < n_bands + 2; m++)
+  {
+    freqs->data[m] = MIN(aubio_meltohz(start + step * m), samplerate/2.);
+  }
+
+  retval = aubio_filterbank_set_triangle_bands (fb, freqs, samplerate);
+
+  /* destroy vector used to store frequency limits */
+  del_fvec (freqs);
+  return retval;
+}
+
+uint_t
+aubio_filterbank_set_mel_coeffs_htk (aubio_filterbank_t * fb, smpl_t samplerate,
+    smpl_t freq_min, smpl_t freq_max)
+{
+  uint_t m, retval;
+  smpl_t start, end, step;
+  fvec_t *freqs;
+  fmat_t *coeffs = aubio_filterbank_get_coeffs(fb);
+  uint_t n_bands = coeffs->height;
+
+  if (freq_max < 0) {
+    AUBIO_ERR("filterbank: set_mel_coeffs freq_max should be > 0\n");
+    return AUBIO_FAIL;
+  } else if (freq_max == 0) {
+    end = aubio_hztomel_htk(samplerate / 2.);
+  } else {
+    end = aubio_hztomel_htk(freq_max);
+  }
+  if (freq_min < 0) {
+    AUBIO_ERR("filterbank: set_mel_coeffs freq_min should be > 0\n");
+    return AUBIO_FAIL;
+  } else {
+    start = aubio_hztomel_htk(freq_min);
+  }
+  if (n_bands <= 0) {
+    AUBIO_ERR("filterbank: set_mel_coeffs n_bands should be > 0\n");
+    return AUBIO_FAIL;
+  }
+
+  freqs = new_fvec (n_bands + 2);
+  step = (end - start) / (n_bands + 1);
+
+  for (m = 0; m < n_bands + 2; m++)
+  {
+    freqs->data[m] = MIN(aubio_meltohz_htk(step * m), samplerate/2.);
+  }
+
+  retval = aubio_filterbank_set_triangle_bands (fb, freqs, samplerate);
+
+  /* destroy vector used to store frequency limits */
+  del_fvec (freqs);
+  return retval;
+}
