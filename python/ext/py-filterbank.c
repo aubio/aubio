@@ -265,6 +265,52 @@ Py_filterbank_get_coeffs (Py_filterbank * self, PyObject *unused)
       aubio_filterbank_get_coeffs (self->o) );
 }
 
+static PyObject *
+Py_filterbank_set_power(Py_filterbank *self, PyObject *args)
+{
+  uint_t playing;
+
+  if (!PyArg_ParseTuple (args, "I", &playing)) {
+    return NULL;
+  }
+  if(aubio_filterbank_set_power (self->o, playing)) {
+    if (PyErr_Occurred() == NULL) {
+      PyErr_SetString (PyExc_ValueError,
+          "error running filterbank.set_power");
+    } else {
+      // change the RuntimeError into ValueError
+      PyObject *type, *value, *traceback;
+      PyErr_Fetch(&type, &value, &traceback);
+      PyErr_Restore(PyExc_ValueError, value, traceback);
+    }
+    return NULL;
+  }
+  Py_RETURN_NONE;
+}
+
+static PyObject *
+Py_filterbank_set_norm(Py_filterbank *self, PyObject *args)
+{
+  uint_t playing;
+
+  if (!PyArg_ParseTuple (args, "I", &playing)) {
+    return NULL;
+  }
+  if(aubio_filterbank_set_norm (self->o, playing)) {
+    if (PyErr_Occurred() == NULL) {
+      PyErr_SetString (PyExc_ValueError,
+          "error running filterbank.set_power");
+    } else {
+      // change the RuntimeError into ValueError
+      PyObject *type, *value, *traceback;
+      PyErr_Fetch(&type, &value, &traceback);
+      PyErr_Restore(PyExc_ValueError, value, traceback);
+    }
+    return NULL;
+  }
+  Py_RETURN_NONE;
+}
+
 static PyMethodDef Py_filterbank_methods[] = {
   {"set_triangle_bands", (PyCFunction) Py_filterbank_set_triangle_bands,
     METH_VARARGS, "set coefficients of filterbanks"},
@@ -278,6 +324,10 @@ static PyMethodDef Py_filterbank_methods[] = {
     METH_NOARGS, "get coefficients of filterbank"},
   {"set_coeffs", (PyCFunction) Py_filterbank_set_coeffs,
     METH_VARARGS, "set coefficients of filterbank"},
+  {"set_power", (PyCFunction) Py_filterbank_set_power,
+    METH_VARARGS, "set power applied to filterbank input spectrum"},
+  {"set_norm", (PyCFunction) Py_filterbank_set_norm,
+    METH_VARARGS, "set norm applied to filterbank input spectrum"},
   {NULL}
 };
 
