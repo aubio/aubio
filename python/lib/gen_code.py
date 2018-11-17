@@ -470,6 +470,8 @@ Pyaubio_{shortname}_{method}  (Py_{shortname} * self, PyObject * args)
             param = method_name.split('aubio_'+self.shortname+'_set_')[-1]
             refs = ", ".join(["&%s" % p['name'] for p in params])
             paramlist = ", ".join(["%s" % p['name'] for p in params])
+            if len(params):
+                paramlist = "," + paramlist
             pyparamtypes = ''.join([pyargparse_chars[p['type']] for p in params])
             out += """
 static PyObject *
@@ -477,11 +479,18 @@ Pyaubio_{shortname}_set_{param} (Py_{shortname} *self, PyObject *args)
 {{
   uint_t err = 0;
   {paramdecls}
+""".format(param = param, paramdecls = paramdecls, **self.__dict__)
+
+            if len(refs) and len(pyparamtypes):
+                out += """
 
   if (!PyArg_ParseTuple (args, "{pyparamtypes}", {refs})) {{
     return NULL;
   }}
-  err = aubio_{shortname}_set_{param} (self->o, {paramlist});
+""".format(pyparamtypes = pyparamtypes, refs = refs)
+
+            out += """
+  err = aubio_{shortname}_set_{param} (self->o {paramlist});
 
   if (err > 0) {{
     if (PyErr_Occurred() == NULL) {{
