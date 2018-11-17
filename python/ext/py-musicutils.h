@@ -300,4 +300,72 @@ static char Py_aubio_ishift_doc[] = ""
 "";
 PyObject * Py_aubio_ishift(PyObject *self, PyObject *args);
 
+static char Py_aubio_hztomel_doc[] = ""
+"hztomel(f, htk=False)\n"
+"\n"
+"Convert a scalar from frequency to mel scale.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"m : float\n"
+"   input frequency, in Hz\n"
+"htk : bool\n"
+"   if `True`, use Htk mel scale instead of Slaney.\n"
+"\n"
+"Returns\n"
+"-------\n"
+"float\n"
+"   output mel\n"
+"\n"
+"See Also\n"
+"--------\n"
+"meltohz\n"
+"";
+PyObject * Py_aubio_hztomel(PyObject *self, PyObject *args);
+
+static char Py_aubio_meltohz_doc[] = ""
+"meltohz(m, htk=False)\n"
+"\n"
+"Convert a scalar from mel scale to frequency.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"m : float\n"
+"   input mel\n"
+"htk : bool\n"
+"   if `True`, use Htk mel scale instead of Slaney.\n"
+"\n"
+"Returns\n"
+"-------\n"
+"float\n"
+"   output frequency, in Hz\n"
+"\n"
+"See Also\n"
+"--------\n"
+"hztomel\n"
+"";
+PyObject * Py_aubio_meltohz(PyObject *self, PyObject *args);
+
+static char Py_aubio_hztomel_htk_doc[] = ""
+"hztomel_htk(m)\n"
+"\n"
+"Same as `hztomel(m, htk=True)`\n"
+"\n"
+"See Also\n"
+"--------\n"
+"hztomel\n"
+"";
+PyObject * Py_aubio_hztomel_htk(PyObject *self, PyObject *args);
+
+static char Py_aubio_meltohz_htk_doc[] = ""
+"meltohz_htk(m)\n"
+"\n"
+"Same as `meltohz(m, htk=True)`\n"
+"\n"
+"See Also\n"
+"--------\n"
+"meltohz\n"
+"";
+PyObject * Py_aubio_meltohz_htk(PyObject *self, PyObject *args);
+
 #endif /* PY_AUBIO_MUSICUTILS_H */
