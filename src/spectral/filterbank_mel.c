@@ -172,6 +172,11 @@ aubio_filterbank_set_mel_coeffs_slaney (aubio_filterbank_t * fb,
 {
   uint_t retval;
 
+  if (samplerate <= 0) {
+    AUBIO_ERR("filterbank: set_mel_coeffs_slaney samplerate should be > 0\n");
+    return AUBIO_FAIL;
+  }
+
   /* Malcolm Slaney parameters */
   smpl_t lowestFrequency = 133.3333;
   smpl_t linearSpacing = 66.66666666;
@@ -239,7 +244,7 @@ aubio_filterbank_set_mel_coeffs (aubio_filterbank_t * fb, smpl_t samplerate,
   fmat_t *coeffs = aubio_filterbank_get_coeffs(fb);
   uint_t n_bands = coeffs->height;
 
-  if (aubio_filterbank_check_freqs(fb, samplerate, &freq_min, &freq_max)) {
+  if (aubio_filterbank_check_freqs(fb, samplerate, &start, &end)) {
     return AUBIO_FAIL;
   }
 
@@ -271,7 +276,7 @@ aubio_filterbank_set_mel_coeffs_htk (aubio_filterbank_t * fb, smpl_t samplerate,
   fmat_t *coeffs = aubio_filterbank_get_coeffs(fb);
   uint_t n_bands = coeffs->height;
 
-  if (aubio_filterbank_check_freqs(fb, samplerate, &freq_min, &freq_max)) {
+  if (aubio_filterbank_check_freqs(fb, samplerate, &start, &end)) {
     return AUBIO_FAIL;
   }
 
