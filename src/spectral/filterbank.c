@@ -23,6 +23,7 @@
 #include "fvec.h"
 #include "fmat.h"
 #include "cvec.h"
+#include "vecutils.h"
 #include "spectral/filterbank.h"
 #include "mathutils.h"
 
@@ -32,6 +33,8 @@ struct _aubio_filterbank_t
   uint_t win_s;
   uint_t n_filters;
   fmat_t *filters;
+  smpl_t norm;
+  smpl_t power;
 };
 
 aubio_filterbank_t *
@@ -44,6 +47,10 @@ new_aubio_filterbank (uint_t n_filters, uint_t win_s)
 
   /* allocate filter tables, a matrix of length win_s and of height n_filters */
   fb->filters = new_fmat (n_filters, win_s / 2 + 1);
+
+  fb->norm = 1;
+
+  fb->power = 1;
 
   return fb;
 }
@@ -67,6 +74,8 @@ aubio_filterbank_do (aubio_filterbank_t * f, const cvec_t * in, fvec_t * out)
   tmp.length = in->length;
   tmp.data = in->norm;
 
+  if (f->power != 1.) fvec_pow(&tmp, f->power);
+
   fmat_vecmul(f->filters, &tmp, out);
 
   return;
@@ -83,4 +92,31 @@ aubio_filterbank_set_coeffs (aubio_filterbank_t * f, const fmat_t * filter_coeff
 {
   fmat_copy(filter_coeffs, f->filters);
   return 0;
+}
+
+uint_t
+aubio_filterbank_set_norm (aubio_filterbank_t *f, smpl_t norm)
+{
+  if (norm != 0 && norm != 1) return AUBIO_FAIL;
+  f->norm = norm;
+  return AUBIO_OK;
+}
+
+smpl_t
+aubio_filterbank_get_norm (aubio_filterbank_t *f)
+{
+  return f->norm;
+}
+
+uint_t
+aubio_filterbank_set_power (aubio_filterbank_t *f, smpl_t power)
+{
+  f->power = power;
+  return AUBIO_OK;
+}
+
+smpl_t
+aubio_filterbank_get_power (aubio_filterbank_t *f)
+{
+  return f->norm;
 }

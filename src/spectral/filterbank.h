@@ -83,6 +83,14 @@ fmat_t *aubio_filterbank_get_coeffs (const aubio_filterbank_t * f);
  */
 uint_t aubio_filterbank_set_coeffs (aubio_filterbank_t * f, const fmat_t * filters);
 
+uint_t aubio_filterbank_set_norm (aubio_filterbank_t *f, smpl_t norm);
+
+smpl_t aubio_filterbank_get_norm (aubio_filterbank_t *f);
+
+uint_t aubio_filterbank_set_power (aubio_filterbank_t *f, smpl_t power);
+
+smpl_t aubio_filterbank_get_power (aubio_filterbank_t *f);
+
 #ifdef __cplusplus
 }
 #endif
