@@ -165,7 +165,7 @@ uint_t aubio_mfcc_set_mel_coeffs_htk (aubio_mfcc_t *mf,
   aubio_filterbank_set_mel_coeffs_slaney()
 
 */
-uint_t aubio_mfcc_set_mel_coeffs_slaney (aubio_mfcc_t *mf, smpl_t samplerate);
+uint_t aubio_mfcc_set_mel_coeffs_slaney (aubio_mfcc_t *mf);
 
 #ifdef __cplusplus
 }

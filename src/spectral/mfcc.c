@@ -189,8 +189,7 @@ uint_t aubio_mfcc_set_mel_coeffs_htk (aubio_mfcc_t *mf, smpl_t freq_min,
       freq_min, freq_max);
 }
 
-uint_t aubio_mfcc_set_mel_coeffs_slaney (aubio_mfcc_t *mf, smpl_t freq_min,
-    smpl_t freq_max)
+uint_t aubio_mfcc_set_mel_coeffs_slaney (aubio_mfcc_t *mf)
 {
   return aubio_filterbank_set_mel_coeffs_slaney (mf->fb, mf->samplerate);
 }
