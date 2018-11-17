@@ -110,5 +110,40 @@ class aubio_mfcc_all_parameters(TestCase):
             o(spec)
         #print coeffs
 
+
+class aubio_mfcc_fb_params(TestCase):
+
+    def test_set_scale(self):
+        buf_size, n_filters, n_coeffs, samplerate = 512, 20, 10, 16000
+        m = mfcc(buf_size, n_filters, n_coeffs, samplerate)
+        m.set_scale(10.)
+        m(cvec(buf_size))
+
+    def test_set_power(self):
+        buf_size, n_filters, n_coeffs, samplerate = 512, 20, 10, 16000
+        m = mfcc(buf_size, n_filters, n_coeffs, samplerate)
+        m.set_power(2.)
+        m(cvec(buf_size))
+
+    def test_set_mel_coeffs(self):
+        buf_size, n_filters, n_coeffs, samplerate = 512, 20, 10, 16000
+        m = mfcc(buf_size, n_filters, n_coeffs, samplerate)
+        m.set_mel_coeffs(0., samplerate/2.)
+        m(cvec(buf_size))
+
+    def test_set_mel_coeffs_htk(self):
+        buf_size, n_filters, n_coeffs, samplerate = 512, 20, 10, 16000
+        m = mfcc(buf_size, n_filters, n_coeffs, samplerate)
+        m.set_mel_coeffs_htk(0., samplerate/2.)
+        m(cvec(buf_size))
+
+    def test_set_mel_coeffs_slaney(self):
+        buf_size, n_filters, n_coeffs, samplerate = 512, 40, 10, 16000
+        m = mfcc(buf_size, n_filters, n_coeffs, samplerate)
+        m.set_mel_coeffs_slaney(samplerate)
+        m(cvec(buf_size))
+        assert m.get_power() == 1
+        assert m.get_scale() == 1
+
 if __name__ == '__main__':
     main()
