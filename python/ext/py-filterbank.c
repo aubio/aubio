@@ -156,8 +156,8 @@ Py_filterbank_set_mel_coeffs_slaney (Py_filterbank * self, PyObject *args)
 {
   uint_t err = 0;
 
-  uint_t samplerate;
-  if (!PyArg_ParseTuple (args, "I", &samplerate)) {
+  smpl_t samplerate;
+  if (!PyArg_ParseTuple (args, AUBIO_NPY_SMPL_CHR, &samplerate)) {
     return NULL;
   }
 
