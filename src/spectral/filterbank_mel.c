@@ -170,28 +170,27 @@ uint_t
 aubio_filterbank_set_mel_coeffs_slaney (aubio_filterbank_t * fb,
     smpl_t samplerate)
 {
-  uint_t retval;
+  /* Malcolm Slaney parameters */
+  const smpl_t lowestFrequency = 133.3333;
+  const smpl_t linearSpacing = 66.66666666;
+  const smpl_t logSpacing = 1.0711703;
+
+  const uint_t linearFilters = 13;
+  const uint_t logFilters = 27;
+  const uint_t n_filters = linearFilters + logFilters;
+
+  uint_t fn, retval;
+  smpl_t lastlinearCF;
+
+  /* buffers to compute filter frequencies */
+  fvec_t *freqs;
 
   if (samplerate <= 0) {
     AUBIO_ERR("filterbank: set_mel_coeffs_slaney samplerate should be > 0\n");
     return AUBIO_FAIL;
   }
 
-  /* Malcolm Slaney parameters */
-  smpl_t lowestFrequency = 133.3333;
-  smpl_t linearSpacing = 66.66666666;
-  smpl_t logSpacing = 1.0711703;
-
-  uint_t linearFilters = 13;
-  uint_t logFilters = 27;
-  uint_t n_filters = linearFilters + logFilters;
-
-  uint_t fn;                    /* filter counter */
-
-  smpl_t lastlinearCF;
-
-  /* buffers to compute filter frequencies */
-  fvec_t *freqs = new_fvec (n_filters + 2);
+  freqs = new_fvec (n_filters + 2);
 
   /* first step: fill all the linear filter frequencies */
   for (fn = 0; fn < linearFilters; fn++) {
