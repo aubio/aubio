@@ -15,7 +15,7 @@ class aubio_hztomel_test_case(TestCase):
     def test_hztomel(self):
         assert_equal(hztomel(0.), 0.)
         assert_almost_equal(hztomel(400. / 3.), 2., decimal=5)
-        assert_equal(hztomel(1000. / 3), 5.)
+        assert_almost_equal(hztomel(1000. / 3), 5.)
         assert_equal(hztomel(200.), 3.)
         assert_almost_equal(hztomel(1000.), 15)
         assert_almost_equal(hztomel(6400), 42)
