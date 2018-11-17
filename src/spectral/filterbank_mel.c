@@ -219,6 +219,10 @@ aubio_filterbank_set_mel_coeffs (aubio_filterbank_t * fb, smpl_t samplerate,
   fmat_t *coeffs = aubio_filterbank_get_coeffs(fb);
   uint_t n_bands = coeffs->height;
 
+  if (samplerate <= 0) {
+    AUBIO_ERR("filterbank: set_mel_coeffs samplerate should be > 0\n");
+    return AUBIO_FAIL;
+  }
   if (freq_max < 0) {
     AUBIO_ERR("filterbank: set_mel_coeffs freq_max should be > 0\n");
     return AUBIO_FAIL;
@@ -232,10 +236,6 @@ aubio_filterbank_set_mel_coeffs (aubio_filterbank_t * fb, smpl_t samplerate,
     return AUBIO_FAIL;
   } else {
     start = aubio_hztomel(freq_min);
-  }
-  if (n_bands <= 0) {
-    AUBIO_ERR("filterbank: set_mel_coeffs n_bands should be > 0\n");
-    return AUBIO_FAIL;
   }
 
   freqs = new_fvec(n_bands + 2);
@@ -263,6 +263,10 @@ aubio_filterbank_set_mel_coeffs_htk (aubio_filterbank_t * fb, smpl_t samplerate,
   fmat_t *coeffs = aubio_filterbank_get_coeffs(fb);
   uint_t n_bands = coeffs->height;
 
+  if (samplerate <= 0) {
+    AUBIO_ERR("filterbank: set_mel_coeffs samplerate should be > 0\n");
+    return AUBIO_FAIL;
+  }
   if (freq_max < 0) {
     AUBIO_ERR("filterbank: set_mel_coeffs freq_max should be > 0\n");
     return AUBIO_FAIL;
@@ -276,10 +280,6 @@ aubio_filterbank_set_mel_coeffs_htk (aubio_filterbank_t * fb, smpl_t samplerate,
     return AUBIO_FAIL;
   } else {
     start = aubio_hztomel_htk(freq_min);
-  }
-  if (n_bands <= 0) {
-    AUBIO_ERR("filterbank: set_mel_coeffs n_bands should be > 0\n");
-    return AUBIO_FAIL;
   }
 
   freqs = new_fvec (n_bands + 2);
