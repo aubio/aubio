@@ -218,8 +218,8 @@ Py_filterbank_set_mel_coeffs_htk (Py_filterbank * self, PyObject *args)
     return NULL;
   }
 
-  err = aubio_filterbank_set_mel_coeffs_htk (self->o,
-      freq_min, freq_max, samplerate);
+  err = aubio_filterbank_set_mel_coeffs_htk (self->o, samplerate,
+      freq_min, freq_max);
   if (err > 0) {
     if (PyErr_Occurred() == NULL) {
       PyErr_SetString (PyExc_ValueError, "error running set_mel_coeffs_htk");

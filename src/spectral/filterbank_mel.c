@@ -285,7 +285,7 @@ aubio_filterbank_set_mel_coeffs_htk (aubio_filterbank_t * fb, smpl_t samplerate,
 
   for (m = 0; m < n_bands + 2; m++)
   {
-    freqs->data[m] = MIN(aubio_meltohz_htk(step * m), samplerate/2.);
+    freqs->data[m] = MIN(aubio_meltohz_htk(start + step * m), samplerate/2.);
   }
 
   retval = aubio_filterbank_set_triangle_bands (fb, freqs, samplerate);
