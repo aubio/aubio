@@ -73,14 +73,83 @@ void del_aubio_mfcc (aubio_mfcc_t * mf);
 */
 void aubio_mfcc_do (aubio_mfcc_t * mf, const cvec_t * in, fvec_t * out);
 
+/** set power parameter
+
+  \param mf mfcc object, as returned by new_aubio_mfcc()
+  \param power Raise norm of the input spectrum norm to this power before
+  computing filterbank.  Defaults to `1`.
+
+  See aubio_filterbank_set_power().
+
+ */
 uint_t aubio_mfcc_set_power (aubio_mfcc_t *mf, smpl_t power);
+
+/** get power parameter
+
+  \param mf mfcc object, as returned by new_aubio_mfcc()
+  \return current power parameter. Defaults to `1`.
+
+  See aubio_filterbank_get_power().
+
+ */
 uint_t aubio_mfcc_get_power (aubio_mfcc_t *mf);
 
-uint_t aubio_mfcc_set_mel_coeffs (aubio_mfcc_t *mf, smpl_t freq_min,
-    smpl_t freq_max);
-uint_t aubio_mfcc_set_mel_coeffs_htk (aubio_mfcc_t *mf, smpl_t freq_min,
-    smpl_t freq_max);
-uint_t aubio_mfcc_set_mel_coeffs_slaney (aubio_mfcc_t *mf);
+uint_t aubio_mfcc_set_scale (aubio_mfcc_t *mf, smpl_t scale);
+uint_t aubio_mfcc_get_scale (aubio_mfcc_t *mf);
+
+/** Mel filterbank initialization
+
+  \param mf mfcc object
+  \param fmin start frequency, in Hz
+  \param fmax end frequency, in Hz
+
+  The filterbank will be initialized with bands linearly spaced in the mel
+  scale, from `fmin` to `fmax`.
+
+  See also
+  --------
+
+  aubio_filterbank_set_mel_coeffs()
+
+*/
+uint_t aubio_mfcc_set_mel_coeffs (aubio_mfcc_t *mf,
+        smpl_t fmin, smpl_t fmax);
+
+/** Mel filterbank initialization
+
+  \param mf mfcc object
+  \param fmin start frequency, in Hz
+  \param fmax end frequency, in Hz
+
+  The bank of filters will be initalized to to cover linearly spaced bands in
+  the Htk mel scale, from `fmin` to `fmax`.
+
+  See also
+  --------
+
+  aubio_filterbank_set_mel_coeffs_htk()
+
+*/
+uint_t aubio_mfcc_set_mel_coeffs_htk (aubio_mfcc_t *mf,
+        smpl_t fmin, smpl_t fmax);
+
+/** Mel filterbank initialization (Auditory Toolbox's parameters)
+
+  \param mf mfcc object
+  \param samplerate audio sampling rate, in Hz
+
+  The filter coefficients are built to match exactly Malcolm Slaney's Auditory
+  Toolbox implementation. The number of filters should be 40.
+
+  This is the default filterbank when `mf` was created with `n_filters = 40`.
+
+  See also
+  --------
+
+  aubio_filterbank_set_mel_coeffs_slaney()
+
+*/
+uint_t aubio_mfcc_set_mel_coeffs_slaney (aubio_mfcc_t *mf, smpl_t samplerate);
 
 #ifdef __cplusplus
 }
