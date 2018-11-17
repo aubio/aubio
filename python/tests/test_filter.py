@@ -77,6 +77,16 @@ class aubio_filter_test_case(TestCase):
         with self.assertRaises(ValueError):
             f.set_biquad(0., 0., 0, 0., 0.)
 
+    def test_all_available_presets(self):
+        f = digital_filter(7)
+        for sr in [8000, 11025, 16000, 22050, 24000, 32000,
+                44100, 48000, 88200, 96000, 192000]:
+            f.set_a_weighting(sr)
+        f = digital_filter(5)
+        for sr in [8000, 11025, 16000, 22050, 24000, 32000,
+                44100, 48000, 88200, 96000, 192000]:
+            f.set_c_weighting(sr)
+
 class aubio_filter_wrong_params(TestCase):
 
     def test_negative_order(self):
