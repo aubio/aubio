@@ -181,11 +181,11 @@ Py_filterbank_set_mel_coeffs (Py_filterbank * self, PyObject *args)
 {
   uint_t err = 0;
 
-  uint_t samplerate;
+  smpl_t samplerate;
   smpl_t freq_min;
   smpl_t freq_max;
-  if (!PyArg_ParseTuple (args, "I" AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR,
-        &samplerate, &freq_min, &freq_max)) {
+  if (!PyArg_ParseTuple (args, AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR
+        AUBIO_NPY_SMPL_CHR, &samplerate, &freq_min, &freq_max)) {
     return NULL;
   }
 
@@ -210,11 +210,11 @@ Py_filterbank_set_mel_coeffs_htk (Py_filterbank * self, PyObject *args)
 {
   uint_t err = 0;
 
-  uint_t samplerate;
+  smpl_t samplerate;
   smpl_t freq_min;
   smpl_t freq_max;
-  if (!PyArg_ParseTuple (args, "I" AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR,
-        &samplerate, &freq_min, &freq_max)) {
+  if (!PyArg_ParseTuple (args, AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR
+        AUBIO_NPY_SMPL_CHR, &samplerate, &freq_min, &freq_max)) {
     return NULL;
   }
 
@@ -268,12 +268,12 @@ Py_filterbank_get_coeffs (Py_filterbank * self, PyObject *unused)
 static PyObject *
 Py_filterbank_set_power(Py_filterbank *self, PyObject *args)
 {
-  uint_t playing;
+  uint_t power;
 
-  if (!PyArg_ParseTuple (args, "I", &playing)) {
+  if (!PyArg_ParseTuple (args, "I", &power)) {
     return NULL;
   }
-  if(aubio_filterbank_set_power (self->o, playing)) {
+  if(aubio_filterbank_set_power (self->o, power)) {
     if (PyErr_Occurred() == NULL) {
       PyErr_SetString (PyExc_ValueError,
           "error running filterbank.set_power");
