@@ -75,7 +75,11 @@ new_aubio_mfcc (uint_t win_s, uint_t n_filters, uint_t n_coefs,
 
   /* filterbank allocation */
   mfcc->fb = new_aubio_filterbank (n_filters, mfcc->win_s);
-  aubio_filterbank_set_mel_coeffs_slaney (mfcc->fb, samplerate);
+  if (n_filters == 40)
+    aubio_filterbank_set_mel_coeffs_slaney (mfcc->fb, samplerate);
+  else
+    aubio_filterbank_set_mel_coeffs(mfcc->fb, samplerate,
+        0, samplerate/2.);
 
   /* allocating buffers */
   mfcc->in_dct = new_fvec (n_filters);
