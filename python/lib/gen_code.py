@@ -462,22 +462,26 @@ Pyaubio_{shortname}_{method}  (Py_{shortname} * self, PyObject * args)
 // {shortname} setters
 """.format(**self.__dict__)
         for set_param in self.prototypes['set']:
-            params = get_params_types_names(set_param)[1]
-            paramtype = params['type']
+            params = get_params_types_names(set_param)[1:]
+            param = self.shortname.split('_set_')[-1]
+            paramdecls = "".join(["""
+   {0} {1};""".format(p['type'], p['name']) for p in params])
             method_name = get_name(set_param)
             param = method_name.split('aubio_'+self.shortname+'_set_')[-1]
-            pyparamtype = pyargparse_chars[paramtype]
+            refs = ", ".join(["&%s" % p['name'] for p in params])
+            paramlist = ", ".join(["%s" % p['name'] for p in params])
+            pyparamtypes = ''.join([pyargparse_chars[p['type']] for p in params])
             out += """
 static PyObject *
 Pyaubio_{shortname}_set_{param} (Py_{shortname} *self, PyObject *args)
 {{
   uint_t err = 0;
-  {paramtype} {param};
+  {paramdecls}
 
-  if (!PyArg_ParseTuple (args, "{pyparamtype}", &{param})) {{
+  if (!PyArg_ParseTuple (args, "{pyparamtypes}", {refs})) {{
     return NULL;
   }}
-  err = aubio_{shortname}_set_{param} (self->o, {param});
+  err = aubio_{shortname}_set_{param} (self->o, {paramlist});
 
   if (err > 0) {{
     if (PyErr_Occurred() == NULL) {{
@@ -492,7 +496,8 @@ Pyaubio_{shortname}_set_{param} (Py_{shortname} *self, PyObject *args)
   }}
   Py_RETURN_NONE;
 }}
-""".format(param = param, paramtype = paramtype, pyparamtype = pyparamtype, **self.__dict__)
+""".format(param = param, refs = refs, paramdecls = paramdecls,
+        pyparamtypes = pyparamtypes, paramlist = paramlist, **self.__dict__)
         return out
 
     def gen_get(self):
