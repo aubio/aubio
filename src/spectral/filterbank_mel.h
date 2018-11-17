@@ -88,7 +88,7 @@ uint_t aubio_filterbank_set_mel_coeffs_slaney (aubio_filterbank_t * fb,
 
 */
 uint_t aubio_filterbank_set_mel_coeffs(aubio_filterbank_t * fb,
-    smpl_t samplerate, smpl_t freq_min, smpl_t freq_max);
+    smpl_t samplerate, smpl_t fmin, smpl_t fmax);
 
 /** Mel filterbank initialization
 
@@ -110,7 +110,7 @@ uint_t aubio_filterbank_set_mel_coeffs(aubio_filterbank_t * fb,
 
 */
 uint_t aubio_filterbank_set_mel_coeffs_htk(aubio_filterbank_t * fb,
-    smpl_t samplerate, smpl_t freq_min, smpl_t freq_max);
+    smpl_t samplerate, smpl_t fmin, smpl_t fmax);
 
 #ifdef __cplusplus
 }
