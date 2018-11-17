@@ -94,7 +94,23 @@ uint_t aubio_mfcc_set_power (aubio_mfcc_t *mf, smpl_t power);
  */
 uint_t aubio_mfcc_get_power (aubio_mfcc_t *mf);
 
+/** set scaling parameter
+
+  \param mf mfcc object, as returned by new_aubio_mfcc()
+  \param scale Scaling value to apply.
+
+  Scales the output of the filterbank after taking its logarithm and before
+  computing the DCT. Defaults to `1`.
+
+*/
 uint_t aubio_mfcc_set_scale (aubio_mfcc_t *mf, smpl_t scale);
+
+/** get scaling parameter
+
+  \param mf mfcc object, as returned by new_aubio_mfcc()
+  \return current scaling parameter. Defaults to `1`.
+
+ */
 uint_t aubio_mfcc_get_scale (aubio_mfcc_t *mf);
 
 /** Mel filterbank initialization
