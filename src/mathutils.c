@@ -387,6 +387,15 @@ fvec_add (fvec_t * o, smpl_t val)
   }
 }
 
+void
+fvec_mul (fvec_t *o, smpl_t val)
+{
+  uint_t j;
+  for (j = 0; j < o->length; j++) {
+    o->data[j] *= val;
+  }
+}
+
 void fvec_adapt_thres(fvec_t * vec, fvec_t * tmp,
     uint_t post, uint_t pre) {
   uint_t length = vec->length, j;
