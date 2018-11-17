@@ -170,19 +170,16 @@ uint_t
 aubio_filterbank_set_mel_coeffs_slaney (aubio_filterbank_t * fb,
     smpl_t samplerate)
 {
-  uint_t retval;
-
   /* Malcolm Slaney parameters */
-  smpl_t lowestFrequency = 133.3333;
-  smpl_t linearSpacing = 66.66666666;
-  smpl_t logSpacing = 1.0711703;
+  const smpl_t lowestFrequency = 133.3333;
+  const smpl_t linearSpacing = 66.66666666;
+  const smpl_t logSpacing = 1.0711703;
 
-  uint_t linearFilters = 13;
-  uint_t logFilters = 27;
-  uint_t n_filters = linearFilters + logFilters;
+  const uint_t linearFilters = 13;
+  const uint_t logFilters = 27;
+  const uint_t n_filters = linearFilters + logFilters;
 
-  uint_t fn;                    /* filter counter */
-
+  uint_t fn, retval;
   smpl_t lastlinearCF;
 
   /* buffers to compute filter frequencies */
