@@ -86,6 +86,105 @@ smpl_t aubio_bintofreq (smpl_t bin, smpl_t samplerate, smpl_t fftsize);
 /** convert frequency (Hz) to frequency bin */
 smpl_t aubio_freqtobin (smpl_t freq, smpl_t samplerate, smpl_t fftsize);
 
+/** convert frequency (Hz) to mel
+
+  \param freq input frequency, in Hz
+
+  \return output mel
+
+  Converts a scalar from the frequency domain to the mel scale using Slaney
+  Auditory Toolbox's implementation:
+
+  If \f$ f < 1000 \f$, \f$ m = 3 f / 200 \f$.
+
+  If \f$ f >= 1000 \f$, \f$ m = 1000 + 27 \frac{{ln}(f) - ln(1000))}
+  {{ln}(6400) - ln(1000)}
+  \f$
+
+  See also
+  --------
+
+  aubio_meltohz(), aubio_hztomel_htk().
+
+*/
+smpl_t aubio_hztomel (smpl_t freq);
+
+/** convert mel to frequency (Hz)
+
+  \param mel input mel
+
+  \return output frequency, in Hz
+
+  Converts a scalar from the mel scale to the frequency domain using Slaney
+  Auditory Toolbox's implementation:
+
+  If \f$ f < 1000 \f$, \f$ f = 200 m/3 \f$.
+
+  If \f$ f \geq 1000 \f$, \f$ f = 1000 + \left(\frac{6400}{1000}\right)
+  ^{\frac{m - 1000}{27}} \f$
+
+  See also
+  --------
+
+  aubio_hztomel(), aubio_meltohz_htk().
+
+  References
+  ----------
+
+  Malcolm Slaney, *Auditory Toolbox Version 2, Technical Report #1998-010*
+  https://engineering.purdue.edu/~malcolm/interval/1998-010/
+
+*/
+smpl_t aubio_meltohz (smpl_t mel);
+
+/** convert frequency (Hz) to mel
+
+  \param freq input frequency, in Hz
+
+  \return output mel
+
+  Converts a scalar from the frequency domain to the mel scale, using the
+  equation defined by O'Shaughnessy, as implemented in the HTK speech
+  recognition toolkit:
+
+  \f$ m = 1127 + ln(1 + \frac{f}{700}) \f$
+
+  See also
+  --------
+
+  aubio_meltohz_htk(), aubio_hztomel().
+
+  References
+  ----------
+
+  Douglas O'Shaughnessy (1987). *Speech communication: human and machine*.
+  Addison-Wesley. p. 150. ISBN 978-0-201-16520-3.
+
+  HTK Speech Recognition Toolkit: http://htk.eng.cam.ac.uk/
+
+ */
+smpl_t aubio_hztomel_htk (smpl_t freq);
+
+/** convert mel to frequency (Hz)
+
+  \param mel input mel
+
+  \return output frequency, in Hz
+
+  Converts a scalar from the mel scale to the frequency domain, using the
+  equation defined by O'Shaughnessy, as implemented in the HTK speech
+  recognition toolkit:
+
+  \f$ f = 700 * {e}^\left(\frac{f}{1127} - 1\right) \f$
+
+  See also
+  --------
+
+  aubio_hztomel_htk(), aubio_meltohz().
+
+*/
+smpl_t aubio_meltohz_htk (smpl_t mel);
+
 /** convert frequency (Hz) to midi value (0-128) */
 smpl_t aubio_freqtomidi (smpl_t freq);
 

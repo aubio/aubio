@@ -28,6 +28,12 @@ Frequency conversion
 
 .. autofunction:: miditofreq
 
+.. python/ext/py-musicutils.h
+
+.. autofunction:: meltohz
+
+.. autofunction:: hztomel
+
 .. python/ext/aubiomodule.c
 
 .. autofunction:: bintomidi

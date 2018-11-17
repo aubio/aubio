@@ -372,6 +372,10 @@ static PyMethodDef aubio_methods[] = {
   {"window", Py_aubio_window, METH_VARARGS, Py_aubio_window_doc},
   {"shift", Py_aubio_shift, METH_VARARGS, Py_aubio_shift_doc},
   {"ishift", Py_aubio_ishift, METH_VARARGS, Py_aubio_ishift_doc},
+  {"hztomel", Py_aubio_hztomel, METH_VARARGS|METH_KEYWORDS, Py_aubio_hztomel_doc},
+  {"meltohz", Py_aubio_meltohz, METH_VARARGS|METH_KEYWORDS, Py_aubio_meltohz_doc},
+  {"hztomel_htk", Py_aubio_hztomel_htk, METH_VARARGS, Py_aubio_hztomel_htk_doc},
+  {"meltohz_htk", Py_aubio_meltohz_htk, METH_VARARGS, Py_aubio_meltohz_htk_doc},
   {NULL, NULL, 0, NULL} /* Sentinel */
 };
 

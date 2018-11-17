@@ -141,6 +141,37 @@ class aubio_fft_test_case(TestCase):
         assert_almost_equal ( r[0], impulse, decimal = 6)
         assert_almost_equal ( r[1:], 0)
 
+class aubio_fft_odd_sizes(TestCase):
+
+    def test_reconstruct_with_odd_size(self):
+        win_s = 29
+        self.recontruct(win_s, 'odd sizes not supported')
+
+    def test_reconstruct_with_radix15(self):
+        win_s = 2 ** 4 * 15
+        self.recontruct(win_s, 'radix 15 supported')
+
+    def test_reconstruct_with_radix5(self):
+        win_s = 2 ** 4 * 5
+        self.recontruct(win_s, 'radix 5 supported')
+
+    def test_reconstruct_with_radix3(self):
+        win_s = 2 ** 4 * 3
+        self.recontruct(win_s, 'radix 3 supported')
+
+    def recontruct(self, win_s, skipMessage):
+        try:
+            f = fft(win_s)
+        except RuntimeError:
+            self.skipTest(skipMessage)
+        input_signal = fvec(win_s)
+        input_signal[win_s//2] = 1
+        c = f(input_signal)
+        output_signal = f.rdo(c)
+        assert_almost_equal(input_signal, output_signal)
+
+class aubio_fft_wrong_params(TestCase):
+
     def test_large_input_timegrain(self):
         win_s = 1024
         f = fft(win_s)
@@ -169,21 +200,10 @@ class aubio_fft_test_case(TestCase):
         with self.assertRaises(ValueError):
             f.rdo(s)
 
-class aubio_fft_wrong_params(TestCase):
-
     def test_wrong_buf_size(self):
         win_s = -1
         with self.assertRaises(ValueError):
             fft(win_s)
-
-    def test_buf_size_not_power_of_two(self):
-        # when compiled with fftw3, aubio supports non power of two fft sizes
-        win_s = 320
-        try:
-            with self.assertRaises(RuntimeError):
-                fft(win_s)
-        except AssertionError:
-            self.skipTest('creating aubio.fft with size %d did not fail' % win_s)
 
     def test_buf_size_too_small(self):
         win_s = 1

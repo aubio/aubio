@@ -89,11 +89,12 @@ pthread_mutex_t aubio_fftw_mutex = PTHREAD_MUTEX_INITIALIZER;
 #define aubio_vDSP_zvphas              vDSP_zvphas
 #define aubio_vDSP_vsadd               vDSP_vsadd
 #define aubio_vDSP_vsmul               vDSP_vsmul
-#define aubio_vDSP_create_fftsetup     vDSP_create_fftsetup
-#define aubio_vDSP_destroy_fftsetup    vDSP_destroy_fftsetup
 #define aubio_DSPComplex               DSPComplex
 #define aubio_DSPSplitComplex          DSPSplitComplex
-#define aubio_FFTSetup                 FFTSetup
+#define aubio_vDSP_DFT_Setup           vDSP_DFT_Setup
+#define aubio_vDSP_DFT_zrop_CreateSetup vDSP_DFT_zrop_CreateSetup
+#define aubio_vDSP_DFT_Execute         vDSP_DFT_Execute
+#define aubio_vDSP_DFT_DestroySetup    vDSP_DFT_DestroySetup
 #define aubio_vvsqrt                   vvsqrtf
 #else
 #define aubio_vDSP_ctoz                vDSP_ctozD
@@ -103,11 +104,12 @@ pthread_mutex_t aubio_fftw_mutex = PTHREAD_MUTEX_INITIALIZER;
 #define aubio_vDSP_zvphas              vDSP_zvphasD
 #define aubio_vDSP_vsadd               vDSP_vsaddD
 #define aubio_vDSP_vsmul               vDSP_vsmulD
-#define aubio_vDSP_create_fftsetup     vDSP_create_fftsetupD
-#define aubio_vDSP_destroy_fftsetup    vDSP_destroy_fftsetupD
 #define aubio_DSPComplex               DSPDoubleComplex
 #define aubio_DSPSplitComplex          DSPDoubleSplitComplex
-#define aubio_FFTSetup                 FFTSetupD
+#define aubio_vDSP_DFT_Setup           vDSP_DFT_SetupD
+#define aubio_vDSP_DFT_zrop_CreateSetup vDSP_DFT_zrop_CreateSetupD
+#define aubio_vDSP_DFT_Execute         vDSP_DFT_ExecuteD
+#define aubio_vDSP_DFT_DestroySetup    vDSP_DFT_DestroySetupD
 #define aubio_vvsqrt                   vvsqrt
 #endif /* HAVE_AUBIO_DOUBLE */
 
@@ -152,8 +154,8 @@ struct _aubio_fft_t {
   fft_data_t * specdata; /* complex spectral data */
 
 #elif defined HAVE_ACCELERATE  // using ACCELERATE
-  int log2fftsize;
-  aubio_FFTSetup fftSetup;
+  aubio_vDSP_DFT_Setup fftSetupFwd;
+  aubio_vDSP_DFT_Setup fftSetupBwd;
   aubio_DSPSplitComplex spec;
   smpl_t *in, *out;
 
@@ -210,15 +212,32 @@ aubio_fft_t * new_aubio_fft (uint_t winsize) {
   }
 
 #elif defined HAVE_ACCELERATE  // using ACCELERATE
+  {
+    uint_t radix = winsize;
+    uint_t order = 0;
+    while ((radix / 2) * 2 == radix) {
+      radix /= 2;
+      order++;
+    }
+    if (order < 4 || (radix != 1 && radix != 3 && radix != 5 && radix != 15)) {
+      AUBIO_ERR("fft: vDSP/Accelerate supports FFT with sizes = "
+          "f * 2 ** n, where n > 4 and f in [1, 3, 5, 15], but requested %d. "
+          "Use the closest power of two, or try recompiling aubio with "
+          "--enable-fftw3.\n", winsize);
+      goto beach;
+    }
+  }
   s->winsize = winsize;
   s->fft_size = winsize;
   s->compspec = new_fvec(winsize);
-  s->log2fftsize = aubio_power_of_two_order(s->fft_size);
   s->in = AUBIO_ARRAY(smpl_t, s->fft_size);
   s->out = AUBIO_ARRAY(smpl_t, s->fft_size);
   s->spec.realp = AUBIO_ARRAY(smpl_t, s->fft_size/2);
   s->spec.imagp = AUBIO_ARRAY(smpl_t, s->fft_size/2);
-  s->fftSetup = aubio_vDSP_create_fftsetup(s->log2fftsize, FFT_RADIX2);
+  s->fftSetupFwd = aubio_vDSP_DFT_zrop_CreateSetup(NULL,
+      s->fft_size, vDSP_DFT_FORWARD);
+  s->fftSetupBwd = aubio_vDSP_DFT_zrop_CreateSetup(s->fftSetupFwd,
+      s->fft_size, vDSP_DFT_INVERSE);
 
 #elif defined HAVE_INTEL_IPP  // using Intel IPP
   const IppHintAlgorithm qualityHint = ippAlgHintAccurate; // OR ippAlgHintFast;
@@ -292,7 +311,8 @@ void del_aubio_fft(aubio_fft_t * s) {
 #elif defined HAVE_ACCELERATE // using ACCELERATE
   AUBIO_FREE(s->spec.realp);
   AUBIO_FREE(s->spec.imagp);
-  aubio_vDSP_destroy_fftsetup(s->fftSetup);
+  aubio_vDSP_DFT_DestroySetup(s->fftSetupBwd);
+  aubio_vDSP_DFT_DestroySetup(s->fftSetupFwd);
 
 #elif defined HAVE_INTEL_IPP  // using Intel IPP
   ippFree(s->memSpec);
@@ -350,7 +370,8 @@ void aubio_fft_do_complex(aubio_fft_t * s, const fvec_t * input, fvec_t * compsp
   // convert real data to even/odd format used in vDSP
   aubio_vDSP_ctoz((aubio_DSPComplex*)s->in, 2, &s->spec, 1, s->fft_size/2);
   // compute the FFT
-  aubio_vDSP_fft_zrip(s->fftSetup, &s->spec, 1, s->log2fftsize, FFT_FORWARD);
+  aubio_vDSP_DFT_Execute(s->fftSetupFwd, s->spec.realp, s->spec.imagp,
+      s->spec.realp, s->spec.imagp);
   // convert from vDSP complex split to [ r0, r1, ..., rN, iN-1, .., i2, i1]
   compspec->data[0] = s->spec.realp[0];
   compspec->data[s->fft_size / 2] = s->spec.imagp[0];
@@ -418,7 +439,8 @@ void aubio_fft_rdo_complex(aubio_fft_t * s, const fvec_t * compspec, fvec_t * ou
   // convert to split complex format used in vDSP
   aubio_vDSP_ctoz((aubio_DSPComplex*)s->out, 2, &s->spec, 1, s->fft_size/2);
   // compute the FFT
-  aubio_vDSP_fft_zrip(s->fftSetup, &s->spec, 1, s->log2fftsize, FFT_INVERSE);
+  aubio_vDSP_DFT_Execute(s->fftSetupBwd, s->spec.realp, s->spec.imagp,
+      s->spec.realp, s->spec.imagp);
   // convert result to real output
   aubio_vDSP_ztoc(&s->spec, 1, (aubio_DSPComplex*)output->data, 2, s->fft_size/2);
   // apply scaling
@@ -493,11 +515,22 @@ void aubio_fft_get_phas(const fvec_t * compspec, cvec_t * spectrum) {
         compspec->data[i]);
   }
 #endif
-  if (compspec->data[compspec->length/2] < 0) {
-    spectrum->phas[spectrum->length - 1] = PI;
+#ifdef HAVE_FFTW3
+  // for even length only, make sure last element is 0 or PI
+  if (2 * (compspec->length / 2) == compspec->length) {
+#endif
+    if (compspec->data[compspec->length/2] < 0) {
+      spectrum->phas[spectrum->length - 1] = PI;
+    } else {
+      spectrum->phas[spectrum->length - 1] = 0.;
+    }
+#ifdef HAVE_FFTW3
   } else {
-    spectrum->phas[spectrum->length - 1] = 0.;
+    i = spectrum->length - 1;
+    spectrum->phas[i] = ATAN2(compspec->data[compspec->length-i],
+        compspec->data[i]);
   }
+#endif
 }
 
 void aubio_fft_get_norm(const fvec_t * compspec, cvec_t * spectrum) {
@@ -507,8 +540,19 @@ void aubio_fft_get_norm(const fvec_t * compspec, cvec_t * spectrum) {
     spectrum->norm[i] = SQRT(SQR(compspec->data[i])
         + SQR(compspec->data[compspec->length - i]) );
   }
-  spectrum->norm[spectrum->length-1] =
-    ABS(compspec->data[compspec->length/2]);
+#ifdef HAVE_FFTW3
+  // for even length, make sure last element is > 0
+  if (2 * (compspec->length / 2) == compspec->length) {
+#endif
+    spectrum->norm[spectrum->length-1] =
+      ABS(compspec->data[compspec->length/2]);
+#ifdef HAVE_FFTW3
+  } else {
+    i = spectrum->length - 1;
+    spectrum->norm[i] = SQRT(SQR(compspec->data[i])
+        + SQR(compspec->data[compspec->length - i]) );
+  }
+#endif
 }
 
 void aubio_fft_get_imag(const cvec_t * spectrum, fvec_t * compspec) {

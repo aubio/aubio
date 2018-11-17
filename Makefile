@@ -232,6 +232,11 @@ test_python_only_clean: test_python_only \
 	uninstall_python \
 	check_clean_python
 
+coverage_cycle: coverage_zero_counters coverage_report
+
+coverage_zero_counters:
+	lcov --zerocounters --directory .
+
 coverage: export CFLAGS=--coverage
 coverage: export LDFLAGS=--coverage
 coverage: export PYTHONPATH=$(PWD)/python/lib
@@ -244,6 +249,8 @@ coverage: force_uninstall_python deps_python \
 	lcov --capture --no-external --directory . --output-file build/coverage_python.info
 	lcov -a build/coverage_python.info -a build/coverage_lib.info -o build/coverage.info
 
+# make sure we don't build the doc, which builds a temporary python module
+coverage_report: export WAFOPTS += --disable-docs
 coverage_report: coverage
 	genhtml build/coverage.info --output-directory lcov_html
 	mkdir -p gcovr_html/

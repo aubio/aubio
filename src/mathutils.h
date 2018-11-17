@@ -193,6 +193,14 @@ void fvec_alpha_normalise (fvec_t * v, smpl_t p);
 */
 void fvec_add (fvec_t * v, smpl_t c);
 
+/** multiply each elements of a vector by a scalar
+
+  \param v vector to add constant to
+  \param s constant to scale v with
+
+*/
+void fvec_mul (fvec_t * v, smpl_t s);
+
 /** remove the minimum value of the vector to each elements
 
   \param v vector to remove minimum from
