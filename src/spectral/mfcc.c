@@ -150,3 +150,27 @@ aubio_mfcc_do (aubio_mfcc_t * mf, const cvec_t * in, fvec_t * out)
 
   return;
 }
+
+uint_t aubio_mfcc_set_power (aubio_mfcc_t *mf, smpl_t power)
+{
+  return aubio_filterbank_set_power(mf->fb, power);
+}
+
+uint_t aubio_mfcc_get_power (aubio_mfcc_t *mf)
+{
+  return aubio_filterbank_get_power(mf->fb);
+}
+
+uint_t aubio_mfcc_set_mel_coeffs (aubio_mfcc_t *mf, smpl_t freq_min,
+    smpl_t freq_max)
+{
+  return aubio_filterbank_set_mel_coeffs(mf->fb, mf->samplerate,
+      freq_min, freq_max);
+}
+
+uint_t aubio_mfcc_set_mel_coeffs_htk (aubio_mfcc_t *mf, smpl_t freq_min,
+    smpl_t freq_max)
+{
+  return aubio_filterbank_set_mel_coeffs_htk(mf->fb, mf->samplerate,
+      freq_min, freq_max);
+}

@@ -73,6 +73,15 @@ void del_aubio_mfcc (aubio_mfcc_t * mf);
 */
 void aubio_mfcc_do (aubio_mfcc_t * mf, const cvec_t * in, fvec_t * out);
 
+uint_t aubio_mfcc_set_power (aubio_mfcc_t *mf, smpl_t power);
+uint_t aubio_mfcc_get_power (aubio_mfcc_t *mf);
+
+uint_t aubio_mfcc_set_mel_coeffs (aubio_mfcc_t *mf, smpl_t freq_min,
+    smpl_t freq_max);
+uint_t aubio_mfcc_set_mel_coeffs_htk (aubio_mfcc_t *mf, smpl_t freq_min,
+    smpl_t freq_max);
+uint_t aubio_mfcc_set_mel_coeffs_slaney (aubio_mfcc_t *mf);
+
 #ifdef __cplusplus
 }
 #endif
