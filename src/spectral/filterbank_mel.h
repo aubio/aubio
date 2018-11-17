@@ -55,7 +55,7 @@ uint_t aubio_filterbank_set_triangle_bands (aubio_filterbank_t * fb,
 /** filterbank initialization for Mel filters using Slaney's coefficients
 
   \param fb filterbank object
-  \param samplerate audio sampling rate
+  \param samplerate audio sampling rate, in Hz
 
   The filter coefficients are built to match exactly Malcolm Slaney's Auditory
   Toolbox implementation (see file mfcc.m). The number of filters should be 40.
