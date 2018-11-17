@@ -9,8 +9,15 @@ int main (void)
 
   aubio_filter_t *o = new_aubio_filter_c_weighting (44100);
 
+  if (new_aubio_filter(0))
+    return 1;
+
+  if (aubio_filter_get_samplerate(o) != 44100)
+    return 1;
+
   if (aubio_filter_set_c_weighting (o, -1) == 0)
     return 1;
+
   if (aubio_filter_set_c_weighting (0, 32000) == 0)
     return 1;
 
