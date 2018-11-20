@@ -122,8 +122,8 @@ Py_filterbank_set_triangle_bands (Py_filterbank * self, PyObject *args)
   uint_t err = 0;
 
   PyObject *input;
-  uint_t samplerate;
-  if (!PyArg_ParseTuple (args, "OI", &input, &samplerate)) {
+  smpl_t samplerate;
+  if (!PyArg_ParseTuple (args, "Of", &input, &samplerate)) {
     return NULL;
   }
 
