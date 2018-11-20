@@ -123,7 +123,7 @@ Py_filterbank_set_triangle_bands (Py_filterbank * self, PyObject *args)
 
   PyObject *input;
   smpl_t samplerate;
-  if (!PyArg_ParseTuple (args, "Of", &input, &samplerate)) {
+  if (!PyArg_ParseTuple (args, "O" AUBIO_NPY_SMPL_CHR, &input, &samplerate)) {
     return NULL;
   }
 
@@ -270,7 +270,7 @@ Py_filterbank_set_power(Py_filterbank *self, PyObject *args)
 {
   smpl_t power;
 
-  if (!PyArg_ParseTuple (args, "f", &power)) {
+  if (!PyArg_ParseTuple (args, AUBIO_NPY_SMPL_CHR, &power)) {
     return NULL;
   }
   if(aubio_filterbank_set_power (self->o, power)) {
@@ -293,7 +293,7 @@ Py_filterbank_set_norm(Py_filterbank *self, PyObject *args)
 {
   smpl_t norm;
 
-  if (!PyArg_ParseTuple (args, "f", &norm)) {
+  if (!PyArg_ParseTuple (args, AUBIO_NPY_SMPL_CHR, &norm)) {
     return NULL;
   }
   if(aubio_filterbank_set_norm (self->o, norm)) {
