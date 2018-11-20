@@ -65,8 +65,6 @@ build_script:
   - python waf configure build install --verbose --msvc_version="msvc 14.0"
   # clean before building python package
   - python waf distclean
-  # build python module without using libaubio
-  - pip wheel -v -v -v --wheel-dir=dist .
   # build, upload and install wheel (inspired by numpy's appveyor)
   - ps: |
       pip wheel -v -v -v --wheel-dir=dist .
