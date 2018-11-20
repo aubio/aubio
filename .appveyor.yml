@@ -3,9 +3,6 @@
 
 environment:
 
-  global:
-      CUSTOM64PATH: C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin
-
   matrix:
 
     # pre-installed python version, see:
@@ -43,13 +40,10 @@ environment:
       PYTHON_ARCH: 64
 
 install:
-
   - ECHO "Installed SDKs:"
   - ps: "ls \"C:/Program Files/Microsoft SDKs/Windows\""
 
   - "SET PATH=%PYTHONDIR%;%PYTHONDIR%\\Scripts;%PATH%"
-
-  - if [%PYTHON_ARCH%]==[64] SET PATH=%CUSTOM64PATH%;%PATH%
 
   # Check that we have the expected version and architecture for Python
   - "python --version"
