@@ -618,6 +618,7 @@ def dist(ctx):
     ctx.excl += ' **/python/*.db'
     ctx.excl += ' **/python.old/*'
     ctx.excl += ' **/python/*/*.old'
+    ctx.excl += ' **/python/lib/aubio/*.so'
     ctx.excl += ' **/python/tests/sounds'
     ctx.excl += ' **/**.asc'
     ctx.excl += ' **/dist*'
@@ -627,4 +628,4 @@ def dist(ctx):
     ctx.excl += ' **/.appveyor.yml'
     ctx.excl += ' **/.circleci/*'
     ctx.excl += ' **/azure-pipelines.yml'
-    ctx.excl += ' **/.coveragerc'
+    ctx.excl += ' **/.coverage*'
