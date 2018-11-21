@@ -135,7 +135,7 @@ class aubio_mfcc_fb_params(TestCase):
     def test_set_mel_coeffs_slaney(self):
         buf_size, n_filters, n_coeffs, samplerate = 512, 40, 10, 16000
         m = mfcc(buf_size, n_filters, n_coeffs, samplerate)
-        m.set_mel_coeffs_slaney(samplerate)
+        m.set_mel_coeffs_slaney()
         m(cvec(buf_size))
         assert m.get_power() == 1
         assert m.get_scale() == 1
