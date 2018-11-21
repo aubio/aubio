@@ -57,21 +57,47 @@ Documentation
 [homepage]: https://aubio.org
 [NumPy]: https://www.numpy.org
 
-Finding some inspiration
-------------------------
+Demos scripts
+-------------
 
-Some examples are available in the `python/demos` directory. These scripts are
-small programs written in python and using python-aubio.
+Some examples are available in the [`python/demos`][demos_dir] folder. These
+scripts are small programs written in python and using python-aubio.
 
-For instance, `demo_source.py` reads a media file.
+**Notes**: installing additional modules is required to run some of the demos.
 
-    $ ./python/demos/demo_source.py /path/to/sound/sample.wav
+### Analysis
 
-and `demo_timestretch_online.py` stretches the original file into a new one:
+- `demo_source.py` uses aubio to read audio samples from media files
+- `demo_onset_plot.py` detects attacks in a sound file and plots the results
+  using [matplotlib]
+- `demo_pitch.py` looks for fundamental frequency in a sound file and plots the
+  results using [matplotlib]
+- `demo_spectrogram.py`, `demo_specdesc.py`, `demo_mfcc.py` for spectral
+  analysis.
 
-    $ ./python/demo/demo_timestretch_online.py loop.wav stretched_loop.wav 0.92`
+### Real-time
 
-Note: you might need to install additional modules to run some of the demos.
-Some demos use [matplotlib](http://matplotlib.org/) to draw plots, others use
-[PySoundCard](https://github.com/bastibe/PySoundCard) to play and record
-sounds.
+- `demo_pyaudio.py` and `demo_tapthebeat.py` use [pyaudio]
+- `demo_pysoundcard_play.py`, `demo_pysoundcard.py` use [PySoundCard]
+- `demo_alsa.py` uses [pyalsaaudio]
+
+### Others
+
+- `demo_timestretch.py` can change the duration of an input file and write the
+  new sound to disk,
+- `demo_wav2midi.py` detects the notes in a file and uses [mido] to write the
+  results into a MIDI file
+
+### Example
+
+Use `demo_timestretch_online.py` to slow down `loop.wav`, write the results in
+`stretched_loop.wav`:
+
+    $ python demo_timestretch_online.py loop.wav stretched_loop.wav 0.92
+
+[demos_dir]:https://github.com/aubio/aubio/tree/master/python/demos
+[pyaudio]:https://people.csail.mit.edu/hubert/pyaudio/
+[PySoundCard]:https://github.com/bastibe/PySoundCard
+[pyalsaaudio]:https://larsimmisch.github.io/pyalsaaudio/
+[mido]:https://mido.readthedocs.io
+[matplotlib]:https://matplotlib.org/
