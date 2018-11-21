@@ -122,8 +122,8 @@ Py_filterbank_set_triangle_bands (Py_filterbank * self, PyObject *args)
   uint_t err = 0;
 
   PyObject *input;
-  uint_t samplerate;
-  if (!PyArg_ParseTuple (args, "OI", &input, &samplerate)) {
+  smpl_t samplerate;
+  if (!PyArg_ParseTuple (args, "O" AUBIO_NPY_SMPL_CHR, &input, &samplerate)) {
     return NULL;
   }
 
@@ -268,9 +268,9 @@ Py_filterbank_get_coeffs (Py_filterbank * self, PyObject *unused)
 static PyObject *
 Py_filterbank_set_power(Py_filterbank *self, PyObject *args)
 {
-  uint_t power;
+  smpl_t power;
 
-  if (!PyArg_ParseTuple (args, "I", &power)) {
+  if (!PyArg_ParseTuple (args, AUBIO_NPY_SMPL_CHR, &power)) {
     return NULL;
   }
   if(aubio_filterbank_set_power (self->o, power)) {
@@ -291,12 +291,12 @@ Py_filterbank_set_power(Py_filterbank *self, PyObject *args)
 static PyObject *
 Py_filterbank_set_norm(Py_filterbank *self, PyObject *args)
 {
-  uint_t playing;
+  smpl_t norm;
 
-  if (!PyArg_ParseTuple (args, "I", &playing)) {
+  if (!PyArg_ParseTuple (args, AUBIO_NPY_SMPL_CHR, &norm)) {
     return NULL;
   }
-  if(aubio_filterbank_set_norm (self->o, playing)) {
+  if(aubio_filterbank_set_norm (self->o, norm)) {
     if (PyErr_Occurred() == NULL) {
       PyErr_SetString (PyExc_ValueError,
           "error running filterbank.set_power");
