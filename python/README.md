@@ -75,7 +75,3 @@ Note: you might need to install additional modules to run some of the demos.
 Some demos use [matplotlib](http://matplotlib.org/) to draw plots, others use
 [PySoundCard](https://github.com/bastibe/PySoundCard) to play and record
 sounds.
-
-For more information about how this module works, please refer to the [Python/C
-API Reference Manual] (http://docs.python.org/c-api/index.html) and the
-[Numpy/C API Reference](http://docs.scipy.org/doc/numpy/reference/c-api.html).
