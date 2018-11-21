@@ -74,6 +74,18 @@ def get_preprocessor():
         cpp_cmd = compiler.cc.split()
         cpp_cmd += ['-E']
 
+    # On win-amd64 (py3.x), the default compiler is cross-compiling, from x86
+    # to amd64 with %WIN_SDK_ROOT%\x86_amd64\cl.exe, but using this binary as a
+    # pre-processor generates no output, so we use %WIN_SDK_ROOT%\cl.exe
+    # instead.
+    if len(cpp_cmd) > 1 and 'cl.exe' in cpp_cmd[-2]:
+        plat = os.path.basename(os.path.dirname(cpp_cmd[-2]))
+        if plat == 'x86_amd64':
+            print('workaround on win64 to avoid empty pre-processor output')
+            cpp_cmd[-2] = cpp_cmd[-2].replace('x86_amd64', '')
+        elif True in ['amd64' in f for f in cpp_cmd]:
+            print('warning: not using workaround for', cpp_cmd[0], plat)
+
     if not cpp_cmd:
         print("Warning: could not guess preprocessor, using env's CC")
         cpp_cmd = os.environ.get('CC', 'cc').split()
