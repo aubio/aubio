@@ -167,6 +167,13 @@ uint_t aubio_wavetable_stop ( aubio_wavetable_t * s )
   return aubio_wavetable_set_playing (s, 0);
 }
 
+uint_t
+aubio_wavetable_load ( aubio_wavetable_t *s UNUSED, const char_t *uri UNUSED)
+{
+  AUBIO_ERR("wavetable: load method not implemented yet, see sampler\n");
+  return AUBIO_FAIL;
+}
+
 uint_t aubio_wavetable_set_freq ( aubio_wavetable_t * s, smpl_t freq )
 {
   return aubio_parameter_set_target_value ( s->freq, freq );
