@@ -83,8 +83,6 @@ install:
   - travis_retry make getwaf expandwaf deps_python
   - which pip
   - pip --version
-  - pip install python-coveralls
-  - gem install coveralls-lcov
 
 script:
   - make create_test_sounds
@@ -99,10 +97,6 @@ script:
 after_success:
   - |
     if [[ -z "$AUBIO_NOTESTS" ]]; then
-      # upload lcov coverage to coveralls.io
-      coveralls-lcov build/coverage.info
-      # upload python coverage
-      #coveralls
       # upload to codecov
       bash <(curl -s https://codecov.io/bash)
     fi
