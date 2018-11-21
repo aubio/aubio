@@ -8,7 +8,7 @@ import unittest
 import aubio
 import numpy as np
 from numpy.testing import assert_equal
-from utils import get_tmp_sink_path
+from .utils import get_tmp_sink_path
 
 class aubio_source_test_case(unittest.TestCase):
 
