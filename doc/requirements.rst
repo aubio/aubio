@@ -302,10 +302,38 @@ Here is an example of a custom command:
 Double precision
 ................
 
+The datatype used to store real numbers in aubio is named `smpl_t`. By default,
+`smpl_t` is defined as `float`, a `single-precision format
+<https://en.wikipedia.org/wiki/Single-precision_floating-point_format>`_
+(32-bit).  Some algorithms require a floating point representation with a
+higher precision, for instance to prevent arithmetic underflow in recursive
+filters.  In aubio, these special samples are named `lsmp_t` and defined as
+`double` by default (64-bit).
+
+Sometimes it may be useful to compile aubio in `double-precision`, for instance
+to reproduce numerical results obtained with 64-bit routines. In this case,
+`smpl_t` will be defined as `double`.
+
+The following table shows how `smpl_t` and `lsmp_t` are defined in single- and
+double-precision modes:
+
+.. list-table:: Single and double-precision modes
+   :align: center
+
+   * -
+     - single
+     - double
+   * - `smpl_t`
+     - ``float``
+     - ``double``
+   * - `lsmp_t`
+     - ``double``
+     - ``long double``
+
 To compile aubio in double precision mode, configure with ``--enable-double``.
 
-To compile aubio in single precision mode, use ``--disable-double`` (default,
-recommended).
+To compile in single-precision mode (default), use ``--disable-double`` (or
+simply none of these two options).
 
 Disabling the tests
 ...................
