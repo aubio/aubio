@@ -1,3 +1,79 @@
+2018-11-21 Paul Brossier <piem@aubio.org>
+
+	[ Overview ]
+
+	* VERSION: bump to 0.4.8
+	* notes: new option release_drop (gh-203)
+	* spectral: new parameters added to filterbank and mfcc (gh-206)
+	* python: start documenting module (gh-73, debian #480018), improve build for
+	win-amd64 (gh-154, gh-199, gh-208)
+	* fixes: prevent crash when using fft sizes unsupported by vDSP (gh-207),
+	prevent saturation when down-mixing a multi-channel source (avcodec/ffmpeg)
+
+	[ Fixes ]
+
+	* avcodec: prevent saturation when down-mixing a multi-channel source, emit
+	a warning if compiling against avutil < 53 (gh-137), wrap long lines
+	* examples/: avoid hiding global and unreachable code
+	* fft: limit to r*2*n sizes, with r in [1, 3, 5, 15] (vDSP only) (gh-207)
+	* fft: fix reconstruction for odd sizes (fftw only)
+	* pvoc: add missing implementations for aubio_pvoc_get_hop/win
+	* mathutils: increase ln(2) precision of in freqtomidi/miditofreq
+	* wavetable: stop sets playing to 0, add dummy implementation for _load
+
+	[ New features ]
+
+	* src/musicutils.h: new aubio_meltohz, aubio_hztomel, with _htk versions
+	* src/spectral/filterbank.h: new set_mel_coeffs, set_mel_coeffs_htk,
+	set_power, and set_norm methods, improved set_triangle_bands
+	* src/spectral/mfcc.h: new set_scale, set_power, set_norm, set_mel_coeffs,
+	set_mel_coeffs_htk, set_mel_coeffs_slaney
+	* src/mathutils.h: new fvec_mul
+	* src/notes: new option release_drop to prevent missing note-offs (gh-203)
+
+	[ Python module ]
+
+	* fix: rounding to nearest integer in midi2note and freq2note
+	* general: supports code generation of setters with none or multiple
+	parameters
+	* documentation: add docstrings do fvec, cvec, source, sink, pvoc, frequency
+	conversion and level detection routines (gh-73, debian #480018)
+	* slicing: improve and document slice_source_at_stamps
+	* module: new note2freq function, recover error log when raising exceptions
+	on failed set_ methods, prevent cyclic import, coding style improvements
+	* demos: improve coding style, fix bpm_extract arguments
+	* MANIFEST.in: exclude *.pyc, improve patterns
+
+	[ Documentation ]
+
+	* doc/: use sphinx autodoc to load docstrings from aubio module, reorganize
+	python module documentation, add a note about double precision, use https
+	when possible
+	* src/spectral/: update Auditory Toolbox url, update copyright year
+
+	[ Tools ]
+
+	* aubionotes: add --release-drop option
+	* aubio: add --release-drop and --silence options to `aubio notes`,
+	workaround for -V to really show version (py2)
+	* aubiocut: add option --create-first to always create first slice
+
+	[ Tests ]
+
+	* tests/, python/tests: add tests for new methods, check source channel
+	down-mix, improve coverage
+
+	[ Build system ]
+
+	* Makefile: disable docs when measuring coverage, add branch coverage
+	option, add coverage_zero_counters target, improve html report
+	* waf: update to 2.0.12, improve wscript style, prevent shipping some
+	generated files
+	* python: always show compiler warnings when pre-processing headers,
+	workaround to fix code generation for win-amd64 (gh-154, gh-199, gh-208).
+	* continuous integration: add azure pipelines, update and improve
+	configurations for appveyor, circleci, and travis.
+
 2018-09-22 Paul Brossier <piem@aubio.org>
 
 	[ Overview ]
