@@ -62,13 +62,19 @@ classifiers = [
     'GNU General Public License v3 or later (GPLv3+)',
     ]
 
+thisdir = os.path.abspath(os.path.dirname(__file__))
+py_readme_file = os.path.join(thisdir, 'python', 'README.md')
+with open(py_readme_file, 'r') as fp:
+    long_description = ''.join(fp.readlines()[3:])
+
 distrib = setup(name='aubio',
     version = __version__,
     packages = ['aubio'],
     package_dir = {'aubio': 'python/lib/aubio'},
     ext_modules = [aubio_extension],
     description = 'a collection of tools for music analysis',
-    long_description = 'a collection of tools for music analysis',
+    long_description = long_description,
+    long_description_content_type = 'text/markdown',
     license = 'GNU/GPL version 3',
     author = 'Paul Brossier',
     author_email = 'piem@aubio.org',

@@ -42,6 +42,8 @@ SOX=sox
 
 TESTSOUNDS := python/tests/sounds
 
+LCOVOPTS += --rc lcov_branch_coverage=1
+
 all: build
 
 checkwaf:
@@ -243,22 +245,36 @@ coverage: export PYTHONPATH=$(PWD)/python/lib
 coverage: export LD_LIBRARY_PATH=$(PWD)/build/src
 coverage: force_uninstall_python deps_python \
 	clean_python clean distclean build local_dylib
-	lcov --capture --no-external --directory . --output-file build/coverage_lib.info
+	# capture coverage after running c tests
+	lcov $(LCOVOPTS) --capture --no-external --directory . \
+		--output-file build/coverage_lib.info
+	# build and test python
 	pip install -v -e .
+	# run tests, with python coverage
 	coverage run `which pytest`
-	lcov --capture --no-external --directory . --output-file build/coverage_python.info
-	lcov -a build/coverage_python.info -a build/coverage_lib.info -o build/coverage.info
+	# capture coverage again
+	lcov $(LCOVOPTS) --capture --no-external --directory . \
+		--output-file build/coverage_python.info
+	# merge both coverage info files
+	lcov $(LCOVOPTS) -a build/coverage_python.info -a build/coverage_lib.info \
+		--output-file build/coverage.info
+	# remove tests
+	lcov $(LCOVOPTS) --remove build/coverage.info '*/tests/*' '*/ooura_fft8g*' \
+		--output-file build/coverage_lib.info
 
 # make sure we don't build the doc, which builds a temporary python module
 coverage_report: export WAFOPTS += --disable-docs
 coverage_report: coverage
-	genhtml build/coverage.info --output-directory lcov_html
-	mkdir -p gcovr_html/
-	gcovr -r . --html --html-details \
-		--output gcovr_html/index.html \
-		--exclude ".*tests/.*" --exclude ".*examples/.*"
+	# create coverage report dir
+	mkdir -p build/coverage/
+	# generate report with lcov's genhtml
+	genhtml build/coverage_lib.info --output-directory build/coverage/lcov \
+		--branch-coverage --highlight --legend
+	# generate python report with coverage python package
 	coverage report
-	coverage html
+	coverage html -d build/coverage/coverage
+	# show links to generated reports
+	for i in $$(ls build/coverage/*/index.html); do echo file://$(PWD)/$$i; done
 
 sphinx: configure
 	$(WAFCMD) sphinx $(WAFOPTS)

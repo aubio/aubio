@@ -3,28 +3,50 @@
 Installing aubio for Python
 ===========================
 
-The aubio extension for Python is available for Python 2.7 and Python 3.
+aubio is available as a package for Python 2.7 and Python 3. The aubio
+extension is written C using the `Python/C`_ and the `Numpy/C`_ APIs.
+
+.. _Python/C: https://docs.python.org/c-api/index.html
+.. _Numpy/C: https://docs.scipy.org/doc/numpy/reference/c-api.html
+
+For general documentation on how to install Python packages, see `Installing
+Packages`_.
 
 Installing aubio with pip
 -------------------------
 
-aubio can now be installed using ``pip``:
+aubio can be installed from `PyPI`_ using ``pip``:
 
 .. code-block:: console
 
     $ pip install aubio
 
-Building the module
--------------------
+See also `Installing from PyPI`_ for general documentation.
 
-From ``aubio`` source directory, run the following:
+.. note::
+
+  aubio is currently a `source only`_ package, so you will need a compiler to
+  install it from `PyPI`_. See also `Installing aubio with conda`_ for
+  pre-compiled binaries.
+
+.. _PyPI: https://pypi.python.org/pypi/aubio
+.. _Installing Packages: https://packaging.python.org/tutorials/installing-packages/
+.. _Installing from PyPI: https://packaging.python.org/tutorials/installing-packages/#installing-from-pypi
+.. _source only: https://packaging.python.org/tutorials/installing-packages/#source-distributions-vs-wheels
+
+Installing aubio with conda
+---------------------------
+
+`Conda packages`_ are available through the `conda-forge`_ channel for Linux,
+macOS, and Windows:
 
 .. code-block:: console
 
-    $ ./setup.py clean
-    $ ./setup.py build
-    $ sudo ./setup.py install
+    $ conda config --add channels conda-forge
+    $ conda install -c conda-forge aubio
 
+.. _Conda packages: https://anaconda.org/conda-forge/aubio
+.. _conda-forge: https://conda-forge.org/
 
 .. _py-doubleprecision:
 
@@ -67,14 +89,15 @@ The command line `aubio` is also installed:
 Python tests
 ------------
 
-A number of python tests are provided. To run them, use [pytest] from the
-aubio source tree:
+A number of Python tests are provided in the `python/tests`_ folder. To run
+them, install `pytest`_ and run it from the aubio source directory:
 
+.. code-block:: console
+
+    $ pip install pytest
+    $ git clone https://git.aubio.org/aubio/aubio
     $ cd aubio
     $ pytest
 
-Each test script can also be called individually. For instance:
-
-    $ ./python/tests/test_note2midi.py -v
-
-[pytest]: https://pytest.org
+.. _python/tests: https://github.com/aubio/aubio/blob/master/python/tests
+.. _pytest: https://pytest.org

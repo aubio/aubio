@@ -152,7 +152,6 @@ uint_t aubio_mfcc_set_mel_coeffs_htk (aubio_mfcc_t *mf,
 /** Mel filterbank initialization (Auditory Toolbox's parameters)
 
   \param mf mfcc object
-  \param samplerate audio sampling rate, in Hz
 
   The filter coefficients are built to match exactly Malcolm Slaney's Auditory
   Toolbox implementation. The number of filters should be 40.

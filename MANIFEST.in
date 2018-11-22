@@ -1,6 +1,7 @@
 include AUTHORS COPYING README.md VERSION ChangeLog
 include python/README.md
 include this_version.py
+include waf_gensyms.py
 include waf
 recursive-include waflib *.py
 include Makefile wscript */wscript_build
