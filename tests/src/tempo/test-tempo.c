@@ -1,13 +1,20 @@
 #include <aubio.h>
 #include "utils_tests.h"
 
+int test_wrong_params(void);
+
 int main (int argc, char **argv)
 {
   uint_t err = 0;
   if (argc < 2) {
     err = 2;
-    PRINT_ERR("not enough arguments\n");
-    PRINT_MSG("read a wave file as a mono vector\n");
+    PRINT_WRN("no arguments, running tests\n");
+    if (test_wrong_params() != 0) {
+      PRINT_ERR("tests failed!\n");
+      err = 1;
+    } else {
+      err = 0;
+    }
     PRINT_MSG("usage: %s <source_path> [samplerate] [win_size] [hop_size]\n", argv[0]);
     return err;
   }
@@ -63,4 +70,64 @@ beach:
   aubio_cleanup();
 
   return err;
+}
+
+int test_wrong_params(void)
+{
+  uint_t win_size = 1024;
+  uint_t hop_size = 256;
+  uint_t samplerate = 44100;
+  aubio_tempo_t *t;
+  fvec_t* in, *out;
+  uint_t i;
+
+  // test wrong method fails
+  if (new_aubio_tempo("unexisting_method", win_size, hop_size, samplerate))
+    return 1;
+
+  // test hop > win fails
+  if (new_aubio_tempo("default", hop_size, win_size, samplerate))
+    return 1;
+
+  // test null hop_size fails
+  if (new_aubio_tempo("default", win_size, 0, samplerate))
+    return 1;
+
+  // test 1 buf_size fails
+  if (new_aubio_tempo("default", 1, 1, samplerate))
+    return 1;
+
+  // test null samplerate fails
+  if (new_aubio_tempo("default", win_size, hop_size, 0))
+    return 1;
+
+  // test short sizes workaround
+  t = new_aubio_tempo("default", 2048, 2048, 500);
+  if (!t)
+    return 1;
+
+  del_aubio_tempo(t);
+
+  t = new_aubio_tempo("default", win_size, hop_size, samplerate);
+  if (!t)
+    return 1;
+
+  in = new_fvec(hop_size);
+  out = new_fvec(1);
+
+  for (i = 0; i < 4; i++)
+  {
+    aubio_tempo_do(t,in,out);
+    PRINT_MSG("beat at %.3fms, %.3fs, frame %d, %.2f bpm "
+        "with confidence %.2f, was tatum %d\n",
+        aubio_tempo_get_last_ms(t), aubio_tempo_get_last_s(t),
+        aubio_tempo_get_last(t), aubio_tempo_get_bpm(t),
+        aubio_tempo_get_confidence(t), aubio_tempo_was_tatum(t));
+  }
+
+  del_aubio_tempo(t);
+  del_fvec(in);
+  del_fvec(out);
+
+  return 0;
 }
