@@ -128,8 +128,7 @@ uint_t aubio_tempo_set_delay_s(aubio_tempo_t * o, smpl_t delay) {
 }
 
 uint_t aubio_tempo_set_delay_ms(aubio_tempo_t * o, smpl_t delay) {
-  o->delay = 1000. * delay * o->samplerate;
-  return AUBIO_OK;
+  return aubio_tempo_set_delay_s(o, delay / 1000.);
 }
 
 uint_t aubio_tempo_get_delay(aubio_tempo_t * o) {
@@ -141,7 +140,7 @@ smpl_t aubio_tempo_get_delay_s(aubio_tempo_t * o) {
 }
 
 smpl_t aubio_tempo_get_delay_ms(aubio_tempo_t * o) {
-  return o->delay / (smpl_t)(o->samplerate) / 1000.;
+  return aubio_tempo_get_delay_s(o) * 1000.;
 }
 
 uint_t aubio_tempo_set_silence(aubio_tempo_t * o, smpl_t silence) {
