@@ -32,6 +32,8 @@ int main (int argc, char **argv)
   // create tempo object
   aubio_tempo_t * o = new_aubio_tempo("default", win_size, hop_size, samplerate);
 
+  if (!o) { err = 1; goto beach_tempo; }
+
   do {
     // put some fresh data in input vector
     aubio_source_do(source, in, &read);
@@ -53,6 +55,7 @@ int main (int argc, char **argv)
 
   // clean up memory
   del_aubio_tempo(o);
+beach_tempo:
   del_fvec(in);
   del_fvec(out);
   del_aubio_source(source);
