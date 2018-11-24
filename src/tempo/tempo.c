@@ -168,7 +168,7 @@ aubio_tempo_t * new_aubio_tempo (const char_t * tempo_mode,
     uint_t buf_size, uint_t hop_size, uint_t samplerate)
 {
   aubio_tempo_t * o = AUBIO_NEW(aubio_tempo_t);
-  char_t specdesc_func[20];
+  char_t specdesc_func[PATH_MAX];
   o->samplerate = samplerate;
   // check parameters are valid
   if ((sint_t)hop_size < 1) {
@@ -203,9 +203,10 @@ aubio_tempo_t * new_aubio_tempo (const char_t * tempo_mode,
   o->pp       = new_aubio_peakpicker();
   aubio_peakpicker_set_threshold (o->pp, o->threshold);
   if ( strcmp(tempo_mode, "default") == 0 ) {
-    strcpy(specdesc_func, "specflux");
+    strncpy(specdesc_func, "specflux", PATH_MAX - 1);
   } else {
-    strcpy(specdesc_func, tempo_mode);
+    strncpy(specdesc_func, tempo_mode, PATH_MAX - 1);
+    specdesc_func[PATH_MAX - 1] = '\0';
   }
   o->od       = new_aubio_specdesc(specdesc_func,buf_size);
   o->of       = new_fvec(1);
