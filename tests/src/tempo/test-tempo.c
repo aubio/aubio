@@ -115,7 +115,8 @@ int test_wrong_params(void)
   in = new_fvec(hop_size);
   out = new_fvec(1);
 
-  for (i = 0; i < 4; i++)
+  // up to step = (next_power_of_two(5.8 * samplerate / hop_size ) / 4 )
+  for (i = 0; i < 256 + 1; i++)
   {
     aubio_tempo_do(t,in,out);
     PRINT_MSG("beat at %.3fms, %.3fs, frame %d, %.2f bpm "
