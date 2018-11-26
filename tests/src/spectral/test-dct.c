@@ -18,8 +18,8 @@ int main (void)
   fvec_t * out = new_fvec (win_s); // input buffer
 
   if ((tmp = new_aubio_dct(1)) == 0) return 1;
-  aubio_dct_do(tmp, dctout, out);
-  aubio_dct_rdo(tmp, dctout, out);
+  //aubio_dct_do(tmp, dctout, out);
+  //aubio_dct_rdo(tmp, dctout, out);
   del_aubio_dct(tmp);
 
   if (!dct || !in || !dctout) {
