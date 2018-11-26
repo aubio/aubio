@@ -111,7 +111,7 @@ aubio_dct_t* new_aubio_dct (uint_t size) {
     s->del_dct = (del_aubio_dct_t)del_aubio_dct_fftw;
     return s;
   } else {
-    AUBIO_WRN("dct: unexcepected error while creating dct_fftw with size %d",
+    AUBIO_WRN("dct: unexpected error while creating dct_fftw with size %d\n",
         size);
     goto plain;
   }
@@ -124,7 +124,7 @@ aubio_dct_t* new_aubio_dct (uint_t size) {
     s->del_dct = (del_aubio_dct_t)del_aubio_dct_ipp;
     return s;
   } else {
-    AUBIO_WRN("dct: unexcepected error while creating dct_ipp with size %d",
+    AUBIO_WRN("dct: unexpected error while creating dct_ipp with size %d\n",
         size);
     goto plain;
   }
