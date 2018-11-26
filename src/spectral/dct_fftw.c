@@ -63,7 +63,9 @@ struct _aubio_dct_fftw_t {
 
 aubio_dct_fftw_t * new_aubio_dct_fftw (uint_t size) {
   aubio_dct_fftw_t * s = AUBIO_NEW(aubio_dct_fftw_t);
-  if (!s) {
+  if ((sint_t)size <= 0) {
+    AUBIO_ERR("dct_fftw: can only create with size > 0, requested %d\n",
+        size);
     goto beach;
   }
   s->size = size;
