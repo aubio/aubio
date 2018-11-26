@@ -38,8 +38,8 @@ struct _aubio_dct_ooura_t {
 
 aubio_dct_ooura_t * new_aubio_dct_ooura (uint_t size) {
   aubio_dct_ooura_t * s = AUBIO_NEW(aubio_dct_ooura_t);
-  if (aubio_is_power_of_two(size) != 1) {
-    AUBIO_ERR("dct: can only create with sizes power of two, requested %d\n",
+  if (aubio_is_power_of_two(size) != 1 || (sint_t)size <= 0) {
+    AUBIO_ERR("dct_ooura: can only create with sizes power of two, requested %d\n",
         size);
     goto beach;
   }
