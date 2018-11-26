@@ -142,7 +142,7 @@ aubio_dct_t* new_aubio_dct (uint_t size) {
   }
 #endif
   // falling back to plain mode
-  AUBIO_WRN("dct: d no optimised implementation could be created for size %d",
+  AUBIO_WRN("dct: no optimised implementation could be created for size %d\n",
       size);
 plain:
   s->dct = (void *)new_aubio_dct_plain (size);
