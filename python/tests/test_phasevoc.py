@@ -56,6 +56,15 @@ class aubio_pvoc_test_case(TestCase):
                         + 'This is expected when using fftw3 on powerpc.')
             assert_equal ( r, 0.)
 
+    def test_no_overlap(self):
+        win_s, hop_s = 1024, 1024
+        f = pvoc (win_s, hop_s)
+        t = fvec (hop_s)
+        for _ in range(4):
+            s = f(t)
+            r = f.rdo(s)
+            assert_equal ( t, 0.)
+
     @params(
             ( 256, 8),
             ( 256, 4),
