@@ -87,7 +87,7 @@ aubio_dct_t* new_aubio_dct (uint_t size) {
   {
     uint_t radix = size;
     uint_t order = 0;
-    while ((radix / 2) * 2 == radix) {
+    while ((radix >= 1) && ((radix / 2) * 2 == radix)) {
       radix /= 2;
       order++;
     }
