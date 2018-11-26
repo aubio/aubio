@@ -256,10 +256,13 @@ aubio_onset_t * new_aubio_onset (const char_t * onset_mode,
   o->pv = new_aubio_pvoc(buf_size, o->hop_size);
   o->pp = new_aubio_peakpicker();
   o->od = new_aubio_specdesc(onset_mode,buf_size);
-  if (o->od == NULL) goto beach_specdesc;
   o->fftgrain = new_cvec(buf_size);
   o->desc = new_fvec(1);
   o->spectral_whitening = new_aubio_spectral_whitening(buf_size, hop_size, samplerate);
+
+  if (!o->pv || !o->pp || !o->od || !o->fftgrain
+      || !o->desc || !o->spectral_whitening)
+    goto beach;
 
   /* initialize internal variables */
   aubio_onset_set_default_parameters (o, onset_mode);
@@ -267,11 +270,8 @@ aubio_onset_t * new_aubio_onset (const char_t * onset_mode,
   aubio_onset_reset(o);
   return o;
 
-beach_specdesc:
-  del_aubio_peakpicker(o->pp);
-  del_aubio_pvoc(o->pv);
 beach:
-  AUBIO_FREE(o);
+  del_aubio_onset(o);
   return NULL;
 }
 
@@ -339,11 +339,17 @@ uint_t aubio_onset_set_default_parameters (aubio_onset_t * o, const char_t * ons
 
 void del_aubio_onset (aubio_onset_t *o)
 {
-  del_aubio_spectral_whitening(o->spectral_whitening);
-  del_aubio_specdesc(o->od);
-  del_aubio_peakpicker(o->pp);
-  del_aubio_pvoc(o->pv);
-  del_fvec(o->desc);
-  del_cvec(o->fftgrain);
+  if (o->spectral_whitening)
+    del_aubio_spectral_whitening(o->spectral_whitening);
+  if (o->od)
+    del_aubio_specdesc(o->od);
+  if (o->pp)
+    del_aubio_peakpicker(o->pp);
+  if (o->pv)
+    del_aubio_pvoc(o->pv);
+  if (o->desc)
+    del_fvec(o->desc);
+  if (o->fftgrain)
+    del_cvec(o->fftgrain);
   AUBIO_FREE(o);
 }
