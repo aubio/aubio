@@ -81,7 +81,6 @@ struct _aubio_dct_t {
 
 aubio_dct_t* new_aubio_dct (uint_t size) {
   aubio_dct_t * s = AUBIO_NEW(aubio_dct_t);
-  if ((sint_t)size <= 0) goto beach;
 #if defined(HAVE_ACCELERATE)
   // vDSP supports sizes = f * 2 ** n, where n >= 4 and f in [1, 3, 5, 15]
   // see https://developer.apple.com/documentation/accelerate/1449930-vdsp_dct_createsetup
