@@ -55,6 +55,15 @@ new_aubio_mfcc (uint_t win_s, uint_t n_filters, uint_t n_coefs,
   /* allocate space for mfcc object */
   aubio_mfcc_t *mfcc = AUBIO_NEW (aubio_mfcc_t);
 
+  if ((sint_t)n_coefs <= 0) {
+    AUBIO_ERR("mfcc: n_coefs should be > 0, got %d\n", n_coefs);
+    goto failure;
+  }
+  if ((sint_t)samplerate <= 0) {
+    AUBIO_ERR("mfcc: samplerate should be > 0, got %d\n", samplerate);
+    goto failure;
+  }
+
   mfcc->win_s = win_s;
   mfcc->samplerate = samplerate;
   mfcc->n_filters = n_filters;
@@ -62,6 +71,10 @@ new_aubio_mfcc (uint_t win_s, uint_t n_filters, uint_t n_coefs,
 
   /* filterbank allocation */
   mfcc->fb = new_aubio_filterbank (n_filters, mfcc->win_s);
+
+  if (!mfcc->fb)
+    goto failure;
+
   if (n_filters == 40)
     aubio_filterbank_set_mel_coeffs_slaney (mfcc->fb, samplerate);
   else
@@ -74,24 +87,29 @@ new_aubio_mfcc (uint_t win_s, uint_t n_filters, uint_t n_coefs,
   mfcc->dct = new_aubio_dct (n_filters);
   mfcc->output = new_fvec (n_filters);
 
+  if (!mfcc->in_dct || !mfcc->dct || !mfcc->output)
+    goto failure;
+
   mfcc->scale = 1.;
 
   return mfcc;
+
+failure:
+  del_aubio_mfcc(mfcc);
+  return NULL;
 }
 
 void
 del_aubio_mfcc (aubio_mfcc_t * mf)
 {
-
-  /* delete filterbank */
-  del_aubio_filterbank (mf->fb);
-
-  /* delete buffers */
-  del_fvec (mf->in_dct);
-  del_aubio_dct (mf->dct);
-  del_fvec (mf->output);
-
-  /* delete mfcc object */
+  if (mf->fb)
+    del_aubio_filterbank (mf->fb);
+  if (mf->in_dct)
+    del_fvec (mf->in_dct);
+  if (mf->dct)
+    del_aubio_dct (mf->dct);
+  if (mf->output)
+    del_fvec (mf->output);
   AUBIO_FREE (mf);
 }
 
