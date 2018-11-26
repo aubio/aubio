@@ -155,8 +155,8 @@ plain:
     goto beach;
   }
 beach:
-  AUBIO_ERROR("dct: failed creating with size %d, should be > 0", size);
-  AUBIO_FREE (s);
+  AUBIO_ERROR("dct: failed creating with size %d, should be > 0\n", size);
+  del_aubio_dct(s);
   return NULL;
 }
 
