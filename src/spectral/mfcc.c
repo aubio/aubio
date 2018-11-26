@@ -31,10 +31,6 @@
 #include "spectral/dct.h"
 #include "spectral/mfcc.h"
 
-#ifdef HAVE_NOOPT
-#define HAVE_SLOW_DCT 1
-#endif
-
 /** Internal structure for mfcc object */
 
 struct _aubio_mfcc_t
@@ -45,12 +41,8 @@ struct _aubio_mfcc_t
   uint_t n_coefs;           /** number of coefficients (<= n_filters/2 +1) */
   aubio_filterbank_t *fb;   /** filter bank */
   fvec_t *in_dct;           /** input buffer for dct * [fb->n_filters] */
-#if defined(HAVE_SLOW_DCT)
-  fmat_t *dct_coeffs;       /** DCT transform n_filters * n_coeffs */
-#else
-  aubio_dct_t *dct;
-  fvec_t *output;
-#endif
+  aubio_dct_t *dct;         /** dct object */
+  fvec_t *output;           /** dct output */
   smpl_t scale;
 };
 
@@ -62,11 +54,6 @@ new_aubio_mfcc (uint_t win_s, uint_t n_filters, uint_t n_coefs,
 
   /* allocate space for mfcc object */
   aubio_mfcc_t *mfcc = AUBIO_NEW (aubio_mfcc_t);
-#if defined(HAVE_SLOW_DCT)
-  smpl_t scaling;
-
-  uint_t i, j;
-#endif
 
   mfcc->win_s = win_s;
   mfcc->samplerate = samplerate;
@@ -84,23 +71,8 @@ new_aubio_mfcc (uint_t win_s, uint_t n_filters, uint_t n_coefs,
   /* allocating buffers */
   mfcc->in_dct = new_fvec (n_filters);
 
-#if defined(HAVE_SLOW_DCT)
-  mfcc->dct_coeffs = new_fmat (n_coefs, n_filters);
-
-  /* compute DCT transform dct_coeffs[j][i] as
-     cos ( j * (i+.5) * PI / n_filters ) */
-  scaling = 1. / SQRT (n_filters / 2.);
-  for (i = 0; i < n_filters; i++) {
-    for (j = 0; j < n_coefs; j++) {
-      mfcc->dct_coeffs->data[j][i] =
-          scaling * COS (j * (i + 0.5) * PI / n_filters);
-    }
-    mfcc->dct_coeffs->data[0][i] *= SQRT (2.) / 2.;
-  }
-#else
   mfcc->dct = new_aubio_dct (n_filters);
   mfcc->output = new_fvec (n_filters);
-#endif
 
   mfcc->scale = 1.;
 
@@ -116,12 +88,8 @@ del_aubio_mfcc (aubio_mfcc_t * mf)
 
   /* delete buffers */
   del_fvec (mf->in_dct);
-#if defined(HAVE_SLOW_DCT)
-  del_fmat (mf->dct_coeffs);
-#else
   del_aubio_dct (mf->dct);
   del_fvec (mf->output);
-#endif
 
   /* delete mfcc object */
   AUBIO_FREE (mf);
@@ -131,9 +99,7 @@ del_aubio_mfcc (aubio_mfcc_t * mf)
 void
 aubio_mfcc_do (aubio_mfcc_t * mf, const cvec_t * in, fvec_t * out)
 {
-#ifndef HAVE_SLOW_DCT
   fvec_t tmp;
-#endif
 
   /* compute filterbank */
   aubio_filterbank_do (mf->fb, in, mf->in_dct);
@@ -144,16 +110,12 @@ aubio_mfcc_do (aubio_mfcc_t * mf, const cvec_t * in, fvec_t * out)
   if (mf->scale != 1) fvec_mul (mf->in_dct, mf->scale);
 
   /* compute mfccs */
-#if defined(HAVE_SLOW_DCT)
-  fmat_vecmul(mf->dct_coeffs, mf->in_dct, out);
-#else
   aubio_dct_do(mf->dct, mf->in_dct, mf->output);
   // copy only first n_coeffs elements
   // TODO assert mf->output->length == n_coeffs
   tmp.data = mf->output->data;
   tmp.length = out->length;
   fvec_copy(&tmp, out);
-#endif
 
   return;
 }
