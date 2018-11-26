@@ -13,6 +13,13 @@ int main (void)
   // allocate fft and other memory space
   aubio_pvoc_t * pv = new_aubio_pvoc(win_s,hop_s);
 
+  if (new_aubio_pvoc(win_s, 0)) return 1;
+
+  if (aubio_pvoc_get_win(pv) != win_s) return 1;
+  if (aubio_pvoc_get_hop(pv) != hop_s) return 1;
+
+  if (aubio_pvoc_set_window(pv, "hanningz") != 0) return 1;
+
   // fill input with some data
   fvec_set_all (in, 1.);
   fvec_print (in);

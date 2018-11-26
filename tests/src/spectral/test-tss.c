@@ -34,6 +34,10 @@ int main (void)
     aubio_pvoc_rdo (pvs, ctrans, trans);
   }
 
+  aubio_tss_set_alpha(tss, 4.);
+  aubio_tss_set_beta(tss, 3.);
+  aubio_tss_set_threshold(tss, 3.);
+
   del_aubio_pvoc(pv);
   del_aubio_pvoc(pvt);
   del_aubio_pvoc(pvs);

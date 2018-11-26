@@ -31,12 +31,19 @@ struct _aubio_dct_plain_t {
   fmat_t *idct_coeffs;      /** DCT type III orthonormal transform, size * size */
 };
 
+void del_aubio_dct_plain (aubio_dct_plain_t *s);
+
 aubio_dct_plain_t * new_aubio_dct_plain (uint_t size) {
   aubio_dct_plain_t * s = AUBIO_NEW(aubio_dct_plain_t);
   uint_t i, j;
   smpl_t scaling;
   if (aubio_is_power_of_two (size) == 1 && size > 16) {
     AUBIO_WRN("dct_plain: using plain dct but size %d is a power of two\n", size);
+  }
+  if ((sint_t)size <= 0) {
+    AUBIO_ERR("dct_plain: can only create with size > 0, requested %d\n",
+        size);
+    goto failure;
   }
 
   s->size = size;
@@ -68,17 +75,22 @@ aubio_dct_plain_t * new_aubio_dct_plain (uint_t size) {
     s->idct_coeffs->data[j][0] = 1. / SQRT (size);
   }
   return s;
+failure:
+  del_aubio_dct_plain(s);
+  return NULL;
 }
 
 void del_aubio_dct_plain (aubio_dct_plain_t *s) {
-  del_fmat(s->dct_coeffs);
-  del_fmat(s->idct_coeffs);
+  if (s->dct_coeffs)
+    del_fmat(s->dct_coeffs);
+  if (s->idct_coeffs)
+    del_fmat(s->idct_coeffs);
   AUBIO_FREE(s);
 }
 
 void aubio_dct_plain_do(aubio_dct_plain_t *s, const fvec_t *input, fvec_t *output) {
   if (input->length != output->length || input->length != s->size) {
-    AUBIO_WRN("dct_plain: using input length %d, but output length = %d and size = %d",
+    AUBIO_WRN("dct_plain: using input length %d, but output length = %d and size = %d\n",
         input->length, output->length, s->size);
   }
   fmat_vecmul(s->dct_coeffs, input, output);
@@ -86,7 +98,7 @@ void aubio_dct_plain_do(aubio_dct_plain_t *s, const fvec_t *input, fvec_t *outpu
 
 void aubio_dct_plain_rdo(aubio_dct_plain_t *s, const fvec_t *input, fvec_t *output) {
   if (input->length != output->length || input->length != s->size) {
-    AUBIO_WRN("dct_plain: using input length %d, but output length = %d and size = %d",
+    AUBIO_WRN("dct_plain: using input length %d, but output length = %d and size = %d\n",
         input->length, output->length, s->size);
   }
   fmat_vecmul(s->idct_coeffs, input, output);

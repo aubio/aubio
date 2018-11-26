@@ -81,14 +81,13 @@ struct _aubio_dct_t {
 
 aubio_dct_t* new_aubio_dct (uint_t size) {
   aubio_dct_t * s = AUBIO_NEW(aubio_dct_t);
-  if ((sint_t)size <= 0) goto beach;
 #if defined(HAVE_ACCELERATE)
   // vDSP supports sizes = f * 2 ** n, where n >= 4 and f in [1, 3, 5, 15]
   // see https://developer.apple.com/documentation/accelerate/1449930-vdsp_dct_createsetup
   {
     uint_t radix = size;
     uint_t order = 0;
-    while ((radix / 2) * 2 == radix) {
+    while ((radix >= 1) && ((radix / 2) * 2 == radix)) {
       radix /= 2;
       order++;
     }
@@ -112,7 +111,7 @@ aubio_dct_t* new_aubio_dct (uint_t size) {
     s->del_dct = (del_aubio_dct_t)del_aubio_dct_fftw;
     return s;
   } else {
-    AUBIO_WRN("dct: unexcepected error while creating dct_fftw with size %d",
+    AUBIO_WRN("dct: unexpected error while creating dct_fftw with size %d\n",
         size);
     goto plain;
   }
@@ -125,7 +124,7 @@ aubio_dct_t* new_aubio_dct (uint_t size) {
     s->del_dct = (del_aubio_dct_t)del_aubio_dct_ipp;
     return s;
   } else {
-    AUBIO_WRN("dct: unexcepected error while creating dct_ipp with size %d",
+    AUBIO_WRN("dct: unexpected error while creating dct_ipp with size %d\n",
         size);
     goto plain;
   }
@@ -143,7 +142,7 @@ aubio_dct_t* new_aubio_dct (uint_t size) {
   }
 #endif
   // falling back to plain mode
-  AUBIO_WRN("dct: d no optimised implementation could be created for size %d",
+  AUBIO_WRN("dct: no optimised implementation could be created for size %d\n",
       size);
 plain:
   s->dct = (void *)new_aubio_dct_plain (size);
@@ -156,8 +155,8 @@ plain:
     goto beach;
   }
 beach:
-  AUBIO_ERROR("dct: failed creating with size %d, should be > 0", size);
-  AUBIO_FREE (s);
+  AUBIO_ERROR("dct: failed creating with size %d, should be > 0\n", size);
+  del_aubio_dct(s);
   return NULL;
 }
 
