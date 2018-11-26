@@ -9,10 +9,18 @@ int main (void)
   uint_t i, j, n_iters = 10; // number of iterations
   // create dct object
   aubio_dct_t * dct = new_aubio_dct(win_s);
+  aubio_dct_t * tmp;
+
+  if (new_aubio_dct(0)) return 1;
 
   fvec_t * in = new_fvec (win_s); // input buffer
   fvec_t * dctout = new_fvec (win_s); // output buffer
   fvec_t * out = new_fvec (win_s); // input buffer
+
+  if ((tmp = new_aubio_dct(1)) == 0) return 1;
+  aubio_dct_do(tmp, dctout, out);
+  aubio_dct_rdo(tmp, dctout, out);
+  del_aubio_dct(tmp);
 
   if (!dct || !in || !dctout) {
     return_code = 1;
