@@ -1,13 +1,21 @@
 #include <aubio.h>
 #include "utils_tests.h"
 
+int test_wrong_params(void);
+
 int main (int argc, char **argv)
 {
   sint_t err = 0;
 
   if (argc < 3) {
     err = 2;
-    PRINT_ERR("not enough arguments\n");
+    PRINT_WRN("no arguments, running tests\n");
+    if (test_wrong_params() != 0) {
+      PRINT_ERR("tests failed!\n");
+      err = 1;
+    } else {
+      err = 0;
+    }
     PRINT_MSG("usage: %s <input_path> <output_path> [samplerate] [hop_size]\n", argv[0]);
     return err;
   }
@@ -82,3 +90,23 @@ beach_fvec:
   return err;
 }
 
+int test_wrong_params(void)
+{
+  uint_t buf_size = 512;
+  uint_t hop_size = 256;
+  uint_t samplerate = 44100;
+  aubio_spectral_whitening_t *o;
+
+  if (new_aubio_spectral_whitening(       0, hop_size, samplerate)) return 1;
+  if (new_aubio_spectral_whitening(buf_size,        0, samplerate)) return 1;
+  if (new_aubio_spectral_whitening(buf_size, hop_size,          0)) return 1;
+
+  o = new_aubio_spectral_whitening(buf_size, hop_size, samplerate);
+
+  aubio_spectral_whitening_get_relax_time(o);
+  aubio_spectral_whitening_get_floor(o);
+
+  del_aubio_spectral_whitening(o);
+
+  return 0;
+}
