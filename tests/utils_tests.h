@@ -84,7 +84,7 @@ int close_temp_sink(char *sink_path, int sink_fildes)
   return err;
 }
 
-#elif (defined(HAVE_WIN_HACKS) //&& !defined(__GNUC__))
+#elif defined(HAVE_WIN_HACKS) //&& !defined(__GNUC__)
 // windows workaround, where mkstemp does not exist...
 int create_temp_sink(char *templ)
 {
