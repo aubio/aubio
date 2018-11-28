@@ -39,6 +39,7 @@ struct _aubio_pitchyin_t
   uint_t peak_pos;
 };
 
+#if 0
 /** compute difference function
 
   \param input input signal
@@ -60,6 +61,7 @@ void aubio_pitchyin_getcum (fvec_t * yinbuf);
 
 */
 uint_t aubio_pitchyin_getpitch (const fvec_t * yinbuf);
+#endif
 
 aubio_pitchyin_t *
 new_aubio_pitchyin (uint_t bufsize)
@@ -78,6 +80,7 @@ del_aubio_pitchyin (aubio_pitchyin_t * o)
   AUBIO_FREE (o);
 }
 
+#if 0
 /* outputs the difference function */
 void
 aubio_pitchyin_diff (fvec_t * input, fvec_t * yin)
@@ -127,6 +130,7 @@ aubio_pitchyin_getpitch (const fvec_t * yin)
   //AUBIO_DBG("No pitch found");
   return 0;
 }
+#endif
 
 /* all the above in one */
 void
