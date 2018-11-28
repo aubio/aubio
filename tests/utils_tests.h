@@ -65,7 +65,7 @@ void utils_init_random (void) {
   size_t **tm_address = (void*)&tm_struct;
   int seed = tm_struct->tm_sec + (size_t)tm_address;
   //PRINT_WRN("current seed: %d\n", seed);
-  srandom (seed);
+  srandom ((unsigned int)seed);
 }
 
 // create_temp_sink / close_temp_sink
