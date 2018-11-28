@@ -62,7 +62,8 @@ void utils_init_random (void);
 void utils_init_random (void) {
   time_t now = time(0);
   struct tm *tm_struct = localtime(&now);
-  int seed = tm_struct->tm_sec;
+  size_t **tm_address = (void*)&tm_struct;
+  int seed = tm_struct->tm_sec + (size_t)tm_address;
   //PRINT_WRN("current seed: %d\n", seed);
   srandom (seed);
 }
