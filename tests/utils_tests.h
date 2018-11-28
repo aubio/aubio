@@ -63,17 +63,61 @@ void utils_init_random (void) {
   srandom (seed);
 }
 
+// create_temp_sink / close_temp_sink
+#if defined(__GNUC__) // mkstemp
+
+int create_temp_sink(char *sink_path)
+{
+  return mkstemp(sink_path);
+}
+
+int close_temp_sink(char *sink_path, int sink_fildes)
+{
+  int err;
+  if ((err = close(sink_fildes)) != 0) return err;
+  if ((err = unlink(sink_path)) != 0) return err;
+  return err;
+}
+
+#elif (defined(HAVE_WIN_HACKS) //&& !defined(__GNUC__))
+// windows workaround, where mkstemp does not exist...
+int create_temp_sink(char *templ)
+{
+  int i = 0;
+  static const char letters[] = "abcdefg0123456789";
+  int letters_len = strlen(letters);
+  int templ_len = strlen(templ);
+  if (templ_len == 0) return 0;
+  utils_init_random();
+  for (i = 0; i < 6; i++)
+  {
+    templ[templ_len - i] = letters[rand() % letters_len];
+  }
+  return 1;
+}
+
+int close_temp_sink(char* sink_path, int sink_fildes) {
+  // the file should be closed when not using mkstemp, no need to open it
+  if (sink_fildes == 0) return 1;
+  return _unlink(sink_path);
+}
+
+#else // windows workaround
+// otherwise, we don't really know what to do yet
+#error "mkstemp undefined, but not on windows. additional workaround required."
+#endif
+
+
 int run_on_default_sink( int main(int, char**) )
 {
   int argc = 2, err;
   char* argv[argc];
   char sink_path[PATH_MAX] = "tmp_aubio_XXXXXX";
-  int fd = mkstemp(sink_path);
-  argv[0] = __FILE__;
+  int fd = create_temp_sink(sink_path);
   if (!fd) return 1;
+  argv[0] = __FILE__;
   argv[1] = sink_path;
   err = main(argc, argv);
-  unlink(sink_path);
-  close(fd);
+  close_temp_sink(sink_path, fd);
   return err;
 }
