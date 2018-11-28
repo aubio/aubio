@@ -5,6 +5,10 @@
 #include <assert.h>
 #include "config.h"
 
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif
+
 #ifdef HAVE_UNISTD_H
 #include <unistd.h> // unlink, close
 #endif
@@ -110,7 +114,8 @@ int close_temp_sink(char* sink_path, int sink_fildes) {
 
 int run_on_default_sink( int main(int, char**) )
 {
-  int argc = 2, err;
+  const int argc = 2;
+  int err = 0;
   char* argv[argc];
   char sink_path[PATH_MAX] = "tmp_aubio_XXXXXX";
   int fd = create_temp_sink(sink_path);
