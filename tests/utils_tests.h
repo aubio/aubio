@@ -5,6 +5,13 @@
 #include <assert.h>
 #include "config.h"
 
+#ifdef HAVE_LIMITS_H
+#include <limits.h> // PATH_MAX
+#endif /* HAVE_LIMITS_H */
+#ifndef PATH_MAX
+#define PATH_MAX 1024
+#endif
+
 #ifdef HAVE_C99_VARARGS_MACROS
 #define PRINT_ERR(...)   fprintf(stderr, "AUBIO-TESTS ERROR: " __VA_ARGS__)
 #define PRINT_MSG(...)   fprintf(stdout, __VA_ARGS__)
@@ -50,4 +57,19 @@ void utils_init_random (void) {
   int seed = tm_struct->tm_sec;
   //PRINT_WRN("current seed: %d\n", seed);
   srandom (seed);
+}
+
+int run_on_default_sink( int main(int, char**) )
+{
+  int argc = 2, err;
+  char* argv[argc];
+  char sink_path[PATH_MAX] = "tmp_aubio_XXXXXX";
+  int fd = mkstemp(sink_path);
+  argv[0] = __FILE__;
+  if (!fd) return 1;
+  argv[1] = sink_path;
+  err = main(argc, argv);
+  unlink(sink_path);
+  close(fd);
+  return err;
 }
