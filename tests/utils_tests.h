@@ -5,6 +5,10 @@
 #include <assert.h>
 #include "config.h"
 
+#ifdef HAVE_UNISTD_H
+#include <unistd.h> // unlink, close
+#endif
+
 #ifdef HAVE_LIMITS_H
 #include <limits.h> // PATH_MAX
 #endif /* HAVE_LIMITS_H */
