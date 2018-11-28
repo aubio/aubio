@@ -30,5 +30,42 @@ int main (void)
   del_fvec (input);
   aubio_cleanup ();
 
+  if (new_aubio_pitch(0, win_s, hop_s, samplerate)) return 1;
+  if (new_aubio_pitch("unknown", win_s, hop_s, samplerate)) return 1;
+  if (new_aubio_pitch("default", win_s,     0, samplerate)) return 1;
+  if (new_aubio_pitch("default",     0, hop_s, samplerate)) return 1;
+  if (new_aubio_pitch("default", hop_s, win_s, samplerate)) return 1;
+  if (new_aubio_pitch("default", win_s, hop_s,          0)) return 1;
+
+  o = new_aubio_pitch("default", win_s, hop_s, samplerate);
+
+  if (aubio_pitch_set_unit(o, "freq")) return 1;
+  if (aubio_pitch_set_unit(o, "hertz")) return 1;
+  if (aubio_pitch_set_unit(o, "Hertz")) return 1;
+  if (aubio_pitch_set_unit(o, "Hz")) return 1;
+  if (aubio_pitch_set_unit(o, "f0")) return 1;
+  if (aubio_pitch_set_unit(o, "midi")) return 1;
+  if (aubio_pitch_set_unit(o, "cent")) return 1;
+  if (aubio_pitch_set_unit(o, "bin")) return 1;
+  if (!aubio_pitch_set_unit(o, "unknown")) return 1;
+
+  if (aubio_pitch_set_tolerance(o, 0.3)) return 1;
+  if (aubio_pitch_set_silence(o, 0)) return 1;
+  if (aubio_pitch_set_silence(o, -200)) return 1;
+  if (!aubio_pitch_set_silence(o, -300)) return 1;
+  del_aubio_pitch(o);
+
+  // fft based might fail with non power of 2
+  o = new_aubio_pitch("yinfft", win_s + 1, hop_s, samplerate);
+  if (o) del_aubio_pitch(o);
+  o = new_aubio_pitch("yinfast", win_s + 1, hop_s, samplerate);
+  if (o) del_aubio_pitch(o);
+  o = new_aubio_pitch("fcomb", win_s + 1, hop_s, samplerate);
+  if (o) del_aubio_pitch(o);
+  o = new_aubio_pitch("mcomb", win_s + 1, hop_s, samplerate);
+  if (o) del_aubio_pitch(o);
+  o = new_aubio_pitch("specacf", win_s + 1, hop_s, samplerate);
+  if (o) del_aubio_pitch(o);
+
   return 0;
 }
