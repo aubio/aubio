@@ -20,6 +20,8 @@
 #define PATH_MAX 1024
 #endif
 
+#define DEFAULT_TEST_FILE "python/tests/sounds/44100Hz_44100f_sine441.wav"
+
 #ifdef HAVE_C99_VARARGS_MACROS
 #define PRINT_ERR(...)   fprintf(stderr, "AUBIO-TESTS ERROR: " __VA_ARGS__)
 #define PRINT_MSG(...)   fprintf(stdout, __VA_ARGS__)
@@ -65,7 +67,7 @@ void utils_init_random (void) {
   size_t **tm_address = (void*)&tm_struct;
   int seed = tm_struct->tm_sec + (size_t)tm_address;
   //PRINT_WRN("current seed: %d\n", seed);
-  srandom (seed);
+  srandom ((unsigned int)seed);
 }
 
 // create_temp_sink / close_temp_sink
@@ -84,7 +86,7 @@ int close_temp_sink(char *sink_path, int sink_fildes)
   return err;
 }
 
-#elif (defined(HAVE_WIN_HACKS) //&& !defined(__GNUC__))
+#elif defined(HAVE_WIN_HACKS) //&& !defined(__GNUC__)
 // windows workaround, where mkstemp does not exist...
 int create_temp_sink(char *templ)
 {
@@ -112,6 +114,45 @@ int close_temp_sink(char* sink_path, int sink_fildes) {
 #error "mkstemp undefined, but not on windows. additional workaround required."
 #endif
 
+// pass progname / default
+int run_on_default_source( int main(int, char**) )
+{
+  int argc = 2;
+  char* argv[argc];
+  argv[0] = __FILE__;
+  // when running from waf build
+  argv[1] = "../../" DEFAULT_TEST_FILE;
+  // when running from source root directory
+  if ( access(argv[1], R_OK) )
+      argv[1] = DEFAULT_TEST_FILE;
+  // no file found
+  if ( access(argv[1], R_OK) != 0 )
+      return 1;
+  return main(argc, argv);
+}
+
+int run_on_default_source_and_sink( int main(int, char**) )
+{
+  int argc = 3, err;
+  char* argv[argc];
+  argv[0] = __FILE__;
+  // when running from waf build
+  argv[1] = "../../" DEFAULT_TEST_FILE;
+  // when running from source root directory
+  if ( access(argv[1], R_OK) )
+      argv[1] = DEFAULT_TEST_FILE;
+  // no file found
+  if ( access(argv[1], R_OK) != 0 )
+      return 1;
+  char sink_path[PATH_MAX] = "tmp_aubio_XXXXXX";
+  int fd = mkstemp(sink_path);
+  if (!fd) return 1;
+  argv[2] = sink_path;
+  err = main(argc, argv);
+  unlink(sink_path);
+  close(fd);
+  return err;
+}
 
 int run_on_default_sink( int main(int, char**) )
 {
