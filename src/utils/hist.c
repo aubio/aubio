@@ -43,6 +43,9 @@ aubio_hist_t * new_aubio_hist (smpl_t flow, smpl_t fhig, uint_t nelems){
   smpl_t step = (fhig-flow)/(smpl_t)(nelems);
   smpl_t accum = step;
   uint_t i;
+  if ((sint_t)nelems <= 0) {
+    return NULL;
+  }
   s->nelems = nelems;
   s->hist = new_fvec(nelems);
   s->cent = new_fvec(nelems);
