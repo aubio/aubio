@@ -84,11 +84,13 @@ int test_wrong_params(void)
   // specdesc creation failed
   if (new_aubio_onset("abcd", win_size, win_size/2, samplerate))
     return 1;
-  // pv creation failed
-  if (new_aubio_onset("default", 5, 2, samplerate))
-    return 1;
 
   aubio_onset_t *o;
+
+  // pv creation might fail
+  o = new_aubio_onset("default", 5, 2, samplerate);
+  if (o) del_aubio_onset(o);
+
   o = new_aubio_onset("default", win_size, hop_size, samplerate);
   if (!aubio_onset_set_default_parameters(o, "wrong_type"))
     return 1;
