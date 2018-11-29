@@ -20,6 +20,13 @@
 #define PATH_MAX 1024
 #endif
 
+// This macro is used to pass a string to msvc compiler: since msvc's -D flag
+// strips the quotes, we define the string without quotes and re-add them with
+// this macro.
+
+#define REDEFINESTRING(x) #x
+#define DEFINEDSTRING(x) REDEFINESTRING(x)
+
 #ifndef AUBIO_TESTS_SOURCE
 #error "AUBIO_TESTS_SOURCE is not defined"
 #endif
@@ -134,7 +141,7 @@ int run_on_default_source( int main(int, char**) )
   int err = 0;
   char** argv = (char**)calloc(argc, sizeof(char*));
   argv[0] = __FILE__;
-  argv[1] = AUBIO_TESTS_SOURCE;
+  argv[1] = DEFINEDSTRING(AUBIO_TESTS_SOURCE);
   // check if the file can be read
   if ( check_source(argv[1]) ) return 1;
   err = main(argc, argv);
