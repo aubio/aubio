@@ -17,8 +17,8 @@ int main (int argc, char **argv)
   uint_t win_s = 1024; // window size
   uint_t hop_size = win_s / 4;
   uint_t n_frames = 0, read = 0;
-  if ( argc == 3 ) samplerate = atoi(argv[2]);
-  if ( argc == 4 ) hop_size = atoi(argv[3]);
+  if ( argc >= 3 ) samplerate = atoi(argv[2]);
+  if ( argc >= 4 ) hop_size = atoi(argv[3]);
 
   char_t *source_path = argv[1];
   aubio_source_t * source = new_aubio_source(source_path, samplerate, hop_size);
