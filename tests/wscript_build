@@ -10,9 +10,9 @@ programs_sources = ctx.path.ant_glob('src/**/*.c')
 test_sound_target = '44100Hz_44100f_sine441_stereo.wav'
 test_sound_abspath = bld.path.get_bld().make_node(test_sound_target)
 
-bld(name='create_test_source',
+bld(name='create_tests_source',
     rule='python ${SRC} ${TGT}',
-    source='create_test_source.py',
+    source='create_tests_source.py',
     target=test_sound_target)
 
 for source_file in programs_sources:
