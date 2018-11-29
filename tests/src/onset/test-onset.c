@@ -9,12 +9,7 @@ int main (int argc, char **argv)
   if (argc < 2) {
     err = 2;
     PRINT_WRN("no arguments, running tests\n");
-    if (test_wrong_params() != 0) {
-      PRINT_ERR("tests failed!\n");
-      err = 1;
-    } else {
-      err = 0;
-    }
+    err = test_wrong_params();
     PRINT_MSG("usage: %s <source_path> [samplerate] [hop_size]\n", argv[0]);
     return err;
   }
@@ -99,5 +94,5 @@ int test_wrong_params(void)
     return 1;
   del_aubio_onset(o);
 
-  return 0;
+  return run_on_default_source(main);
 }
