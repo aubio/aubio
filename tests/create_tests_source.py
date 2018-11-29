@@ -1,25 +1,28 @@
 #! /usr/bin/env python
 
 """ Create a simple stereo file containing a sine tone at 441 Hz, using only
-numpy and python's native wave module. """
+python's built-in modules. """
 
 import wave
-import numpy as np
+import math
+import struct
 
 
 def create_sine_wave(freq, samplerate, nframes, nchannels):
-    """ create a pure tone """
-    # samples indices
-    _t = np.tile(np.arange(nframes), (nchannels, 1))
-    # sine wave generation
-    _x = 0.7 * np.sin(2. * np.pi * freq * _t / float(samplerate))
-    # conversion to int and channel interleaving
-    return (_x * 32767.).astype(np.int16).T.flatten()
+    """ create a pure tone (without numpy) """
+    _x = [0.7 * math.sin(2. * math.pi * freq * t / float(samplerate))
+          for t in range(nframes)]
+    _x = [int(a * 32767) for a in _x]
+    _x = b''.join([b''.join([struct.pack('h', v)
+                             for _ in range(nchannels)])
+                   for v in _x])
+    return _x
 
 
 def create_test_sound(pathname, freq=441, duration=None,
-                      sampwidth=2, framerate=44100, nchannels=2):
+                      framerate=44100, nchannels=2):
     """ create a sound file at pathname, overwriting exiting file """
+    sampwidth = 2
     nframes = duration or framerate  # defaults to 1 second duration
     fid = wave.open(pathname, 'w')
     fid.setnchannels(nchannels)
@@ -27,7 +30,7 @@ def create_test_sound(pathname, freq=441, duration=None,
     fid.setframerate(framerate)
     fid.setnframes(nframes)
     frames = create_sine_wave(freq, framerate, nframes, nchannels)
-    fid.writeframes(frames.tobytes())
+    fid.writeframes(frames)
     fid.close()
     return 0
 
