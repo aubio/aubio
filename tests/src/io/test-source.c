@@ -5,8 +5,8 @@ int main (int argc, char **argv)
 {
   uint_t err = 0;
   if (argc < 2) {
-    err = 2;
-    PRINT_ERR("not enough arguments\n");
+    PRINT_ERR("not enough arguments, running tests\n");
+    err = run_on_default_source(main);
     PRINT_MSG("read a wave file as a mono vector\n");
     PRINT_MSG("usage: %s <source_path> [samplerate] [hop_size]\n", argv[0]);
     PRINT_MSG("examples:\n");
@@ -22,8 +22,8 @@ int main (int argc, char **argv)
   uint_t samplerate = 0;
   uint_t hop_size = 256;
   uint_t n_frames = 0, read = 0;
-  if ( argc == 3 ) samplerate = atoi(argv[2]);
-  if ( argc == 4 ) hop_size = atoi(argv[3]);
+  if ( argc >= 3 ) samplerate = atoi(argv[2]);
+  if ( argc >= 4 ) hop_size = atoi(argv[3]);
 
   char_t *source_path = argv[1];
 

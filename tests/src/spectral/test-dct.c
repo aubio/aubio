@@ -32,9 +32,7 @@ int main (void)
     aubio_dct_do (dct, in, dctout);
     aubio_dct_rdo (dct, dctout, out);
     for (j = 0; j < in->length; j++) {
-      if (fabsf(in->data[j] - out->data[j]) > 10.e-4) {
-        fprintf(stderr, "dct reconstruction failed\n");
-      }
+      return_code += (fabsf(in->data[j] - out->data[j]) > 10.e-4);
     }
   }
 

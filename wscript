@@ -517,6 +517,10 @@ def build(bld):
     doxygen(bld)
     sphinx(bld)
 
+    from waflib.Tools import waf_unit_test
+    bld.add_post_fun(waf_unit_test.summary)
+    bld.add_post_fun(waf_unit_test.set_exit_code)
+
 def txt2man(bld):
     # build manpages from txt files using txt2man
     if bld.env['TXT2MAN']:

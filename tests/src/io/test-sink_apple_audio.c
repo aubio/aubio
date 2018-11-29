@@ -10,8 +10,8 @@ int main (int argc, char **argv)
   sint_t err = 0;
 
   if (argc < 3) {
-    err = 2;
-    PRINT_ERR("not enough arguments\n");
+    PRINT_ERR("not enough arguments, running tests\n");
+    err = run_on_default_source_and_sink(main);
     PRINT_MSG("usage: %s <input_path> <output_path> [samplerate] [hop_size]\n", argv[0]);
     return err;
   }
@@ -60,7 +60,7 @@ beach_source:
   del_fvec(vec);
 beach_fvec:
 #else /* HAVE_SINK_APPLE_AUDIO */
-  err = 3;
+  err = 0;
   PRINT_ERR("aubio was not compiled with aubio_source_apple_audio\n");
 #endif /* HAVE_SINK_APPLE_AUDIO */
   return err;

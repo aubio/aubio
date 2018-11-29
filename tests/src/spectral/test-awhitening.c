@@ -10,12 +10,7 @@ int main (int argc, char **argv)
   if (argc < 3) {
     err = 2;
     PRINT_WRN("no arguments, running tests\n");
-    if (test_wrong_params() != 0) {
-      PRINT_ERR("tests failed!\n");
-      err = 1;
-    } else {
-      err = 0;
-    }
+    err = test_wrong_params();
     PRINT_MSG("usage: %s <input_path> <output_path> [samplerate] [hop_size]\n", argv[0]);
     return err;
   }
@@ -30,11 +25,6 @@ int main (int argc, char **argv)
 
   if ( argc >= 4 ) samplerate = atoi(argv[3]);
   if ( argc >= 5 ) hop_size = atoi(argv[4]);
-  if ( argc >= 6 ) {
-    err = 2;
-    PRINT_ERR("too many arguments\n");
-    return err;
-  }
 
   fvec_t *vec = new_fvec(hop_size);
   fvec_t *out = new_fvec(hop_size); // output buffer
@@ -108,5 +98,5 @@ int test_wrong_params(void)
 
   del_aubio_spectral_whitening(o);
 
-  return 0;
+  return run_on_default_source_and_sink(main);
 }
