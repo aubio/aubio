@@ -7,6 +7,14 @@ uselib = ['aubio']
 includes = ['../src', '.']
 programs_sources = ctx.path.ant_glob('src/**/*.c')
 
+test_sound_target = '44100Hz_44100f_sine441_stereo.wav'
+test_sound_abspath = bld.path.get_bld().make_node(test_sound_target)
+
+bld(name='create_test_source',
+    rule='python ${SRC} ${TGT}',
+    source='create_test_source.py',
+    target=test_sound_target)
+
 for source_file in programs_sources:
     target = os.path.basename(os.path.splitext(str(source_file))[0])
     bld(features = 'c cprogram test',
@@ -15,5 +23,6 @@ for source_file in programs_sources:
             includes = includes,
             use = uselib,
             install_path = None,
-            defines = 'AUBIO_UNSTABLE_API=1',
+            defines = ['AUBIO_UNSTABLE_API=1',
+                        'AUBIO_TESTS_SOURCE=\"{}\"'.format(test_sound_abspath)]
        )
