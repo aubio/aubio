@@ -9,6 +9,8 @@ programs_sources = ctx.path.ant_glob('src/**/*.c')
 
 test_sound_target = '44100Hz_44100f_sine441_stereo.wav'
 test_sound_abspath = bld.path.get_bld().make_node(test_sound_target)
+# workaround to double escape backslash characters on windows
+test_sound_abspath = str(test_sound_abspath).replace('\\', '\\\\')
 
 bld(name='create_tests_source',
     rule='python ${SRC} ${TGT}',
