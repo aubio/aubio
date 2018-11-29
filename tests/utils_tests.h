@@ -20,6 +20,10 @@
 #define PATH_MAX 1024
 #endif
 
+#ifndef AUBIO_TESTS_SOURCE
+#error "AUBIO_TESTS_SOURCE is not defined"
+#endif
+
 #ifdef HAVE_C99_VARARGS_MACROS
 #define PRINT_ERR(...)   fprintf(stderr, "AUBIO-TESTS ERROR: " __VA_ARGS__)
 #define PRINT_MSG(...)   fprintf(stdout, __VA_ARGS__)
@@ -71,6 +75,11 @@ void utils_init_random (void) {
 // create_temp_sink / close_temp_sink
 #if defined(__GNUC__) // mkstemp
 
+int check_source(char *source_path)
+{
+  return access(source_path, R_OK);
+}
+
 int create_temp_sink(char *sink_path)
 {
   return mkstemp(sink_path);
@@ -86,6 +95,12 @@ int close_temp_sink(char *sink_path, int sink_fildes)
 
 #elif defined(HAVE_WIN_HACKS) //&& !defined(__GNUC__)
 // windows workaround, where mkstemp does not exist...
+
+int check_source(char *source_path)
+{
+  return _access(source_path, 04);
+}
+
 int create_temp_sink(char *templ)
 {
   int i = 0;
@@ -112,6 +127,20 @@ int close_temp_sink(char* sink_path, int sink_fildes) {
 #error "mkstemp undefined, but not on windows. additional workaround required."
 #endif
 
+// pass progname / default
+int run_on_default_source( int main(int, char**) )
+{
+  const int argc = 2;
+  int err = 0;
+  char** argv = (char**)calloc(argc, sizeof(char*));
+  argv[0] = __FILE__;
+  argv[1] = AUBIO_TESTS_SOURCE;
+  // check if the file can be read
+  if ( check_source(argv[1]) ) return 1;
+  err = main(argc, argv);
+  if (argv) free(argv);
+  return err;
+}
 
 int run_on_default_sink( int main(int, char**) )
 {
