@@ -20,6 +20,10 @@
 #define PATH_MAX 1024
 #endif
 
+#if defined(HAVE_WIN_HACKS) && !defined(__GNUC__)
+#include <io.h> // _access
+#endif
+
 // This macro is used to pass a string to msvc compiler: since msvc's -D flag
 // strips the quotes, we define the string without quotes and re-add them with
 // this macro.
