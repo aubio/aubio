@@ -27,8 +27,8 @@ int main (int argc, char **argv)
   uint_t samplerate = 0;
   uint_t hop_size = 256;
   uint_t n_frames = 0, read = 0;
-  if ( argc == 3 ) samplerate = atoi(argv[2]);
-  if ( argc == 4 ) hop_size = atoi(argv[3]);
+  if ( argc >= 3 ) samplerate = atoi(argv[2]);
+  if ( argc >= 4 ) hop_size = atoi(argv[3]);
 
   char_t *source_path = argv[1];
 
