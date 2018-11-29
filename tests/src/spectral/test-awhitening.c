@@ -98,5 +98,5 @@ int test_wrong_params(void)
 
   del_aubio_spectral_whitening(o);
 
-  return 0;
+  return run_on_default_source_and_sink(main);
 }
