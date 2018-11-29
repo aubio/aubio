@@ -117,7 +117,7 @@ int run_on_default_sink( int main(int, char**) )
 {
   const int argc = 2;
   int err = 0;
-  char* argv[argc];
+  char** argv = (char**)calloc(argc, sizeof(char*));
   char sink_path[PATH_MAX] = "tmp_aubio_XXXXXX";
   int fd = create_temp_sink(sink_path);
   if (!fd) return 1;
@@ -125,5 +125,6 @@ int run_on_default_sink( int main(int, char**) )
   argv[1] = sink_path;
   err = main(argc, argv);
   close_temp_sink(sink_path, fd);
+  if (argv) free(argv);
   return err;
 }
