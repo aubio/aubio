@@ -168,3 +168,22 @@ int run_on_default_sink( int main(int, char**) )
   if (argv) free(argv);
   return err;
 }
+
+int run_on_default_source_and_sink( int main(int, char**) )
+{
+  const int argc = 3;
+  int err = 0;
+  char** argv = (char**)calloc(argc, sizeof(char*));
+  char sink_path[PATH_MAX] = "tmp_aubio_XXXXXX";
+  int fd = create_temp_sink(sink_path);
+  if (!fd) return 1;
+  argv[0] = __FILE__;
+  argv[1] = DEFINEDSTRING(AUBIO_TESTS_SOURCE);
+  argv[2] = sink_path;
+  // check if the file can be read
+  if ( check_source(argv[1]) ) return 1;
+  err = main(argc, argv);
+  close_temp_sink(sink_path, fd);
+  if (argv) free(argv);
+  return err;
+}
