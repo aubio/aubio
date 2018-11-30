@@ -261,7 +261,7 @@ coverage: force_uninstall_python deps_python \
 	lcov $(LCOVOPTS) -a build/coverage_python.info -a build/coverage_lib.info \
 		--output-file build/coverage.info
 	# remove tests
-	lcov $(LCOVOPTS) --remove build/coverage.info '*/tests/*' '*/ooura_fft8g*' \
+	lcov $(LCOVOPTS) --remove build/coverage.info '*/ooura_fft8g*' \
 		--output-file build/coverage_lib.info
 
 # make sure we don't build the doc, which builds a temporary python module
