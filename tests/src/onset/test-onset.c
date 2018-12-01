@@ -9,12 +9,7 @@ int main (int argc, char **argv)
   if (argc < 2) {
     err = 2;
     PRINT_WRN("no arguments, running tests\n");
-    if (test_wrong_params() != 0) {
-      PRINT_ERR("tests failed!\n");
-      err = 1;
-    } else {
-      err = 0;
-    }
+    err = test_wrong_params();
     PRINT_MSG("usage: %s <source_path> [samplerate] [hop_size]\n", argv[0]);
     return err;
   }
@@ -22,8 +17,8 @@ int main (int argc, char **argv)
   uint_t win_s = 1024; // window size
   uint_t hop_size = win_s / 4;
   uint_t n_frames = 0, read = 0;
-  if ( argc == 3 ) samplerate = atoi(argv[2]);
-  if ( argc == 4 ) hop_size = atoi(argv[3]);
+  if ( argc >= 3 ) samplerate = atoi(argv[2]);
+  if ( argc >= 4 ) hop_size = atoi(argv[3]);
 
   char_t *source_path = argv[1];
   aubio_source_t * source = new_aubio_source(source_path, samplerate, hop_size);
@@ -89,15 +84,17 @@ int test_wrong_params(void)
   // specdesc creation failed
   if (new_aubio_onset("abcd", win_size, win_size/2, samplerate))
     return 1;
-  // pv creation failed
-  if (new_aubio_onset("default", 5, 2, samplerate))
-    return 1;
 
   aubio_onset_t *o;
+
+  // pv creation might fail
+  o = new_aubio_onset("default", 5, 2, samplerate);
+  if (o) del_aubio_onset(o);
+
   o = new_aubio_onset("default", win_size, hop_size, samplerate);
   if (!aubio_onset_set_default_parameters(o, "wrong_type"))
     return 1;
   del_aubio_onset(o);
 
-  return 0;
+  return run_on_default_source(main);
 }

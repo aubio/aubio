@@ -37,6 +37,7 @@ void aubio_pitchmcomb_combdet (aubio_pitchmcomb_t * p, const fvec_t * newmag);
 /* not used but useful : sort by amplitudes (or anything else)
  * sort_pitchpeak(peaks, length);
  */
+#if 0
 /** spectral_peak comparison function (must return signed int) */
 static sint_t aubio_pitchmcomb_sort_peak_comp (const void *x, const void *y);
 /** sort spectral_peak against their mag */
@@ -44,13 +45,16 @@ void aubio_pitchmcomb_sort_peak (aubio_spectralpeak_t * peaks, uint_t nbins);
 /** select the best candidates */
 uint_t aubio_pitch_cands (aubio_pitchmcomb_t * p, const cvec_t * fftgrain,
     smpl_t * cands);
+#endif
 
 /** sort spectral_candidate against their comb ene */
 void aubio_pitchmcomb_sort_cand_ene (aubio_spectralcandidate_t ** candidates,
     uint_t nbins);
+#if 0
 /** sort spectral_candidate against their frequency */
 void aubio_pitchmcomb_sort_cand_freq (aubio_spectralcandidate_t ** candidates,
     uint_t nbins);
+#endif
 
 struct _aubio_pitchmcomb_t
 {
@@ -133,6 +137,7 @@ aubio_pitchmcomb_do (aubio_pitchmcomb_t * p, const cvec_t * fftgrain, fvec_t * o
      } */
 }
 
+#if 0
 uint_t
 aubio_pitch_cands (aubio_pitchmcomb_t * p, const cvec_t * fftgrain, smpl_t * cands)
 {
@@ -163,6 +168,7 @@ aubio_pitch_cands (aubio_pitchmcomb_t * p, const cvec_t * fftgrain, smpl_t * can
     return 0;
   }
 }
+#endif
 
 void
 aubio_pitchmcomb_spectral_pp (aubio_pitchmcomb_t * p, const fvec_t * newmag)
@@ -313,6 +319,7 @@ aubio_pitchmcomb_get_root_peak (aubio_spectralpeak_t * peaks, uint_t length)
   return pos;
 }
 
+#if 0
 void
 aubio_pitchmcomb_sort_peak (aubio_spectralpeak_t * peaks, uint_t nbins)
 {
@@ -342,7 +349,6 @@ aubio_pitchmcomb_sort_cand_ene (aubio_spectralcandidate_t ** candidates,
   }
 }
 
-
 void
 aubio_pitchmcomb_sort_cand_freq (aubio_spectralcandidate_t ** candidates,
     uint_t nbins)
@@ -356,6 +362,7 @@ aubio_pitchmcomb_sort_cand_freq (aubio_spectralcandidate_t ** candidates,
     }
   }
 }
+#endif
 
 aubio_pitchmcomb_t *
 new_aubio_pitchmcomb (uint_t bufsize, uint_t hopsize)

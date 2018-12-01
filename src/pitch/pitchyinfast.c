@@ -58,6 +58,12 @@ new_aubio_pitchyinfast (uint_t bufsize)
   o->samples_fft = new_fvec (bufsize);
   o->kernel_fft = new_fvec (bufsize);
   o->fft = new_aubio_fft (bufsize);
+  if (!o->yin || !o->tmpdata || !o->tmpdata || !o->sqdiff
+      || !o->kernel || !o->samples_fft || !o->kernel || !o->fft)
+  {
+    del_aubio_pitchyinfast(o);
+    return NULL;
+  }
   o->tol = 0.15;
   o->peak_pos = 0;
   return o;
@@ -66,13 +72,20 @@ new_aubio_pitchyinfast (uint_t bufsize)
 void
 del_aubio_pitchyinfast (aubio_pitchyinfast_t * o)
 {
-  del_fvec (o->yin);
-  del_fvec (o->tmpdata);
-  del_fvec (o->sqdiff);
-  del_fvec (o->kernel);
-  del_fvec (o->samples_fft);
-  del_fvec (o->kernel_fft);
-  del_aubio_fft (o->fft);
+  if (o->yin)
+    del_fvec (o->yin);
+  if (o->tmpdata)
+    del_fvec (o->tmpdata);
+  if (o->sqdiff)
+    del_fvec (o->sqdiff);
+  if (o->kernel)
+    del_fvec (o->kernel);
+  if (o->samples_fft)
+    del_fvec (o->samples_fft);
+  if (o->kernel_fft)
+    del_fvec (o->kernel_fft);
+  if (o->fft)
+    del_aubio_fft (o->fft);
   AUBIO_FREE (o);
 }
 

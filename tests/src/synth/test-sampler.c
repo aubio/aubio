@@ -1,3 +1,5 @@
+#include <string.h> // strncpy
+#include <limits.h> // PATH_MAX
 #include <aubio.h>
 #include "utils_tests.h"
 
@@ -5,9 +7,9 @@ int main (int argc, char **argv)
 {
   sint_t err = 0;
 
-  if (argc < 4) {
-    err = 2;
-    PRINT_ERR("not enough arguments\n");
+  if (argc < 3) {
+    PRINT_ERR("not enough arguments, running tests\n");
+    err = run_on_default_source_and_sink(main);
     PRINT_MSG("usage: %s <input_path> <output_path> <sample_path> [samplerate]\n", argv[0]);
     return err;
   }
@@ -18,8 +20,15 @@ int main (int argc, char **argv)
 
   char_t *source_path = argv[1];
   char_t *sink_path = argv[2];
-  char_t *sample_path = argv[3];
-  if ( argc == 5 ) samplerate = atoi(argv[4]);
+  char_t sample_path[PATH_MAX];
+  if ( argc >= 4 ) {
+    strncpy(sample_path, argv[3], PATH_MAX - 1);
+  } else {
+    // use input_path as sample
+    strncpy(sample_path, source_path, PATH_MAX - 1);
+  }
+  sample_path[PATH_MAX - 1] = '\0';
+  if ( argc >= 5 ) samplerate = atoi(argv[4]);
 
   fvec_t *vec = new_fvec(hop_size);
   aubio_source_t *source = new_aubio_source(source_path, samplerate, hop_size);

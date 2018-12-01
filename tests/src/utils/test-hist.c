@@ -25,6 +25,7 @@ int main (void)
     del_aubio_hist(o);
     del_fvec(t);
   }
+  if (new_aubio_hist(0, 1, 0)) return 1;
   return 0;
 }
 

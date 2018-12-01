@@ -6,8 +6,8 @@ int main (int argc, char **argv)
   sint_t err = 0;
 
   if (argc < 2) {
-    err = 2;
-    PRINT_ERR("not enough arguments\n");
+    PRINT_ERR("not enough arguments, running tests\n");
+    err = run_on_default_sink(main);
     PRINT_MSG("usage: %s <output_path> [freq] [samplerate]\n", argv[0]);
     return err;
   }
@@ -17,8 +17,8 @@ int main (int argc, char **argv)
   smpl_t freq = 440.;
 
   char_t *sink_path = argv[1];
-  if ( argc == 4 ) samplerate = atoi(argv[3]);
-  if ( argc == 3 ) freq = atof(argv[2]);
+  if ( argc >= 4 ) samplerate = atoi(argv[3]);
+  if ( argc >= 3 ) freq = atof(argv[2]);
 
   fvec_t *vec = new_fvec(hop_size);
   aubio_sink_t *sink = new_aubio_sink(sink_path, samplerate);

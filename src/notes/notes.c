@@ -83,6 +83,7 @@ aubio_notes_t * new_aubio_notes (const char_t * method,
   o->isready = 0;
 
   o->onset = new_aubio_onset (onset_method, o->onset_buf_size, o->hop_size, o->samplerate);
+  if (o->onset == NULL) goto fail;
   if (o->onset_threshold != 0.) aubio_onset_set_threshold (o->onset, o->onset_threshold);
   o->onset_output = new_fvec (1);
 
@@ -98,6 +99,9 @@ aubio_notes_t * new_aubio_notes (const char_t * method,
   }
   o->note_buffer = new_fvec(o->median);
   o->note_buffer2 = new_fvec(o->median);
+
+  if (!o->onset_output || !o->pitch_output ||
+      !o->note_buffer || !o->note_buffer2) goto fail;
 
   o->curnote = -1.;
   o->newnote = 0.;

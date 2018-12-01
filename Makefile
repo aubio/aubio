@@ -259,22 +259,20 @@ coverage: force_uninstall_python deps_python \
 	lcov $(LCOVOPTS) -a build/coverage_python.info -a build/coverage_lib.info \
 		--output-file build/coverage.info
 	# remove tests
-	lcov $(LCOVOPTS) --remove build/coverage.info '*/tests/*' '*/ooura_fft8g*' \
+	lcov $(LCOVOPTS) --remove build/coverage.info '*/ooura_fft8g*' \
 		--output-file build/coverage_lib.info
 
 # make sure we don't build the doc, which builds a temporary python module
 coverage_report: export WAFOPTS += --disable-docs
 coverage_report: coverage
-	# create coverage report dir
-	mkdir -p build/coverage/
 	# generate report with lcov's genhtml
-	genhtml build/coverage_lib.info --output-directory build/coverage/lcov \
+	genhtml build/coverage_lib.info --output-directory build/coverage_c \
 		--branch-coverage --highlight --legend
 	# generate python report with coverage python package
 	coverage report
-	coverage html -d build/coverage/coverage
+	coverage html -d build/coverage_python
 	# show links to generated reports
-	for i in $$(ls build/coverage/*/index.html); do echo file://$(PWD)/$$i; done
+	for i in $$(ls build/coverage_*/index.html); do echo file://$(PWD)/$$i; done
 
 sphinx: configure
 	$(WAFCMD) sphinx $(WAFOPTS)
