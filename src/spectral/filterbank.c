@@ -130,5 +130,5 @@ aubio_filterbank_set_power (aubio_filterbank_t *f, smpl_t power)
 smpl_t
 aubio_filterbank_get_power (aubio_filterbank_t *f)
 {
-  return f->norm;
+  return f->power;
 }
