@@ -143,7 +143,7 @@ uint_t aubio_mfcc_set_power (aubio_mfcc_t *mf, smpl_t power)
   return aubio_filterbank_set_power(mf->fb, power);
 }
 
-uint_t aubio_mfcc_get_power (aubio_mfcc_t *mf)
+smpl_t aubio_mfcc_get_power (aubio_mfcc_t *mf)
 {
   return aubio_filterbank_get_power(mf->fb);
 }
@@ -154,7 +154,7 @@ uint_t aubio_mfcc_set_scale (aubio_mfcc_t *mf, smpl_t scale)
   return AUBIO_OK;
 }
 
-uint_t aubio_mfcc_get_scale (aubio_mfcc_t *mf)
+smpl_t aubio_mfcc_get_scale (aubio_mfcc_t *mf)
 {
   return mf->scale;
 }
