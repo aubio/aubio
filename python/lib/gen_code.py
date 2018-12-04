@@ -231,11 +231,21 @@ typedef struct{{
         return out.format(do_inputs_list = do_inputs_list, **self.__dict__)
 
     def gen_doc(self):
+        sig = []
+        for p in self.input_params:
+            name = p['name']
+            defval = aubiodefvalue[name].replace('"','\\\"')
+            sig.append("{name}={defval}".format(defval=defval, name=name))
         out = """
-// TODO: add documentation
-static char Py_{shortname}_doc[] = \"undefined\";
+#ifndef PYAUBIO_{shortname}_doc
+#define PYAUBIO_{shortname}_doc "{shortname}({sig})"
+#endif /* PYAUBIO_{shortname}_doc */
+
+static char Py_{shortname}_doc[] = ""
+PYAUBIO_{shortname}_doc
+"";
 """
-        return out.format(**self.__dict__)
+        return out.format(sig=', '.join(sig), **self.__dict__)
 
     def gen_new(self):
         out = """
