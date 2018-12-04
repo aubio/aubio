@@ -1,6 +1,188 @@
 #include "aubio-types.h"
 
-static char Py_filterbank_doc[] = "filterbank object";
+static char Py_filterbank_doc[] = ""
+"filterbank(n_filters=40, win_s=1024)\n"
+"\n"
+"Create a bank of spectral filters. Each instance is a callable\n"
+"that holds a matrix of coefficients.\n"
+"\n"
+"See also :meth:`set_mel_coeffs`, :meth:`set_mel_coeffs_htk`,\n"
+":meth:`set_mel_coeffs_slaney`, :meth:`set_triangle_bands`, and\n"
+":meth:`set_coeffs`.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"n_filters : int\n"
+"    Number of filters to create.\n"
+"win_s : int\n"
+"    Size of the input spectrum to process.\n"
+"\n"
+"Examples\n"
+"--------\n"
+">>> f = aubio.filterbank(128, 1024)\n"
+">>> f.set_mel_coeffs(44100, 0, 10000)\n"
+">>> c = aubio.cvec(1024)\n"
+">>> f(c).shape\n"
+"(128, )\n"
+"";
+
+static char Py_filterbank_set_triangle_bands_doc[] =""
+"set_triangle_bands(freqs, samplerate)\n"
+"\n"
+"Set triangular bands. The coefficients will be set to triangular\n"
+"overlapping windows using the boundaries specified by `freqs`.\n"
+"\n"
+"`freqs` should contain `n_filters + 2` frequencies in Hz, ordered\n"
+"by value, from smallest to largest. The first element should be greater\n"
+"or equal to zero; the last element should be smaller or equal to\n"
+"`samplerate / 2`.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"freqs: fvec\n"
+"    List of frequencies, in Hz.\n"
+"samplerate : float\n"
+"    Sampling-rate of the expected input.\n"
+"\n"
+"Example\n"
+"-------\n"
+">>> fb = aubio.filterbank(n_filters=100, win_s=2048)\n"
+">>> samplerate = 44100; freqs = np.linspace(0, 20200, 102)\n"
+">>> fb.set_triangle_bands(aubio.fvec(freqs), samplerate)\n"
+"";
+
+static char Py_filterbank_set_mel_coeffs_slaney_doc[] = ""
+"set_mel_coeffs_slaney(samplerate)\n"
+"\n"
+"Set coefficients of filterbank to match Slaney's Auditory Toolbox.\n"
+"\n"
+"The filter coefficients will be set as in Malcolm Slaney's\n"
+"implementation. The filterbank should have been created with\n"
+"`n_filters = 40`.\n"
+"\n"
+"This is approximately equivalent to using :meth:`set_mel_coeffs` with\n"
+"`fmin = 400./3., fmax = 6853.84`.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"samplerate : float\n"
+"    Sampling-rate of the expected input.\n"
+"\n"
+"References\n"
+"----------\n"
+"\n"
+"Malcolm Slaney, `Auditory Toolbox Version 2, Technical Report #1998-010\n"
+"<https://engineering.purdue.edu/~malcolm/interval/1998-010/>`_\n"
+"";
+
+static char Py_filterbank_set_mel_coeffs_doc[] = ""
+"set_mel_coeffs(samplerate, fmin, fmax)\n"
+"\n"
+"Set coefficients of filterbank to linearly spaced mel scale.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"samplerate : float\n"
+"    Sampling-rate of the expected input.\n"
+"fmin : float\n"
+"    Lower frequency boundary of the first filter.\n"
+"fmax : float\n"
+"    Upper frequency boundary of the last filter.\n"
+"\n"
+"See also\n"
+"--------\n"
+"hztomel\n"
+"";
+
+static char Py_filterbank_set_mel_coeffs_htk_doc[] = ""
+"set_mel_coeffs_htk(samplerate, fmin, fmax)\n"
+"\n"
+"Set coefficients of the filters to be linearly spaced in the HTK mel scale.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"samplerate : float\n"
+"    Sampling-rate of the expected input.\n"
+"fmin : float\n"
+"    Lower frequency boundary of the first filter.\n"
+"fmax : float\n"
+"    Upper frequency boundary of the last filter.\n"
+"\n"
+"See also\n"
+"--------\n"
+"hztomel with `htk=True`\n"
+"";
+
+static char Py_filterbank_get_coeffs_doc[] = ""
+"get_coeffs()\n"
+"\n"
+"Get coefficients matrix of filterbank.\n"
+"\n"
+"Returns\n"
+"-------\n"
+"array_like\n"
+"    Array of shape (n_filters, win_s/2+1) containing the coefficients.\n"
+"";
+
+static char Py_filterbank_set_coeffs_doc[] = ""
+"set_coeffs(coeffs)\n"
+"\n"
+"Set coefficients of filterbank.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"coeffs : fmat\n"
+"    Array of shape (n_filters, win_s/2+1) containing the coefficients.\n"
+"";
+
+static char Py_filterbank_set_power_doc[] = ""
+"set_power(power)\n"
+"\n"
+"Set power applied to input spectrum of filterbank.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"power : float\n"
+"    Power to raise input spectrum to before computing the filters.\n"
+"";
+
+static char Py_filterbank_get_power_doc[] = ""
+"get_power()\n"
+"\n"
+"Get power applied to filterbank.\n"
+"\n"
+"Returns\n"
+"-------\n"
+"float\n"
+"    Power parameter.\n"
+"";
+
+static char Py_filterbank_set_norm_doc[] = ""
+"set_norm(norm)\n"
+"\n"
+"Set norm parameter. If set to `0`, the filters will not be normalized.\n"
+"If set to `1`, the filters will be normalized to one. Default to `1`.\n"
+"\n"
+"This function should be called *before* :meth:`set_triangle_bands`,\n"
+":meth:`set_mel_coeffs`, :meth:`set_mel_coeffs_htk`, or\n"
+":meth:`set_mel_coeffs_slaney`.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"norm : int\n"
+"   `0` to disable, `1` to enable\n"
+"";
+
+static char Py_filterbank_get_norm_doc[] = ""
+"get_norm()\n"
+"\n"
+"Get norm parameter of filterbank.\n"
+"\n"
+"Returns\n"
+"-------\n"
+"float\n"
+"    Norm parameter.\n"
+"";
 
 typedef struct
 {
@@ -289,6 +471,13 @@ Py_filterbank_set_power(Py_filterbank *self, PyObject *args)
 }
 
 static PyObject *
+Py_filterbank_get_power (Py_filterbank * self, PyObject *unused)
+{
+  smpl_t power = aubio_filterbank_get_power(self->o);
+  return (PyObject *)PyFloat_FromDouble (power);
+}
+
+static PyObject *
 Py_filterbank_set_norm(Py_filterbank *self, PyObject *args)
 {
   smpl_t norm;
@@ -311,23 +500,34 @@ Py_filterbank_set_norm(Py_filterbank *self, PyObject *args)
   Py_RETURN_NONE;
 }
 
+static PyObject *
+Py_filterbank_get_norm (Py_filterbank * self, PyObject *unused)
+{
+  smpl_t norm = aubio_filterbank_get_norm(self->o);
+  return (PyObject *)PyFloat_FromDouble (norm);
+}
+
 static PyMethodDef Py_filterbank_methods[] = {
   {"set_triangle_bands", (PyCFunction) Py_filterbank_set_triangle_bands,
-    METH_VARARGS, "set coefficients of filterbanks"},
+    METH_VARARGS, Py_filterbank_set_triangle_bands_doc},
   {"set_mel_coeffs_slaney", (PyCFunction) Py_filterbank_set_mel_coeffs_slaney,
-    METH_VARARGS, "set coefficients of filterbank as in Auditory Toolbox"},
+    METH_VARARGS, Py_filterbank_set_mel_coeffs_slaney_doc},
   {"set_mel_coeffs", (PyCFunction) Py_filterbank_set_mel_coeffs,
-    METH_VARARGS, "set coefficients of filterbank to linearly spaced mel scale"},
+    METH_VARARGS, Py_filterbank_set_mel_coeffs_doc},
   {"set_mel_coeffs_htk", (PyCFunction) Py_filterbank_set_mel_coeffs_htk,
-    METH_VARARGS, "set coefficients of filterbank to linearly spaced mel scale"},
+    METH_VARARGS, Py_filterbank_set_mel_coeffs_htk_doc},
   {"get_coeffs", (PyCFunction) Py_filterbank_get_coeffs,
-    METH_NOARGS, "get coefficients of filterbank"},
+    METH_NOARGS, Py_filterbank_get_coeffs_doc},
   {"set_coeffs", (PyCFunction) Py_filterbank_set_coeffs,
-    METH_VARARGS, "set coefficients of filterbank"},
+    METH_VARARGS, Py_filterbank_set_coeffs_doc},
   {"set_power", (PyCFunction) Py_filterbank_set_power,
-    METH_VARARGS, "set power applied to filterbank input spectrum"},
+    METH_VARARGS, Py_filterbank_set_power_doc},
+  {"get_power", (PyCFunction) Py_filterbank_get_power,
+    METH_NOARGS, Py_filterbank_get_power_doc},
   {"set_norm", (PyCFunction) Py_filterbank_set_norm,
-    METH_VARARGS, "set norm applied to filterbank input spectrum"},
+    METH_VARARGS, Py_filterbank_set_norm_doc},
+  {"get_norm", (PyCFunction) Py_filterbank_get_norm,
+    METH_NOARGS, Py_filterbank_get_norm_doc},
   {NULL}
 };
 
