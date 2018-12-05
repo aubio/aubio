@@ -59,6 +59,13 @@
   Conference on Acoustics Speech and Signal Processing, pages 441­444,
   Hong-Kong, 2003.
 
+  \b \p wphase : Weighted Phase Deviation onset detection function
+
+  S. Dixon. Onset detection revisited. In Proceedings of the 9th International
+  Conference on Digital Audio Ef- fects (DAFx) , pages 133–137, 2006.
+
+  http://www.eecs.qmul.ac.uk/~simond/pub/2006/dafx.pdf
+
   \b \p specdiff : Spectral difference method onset detection function
 
   Jonhatan Foote and Shingo Uchihashi. The beat spectrum: a new approach to
@@ -174,8 +181,11 @@ void aubio_specdesc_do (aubio_specdesc_t * o, const cvec_t * fftgrain,
 
   The parameter \p method is a string that can be any of:
 
-    - `energy`, `hfc`, `complex`, `phase`, `specdiff`, `kl`, `mkl`, `specflux`
-    - `centroid`, `spread`, `skewness`, `kurtosis`, `slope`, `decrease`, `rolloff`
+    - onset novelty functions: `complex`, `energy`, `hfc`, `kl`, `mkl`,
+    `phase`, `specdiff`, `specflux`, `wphase`,
+
+    - spectral descriptors: `centroid`, `decrease`, `kurtosis`, `rolloff`,
+    `skewness`, `slope`, `spread`.
 
 */
 aubio_specdesc_t *new_aubio_specdesc (const char_t * method, uint_t buf_size);

@@ -18,13 +18,15 @@
 
 */
 
-#include "config.h"
-
 #include "aubio_priv.h"
 #include "fvec.h"
 #include "temporal/resampler.h"
 
 #ifdef HAVE_SAMPLERATE
+
+#if HAVE_AUBIO_DOUBLE
+#error "Should not use libsamplerate with aubio in double precision"
+#endif
 
 #include <samplerate.h>         /* from libsamplerate */
 

@@ -2,6 +2,7 @@ aubiodefvalue = {
     # we have some clean up to do
     'buf_size': 'Py_default_vector_length',
     'win_s': 'Py_default_vector_length',
+    'size': 'Py_default_vector_length',
     # and here too
     'hop_size': 'Py_default_vector_length / 2',
     'hop_s': 'Py_default_vector_length / 2',
@@ -84,6 +85,7 @@ objoutsize = {
         'filterbank': 'self->n_filters',
         'tss': 'self->buf_size',
         'pitchshift': 'self->hop_size',
+        'dct': 'self->size',
         }
 
 objinputsize = {
@@ -179,6 +181,10 @@ class MappedObject(object):
         self.do_inputs = [get_params_types_names(self.do_proto)[1]]
         self.do_outputs = get_params_types_names(self.do_proto)[2:]
         struct_output_str = ["PyObject *{0[name]}; {1} c_{0[name]}".format(i, i['type'][:-1]) for i in self.do_outputs]
+        if len(self.prototypes['rdo']):
+            rdo_outputs = get_params_types_names(prototypes['rdo'][0])[2:]
+            struct_output_str += ["PyObject *{0[name]}; {1} c_{0[name]}".format(i, i['type'][:-1]) for i in rdo_outputs]
+            self.outputs += rdo_outputs
         self.struct_outputs = ";\n    ".join(struct_output_str)
 
         #print ("input_params: ", map(split_type, get_input_params(self.do_proto)))
@@ -186,17 +192,26 @@ class MappedObject(object):
 
     def gen_code(self):
         out = ""
-        out += self.gen_struct()
-        out += self.gen_doc()
-        out += self.gen_new()
-        out += self.gen_init()
-        out += self.gen_del()
-        out += self.gen_do()
-        out += self.gen_memberdef()
-        out += self.gen_set()
-        out += self.gen_get()
-        out += self.gen_methodef()
-        out += self.gen_typeobject()
+        try:
+            out += self.gen_struct()
+            out += self.gen_doc()
+            out += self.gen_new()
+            out += self.gen_init()
+            out += self.gen_del()
+            out += self.gen_do()
+            if len(self.prototypes['rdo']):
+                self.do_proto = self.prototypes['rdo'][0]
+                self.do_inputs = [get_params_types_names(self.do_proto)[1]]
+                self.do_outputs = get_params_types_names(self.do_proto)[2:]
+                out += self.gen_do(method='rdo')
+            out += self.gen_memberdef()
+            out += self.gen_set()
+            out += self.gen_get()
+            out += self.gen_methodef()
+            out += self.gen_typeobject()
+        except Exception as e:
+            print ("Failed generating code for", self.shortname)
+            raise
         return out
 
     def gen_struct(self):
@@ -380,12 +395,12 @@ Py_{shortname}_del  (Py_{shortname} * self, PyObject * unused)
 """.format(del_fn = del_fn)
         return out
 
-    def gen_do(self):
+    def gen_do(self, method = 'do'):
         out = """
 // do {shortname}
 static PyObject*
-Py_{shortname}_do  (Py_{shortname} * self, PyObject * args)
-{{""".format(**self.__dict__)
+Pyaubio_{shortname}_{method}  (Py_{shortname} * self, PyObject * args)
+{{""".format(method = method, **self.__dict__)
         input_params = self.do_inputs
         output_params = self.do_outputs
         #print input_params
@@ -461,30 +476,51 @@ Py_{shortname}_do  (Py_{shortname} * self, PyObject * args)
 // {shortname} setters
 """.format(**self.__dict__)
         for set_param in self.prototypes['set']:
-            params = get_params_types_names(set_param)[1]
-            paramtype = params['type']
+            params = get_params_types_names(set_param)[1:]
+            param = self.shortname.split('_set_')[-1]
+            paramdecls = "".join(["""
+   {0} {1};""".format(p['type'], p['name']) for p in params])
             method_name = get_name(set_param)
             param = method_name.split('aubio_'+self.shortname+'_set_')[-1]
-            pyparamtype = pyargparse_chars[paramtype]
+            refs = ", ".join(["&%s" % p['name'] for p in params])
+            paramlist = ", ".join(["%s" % p['name'] for p in params])
+            if len(params):
+                paramlist = "," + paramlist
+            pyparamtypes = ''.join([pyargparse_chars[p['type']] for p in params])
             out += """
 static PyObject *
 Pyaubio_{shortname}_set_{param} (Py_{shortname} *self, PyObject *args)
 {{
   uint_t err = 0;
-  {paramtype} {param};
+  {paramdecls}
+""".format(param = param, paramdecls = paramdecls, **self.__dict__)
 
-  if (!PyArg_ParseTuple (args, "{pyparamtype}", &{param})) {{
+            if len(refs) and len(pyparamtypes):
+                out += """
+
+  if (!PyArg_ParseTuple (args, "{pyparamtypes}", {refs})) {{
     return NULL;
   }}
-  err = aubio_{shortname}_set_{param} (self->o, {param});
+""".format(pyparamtypes = pyparamtypes, refs = refs)
+
+            out += """
+  err = aubio_{shortname}_set_{param} (self->o {paramlist});
 
   if (err > 0) {{
-    PyErr_SetString (PyExc_ValueError, "error running aubio_{shortname}_set_{param}");
+    if (PyErr_Occurred() == NULL) {{
+      PyErr_SetString (PyExc_ValueError, "error running aubio_{shortname}_set_{param}");
+    }} else {{
+      // change the RuntimeError into ValueError
+      PyObject *type, *value, *traceback;
+      PyErr_Fetch(&type, &value, &traceback);
+      PyErr_Restore(PyExc_ValueError, value, traceback);
+    }}
     return NULL;
   }}
   Py_RETURN_NONE;
 }}
-""".format(param = param, paramtype = paramtype, pyparamtype = pyparamtype, **self.__dict__)
+""".format(param = param, refs = refs, paramdecls = paramdecls,
+        pyparamtypes = pyparamtypes, paramlist = paramlist, **self.__dict__)
         return out
 
     def gen_get(self):
@@ -525,6 +561,12 @@ static PyMethodDef Py_{shortname}_methods[] = {{""".format(**self.__dict__)
             out += """
   {{"{shortname}", (PyCFunction) Py{name},
     METH_NOARGS, ""}},""".format(name = name, shortname = shortname)
+        for m in self.prototypes['rdo']:
+            name = get_name(m)
+            shortname = name.replace('aubio_%s_' % self.shortname, '')
+            out += """
+  {{"{shortname}", (PyCFunction) Py{name},
+    METH_VARARGS, ""}},""".format(name = name, shortname = shortname)
         out += """
   {NULL} /* sentinel */
 };
@@ -550,7 +592,7 @@ PyTypeObject Py_{shortname}Type = {{
   0,
   0,
   0,
-  (ternaryfunc)Py_{shortname}_do,
+  (ternaryfunc)Pyaubio_{shortname}_do,
   0,
   0,
   0,

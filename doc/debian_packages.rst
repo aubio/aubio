@@ -9,7 +9,7 @@ For the latest version of the packages, see
 https://anonscm.debian.org/cgit/collab-maint/aubio.git/. Use
 ``git-buildpackage`` to build from the git repository. For instance:
 
-.. code-block:: bash
+.. code-block:: console
 
     $ git clone git://anonscm.debian.org/collab-maint/aubio.git
     $ cd aubio

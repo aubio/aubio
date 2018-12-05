@@ -48,6 +48,7 @@ void process_print (void)
 }
 
 int main(int argc, char **argv) {
+  int ret = 0;
   // change some default params
   buffer_size  = 512;
   hop_size = 256;
@@ -62,6 +63,10 @@ int main(int argc, char **argv) {
   fftgrain = new_cvec (buffer_size);
   mfcc = new_aubio_mfcc(buffer_size, n_filters, n_coefs, samplerate);
   mfcc_out = new_fvec(n_coefs);
+  if (pv == NULL || fftgrain == NULL || mfcc == NULL || mfcc_out == NULL) {
+    ret = 1;
+    goto beach;
+  }
 
   examples_common_process((aubio_process_func_t)process_block, process_print);
 
@@ -70,7 +75,7 @@ int main(int argc, char **argv) {
   del_aubio_mfcc(mfcc);
   del_fvec(mfcc_out);
 
+beach:
   examples_common_del();
-  return 0;
+  return ret;
 }
-

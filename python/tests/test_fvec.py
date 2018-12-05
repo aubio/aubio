@@ -60,6 +60,14 @@ class aubio_fvec_wrong_values(TestCase):
         self.assertRaises(IndexError, a.__getitem__, 3)
         self.assertRaises(IndexError, a.__getitem__, 2)
 
+    def test_wrong_dimensions(self):
+        a = np.array([[[1, 2], [3, 4]]], dtype=float_type)
+        self.assertRaises(ValueError, fvec, a)
+
+    def test_wrong_size(self):
+        a = np.ndarray([0,], dtype=float_type)
+        self.assertRaises(ValueError, fvec, a)
+
 class aubio_wrong_fvec_input(TestCase):
     """ uses min_removal to test PyAubio_IsValidVector """
 

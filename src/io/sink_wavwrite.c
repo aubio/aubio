@@ -19,18 +19,17 @@
 */
 
 
-#include "config.h"
+#include "aubio_priv.h"
 
 #ifdef HAVE_WAVWRITE
 
-#include "aubio_priv.h"
 #include "fvec.h"
 #include "fmat.h"
 #include "io/sink_wavwrite.h"
+#include "io/ioutils.h"
 
 #include <errno.h>
 
-#define MAX_CHANNELS 6
 #define MAX_SIZE 4096
 
 #define FLOAT_TO_SHORT(x) (short)(x * 32768)
@@ -104,12 +103,14 @@ aubio_sink_wavwrite_t * new_aubio_sink_wavwrite(const char_t * path, uint_t samp
   s->samplerate = 0;
   s->channels = 0;
 
-  // negative samplerate given, abort
-  if ((sint_t)samplerate < 0) goto beach;
   // zero samplerate given. do not open yet
-  if ((sint_t)samplerate == 0) return s;
-  // samplerate way too large, fail
-  if ((sint_t)samplerate > 192000 * 4) goto beach;
+  if ((sint_t)samplerate == 0) {
+    return s;
+  }
+  // invalid samplerate given, abort
+  if (aubio_io_validate_samplerate("sink_wavwrite", s->path, samplerate)) {
+    goto beach;
+  }
 
   s->samplerate = samplerate;
   s->channels = 1;
@@ -129,7 +130,9 @@ beach:
 
 uint_t aubio_sink_wavwrite_preset_samplerate(aubio_sink_wavwrite_t *s, uint_t samplerate)
 {
-  if ((sint_t)(samplerate) <= 0) return AUBIO_FAIL;
+  if (aubio_io_validate_samplerate("sink_wavwrite", s->path, samplerate)) {
+    return AUBIO_FAIL;
+  }
   s->samplerate = samplerate;
   // automatically open when both samplerate and channels have been set
   if (s->samplerate != 0 && s->channels != 0) {
@@ -140,7 +143,9 @@ uint_t aubio_sink_wavwrite_preset_samplerate(aubio_sink_wavwrite_t *s, uint_t sa
 
 uint_t aubio_sink_wavwrite_preset_channels(aubio_sink_wavwrite_t *s, uint_t channels)
 {
-  if ((sint_t)(channels) <= 0) return AUBIO_FAIL;
+  if (aubio_io_validate_channels("sink_wavwrite", s->path, channels)) {
+    return AUBIO_FAIL;
+  }
   s->channels = channels;
   // automatically open when both samplerate and channels have been set
   if (s->samplerate != 0 && s->channels != 0) {
@@ -213,9 +218,9 @@ uint_t aubio_sink_wavwrite_open(aubio_sink_wavwrite_t *s) {
 
   s->scratch_size = s->max_size * s->channels;
   /* allocate data for de/interleaving reallocated when needed. */
-  if (s->scratch_size >= MAX_SIZE * MAX_CHANNELS) {
+  if (s->scratch_size >= MAX_SIZE * AUBIO_MAX_CHANNELS) {
     AUBIO_ERR("sink_wavwrite: %d x %d exceeds SIZE maximum buffer size %d\n",
-        s->max_size, s->channels, MAX_SIZE * MAX_CHANNELS);
+        s->max_size, s->channels, MAX_SIZE * AUBIO_MAX_CHANNELS);
     goto beach;
   }
   s->scratch_data = AUBIO_ARRAY(unsigned short,s->scratch_size);

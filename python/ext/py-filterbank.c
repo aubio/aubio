@@ -94,7 +94,7 @@ Py_filterbank_do(Py_filterbank * self, PyObject * args)
 
   if (self->vec.length != self->win_s / 2 + 1) {
     PyErr_Format(PyExc_ValueError,
-                 "input cvec has length %d, but fft expects length %d",
+                 "input cvec has length %d, but filterbank expects length %d",
                  self->vec.length, self->win_s / 2 + 1);
     return NULL;
   }
@@ -122,8 +122,8 @@ Py_filterbank_set_triangle_bands (Py_filterbank * self, PyObject *args)
   uint_t err = 0;
 
   PyObject *input;
-  uint_t samplerate;
-  if (!PyArg_ParseTuple (args, "OI", &input, &samplerate)) {
+  smpl_t samplerate;
+  if (!PyArg_ParseTuple (args, "O" AUBIO_NPY_SMPL_CHR, &input, &samplerate)) {
     return NULL;
   }
 
@@ -138,8 +138,14 @@ Py_filterbank_set_triangle_bands (Py_filterbank * self, PyObject *args)
   err = aubio_filterbank_set_triangle_bands (self->o,
       &(self->freqs), samplerate);
   if (err > 0) {
-    PyErr_SetString (PyExc_ValueError,
-        "error when setting filter to A-weighting");
+    if (PyErr_Occurred() == NULL) {
+      PyErr_SetString (PyExc_ValueError, "error running set_triangle_bands");
+    } else {
+      // change the RuntimeError into ValueError
+      PyObject *type, *value, *traceback;
+      PyErr_Fetch(&type, &value, &traceback);
+      PyErr_Restore(PyExc_ValueError, value, traceback);
+    }
     return NULL;
   }
   Py_RETURN_NONE;
@@ -150,15 +156,79 @@ Py_filterbank_set_mel_coeffs_slaney (Py_filterbank * self, PyObject *args)
 {
   uint_t err = 0;
 
-  uint_t samplerate;
-  if (!PyArg_ParseTuple (args, "I", &samplerate)) {
+  smpl_t samplerate;
+  if (!PyArg_ParseTuple (args, AUBIO_NPY_SMPL_CHR, &samplerate)) {
     return NULL;
   }
 
   err = aubio_filterbank_set_mel_coeffs_slaney (self->o, samplerate);
   if (err > 0) {
-    PyErr_SetString (PyExc_ValueError,
-        "error when setting filter to A-weighting");
+    if (PyErr_Occurred() == NULL) {
+      PyErr_SetString (PyExc_ValueError, "error running set_mel_coeffs_slaney");
+    } else {
+      // change the RuntimeError into ValueError
+      PyObject *type, *value, *traceback;
+      PyErr_Fetch(&type, &value, &traceback);
+      PyErr_Restore(PyExc_ValueError, value, traceback);
+    }
+    return NULL;
+  }
+  Py_RETURN_NONE;
+}
+
+static PyObject *
+Py_filterbank_set_mel_coeffs (Py_filterbank * self, PyObject *args)
+{
+  uint_t err = 0;
+
+  smpl_t samplerate;
+  smpl_t freq_min;
+  smpl_t freq_max;
+  if (!PyArg_ParseTuple (args, AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR
+        AUBIO_NPY_SMPL_CHR, &samplerate, &freq_min, &freq_max)) {
+    return NULL;
+  }
+
+  err = aubio_filterbank_set_mel_coeffs (self->o, samplerate,
+      freq_min, freq_max);
+  if (err > 0) {
+    if (PyErr_Occurred() == NULL) {
+      PyErr_SetString (PyExc_ValueError, "error running set_mel_coeffs");
+    } else {
+      // change the RuntimeError into ValueError
+      PyObject *type, *value, *traceback;
+      PyErr_Fetch(&type, &value, &traceback);
+      PyErr_Restore(PyExc_ValueError, value, traceback);
+    }
+    return NULL;
+  }
+  Py_RETURN_NONE;
+}
+
+static PyObject *
+Py_filterbank_set_mel_coeffs_htk (Py_filterbank * self, PyObject *args)
+{
+  uint_t err = 0;
+
+  smpl_t samplerate;
+  smpl_t freq_min;
+  smpl_t freq_max;
+  if (!PyArg_ParseTuple (args, AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR
+        AUBIO_NPY_SMPL_CHR, &samplerate, &freq_min, &freq_max)) {
+    return NULL;
+  }
+
+  err = aubio_filterbank_set_mel_coeffs_htk (self->o, samplerate,
+      freq_min, freq_max);
+  if (err > 0) {
+    if (PyErr_Occurred() == NULL) {
+      PyErr_SetString (PyExc_ValueError, "error running set_mel_coeffs_htk");
+    } else {
+      // change the RuntimeError into ValueError
+      PyObject *type, *value, *traceback;
+      PyErr_Fetch(&type, &value, &traceback);
+      PyErr_Restore(PyExc_ValueError, value, traceback);
+    }
     return NULL;
   }
   Py_RETURN_NONE;
@@ -195,15 +265,69 @@ Py_filterbank_get_coeffs (Py_filterbank * self, PyObject *unused)
       aubio_filterbank_get_coeffs (self->o) );
 }
 
+static PyObject *
+Py_filterbank_set_power(Py_filterbank *self, PyObject *args)
+{
+  smpl_t power;
+
+  if (!PyArg_ParseTuple (args, AUBIO_NPY_SMPL_CHR, &power)) {
+    return NULL;
+  }
+  if(aubio_filterbank_set_power (self->o, power)) {
+    if (PyErr_Occurred() == NULL) {
+      PyErr_SetString (PyExc_ValueError,
+          "error running filterbank.set_power");
+    } else {
+      // change the RuntimeError into ValueError
+      PyObject *type, *value, *traceback;
+      PyErr_Fetch(&type, &value, &traceback);
+      PyErr_Restore(PyExc_ValueError, value, traceback);
+    }
+    return NULL;
+  }
+  Py_RETURN_NONE;
+}
+
+static PyObject *
+Py_filterbank_set_norm(Py_filterbank *self, PyObject *args)
+{
+  smpl_t norm;
+
+  if (!PyArg_ParseTuple (args, AUBIO_NPY_SMPL_CHR, &norm)) {
+    return NULL;
+  }
+  if(aubio_filterbank_set_norm (self->o, norm)) {
+    if (PyErr_Occurred() == NULL) {
+      PyErr_SetString (PyExc_ValueError,
+          "error running filterbank.set_power");
+    } else {
+      // change the RuntimeError into ValueError
+      PyObject *type, *value, *traceback;
+      PyErr_Fetch(&type, &value, &traceback);
+      PyErr_Restore(PyExc_ValueError, value, traceback);
+    }
+    return NULL;
+  }
+  Py_RETURN_NONE;
+}
+
 static PyMethodDef Py_filterbank_methods[] = {
   {"set_triangle_bands", (PyCFunction) Py_filterbank_set_triangle_bands,
     METH_VARARGS, "set coefficients of filterbanks"},
   {"set_mel_coeffs_slaney", (PyCFunction) Py_filterbank_set_mel_coeffs_slaney,
     METH_VARARGS, "set coefficients of filterbank as in Auditory Toolbox"},
+  {"set_mel_coeffs", (PyCFunction) Py_filterbank_set_mel_coeffs,
+    METH_VARARGS, "set coefficients of filterbank to linearly spaced mel scale"},
+  {"set_mel_coeffs_htk", (PyCFunction) Py_filterbank_set_mel_coeffs_htk,
+    METH_VARARGS, "set coefficients of filterbank to linearly spaced mel scale"},
   {"get_coeffs", (PyCFunction) Py_filterbank_get_coeffs,
     METH_NOARGS, "get coefficients of filterbank"},
   {"set_coeffs", (PyCFunction) Py_filterbank_set_coeffs,
     METH_VARARGS, "set coefficients of filterbank"},
+  {"set_power", (PyCFunction) Py_filterbank_set_power,
+    METH_VARARGS, "set power applied to filterbank input spectrum"},
+  {"set_norm", (PyCFunction) Py_filterbank_set_norm,
+    METH_VARARGS, "set norm applied to filterbank input spectrum"},
   {NULL}
 };
 

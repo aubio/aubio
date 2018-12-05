@@ -18,11 +18,10 @@
 
 */
 
-#include "config.h"
+#include "aubio_priv.h"
 
 #ifdef HAVE_SOURCE_APPLE_AUDIO
 
-#include "aubio_priv.h"
 #include "fvec.h"
 #include "fmat.h"
 #include "io/source_apple_audio.h"
@@ -280,7 +279,7 @@ beach:
 uint_t aubio_source_apple_audio_close (aubio_source_apple_audio_t *s)
 {
   OSStatus err = noErr;
-  if (!s->audioFile) { return AUBIO_FAIL; }
+  if (!s->audioFile) { return AUBIO_OK; }
   err = ExtAudioFileDispose(s->audioFile);
   s->audioFile = NULL;
   if (err) {

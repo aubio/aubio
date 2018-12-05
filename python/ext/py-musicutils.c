@@ -133,3 +133,105 @@ Py_aubio_level_detection(PyObject *self, PyObject *args)
 
   return level_detection;
 }
+
+PyObject *
+Py_aubio_shift(PyObject *self, PyObject *args)
+{
+  PyObject *input;
+  fvec_t vec;
+
+  if (!PyArg_ParseTuple (args, "O:shift", &input)) {
+    return NULL;
+  }
+
+  if (input == NULL) {
+    return NULL;
+  }
+
+  if (!PyAubio_ArrayToCFvec(input, &vec)) {
+    return NULL;
+  }
+
+  fvec_shift(&vec);
+
+  //Py_RETURN_NONE;
+  return (PyObject *) PyAubio_CFvecToArray(&vec);
+}
+
+PyObject *
+Py_aubio_ishift(PyObject *self, PyObject *args)
+{
+  PyObject *input;
+  fvec_t vec;
+
+  if (!PyArg_ParseTuple (args, "O:shift", &input)) {
+    return NULL;
+  }
+
+  if (input == NULL) {
+    return NULL;
+  }
+
+  if (!PyAubio_ArrayToCFvec(input, &vec)) {
+    return NULL;
+  }
+
+  fvec_ishift(&vec);
+
+  //Py_RETURN_NONE;
+  return (PyObject *) PyAubio_CFvecToArray(&vec);
+}
+
+PyObject*
+Py_aubio_hztomel(PyObject *self, PyObject *args, PyObject *kwds)
+{
+  smpl_t v;
+  PyObject *htk = NULL;
+  static char *kwlist[] = {"f", "htk", NULL};
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, AUBIO_NPY_SMPL_CHR "|O",
+        kwlist, &v, &htk))
+  {
+    return NULL;
+  }
+  if (htk != NULL && PyObject_IsTrue(htk) == 1)
+    return Py_BuildValue(AUBIO_NPY_SMPL_CHR, aubio_hztomel_htk(v));
+  else
+    return Py_BuildValue(AUBIO_NPY_SMPL_CHR, aubio_hztomel(v));
+}
+
+PyObject*
+Py_aubio_meltohz(PyObject *self, PyObject *args, PyObject *kwds)
+{
+  smpl_t v;
+  PyObject *htk = NULL;
+  static char *kwlist[] = {"m", "htk", NULL};
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, AUBIO_NPY_SMPL_CHR "|O",
+        kwlist, &v, &htk))
+  {
+    return NULL;
+  }
+  if (htk != NULL && PyObject_IsTrue(htk) == 1)
+    return Py_BuildValue(AUBIO_NPY_SMPL_CHR, aubio_meltohz_htk(v));
+  else
+    return Py_BuildValue(AUBIO_NPY_SMPL_CHR, aubio_meltohz(v));
+}
+
+PyObject*
+Py_aubio_hztomel_htk(PyObject *self, PyObject *args)
+{
+  smpl_t v;
+  if (!PyArg_ParseTuple(args, AUBIO_NPY_SMPL_CHR, &v)) {
+    return NULL;
+  }
+  return Py_BuildValue(AUBIO_NPY_SMPL_CHR, aubio_hztomel_htk(v));
+}
+
+PyObject*
+Py_aubio_meltohz_htk(PyObject *self, PyObject *args)
+{
+  smpl_t v;
+  if (!PyArg_ParseTuple(args, AUBIO_NPY_SMPL_CHR, &v)) {
+    return NULL;
+  }
+  return Py_BuildValue(AUBIO_NPY_SMPL_CHR, aubio_meltohz_htk(v));
+}

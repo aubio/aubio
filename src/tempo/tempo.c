@@ -128,8 +128,7 @@ uint_t aubio_tempo_set_delay_s(aubio_tempo_t * o, smpl_t delay) {
 }
 
 uint_t aubio_tempo_set_delay_ms(aubio_tempo_t * o, smpl_t delay) {
-  o->delay = 1000. * delay * o->samplerate;
-  return AUBIO_OK;
+  return aubio_tempo_set_delay_s(o, delay / 1000.);
 }
 
 uint_t aubio_tempo_get_delay(aubio_tempo_t * o) {
@@ -141,7 +140,7 @@ smpl_t aubio_tempo_get_delay_s(aubio_tempo_t * o) {
 }
 
 smpl_t aubio_tempo_get_delay_ms(aubio_tempo_t * o) {
-  return o->delay / (smpl_t)(o->samplerate) / 1000.;
+  return aubio_tempo_get_delay_s(o) * 1000.;
 }
 
 uint_t aubio_tempo_set_silence(aubio_tempo_t * o, smpl_t silence) {
@@ -168,7 +167,7 @@ aubio_tempo_t * new_aubio_tempo (const char_t * tempo_mode,
     uint_t buf_size, uint_t hop_size, uint_t samplerate)
 {
   aubio_tempo_t * o = AUBIO_NEW(aubio_tempo_t);
-  char_t specdesc_func[20];
+  char_t specdesc_func[PATH_MAX];
   o->samplerate = samplerate;
   // check parameters are valid
   if ((sint_t)hop_size < 1) {
@@ -203,9 +202,10 @@ aubio_tempo_t * new_aubio_tempo (const char_t * tempo_mode,
   o->pp       = new_aubio_peakpicker();
   aubio_peakpicker_set_threshold (o->pp, o->threshold);
   if ( strcmp(tempo_mode, "default") == 0 ) {
-    strcpy(specdesc_func, "specflux");
+    strncpy(specdesc_func, "specflux", PATH_MAX - 1);
   } else {
-    strcpy(specdesc_func, tempo_mode);
+    strncpy(specdesc_func, tempo_mode, PATH_MAX - 1);
+    specdesc_func[PATH_MAX - 1] = '\0';
   }
   o->od       = new_aubio_specdesc(specdesc_func,buf_size);
   o->of       = new_fvec(1);
@@ -215,12 +215,17 @@ aubio_tempo_t * new_aubio_tempo (const char_t * tempo_mode,
     o2 = new_aubio_specdesc(type_onset2,buffer_size);
     onset2 = new_fvec(1);
   }*/
+  if (!o->dfframe || !o->fftgrain || !o->out || !o->pv ||
+      !o->pp || !o->od || !o->of || !o->bt || !o->onset) {
+    AUBIO_ERR("tempo: failed creating tempo object\n");
+    goto beach;
+  }
   o->last_tatum = 0;
   o->tatum_signature = 4;
   return o;
 
 beach:
-  AUBIO_FREE(o);
+  del_aubio_tempo(o);
   return NULL;
 }
 
@@ -277,15 +282,23 @@ uint_t aubio_tempo_set_tatum_signature (aubio_tempo_t *o, uint_t signature) {
 
 void del_aubio_tempo (aubio_tempo_t *o)
 {
-  del_aubio_specdesc(o->od);
-  del_aubio_beattracking(o->bt);
-  del_aubio_peakpicker(o->pp);
-  del_aubio_pvoc(o->pv);
-  del_fvec(o->out);
-  del_fvec(o->of);
-  del_cvec(o->fftgrain);
-  del_fvec(o->dfframe);
-  del_fvec(o->onset);
+  if (o->od)
+    del_aubio_specdesc(o->od);
+  if (o->bt)
+    del_aubio_beattracking(o->bt);
+  if (o->pp)
+    del_aubio_peakpicker(o->pp);
+  if (o->pv)
+    del_aubio_pvoc(o->pv);
+  if (o->out)
+    del_fvec(o->out);
+  if (o->of)
+    del_fvec(o->of);
+  if (o->fftgrain)
+    del_cvec(o->fftgrain);
+  if (o->dfframe)
+    del_fvec(o->dfframe);
+  if (o->onset)
+    del_fvec(o->onset);
   AUBIO_FREE(o);
-  return;
 }

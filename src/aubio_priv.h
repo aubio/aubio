@@ -33,7 +33,9 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
@@ -68,14 +70,20 @@
 #include <stdarg.h>
 #endif
 
-#ifdef HAVE_ACCELERATE
+#if defined(HAVE_ACCELERATE)
 #define HAVE_ATLAS 1
+#define HAVE_BLAS 1
 #include <Accelerate/Accelerate.h>
 #elif defined(HAVE_ATLAS_CBLAS_H)
+#elif defined(HAVE_BLAS)
+#if defined(HAVE_ATLAS_CBLAS_H)
 #define HAVE_ATLAS 1
 #include <atlas/cblas.h>
-#else
-#undef HAVE_ATLAS
+#elif defined(HAVE_OPENBLAS_CBLAS_H)
+#include <openblas/cblas.h>
+#elif defined(HAVE_CBLAS_H)
+#include <cblas.h>
+#endif
 #endif
 
 #ifdef HAVE_ACCELERATE
@@ -83,6 +91,8 @@
 #ifndef HAVE_AUBIO_DOUBLE
 #define aubio_vDSP_mmov       vDSP_mmov
 #define aubio_vDSP_vmul       vDSP_vmul
+#define aubio_vDSP_vsmul      vDSP_vsmul
+#define aubio_vDSP_vsadd      vDSP_vsadd
 #define aubio_vDSP_vfill      vDSP_vfill
 #define aubio_vDSP_meanv      vDSP_meanv
 #define aubio_vDSP_sve        vDSP_sve
@@ -91,9 +101,12 @@
 #define aubio_vDSP_minv       vDSP_minv
 #define aubio_vDSP_minvi      vDSP_minvi
 #define aubio_vDSP_dotpr      vDSP_dotpr
+#define aubio_vDSP_vclr       vDSP_vclr
 #else /* HAVE_AUBIO_DOUBLE */
 #define aubio_vDSP_mmov       vDSP_mmovD
 #define aubio_vDSP_vmul       vDSP_vmulD
+#define aubio_vDSP_vsmul      vDSP_vsmulD
+#define aubio_vDSP_vsadd      vDSP_vsaddD
 #define aubio_vDSP_vfill      vDSP_vfillD
 #define aubio_vDSP_meanv      vDSP_meanvD
 #define aubio_vDSP_sve        vDSP_sveD
@@ -102,27 +115,61 @@
 #define aubio_vDSP_minv       vDSP_minvD
 #define aubio_vDSP_minvi      vDSP_minviD
 #define aubio_vDSP_dotpr      vDSP_dotprD
+#define aubio_vDSP_vclr       vDSP_vclrD
 #endif /* HAVE_AUBIO_DOUBLE */
 #endif /* HAVE_ACCELERATE */
 
-#ifdef HAVE_ATLAS
+#if defined(HAVE_BLAS)
 #ifndef HAVE_AUBIO_DOUBLE
+#ifdef HAVE_ATLAS
 #define aubio_catlas_set      catlas_sset
+#endif /* HAVE_ATLAS */
 #define aubio_cblas_copy      cblas_scopy
 #define aubio_cblas_swap      cblas_sswap
 #define aubio_cblas_dot       cblas_sdot
 #else /* HAVE_AUBIO_DOUBLE */
+#ifdef HAVE_ATLAS
 #define aubio_catlas_set      catlas_dset
+#endif /* HAVE_ATLAS */
 #define aubio_cblas_copy      cblas_dcopy
 #define aubio_cblas_swap      cblas_dswap
 #define aubio_cblas_dot       cblas_ddot
 #endif /* HAVE_AUBIO_DOUBLE */
-#endif /* HAVE_ATLAS */
+#endif /* HAVE_BLAS */
 
-#if !defined(HAVE_MEMCPY_HACKS) && !defined(HAVE_ACCELERATE) && !defined(HAVE_ATLAS)
+#if defined HAVE_INTEL_IPP
+#include <ippcore.h>
+#include <ippvm.h>
+#include <ipps.h>
+#ifndef HAVE_AUBIO_DOUBLE
+#define aubio_ippsSet         ippsSet_32f
+#define aubio_ippsZero        ippsZero_32f
+#define aubio_ippsCopy        ippsCopy_32f
+#define aubio_ippsMul         ippsMul_32f
+#define aubio_ippsMulC        ippsMulC_32f
+#define aubio_ippsAddC        ippsAddC_32f
+#define aubio_ippsLn          ippsLn_32f_A21
+#define aubio_ippsMean(a,b,c) ippsMean_32f(a, b, c, ippAlgHintFast)
+#define aubio_ippsSum(a,b,c)  ippsSum_32f(a, b, c, ippAlgHintFast)
+#define aubio_ippsMax         ippsMax_32f
+#define aubio_ippsMin         ippsMin_32f
+#else /* HAVE_AUBIO_DOUBLE */
+#define aubio_ippsSet         ippsSet_64f
+#define aubio_ippsZero        ippsZero_64f
+#define aubio_ippsCopy        ippsCopy_64f
+#define aubio_ippsMul         ippsMul_64f
+#define aubio_ippsMulC        ippsMulC_64f
+#define aubio_ippsAddC        ippsAddC_64f
+#define aubio_ippsLn          ippsLn_64f_A26
+#define aubio_ippsMean        ippsMean_64f
+#define aubio_ippsSum         ippsSum_64f
+#define aubio_ippsMax         ippsMax_64f
+#define aubio_ippsMin         ippsMin_64f
+#endif /* HAVE_AUBIO_DOUBLE */
+#endif
+
+#if !defined(HAVE_MEMCPY_HACKS) && !defined(HAVE_ACCELERATE) && !defined(HAVE_ATLAS) && !defined(HAVE_INTEL_IPP)
 #define HAVE_NOOPT 1
-#else
-#undef HAVE_NOOPT
 #endif
 
 #include "types.h"
@@ -181,20 +228,25 @@ uint_t aubio_log(sint_t level, const char_t *fmt, ...);
 
 #ifdef HAVE_C99_VARARGS_MACROS
 #define AUBIO_ERR(...)               aubio_log(AUBIO_LOG_ERR, "AUBIO ERROR: " __VA_ARGS__)
+#define AUBIO_INF(...)               aubio_log(AUBIO_LOG_INF, "AUBIO INFO: " __VA_ARGS__)
 #define AUBIO_MSG(...)               aubio_log(AUBIO_LOG_MSG, __VA_ARGS__)
 #define AUBIO_DBG(...)               aubio_log(AUBIO_LOG_DBG, __VA_ARGS__)
 #define AUBIO_WRN(...)               aubio_log(AUBIO_LOG_WRN, "AUBIO WARNING: " __VA_ARGS__)
 #else
-#define AUBIO_ERR(format, args...)   aubio_log(stderr, "AUBIO ERROR: " format , ##args)
-#define AUBIO_MSG(format, args...)   aubio_log(stdout, format , ##args)
-#define AUBIO_DBG(format, args...)   aubio_log(stderr, format , ##args)
-#define AUBIO_WRN(format, args...)   aubio_log(stderr, "AUBIO WARNING: " format, ##args)
+#define AUBIO_ERR(format, args...)   aubio_log(AUBIO_LOG_ERR, "AUBIO ERROR: " format , ##args)
+#define AUBIO_INF(format, args...)   aubio_log(AUBIO_LOG_INF, "AUBIO INFO: " format , ##args)
+#define AUBIO_MSG(format, args...)   aubio_log(AUBIO_LOG_MSG, format , ##args)
+#define AUBIO_DBG(format, args...)   aubio_log(AUBIO_LOG_DBG, format , ##args)
+#define AUBIO_WRN(format, args...)   aubio_log(AUBIO_LOG_WRN, "AUBIO WARNING: " format, ##args)
 #endif
 
 #define AUBIO_ERROR   AUBIO_ERR
 
 #define AUBIO_QUIT(_s)               exit(_s)
 #define AUBIO_SPRINTF                sprintf
+
+#define AUBIO_MAX_SAMPLERATE (192000*8)
+#define AUBIO_MAX_CHANNELS 1024
 
 /* pi and 2*pi */
 #ifndef M_PI
@@ -220,6 +272,7 @@ uint_t aubio_log(sint_t level, const char_t *fmt, ...);
 #define LOG        logf
 #define FLOOR      floorf
 #define CEIL       ceilf
+#define ATAN       atanf
 #define ATAN2      atan2f
 #else
 #define EXP        exp
@@ -232,6 +285,7 @@ uint_t aubio_log(sint_t level, const char_t *fmt, ...);
 #define LOG        log
 #define FLOOR      floor
 #define CEIL       ceil
+#define ATAN       atan
 #define ATAN2      atan2
 #endif
 #define ROUND(x)   FLOOR(x+.5)

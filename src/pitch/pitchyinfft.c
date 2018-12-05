@@ -36,7 +36,7 @@ struct _aubio_pitchyinfft_t
   aubio_fft_t *fft;   /**< fft object to compute square difference function */
   fvec_t *yinfft;     /**< Yin function */
   smpl_t tol;         /**< Yin tolerance */
-  smpl_t confidence;  /**< confidence */
+  uint_t peak_pos;    /**< currently selected peak pos*/
   uint_t short_period; /** shortest period under which to check for octave error */
 };
 
@@ -44,7 +44,7 @@ static const smpl_t freqs[] = {
      0.,    20.,    25.,   31.5,    40.,    50.,    63.,    80.,   100.,   125.,
    160.,   200.,   250.,   315.,   400.,   500.,   630.,   800.,  1000.,  1250.,
   1600.,  2000.,  2500.,  3150.,  4000.,  5000.,  6300.,  8000.,  9000., 10000.,
- 12500., 15000., 20000., 25100
+ 12500., 15000., 20000., 25100., -1.
 };
 
 static const smpl_t weight[] = {
@@ -62,15 +62,20 @@ new_aubio_pitchyinfft (uint_t samplerate, uint_t bufsize)
   aubio_pitchyinfft_t *p = AUBIO_NEW (aubio_pitchyinfft_t);
   p->winput = new_fvec (bufsize);
   p->fft = new_aubio_fft (bufsize);
+  if (!p->fft) goto beach;
   p->fftout = new_fvec (bufsize);
   p->sqrmag = new_fvec (bufsize);
   p->yinfft = new_fvec (bufsize / 2 + 1);
   p->tol = 0.85;
+  p->peak_pos = 0;
   p->win = new_aubio_window ("hanningz", bufsize);
   p->weight = new_fvec (bufsize / 2 + 1);
   for (i = 0; i < p->weight->length; i++) {
     freq = (smpl_t) i / (smpl_t) bufsize *(smpl_t) samplerate;
-    while (freq > freqs[j]) {
+    while (freq > freqs[j] && freqs[j] > 0) {
+      //AUBIO_DBG("freq %3.5f > %3.5f \tsamplerate %d (Hz) \t"
+      //    "(weight length %d, bufsize %d) %d %d\n", freq, freqs[j],
+      //    samplerate, p->weight->length, bufsize, i, j);
       j += 1;
     }
     a0 = weight[j - 1];
@@ -95,6 +100,11 @@ new_aubio_pitchyinfft (uint_t samplerate, uint_t bufsize)
   // check for octave errors above 1300 Hz
   p->short_period = (uint_t)ROUND(samplerate / 1300.);
   return p;
+
+beach:
+  if (p->winput) del_fvec(p->winput);
+  AUBIO_FREE(p);
+  return NULL;
 }
 
 void
@@ -155,11 +165,13 @@ aubio_pitchyinfft_do (aubio_pitchyinfft_t * p, const fvec_t * input, fvec_t * ou
       /* should compare the minimum value of each interpolated peaks */
       halfperiod = FLOOR (tau / 2 + .5);
       if (yin->data[halfperiod] < p->tol)
-        output->data[0] = fvec_quadratic_peak_pos (yin, halfperiod);
+        p->peak_pos = halfperiod;
       else
-        output->data[0] = fvec_quadratic_peak_pos (yin, tau);
+        p->peak_pos = tau;
+      output->data[0] = fvec_quadratic_peak_pos (yin, p->peak_pos);
     }
   } else {
+    p->peak_pos = 0;
     output->data[0] = 0.;
   }
 }
@@ -179,8 +191,7 @@ del_aubio_pitchyinfft (aubio_pitchyinfft_t * p)
 
 smpl_t
 aubio_pitchyinfft_get_confidence (aubio_pitchyinfft_t * o) {
-  o->confidence = 1. - fvec_min (o->yinfft);
-  return o->confidence;
+  return 1. - o->yinfft->data[o->peak_pos];
 }
 
 uint_t

@@ -46,8 +46,24 @@ class aubio_pvoc_test_case(TestCase):
             r = f.rdo(s)
             assert_equal ( t, 0.)
             assert_equal ( s.norm, 0.)
-            assert_equal ( s.phas, 0.)
+            try:
+                assert_equal ( s.phas, 0 )
+            except AssertionError:
+                assert_equal (s.phas[s.phas > 0], +np.pi)
+                assert_equal (s.phas[s.phas < 0], -np.pi)
+                assert_equal (np.abs(s.phas[np.abs(s.phas) != np.pi]), 0)
+                self.skipTest('pvoc(fvec(%d)).phas != +0, ' % win_s \
+                        + 'This is expected when using fftw3 on powerpc.')
             assert_equal ( r, 0.)
+
+    def test_no_overlap(self):
+        win_s, hop_s = 1024, 1024
+        f = pvoc (win_s, hop_s)
+        t = fvec (hop_s)
+        for _ in range(4):
+            s = f(t)
+            r = f.rdo(s)
+            assert_equal ( t, 0.)
 
     @params(
             ( 256, 8),

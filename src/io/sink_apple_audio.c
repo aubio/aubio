@@ -18,14 +18,13 @@
 
 */
 
-#include "config.h"
+#include "aubio_priv.h"
 
 #ifdef HAVE_SINK_APPLE_AUDIO
-
-#include "aubio_priv.h"
 #include "fvec.h"
 #include "fmat.h"
 #include "io/sink_apple_audio.h"
+#include "io/ioutils.h"
 
 // CFURLRef, CFURLCreateWithFileSystemPath, ...
 #include <CoreFoundation/CoreFoundation.h>
@@ -62,7 +61,7 @@ aubio_sink_apple_audio_t * new_aubio_sink_apple_audio(const char_t * uri, uint_t
   s->max_frames = MAX_SIZE;
   s->async = false;
 
-  if (uri == NULL) {
+  if ( (uri == NULL) || (strlen(uri) < 1) ) {
     AUBIO_ERROR("sink_apple_audio: Aborted opening null path\n");
     goto beach;
   }
@@ -73,10 +72,14 @@ aubio_sink_apple_audio_t * new_aubio_sink_apple_audio(const char_t * uri, uint_t
   s->samplerate = 0;
   s->channels = 0;
 
-  // negative samplerate given, abort
-  if ((sint_t)samplerate < 0) goto beach;
   // zero samplerate given. do not open yet
-  if ((sint_t)samplerate == 0) return s;
+  if ((sint_t)samplerate == 0) {
+    return s;
+  }
+  // invalid samplerate given, abort
+  if (aubio_io_validate_samplerate("sink_apple_audio", s->path, samplerate)) {
+    goto beach;
+  }
 
   s->samplerate = samplerate;
   s->channels = 1;
@@ -94,7 +97,9 @@ beach:
 
 uint_t aubio_sink_apple_audio_preset_samplerate(aubio_sink_apple_audio_t *s, uint_t samplerate)
 {
-  if ((sint_t)(samplerate) <= 0) return AUBIO_FAIL;
+  if (aubio_io_validate_samplerate("sink_apple_audio", s->path, samplerate)) {
+    return AUBIO_FAIL;
+  }
   s->samplerate = samplerate;
   // automatically open when both samplerate and channels have been set
   if (s->samplerate != 0 && s->channels != 0) {
@@ -105,7 +110,9 @@ uint_t aubio_sink_apple_audio_preset_samplerate(aubio_sink_apple_audio_t *s, uin
 
 uint_t aubio_sink_apple_audio_preset_channels(aubio_sink_apple_audio_t *s, uint_t channels)
 {
-  if ((sint_t)(channels) <= 0) return AUBIO_FAIL;
+  if (aubio_io_validate_channels("sink_apple_audio", s->path, channels)) {
+    return AUBIO_FAIL;
+  }
   s->channels = channels;
   // automatically open when both samplerate and channels have been set
   if (s->samplerate != 0 && s->channels != 0) {

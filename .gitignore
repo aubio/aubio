@@ -30,6 +30,7 @@ build/
 # doxygen
 doc/web/
 doc/full/
+doc/_build/
 
 python/gen
 python/dist
@@ -37,9 +38,15 @@ python/MANIFEST
 python/*.db
 python/*.wav
 
+pip-delete-this-directory.txt
+
 aubio-*.tar.bz2
 aubio-*.zip
+dist/*.tar.gz
+dist/*.whl
 
 # test sounds
 python/tests/sounds
 aubio.egg-info
+.eggs
+.cache

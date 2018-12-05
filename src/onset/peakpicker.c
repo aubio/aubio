@@ -92,27 +92,21 @@ aubio_peakpicker_do (aubio_peakpicker_t * p, fvec_t * onset, fvec_t * out)
   fvec_t *thresholded = p->thresholded;
   fvec_t *scratch = p->scratch;
   smpl_t mean = 0., median = 0.;
-  uint_t length = p->win_post + p->win_pre + 1;
   uint_t j = 0;
 
-  /* store onset in onset_keep */
-  /* shift all elements but last, then write last */
-  for (j = 0; j < length - 1; j++) {
-    onset_keep->data[j] = onset_keep->data[j + 1];
-    onset_proc->data[j] = onset_keep->data[j];
-  }
-  onset_keep->data[length - 1] = onset->data[0];
-  onset_proc->data[length - 1] = onset->data[0];
+  /* push new novelty to the end */
+  fvec_push(onset_keep, onset->data[0]);
+  /* store a copy */
+  fvec_copy(onset_keep, onset_proc);
 
-  /* filter onset_proc */
-  /** \bug filtfilt calculated post+pre times, should be only once !? */
+  /* filter this copy */
   aubio_filter_do_filtfilt (p->biquad, onset_proc, scratch);
 
   /* calculate mean and median for onset_proc */
   mean = fvec_mean (onset_proc);
-  /* copy to scratch */
-  for (j = 0; j < length; j++)
-    scratch->data[j] = onset_proc->data[j];
+
+  /* copy to scratch and compute its median */
+  fvec_copy(onset_proc, scratch);
   median = p->thresholdfn (scratch);
 
   /* shift peek array */
@@ -185,7 +179,9 @@ new_aubio_peakpicker (void)
      generated with octave butter function: [b,a] = butter(2, 0.34);
    */
   t->biquad = new_aubio_filter_biquad (0.15998789, 0.31997577, 0.15998789,
-      -0.59488894, 0.23484048);
+      // FIXME: broken since c9e20ca, revert for now
+      //-0.59488894, 0.23484048);
+      0.23484048, 0);
 
   return t;
 }

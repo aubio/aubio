@@ -18,23 +18,20 @@
 
 */
 
-
-#include "config.h"
+#include "aubio_priv.h"
 
 #ifdef HAVE_SNDFILE
 
 #include <sndfile.h>
 
-#include "aubio_priv.h"
 #include "fvec.h"
 #include "fmat.h"
 #include "source_sndfile.h"
 
 #include "temporal/resampler.h"
 
-#define MAX_CHANNELS 6
 #define MAX_SIZE 4096
-#define MAX_SAMPLES MAX_CHANNELS * MAX_SIZE
+#define MAX_SAMPLES AUBIO_MAX_CHANNELS * MAX_SIZE
 
 #if !HAVE_AUBIO_DOUBLE
 #define aubio_sf_read_smpl sf_read_float
@@ -140,7 +137,7 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(const char_t * path, uint_t sa
     }
     if (s->ratio > 1) {
       // we would need to add a ring buffer for these
-      if ( (uint_t)(s->input_hop_size * s->ratio + .5)  != s->hop_size ) {
+      if ( (uint_t)FLOOR(s->input_hop_size * s->ratio + .5)  != s->hop_size ) {
         AUBIO_ERR("source_sndfile: can not upsample %s from %d to %d\n", s->path,
             s->input_samplerate, s->samplerate);
         goto beach;
@@ -297,7 +294,18 @@ uint_t aubio_source_sndfile_get_duration (const aubio_source_sndfile_t * s) {
 
 uint_t aubio_source_sndfile_seek (aubio_source_sndfile_t * s, uint_t pos) {
   uint_t resampled_pos = (uint_t)ROUND(pos / s->ratio);
-  sf_count_t sf_ret = sf_seek (s->handle, resampled_pos, SEEK_SET);
+  sf_count_t sf_ret;
+  if (s->handle == NULL) {
+    AUBIO_ERR("source_sndfile: failed seeking in %s (file not opened?)\n",
+        s->path);
+    return AUBIO_FAIL;
+  }
+  if ((sint_t)pos < 0) {
+    AUBIO_ERR("source_sndfile: could not seek %s at %d (seeking position"
+       " should be >= 0)\n", s->path, pos);
+    return AUBIO_FAIL;
+  }
+  sf_ret = sf_seek (s->handle, resampled_pos, SEEK_SET);
   if (sf_ret == -1) {
     AUBIO_ERR("source_sndfile: Failed seeking %s at %d: %s\n", s->path, pos, sf_strerror (NULL));
     return AUBIO_FAIL;
@@ -312,12 +320,13 @@ uint_t aubio_source_sndfile_seek (aubio_source_sndfile_t * s, uint_t pos) {
 
 uint_t aubio_source_sndfile_close (aubio_source_sndfile_t *s) {
   if (!s->handle) {
-    return AUBIO_FAIL;
+    return AUBIO_OK;
   }
   if(sf_close(s->handle)) {
     AUBIO_ERR("source_sndfile: Error closing file %s: %s\n", s->path, sf_strerror (NULL));
     return AUBIO_FAIL;
   }
+  s->handle = NULL;
   return AUBIO_OK;
 }
 

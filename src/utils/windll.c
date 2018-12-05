@@ -24,7 +24,7 @@
 
 */
 
-#include "config.h"
+#include "aubio_priv.h"
 
 #ifdef HAVE_WIN_HACKS
 
@@ -41,9 +41,9 @@
 
 #include "aubio.h"
 
-BOOL APIENTRY DllMain( HMODULE hModule,
+BOOL APIENTRY DllMain( HMODULE hModule UNUSED,
                        DWORD  ul_reason_for_call,
-                       LPVOID lpReserved )
+                       LPVOID lpReserved UNUSED)
 {
   switch (ul_reason_for_call)
   {

@@ -53,6 +53,8 @@ aubio_wavetable_t * new_aubio_wavetable(uint_t samplerate, uint_t hop_size);
 
 /** load source in wavetable
 
+  TODO: This function is not implemented yet. See new_aubio_sampler() instead.
+
   \param o wavetable, created by new_aubio_wavetable()
   \param uri the uri of the source to load
 

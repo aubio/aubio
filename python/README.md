@@ -1,100 +1,109 @@
-Python aubio module
-===================
+aubio
+=====
 
-This module wraps the aubio library for Python using the numpy module.
+aubio is a collection of tools for music and audio analysis.
 
-Using the Python aubio module
------------------------------
+This package integrates the aubio library with [NumPy] to provide a set of
+efficient tools to process and analyse audio signals, including:
 
-After installing python-aubio, you will be able to import the aubio module:
+- read audio from any media file, including videos and remote streams
+- high quality phase vocoder, spectral filterbanks, and linear filters
+- Mel-Frequency Cepstrum Coefficients and standard spectral descriptors
+- detection of note attacks (onset)
+- pitch tracking (fundamental frequency estimation)
+- beat detection and tempo tracking
 
-    $ python
-    [...]
-    >>> import aubio
-    >>> help(aubio.miditofreq)
+aubio works with both Python 2 and Python 3.
 
-Finding some inspiration
-------------------------
+Links
+-----
 
-Some examples are available in the `python/demos` directory. These scripts are
-small programs written in python and using python-aubio.
+- [module documentation][doc_python]
+- [installation instructions][doc_python_install]
+- [aubio manual][manual]
+- [aubio homepage][homepage]
+- [issue tracker][bugtracker]
 
-For instance, `demo_source.py` reads a media file.
+Demos
+-----
 
-    $ ./python/demos/demo_source.py /path/to/sound/sample.wav
+Some examples are available in the [`python/demos`][demos_dir] folder. Each
+script is a command line program which accepts one ore more argument.
 
-and `demo_timestretch_online.py` stretches the original file into a new one:
+**Notes**: installing additional modules is required to run some of the demos.
 
-    $ ./python/demo/demo_timestretch_online.py loop.wav stretched_loop.wav 0.92`
+### Analysis
 
-Note: you might need to install additional modules to run some of the demos.
-Some demos use [matplotlib](http://matplotlib.org/) to draw plots, others use
-[PySoundCard](https://github.com/bastibe/PySoundCard) to play and record
-sounds.
+- `demo_source.py` uses aubio to read audio samples from media files
+- `demo_onset_plot.py` detects attacks in a sound file and plots the results
+  using [matplotlib]
+- `demo_pitch.py` looks for fundamental frequency in a sound file and plots the
+  results using [matplotlib]
+- `demo_spectrogram.py`, `demo_specdesc.py`, `demo_mfcc.py` for spectral
+  analysis.
 
-Testing the Python module
--------------------------
+### Real-time
 
-To run the all the python tests, use the script:
+- `demo_pyaudio.py` and `demo_tapthebeat.py` use [pyaudio]
+- `demo_pysoundcard_play.py`, `demo_pysoundcard.py` use [PySoundCard]
+- `demo_alsa.py` uses [pyalsaaudio]
 
-    $ ./python/tests/run_all_tests
+### Others
 
-Each test script can also be called one at a time. For instance:
+- `demo_timestretch.py` can change the duration of an input file and write the
+  new sound to disk,
+- `demo_wav2midi.py` detects the notes in a file and uses [mido] to write the
+  results into a MIDI file
 
-    $ ./python/tests/test_note2midi.py -v
+### Example
 
-Install in a virtualenv
------------------------
+Use `demo_timestretch_online.py` to slow down `loop.wav`, write the results in
+`stretched_loop.wav`:
 
-You should be able to install python-aubio directly from the top source
-directory of aubio.
+    $ python demo_timestretch_online.py loop.wav stretched_loop.wav 0.92
 
-First, create a virtualenv to hold the required python module:
-
-    $ virtualenv pyaubio
-    $ source pyaubio/bin/activate
-
-Now install and build the python extension using:
-
-    $ pip install .
-
-Install requirements
---------------------
-
-Before compiling this module, you must have compiled libaubio.
-
-A simple way to do this is with pip:
-
-    $ pip install -r requirements.txt
-
-For more information about how this module works, please refer to the [Python/C
-API Reference Manual] (http://docs.python.org/c-api/index.html) and the
-[Numpy/C API Reference](http://docs.scipy.org/doc/numpy/reference/c-api.html).
-
-Compiling python aubio
-----------------------
-
-To build the aubio Python module, run the following command from the top source
-directory of aubio:
-
-    $ ./setup.py build
-
-Note: if libaubio was previously built using waf, the script will use it.
-Otherwise, the entire library will be built inside the python extension.
-
-To find out more about `setup.py` options:
-
-    $ ./setup.py --help
-
-Installing
+Built with
 ----------
 
-To install the Python module:
+The core of aubio is written in C for portability and speed. In addition to
+[NumPy], aubio can be optionally built to use one or more of the following
+libraries:
 
-    $ ./setup.py install
+- media file reading:
 
-Alternatively, you may want to use the Python module without installing it by
-setting your PYTHONPATH, for instance as follows:
+    - [ffmpeg] / [avcodec] to decode and read audio from almost any format,
+    - [libsndfile] to read audio from uncompressed sound files,
+    - [libsamplerate] to re-sample audio signals,
+    - [CoreAudio] to read all media formats supported by macOS, iOS, and tvOS.
 
-    $ export PYTHONPATH=$PYTHONPATH:$PWD/`ls -rtd build/lib.* | head -1`:$PWD/tests
+- hardware acceleration:
 
+    - [Atlas] and [Blas], for accelerated vector and matrix computations,
+    - [fftw3], to compute fast Fourier Transforms of any size,
+    - [Accelerate] for accelerated FFT and matrix computations (macOS/iOS),
+    - [Intel IPP], accelerated vector computation and FFT implementation.
+
+[ffmpeg]: https://ffmpeg.org
+[avcodec]: https://libav.org
+[libsndfile]: http://www.mega-nerd.com/libsndfile/
+[libsamplerate]: http://www.mega-nerd.com/SRC/
+[CoreAudio]: https://developer.apple.com/reference/coreaudio
+[Atlas]: http://math-atlas.sourceforge.net/
+[Blas]: https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms
+[fftw3]: http://fftw.org
+[Accelerate]: https://developer.apple.com/reference/accelerate
+[Intel IPP]: https://software.intel.com/en-us/intel-ipp
+
+[demos_dir]:https://github.com/aubio/aubio/tree/master/python/demos
+[pyaudio]:https://people.csail.mit.edu/hubert/pyaudio/
+[PySoundCard]:https://github.com/bastibe/PySoundCard
+[pyalsaaudio]:https://larsimmisch.github.io/pyalsaaudio/
+[mido]:https://mido.readthedocs.io
+
+[manual]: https://aubio.org/manual/latest/
+[doc_python]: https://aubio.org/manual/latest/python.html
+[doc_python_install]: https://aubio.org/manual/latest/python_module.html
+[homepage]: https://aubio.org
+[NumPy]: https://www.numpy.org
+[bugtracker]: https://github.com/aubio/aubio/issues
+[matplotlib]:https://matplotlib.org/

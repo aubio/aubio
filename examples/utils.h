@@ -66,7 +66,7 @@ typedef void (aubio_print_func_t) (void);
 void send_noteon (smpl_t pitch, smpl_t velo);
 
 /** common process function */
-typedef int (*aubio_process_func_t) (fvec_t * input, fvec_t * output);
+typedef void (*aubio_process_func_t) (fvec_t * input, fvec_t * output);
 
 void process_block (fvec_t *ibuf, fvec_t *obuf);
 void process_print (void);

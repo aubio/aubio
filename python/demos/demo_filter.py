@@ -1,36 +1,53 @@
 #! /usr/bin/env python
 
+import sys
+import os.path
+import aubio
 
-def apply_filter(path):
-    from aubio import source, sink, digital_filter
-    from os.path import basename, splitext
 
+def apply_filter(path, target):
     # open input file, get its samplerate
-    s = source(path)
+    s = aubio.source(path)
     samplerate = s.samplerate
 
     # create an A-weighting filter
-    f = digital_filter(7)
+    f = aubio.digital_filter(7)
     f.set_a_weighting(samplerate)
-    # alternatively, apply another filter
 
     # create output file
-    o = sink("filtered_" + splitext(basename(path))[0] + ".wav", samplerate)
+    o = aubio.sink(target, samplerate)
 
     total_frames = 0
     while True:
+        # read from source
         samples, read = s()
+        # filter samples
         filtered_samples = f(samples)
+        # write to sink
         o(filtered_samples, read)
+        # count frames read
         total_frames += read
-        if read < s.hop_size: break
+        # end of file reached
+        if read < s.hop_size:
+            break
 
+    # print some info
     duration = total_frames / float(samplerate)
-    print ("read {:s}".format(s.uri))
-    print ("applied A-weighting filtered ({:d} Hz)".format(samplerate))
-    print ("wrote {:s} ({:.2f} s)".format(o.uri, duration))
+    input_str = "input: {:s} ({:.2f} s, {:d} Hz)"
+    output_str = "output: {:s}, A-weighting filtered ({:d} frames total)"
+    print(input_str.format(s.uri, duration, samplerate))
+    print(output_str.format(o.uri, total_frames))
 
 if __name__ == '__main__':
-    import sys
-    for f in sys.argv[1:]:
-        apply_filter(f)
+    usage = "{:s} <input_file> [output_file]".format(sys.argv[0])
+    if not 1 < len(sys.argv) < 4:
+        print(usage)
+        sys.exit(1)
+    if len(sys.argv) < 3:
+        input_path = sys.argv[1]
+        basename = os.path.splitext(os.path.basename(input_path))[0] + ".wav"
+        output_path = "filtered_" + basename
+    else:
+        input_path, output_path = sys.argv[1:]
+    # run function
+    apply_filter(input_path, output_path)

@@ -1,0 +1,104 @@
+apt-run: &apt-install
+  name: Install apt packages
+  command: |
+    sudo apt-get update
+    sudo apt-get -y install make sox pkg-config libavcodec-dev libavformat-dev libavresample-dev libavutil-dev libsndfile1-dev libsamplerate-dev
+
+pip-install: &pip-install
+  name: Install pip dependencies
+  command: |
+    pip install --user -r requirements.txt
+
+build-wheel: &build-wheel
+  name: Build python wheel
+  command: |
+    pip wheel -v -v -v --wheel-dir=dist .
+
+install-wheel: &install-wheel
+  name: Install python wheel
+  command: |
+    pip install --user dist/aubio*.whl
+
+test-nose2: &test-nose2
+  name: Test python wheel
+  command: |
+    make create_test_sounds
+    PATH=/home/circleci/.local/bin:$PATH nose2 -v
+
+test-nose2-nosounds: &test-nose2-nosounds
+  name: Test python wheel
+  command: |
+    PATH=/home/circleci/.local/bin:$PATH nose2 -v
+
+uninstall-wheel: &uninstall-wheel
+  name: Uninstall python wheel
+  command: |
+    pip show -f aubio
+    pip uninstall --verbose --yes aubio
+
+version: 2
+jobs:
+  build-27:
+    docker:
+      - image: circleci/python:2.7
+    steps:
+      - checkout
+      - run: *apt-install
+      - run: *pip-install
+      - run: *build-wheel
+      - run: *install-wheel
+      - run: *test-nose2
+      - run: *uninstall-wheel
+      - store_artifacts:
+          path: dist/
+
+  build-36:
+    docker:
+      - image: circleci/python:3.6
+    steps:
+      - checkout
+      - run: *apt-install
+      - run: *pip-install
+      - run: *build-wheel
+      - run: *install-wheel
+      - run: *test-nose2
+      - run: *uninstall-wheel
+      - store_artifacts:
+          path: dist/
+
+  build-37:
+    docker:
+      - image: circleci/python:3.7
+    steps:
+      - checkout
+      - run: *apt-install
+      - run: *pip-install
+      - run: *build-wheel
+      - run: *install-wheel
+      - run: *test-nose2
+      - run: *uninstall-wheel
+      - store_artifacts:
+          path: dist/
+
+  build-37-nodeps:
+    docker:
+      - image: circleci/python:3.7
+    steps:
+      - checkout
+      - run: *pip-install
+      - run: *build-wheel
+      - run: *install-wheel
+      - run: *test-nose2-nosounds
+      - run: *uninstall-wheel
+      - store_artifacts:
+          path: dist/
+
+workflows:
+  version: 2
+
+  test-wheel:
+    jobs:
+      - build-27
+      - build-36
+      - build-37
+      - build-37-nodeps

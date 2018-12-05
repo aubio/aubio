@@ -81,6 +81,11 @@ extern "C" {
 
   see http://recherche.ircam.fr/equipes/pcm/pub/people/cheveign.html
 
+  \b \p yinfast : Yinfast algorithm
+
+  This algorithm is equivalent to the YIN algorithm, but computed in the
+  spectral domain for efficiency. See also `python/demos/demo_yin_compare.py`.
+
   \b \p yinfft : Yinfft algorithm
 
   This algorithm was derived from the YIN algorithm. In this implementation, a
@@ -149,6 +154,8 @@ aubio_pitch_t *new_aubio_pitch (const char_t * method,
 
   \param o pitch detection object as returned by new_aubio_pitch()
   \param mode set pitch units for output
+
+  mode can be one of "Hz", "midi", "cent", or "bin". Defaults to "Hz".
 
   \return 0 if successfull, non-zero otherwise
 

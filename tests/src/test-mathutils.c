@@ -102,7 +102,7 @@ int test_aubio_window (void)
   fvec_print(window);
 
   window_size /= 2.;
-  window = new_aubio_window("triangle", window_size);
+  window = new_aubio_window("parzen", window_size);
   fvec_print(window);
   del_fvec(window);
 
@@ -116,5 +116,6 @@ int main (void)
   test_next_power_of_two();
   test_miditofreq();
   test_freqtomidi();
+  test_aubio_window();
   return 0;
 }

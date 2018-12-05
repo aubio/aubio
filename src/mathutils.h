@@ -117,6 +117,17 @@ of the resulting spectrum. See Amalia de Götzen's paper referred to above.
 */
 void fvec_ishift (fvec_t * v);
 
+/** push a new element to the end of a vector, erasing the first element and
+ * sliding all others
+
+  \param in vector to push to
+  \param new_elem new_element to add at the end of the vector
+
+  In numpy words, this is equivalent to: in = np.concatenate([in, [new_elem]])[1:]
+
+*/
+void fvec_push(fvec_t *in, smpl_t new_elem);
+
 /** compute the sum of all elements of a vector
 
   \param v vector to compute the sum of
@@ -181,6 +192,14 @@ void fvec_alpha_normalise (fvec_t * v, smpl_t p);
 
 */
 void fvec_add (fvec_t * v, smpl_t c);
+
+/** multiply each elements of a vector by a scalar
+
+  \param v vector to add constant to
+  \param s constant to scale v with
+
+*/
+void fvec_mul (fvec_t * v, smpl_t s);
 
 /** remove the minimum value of the vector to each elements
 
@@ -300,6 +319,9 @@ uint_t aubio_is_power_of_two(uint_t a);
 
 /** return the next power of power of 2 greater than a */
 uint_t aubio_next_power_of_two(uint_t a);
+
+/** return the log2 factor of the given power of 2 value a */
+uint_t aubio_power_of_two_order(uint_t a);
 
 /** compute normalised autocorrelation function
 

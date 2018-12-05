@@ -1,43 +1,37 @@
 #! /usr/bin/env python
 
-import sys, os.path, glob
+import sys
+import os.path
+import glob
 from setuptools import setup, Extension
-from python.lib.moresetuptools import *
+
+# add ./python/lib to current path
+sys.path.append(os.path.join('python', 'lib'))  # noqa
+from moresetuptools import build_ext, CleanGenerated
+
 # function to generate gen/*.{c,h}
-from python.lib.gen_external import generate_external, header, output_path
+from this_version import get_aubio_version, get_aubio_pyversion
 
-# read from VERSION
-for l in open('VERSION').readlines(): exec (l.strip())
-
-if AUBIO_MAJOR_VERSION is None or AUBIO_MINOR_VERSION is None \
-        or AUBIO_PATCH_VERSION is None:
-    raise SystemError("Failed parsing VERSION file.")
-
-__version__ = '.'.join(map(str, [AUBIO_MAJOR_VERSION,
-                                 AUBIO_MINOR_VERSION,
-                                 AUBIO_PATCH_VERSION]))
-if AUBIO_VERSION_STATUS is not None:
-    if AUBIO_VERSION_STATUS.startswith('~'):
-        AUBIO_VERSION_STATUS = AUBIO_VERSION_STATUS[1:]
-    __version__ += AUBIO_VERSION_STATUS
+__version__ = get_aubio_pyversion()
+__aubio_version__ = get_aubio_version()
 
 include_dirs = []
 library_dirs = []
-define_macros = []
+define_macros = [('AUBIO_VERSION', '%s' % __aubio_version__)]
 extra_link_args = []
 
-include_dirs += [ 'python/ext' ]
-include_dirs += [ output_path ] # aubio-generated.h
+include_dirs += ['python/ext']
 try:
     import numpy
-    include_dirs += [ numpy.get_include() ]
+    include_dirs += [numpy.get_include()]
 except ImportError:
     pass
 
 if sys.platform.startswith('darwin'):
-    extra_link_args += ['-framework','CoreFoundation', '-framework','AudioToolbox']
+    extra_link_args += ['-framework', 'CoreFoundation',
+            '-framework', 'AudioToolbox']
 
-sources = glob.glob(os.path.join('python', 'ext', '*.c'))
+sources = sorted(glob.glob(os.path.join('python', 'ext', '*.c')))
 
 aubio_extension = Extension("aubio._aubio",
     sources,
@@ -46,21 +40,11 @@ aubio_extension = Extension("aubio._aubio",
     extra_link_args = extra_link_args,
     define_macros = define_macros)
 
-if os.path.isfile('src/aubio.h'):
-    # if aubio headers are found in this directory
-    add_local_aubio_header(aubio_extension)
-    # was waf used to build the shared lib?
-    if os.path.isdir(os.path.join('build','src')):
-        # link against build/src/libaubio, built with waf
-        add_local_aubio_lib(aubio_extension)
-    else:
-        # add libaubio sources and look for optional deps with pkg-config
-        add_local_aubio_sources(aubio_extension)
-        __version__ += 'a2' # pypi version
-else:
-    # look for aubio headers and lib using pkg-config
-    add_system_aubio(aubio_extension)
-
+# TODO: find a way to track if package is built against libaubio
+# if os.path.isfile('src/aubio.h'):
+#     if not os.path.isdir(os.path.join('build','src')):
+#         pass
+#         #__version__ += 'a2' # python only version
 
 classifiers = [
     'Development Status :: 4 - Beta',
@@ -74,38 +58,45 @@ classifiers = [
     'Operating System :: Microsoft :: Windows',
     'Programming Language :: C',
     'Programming Language :: Python',
-    'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
+    'License :: OSI Approved :: '
+    'GNU General Public License v3 or later (GPLv3+)',
     ]
 
-from distutils.command.build_ext import build_ext as _build_ext
-class build_ext(_build_ext):
-
-    def build_extension(self, extension):
-        # generate files python/gen/*.c, python/gen/aubio-generated.h
-        extension.sources += generate_external(header, output_path, overwrite = False)
-        return _build_ext.build_extension(self, extension)
+thisdir = os.path.abspath(os.path.dirname(__file__))
+py_readme_file = os.path.join(thisdir, 'python', 'README.md')
+with open(py_readme_file, 'r') as fp:
+    long_description = ''.join(fp.readlines()[3:])
 
 distrib = setup(name='aubio',
     version = __version__,
     packages = ['aubio'],
-    package_dir = {'aubio':'python/lib/aubio'},
-    scripts = ['python/scripts/aubiocut'],
+    package_dir = {'aubio': 'python/lib/aubio'},
     ext_modules = [aubio_extension],
     description = 'a collection of tools for music analysis',
-    long_description = 'a collection of tools for music analysis',
+    long_description = long_description,
+    long_description_content_type = 'text/markdown',
     license = 'GNU/GPL version 3',
     author = 'Paul Brossier',
     author_email = 'piem@aubio.org',
     maintainer = 'Paul Brossier',
     maintainer_email = 'piem@aubio.org',
-    url = 'http://aubio.org/',
+    url = 'https://aubio.org/',
     platforms = 'any',
     classifiers = classifiers,
     install_requires = ['numpy'],
+    setup_requires = ['numpy'],
     cmdclass = {
         'clean': CleanGenerated,
-        'generate': GenerateCommand,
         'build_ext': build_ext,
         },
+    entry_points = {
+        'console_scripts': [
+            'aubio = aubio.cmd:main',
+            'aubiocut = aubio.cut:main',
+        ],
+    },
     test_suite = 'nose2.collector.collector',
+    extras_require = {
+        'tests': ['numpy'],
+        },
     )

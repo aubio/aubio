@@ -53,12 +53,17 @@ new_aubio_pitchfcomb (uint_t bufsize, uint_t hopsize)
   aubio_pitchfcomb_t *p = AUBIO_NEW (aubio_pitchfcomb_t);
   p->fftSize = bufsize;
   p->stepSize = hopsize;
+  p->fft = new_aubio_fft (bufsize);
+  if (!p->fft) goto beach;
   p->winput = new_fvec (bufsize);
   p->fftOut = new_cvec (bufsize);
   p->fftLastPhase = new_fvec (bufsize);
-  p->fft = new_aubio_fft (bufsize);
   p->win = new_aubio_window ("hanning", bufsize);
   return p;
+
+beach:
+  AUBIO_FREE(p);
+  return NULL;
 }
 
 /* input must be stepsize long */

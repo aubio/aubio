@@ -2,16 +2,16 @@
 #include <aubio.h>
 #include "utils_tests.h"
 
-// this file uses the unstable aubio api, please use aubio_sink instead
-// see src/io/sink.h and tests/src/sink/test-sink.c
+// this file uses the unstable aubio api to test aubio_sink_apple_audio, please
+// use aubio_sink instead see src/io/sink.h and tests/src/sink/test-sink.c
 
 int main (int argc, char **argv)
 {
   sint_t err = 0;
 
   if (argc < 3) {
-    err = 2;
-    PRINT_ERR("not enough arguments\n");
+    PRINT_ERR("not enough arguments, running tests\n");
+    err = run_on_default_source_and_sink(main);
     PRINT_MSG("usage: %s <input_path> <output_path> [samplerate] [channels] [hop_size]\n", argv[0]);
     return err;
   }
@@ -71,7 +71,7 @@ beach_fmat:
   del_aubio_source(i);
 beach_source:
 #else /* HAVE_SINK_APPLE_AUDIO */
-  err = 3;
+  err = 0;
   PRINT_ERR("aubio was not compiled with aubio_sink_apple_audio\n");
 #endif /* HAVE_SINK_APPLE_AUDIO */
   return err;

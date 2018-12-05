@@ -39,9 +39,11 @@ help:
 	@echo "  doctest    to run all doctests embedded in the documentation (if enabled)"
 
 clean:
+	-rm -rf _static
 	-rm -rf $(BUILDDIR)/*
 
 html:
+	mkdir -p _static
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."

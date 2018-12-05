@@ -14,19 +14,10 @@ import sys
 
 APPNAME = 'aubio'
 
-# source VERSION
-for l in open('VERSION').readlines(): exec (l.strip())
+from this_version import *
 
-VERSION = '.'.join ([str(x) for x in [
-    AUBIO_MAJOR_VERSION,
-    AUBIO_MINOR_VERSION,
-    AUBIO_PATCH_VERSION
-    ]]) + AUBIO_VERSION_STATUS
-
-LIB_VERSION = '.'.join ([str(x) for x in [
-    LIBAUBIO_LT_CUR,
-    LIBAUBIO_LT_REV,
-    LIBAUBIO_LT_AGE]])
+VERSION = get_aubio_version()
+LIB_VERSION = get_libaubio_version()
 
 top = '.'
 out = 'build'
@@ -47,12 +38,22 @@ def add_option_enable_disable(ctx, name, default = None,
             help = help_disable_str )
 
 def options(ctx):
+    ctx.add_option('--build-type', action = 'store',
+            default = "release",
+            choices = ('debug', 'release'),
+            dest = 'build_type',
+            help = 'whether to compile with (--build-type=release)' \
+                    ' or without (--build-type=debug)' \
+                    ' compiler opimizations [default: release]')
     add_option_enable_disable(ctx, 'fftw3f', default = False,
             help_str = 'compile with fftw3f instead of ooura (recommended)',
             help_disable_str = 'do not compile with fftw3f')
     add_option_enable_disable(ctx, 'fftw3', default = False,
             help_str = 'compile with fftw3 instead of ooura',
             help_disable_str = 'do not compile with fftw3')
+    add_option_enable_disable(ctx, 'intelipp', default = False,
+            help_str = 'use Intel IPP libraries (auto)',
+            help_disable_str = 'do not use Intel IPP libraries')
     add_option_enable_disable(ctx, 'complex', default = False,
             help_str ='compile with C99 complex',
             help_disable_str = 'do not use C99 complex (default)' )
@@ -86,26 +87,55 @@ def options(ctx):
     add_option_enable_disable(ctx, 'apple-audio', default = None,
             help_str = 'use CoreFoundation (darwin only) (auto)',
             help_disable_str = 'do not use CoreFoundation framework')
-    add_option_enable_disable(ctx, 'atlas', default = None,
-            help_str = 'use Atlas library (auto)',
-            help_disable_str = 'do not use Atlas library')
+    add_option_enable_disable(ctx, 'blas', default = False,
+            help_str = 'use BLAS acceleration library (no)',
+            help_disable_str = 'do not use BLAS library')
+    add_option_enable_disable(ctx, 'atlas', default = False,
+            help_str = 'use ATLAS acceleration library (no)',
+            help_disable_str = 'do not use ATLAS library')
+    add_option_enable_disable(ctx, 'wavread', default = True,
+            help_str = 'compile with source_wavread (default)',
+            help_disable_str = 'do not compile source_wavread')
+    add_option_enable_disable(ctx, 'wavwrite', default = True,
+            help_str = 'compile with source_wavwrite (default)',
+            help_disable_str = 'do not compile source_wavwrite')
 
     add_option_enable_disable(ctx, 'docs', default = None,
             help_str = 'build documentation (auto)',
             help_disable_str = 'do not build documentation')
 
+    add_option_enable_disable(ctx, 'tests', default = True,
+            help_str = 'build tests (true)',
+            help_disable_str = 'do not build or run tests')
+
+    add_option_enable_disable(ctx, 'examples', default = True,
+            help_str = 'build examples (true)',
+            help_disable_str = 'do not build examples')
+
     ctx.add_option('--with-target-platform', type='string',
-            help='set target platform for cross-compilation', dest='target_platform')
+            help='set target platform for cross-compilation',
+            dest='target_platform')
 
     ctx.load('compiler_c')
     ctx.load('waf_unit_test')
     ctx.load('gnu_dirs')
+    ctx.load('waf_gensyms', tooldir='.')
 
 def configure(ctx):
+    target_platform = sys.platform
+    if ctx.options.target_platform:
+        target_platform = ctx.options.target_platform
+
     from waflib import Options
-    ctx.load('compiler_c')
+
+    if target_platform=='emscripten':
+        ctx.load('c_emscripten')
+    else:
+        ctx.load('compiler_c')
+
     ctx.load('waf_unit_test')
     ctx.load('gnu_dirs')
+    ctx.load('waf_gensyms', tooldir='.')
 
     # check for common headers
     ctx.check(header_name='stdlib.h')
@@ -117,16 +147,46 @@ def configure(ctx):
     ctx.check(header_name='getopt.h', mandatory = False)
     ctx.check(header_name='unistd.h', mandatory = False)
 
-    target_platform = sys.platform
-    if ctx.options.target_platform:
-        target_platform = ctx.options.target_platform
     ctx.env['DEST_OS'] = target_platform
 
-    if ctx.env.CC_NAME != 'msvc':
-        ctx.env.CFLAGS += ['-g', '-Wall', '-Wextra']
+    if ctx.options.build_type == "debug":
+        ctx.define('DEBUG', 1)
     else:
-        ctx.env.CFLAGS += ['/W4', '/MD']
-        ctx.env.CFLAGS += ['/D_CRT_SECURE_NO_WARNINGS']
+        ctx.define('NDEBUG', 1)
+
+    if ctx.env.CC_NAME != 'msvc':
+        if ctx.options.build_type == "debug":
+            # no optimization in debug mode
+            ctx.env.prepend_value('CFLAGS', ['-O0'])
+        else:
+            if target_platform == 'emscripten':
+                # -Oz for small js file generation
+                ctx.env.prepend_value('CFLAGS', ['-Oz'])
+            else:
+                # default to -O2 in release mode
+                ctx.env.prepend_value('CFLAGS', ['-O2'])
+        # enable debug symbols and configure warnings
+        ctx.env.prepend_value('CFLAGS', ['-g', '-Wall', '-Wextra'])
+    else:
+        # enable debug symbols
+        ctx.env.CFLAGS += ['/Z7']
+        # /FS flag available in msvc >= 12 (2013)
+        if 'MSVC_VERSION' in ctx.env and ctx.env.MSVC_VERSION >= 12:
+            ctx.env.CFLAGS += ['/FS']
+        ctx.env.LINKFLAGS += ['/DEBUG', '/INCREMENTAL:NO']
+        # configure warnings
+        ctx.env.CFLAGS += ['/W4', '/D_CRT_SECURE_NO_WARNINGS']
+        # ignore "possible loss of data" warnings
+        ctx.env.CFLAGS += ['/wd4305', '/wd4244', '/wd4245', '/wd4267']
+        # ignore "unreferenced formal parameter" warnings
+        ctx.env.CFLAGS += ['/wd4100']
+        # set optimization level and runtime libs
+        if (ctx.options.build_type == "release"):
+            ctx.env.CFLAGS += ['/Ox']
+            ctx.env.CFLAGS += ['/MD']
+        else:
+            assert(ctx.options.build_type == "debug")
+            ctx.env.CFLAGS += ['/MDd']
 
     ctx.check_cc(lib='m', uselib_store='M', mandatory=False)
 
@@ -148,9 +208,17 @@ def configure(ctx):
             ctx.env.FRAMEWORK += ['CoreFoundation', 'AudioToolbox']
             ctx.define('HAVE_SOURCE_APPLE_AUDIO', 1)
             ctx.define('HAVE_SINK_APPLE_AUDIO', 1)
+            ctx.msg('Checking for AudioToolbox.framework', 'yes')
+        else:
+            ctx.msg('Checking for AudioToolbox.framework', 'no (disabled)',
+                    color = 'YELLOW')
         if (ctx.options.enable_accelerate != False):
             ctx.define('HAVE_ACCELERATE', 1)
             ctx.env.FRAMEWORK += ['Accelerate']
+            ctx.msg('Checking for Accelerate framework', 'yes')
+        else:
+            ctx.msg('Checking for Accelerate framework', 'no (disabled)',
+                    color = 'YELLOW')
 
     if target_platform in [ 'ios', 'iosimulator' ]:
         MINSDKVER="6.1"
@@ -185,12 +253,38 @@ def configure(ctx):
         ctx.env.LINKFLAGS += [ '-isysroot' , SDKROOT]
 
     if target_platform == 'emscripten':
-        import os.path
-        ctx.env.CFLAGS += [ '-I' + os.path.join(os.environ['EMSCRIPTEN'], 'system', 'include') ]
-        ctx.env.CFLAGS += ['-Oz']
+        if ctx.options.build_type == "debug":
+            ctx.env.cshlib_PATTERN = '%s.js'
+            ctx.env.LINKFLAGS += ['-s','ASSERTIONS=2']
+            ctx.env.LINKFLAGS += ['-s','SAFE_HEAP=1']
+            ctx.env.LINKFLAGS += ['-s','ALIASING_FUNCTION_POINTERS=0']
+            ctx.env.LINKFLAGS += ['-O0']
+        else:
+            ctx.env.LINKFLAGS += ['-Oz']
+            ctx.env.cshlib_PATTERN = '%s.min.js'
+
+        # doesnt ship file system support in lib
+        ctx.env.LINKFLAGS_cshlib += ['-s', 'NO_FILESYSTEM=1']
+        # put memory file inside generated js files for easier portability
+        ctx.env.LINKFLAGS += ['--memory-init-file', '0']
         ctx.env.cprogram_PATTERN = "%s.js"
-        if (ctx.options.enable_atlas != True):
-            ctx.options.enable_atlas = False
+        ctx.env.cstlib_PATTERN = '%s.a'
+
+        # tell emscripten functions we want to expose
+        from python.lib.gen_external import get_c_declarations, \
+                get_cpp_objects_from_c_declarations, \
+                get_all_func_names_from_lib, \
+                generate_lib_from_c_declarations
+        # emscripten can't use double
+        c_decls = get_c_declarations(usedouble=False)
+        objects = list(get_cpp_objects_from_c_declarations(c_decls))
+        # ensure that aubio structs are exported
+        objects += ['fvec_t', 'cvec_t', 'fmat_t']
+        lib = generate_lib_from_c_declarations(objects, c_decls)
+        exported_funcnames = get_all_func_names_from_lib(lib)
+        c_mangled_names = ['_' + s for s in exported_funcnames]
+        ctx.env.LINKFLAGS_cshlib += ['-s',
+                'EXPORTED_FUNCTIONS=%s' % c_mangled_names]
 
     # check support for C99 __VA_ARGS__ macros
     check_c99_varargs = '''
@@ -218,12 +312,28 @@ def configure(ctx):
     else:
         ctx.msg('Checking if complex.h is enabled', 'no')
 
+    # check for Intel IPP
+    if (ctx.options.enable_intelipp != False):
+        has_ipp_headers = ctx.check(header_name=['ippcore.h', 'ippvm.h',
+            'ipps.h'], mandatory = False)
+        has_ipp_libs = ctx.check(lib=['ippcore', 'ippvm', 'ipps'],
+                uselib_store='INTEL_IPP', mandatory = False)
+        if (has_ipp_headers and has_ipp_libs):
+            ctx.msg('Checking if Intel IPP is available', 'yes')
+            ctx.define('HAVE_INTEL_IPP', 1)
+            if ctx.env.CC_NAME == 'msvc':
+                # force linking multi-threaded static IPP libraries on Windows
+                # with msvc
+                ctx.define('_IPP_SEQUENTIAL_STATIC', 1)
+        else:
+            ctx.msg('Checking if Intel IPP is available', 'no')
+
     # check for fftw3
     if (ctx.options.enable_fftw3 != False or ctx.options.enable_fftw3f != False):
         # one of fftwf or fftw3f
         if (ctx.options.enable_fftw3f != False):
-            ctx.check_cfg(package = 'fftw3f', atleast_version = '3.0.0',
-                    args = '--cflags --libs',
+            ctx.check_cfg(package = 'fftw3f',
+                    args = '--cflags --libs fftw3f >= 3.0.0',
                     mandatory = ctx.options.enable_fftw3f)
             if (ctx.options.enable_double == True):
                 ctx.msg('Warning',
@@ -232,35 +342,45 @@ def configure(ctx):
             # fftw3f disabled, take most sensible one according to
             # enable_double
             if (ctx.options.enable_double == True):
-                ctx.check_cfg(package = 'fftw3', atleast_version = '3.0.0',
-                        args = '--cflags --libs', mandatory =
-                        ctx.options.enable_fftw3)
+                ctx.check_cfg(package = 'fftw3',
+                        args = '--cflags --libs fftw3 >= 3.0.0.',
+                        mandatory = ctx.options.enable_fftw3)
             else:
-                ctx.check_cfg(package = 'fftw3f', atleast_version = '3.0.0',
-                        args = '--cflags --libs',
+                ctx.check_cfg(package = 'fftw3f',
+                        args = '--cflags --libs fftw3f >= 3.0.0',
                         mandatory = ctx.options.enable_fftw3)
         ctx.define('HAVE_FFTW3', 1)
 
-    # fftw not enabled, use vDSP or ooura
+    # fftw not enabled, use vDSP, intelIPP or ooura
     if 'HAVE_FFTW3F' in ctx.env.define_key:
         ctx.msg('Checking for FFT implementation', 'fftw3f')
     elif 'HAVE_FFTW3' in ctx.env.define_key:
         ctx.msg('Checking for FFT implementation', 'fftw3')
     elif 'HAVE_ACCELERATE' in ctx.env.define_key:
         ctx.msg('Checking for FFT implementation', 'vDSP')
+    elif 'HAVE_INTEL_IPP' in ctx.env.define_key:
+        ctx.msg('Checking for FFT implementation', 'Intel IPP')
     else:
         ctx.msg('Checking for FFT implementation', 'ooura')
 
     # check for libsndfile
     if (ctx.options.enable_sndfile != False):
-        ctx.check_cfg(package = 'sndfile', atleast_version = '1.0.4',
-                args = '--cflags --libs',
+        ctx.check_cfg(package = 'sndfile',
+                args = '--cflags --libs sndfile >= 1.0.4',
                 mandatory = ctx.options.enable_sndfile)
 
     # check for libsamplerate
+    if (ctx.options.enable_double):
+        if (ctx.options.enable_samplerate):
+            ctx.fatal("Could not compile aubio in double precision mode' \
+                    ' with libsamplerate")
+        else:
+            ctx.options.enable_samplerate = False
+            ctx.msg('Checking if using samplerate',
+                    'no (disabled in double precision mode)', color = 'YELLOW')
     if (ctx.options.enable_samplerate != False):
-        ctx.check_cfg(package = 'samplerate', atleast_version = '0.0.15',
-                args = '--cflags --libs',
+        ctx.check_cfg(package = 'samplerate',
+                args = '--cflags --libs samplerate >= 0.0.15',
                 mandatory = ctx.options.enable_samplerate)
 
     # check for librubberband
@@ -277,33 +397,72 @@ def configure(ctx):
 
     # check for libav
     if (ctx.options.enable_avcodec != False):
-        ctx.check_cfg(package = 'libavcodec', atleast_version = '54.35.0',
-                args = '--cflags --libs', uselib_store = 'AVCODEC',
+        ctx.check_cfg(package = 'libavcodec',
+                args = '--cflags --libs libavcodec >= 54.35.0',
+                uselib_store = 'AVCODEC',
                 mandatory = ctx.options.enable_avcodec)
-        ctx.check_cfg(package = 'libavformat', atleast_version = '52.3.0',
-                args = '--cflags --libs', uselib_store = 'AVFORMAT',
+        ctx.check_cfg(package = 'libavformat',
+                args = '--cflags --libs libavformat >= 52.3.0',
+                uselib_store = 'AVFORMAT',
                 mandatory = ctx.options.enable_avcodec)
-        ctx.check_cfg(package = 'libavutil', atleast_version = '52.3.0',
-                args = '--cflags --libs', uselib_store = 'AVUTIL',
+        ctx.check_cfg(package = 'libavutil',
+                args = '--cflags --libs libavutil >= 52.3.0',
+                uselib_store = 'AVUTIL',
                 mandatory = ctx.options.enable_avcodec)
-        ctx.check_cfg(package = 'libavresample', atleast_version = '1.0.1',
-                args = '--cflags --libs', uselib_store = 'AVRESAMPLE',
-                mandatory = ctx.options.enable_avcodec)
-        if all ( 'HAVE_' + i in ctx.env
-                for i in ['AVCODEC', 'AVFORMAT', 'AVUTIL', 'AVRESAMPLE'] ):
-            ctx.define('HAVE_LIBAV', 1)
-            ctx.msg('Checking for all libav libraries', 'yes')
+        ctx.check_cfg(package = 'libswresample',
+                args = '--cflags --libs libswresample >= 1.2.0',
+                uselib_store = 'SWRESAMPLE',
+                mandatory = False)
+        if 'HAVE_SWRESAMPLE' not in ctx.env:
+            ctx.check_cfg(package = 'libavresample',
+                    args = '--cflags --libs libavresample >= 1.0.1',
+                    uselib_store = 'AVRESAMPLE',
+                    mandatory = False)
+
+        msg_check = 'Checking for all libav libraries'
+        if 'HAVE_AVCODEC' not in ctx.env:
+            ctx.msg(msg_check, 'not found (missing avcodec)', color = 'YELLOW')
+        elif 'HAVE_AVFORMAT' not in ctx.env:
+            ctx.msg(msg_check, 'not found (missing avformat)', color = 'YELLOW')
+        elif 'HAVE_AVUTIL' not in ctx.env:
+            ctx.msg(msg_check, 'not found (missing avutil)', color = 'YELLOW')
+        elif 'HAVE_SWRESAMPLE' not in ctx.env \
+                and 'HAVE_AVRESAMPLE' not in ctx.env:
+            resample_missing = 'not found (avresample or swresample required)'
+            ctx.msg(msg_check, resample_missing, color = 'YELLOW')
         else:
-            ctx.msg('Checking for all libav libraries', 'not found', color = 'YELLOW')
+            ctx.msg(msg_check, 'yes')
+            if 'HAVE_SWRESAMPLE' in ctx.env:
+                ctx.define('HAVE_SWRESAMPLE', 1)
+            elif 'HAVE_AVRESAMPLE' in ctx.env:
+                ctx.define('HAVE_AVRESAMPLE', 1)
+            ctx.define('HAVE_LIBAV', 1)
 
-    ctx.define('HAVE_WAVREAD', 1)
-    ctx.define('HAVE_WAVWRITE', 1)
+    if (ctx.options.enable_wavread != False):
+        ctx.define('HAVE_WAVREAD', 1)
+    ctx.msg('Checking if using source_wavread',
+            ctx.options.enable_wavread and 'yes' or 'no')
+    if (ctx.options.enable_wavwrite!= False):
+        ctx.define('HAVE_WAVWRITE', 1)
+    ctx.msg('Checking if using sink_wavwrite',
+            ctx.options.enable_wavwrite and 'yes' or 'no')
 
-    # use ATLAS
-    if (ctx.options.enable_atlas != False):
-        ctx.check(header_name = 'atlas/cblas.h', mandatory = ctx.options.enable_atlas)
-        #ctx.check(lib = 'lapack', uselib_store = 'LAPACK', mandatory = ctx.options.enable_atlas)
-        ctx.check(lib = 'cblas', uselib_store = 'BLAS', mandatory = ctx.options.enable_atlas)
+    # use BLAS/ATLAS
+    if (ctx.options.enable_blas != False):
+        ctx.check_cfg(package = 'blas',
+                args = '--cflags --libs',
+                uselib_store='BLAS', mandatory = ctx.options.enable_blas)
+        if 'LIB_BLAS' in ctx.env:
+            blas_header = None
+            if ctx.env['LIBPATH_BLAS']:
+                if 'atlas' in ctx.env['LIBPATH_BLAS'][0]:
+                    blas_header = 'atlas/cblas.h'
+                elif 'openblas' in ctx.env['LIBPATH_BLAS'][0]:
+                    blas_header = 'openblas/cblas.h'
+            else:
+                blas_header = 'cblas.h'
+            ctx.check(header_name = blas_header, mandatory =
+                    ctx.options.enable_atlas)
 
     # use memcpy hacks
     if (ctx.options.enable_memcpy == True):
@@ -314,6 +473,7 @@ def configure(ctx):
 
     # the following defines will be passed as arguments to the compiler
     # instead of being written to src/config.h
+    ctx.define('HAVE_CONFIG_H', 1)
 
     # add some defines used in examples
     ctx.define('AUBIO_PREFIX', ctx.env['PREFIX'])
@@ -346,19 +506,37 @@ def build(bld):
     bld.env['VERSION'] = VERSION
     bld.env['LIB_VERSION'] = LIB_VERSION
 
-    # add sub directories
+    # main source
     bld.recurse('src')
-    if bld.env['DEST_OS'] not in ['ios', 'iosimulator', 'android']:
-        bld.recurse('examples')
-        bld.recurse('tests')
 
+    # add sub directories
+    if bld.env['DEST_OS'] not in ['ios', 'iosimulator', 'android']:
+        if bld.env['DEST_OS']=='emscripten' and not bld.options.testcmd:
+            bld.options.testcmd = 'node %s'
+        if bld.options.enable_examples:
+            bld.recurse('examples')
+        if bld.options.enable_tests:
+            bld.recurse('tests')
+
+    # pkg-config template
     bld( source = 'aubio.pc.in' )
 
+    # documentation
+    txt2man(bld)
+    doxygen(bld)
+    sphinx(bld)
+
+    from waflib.Tools import waf_unit_test
+    bld.add_post_fun(waf_unit_test.summary)
+    bld.add_post_fun(waf_unit_test.set_exit_code)
+
+def txt2man(bld):
     # build manpages from txt files using txt2man
     if bld.env['TXT2MAN']:
         from waflib import TaskGen
         if 'MANDIR' not in bld.env:
-            bld.env['MANDIR'] = bld.env['PREFIX'] + '/share/man'
+            bld.env['MANDIR'] = bld.env['DATAROOTDIR'] + '/man'
+        bld.env.VERSION = VERSION
         rule_str = '${TXT2MAN} -t `basename ${TGT} | cut -f 1 -d . | tr a-z A-Z`'
         rule_str += ' -r ${PACKAGE}\\ ${VERSION} -P ${PACKAGE}'
         rule_str += ' -v ${PACKAGE}\\ User\\\'s\\ manual'
@@ -373,36 +551,69 @@ def build(bld):
                 )
         bld( source = bld.path.ant_glob('doc/*.txt') )
 
+def doxygen(bld):
     # build documentation from source files using doxygen
     if bld.env['DOXYGEN']:
-        bld( name = 'doxygen', rule = 'doxygen ${SRC} > /dev/null',
+        bld.env.VERSION = VERSION
+        rule = '( cat ${SRC} && echo PROJECT_NUMBER=${VERSION}; )'
+        rule += ' | doxygen - > /dev/null'
+        bld( name = 'doxygen', rule = rule,
                 source = 'doc/web.cfg',
+                target = '../doc/web/html/index.html',
                 cwd = 'doc')
-        bld.install_files( '${PREFIX}' + '/share/doc/libaubio-doc',
+        bld.install_files( '${DATAROOTDIR}' + '/doc/libaubio-doc',
                 bld.path.ant_glob('doc/web/html/**'),
                 cwd = bld.path.find_dir ('doc/web'),
                 relative_trick = True)
 
-    # build documentation from source files using sphinx-build
+def sphinx(bld):
+    # build documentation from source files using sphinx-build note: build in
+    # ../doc/_build/html, otherwise waf wont install unsigned files
     if bld.env['SPHINX']:
-        bld( name = 'sphinx', rule = 'make html',
-                source = ['doc/conf.py'] + bld.path.ant_glob('doc/**.rst'),
-                cwd = 'doc')
-        bld.install_files( '${PREFIX}' + '/share/doc/libaubio-doc/sphinx',
+        bld.env.VERSION = VERSION
+        bld( name = 'sphinx',
+                rule = '${SPHINX} -b html -D release=${VERSION}' \
+                        ' -D version=${VERSION} -a -q' \
+                        ' `dirname ${SRC}` `dirname ${TGT}`',
+                source = 'doc/conf.py',
+                target = '../doc/_build/html/index.html')
+        bld.install_files( '${DATAROOTDIR}' + '/doc/libaubio-doc/sphinx',
                 bld.path.ant_glob('doc/_build/html/**'),
-                cwd = bld.path.find_dir ('doc/_build/html'),
+                cwd = bld.path.find_dir('doc/_build/html'),
                 relative_trick = True)
+
+# register the previous rules as build rules
+from waflib.Build import BuildContext
+
+class build_txt2man(BuildContext):
+    cmd = 'txt2man'
+    fun = 'txt2man'
+
+class build_manpages(BuildContext):
+    cmd = 'manpages'
+    fun = 'txt2man'
+
+class build_sphinx(BuildContext):
+    cmd = 'sphinx'
+    fun = 'sphinx'
+
+class build_doxygen(BuildContext):
+    cmd = 'doxygen'
+    fun = 'doxygen'
 
 def shutdown(bld):
     from waflib import Logs
     if bld.options.target_platform in ['ios', 'iosimulator']:
-        msg ='building for %s, contact the author for a commercial license' % bld.options.target_platform
+        msg ='building for %s, contact the author for a commercial license' \
+                % bld.options.target_platform
         Logs.pprint('RED', msg)
         msg ='   Paul Brossier <piem@aubio.org>'
         Logs.pprint('RED', msg)
 
 def dist(ctx):
-    ctx.excl  = ' **/.waf-1* **/*~ **/*.pyc **/*.swp **/*.swo **/*.swn **/.lock-w* **/.git*'
+    ctx.excl  = ' **/.waf*'
+    ctx.excl += ' **/.git*'
+    ctx.excl += ' **/*~ **/*.pyc **/*.swp **/*.swo **/*.swn **/.lock-w*'
     ctx.excl += ' **/build/*'
     ctx.excl += ' doc/_build'
     ctx.excl += ' python/demos_*'
@@ -410,11 +621,17 @@ def dist(ctx):
     ctx.excl += ' **/python/ext/config.h'
     ctx.excl += ' **/python/lib/aubio/_aubio.so'
     ctx.excl += ' **.egg-info'
+    ctx.excl += ' **/.eggs'
+    ctx.excl += ' **/.pytest_cache'
+    ctx.excl += ' **/.cache'
     ctx.excl += ' **/**.zip **/**.tar.bz2'
+    ctx.excl += ' **.tar.bz2'
     ctx.excl += ' **/doc/full/* **/doc/web/*'
+    ctx.excl += ' **/doc/full.cfg'
     ctx.excl += ' **/python/*.db'
     ctx.excl += ' **/python.old/*'
     ctx.excl += ' **/python/*/*.old'
+    ctx.excl += ' **/python/lib/aubio/*.so'
     ctx.excl += ' **/python/tests/sounds'
     ctx.excl += ' **/**.asc'
     ctx.excl += ' **/dist*'
@@ -422,3 +639,6 @@ def dist(ctx):
     ctx.excl += ' **/.travis.yml'
     ctx.excl += ' **/.landscape.yml'
     ctx.excl += ' **/.appveyor.yml'
+    ctx.excl += ' **/.circleci/*'
+    ctx.excl += ' **/azure-pipelines.yml'
+    ctx.excl += ' **/.coverage*'

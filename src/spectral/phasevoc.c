@@ -88,7 +88,7 @@ aubio_pvoc_t * new_aubio_pvoc (uint_t win_s, uint_t hop_s) {
     AUBIO_ERR("pvoc: got buffer_size %d, but can not be < 2\n", win_s);
     goto beach;
   } else if (win_s < hop_s) {
-    AUBIO_ERR("pvoc: hop size (%d) is larger than win size (%d)\n", win_s, hop_s);
+    AUBIO_ERR("pvoc: hop size (%d) is larger than win size (%d)\n", hop_s, win_s);
     goto beach;
   }
 
@@ -141,6 +141,10 @@ aubio_pvoc_t * new_aubio_pvoc (uint_t win_s, uint_t hop_s) {
 beach:
   AUBIO_FREE (pv);
   return NULL;
+}
+
+uint_t aubio_pvoc_set_window(aubio_pvoc_t *pv, const char_t *window) {
+  return fvec_set_window(pv->w, (char_t*)window);
 }
 
 void del_aubio_pvoc(aubio_pvoc_t *pv) {
@@ -207,4 +211,14 @@ static void aubio_pvoc_addsynth(aubio_pvoc_t *pv, fvec_t *synth_new)
   /* additive synth */
   for (i = 0; i < pv->end; i++)
     synthold[i] += synth[i + pv->hop_s] * pv->scale;
+}
+
+uint_t aubio_pvoc_get_win(aubio_pvoc_t* pv)
+{
+  return pv->win_s;
+}
+
+uint_t aubio_pvoc_get_hop(aubio_pvoc_t* pv)
+{
+  return pv->hop_s;
 }

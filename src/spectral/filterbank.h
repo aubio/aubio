@@ -83,6 +83,47 @@ fmat_t *aubio_filterbank_get_coeffs (const aubio_filterbank_t * f);
  */
 uint_t aubio_filterbank_set_coeffs (aubio_filterbank_t * f, const fmat_t * filters);
 
+/** set norm parameter
+
+  \param f filterbank object, as returned by new_aubio_filterbank()
+  \param norm `1` to norm the filters, `0` otherwise.
+
+  If set to `0`, the filters will not be normalized. If set to `1`,
+  each filter will be normalized to one. Defaults to `1`.
+
+  This function should be called *before* setting the filters with one of
+  aubio_filterbank_set_triangle_bands(), aubio_filterbank_set_mel_coeffs(),
+  aubio_filterbank_set_mel_coeffs_htk(), or
+  aubio_filterbank_set_mel_coeffs_slaney().
+
+ */
+uint_t aubio_filterbank_set_norm (aubio_filterbank_t *f, smpl_t norm);
+
+/** get norm parameter
+
+  \param f filterbank object, as returned by new_aubio_filterbank()
+  \returns `1` if norm is set, `0` otherwise. Defaults to `1`.
+
+ */
+smpl_t aubio_filterbank_get_norm (aubio_filterbank_t *f);
+
+/** set power parameter
+
+  \param f filterbank object, as returned by new_aubio_filterbank()
+  \param power Raise norm of the input spectrum norm to this power before
+  computing filterbank.  Defaults to `1`.
+
+ */
+uint_t aubio_filterbank_set_power (aubio_filterbank_t *f, smpl_t power);
+
+/** get power parameter
+
+  \param f filterbank object, as returned by new_aubio_filterbank()
+  \return current power parameter. Defaults to `1`.
+
+ */
+smpl_t aubio_filterbank_get_power (aubio_filterbank_t *f);
+
 #ifdef __cplusplus
 }
 #endif

@@ -27,7 +27,7 @@
 #ifdef USE_LOCAL_AUBIO
 #include "aubio.h"
 #else
-#include "aubio/aubio.h"
+#include <aubio/aubio.h>
 #endif
 
 #define Py_default_vector_length 1024
@@ -44,6 +44,14 @@
 #define AUBIO_NPY_SMPL NPY_FLOAT
 #define AUBIO_NPY_SMPL_STR "float32"
 #define AUBIO_NPY_SMPL_CHR "f"
+#endif
+
+#ifndef PATH_MAX
+#ifdef MAX_PATH
+#define PATH_MAX MAX_PATH
+#else
+#define PATH_MAX 1024
+#endif
 #endif
 
 // compat with Python < 2.6

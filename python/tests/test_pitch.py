@@ -70,8 +70,8 @@ class aubio_pitch_Sinusoid(TestCase):
         #print 'len(pitches), cut:', len(pitches), cut
         #print 'median errors: ', median(errors), 'median pitches: ', median(pitches)
 
-pitch_algorithms = [ "default", "yinfft", "yin", "schmitt", "mcomb", "fcomb" , "specacf" ]
-pitch_algorithms = [ "default", "yinfft", "yin", "schmitt", "mcomb", "fcomb" ]
+pitch_algorithms = [ "default", "yinfft", "yin", "yinfast", "schmitt", "mcomb", "fcomb" , "specacf" ]
+pitch_algorithms = [ "default", "yinfft", "yin", "yinfast", "schmitt", "mcomb", "fcomb" ]
 
 #freqs = [ 27.5, 55., 110., 220., 440., 880., 1760., 3520. ]
 freqs = [             110., 220., 440., 880., 1760., 3520. ]

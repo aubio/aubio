@@ -88,12 +88,23 @@ void aubio_pvoc_rdo(aubio_pvoc_t *pv, cvec_t * fftgrain, fvec_t *out);
 
 */
 uint_t aubio_pvoc_get_win(aubio_pvoc_t* pv);
+
 /** get hop size
 
   \param pv phase vocoder to get the hop size from
 
 */
 uint_t aubio_pvoc_get_hop(aubio_pvoc_t* pv);
+
+/** set window type
+
+  \param pv phase vocoder to set the window type
+  \param window_type a string representing a window
+
+  \return 0 if successful, non-zero otherwise
+
+ */
+uint_t aubio_pvoc_set_window(aubio_pvoc_t *pv, const char_t *window_type);
 
 #ifdef __cplusplus
 }

@@ -1,5 +1,13 @@
-aubio library
-=============
+aubio
+=====
+
+[![Travis build status](https://travis-ci.org/aubio/aubio.svg?branch=master)](https://travis-ci.org/aubio/aubio "Travis build status")
+[![Appveyor build status](https://img.shields.io/appveyor/ci/piem/aubio/master.svg)](https://ci.appveyor.com/project/piem/aubio "Appveyor build status")
+[![Landscape code health](https://landscape.io/github/aubio/aubio/master/landscape.svg?style=flat)](https://landscape.io/github/aubio/aubio/master "Landscape code health")
+[![Commits since last release](https://img.shields.io/github/commits-since/aubio/aubio/latest.svg)](https://github.com/aubio/aubio "Commits since last release")
+
+[![Documentation](https://readthedocs.org/projects/aubio/badge/?version=latest)](http://aubio.readthedocs.io/en/latest/?badge=latest "Latest documentation")
+[![DOI](https://zenodo.org/badge/396389.svg)](https://zenodo.org/badge/latestdoi/396389)
 
 aubio is a library to label music and sounds. It listens to audio signals and
 attempts to detect events. For instance, when a drum is hit, at which frequency
@@ -20,7 +28,7 @@ aubio provide several algorithms and routines, including:
   - digital filters (low pass, high pass, and more)
   - spectral filtering
   - transient/steady-state separation
-  - sound file and audio devices read and write access
+  - sound file read and write access
   - various mathematics utilities for music applications
 
 The name aubio comes from _audio_ with a typo: some errors are likely to be
@@ -29,14 +37,19 @@ found in the results.
 Python module
 -------------
 
-A python module to access the library functions is also provided. Please see
-the file [`python/README.md`](python/README.md) for more information on how to
-use it.
+A python module for aubio is provided. For more information on how to use it,
+please see the file [`python/README.md`](python/README.md) and the
+[manual](https://aubio.org/manual/latest/) .
 
-Examples tools
---------------
+Tools
+-----
 
-A few simple command line tools are included along with the library:
+The python module comes with the following command line tools:
+
+ - `aubio` extracts informations from sound files
+ - `aubiocut` slices sound files at onset or beat timestamps
+
+Additional command line tools are included along with the library:
 
  - `aubioonset` outputs the time stamp of detected note onsets
  - `aubiopitch` attempts to identify a fundamental frequency, or pitch, for
@@ -46,26 +59,11 @@ A few simple command line tools are included along with the library:
  - `aubionotes` emits midi-like notes, with an onset, a pitch, and a duration
  - `aubioquiet` extracts quiet and loud regions
 
-Additionally, the python module comes with the following script:
+Documentation
+-------------
 
- - `aubiocut` slices sound files at onset or beat timestamps
-
-Implementation and Design Basics
---------------------------------
-
-The library is written in C and is optimised for speed and portability.
-
-The C API is designed in the following way:
-
-    aubio_something_t * new_aubio_something (void * args);
-    audio_something_do (aubio_something_t * t, void * args);
-    smpl_t aubio_something_get_a_parameter (aubio_something_t *t);
-    uint_t aubio_something_set_a_parameter (aubio_something_t *t, smpl_t a_parameter);
-    void del_aubio_something (aubio_something_t * t);
-
-For performance and real-time operation, no memory allocation or freeing take
-place in the `_do` methods. Instead, memory allocation should always take place
-in the `new_` methods, whereas free operations are done in the `del_` methods.
+  - [manual](https://aubio.org/manual/latest/), generated with sphinx
+  - [developer documentation](https://aubio.org/doc/latest/), generated with Doxygen
 
 The latest version of the documentation can be found at:
 
@@ -74,105 +72,42 @@ The latest version of the documentation can be found at:
 Build Instructions
 ------------------
 
-A number of distributions already include aubio. Check your favorite package
-management system, or have a look at the [download
-page](https://aubio.org/download).
+aubio compiles on Linux, Mac OS X, Windows, Cygwin, and iOS.
 
-aubio uses [waf](https://waf.io/) to configure, compile, and test the source:
+To compile aubio, you should be able to simply run:
 
-    ./waf configure
-    ./waf build
+    make
 
-If waf is not found in the directory, you can download and install it with:
+To compile the python module:
 
-    make getwaf
+    ./setup.py build
 
-aubio compiles on Linux, Mac OS X, Cygwin, and iOS.
+See the [manual](https://aubio.org/manual/latest/) for more information about
+[installing aubio](https://aubio.org/manual/latest/installing.html).
 
-Installation
-------------
+Citation
+--------
 
-To install aubio library and headers on your system, use:
+Please use the DOI link above to cite this release in your publications. For
+more information, see also the [about
+page](https://aubio.org/manual/latest/about.html) in [aubio
+manual](https://aubio.org/manual/latest/).
 
-    sudo ./waf install
-
-To uninstall:
-
-    sudo ./waf uninstall
-
-If you don't have root access to install libaubio on your system, you can use
-libaubio without installing libaubio either by setting `LD_LIBRARY_PATH`, or by
-copying it to `~/lib`.
-
-On Linux, you should be able to set `LD_LIBRARY_PATH` with:
-
-    $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/build/src
-
-On Mac OS X, a copy or a symlink can be made in `~/lib`:
-
-    $ mkdir -p ~/lib
-    $ ln -sf $PWD/build/src/libaubio*.dylib ~/lib/
-
-Note on Mac OS X systems older than El Capitan (10.11), the `DYLD_LIBRARY_PATH`
-variable can be set as follows:
-
-    $ export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$PWD/build/src
-
-Credits and Publications
-------------------------
-
-This library gathers music signal processing algorithms designed at the Centre
-for Digital Music and elsewhere. This software project was developed along the
-research I did at the Centre for Digital Music, Queen Mary, University of
-London. Most of this C code was written by myself, starting from published
-papers and existing code. The header files of each algorithm contains brief
-descriptions and references to the corresponding papers.
-
-Special thanks go Juan Pablo Bello, Chris Duxbury, Samer Abdallah, Alain de
-Cheveigne for their help and publications. Also many thanks to Miguel Ramirez
-and Nicolas Wack for their bug fixing.
-
-Substantial informations about the algorithms and their evaluation are gathered
-in:
-
-  - Paul Brossier, _[Automatic annotation of musical audio for interactive
-    systems](https://aubio.org/phd)_, PhD thesis, Centre for Digital music,
-Queen Mary University of London, London, UK, 2006.
-
-Additional results obtained with this software were discussed in the following
-papers:
-
-  - P. M. Brossier and J. P. Bello and M. D. Plumbley, [Real-time temporal
-    segmentation of note objects in music signals](https://aubio.org/articles/brossier04fastnotes.pdf),
-in _Proceedings of the International Computer Music Conference_, 2004, Miami,
-Florida, ICMA
-
-  -  P. M. Brossier and J. P. Bello and M. D. Plumbley, [Fast labelling of note
-     objects in music signals] (https://aubio.org/articles/brossier04fastnotes.pdf),
-in _Proceedings of the International Symposium on Music Information Retrieval_,
-2004, Barcelona, Spain
-
-
-Contact Info and Mailing List
------------------------------
+Homepage
+--------
 
 The home page of this project can be found at: https://aubio.org/
 
-Questions, comments, suggestions, and contributions are welcome. Use the
-mailing list: <aubio-user@aubio.org>.
-
-To subscribe to the list, use the mailman form:
-http://lists.aubio.org/listinfo/aubio-user/
-
-Alternatively, feel free to contact directly the author.
-
-
-Copyright and License Information
----------------------------------
-
-Copyright (C) 2003-2013 Paul Brossier <piem@aubio.org>
+License
+-------
 
 aubio is free software: you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software
 Foundation, either version 3 of the License, or (at your option) any later
 version.
+
+Contributing
+------------
+
+Patches are welcome: please fork the latest git repository and create a feature
+branch. Submitted requests should pass all continuous integration tests.

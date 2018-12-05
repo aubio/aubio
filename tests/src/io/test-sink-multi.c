@@ -1,17 +1,16 @@
-#define AUBIO_UNSTABLE 1
 #include <aubio.h>
 #include "utils_tests.h"
 
-// this file uses the unstable aubio api, please use aubio_sink instead
-// see src/io/sink.h and tests/src/sink/test-sink.c
+// same as test-sink.c, but uses aubio_source_do_multi to read multiple
+// channels
 
 int main (int argc, char **argv)
 {
   sint_t err = 0;
 
   if (argc < 3) {
-    err = 2;
-    PRINT_ERR("not enough arguments\n");
+    PRINT_ERR("not enough arguments, running tests\n");
+    err = run_on_default_source_and_sink(main);
     PRINT_MSG("usage: %s <input_path> <output_path> [samplerate] [channels] [hop_size]\n", argv[0]);
     return err;
   }

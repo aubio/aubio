@@ -9,6 +9,11 @@ class aubiomodule_test_case(TestCase):
         """ try importing aubio """
         import aubio
 
+    def test_version(self):
+        """ test aubio.version """
+        import aubio
+        self.assertEqual('0', aubio.version[0])
+
 if __name__ == '__main__':
     main()
 

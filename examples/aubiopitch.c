@@ -21,6 +21,7 @@
 #include "utils.h"
 #define PROG_HAS_PITCH 1
 #define PROG_HAS_OUTPUT 1
+#define PROG_HAS_SILENCE 1
 #define PROG_HAS_JACK 1
 #include "parse_args.h"
 
@@ -51,6 +52,7 @@ void process_print (void)
 }
 
 int main(int argc, char **argv) {
+  int ret = 0;
 
   buffer_size = 2048;
 
@@ -64,6 +66,7 @@ int main(int argc, char **argv) {
   verbmsg ("tolerance: %f\n", pitch_tolerance);
 
   o = new_aubio_pitch (pitch_method, buffer_size, hop_size, samplerate);
+  if (o == NULL) { ret = 1; goto beach; }
   if (pitch_tolerance != 0.)
     aubio_pitch_set_tolerance (o, pitch_tolerance);
   if (silence_threshold != -90.)
@@ -82,7 +85,7 @@ int main(int argc, char **argv) {
   del_aubio_wavetable (wavetable);
   del_fvec (pitch);
 
+beach:
   examples_common_del();
-  return 0;
+  return ret;
 }
-

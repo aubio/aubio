@@ -36,9 +36,10 @@ struct _aubio_pitchyin_t
 {
   fvec_t *yin;
   smpl_t tol;
-  smpl_t confidence;
+  uint_t peak_pos;
 };
 
+#if 0
 /** compute difference function
 
   \param input input signal
@@ -60,6 +61,7 @@ void aubio_pitchyin_getcum (fvec_t * yinbuf);
 
 */
 uint_t aubio_pitchyin_getpitch (const fvec_t * yinbuf);
+#endif
 
 aubio_pitchyin_t *
 new_aubio_pitchyin (uint_t bufsize)
@@ -67,6 +69,7 @@ new_aubio_pitchyin (uint_t bufsize)
   aubio_pitchyin_t *o = AUBIO_NEW (aubio_pitchyin_t);
   o->yin = new_fvec (bufsize / 2);
   o->tol = 0.15;
+  o->peak_pos = 0;
   return o;
 }
 
@@ -77,6 +80,7 @@ del_aubio_pitchyin (aubio_pitchyin_t * o)
   AUBIO_FREE (o);
 }
 
+#if 0
 /* outputs the difference function */
 void
 aubio_pitchyin_diff (fvec_t * input, fvec_t * yin)
@@ -126,46 +130,49 @@ aubio_pitchyin_getpitch (const fvec_t * yin)
   //AUBIO_DBG("No pitch found");
   return 0;
 }
-
+#endif
 
 /* all the above in one */
 void
 aubio_pitchyin_do (aubio_pitchyin_t * o, const fvec_t * input, fvec_t * out)
 {
-  smpl_t tol = o->tol;
-  fvec_t *yin = o->yin;
-  uint_t j, tau = 0;
+  const smpl_t tol = o->tol;
+  fvec_t* yin = o->yin;
+  const smpl_t *input_data = input->data;
+  const uint_t length = yin->length;
+  smpl_t *yin_data = yin->data;
+  uint_t j, tau;
   sint_t period;
-  smpl_t tmp = 0., tmp2 = 0.;
-  yin->data[0] = 1.;
-  for (tau = 1; tau < yin->length; tau++) {
-    yin->data[tau] = 0.;
-    for (j = 0; j < yin->length; j++) {
-      tmp = input->data[j] - input->data[j + tau];
-      yin->data[tau] += SQR (tmp);
+  smpl_t tmp, tmp2 = 0.;
+
+  yin_data[0] = 1.;
+  for (tau = 1; tau < length; tau++) {
+    yin_data[tau] = 0.;
+    for (j = 0; j < length; j++) {
+      tmp = input_data[j] - input_data[j + tau];
+      yin_data[tau] += SQR (tmp);
     }
-    tmp2 += yin->data[tau];
+    tmp2 += yin_data[tau];
     if (tmp2 != 0) {
       yin->data[tau] *= tau / tmp2;
     } else {
       yin->data[tau] = 1.;
     }
     period = tau - 3;
-    if (tau > 4 && (yin->data[period] < tol) &&
-        (yin->data[period] < yin->data[period + 1])) {
-      out->data[0] = fvec_quadratic_peak_pos (yin, period);
-      goto beach;
+    if (tau > 4 && (yin_data[period] < tol) &&
+        (yin_data[period] < yin_data[period + 1])) {
+      o->peak_pos = (uint_t)period;
+      out->data[0] = fvec_quadratic_peak_pos (yin, o->peak_pos);
+      return;
     }
   }
-  out->data[0] = fvec_quadratic_peak_pos (yin, fvec_min_elem (yin));
-beach:
-  return;
+  o->peak_pos = (uint_t)fvec_min_elem (yin);
+  out->data[0] = fvec_quadratic_peak_pos (yin, o->peak_pos);
 }
 
 smpl_t
 aubio_pitchyin_get_confidence (aubio_pitchyin_t * o) {
-  o->confidence = 1. - fvec_min (o->yin);
-  return o->confidence;
+  return 1. - o->yin->data[o->peak_pos];
 }
 
 uint_t

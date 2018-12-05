@@ -2,77 +2,202 @@
 #include "aubio-types.h"
 #include "py-musicutils.h"
 
+// this dummy macro is used to convince windows that a string passed as -D flag
+// is just that, a string, and not a double.
+#define REDEFINESTRING(x) #x
+#define DEFINEDSTRING(x) REDEFINESTRING(x)
+
 static char aubio_module_doc[] = "Python module for the aubio library";
 
 static char Py_alpha_norm_doc[] = ""
-"alpha_norm(fvec, integer) -> float\n"
+"alpha_norm(vec, alpha)\n"
 "\n"
-"Compute alpha normalisation factor on vector, given alpha\n"
+"Compute `alpha` normalisation factor of vector `vec`.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"vec : fvec\n"
+"   input vector\n"
+"alpha : float\n"
+"   norm factor\n"
+"\n"
+"Returns\n"
+"-------\n"
+"float\n"
+"   p-norm of the input vector, where `p=alpha`\n"
 "\n"
 "Example\n"
 "-------\n"
 "\n"
-">>> b = alpha_norm(a, 9)";
+">>> a = aubio.fvec(np.arange(10)); alpha = 2\n"
+">>> aubio.alpha_norm(a, alpha), (sum(a**alpha)/len(a))**(1./alpha)\n"
+"(5.338539123535156, 5.338539126015656)\n"
+"\n"
+"Note\n"
+"----\n"
+"Computed as:\n"
+"\n"
+".. math::\n"
+"  l_{\\alpha} = \n"
+"       \\|\\frac{\\sum_{n=0}^{N-1}{{x_n}^{\\alpha}}}{N}\\|^{1/\\alpha}\n"
+"";
 
 static char Py_bintomidi_doc[] = ""
-"bintomidi(float, samplerate = integer, fftsize = integer) -> float\n"
+"bintomidi(fftbin, samplerate, fftsize)\n"
 "\n"
-"Convert bin (float) to midi (float), given the sampling rate and the FFT size\n"
+"Convert FFT bin to frequency in midi note, given the sampling rate\n"
+"and the size of the FFT.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"fftbin : float\n"
+"   input frequency bin\n"
+"samplerate : float\n"
+"   sampling rate of the signal\n"
+"fftsize : float\n"
+"   size of the FFT\n"
+"\n"
+"Returns\n"
+"-------\n"
+"float\n"
+"   Frequency converted to midi note.\n"
 "\n"
 "Example\n"
 "-------\n"
 "\n"
-">>> midi = bintomidi(float, samplerate = 44100, fftsize = 1024)";
+">>> aubio.bintomidi(10, 44100, 1024)\n"
+"68.62871551513672\n"
+"";
 
 static char Py_miditobin_doc[] = ""
-"miditobin(float, samplerate = integer, fftsize = integer) -> float\n"
+"miditobin(midi, samplerate, fftsize)\n"
 "\n"
-"Convert midi (float) to bin (float), given the sampling rate and the FFT size\n"
+"Convert frequency in midi note to FFT bin, given the sampling rate\n"
+"and the size of the FFT.\n"
 "\n"
-"Example\n"
+"Parameters\n"
+"----------\n"
+"midi : float\n"
+"   input frequency, in midi note\n"
+"samplerate : float\n"
+"   sampling rate of the signal\n"
+"fftsize : float\n"
+"   size of the FFT\n"
+"\n"
+"Returns\n"
 "-------\n"
+"float\n"
+"   Frequency converted to FFT bin.\n"
 "\n"
-">>> bin = miditobin(midi, samplerate = 44100, fftsize = 1024)";
+"Examples\n"
+"--------\n"
+"\n"
+">>> aubio.miditobin(69, 44100, 1024)\n"
+"10.216779708862305\n"
+">>> aubio.miditobin(75.08, 32000, 512)\n"
+"10.002175331115723\n"
+"";
 
 static char Py_bintofreq_doc[] = ""
-"bintofreq(float, samplerate = integer, fftsize = integer) -> float\n"
+"bintofreq(fftbin, samplerate, fftsize)\n"
 "\n"
-"Convert bin number (float) in frequency (Hz), given the sampling rate and the FFT size\n"
+"Convert FFT bin to frequency in Hz, given the sampling rate\n"
+"and the size of the FFT.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"fftbin : float\n"
+"   input frequency bin\n"
+"samplerate : float\n"
+"   sampling rate of the signal\n"
+"fftsize : float\n"
+"   size of the FFT\n"
+"\n"
+"Returns\n"
+"-------\n"
+"float\n"
+"   Frequency converted to Hz.\n"
 "\n"
 "Example\n"
 "-------\n"
 "\n"
-">>> freq = bintofreq(bin, samplerate = 44100, fftsize = 1024)";
+">>> aubio.bintofreq(10, 44100, 1024)\n"
+"430.6640625\n"
+"";
 
 static char Py_freqtobin_doc[] = ""
-"freqtobin(float, samplerate = integer, fftsize = integer) -> float\n"
+"freqtobin(freq, samplerate, fftsize)\n"
 "\n"
-"Convert frequency (Hz) in bin number (float), given the sampling rate and the FFT size\n"
+"Convert frequency in Hz to FFT bin, given the sampling rate\n"
+"and the size of the FFT.\n"
 "\n"
-"Example\n"
+"Parameters\n"
+"----------\n"
+"midi : float\n"
+"   input frequency, in midi note\n"
+"samplerate : float\n"
+"   sampling rate of the signal\n"
+"fftsize : float\n"
+"   size of the FFT\n"
+"\n"
+"Returns\n"
 "-------\n"
+"float\n"
+"   Frequency converted to FFT bin.\n"
 "\n"
-">>> bin = freqtobin(freq, samplerate = 44100, fftsize = 1024)";
+"Examples\n"
+"--------\n"
+"\n"
+">>> aubio.freqtobin(440, 44100, 1024)\n"
+"10.216779708862305\n"
+"";
 
 static char Py_zero_crossing_rate_doc[] = ""
-"zero_crossing_rate(fvec) -> float\n"
+"zero_crossing_rate(vec)\n"
 "\n"
-"Compute Zero crossing rate of a vector\n"
+"Compute zero-crossing rate of `vec`.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"vec : fvec\n"
+"   input vector\n"
+"\n"
+"Returns\n"
+"-------\n"
+"float\n"
+"   Zero-crossing rate.\n"
 "\n"
 "Example\n"
 "-------\n"
 "\n"
-">>> z = zero_crossing_rate(a)";
+">>> a = np.linspace(-1., 1., 1000, dtype=aubio.float_type)\n"
+">>> aubio.zero_crossing_rate(a), 1/1000\n"
+"(0.0010000000474974513, 0.001)\n"
+"";
 
 static char Py_min_removal_doc[] = ""
-"min_removal(fvec) -> float\n"
+"min_removal(vec)\n"
 "\n"
-"Remove the minimum value of a vector, in-place modification\n"
+"Remove the minimum value of a vector to each of its element.\n"
+"\n"
+"Modifies the input vector in-place and returns a reference to it.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"vec : fvec\n"
+"   input vector\n"
+"\n"
+"Returns\n"
+"-------\n"
+"fvec\n"
+"   modified input vector\n"
 "\n"
 "Example\n"
 "-------\n"
 "\n"
-">>> min_removal(a)";
+">>> aubio.min_removal(aubio.fvec(np.arange(1,4)))\n"
+"array([0., 1., 2.], dtype=" AUBIO_NPY_SMPL_STR ")\n"
+"";
 
 extern void add_ufuncs ( PyObject *m );
 extern int generated_types_ready(void);
@@ -112,7 +237,9 @@ Py_bintomidi (PyObject * self, PyObject * args)
   smpl_t input, samplerate, fftsize;
   smpl_t output;
 
-  if (!PyArg_ParseTuple (args, "|" AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR , &input, &samplerate, &fftsize)) {
+  if (!PyArg_ParseTuple (args,
+        "" AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR,
+        &input, &samplerate, &fftsize)) {
     return NULL;
   }
 
@@ -127,7 +254,9 @@ Py_miditobin (PyObject * self, PyObject * args)
   smpl_t input, samplerate, fftsize;
   smpl_t output;
 
-  if (!PyArg_ParseTuple (args, "|" AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR , &input, &samplerate, &fftsize)) {
+  if (!PyArg_ParseTuple (args,
+        "" AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR,
+        &input, &samplerate, &fftsize)) {
     return NULL;
   }
 
@@ -142,7 +271,9 @@ Py_bintofreq (PyObject * self, PyObject * args)
   smpl_t input, samplerate, fftsize;
   smpl_t output;
 
-  if (!PyArg_ParseTuple (args, "|" AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR, &input, &samplerate, &fftsize)) {
+  if (!PyArg_ParseTuple (args,
+        "" AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR,
+        &input, &samplerate, &fftsize)) {
     return NULL;
   }
 
@@ -157,7 +288,9 @@ Py_freqtobin (PyObject * self, PyObject * args)
   smpl_t input, samplerate, fftsize;
   smpl_t output;
 
-  if (!PyArg_ParseTuple (args, "|" AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR, &input, &samplerate, &fftsize)) {
+  if (!PyArg_ParseTuple (args,
+        "" AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR AUBIO_NPY_SMPL_CHR,
+        &input, &samplerate, &fftsize)) {
     return NULL;
   }
 
@@ -237,6 +370,12 @@ static PyMethodDef aubio_methods[] = {
   {"silence_detection", Py_aubio_silence_detection, METH_VARARGS, Py_aubio_silence_detection_doc},
   {"level_detection", Py_aubio_level_detection, METH_VARARGS, Py_aubio_level_detection_doc},
   {"window", Py_aubio_window, METH_VARARGS, Py_aubio_window_doc},
+  {"shift", Py_aubio_shift, METH_VARARGS, Py_aubio_shift_doc},
+  {"ishift", Py_aubio_ishift, METH_VARARGS, Py_aubio_ishift_doc},
+  {"hztomel", Py_aubio_hztomel, METH_VARARGS|METH_KEYWORDS, Py_aubio_hztomel_doc},
+  {"meltohz", Py_aubio_meltohz, METH_VARARGS|METH_KEYWORDS, Py_aubio_meltohz_doc},
+  {"hztomel_htk", Py_aubio_hztomel_htk, METH_VARARGS, Py_aubio_hztomel_htk_doc},
+  {"meltohz_htk", Py_aubio_meltohz_htk, METH_VARARGS, Py_aubio_meltohz_htk_doc},
   {NULL, NULL, 0, NULL} /* Sentinel */
 };
 
@@ -323,6 +462,7 @@ initaubio (void)
   PyModule_AddObject (m, "sink", (PyObject *) & Py_sinkType);
 
   PyModule_AddStringConstant(m, "float_type", AUBIO_NPY_SMPL_STR);
+  PyModule_AddStringConstant(m, "__version__", DEFINEDSTRING(AUBIO_VERSION));
 
   // add generated objects
   add_generated_objects(m);

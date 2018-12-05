@@ -19,7 +19,6 @@
 */
 
 
-#include "config.h"
 #include "aubio_priv.h"
 #include "fvec.h"
 #include "fmat.h"
@@ -104,6 +103,7 @@ void aubio_wavetable_do ( aubio_wavetable_t * s, const fvec_t * input, fvec_t * 
     for (i = 0; i < output->length; i++) {
       output->data[i] += input->data[i];
     }
+    fvec_clamp(output, 1.);
   }
 }
 
@@ -164,7 +164,14 @@ uint_t aubio_wavetable_stop ( aubio_wavetable_t * s )
   //aubio_wavetable_set_freq (s, 0.);
   aubio_wavetable_set_amp (s, 0.);
   //s->last_pos = 0;
-  return aubio_wavetable_set_playing (s, 1);
+  return aubio_wavetable_set_playing (s, 0);
+}
+
+uint_t
+aubio_wavetable_load ( aubio_wavetable_t *s UNUSED, const char_t *uri UNUSED)
+{
+  AUBIO_ERR("wavetable: load method not implemented yet, see sampler\n");
+  return AUBIO_FAIL;
 }
 
 uint_t aubio_wavetable_set_freq ( aubio_wavetable_t * s, smpl_t freq )

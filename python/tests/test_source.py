@@ -2,9 +2,9 @@
 
 from nose2 import main
 from nose2.tools import params
-from numpy.testing import TestCase
+from numpy.testing import TestCase, assert_equal
 from aubio import source
-from utils import list_all_sounds
+from .utils import list_all_sounds
 
 import warnings
 warnings.filterwarnings('ignore', category=UserWarning, append=True)
@@ -51,9 +51,11 @@ class aubio_source_read_test_case(aubio_source_test_case_base):
     def read_from_source(self, f):
         total_frames = 0
         while True:
-            _ , read = f()
+            samples , read = f()
             total_frames += read
-            if read < f.hop_size: break
+            if read < f.hop_size:
+                assert_equal(samples[read:], 0)
+                break
         #result_str = "read {:.2f}s ({:d} frames in {:d} blocks at {:d}Hz) from {:s}"
         #result_params = total_frames / float(f.samplerate), total_frames, total_frames//f.hop_size, f.samplerate, f.uri
         #print (result_str.format(*result_params))
@@ -66,7 +68,14 @@ class aubio_source_read_test_case(aubio_source_test_case_base):
         except RuntimeError as e:
             self.skipTest('failed opening with hop_s = {:d}, samplerate = {:d} ({:s})'.format(hop_size, samplerate, str(e)))
         assert f.samplerate != 0
-        self.read_from_source(f)
+        read_frames = self.read_from_source(f)
+        if 'f_' in soundfile and samplerate == 0:
+            import re
+            f = re.compile('.*_\([0:9]*f\)_.*')
+            match_f = re.findall('([0-9]*)f_', soundfile)
+            if len(match_f) == 1:
+                expected_frames = int(match_f[0])
+                self.assertEqual(expected_frames, read_frames)
 
     @params(*list_of_sounds)
     def test_samplerate_none(self, p):
@@ -149,13 +158,31 @@ class aubio_source_readmulti_test_case(aubio_source_read_test_case):
     def read_from_source(self, f):
         total_frames = 0
         while True:
-            _, read = f.do_multi()
+            samples, read = f.do_multi()
             total_frames += read
-            if read < f.hop_size: break
+            if read < f.hop_size:
+                assert_equal(samples[:,read:], 0)
+                break
         #result_str = "read {:.2f}s ({:d} frames in {:d} channels and {:d} blocks at {:d}Hz) from {:s}"
         #result_params = total_frames / float(f.samplerate), total_frames, f.channels, int(total_frames/f.hop_size), f.samplerate, f.uri
         #print (result_str.format(*result_params))
         return total_frames
+
+class aubio_source_with(aubio_source_test_case_base):
+
+    #@params(*list_of_sounds)
+    @params(*list_of_sounds)
+    def test_read_from_mono(self, filename):
+        total_frames = 0
+        hop_size = 2048
+        with source(filename, 0, hop_size) as input_source:
+            assert_equal(input_source.hop_size, hop_size)
+            #assert_equal(input_source.samplerate, samplerate)
+            total_frames = 0
+            for frames in input_source:
+                total_frames += frames.shape[-1]
+            # check we read as many samples as we expected
+            assert_equal(total_frames, input_source.duration)
 
 if __name__ == '__main__':
     main()
