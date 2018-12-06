@@ -44,6 +44,7 @@ aubio_hist_t * new_aubio_hist (smpl_t flow, smpl_t fhig, uint_t nelems){
   smpl_t accum = step;
   uint_t i;
   if ((sint_t)nelems <= 0) {
+    AUBIO_FREE(s);
     return NULL;
   }
   s->nelems = nelems;
