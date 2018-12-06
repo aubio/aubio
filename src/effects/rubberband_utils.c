@@ -125,13 +125,14 @@ RubberBandOptions aubio_get_rubberband_opts(const char_t *mode)
       else if ( strcmp(params[i], "ChannelsApart" ) == 0 )         rboptions |= RubberBandOptionChannelsApart;
       else if ( strcmp(params[i], "ChannelsTogether" ) == 0 )      rboptions |= RubberBandOptionChannelsTogether;
       else {
-        AUBIO_WRN("rubberband_utils: did not understand option '%s', should be one of: "
+        AUBIO_ERR("rubberband_utils: did not understand option '%s', should be one of: "
           "StretchElastic|StretchPrecise, TransientsCrisp|TransientsMixed|TransientsSmooth, "
           "DetectorCompound|DetectorPercussive|DetectorSoft, PhaseLaminar|PhaseIndependent, "
           "ThreadingAuto|ThreadingNever|ThreadingAlways, WindowStandard|WindowLong|WindowShort, "
           "SmoothingOn|SmoothingOff, FormantShifted|FormantPreserved, "
           "PitchHighSpeed|PitchHighQuality|PitchHighConsistency, ChannelsApart|ChannelsTogether\n"
           , params[i]);
+        return -1;
       }
       free(params[i]);
     }
