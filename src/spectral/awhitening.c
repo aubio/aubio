@@ -43,7 +43,8 @@ void
 aubio_spectral_whitening_do (aubio_spectral_whitening_t * o, cvec_t * fftgrain)
 {
   uint_t i = 0;
-  for (i = 0; i < o->peak_values->length; i++) {
+  uint_t length = MIN(fftgrain->length, o->peak_values->length);
+  for (i = 0; i < length; i++) {
     smpl_t tmp = MAX(o->r_decay * o->peak_values->data[i], o->floor);
     o->peak_values->data[i] = MAX(fftgrain->norm[i], tmp);
     fftgrain->norm[i] /= o->peak_values->data[i];
