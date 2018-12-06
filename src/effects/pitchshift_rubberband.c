@@ -49,10 +49,12 @@ new_aubio_pitchshift (const char_t * mode,
   p->samplerate = samplerate;
   p->hopsize = hopsize;
   p->pitchscale = 1.;
-  if (transpose >= -24. && transpose <= 24.) {
-    p->pitchscale = POW(2., transpose / 12.);
-  } else {
-    AUBIO_ERR("pitchshift: transpose should be in the range [-24, 24], got %f\n", transpose);
+  if ((sint_t)hopsize <= 0) {
+    AUBIO_ERR("pitchshift: hop_size should be >= 0, got %d\n", hopsize);
+    goto beach;
+  }
+  if ((sint_t)samplerate <= 0) {
+    AUBIO_ERR("pitchshift: samplerate should be >= 0, got %d\n", samplerate);
     goto beach;
   }
 
@@ -61,11 +63,14 @@ new_aubio_pitchshift (const char_t * mode,
     AUBIO_ERR("pitchshift: unknown pitch shifting method %s\n", mode);
     goto beach;
   }
+
   //AUBIO_MSG("pitchshift: using pitch shifting method %s\n", mode);
 
   p->rb = rubberband_new(samplerate, 1, p->rboptions, 1., p->pitchscale);
   rubberband_set_max_process_size(p->rb, p->hopsize);
   //rubberband_set_debug_level(p->rb, 10);
+
+  if (aubio_pitchshift_set_transpose(p, transpose)) goto beach;
 
 #if 1
   // warm up rubber band
@@ -139,8 +144,8 @@ aubio_pitchshift_get_transpose(aubio_pitchshift_t * p)
 void
 aubio_pitchshift_do (aubio_pitchshift_t * p, const fvec_t * in, fvec_t * out)
 {
-  int output = 0;
-  rubberband_process(p->rb, (const float* const*)&(in->data), p->hopsize, output);
+  // third parameter is always 0 since we are never expecting a final frame
+  rubberband_process(p->rb, (const float* const*)&(in->data), p->hopsize, 0);
   if (rubberband_available(p->rb) >= (int)p->hopsize) {
     rubberband_retrieve(p->rb, (float* const*)&(out->data), p->hopsize);
   } else {
