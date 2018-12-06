@@ -92,6 +92,7 @@ del_aubio_pitchspecacf (aubio_pitchspecacf_t * p)
   del_aubio_fft (p->fft);
   del_fvec (p->sqrmag);
   del_fvec (p->fftout);
+  del_fvec (p->acf);
   AUBIO_FREE (p);
 }
 
