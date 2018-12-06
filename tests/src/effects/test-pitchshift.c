@@ -19,6 +19,7 @@ int main (int argc, char **argv)
     return err;
   }
 
+#ifdef HAVE_RUBBERBAND
   uint_t samplerate = 0;
   uint_t hop_size = 64;
   smpl_t transpose = 0.;
@@ -74,6 +75,10 @@ beach_source:
   del_fvec(vec);
   del_fvec(out);
 beach_fvec:
+#else
+  err = 0;
+  PRINT_ERR("aubio was not compiled with rubberband\n");
+#endif
   return err;
 }
 
@@ -91,10 +96,14 @@ int test_wrong_params(void)
 
   aubio_pitchshift_t *p = new_aubio_pitchshift(mode, transpose,
       hop_size, samplerate);
+#ifdef HAVE_RUBBERBAND
   if (!p) return 1;
   if (!aubio_pitchshift_set_pitchscale(p, 0.1)) return 1;
   if (!aubio_pitchshift_set_transpose(p, -30)) return 1;
   del_aubio_pitchshift(p);
+#else
+  if (p) return 1;
+#endif
 
   return run_on_default_source_and_sink(main);
 }
