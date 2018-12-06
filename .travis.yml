@@ -37,11 +37,11 @@ matrix:
     - language: C
       os: osx
       compiler: clang
-      env: WAFOPTS="--with-target-platform=ios --disable-avcodec --disable-sndfile" AUBIO_NOTESTS=1
+      env: WAFOPTS="--with-target-platform=ios --disable-avcodec --disable-sndfile --disable-samplerate --disable-rubberband" AUBIO_NOTESTS=1
     - language: C
       os: osx
       compiler: clang
-      env: WAFOPTS="--with-target-platform=iosimulator --disable-avcodec --disable-sndfile" AUBIO_NOTESTS=1
+      env: WAFOPTS="--with-target-platform=iosimulator --disable-avcodec --disable-sndfile --disable-samplerate --disable-rubberband" AUBIO_NOTESTS=1
 
 # use trusty
 dist: trusty
