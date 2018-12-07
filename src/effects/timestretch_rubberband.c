@@ -55,7 +55,7 @@ struct _aubio_timestretch_t
 
 extern RubberBandOptions aubio_get_rubberband_opts(const char_t *mode);
 
-static void aubio_timestretch_warmup (aubio_timestretch_t * p);
+//static void aubio_timestretch_warmup (aubio_timestretch_t * p);
 
 aubio_timestretch_t *
 new_aubio_timestretch (const char_t * mode, smpl_t stretchratio, uint_t hopsize,
@@ -103,6 +103,7 @@ beach:
   return NULL;
 }
 
+#if 0
 static void
 aubio_timestretch_warmup (aubio_timestretch_t * p)
 {
@@ -116,6 +117,7 @@ aubio_timestretch_warmup (aubio_timestretch_t * p)
   }
   del_fvec(input);
 }
+#endif
 
 void
 del_aubio_timestretch (aubio_timestretch_t * p)
