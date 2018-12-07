@@ -32,6 +32,7 @@ Contents
    py_io
    py_temporal
    py_spectral
+   py_analysis
    py_utils
    py_examples
 
