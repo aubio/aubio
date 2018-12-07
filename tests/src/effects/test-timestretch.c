@@ -2,13 +2,15 @@
 #include <aubio.h>
 #include "utils_tests.h"
 
+int test_wrong_params(void);
+
 int main (int argc, char **argv)
 {
   sint_t err = 0;
 
-  if (argc < 4) {
-    err = 2;
-    PRINT_ERR("not enough arguments\n");
+  if (argc < 3 || argc >= 9) {
+    PRINT_ERR("wrong number of arguments, running tests\n");
+    err = test_wrong_params();
     PRINT_MSG("usage: %s <input_path> <output_path> <stretch> [transpose] [mode] [hop_size] [samplerate]\n", argv[0]);
     PRINT_MSG(" with <stretch> a time stretching ratio in the range [0.025, 10.]\n");
     PRINT_MSG("      [transpose] a number of semi tones in the range [-24, 24]\n");
@@ -16,7 +18,8 @@ int main (int argc, char **argv)
     return err;
   }
 
-  uint_t samplerate = 0;
+#ifdef HAVE_RUBBERBAND
+  uint_t samplerate = 0; // using source samplerate
   uint_t hop_size = 64;
   smpl_t transpose = 0.;
   smpl_t stretch = 1.;
@@ -27,17 +30,11 @@ int main (int argc, char **argv)
   char_t *sink_path = argv[2];
   char_t *mode = "default";
 
-  stretch = atof(argv[3]);
-
+  if ( argc >= 4 ) stretch = atof(argv[3]);
   if ( argc >= 5 ) transpose = atof(argv[4]);
   if ( argc >= 6 ) mode = argv[5];
   if ( argc >= 7 ) hop_size = atoi(argv[6]);
   if ( argc >= 8 ) samplerate = atoi(argv[7]);
-  if ( argc >= 9 ) {
-    err = 2;
-    PRINT_ERR("too many arguments\n");
-    return err;
-  }
 
   uint_t source_hopsize = 2048;
   aubio_source_t *s = new_aubio_source(source_path, samplerate, source_hopsize);
@@ -96,5 +93,57 @@ beach_timestretch:
 beach_fvec:
   del_aubio_source(s);
 beach_source:
+#else
+  err = 0;
+  PRINT_ERR("aubio was not compiled with rubberband\n");
+#endif
   return err;
+}
+
+int test_wrong_params(void)
+{
+  const char_t *mode = "default";
+  smpl_t stretch = 1.;
+  uint_t hop_size = 256;
+  uint_t samplerate = 44100;
+
+  if (new_aubio_timestretch("??", stretch, hop_size, samplerate)) return 1;
+  if (new_aubio_timestretch(mode,     41., hop_size, samplerate)) return 1;
+  if (new_aubio_timestretch(mode, stretch,        0, samplerate)) return 1;
+  if (new_aubio_timestretch(mode, stretch, hop_size,          0)) return 1;
+
+  aubio_timestretch_t *p = new_aubio_timestretch(mode, stretch, hop_size,
+      samplerate);
+#ifdef HAVE_RUBBERBAND
+  if (!p) return 1;
+
+  if (aubio_timestretch_get_latency(p) == 0) return 1;
+
+  aubio_timestretch_reset(p);
+
+  if (aubio_timestretch_get_transpose(p) != 0) return 1;
+  if (aubio_timestretch_set_transpose(p, 2.)) return 1;
+  if (fabsf(aubio_timestretch_get_transpose(p) - 2.) >= 1e-6) return 1;
+  if (!aubio_timestretch_set_transpose(p, 200.)) return 1;
+  if (!aubio_timestretch_set_transpose(p, -200.)) return 1;
+  if (aubio_timestretch_set_transpose(p, 0.)) return 1;
+
+  if (aubio_timestretch_get_pitchscale(p) != 1) return 1;
+  if (aubio_timestretch_set_pitchscale(p, 2.)) return 1;
+  if (fabsf(aubio_timestretch_get_pitchscale(p) - 2.) >= 1e-6) return 1;
+  if (!aubio_timestretch_set_pitchscale(p, 0.)) return 1;
+  if (!aubio_timestretch_set_pitchscale(p, 6.)) return 1;
+
+  if (aubio_timestretch_get_stretch(p) != stretch) return 1;
+  if (aubio_timestretch_set_stretch(p, 2.)) return 1;
+  if (fabsf(aubio_timestretch_get_stretch(p) - 2.) >= 1e-6) return 1;
+  if (!aubio_timestretch_set_stretch(p, 0.)) return 1;
+  if (!aubio_timestretch_set_stretch(p, 41.)) return 1;
+
+  del_aubio_timestretch(p);
+#else
+  if (p) return 1;
+#endif
+
+  return run_on_default_source_and_sink(main);
 }
