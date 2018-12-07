@@ -134,7 +134,8 @@ aubio_sampler_t *new_aubio_sampler(uint_t blocksize, uint_t samplerate)
   s->source = NULL;
   s->playing = 0;
   s->looping = 0;
-  s->uri = NULL;
+  s->uri = AUBIO_ARRAY(char_t, PATH_MAX);
+  s->next_uri = AUBIO_ARRAY(char_t, PATH_MAX);
   s->finished = 1;
   s->eof = 0;
   s->opened = 0;
@@ -273,9 +274,8 @@ uint_t aubio_sampler_load( aubio_sampler_t * o, const char_t * uri )
     if (o->samplerate == 0) {
       o->samplerate = aubio_source_get_samplerate(o->source);
     }
-    if (o->uri) AUBIO_FREE(o->uri);
-    o->uri = AUBIO_ARRAY(char_t, strnlen(uri, PATH_MAX) + 1);
-    strncpy(o->uri, uri, strnlen(uri, PATH_MAX) + 1);
+    strncpy(o->uri, uri, PATH_MAX - 1);
+    o->uri[PATH_MAX - 1] = '\0';
     o->finished = 0;
     o->eof = 0;
     o->eof_remaining = 0;
@@ -292,7 +292,7 @@ uint_t aubio_sampler_load( aubio_sampler_t * o, const char_t * uri )
     o->source = NULL;
     if (oldsource) del_aubio_source(oldsource);
     o->playing = 0;
-    o->uri = NULL;
+    o->uri[0] = '\0';
     o->finished = 1;
     o->eof = 0;
     o->eof_remaining = 0;
@@ -359,9 +359,8 @@ aubio_sampler_queue(aubio_sampler_t *o, const char_t *uri)
   o->opened = 0; // while opening
   o->started = 0;
   o->available = 0;
-  if (o->next_uri) AUBIO_FREE(o->next_uri);
-  o->next_uri = AUBIO_ARRAY(char_t, strnlen(uri, PATH_MAX) + 1);
-  strncpy(o->next_uri, uri, strnlen(uri, PATH_MAX) + 1);
+  strncpy(o->next_uri, uri, PATH_MAX - 1);
+  o->next_uri[PATH_MAX - 1] = '\0';
   o->waited = 0;
   if (pthread_create(&o->open_thread, 0, aubio_sampler_openfn, o) != 0) {
     AUBIO_ERR("sampler: failed creating opening thread\n");
@@ -1045,6 +1044,12 @@ void del_aubio_sampler( aubio_sampler_t * o )
   }
   if (o->source) {
     del_aubio_source(o->source);
+  }
+  if (o->uri) {
+    AUBIO_FREE(o->uri);
+  }
+  if (o->next_uri) {
+    AUBIO_FREE(o->next_uri);
   }
   AUBIO_FREE(o);
 }
