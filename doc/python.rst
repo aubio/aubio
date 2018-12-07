@@ -30,6 +30,7 @@ Contents
 
    py_datatypes
    py_io
+   py_temporal
    py_spectral
    py_utils
    py_examples
