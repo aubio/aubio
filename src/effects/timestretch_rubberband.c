@@ -65,6 +65,16 @@ new_aubio_timestretch (const char_t * mode, smpl_t stretchratio, uint_t hopsize,
   p->hopsize = hopsize;
   p->pitchscale = 1.;
 
+  if ((sint_t)hopsize <= 0) {
+    AUBIO_ERR("timestretch: hopsize should be > 0, got %d\n", hopsize);
+    goto beach;
+  }
+
+  if ((sint_t)samplerate <= 0) {
+    AUBIO_ERR("timestretch: samplerate should be > 0, got %d\n", samplerate);
+    goto beach;
+  }
+
   if (stretchratio <= MAX_STRETCH_RATIO && stretchratio >= MIN_STRETCH_RATIO) {
     p->stretchratio = stretchratio;
   } else {
