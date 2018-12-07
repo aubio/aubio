@@ -41,9 +41,11 @@ int main (int argc, char **argv)
   if (!o) { err = 1; goto beach_sink; }
 
   aubio_pvoc_t *pv = new_aubio_pvoc(win_size, hop_size);
+  if (!pv) { err = 1; goto beach_pvoc; }
 
   aubio_spectral_whitening_t *awhitening =
     new_aubio_spectral_whitening (win_size, hop_size, samplerate);
+  if (!awhitening) { err = 1; goto beach_awhitening; }
 
   aubio_spectral_whitening_set_relax_time(awhitening, 20.);
   fvec_set_all(scale, 3.);
@@ -71,11 +73,18 @@ int main (int argc, char **argv)
       n_frames, samplerate, n_frames / hop_size,
       source_path, sink_path);
 
+  del_aubio_spectral_whitening(awhitening);
+beach_awhitening:
+  del_aubio_pvoc(pv);
+beach_pvoc:
   del_aubio_sink(o);
 beach_sink:
   del_aubio_source(i);
 beach_source:
   del_fvec(vec);
+  del_fvec(out);
+  del_fvec(scale);
+  del_cvec(fftgrain);
 beach_fvec:
   return err;
 }
