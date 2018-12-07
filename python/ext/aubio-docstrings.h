@@ -100,3 +100,8 @@
     "tss(buf_size=1024, hop_size=512)\n"\
     "\n"\
     "Transient/Steady-state separation.\n"
+
+#define PYAUBIO_wavetable_doc \
+    "wavetable(samplerate=44100, hop_size=512)\n"\
+    "\n"\
+    "Wavetable synthesis.\n"
