@@ -43,7 +43,7 @@ int main (int argc, char **argv)
 
   fvec_t *in = new_fvec(source_hopsize);
   fvec_t *out = new_fvec(hop_size);
-  if (!out) { err = 1; goto beach_fvec; }
+  if (!out || !in) { err = 1; goto beach_fvec; }
 
   aubio_timestretch_t *ps = new_aubio_timestretch(mode, stretch, hop_size,
       samplerate);
@@ -90,6 +90,7 @@ beach_sink:
   del_aubio_timestretch(ps);
 beach_timestretch:
   del_fvec(out);
+  del_fvec(in);
 beach_fvec:
   del_aubio_source(s);
 beach_source:
@@ -107,7 +108,8 @@ int test_wrong_params(void)
   uint_t hop_size = 256;
   uint_t samplerate = 44100;
 
-  if (new_aubio_timestretch("??", stretch, hop_size, samplerate)) return 1;
+  if (new_aubio_timestretch("ProcessOffline:?:", stretch, hop_size, samplerate)) return 1;
+  if (new_aubio_timestretch("", stretch, hop_size, samplerate)) return 1;
   if (new_aubio_timestretch(mode,     41., hop_size, samplerate)) return 1;
   if (new_aubio_timestretch(mode, stretch,        0, samplerate)) return 1;
   if (new_aubio_timestretch(mode, stretch, hop_size,          0)) return 1;
@@ -118,6 +120,8 @@ int test_wrong_params(void)
   if (!p) return 1;
 
   if (aubio_timestretch_get_latency(p) == 0) return 1;
+
+  if (aubio_timestretch_get_samplerate(p) != samplerate) return 1;
 
   aubio_timestretch_reset(p);
 
