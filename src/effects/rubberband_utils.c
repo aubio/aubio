@@ -19,12 +19,16 @@
 #include <string.h>
 #include <assert.h>
 
-char** aubio_split_str(char_t* input, const char_t sep) {
+char_t** aubio_split_str(const char_t* str, const char_t sep) {
   char_t** result = 0;
   uint_t count = 0;
+  char_t input[PATH_MAX];
   char_t* in_ptr = input;
   char_t* last_sep = 0;
   char_t delim[2]; delim[0] = sep; delim[1] = 0;
+
+  strncpy(input, str, PATH_MAX);
+  input[PATH_MAX - 1] = '\0';
 
   // count number of elements
   while (*in_ptr) {
@@ -36,13 +40,12 @@ char** aubio_split_str(char_t* input, const char_t sep) {
   }
   // add space for trailing token.
   count += last_sep < (input + strlen(input) - 1);
-  // add one more for terminating null string
   count++;
 
-  result = malloc(sizeof(char*) * count);
+  result = AUBIO_ARRAY(char_t*, count);
   if (result) {
-    size_t idx  = 0;
-    char* params = strtok(input, delim);
+    uint_t idx  = 0;
+    char_t* params = strtok(input, delim);
     while (params) {
       // make sure we don't got in the wild
       assert(idx < count);
@@ -86,17 +89,19 @@ RubberBandOptions aubio_get_rubberband_opts(const char_t *mode)
     // nothing to do
   } else {
     // attempt to parse a list of options, separated with ','
-    char *modecopy = strndup(mode, PATH_MAX);
-    char **params = aubio_split_str(modecopy, ':');
-    uint_t i;
-    if (!params) {
-      return -1;
+    char_t **params = aubio_split_str(mode, ':');
+    uint_t i = 0;
+    if (!params || !params[0]) {
+      // memory failure occurred or empty string was passed
+      AUBIO_ERR("rubberband_utils: failed parsing options\n");
+      rboptions = -1;
     }
-    for (i = 0; *(params + i); i++) {
+    while (*(params + i) != NULL) {
       if ( strcmp(params[i], "ProcessOffline" ) == 0 )        {
              rboptions = RubberBandOptionProcessOffline;
-        AUBIO_WRN("rubberband_utils: RubberBandOptionProcessOffline is not available in aubio yet\n");
-        // TODO: add wrapper to function study(smpl_t *input, uint_t write)
+        // TODO: add wrapper to rb study(smpl_t *input, uint_t write)
+        AUBIO_ERR("rubberband_utils: RubberBandOptionProcessOffline is not available\n");
+        rboptions = -1;
       }
       else if ( strcmp(params[i], "ProcessRealTime" ) == 0 )       rboptions |= RubberBandOptionProcessRealTime;
       else if ( strcmp(params[i], "StretchElastic" ) == 0 )        rboptions |= RubberBandOptionStretchElastic;
@@ -132,12 +137,12 @@ RubberBandOptions aubio_get_rubberband_opts(const char_t *mode)
           "SmoothingOn|SmoothingOff, FormantShifted|FormantPreserved, "
           "PitchHighSpeed|PitchHighQuality|PitchHighConsistency, ChannelsApart|ChannelsTogether\n"
           , params[i]);
-        return -1;
+        rboptions = -1;
       }
-      free(params[i]);
+      AUBIO_FREE(params[i]);
+      i++;
     }
-    free(params);
-    free(modecopy);
+    AUBIO_FREE(params);
   }
   return rboptions;
 }
