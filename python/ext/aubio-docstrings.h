@@ -76,20 +76,56 @@
 #define PYAUBIO_specdesc_doc \
     "specdesc(method=\"default\", buf_size=1024)\n"\
     "\n"\
-    "Spectral descriptor.\n"\
+    "Spectral description functions. Creates a callable that takes a\n"\
+    ":class:`cvec` as input, typically created by :class:`pvoc` for\n"\
+    "overlap and windowing, and returns a single float.\n"\
     "\n"\
-    "Onset novelty methods: `energy`, `hfc`, `complex`, `phase`, `wphase`,\n"\
-    "`specdiff`, `kl`, `mkl`, `specflux`.\n"\
+    "`method` can be any of the values listed below. If `default` is used\n"\
+    "the `hfc` function will be selected.\n"\
     "\n"\
-    "Shape description methods: `centroid`, `spread`, `skewness`,\n"\
-    "`slope`, `decrease`, `rolloff`.\n"\
+    "Onset novelty functions:\n"\
+    "\n"\
+    "- `energy`: local energy,\n"\
+    "- `hfc`: high frequency content,\n"\
+    "- `complex`: complex domain,\n"\
+    "- `phase`: phase-based method,\n"\
+    "- `wphase`: weighted phase deviation,\n"\
+    "- `specdiff`: spectral difference,\n"\
+    "- `kl`: Kullback-Liebler,\n"\
+    "- `mkl`: modified Kullback-Liebler,\n"\
+    "- `specflux`: spectral flux.\n"\
+    "\n"\
+    "Spectral shape functions:\n"\
+    "\n"\
+    "- `centroid`: spectral centroid (barycenter of the norm vector),\n"\
+    "- `spread`: variance around centroid,\n"\
+    "- `skewness`: third order moment,\n"\
+    "- `kurtosis`: a measure of the flatness of the spectrum,\n"\
+    "- `slope`: decreasing rate of the amplitude,\n"\
+    "- `decrease`: perceptual based measurement of the decreasing rate,\n"\
+    "- `rolloff`: 95th energy percentile.\n"\
     "\n"\
     "Parameters\n"\
     "----------\n"\
     "method : str\n"\
-    "    Onset novelty or shape description method.\n"\
+    "    Onset novelty or spectral shape function.\n"\
     "buf_size : int\n"\
-    "    Length of the input frame.\n"
+    "    Length of the input frame.\n"\
+    "\n"\
+    "Example\n"\
+    "-------\n"\
+    ">>> win_s = 1024; hop_s = win_s // 2\n"\
+    ">>> pv = aubio.pvoc(win_s, hop_s)\n"\
+    ">>> sd = aubio.specdesc(\"mkl\", win_s)\n"\
+    ">>> sd(pv(aubio.fvec(hop_s))).shape\n"\
+    "(1,)\n"\
+    "\n"\
+    "References\n"\
+    "----------\n"\
+    "`Detailed description "\
+    "<https://aubio.org/doc/latest/specdesc_8h.html#details>`_ in\n"\
+    "`aubio API documentation <https://aubio.org/doc/latest/index.html>`_.\n"\
+    ""
 
 #define PYAUBIO_tempo_doc \
     "tempo(method=\"default\", buf_size=1024, hop_size=512, samplerate=44100)\n"\
