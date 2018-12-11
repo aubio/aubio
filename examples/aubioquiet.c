@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
   verbmsg ("using source: %s at %dHz\n", source_uri, samplerate);
   verbmsg ("buffer_size: %d, ", buffer_size);
   verbmsg ("hop_size: %d\n", hop_size);
-  examples_common_process((aubio_process_func_t)process_block,process_print);
+  examples_common_process(process_block, process_print);
   examples_common_del();
   return 0;
 }

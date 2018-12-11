@@ -1,6 +1,24 @@
 #include "aubio-types.h"
 
-static char Py_fft_doc[] = "fft object";
+static char Py_fft_doc[] = ""
+"fft(size=1024)\n"
+"\n"
+"Compute Fast Fourier Transorms.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"size : int\n"
+"    size of the FFT to compute\n"
+"\n"
+"Example\n"
+"-------\n"
+">>> x = aubio.fvec(512)\n"
+">>> f = aubio.fft(512)\n"
+">>> c = f(x); c\n"
+"aubio cvec of 257 elements\n"
+">>> x2 = f.rdo(c); x2.shape\n"
+"(512,)\n"
+"";
 
 typedef struct
 {

@@ -10,7 +10,58 @@ typedef struct
   fvec_t c_out;
 } Py_filter;
 
-static char Py_filter_doc[] = "filter object";
+static char Py_filter_doc[] = ""
+"digital_filter(order=7)\n"
+"\n"
+"Create a digital filter.\n"
+"";
+
+static char Py_filter_set_c_weighting_doc[] = ""
+"set_c_weighting(samplerate)\n"
+"\n"
+"Set filter coefficients to C-weighting.\n"
+"\n"
+"`samplerate` should be one of 8000, 11025, 16000, 22050, 24000, 32000,\n"
+"44100, 48000, 88200, 96000, or 192000. `order` of the filter should be 5.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"samplerate : int\n"
+"    Sampling-rate of the input signal, in Hz.\n"
+"";
+
+static char Py_filter_set_a_weighting_doc[] = ""
+"set_a_weighting(samplerate)\n"
+"\n"
+"Set filter coefficients to A-weighting.\n"
+"\n"
+"`samplerate` should be one of 8000, 11025, 16000, 22050, 24000, 32000,\n"
+"44100, 48000, 88200, 96000, or 192000. `order` of the filter should be 7.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"samplerate : int\n"
+"    Sampling-rate of the input signal.\n"
+"";
+
+static char Py_filter_set_biquad_doc[] = ""
+"set_biquad(b0, b1, b2, a1, a2)\n"
+"\n"
+"Set biquad coefficients. `order` of the filter should be 3.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"b0 : float\n"
+"    Forward filter coefficient.\n"
+"b1 : float\n"
+"    Forward filter coefficient.\n"
+"b2 : float\n"
+"    Forward filter coefficient.\n"
+"a1 : float\n"
+"    Feedback filter coefficient.\n"
+"a2 : float\n"
+"    Feedback filter coefficient.\n"
+"";
 
 static PyObject *
 Py_filter_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
@@ -156,11 +207,11 @@ static PyMemberDef Py_filter_members[] = {
 
 static PyMethodDef Py_filter_methods[] = {
   {"set_c_weighting", (PyCFunction) Py_filter_set_c_weighting, METH_VARARGS,
-      "set filter coefficients to C-weighting"},
+      Py_filter_set_c_weighting_doc},
   {"set_a_weighting", (PyCFunction) Py_filter_set_a_weighting, METH_VARARGS,
-      "set filter coefficients to A-weighting"},
+      Py_filter_set_a_weighting_doc},
   {"set_biquad", (PyCFunction) Py_filter_set_biquad, METH_VARARGS,
-      "set b0, b1, b2, a1, a2 biquad coefficients"},
+      Py_filter_set_biquad_doc},
   {NULL}
 };
 

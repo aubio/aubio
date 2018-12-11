@@ -111,13 +111,15 @@ class aubio_mfcc_fb_params(TestCase):
     def test_set_scale(self):
         buf_size, n_filters, n_coeffs, samplerate = 512, 20, 10, 16000
         m = mfcc(buf_size, n_filters, n_coeffs, samplerate)
-        m.set_scale(10.)
+        m.set_scale(10.5)
+        assert m.get_scale() == 10.5
         m(cvec(buf_size))
 
     def test_set_power(self):
         buf_size, n_filters, n_coeffs, samplerate = 512, 20, 10, 16000
         m = mfcc(buf_size, n_filters, n_coeffs, samplerate)
-        m.set_power(2.)
+        m.set_power(2.5)
+        assert m.get_power() == 2.5
         m(cvec(buf_size))
 
     def test_set_mel_coeffs(self):
