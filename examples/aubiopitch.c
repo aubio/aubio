@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
   wavetable = new_aubio_wavetable (samplerate, hop_size);
   aubio_wavetable_play ( wavetable );
 
-  examples_common_process((aubio_process_func_t)process_block,process_print);
+  examples_common_process(process_block, process_print);
 
   del_aubio_pitch (o);
   del_aubio_wavetable (wavetable);
