@@ -29,7 +29,7 @@ jobs:
   - script: |
       brew update
       brew install pkg-config gnupg
-      brew install sox ffmpeg libsndfile lcov
+      brew install sox ffmpeg libsndfile libvorbis lcov
     displayName: 'brew install'
   - script: |
       make
