@@ -30,8 +30,6 @@
 #include <errno.h> // errno
 #include <time.h> // time
 
-#define VORBIS_READSIZE 1024
-
 struct _aubio_sink_vorbis_t {
   FILE *fid;            // file id
   ogg_stream_state os;  // stream
@@ -224,6 +222,7 @@ void aubio_sink_vorbis_do(aubio_sink_vorbis_t *s, fvec_t *write_data,
     return;
   } else if (!buffer) {
     AUBIO_WRN("sink_vorbis: failed fetching buffer of size %d\n", write);
+    return;
   } else {
     for (c = 0; c < s->channels; c++) {
       for (v = 0; v < write; v++) {
@@ -247,6 +246,7 @@ void aubio_sink_vorbis_do_multi(aubio_sink_vorbis_t *s, fmat_t *write_data,
     return;
   } else if (!buffer) {
     AUBIO_WRN("sink_vorbis: failed fetching buffer of size %d\n", write);
+    return;
   } else {
     for (c = 0; c < s->channels; c++) {
       for (v = 0; v < write; v++) {
