@@ -106,11 +106,7 @@ uint_t aubio_sink_vorbis_open(aubio_sink_vorbis_t *s)
 {
   float quality_mode = .9;
 
-  if (s->samplerate == 0 || s->channels == 0)
-  {
-    AUBIO_ERR("sink_vorbis: vorbis_encode_init_vbr failed\n");
-    return AUBIO_FAIL;
-  }
+  if (s->samplerate == 0 || s->channels == 0) return AUBIO_FAIL;
 
   s->fid = fopen((const char *)s->path, "wb");
   if (!s->fid) return AUBIO_FAIL;
@@ -247,6 +243,7 @@ void aubio_sink_vorbis_do_multi(aubio_sink_vorbis_t *s, fmat_t *write_data,
     uint_t write)
 {
   uint_t c, v;
+  uint_t channels = MIN(s->channels, write_data->height);
   float **buffer = vorbis_analysis_buffer(&s->vd, (long)write);
   // fill buffer
   if (!write) {
@@ -255,7 +252,7 @@ void aubio_sink_vorbis_do_multi(aubio_sink_vorbis_t *s, fmat_t *write_data,
     AUBIO_WRN("sink_vorbis: failed fetching buffer of size %d\n", write);
     return;
   } else {
-    for (c = 0; c < s->channels; c++) {
+    for (c = 0; c < channels; c++) {
       for (v = 0; v < write; v++) {
         buffer[c][v] = write_data->data[c][v];
       }
