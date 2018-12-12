@@ -69,6 +69,9 @@ def options(ctx):
     add_option_enable_disable(ctx, 'vorbis', default = None,
             help_str = 'compile with libvorbis (auto)',
             help_disable_str = 'disable libvorbis')
+    add_option_enable_disable(ctx, 'flac', default = None,
+            help_str = 'compile with libFLAC (auto)',
+            help_disable_str = 'disable libflac')
     add_option_enable_disable(ctx, 'samplerate', default = None,
             help_str = 'compile with samplerate (auto)',
             help_disable_str = 'disable samplerate')
@@ -438,6 +441,13 @@ def configure(ctx):
                 args = '--cflags --libs',
                 uselib_store = 'VORBISENC',
                 mandatory = ctx.options.enable_vorbis)
+
+    # check for flac
+    if (ctx.options.enable_flac != False):
+        ctx.check_cfg(package = 'flac',
+                args = '--cflags --libs',
+                uselib_store = 'FLAC',
+                mandatory = ctx.options.enable_flac)
 
     if (ctx.options.enable_wavread != False):
         ctx.define('HAVE_WAVREAD', 1)
