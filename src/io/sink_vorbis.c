@@ -18,6 +18,12 @@
 
 */
 
+/*
+  This file is largely inspired by `examples/encoder_example.c` in the
+  libvorbis source package (versions 1.3.5 and later) available online at
+  https://xiph.org/vorbis/
+*/
+
 #include "aubio_priv.h"
 
 #ifdef HAVE_VORBISENC
