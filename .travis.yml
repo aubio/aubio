@@ -57,6 +57,7 @@ addons:
     - libavutil-dev
     - libsndfile1-dev
     - libsamplerate-dev
+    - libvorbis-dev
     - libjack-dev
     - libasound2-dev
     - libfftw3-dev
@@ -67,6 +68,7 @@ addons:
     - sox
     - ffmpeg
     - libsndfile
+    - libvorbis
     - lcov
     #update: true
 
