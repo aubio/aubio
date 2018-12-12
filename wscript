@@ -66,6 +66,9 @@ def options(ctx):
     add_option_enable_disable(ctx, 'avcodec', default = None,
             help_str = 'compile with libavcodec (auto)',
             help_disable_str = 'disable libavcodec')
+    add_option_enable_disable(ctx, 'vorbis', default = None,
+            help_str = 'compile with libvorbis (auto)',
+            help_disable_str = 'disable libvorbis')
     add_option_enable_disable(ctx, 'samplerate', default = None,
             help_str = 'compile with samplerate (auto)',
             help_disable_str = 'disable samplerate')
@@ -428,6 +431,13 @@ def configure(ctx):
             elif 'HAVE_AVRESAMPLE' in ctx.env:
                 ctx.define('HAVE_AVRESAMPLE', 1)
             ctx.define('HAVE_LIBAV', 1)
+
+    # check for vorbisenc
+    if (ctx.options.enable_vorbis != False):
+        ctx.check_cfg(package = 'vorbisenc',
+                args = '--cflags --libs',
+                uselib_store = 'VORBISENC',
+                mandatory = ctx.options.enable_vorbis)
 
     if (ctx.options.enable_wavread != False):
         ctx.define('HAVE_WAVREAD', 1)

@@ -11,6 +11,7 @@ uselib += ['AVFORMAT']
 uselib += ['SWRESAMPLE']
 uselib += ['AVRESAMPLE']
 uselib += ['AVUTIL']
+uselib += ['VORBISENC']
 uselib += ['BLAS']
 
 source = ctx.path.ant_glob('*.c **/*.c')
