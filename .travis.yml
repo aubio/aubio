@@ -58,6 +58,7 @@ addons:
     - libsndfile1-dev
     - libsamplerate-dev
     - libvorbis-dev
+    - libflac-dec
     - libjack-dev
     - libasound2-dev
     - libfftw3-dev
@@ -69,6 +70,7 @@ addons:
     - ffmpeg
     - libsndfile
     - libvorbis
+    - flac
     - lcov
     #update: true
 
