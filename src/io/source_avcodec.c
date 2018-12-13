@@ -46,6 +46,10 @@
 #define HAVE_AUBIO_LIBAVCODEC_DEPRECATED 1
 #endif
 
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58,3,102)
+#define HAVE_AUBIO_LIBAVCODEC_TIMEBASE_FIX 1
+#endif
+
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(55,28,1)
 #warning "libavcodec < 56 is deprecated"
 #define av_frame_alloc  avcodec_alloc_frame
@@ -239,7 +243,8 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path,
         av_get_media_type_string(AVMEDIA_TYPE_AUDIO), s->path);
     goto beach;
   }
-#if FFMPEG_LIBAVFORMAT // deprecated with ffmpeg, required with libav
+#if HAVE_AUBIO_LIBAVCODEC_TIMEBASE_FIX
+  // avoids 'skipped frames warning' with avecodec < 58, deprecated after
   av_codec_set_pkt_timebase(avCodecCtx,
       avFormatCtx->streams[selected_stream]->time_base);
 #endif
