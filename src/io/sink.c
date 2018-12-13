@@ -53,8 +53,56 @@ struct _aubio_sink_t {
   del_aubio_sink_t s_del;
 };
 
+#ifdef HAVE_VORBISENC
+typedef struct _aubio_sink_vorbis_t aubio_sink_vorbis_t;
+extern aubio_sink_vorbis_t * new_aubio_sink_vorbis(const char_t *uri,
+    uint_t samplerate);
+extern void del_aubio_sink_vorbis (aubio_sink_vorbis_t *s);
+extern uint_t aubio_sink_vorbis_open(aubio_sink_vorbis_t *s);
+extern uint_t aubio_sink_vorbis_close(aubio_sink_vorbis_t *s);
+extern uint_t aubio_sink_vorbis_preset_channels(aubio_sink_vorbis_t *s,
+    uint_t channels);
+extern uint_t aubio_sink_vorbis_preset_samplerate(aubio_sink_vorbis_t *s,
+    uint_t samplerate);
+extern uint_t aubio_sink_vorbis_get_channels(aubio_sink_vorbis_t *s);
+extern uint_t aubio_sink_vorbis_get_samplerate(aubio_sink_vorbis_t *s);
+extern void aubio_sink_vorbis_do(aubio_sink_vorbis_t *s, fvec_t*
+    write_data, uint_t write);
+extern void aubio_sink_vorbis_do_multi(aubio_sink_vorbis_t *s, fmat_t*
+    write_data, uint_t write);
+#endif /* HAVE_VORBISENC */
+
+static const char_t *aubio_get_extension(const char_t *filename)
+{
+  // find last occurence of dot character
+  const char_t *ext = strrchr(filename, '.');
+  if (!ext || ext == filename) return "";
+  else return ext + 1;
+}
+
 aubio_sink_t * new_aubio_sink(const char_t * uri, uint_t samplerate) {
   aubio_sink_t * s = AUBIO_NEW(aubio_sink_t);
+
+#ifdef HAVE_VORBISENC
+  // check if this uri could be for us
+  uint_t match_oggstream = 0;
+  if (strcmp (aubio_get_extension(uri), "ogg") == 0) match_oggstream = 1;
+  if (match_oggstream) {
+    s->sink = (void *)new_aubio_sink_vorbis(uri, samplerate);
+    if (s->sink) {
+      s->s_do = (aubio_sink_do_t)(aubio_sink_vorbis_do);
+      s->s_do_multi = (aubio_sink_do_multi_t)(aubio_sink_vorbis_do_multi);
+      s->s_preset_samplerate = (aubio_sink_preset_samplerate_t)(aubio_sink_vorbis_preset_samplerate);
+      s->s_preset_channels = (aubio_sink_preset_channels_t)(aubio_sink_vorbis_preset_channels);
+      s->s_get_samplerate = (aubio_sink_get_samplerate_t)(aubio_sink_vorbis_get_samplerate);
+      s->s_get_channels = (aubio_sink_get_channels_t)(aubio_sink_vorbis_get_channels);
+      s->s_close = (aubio_sink_close_t)(aubio_sink_vorbis_close);
+      s->s_del = (del_aubio_sink_t)(del_aubio_sink_vorbis);
+      return s;
+    }
+  }
+#endif /* HAVE_VORBISENC */
+
 #ifdef HAVE_SINK_APPLE_AUDIO
   s->sink = (void *)new_aubio_sink_apple_audio(uri, samplerate);
   if (s->sink) {
