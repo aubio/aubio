@@ -239,6 +239,8 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path,
         av_get_media_type_string(AVMEDIA_TYPE_AUDIO), s->path);
     goto beach;
   }
+  av_codec_set_pkt_timebase(avCodecCtx,
+      avFormatCtx->streams[selected_stream]->time_base);
 #endif
 
   if ( ( err = avcodec_open2(avCodecCtx, codec, NULL) ) < 0) {
