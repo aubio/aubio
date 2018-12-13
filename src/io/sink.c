@@ -72,6 +72,25 @@ extern void aubio_sink_vorbis_do_multi(aubio_sink_vorbis_t *s, fmat_t*
     write_data, uint_t write);
 #endif /* HAVE_VORBISENC */
 
+#ifdef HAVE_FLAC
+typedef struct _aubio_sink_flac_t aubio_sink_flac_t;
+extern aubio_sink_flac_t * new_aubio_sink_flac(const char_t *uri,
+    uint_t samplerate);
+extern void del_aubio_sink_flac (aubio_sink_flac_t *s);
+extern uint_t aubio_sink_flac_open(aubio_sink_flac_t *s);
+extern uint_t aubio_sink_flac_close(aubio_sink_flac_t *s);
+extern uint_t aubio_sink_flac_preset_channels(aubio_sink_flac_t *s,
+    uint_t channels);
+extern uint_t aubio_sink_flac_preset_samplerate(aubio_sink_flac_t *s,
+    uint_t samplerate);
+extern uint_t aubio_sink_flac_get_channels(aubio_sink_flac_t *s);
+extern uint_t aubio_sink_flac_get_samplerate(aubio_sink_flac_t *s);
+extern void aubio_sink_flac_do(aubio_sink_flac_t *s, fvec_t*
+    write_data, uint_t write);
+extern void aubio_sink_flac_do_multi(aubio_sink_flac_t *s, fmat_t*
+    write_data, uint_t write);
+#endif /* HAVE_FLAC */
+
 static const char_t *aubio_get_extension(const char_t *filename)
 {
   // find last occurence of dot character
@@ -102,6 +121,26 @@ aubio_sink_t * new_aubio_sink(const char_t * uri, uint_t samplerate) {
     }
   }
 #endif /* HAVE_VORBISENC */
+
+#ifdef HAVE_FLAC
+  // check if this uri could be for us
+  uint_t match_flacstream = 0;
+  if (strcmp (aubio_get_extension(uri), "flac") == 0) match_flacstream = 1;
+  if (match_flacstream) {
+    s->sink = (void *)new_aubio_sink_flac(uri, samplerate);
+    if (s->sink) {
+      s->s_do = (aubio_sink_do_t)(aubio_sink_flac_do);
+      s->s_do_multi = (aubio_sink_do_multi_t)(aubio_sink_flac_do_multi);
+      s->s_preset_samplerate = (aubio_sink_preset_samplerate_t)(aubio_sink_flac_preset_samplerate);
+      s->s_preset_channels = (aubio_sink_preset_channels_t)(aubio_sink_flac_preset_channels);
+      s->s_get_samplerate = (aubio_sink_get_samplerate_t)(aubio_sink_flac_get_samplerate);
+      s->s_get_channels = (aubio_sink_get_channels_t)(aubio_sink_flac_get_channels);
+      s->s_close = (aubio_sink_close_t)(aubio_sink_flac_close);
+      s->s_del = (del_aubio_sink_t)(del_aubio_sink_flac);
+      return s;
+    }
+  }
+#endif /* HAVE_FLAC */
 
 #ifdef HAVE_SINK_APPLE_AUDIO
   s->sink = (void *)new_aubio_sink_apple_audio(uri, samplerate);
