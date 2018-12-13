@@ -101,11 +101,14 @@ static const char_t *aubio_get_extension(const char_t *filename)
 
 aubio_sink_t * new_aubio_sink(const char_t * uri, uint_t samplerate) {
   aubio_sink_t * s = AUBIO_NEW(aubio_sink_t);
+#if defined(HAVE_VORBISENC) || defined(HAVE_FLAC)
+  const char_t * uri_ext = aubio_get_extension(uri);
+#endif /* defined(HAVE_VORBISENC) || defined(HAVE_FLAC) */
 
 #ifdef HAVE_VORBISENC
   // check if this uri could be for us
   uint_t match_oggstream = 0;
-  if (strcmp (aubio_get_extension(uri), "ogg") == 0) match_oggstream = 1;
+  if (strcmp (uri_ext, "ogg") == 0) match_oggstream = 1;
   if (match_oggstream) {
     s->sink = (void *)new_aubio_sink_vorbis(uri, samplerate);
     if (s->sink) {
@@ -125,7 +128,7 @@ aubio_sink_t * new_aubio_sink(const char_t * uri, uint_t samplerate) {
 #ifdef HAVE_FLAC
   // check if this uri could be for us
   uint_t match_flacstream = 0;
-  if (strcmp (aubio_get_extension(uri), "flac") == 0) match_flacstream = 1;
+  if (strcmp (uri_ext, "flac") == 0) match_flacstream = 1;
   if (match_flacstream) {
     s->sink = (void *)new_aubio_sink_flac(uri, samplerate);
     if (s->sink) {
@@ -186,7 +189,9 @@ aubio_sink_t * new_aubio_sink(const char_t * uri, uint_t samplerate) {
 #endif /* HAVE_WAVWRITE */
 #if !defined(HAVE_WAVWRITE) && \
   !defined(HAVE_SNDFILE) && \
-  !defined(HAVE_SINK_APPLE_AUDIO)
+  !defined(HAVE_SINK_APPLE_AUDIO) && \
+  !defined(HAVE_VORBISENC) && \
+  !defined(HAVE_FLAC)
   AUBIO_ERROR("sink: failed creating '%s' at %dHz (no sink built-in)\n", uri, samplerate);
 #endif
   AUBIO_FREE(s);
