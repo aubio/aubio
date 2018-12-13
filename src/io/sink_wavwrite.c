@@ -233,7 +233,7 @@ beach:
 
 
 void aubio_sink_wavwrite_do(aubio_sink_wavwrite_t *s, fvec_t * write_data, uint_t write){
-  uint_t i = 0, written_frames = 0;
+  uint_t c = 0, i = 0, written_frames = 0;
 
   if (write > s->max_size) {
     AUBIO_WRN("sink_wavwrite: trying to write %d frames to %s, "
@@ -241,10 +241,12 @@ void aubio_sink_wavwrite_do(aubio_sink_wavwrite_t *s, fvec_t * write_data, uint_
     write = s->max_size;
   }
 
-  for (i = 0; i < write; i++) {
-    s->scratch_data[i] = HTOLES(FLOAT_TO_SHORT(write_data->data[i]));
+  for (c = 0; c < s->channels; c++) {
+    for (i = 0; i < write; i++) {
+      s->scratch_data[i * s->channels + c] = HTOLES(FLOAT_TO_SHORT(write_data->data[i]));
+    }
   }
-  written_frames = fwrite(s->scratch_data, 2, write, s->fid);
+  written_frames = fwrite(s->scratch_data, 2, write * s->channels, s->fid);
 
   if (written_frames != write) {
     AUBIO_WRN("sink_wavwrite: trying to write %d frames to %s, "
