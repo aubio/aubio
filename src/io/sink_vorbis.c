@@ -271,11 +271,12 @@ uint_t aubio_sink_vorbis_close (aubio_sink_vorbis_t *s)
 
   aubio_sink_vorbis_write(s);
 
-  if (fclose(s->fid)) {
+  if (s->fid && fclose(s->fid)) {
     AUBIO_ERR("sink_vorbis: Error closing file %s (%s)\n",
         s->path, strerror(errno));
     return AUBIO_FAIL;
   }
+  s->fid = NULL;
   return AUBIO_OK;
 }
 
