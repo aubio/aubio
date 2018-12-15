@@ -109,7 +109,11 @@ uint_t aubio_sink_vorbis_open(aubio_sink_vorbis_t *s)
   if (s->samplerate == 0 || s->channels == 0) return AUBIO_FAIL;
 
   s->fid = fopen((const char *)s->path, "wb");
-  if (!s->fid) return AUBIO_FAIL;
+  if (!s->fid) {
+    AUBIO_ERR("sink_vorbis: Error opening file %s (%s)\n",
+        s->path, strerror(errno));
+    return AUBIO_FAIL;
+  }
 
   vorbis_info_init(&s->vi);
   if (vorbis_encode_init_vbr(&s->vi, s->channels, s->samplerate, quality_mode))
@@ -133,6 +137,7 @@ uint_t aubio_sink_vorbis_open(aubio_sink_vorbis_t *s)
   // write header
   {
     int ret = 0;
+    size_t wrote;
     ogg_packet header;
     ogg_packet header_comm;
     ogg_packet header_code;
@@ -149,8 +154,15 @@ uint_t aubio_sink_vorbis_open(aubio_sink_vorbis_t *s)
     {
       ret = ogg_stream_flush(&s->os, &s->og);
       if (ret==0) break;
-      fwrite(s->og.header, 1, s->og.header_len, s->fid);
-      fwrite(s->og.body,   1, s->og.body_len,   s->fid);
+      wrote = fwrite(s->og.header, 1, s->og.header_len, s->fid);
+      ret = (wrote == (unsigned)s->og.header_len);
+      wrote = fwrite(s->og.body,   1, s->og.body_len,   s->fid);
+      ret &= (wrote == (unsigned)s->og.body_len);
+      if (ret == 0) {
+        AUBIO_ERR("sink_vorbis: failed writing \'%s\' to disk (%s)\n",
+            s->path, strerror(errno));
+        return AUBIO_FAIL;
+      }
     }
   }
 
@@ -194,6 +206,8 @@ uint_t aubio_sink_vorbis_get_channels(const aubio_sink_vorbis_t *s)
 
 void aubio_sink_vorbis_write(aubio_sink_vorbis_t *s)
 {
+  int result;
+  size_t wrote;
   // pre-analysis
   while (vorbis_analysis_blockout(&s->vd, &s->vb) == 1) {
 
@@ -205,10 +219,16 @@ void aubio_sink_vorbis_write(aubio_sink_vorbis_t *s)
       ogg_stream_packetin(&s->os, &s->op);
 
       while (1) {
-        int result = ogg_stream_pageout (&s->os, &s->og);
+        result = ogg_stream_pageout (&s->os, &s->og);
         if (result == 0) break;
-        fwrite(s->og.header, 1, s->og.header_len, s->fid);
-        fwrite(s->og.body,   1, s->og.body_len,   s->fid);
+        wrote = fwrite(s->og.header, 1, s->og.header_len, s->fid);
+        result = (wrote == (unsigned)s->og.header_len);
+        wrote = fwrite(s->og.body, 1, s->og.body_len,     s->fid);
+        result &= (wrote == (unsigned)s->og.body_len);
+        if (result == 0) {
+          AUBIO_WRN("sink_vorbis: failed writing \'%s\' to disk (%s)\n",
+              s->path, strerror(errno));
+        }
         if (ogg_page_eos(&s->og)) break;
       }
     }
