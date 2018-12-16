@@ -85,7 +85,7 @@ aubio_source_apple_audio_t * new_aubio_source_apple_audio(const char_t * path, u
   return s;
 
 beach:
-  AUBIO_FREE(s);
+  del_aubio_source_apple_audio(s);
   return NULL;
 }
 
