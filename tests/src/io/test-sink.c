@@ -1,14 +1,16 @@
 #include <aubio.h>
 #include "utils_tests.h"
 
-int main (int argc, char **argv)
-{
-  sint_t err = 0;
+int test_wrong_params(void);
 
-  if (argc < 3) {
-    PRINT_ERR("not enough arguments, running tests\n");
-    err = run_on_default_source_and_sink(main);
-    PRINT_MSG("usage: %s <input_path> <output_path> [samplerate] [hop_size]\n", argv[0]);
+int main(int argc, char **argv)
+{
+  uint_t err = 0;
+  if (argc < 3 || argc >= 6) {
+    PRINT_ERR("wrong number of arguments, running tests\n");
+    err = test_wrong_params();
+    PRINT_MSG("usage: %s <input_path> <output_path> [samplerate] [hop_size]\n",
+        argv[0]);
     return err;
   }
 
@@ -21,22 +23,15 @@ int main (int argc, char **argv)
 
   if ( argc >= 4 ) samplerate = atoi(argv[3]);
   if ( argc >= 5 ) hop_size = atoi(argv[4]);
-  if ( argc >= 6 ) {
-    err = 2;
-    PRINT_ERR("too many arguments\n");
-    return err;
-  }
 
   fvec_t *vec = new_fvec(hop_size);
-  if (!vec) { err = 1; goto beach_fvec; }
 
   aubio_source_t *i = new_aubio_source(source_path, samplerate, hop_size);
-  if (!i) { err = 1; goto beach_source; }
-
   if (samplerate == 0 ) samplerate = aubio_source_get_samplerate(i);
 
   aubio_sink_t *o = new_aubio_sink(sink_path, samplerate);
-  if (!o) { err = 1; goto beach_sink; }
+
+  if (!vec || !i || !o) { err = 1; goto failure; }
 
   do {
     aubio_source_do(i, vec, &read);
@@ -44,15 +39,104 @@ int main (int argc, char **argv)
     n_frames += read;
   } while ( read == hop_size );
 
-  PRINT_MSG("read %d frames at %dHz (%d blocks) from %s written to %s\n",
+  PRINT_MSG("%d frames read at %dHz (%d blocks) from %s and written to %s\n",
       n_frames, samplerate, n_frames / hop_size,
       source_path, sink_path);
 
-  del_aubio_sink(o);
-beach_sink:
-  del_aubio_source(i);
-beach_source:
-  del_fvec(vec);
-beach_fvec:
+  // close sink now (optional)
+  aubio_sink_close(o);
+
+failure:
+  if (o)
+    del_aubio_sink(o);
+  if (i)
+    del_aubio_source(i);
+  if (vec)
+    del_fvec(vec);
+
   return err;
+}
+
+int test_wrong_params(void)
+{
+  fvec_t *vec;
+  fmat_t *mat;
+  aubio_sink_t *s;
+  char_t sink_path[PATH_MAX] = "tmp_aubio_XXXXXX";
+  uint_t samplerate = 44100;
+  uint_t hop_size = 256;
+  uint_t oversized_hop_size = 4097;
+  uint_t oversized_samplerate = 192000 * 8 + 1;
+  uint_t channels = 3;
+  uint_t oversized_channels = 1025;
+  // create temp file
+  int fd = create_temp_sink(sink_path);
+
+  if (!fd) return 1;
+
+  if (new_aubio_sink(   0,   samplerate)) return 1;
+  if (new_aubio_sink("\0",   samplerate)) return 1;
+  if (new_aubio_sink(sink_path,      -1)) return 1;
+
+  s = new_aubio_sink(sink_path, 0);
+
+  // check setting wrong parameters fails
+  if (!aubio_sink_preset_samplerate(s, oversized_samplerate)) return 1;
+  if (!aubio_sink_preset_channels(s, oversized_channels)) return 1;
+  if (!aubio_sink_preset_channels(s, -1)) return 1;
+
+  // check setting valid parameters passes
+  if (aubio_sink_preset_samplerate(s, samplerate)) return 1;
+  if (aubio_sink_preset_channels(s, 1)) return 1;
+
+  // check writing a vector with valid length
+  vec = new_fvec(hop_size);
+  aubio_sink_do(s, vec, hop_size);
+  // check writing more than in the input
+  aubio_sink_do(s, vec, hop_size+1);
+  // check write 0 frames
+  aubio_sink_do(s, vec, 0);
+  del_fvec(vec);
+
+  // check writing an oversized vector
+  vec = new_fvec(oversized_hop_size);
+  aubio_sink_do(s, vec, oversized_hop_size);
+  del_fvec(vec);
+
+  // test delete without closing
+  del_aubio_sink(s);
+
+  s = new_aubio_sink(sink_path, 0);
+
+  // preset channels first
+  if (aubio_sink_preset_channels(s, channels)) return 1;
+  if (aubio_sink_preset_samplerate(s, samplerate)) return 1;
+
+  mat = new_fmat(channels, hop_size);
+  // check writing a vector with valid length
+  aubio_sink_do_multi(s, mat, hop_size);
+  // check writing more than in the input
+  aubio_sink_do_multi(s, mat, hop_size+1);
+  del_fmat(mat);
+
+  // check writing oversized input
+  mat = new_fmat(channels, oversized_hop_size);
+  aubio_sink_do_multi(s, mat, oversized_hop_size);
+  del_fmat(mat);
+
+  // check writing undersized input
+  mat = new_fmat(channels - 1, hop_size);
+  aubio_sink_do_multi(s, mat, hop_size);
+  del_fmat(mat);
+
+  aubio_sink_close(s);
+  // test closing twice
+  aubio_sink_close(s);
+
+  del_aubio_sink(s);
+
+  // delete temp file
+  close_temp_sink(sink_path, fd);
+
+  return run_on_default_source_and_sink(main);
 }
