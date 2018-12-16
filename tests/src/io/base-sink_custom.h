@@ -63,9 +63,16 @@ failure:
 
 int test_wrong_params(void)
 {
+  fvec_t *vec;
+  fmat_t *mat;
   aubio_sink_custom_t *s;
   char_t sink_path[PATH_MAX] = "tmp_aubio_XXXXXX";
   uint_t samplerate = 44100;
+  uint_t hop_size = 256;
+  uint_t oversized_hop_size = 4097;
+  uint_t oversized_samplerate = 192000 * 8 + 1;
+  uint_t channels = 3;
+  uint_t oversized_channels = 1025;
   // create temp file
   int fd = create_temp_sink(sink_path);
 
@@ -77,16 +84,54 @@ int test_wrong_params(void)
 
   s = new_aubio_sink_custom(sink_path, 0);
 
+  // check setting wrong parameters fails
+  if (!aubio_sink_custom_preset_samplerate(s, oversized_samplerate)) return 1;
+  if (!aubio_sink_custom_preset_channels(s, oversized_channels)) return 1;
+  if (!aubio_sink_custom_preset_channels(s, -1)) return 1;
+
+  // check setting valid parameters passes
   if (aubio_sink_custom_preset_samplerate(s, samplerate)) return 1;
   if (aubio_sink_custom_preset_channels(s, 1)) return 1;
+
+  // check writing a vector with valid length
+  vec = new_fvec(hop_size);
+  aubio_sink_custom_do(s, vec, hop_size);
+  // check writing more than in the input
+  aubio_sink_custom_do(s, vec, hop_size+1);
+  // check write 0 frames
+  aubio_sink_custom_do(s, vec, 0);
+  del_fvec(vec);
+
+  // check writing an oversized vector
+  vec = new_fvec(oversized_hop_size);
+  aubio_sink_custom_do(s, vec, oversized_hop_size);
+  del_fvec(vec);
 
   // test delete without closing
   del_aubio_sink_custom(s);
 
   s = new_aubio_sink_custom(sink_path, 0);
 
+  // preset channels first
+  if (aubio_sink_custom_preset_channels(s, channels)) return 1;
   if (aubio_sink_custom_preset_samplerate(s, samplerate)) return 1;
-  if (aubio_sink_custom_preset_channels(s, 3)) return 1;
+
+  mat = new_fmat(channels, hop_size);
+  // check writing a vector with valid length
+  aubio_sink_custom_do_multi(s, mat, hop_size);
+  // check writing more than in the input
+  aubio_sink_custom_do_multi(s, mat, hop_size+1);
+  del_fmat(mat);
+
+  // check writing oversized input
+  mat = new_fmat(channels, oversized_hop_size);
+  aubio_sink_custom_do_multi(s, mat, oversized_hop_size);
+  del_fmat(mat);
+
+  // check writing undersized input
+  mat = new_fmat(channels - 1, hop_size);
+  aubio_sink_custom_do_multi(s, mat, hop_size);
+  del_fmat(mat);
 
   aubio_sink_custom_close(s);
   // test closing twice
