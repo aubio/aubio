@@ -63,6 +63,40 @@ failure:
 
 int test_wrong_params(void)
 {
+  aubio_sink_custom_t *s;
+  char_t sink_path[PATH_MAX] = "tmp_aubio_XXXXXX";
+  uint_t samplerate = 44100;
+  // create temp file
+  int fd = create_temp_sink(sink_path);
+
+  if (!fd) return 1;
+
+  if (new_aubio_sink_custom(   0,   samplerate)) return 1;
+  if (new_aubio_sink_custom("\0",   samplerate)) return 1;
+  if (new_aubio_sink_custom(sink_path,      -1)) return 1;
+
+  s = new_aubio_sink_custom(sink_path, 0);
+
+  if (aubio_sink_custom_preset_samplerate(s, samplerate)) return 1;
+  if (aubio_sink_custom_preset_channels(s, 1)) return 1;
+
+  // test delete without closing
+  del_aubio_sink_custom(s);
+
+  s = new_aubio_sink_custom(sink_path, 0);
+
+  if (aubio_sink_custom_preset_samplerate(s, samplerate)) return 1;
+  if (aubio_sink_custom_preset_channels(s, 3)) return 1;
+
+  aubio_sink_custom_close(s);
+  // test closing twice
+  aubio_sink_custom_close(s);
+
+  del_aubio_sink_custom(s);
+
+  // delete temp file
+  close_temp_sink(sink_path, fd);
+
   return run_on_default_source_and_sink(base_main);
 }
 
