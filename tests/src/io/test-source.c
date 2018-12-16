@@ -70,7 +70,7 @@ int test_wrong_params(void)
   aubio_source_t *s;
 
   if (new_aubio_source(0,    samplerate, hop_size)) return 1;
-  if (new_aubio_source('\0', samplerate, hop_size)) return 1;
+  if (new_aubio_source("\0", samplerate, hop_size)) return 1;
   if (new_aubio_source(uri,          -1, hop_size)) return 1;
   if (new_aubio_source(uri,           0,        0)) return 1;
 
