@@ -175,41 +175,33 @@ beach:
 void aubio_sink_apple_audio_do(aubio_sink_apple_audio_t * s, fvec_t * write_data, uint_t write) {
   UInt32 c, v;
   short *data = (short*)s->bufferList.mBuffers[0].mData;
-  if (write > s->max_frames) {
-    AUBIO_WRN("sink_apple_audio: trying to write %d frames, max %d\n", write, s->max_frames);
-    write = s->max_frames;
-  }
-  smpl_t *buf = write_data->data;
+  uint_t length = aubio_sink_validate_input_length("sink_apple_audio", s->path,
+      s->max_frames, write_data->length, write);
 
-  if (buf) {
-      for (c = 0; c < s->channels; c++) {
-          for (v = 0; v < write; v++) {
-              data[v * s->channels + c] =
-                  FLOAT_TO_SHORT(buf[ v * s->channels + c]);
-          }
-      }
+  for (c = 0; c < s->channels; c++) {
+    for (v = 0; v < length; v++) {
+      data[v * s->channels + c] = FLOAT_TO_SHORT(write_data->data[v]);
+    }
   }
-  aubio_sink_apple_audio_write(s, write);
+
+  aubio_sink_apple_audio_write(s, length);
 }
 
 void aubio_sink_apple_audio_do_multi(aubio_sink_apple_audio_t * s, fmat_t * write_data, uint_t write) {
   UInt32 c, v;
   short *data = (short*)s->bufferList.mBuffers[0].mData;
-  if (write > s->max_frames) {
-    AUBIO_WRN("sink_apple_audio: trying to write %d frames, max %d\n", write, s->max_frames);
-    write = s->max_frames;
-  }
-  smpl_t **buf = write_data->data;
+  uint_t channels = aubio_sink_validate_input_channels("sink_apple_audio",
+      s->path, s->channels, write_data->height);
+  uint_t length = aubio_sink_validate_input_length("sink_apple_audio", s->path,
+      s->max_frames, write_data->length, write);
 
-  if (buf) {
-      for (c = 0; c < s->channels; c++) {
-          for (v = 0; v < write; v++) {
-              data[v * s->channels + c] =
-                  FLOAT_TO_SHORT(buf[c][v]);
-          }
-      }
+  for (c = 0; c < channels; c++) {
+    for (v = 0; v < length; v++) {
+      data[v * s->channels + c] = FLOAT_TO_SHORT(write_data->data[c][v]);
+    }
   }
-  aubio_sink_apple_audio_write(s, write);
+
+  aubio_sink_apple_audio_write(s, length);
 }
 
 void aubio_sink_apple_audio_write(aubio_sink_apple_audio_t *s, uint_t write) {
