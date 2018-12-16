@@ -158,24 +158,17 @@ uint_t aubio_sink_sndfile_open(aubio_sink_sndfile_t *s) {
 }
 
 void aubio_sink_sndfile_do(aubio_sink_sndfile_t *s, fvec_t * write_data, uint_t write){
-  uint_t i, j, channels = s->channels;
-  int nsamples = 0;
-  smpl_t *pwrite;
+  uint_t i, j;
   sf_count_t written_frames;
-
-  if (write > s->max_size) {
-    AUBIO_WRN("sink_sndfile: trying to write %d frames, but only %d can be written at a time\n",
-      write, s->max_size);
-    write = s->max_size;
-  }
-
-  nsamples = channels * write;
+  uint_t channels = s->channels;
+  uint_t length = aubio_sink_validate_input_length("sink_sndfile", s->path,
+      s->max_size, write_data->length, write);
+  int nsamples = channels * length;
 
   /* interleaving data  */
   for ( i = 0; i < channels; i++) {
-    pwrite = (smpl_t *)write_data->data;
-    for (j = 0; j < write; j++) {
-      s->scratch_data[channels*j+i] = pwrite[j];
+    for (j = 0; j < length; j++) {
+      s->scratch_data[channels*j+i] = write_data->data[j];
     }
   }
 
@@ -188,24 +181,18 @@ void aubio_sink_sndfile_do(aubio_sink_sndfile_t *s, fvec_t * write_data, uint_t 
 }
 
 void aubio_sink_sndfile_do_multi(aubio_sink_sndfile_t *s, fmat_t * write_data, uint_t write){
-  uint_t i, j, channels = s->channels;
-  int nsamples = 0;
-  smpl_t *pwrite;
+  uint_t i, j;
   sf_count_t written_frames;
-
-  if (write > s->max_size) {
-    AUBIO_WRN("sink_sndfile: trying to write %d frames, but only %d can be written at a time\n",
-      write, s->max_size);
-    write = s->max_size;
-  }
-
-  nsamples = channels * write;
+  uint_t channels = aubio_sink_validate_input_channels("sink_sndfile", s->path,
+      s->channels, write_data->height);
+  uint_t length = aubio_sink_validate_input_length("sink_sndfile", s->path,
+      s->max_size, write_data->length, write);
+  int nsamples = channels * length;
 
   /* interleaving data  */
-  for ( i = 0; i < write_data->height; i++) {
-    pwrite = (smpl_t *)write_data->data[i];
-    for (j = 0; j < write; j++) {
-      s->scratch_data[channels*j+i] = pwrite[j];
+  for ( i = 0; i < channels; i++) {
+    for (j = 0; j < length; j++) {
+      s->scratch_data[channels*j+i] = write_data->data[i][j];
     }
   }
 
