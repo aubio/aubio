@@ -87,12 +87,7 @@ aubio_sink_wavwrite_t * new_aubio_sink_wavwrite(const char_t * path, uint_t samp
     AUBIO_ERR("sink_wavwrite: Aborted opening null path\n");
     goto beach;
   }
-  if ((sint_t)samplerate < 0) {
-    AUBIO_ERR("sink_wavwrite: Can not create %s with samplerate %d\n", path, samplerate);
-    goto beach;
-  }
 
-  if (s->path) AUBIO_FREE(s->path);
   s->path = AUBIO_ARRAY(char_t, strnlen(path, PATH_MAX) + 1);
   strncpy(s->path, path, strnlen(path, PATH_MAX) + 1);
 
@@ -135,7 +130,7 @@ uint_t aubio_sink_wavwrite_preset_samplerate(aubio_sink_wavwrite_t *s, uint_t sa
   }
   s->samplerate = samplerate;
   // automatically open when both samplerate and channels have been set
-  if (s->samplerate != 0 && s->channels != 0) {
+  if (/* s->samplerate != 0 && */ s->channels != 0) {
     return aubio_sink_wavwrite_open(s);
   }
   return AUBIO_OK;
@@ -148,7 +143,7 @@ uint_t aubio_sink_wavwrite_preset_channels(aubio_sink_wavwrite_t *s, uint_t chan
   }
   s->channels = channels;
   // automatically open when both samplerate and channels have been set
-  if (s->samplerate != 0 && s->channels != 0) {
+  if (s->samplerate != 0 /* && s->channels != 0 */) {
     return aubio_sink_wavwrite_open(s);
   }
   return AUBIO_OK;
@@ -294,10 +289,13 @@ uint_t aubio_sink_wavwrite_close(aubio_sink_wavwrite_t * s) {
 }
 
 void del_aubio_sink_wavwrite(aubio_sink_wavwrite_t * s){
-  if (!s) return;
-  aubio_sink_wavwrite_close(s);
-  if (s->path) AUBIO_FREE(s->path);
-  AUBIO_FREE(s->scratch_data);
+  AUBIO_ASSERT(s);
+  if (s->fid)
+    aubio_sink_wavwrite_close(s);
+  if (s->path)
+    AUBIO_FREE(s->path);
+  if (s->scratch_data)
+    AUBIO_FREE(s->scratch_data);
   AUBIO_FREE(s);
 }
 
