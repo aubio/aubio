@@ -234,19 +234,15 @@ beach:
 
 void aubio_sink_wavwrite_do(aubio_sink_wavwrite_t *s, fvec_t * write_data, uint_t write){
   uint_t c = 0, i = 0, written_frames = 0;
-
-  if (write > s->max_size) {
-    AUBIO_WRN("sink_wavwrite: trying to write %d frames to %s, "
-        "but only %d can be written at a time\n", write, s->path, s->max_size);
-    write = s->max_size;
-  }
+  uint_t length = aubio_sink_validate_input_length("sink_wavwrite", s->path,
+      s->max_size, write_data->length, write);
 
   for (c = 0; c < s->channels; c++) {
-    for (i = 0; i < write; i++) {
+    for (i = 0; i < length; i++) {
       s->scratch_data[i * s->channels + c] = HTOLES(FLOAT_TO_SHORT(write_data->data[i]));
     }
   }
-  written_frames = fwrite(s->scratch_data, 2, write * s->channels, s->fid);
+  written_frames = fwrite(s->scratch_data, 2, length * s->channels, s->fid);
 
   if (written_frames != write) {
     AUBIO_WRN("sink_wavwrite: trying to write %d frames to %s, "
@@ -259,18 +255,17 @@ void aubio_sink_wavwrite_do(aubio_sink_wavwrite_t *s, fvec_t * write_data, uint_
 void aubio_sink_wavwrite_do_multi(aubio_sink_wavwrite_t *s, fmat_t * write_data, uint_t write){
   uint_t c = 0, i = 0, written_frames = 0;
 
-  if (write > s->max_size) {
-    AUBIO_WRN("sink_wavwrite: trying to write %d frames to %s, "
-        "but only %d can be written at a time\n", write, s->path, s->max_size);
-    write = s->max_size;
-  }
+  uint_t channels = aubio_sink_validate_input_channels("sink_wavwrite", s->path,
+      s->channels, write_data->height);
+  uint_t length = aubio_sink_validate_input_length("sink_wavwrite", s->path,
+      s->max_size, write_data->length, write);
 
-  for (c = 0; c < s->channels; c++) {
-    for (i = 0; i < write; i++) {
+  for (c = 0; c < channels; c++) {
+    for (i = 0; i < length; i++) {
       s->scratch_data[i * s->channels + c] = HTOLES(FLOAT_TO_SHORT(write_data->data[c][i]));
     }
   }
-  written_frames = fwrite(s->scratch_data, 2, write * s->channels, s->fid);
+  written_frames = fwrite(s->scratch_data, 2, length * s->channels, s->fid);
 
   if (written_frames != write * s->channels) {
     AUBIO_WRN("sink_wavwrite: trying to write %d frames to %s, "
