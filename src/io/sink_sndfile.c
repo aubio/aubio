@@ -58,10 +58,9 @@ aubio_sink_sndfile_t * new_aubio_sink_sndfile(const char_t * path, uint_t sample
 
   if (path == NULL) {
     AUBIO_ERR("sink_sndfile: Aborted opening null path\n");
-    return NULL;
+    goto beach;
   }
 
-  if (s->path) AUBIO_FREE(s->path);
   s->path = AUBIO_ARRAY(char_t, strnlen(path, PATH_MAX) + 1);
   strncpy(s->path, path, strnlen(path, PATH_MAX) + 1);
 
@@ -97,7 +96,7 @@ uint_t aubio_sink_sndfile_preset_samplerate(aubio_sink_sndfile_t *s, uint_t samp
   }
   s->samplerate = samplerate;
   // automatically open when both samplerate and channels have been set
-  if (s->samplerate != 0 && s->channels != 0) {
+  if (/* s->samplerate != 0 && */ s->channels != 0) {
     return aubio_sink_sndfile_open(s);
   }
   return AUBIO_OK;
@@ -110,7 +109,7 @@ uint_t aubio_sink_sndfile_preset_channels(aubio_sink_sndfile_t *s, uint_t channe
   }
   s->channels = channels;
   // automatically open when both samplerate and channels have been set
-  if (s->samplerate != 0 && s->channels != 0) {
+  if (s->samplerate != 0 /* && s->channels != 0 */) {
     return aubio_sink_sndfile_open(s);
   }
   return AUBIO_OK;
@@ -147,8 +146,7 @@ uint_t aubio_sink_sndfile_open(aubio_sink_sndfile_t *s) {
   s->scratch_size = s->max_size*s->channels;
   /* allocate data for de/interleaving reallocated when needed. */
   if (s->scratch_size >= MAX_SIZE * AUBIO_MAX_CHANNELS) {
-    abort();
-    AUBIO_ERR("sink_sndfile: %d x %d exceeds maximum aubio_sink_sndfile buffer size %d\n",
+    AUBIO_ERR("sink_sndfile: %d x %d exceeds maximum buffer size %d\n",
         s->max_size, s->channels, MAX_SIZE * AUBIO_MAX_CHANNELS);
     return AUBIO_FAIL;
   }
@@ -217,10 +215,13 @@ uint_t aubio_sink_sndfile_close (aubio_sink_sndfile_t *s) {
 }
 
 void del_aubio_sink_sndfile(aubio_sink_sndfile_t * s){
-  if (!s) return;
-  if (s->path) AUBIO_FREE(s->path);
-  aubio_sink_sndfile_close(s);
-  AUBIO_FREE(s->scratch_data);
+  AUBIO_ASSERT(s);
+  if (s->handle)
+    aubio_sink_sndfile_close(s);
+  if (s->path)
+    AUBIO_FREE(s->path);
+  if (s->scratch_data)
+    AUBIO_FREE(s->scratch_data);
   AUBIO_FREE(s);
 }
 
