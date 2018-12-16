@@ -86,7 +86,6 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(const char_t * path, uint_t sa
   s->hop_size = hop_size;
   s->channels = 1;
 
-  if (s->path) AUBIO_FREE(s->path);
   s->path = AUBIO_ARRAY(char_t, strnlen(path, PATH_MAX) + 1);
   strncpy(s->path, path, strnlen(path, PATH_MAX) + 1);
 
