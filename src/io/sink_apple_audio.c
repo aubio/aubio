@@ -61,11 +61,11 @@ aubio_sink_apple_audio_t * new_aubio_sink_apple_audio(const char_t * uri, uint_t
   s->max_frames = MAX_SIZE;
   s->async = false;
 
-  if ( (uri == NULL) || (strlen(uri) < 1) ) {
+  if ( (uri == NULL) || (strnlen(uri, PATH_MAX) < 1) ) {
     AUBIO_ERROR("sink_apple_audio: Aborted opening null path\n");
     goto beach;
   }
-  if (s->path != NULL) AUBIO_FREE(s->path);
+
   s->path = AUBIO_ARRAY(char_t, strnlen(uri, PATH_MAX) + 1);
   strncpy(s->path, uri, strnlen(uri, PATH_MAX) + 1);
 
@@ -91,7 +91,7 @@ aubio_sink_apple_audio_t * new_aubio_sink_apple_audio(const char_t * uri, uint_t
 
   return s;
 beach:
-  AUBIO_FREE(s);
+  del_aubio_sink_apple_audio(s);
   return NULL;
 }
 
@@ -102,7 +102,7 @@ uint_t aubio_sink_apple_audio_preset_samplerate(aubio_sink_apple_audio_t *s, uin
   }
   s->samplerate = samplerate;
   // automatically open when both samplerate and channels have been set
-  if (s->samplerate != 0 && s->channels != 0) {
+  if (/* s->samplerate != 0 && */ s->channels != 0) {
     return aubio_sink_apple_audio_open(s);
   }
   return AUBIO_OK;
@@ -115,7 +115,7 @@ uint_t aubio_sink_apple_audio_preset_channels(aubio_sink_apple_audio_t *s, uint_
   }
   s->channels = channels;
   // automatically open when both samplerate and channels have been set
-  if (s->samplerate != 0 && s->channels != 0) {
+  if (s->samplerate != 0 /* && s->channels != 0 */) {
     return aubio_sink_apple_audio_open(s);
   }
   return AUBIO_OK;
@@ -249,11 +249,13 @@ uint_t aubio_sink_apple_audio_close(aubio_sink_apple_audio_t * s) {
 }
 
 void del_aubio_sink_apple_audio(aubio_sink_apple_audio_t * s) {
-  if (s->audioFile) aubio_sink_apple_audio_close (s);
-  if (s->path) AUBIO_FREE(s->path);
+  AUBIO_ASSERT(s);
+  if (s->audioFile)
+    aubio_sink_apple_audio_close (s);
+  if (s->path)
+    AUBIO_FREE(s->path);
   freeAudioBufferList(&s->bufferList);
   AUBIO_FREE(s);
-  return;
 }
 
 #endif /* HAVE_SINK_APPLE_AUDIO */
