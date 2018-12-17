@@ -34,7 +34,6 @@
 #include <FLAC/metadata.h>
 #include <FLAC/stream_encoder.h>
 
-#include <vorbis/vorbisenc.h>
 #include <string.h> // strerror
 #include <errno.h> // errno
 
@@ -78,7 +77,7 @@ uint_t aubio_sink_flac_close (aubio_sink_flac_t *s);
 void del_aubio_sink_flac (aubio_sink_flac_t *s);
 
 #if 0
-static void aubio_sink_vorbis_callback(const FLAC__StreamEncoder* encoder,
+static void aubio_sink_flac_callback(const FLAC__StreamEncoder* encoder,
     FLAC__uint64 bytes_written, FLAC__uint64 samples_written,
     unsigned frames_writtten, unsigned total_frames_estimate,
     void *client_data);
@@ -88,6 +87,11 @@ aubio_sink_flac_t * new_aubio_sink_flac (const char_t *uri,
     uint_t samplerate)
 {
   aubio_sink_flac_t * s = AUBIO_NEW(aubio_sink_flac_t);
+
+  if (!uri) {
+    AUBIO_ERROR("sink_flac: Aborted opening null path\n");
+    goto failure;
+  }
 
   s->path = AUBIO_ARRAY(char_t, strnlen(uri, PATH_MAX) + 1);
   strncpy(s->path, uri, strnlen(uri, PATH_MAX) + 1);
@@ -195,7 +199,7 @@ uint_t aubio_sink_flac_open(aubio_sink_flac_t *s)
   // initialize encoder
   init_status = FLAC__stream_encoder_init_file(s->encoder, s->path,
       NULL, NULL);
-      //aubio_sink_vorbis_callback, s);
+      //aubio_sink_flac_callback, s);
   if (init_status == FLAC__STREAM_ENCODER_INIT_STATUS_INVALID_SAMPLE_RATE) {
     AUBIO_ERR("sink_flac: failed initilizing encoder for %s"
        " (invalid samplerate %d)\n", s->path, s->samplerate);
@@ -258,52 +262,51 @@ void aubio_sink_flac_do(aubio_sink_flac_t *s, fvec_t *write_data,
     uint_t write)
 {
   uint_t c, v;
+  uint_t length = aubio_sink_validate_input_length("sink_flac", s->path,
+      MAX_WRITE_SIZE, write_data->length, write);
   // fill buffer
   if (!write) {
     return;
-  } else if (write > MAX_WRITE_SIZE) {
-    AUBIO_ERR("sink_flac: max_write request %dm asked for %d,"
-       " failed writing to %s\n", write, MAX_WRITE_SIZE, s->path);
-    return;
   } else {
     for (c = 0; c < s->channels; c++) {
-      for (v = 0; v < write; v++) {
+      for (v = 0; v < length; v++) {
         s->buffer[v * s->channels + c] = FLOAT_TO_SHORT(write_data->data[v]);
       }
     }
   }
   // send to encoder
   FLAC__stream_encoder_process_interleaved(s->encoder,
-      (const FLAC__int32*)s->buffer, write);
+      (const FLAC__int32*)s->buffer, length);
 }
 
 void aubio_sink_flac_do_multi(aubio_sink_flac_t *s, fmat_t *write_data,
     uint_t write)
 {
   uint_t c, v;
-  uint_t channels = MIN(s->channels, write_data->height);
+  uint_t channels = aubio_sink_validate_input_channels("sink_flac", s->path,
+      s->channels, write_data->height);
+  uint_t length = aubio_sink_validate_input_length("sink_flac", s->path,
+      MAX_WRITE_SIZE, write_data->length, write);
   // fill buffer
   if (!write) {
     return;
-  } else if (write > MAX_WRITE_SIZE) {
-    AUBIO_ERR("sink_flac: max_write request %dm asked for %d,"
-       " failed writing to %s\n", write, MAX_WRITE_SIZE, s->path);
-    return;
   } else {
     for (c = 0; c < channels; c++) {
-      for (v = 0; v < write; v++) {
+      for (v = 0; v < length; v++) {
         s->buffer[v * s->channels + c] = FLOAT_TO_SHORT(write_data->data[c][v]);
       }
     }
     // send to encoder
     FLAC__stream_encoder_process_interleaved(s->encoder,
-        (const FLAC__int32*)s->buffer, write);
+        (const FLAC__int32*)s->buffer, length);
   }
 }
 
 uint_t aubio_sink_flac_close (aubio_sink_flac_t *s)
 {
   uint_t ret = AUBIO_OK;
+
+  if (!s->fid) return AUBIO_FAIL;
 
   if (s->encoder) {
     // mark the end of stream
@@ -324,18 +327,18 @@ uint_t aubio_sink_flac_close (aubio_sink_flac_t *s)
     FLAC__metadata_object_delete(s->metadata[1]);
   }
 
-  if (s->fid) {
-    if (fclose(s->fid)) {
-      AUBIO_ERR("sink_flac: Error closing file %s (%s)\n",
-          s->path, strerror(errno));
-      ret &= AUBIO_FAIL;
-    }
+  if (s->fid && fclose(s->fid)) {
+    AUBIO_ERR("sink_flac: Error closing file %s (%s)\n",
+        s->path, strerror(errno));
+    ret &= AUBIO_FAIL;
   }
+  s->fid = NULL;
+
   return ret;
 }
 
 #if 0
-static void aubio_sink_vorbis_callback(const FLAC__StreamEncoder* encoder UNUSED,
+static void aubio_sink_flac_callback(const FLAC__StreamEncoder* encoder UNUSED,
     FLAC__uint64 bytes_written, FLAC__uint64 samples_written,
     unsigned frames_written, unsigned total_frames_estimate,
     void *client_data UNUSED)
