@@ -36,6 +36,8 @@
 #include <errno.h> // errno
 #include <time.h> // time
 
+#define MAX_SIZE 2048
+
 struct _aubio_sink_vorbis_t {
   FILE *fid;            // file id
   ogg_stream_state os;  // stream
@@ -244,7 +246,9 @@ void aubio_sink_vorbis_do(aubio_sink_vorbis_t *s, fvec_t *write_data,
     uint_t write)
 {
   uint_t c, v;
-  float **buffer = vorbis_analysis_buffer(&s->vd, (long)write);
+  uint_t length = aubio_sink_validate_input_length("sink_vorbis", s->path,
+      MAX_SIZE, write_data->length, write);
+  float **buffer = vorbis_analysis_buffer(&s->vd, (long)length);
   // fill buffer
   if (!write) {
     return;
@@ -253,12 +257,12 @@ void aubio_sink_vorbis_do(aubio_sink_vorbis_t *s, fvec_t *write_data,
     return;
   } else {
     for (c = 0; c < s->channels; c++) {
-      for (v = 0; v < write; v++) {
+      for (v = 0; v < length; v++) {
         buffer[c][v] = write_data->data[v];
       }
     }
     // tell vorbis how many frames were written
-    vorbis_analysis_wrote(&s->vd, (long)write);
+    vorbis_analysis_wrote(&s->vd, (long)length);
   }
   // write to file
   aubio_sink_vorbis_write(s);
@@ -268,8 +272,11 @@ void aubio_sink_vorbis_do_multi(aubio_sink_vorbis_t *s, fmat_t *write_data,
     uint_t write)
 {
   uint_t c, v;
-  uint_t channels = MIN(s->channels, write_data->height);
-  float **buffer = vorbis_analysis_buffer(&s->vd, (long)write);
+  uint_t channels = aubio_sink_validate_input_channels("sink_vorbis", s->path,
+      s->channels, write_data->height);
+  uint_t length = aubio_sink_validate_input_length("sink_vorbis", s->path,
+      MAX_SIZE, write_data->length, write);
+  float **buffer = vorbis_analysis_buffer(&s->vd, (long)length);
   // fill buffer
   if (!write) {
     return;
@@ -278,7 +285,7 @@ void aubio_sink_vorbis_do_multi(aubio_sink_vorbis_t *s, fmat_t *write_data,
     return;
   } else {
     for (c = 0; c < channels; c++) {
-      for (v = 0; v < write; v++) {
+      for (v = 0; v < length; v++) {
         buffer[c][v] = write_data->data[c][v];
       }
     }
