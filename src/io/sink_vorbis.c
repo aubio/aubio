@@ -66,6 +66,11 @@ aubio_sink_vorbis_t * new_aubio_sink_vorbis (const char_t *uri,
 {
   aubio_sink_vorbis_t * s = AUBIO_NEW(aubio_sink_vorbis_t);
 
+  if (!uri) {
+    AUBIO_ERROR("sink_apple_audio: Aborted opening null path\n");
+    goto failure;
+  }
+
   s->path = AUBIO_ARRAY(char_t, strnlen(uri, PATH_MAX) + 1);
   strncpy(s->path, uri, strnlen(uri, PATH_MAX) + 1);
   s->path[strnlen(uri, PATH_MAX)] = '\0';
