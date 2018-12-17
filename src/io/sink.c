@@ -194,7 +194,7 @@ aubio_sink_t * new_aubio_sink(const char_t * uri, uint_t samplerate) {
   !defined(HAVE_FLAC)
   AUBIO_ERROR("sink: failed creating '%s' at %dHz (no sink built-in)\n", uri, samplerate);
 #endif
-  AUBIO_FREE(s);
+  del_aubio_sink(s);
   return NULL;
 }
 
@@ -227,8 +227,8 @@ uint_t aubio_sink_close(aubio_sink_t *s) {
 }
 
 void del_aubio_sink(aubio_sink_t * s) {
-  if (!s) return;
-  s->s_del((void *)s->sink);
+  AUBIO_ASSERT(s);
+  if (s->s_del && s->sink)
+    s->s_del((void *)s->sink);
   AUBIO_FREE(s);
-  return;
 }

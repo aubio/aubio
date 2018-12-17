@@ -1,9 +1,13 @@
-#include <aubio.h>
-#include "utils_tests.h"
+// this should be included *after* custom functions have been defined
 
+#ifndef aubio_sink_custom
+#define aubio_sink_custom "undefined"
+#endif /* aubio_sink_custom */
+
+#ifdef HAVE_AUBIO_SINK_CUSTOM
 int test_wrong_params(void);
 
-int main(int argc, char **argv)
+int base_main(int argc, char **argv)
 {
   uint_t err = 0;
   if (argc < 3 || argc >= 6) {
@@ -29,26 +33,26 @@ int main(int argc, char **argv)
   aubio_source_t *i = new_aubio_source(source_path, samplerate, hop_size);
   if (samplerate == 0 ) samplerate = aubio_source_get_samplerate(i);
 
-  aubio_sink_t *o = new_aubio_sink(sink_path, samplerate);
+  aubio_sink_custom_t *o = new_aubio_sink_custom(sink_path, samplerate);
 
   if (!vec || !i || !o) { err = 1; goto failure; }
 
   do {
     aubio_source_do(i, vec, &read);
-    aubio_sink_do(o, vec, read);
+    aubio_sink_custom_do(o, vec, read);
     n_frames += read;
   } while ( read == hop_size );
 
-  PRINT_MSG("%d frames read at %dHz (%d blocks) from %s and written to %s\n",
+  PRINT_MSG("%d frames at %dHz (%d blocks) read from %s, wrote to %s\n",
       n_frames, samplerate, n_frames / hop_size,
       source_path, sink_path);
 
   // close sink now (optional)
-  aubio_sink_close(o);
+  aubio_sink_custom_close(o);
 
 failure:
   if (o)
-    del_aubio_sink(o);
+    del_aubio_sink_custom(o);
   if (i)
     del_aubio_source(i);
   if (vec)
@@ -61,7 +65,7 @@ int test_wrong_params(void)
 {
   fvec_t *vec;
   fmat_t *mat;
-  aubio_sink_t *s;
+  aubio_sink_custom_t *s;
   char_t sink_path[PATH_MAX] = "tmp_aubio_XXXXXX";
   uint_t samplerate = 44100;
   uint_t hop_size = 256;
@@ -74,74 +78,86 @@ int test_wrong_params(void)
 
   if (!fd) return 1;
 
-  if (new_aubio_sink(   0,   samplerate)) return 1;
-  if (new_aubio_sink("\0",   samplerate)) return 1;
-  if (new_aubio_sink(sink_path,      -1)) return 1;
+  if (new_aubio_sink_custom(   0,   samplerate)) return 1;
+  if (new_aubio_sink_custom("\0",   samplerate)) return 1;
+  if (new_aubio_sink_custom(sink_path,      -1)) return 1;
 
-  s = new_aubio_sink(sink_path, 0);
+  s = new_aubio_sink_custom(sink_path, 0);
 
   // check setting wrong parameters fails
-  if (!aubio_sink_preset_samplerate(s, oversized_samplerate)) return 1;
-  if (!aubio_sink_preset_channels(s, oversized_channels)) return 1;
-  if (!aubio_sink_preset_channels(s, -1)) return 1;
+  if (!aubio_sink_custom_preset_samplerate(s, oversized_samplerate)) return 1;
+  if (!aubio_sink_custom_preset_channels(s, oversized_channels)) return 1;
+  if (!aubio_sink_custom_preset_channels(s, -1)) return 1;
 
   // check setting valid parameters passes
-  if (aubio_sink_preset_samplerate(s, samplerate)) return 1;
-  if (aubio_sink_preset_channels(s, 1)) return 1;
+  if (aubio_sink_custom_preset_samplerate(s, samplerate)) return 1;
+  if (aubio_sink_custom_preset_channels(s, 1)) return 1;
 
   // check writing a vector with valid length
   vec = new_fvec(hop_size);
-  aubio_sink_do(s, vec, hop_size);
+  aubio_sink_custom_do(s, vec, hop_size);
   // check writing more than in the input
-  aubio_sink_do(s, vec, hop_size+1);
+  aubio_sink_custom_do(s, vec, hop_size+1);
   // check write 0 frames
-  aubio_sink_do(s, vec, 0);
+  aubio_sink_custom_do(s, vec, 0);
   del_fvec(vec);
 
   // check writing an oversized vector
   vec = new_fvec(oversized_hop_size);
-  aubio_sink_do(s, vec, oversized_hop_size);
+  aubio_sink_custom_do(s, vec, oversized_hop_size);
   del_fvec(vec);
 
   // test delete without closing
-  del_aubio_sink(s);
+  del_aubio_sink_custom(s);
 
-  s = new_aubio_sink(sink_path, 0);
+  s = new_aubio_sink_custom(sink_path, 0);
 
   // preset channels first
-  if (aubio_sink_preset_channels(s, channels)) return 1;
-  if (aubio_sink_preset_samplerate(s, samplerate)) return 1;
+  if (aubio_sink_custom_preset_channels(s, channels)) return 1;
+  if (aubio_sink_custom_preset_samplerate(s, samplerate)) return 1;
 
-  if (aubio_sink_get_samplerate(s) != samplerate) return 1;
-  if (aubio_sink_get_channels(s) != channels) return 1;
+  if (aubio_sink_custom_get_samplerate(s) != samplerate) return 1;
+  if (aubio_sink_custom_get_channels(s) != channels) return 1;
 
   mat = new_fmat(channels, hop_size);
   // check writing a vector with valid length
-  aubio_sink_do_multi(s, mat, hop_size);
+  aubio_sink_custom_do_multi(s, mat, hop_size);
   // check writing 0 frames
-  aubio_sink_do_multi(s, mat, 0);
+  aubio_sink_custom_do_multi(s, mat, 0);
   // check writing more than in the input
-  aubio_sink_do_multi(s, mat, hop_size+1);
+  aubio_sink_custom_do_multi(s, mat, hop_size+1);
   del_fmat(mat);
 
   // check writing oversized input
   mat = new_fmat(channels, oversized_hop_size);
-  aubio_sink_do_multi(s, mat, oversized_hop_size);
+  aubio_sink_custom_do_multi(s, mat, oversized_hop_size);
   del_fmat(mat);
 
   // check writing undersized input
   mat = new_fmat(channels - 1, hop_size);
-  aubio_sink_do_multi(s, mat, hop_size);
+  aubio_sink_custom_do_multi(s, mat, hop_size);
   del_fmat(mat);
 
-  aubio_sink_close(s);
+  aubio_sink_custom_close(s);
   // test closing twice
-  aubio_sink_close(s);
+  aubio_sink_custom_close(s);
 
-  del_aubio_sink(s);
+  del_aubio_sink_custom(s);
 
   // delete temp file
   close_temp_sink(sink_path, fd);
 
-  return run_on_default_source_and_sink(main);
+  return run_on_default_source_and_sink(base_main);
 }
+
+#else /* HAVE_AUBIO_SINK_CUSTOM */
+
+int base_main(int argc, char** argv)
+{
+  PRINT_ERR("aubio was not compiled with aubio_sink_"
+          aubio_sink_custom ", failed running %s with %d args\n",
+          argv[0], argc);
+  return 0;
+}
+
+#endif /* HAVE_AUBIO_SINK_CUSTOM */

@@ -53,6 +53,33 @@ uint_t aubio_io_validate_samplerate(const char_t *kind, const char_t *path,
 uint_t aubio_io_validate_channels(const char_t *kind, const char_t *path,
     uint_t channels);
 
+/** validate length of input
+
+  \param kind       the object kind to report on
+  \param path       the path to report on
+  \param max_size   maximum number of frames that can be written
+  \param write_data_length actual length of input vector/matrix
+  \param write number of samples asked
+
+  \return write or the maximum number of frames that can be written
+*/
+uint_t
+aubio_sink_validate_input_length(const char_t *kind, const char_t *path,
+    uint_t max_size, uint_t write_data_length, uint_t write);
+
+/** validate height of input
+
+  \param kind       the object kind to report on
+  \param path       the path to report on
+  \param max_size   maximum number of channels that can be written
+  \param write_data_height actual height of input matrix
+
+  \return write_data_height or the maximum number of channels
+*/
+uint_t
+aubio_sink_validate_input_channels(const char_t *kind, const char_t *path,
+    uint_t sink_channels, uint_t write_data_height);
+
 #ifdef __cplusplus
 }
 #endif
