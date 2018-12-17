@@ -112,9 +112,14 @@ int test_wrong_params(void)
   if (aubio_sink_preset_channels(s, channels)) return 1;
   if (aubio_sink_preset_samplerate(s, samplerate)) return 1;
 
+  if (aubio_sink_get_samplerate(s) != samplerate) return 1;
+  if (aubio_sink_get_channels(s) != channels) return 1;
+
   mat = new_fmat(channels, hop_size);
   // check writing a vector with valid length
   aubio_sink_do_multi(s, mat, hop_size);
+  // check writing 0 frames
+  aubio_sink_do_multi(s, mat, 0);
   // check writing more than in the input
   aubio_sink_do_multi(s, mat, hop_size+1);
   del_fmat(mat);

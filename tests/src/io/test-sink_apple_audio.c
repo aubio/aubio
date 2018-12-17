@@ -14,6 +14,8 @@
 #define aubio_sink_custom_close aubio_sink_apple_audio_close
 #define aubio_sink_custom_preset_samplerate aubio_sink_apple_audio_preset_samplerate
 #define aubio_sink_custom_preset_channels aubio_sink_apple_audio_preset_channels
+#define aubio_sink_custom_get_samplerate aubio_sink_apple_audio_get_samplerate
+#define aubio_sink_custom_get_channels aubio_sink_apple_audio_get_channels
 #endif /* HAVE_SINK_APPLE_AUDIO */
 
 #include "base-sink_custom.h"
