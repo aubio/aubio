@@ -1,9 +1,13 @@
-#include <aubio.h>
-#include "utils_tests.h"
+// this should be included *after* custom functions have been defined
 
+#ifndef aubio_source_custom
+#define aubio_source_custom "undefined"
+#endif /* aubio_source_custom */
+
+#ifdef HAVE_AUBIO_SOURCE_CUSTOM
 int test_wrong_params(void);
 
-int main(int argc, char **argv)
+int base_main(int argc, char **argv)
 {
   uint_t err = 0;
   if (argc < 2) {
@@ -29,17 +33,17 @@ int main(int argc, char **argv)
 
   char_t *source_path = argv[1];
 
-  aubio_source_t* s =
-    new_aubio_source(source_path, samplerate, hop_size);
+  aubio_source_custom_t * s =
+    new_aubio_source_custom(source_path, samplerate, hop_size);
   fvec_t *vec = new_fvec(hop_size);
   if (!s || !vec) { err = 1; goto beach; }
 
-  uint_t n_frames_expected = aubio_source_get_duration(s);
+  uint_t n_frames_expected = aubio_source_custom_get_duration(s);
 
-  samplerate = aubio_source_get_samplerate(s);
+  samplerate = aubio_source_custom_get_samplerate(s);
 
   do {
-    aubio_source_do(s, vec, &read);
+    aubio_source_custom_do(s, vec, &read);
     fvec_print (vec);
     n_frames += read;
   } while ( read == hop_size );
@@ -49,13 +53,13 @@ int main(int argc, char **argv)
             source_path);
 
   // close the file (optional)
-  aubio_source_close(s);
+  aubio_source_custom_close(s);
 
 beach:
   if (vec)
     del_fvec(vec);
   if (s)
-    del_aubio_source(s);
+    del_aubio_source_custom(s);
   return err;
 }
 
@@ -67,43 +71,55 @@ int test_wrong_params(void)
   uint_t channels, read = 0;
   fvec_t *vec;
   fmat_t *mat;
-  aubio_source_t *s;
+  aubio_source_custom_t *s;
 
-  if (new_aubio_source(0,    samplerate, hop_size)) return 1;
-  if (new_aubio_source("\0", samplerate, hop_size)) return 1;
-  if (new_aubio_source(uri,          -1, hop_size)) return 1;
-  if (new_aubio_source(uri,           0,        0)) return 1;
+  if (new_aubio_source_custom(0,    samplerate, hop_size)) return 1;
+  if (new_aubio_source_custom("\0", samplerate, hop_size)) return 1;
+  if (new_aubio_source_custom(uri,          -1, hop_size)) return 1;
+  if (new_aubio_source_custom(uri,           0,        0)) return 1;
 
-  s = new_aubio_source(uri, samplerate, hop_size);
+  s = new_aubio_source_custom(uri, samplerate, hop_size);
   if (!s) return 1;
-  channels = aubio_source_get_channels(s);
+  channels = aubio_source_custom_get_channels(s);
 
   // vector to read downmixed samples
   vec = new_fvec(hop_size);
   // matrix to read individual channels
   mat = new_fmat(channels, hop_size);
 
-  if (aubio_source_get_samplerate(s) != samplerate) return 1;
+  if (aubio_source_custom_get_samplerate(s) != samplerate) return 1;
 
   // read first hop_size frames
-  aubio_source_do(s, vec, &read);
+  aubio_source_custom_do(s, vec, &read);
   if (read != hop_size) return 1;
 
   // seek to 0
-  if(aubio_source_seek(s, 0)) return 1;
+  if(aubio_source_custom_seek(s, 0)) return 1;
 
   // read again as multiple channels
-  aubio_source_do_multi(s, mat, &read);
+  aubio_source_custom_do_multi(s, mat, &read);
   if (read != hop_size) return 1;
 
   // close the file (optional)
-  aubio_source_close(s);
+  aubio_source_custom_close(s);
   // test closing the file a second time
-  aubio_source_close(s);
+  aubio_source_custom_close(s);
 
-  del_aubio_source(s);
+  del_aubio_source_custom(s);
   del_fmat(mat);
   del_fvec(vec);
 
-  return run_on_default_source(main);
+  return run_on_default_source(base_main);
 }
+
+#else /* HAVE_AUBIO_SOURCE_CUSTOM */
+
+int base_main(int argc, char** argv)
+{
+  PRINT_ERR("aubio was not compiled with aubio_source_"
+          aubio_source_custom ", failed running %s with %d args\n",
+          argv[0], argc);
+  return 0;
+}
+
+#endif /* HAVE_AUBIO_SOURCE_CUSTOM */
