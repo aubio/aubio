@@ -14,6 +14,8 @@
 #define aubio_sink_custom_close aubio_sink_sndfile_close
 #define aubio_sink_custom_preset_samplerate aubio_sink_sndfile_preset_samplerate
 #define aubio_sink_custom_preset_channels aubio_sink_sndfile_preset_channels
+#define aubio_sink_custom_get_samplerate aubio_sink_sndfile_get_samplerate
+#define aubio_sink_custom_get_channels aubio_sink_sndfile_get_channels
 #endif /* HAVE_SNDFILE */
 
 #include "base-sink_custom.h"
