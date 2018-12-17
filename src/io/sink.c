@@ -93,6 +93,7 @@ extern void aubio_sink_flac_do_multi(aubio_sink_flac_t *s, fmat_t*
 
 static const char_t *aubio_get_extension(const char_t *filename)
 {
+  if (!filename) return NULL;
   // find last occurence of dot character
   const char_t *ext = strrchr(filename, '.');
   if (!ext || ext == filename) return "";
@@ -108,7 +109,7 @@ aubio_sink_t * new_aubio_sink(const char_t * uri, uint_t samplerate) {
 #ifdef HAVE_VORBISENC
   // check if this uri could be for us
   uint_t match_oggstream = 0;
-  if (strcmp (uri_ext, "ogg") == 0) match_oggstream = 1;
+  if (uri_ext && strcmp (uri_ext, "ogg") == 0) match_oggstream = 1;
   if (match_oggstream) {
     s->sink = (void *)new_aubio_sink_vorbis(uri, samplerate);
     if (s->sink) {
@@ -128,7 +129,7 @@ aubio_sink_t * new_aubio_sink(const char_t * uri, uint_t samplerate) {
 #ifdef HAVE_FLAC
   // check if this uri could be for us
   uint_t match_flacstream = 0;
-  if (strcmp (uri_ext, "flac") == 0) match_flacstream = 1;
+  if (uri_ext && strcmp (uri_ext, "flac") == 0) match_flacstream = 1;
   if (match_flacstream) {
     s->sink = (void *)new_aubio_sink_flac(uri, samplerate);
     if (s->sink) {
