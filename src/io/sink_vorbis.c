@@ -180,7 +180,7 @@ uint_t aubio_sink_vorbis_preset_samplerate(aubio_sink_vorbis_t *s,
   if (aubio_io_validate_samplerate("sink_vorbis", s->path, samplerate))
     return AUBIO_FAIL;
   s->samplerate = samplerate;
-  if (s->samplerate != 0 && s->channels != 0)
+  if (/* s->samplerate != 0 && */ s->channels != 0)
     return aubio_sink_vorbis_open(s);
   return AUBIO_OK;
 }
@@ -193,7 +193,7 @@ uint_t aubio_sink_vorbis_preset_channels(aubio_sink_vorbis_t *s,
   }
   s->channels = channels;
   // automatically open when both samplerate and channels have been set
-  if (s->samplerate != 0 && s->channels != 0) {
+  if (s->samplerate != 0 /* && s->channels != 0 */) {
     return aubio_sink_vorbis_open(s);
   }
   return AUBIO_OK;
