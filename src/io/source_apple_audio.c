@@ -94,7 +94,6 @@ uint_t aubio_source_apple_audio_open (aubio_source_apple_audio_t *s, const char_
   OSStatus err = noErr;
   UInt32 propSize;
 
-  if (s->path) AUBIO_FREE(s->path);
   s->path = AUBIO_ARRAY(char_t, strnlen(path, PATH_MAX) + 1);
   strncpy(s->path, path, strnlen(path, PATH_MAX) + 1);
 
@@ -293,11 +292,11 @@ uint_t aubio_source_apple_audio_close (aubio_source_apple_audio_t *s)
 }
 
 void del_aubio_source_apple_audio(aubio_source_apple_audio_t * s){
+  AUBIO_ASSERT(s);
   aubio_source_apple_audio_close (s);
   if (s->path) AUBIO_FREE(s->path);
   freeAudioBufferList(&s->bufferList);
   AUBIO_FREE(s);
-  return;
 }
 
 uint_t aubio_source_apple_audio_seek (aubio_source_apple_audio_t * s, uint_t pos) {

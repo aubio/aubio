@@ -330,7 +330,7 @@ uint_t aubio_source_sndfile_close (aubio_source_sndfile_t *s) {
 }
 
 void del_aubio_source_sndfile(aubio_source_sndfile_t * s){
-  if (!s) return;
+  AUBIO_ASSERT(s);
   aubio_source_sndfile_close(s);
 #ifdef HAVE_SAMPLERATE
   if (s->resamplers != NULL) {

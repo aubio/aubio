@@ -147,7 +147,6 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path,
   s->hop_size = hop_size;
   s->channels = 1;
 
-  if (s->path) AUBIO_FREE(s->path);
   s->path = AUBIO_ARRAY(char_t, strnlen(path, PATH_MAX) + 1);
   strncpy(s->path, path, strnlen(path, PATH_MAX) + 1);
 
@@ -639,7 +638,7 @@ uint_t aubio_source_avcodec_close(aubio_source_avcodec_t * s) {
 }
 
 void del_aubio_source_avcodec(aubio_source_avcodec_t * s){
-  if (!s) return;
+  AUBIO_ASSERT(s);
   aubio_source_avcodec_close(s);
   if (s->output != NULL) {
     av_free(s->output);
