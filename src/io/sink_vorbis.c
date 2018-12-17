@@ -291,6 +291,7 @@ void aubio_sink_vorbis_do_multi(aubio_sink_vorbis_t *s, fmat_t *write_data,
 
 uint_t aubio_sink_vorbis_close (aubio_sink_vorbis_t *s)
 {
+  if (!s->fid) return AUBIO_FAIL;
   //mark the end of stream
   vorbis_analysis_wrote(&s->vd, 0);
 
