@@ -565,9 +565,10 @@ def doxygen(bld):
                     + bld.path.find_dir('src').ant_glob('**/*.h'),
                 target = bld.path.find_or_declare('api/index.html'),
                 cwd = bld.path.find_dir('doc'))
+        # evaluate nodes lazily to prevent build directory traversal warnings
         bld.install_files('${DATAROOTDIR}/doc/libaubio-doc/api',
-                bld.path.find_or_declare('api').ant_glob('**/*'),
-                cwd=bld.path.find_or_declare('api'),
+                bld.path.find_or_declare('api').ant_glob('**/*',
+                    generator=True), cwd=bld.path.find_or_declare('api'),
                 relative_trick=True)
 
 def sphinx(bld):
@@ -589,9 +590,10 @@ def sphinx(bld):
                 cwd = bld.path.find_dir('doc'),
                 source = bld.path.find_dir('doc').ant_glob('*.rst'),
                 target = bld.path.find_or_declare('manual/index.html'))
+        # evaluate nodes lazily to prevent build directory traversal warnings
         bld.install_files('${DATAROOTDIR}/doc/libaubio-doc/manual',
-                bld.path.find_or_declare('manual').ant_glob('**/*'),
-                cwd=bld.path.find_or_declare('manual'),
+                bld.path.find_or_declare('manual').ant_glob('**/*',
+                    generator=True), cwd=bld.path.find_or_declare('manual'),
                 relative_trick=True)
 
 # register the previous rules as build rules

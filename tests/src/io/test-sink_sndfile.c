@@ -2,66 +2,26 @@
 #include <aubio.h>
 #include "utils_tests.h"
 
+#define aubio_sink_custom "sndfile"
+
+#ifdef HAVE_SNDFILE
+#define HAVE_AUBIO_SINK_CUSTOM
+#define aubio_sink_custom_t aubio_sink_sndfile_t
+#define new_aubio_sink_custom new_aubio_sink_sndfile
+#define del_aubio_sink_custom del_aubio_sink_sndfile
+#define aubio_sink_custom_do aubio_sink_sndfile_do
+#define aubio_sink_custom_do_multi aubio_sink_sndfile_do_multi
+#define aubio_sink_custom_close aubio_sink_sndfile_close
+#define aubio_sink_custom_preset_samplerate aubio_sink_sndfile_preset_samplerate
+#define aubio_sink_custom_preset_channels aubio_sink_sndfile_preset_channels
+#endif /* HAVE_SNDFILE */
+
+#include "base-sink_custom.h"
+
 // this file uses the unstable aubio api, please use aubio_sink instead
 // see src/io/sink.h and tests/src/sink/test-sink.c
 
 int main (int argc, char **argv)
 {
-  sint_t err = 0;
-
-  if (argc < 3) {
-    PRINT_ERR("not enough arguments, running tests\n");
-    err = run_on_default_source_and_sink(main);
-    PRINT_MSG("usage: %s <input_path> <output_path> [samplerate] [hop_size]\n", argv[0]);
-    return err;
-  }
-
-#ifdef HAVE_SNDFILE
-  uint_t samplerate = 0;
-  uint_t hop_size = 512;
-  uint_t n_frames = 0, read = 0;
-
-  char_t *source_path = argv[1];
-  char_t *sink_path = argv[2];
-
-  if ( argc >= 4 ) samplerate = atoi(argv[3]);
-  if ( argc >= 5 ) hop_size = atoi(argv[4]);
-  if ( argc >= 6 ) {
-    err = 2;
-    PRINT_ERR("too many arguments\n");
-    return err;
-  }
-
-  fvec_t *vec = new_fvec(hop_size);
-  if (!vec) { err = 1; goto beach_fvec; }
-
-  aubio_source_t *i = new_aubio_source(source_path, samplerate, hop_size);
-  if (!i) { err = 1; goto beach_source; }
-
-  if (samplerate == 0 ) samplerate = aubio_source_get_samplerate(i);
-
-  aubio_sink_sndfile_t *o = new_aubio_sink_sndfile(sink_path, samplerate);
-  if (!o) { err = 1; goto beach_sink; }
-
-  do {
-    aubio_source_do(i, vec, &read);
-    aubio_sink_sndfile_do(o, vec, read);
-    n_frames += read;
-  } while ( read == hop_size );
-
-  PRINT_MSG("read %d frames at %dHz (%d blocks) from %s written to %s\n",
-      n_frames, samplerate, n_frames / hop_size,
-      source_path, sink_path);
-
-  del_aubio_sink_sndfile(o);
-beach_sink:
-  del_aubio_source(i);
-beach_source:
-  del_fvec(vec);
-beach_fvec:
-#else
-  err = 0;
-  PRINT_ERR("aubio was not compiled with aubio_source_sndfile\n");
-#endif /* HAVE_SNDFILE */
-  return err;
+  return base_main(argc, argv);
 }
