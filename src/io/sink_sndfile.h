@@ -95,6 +95,39 @@ uint_t aubio_sink_sndfile_preset_channels(aubio_sink_sndfile_t *s, uint_t channe
 
 /**
 
+  preset sink format
+
+  \param s sink, created with ::new_aubio_sink_sndfile
+  \param fmt format of the file to create
+
+  \return 0 on success, 1 on error
+
+  Preset the format of the sink. Supported format strings:
+   - "wav": 16 bit (default)
+   - "aiff": aiff, 16 bit
+   - "flac": flac, 16 bit
+   - "ogg": ogg vorbis stream
+
+  Alternatively, any sndfile format can be set by passing the corresponding
+  integer as a string:
+
+  \code{.c}
+  char_t fmt[10];
+  snprintf(fmt, sizeof(fmt), "%d", SF_FORMAT_FLAC | SF_FORMAT_PCM_24);
+  aubio_sink_sndfile_preset_format(s, fmt);
+  \endcode
+
+  The file should have been created using a samplerate of 0.
+
+  This function should be called before aubio_sink_sndfile_preset_samplerate()
+  and aubio_sink_sndfile_preset_channels().
+
+*/
+uint_t aubio_sink_sndfile_preset_format(aubio_sink_sndfile_t *s,
+        const char_t* fmt);
+
+/**
+
   get samplerate of sink object
 
   \param s sink object, created with ::new_aubio_sink_sndfile
