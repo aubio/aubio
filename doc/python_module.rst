@@ -89,14 +89,15 @@ The command line `aubio` is also installed:
 Python tests
 ------------
 
-A number of Python tests are provided in the `python tests`_. To run them,
-install `nose2`_ and run the script ``python/tests/run_all_tests``:
+A number of Python tests are provided in the `python/tests`_ folder. To run
+them, install `pytest`_ and run it from the aubio source directory:
 
 .. code-block:: console
 
-    $ pip install nose2
-    $ ./python/tests/run_all_tests
+    $ pip install pytest
+    $ git clone https://git.aubio.org/aubio/aubio
+    $ cd aubio
+    $ pytest
 
-.. _demo_filter.py: https://github.com/aubio/aubio/blob/master/python/demos/demo_filter.py
-.. _python tests: https://github.com/aubio/aubio/blob/master/python/tests
-.. _nose2: https://github.com/nose-devs/nose2
+.. _python/tests: https://github.com/aubio/aubio/blob/master/python/tests
+.. _pytest: https://pytest.org

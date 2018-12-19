@@ -27,7 +27,7 @@ Links
 Demos
 -----
 
-Some examples are available in the [`python/demos`][demos_dir] folder. Each
+Some examples are available in the [`python/demos` folder][demos_dir]. Each
 script is a command line program which accepts one ore more argument.
 
 **Notes**: installing additional modules is required to run some of the demos.

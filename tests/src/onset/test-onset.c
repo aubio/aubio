@@ -69,21 +69,19 @@ int test_wrong_params(void)
   uint_t hop_size = win_size / 2;
   uint_t samplerate = 44100;
   // hop_size < 1
-  if (new_aubio_onset("default", 5, 0, samplerate))
-    return 1;
+  if (new_aubio_onset("default", 5, 0, samplerate)) return 1;
+
   // buf_size < 2
-  if (new_aubio_onset("default", 1, 1, samplerate))
-    return 1;
+  if (new_aubio_onset("default", 1, 1, samplerate)) return 1;
+
   // buf_size < hop_size
-  if (new_aubio_onset("default", hop_size, win_size, samplerate))
-    return 1;
+  if (new_aubio_onset("default", hop_size, win_size, samplerate)) return 1;
+
   // samplerate < 1
-  if (new_aubio_onset("default", 1024, 512, 0))
-    return 1;
+  if (new_aubio_onset("default", 1024, 512, 0)) return 1;
 
   // specdesc creation failed
-  if (new_aubio_onset("abcd", win_size, win_size/2, samplerate))
-    return 1;
+  if (new_aubio_onset("abcd", win_size, win_size/2, samplerate)) return 1;
 
   aubio_onset_t *o;
 
@@ -92,8 +90,7 @@ int test_wrong_params(void)
   if (o) del_aubio_onset(o);
 
   o = new_aubio_onset("default", win_size, hop_size, samplerate);
-  if (!aubio_onset_set_default_parameters(o, "wrong_type"))
-    return 1;
+  if (!aubio_onset_set_default_parameters(o, "wrong_type")) return 1;
   del_aubio_onset(o);
 
   return run_on_default_source(main);

@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 
-from unittest import main
 from numpy.testing import TestCase, assert_equal, assert_almost_equal
 from aubio import onset, fvec
 
@@ -116,4 +115,5 @@ class aubio_onset_coverate(TestCase):
 
 
 if __name__ == '__main__':
+    from unittest import main
     main()

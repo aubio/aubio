@@ -21,21 +21,25 @@ int main(int argc, char **argv)
   char_t *source_path = argv[1];
   char_t *sink_path = argv[2];
 
+  aubio_source_t *src = NULL;
+  aubio_sink_t *snk = NULL;
+
   if ( argc >= 4 ) samplerate = atoi(argv[3]);
   if ( argc >= 5 ) hop_size = atoi(argv[4]);
 
   fvec_t *vec = new_fvec(hop_size);
+  if (!vec) { err = 1; goto failure; }
 
-  aubio_source_t *i = new_aubio_source(source_path, samplerate, hop_size);
-  if (samplerate == 0 ) samplerate = aubio_source_get_samplerate(i);
+  src = new_aubio_source(source_path, samplerate, hop_size);
+  if (!src) { err = 1; goto failure; }
+  if (samplerate == 0 ) samplerate = aubio_source_get_samplerate(src);
 
-  aubio_sink_t *o = new_aubio_sink(sink_path, samplerate);
-
-  if (!vec || !i || !o) { err = 1; goto failure; }
+  snk = new_aubio_sink(sink_path, samplerate);
+  if (!snk) { err = 1; goto failure; }
 
   do {
-    aubio_source_do(i, vec, &read);
-    aubio_sink_do(o, vec, read);
+    aubio_source_do(src, vec, &read);
+    aubio_sink_do(snk, vec, read);
     n_frames += read;
   } while ( read == hop_size );
 
@@ -44,13 +48,13 @@ int main(int argc, char **argv)
       source_path, sink_path);
 
   // close sink now (optional)
-  aubio_sink_close(o);
+  aubio_sink_close(snk);
 
 failure:
-  if (o)
-    del_aubio_sink(o);
-  if (i)
-    del_aubio_source(i);
+  if (snk)
+    del_aubio_sink(snk);
+  if (src)
+    del_aubio_source(src);
   if (vec)
     del_fvec(vec);
 
