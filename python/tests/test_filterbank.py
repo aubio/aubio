@@ -4,7 +4,7 @@ import numpy as np
 from numpy.testing import TestCase, assert_equal, assert_almost_equal
 
 from aubio import cvec, filterbank, float_type
-from .utils import array_from_text_file
+from utils import array_from_text_file
 
 class aubio_filterbank_test_case(TestCase):
 
@@ -87,5 +87,5 @@ class aubio_filterbank_wrong_values(TestCase):
             f(cvec(256))
 
 if __name__ == '__main__':
-    import nose2
-    nose2.main()
+    from unittest import main
+    main()

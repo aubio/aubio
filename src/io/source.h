@@ -59,7 +59,6 @@
   A simple source to read from 16-bits PCM RIFF encoded WAV files.
 
   \example io/test-source.c
-  \example io/test-source_multi.c
 
 */
 

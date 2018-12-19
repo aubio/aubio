@@ -121,7 +121,7 @@ aubio_source_t * new_aubio_source(const char_t * uri, uint_t samplerate, uint_t 
   AUBIO_ERROR("source: failed creating with %s at %dHz with hop size %d"
      " (no source built-in)\n", uri, samplerate, hop_size);
 #endif
-  AUBIO_FREE(s);
+  del_aubio_source(s);
   return NULL;
 }
 
@@ -138,8 +138,9 @@ uint_t aubio_source_close(aubio_source_t * s) {
 }
 
 void del_aubio_source(aubio_source_t * s) {
-  if (!s) return;
-  s->s_del((void *)s->source);
+  AUBIO_ASSERT(s);
+  if (s->s_del && s->source)
+    s->s_del((void *)s->source);
   AUBIO_FREE(s);
 }
 

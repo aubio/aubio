@@ -5,6 +5,8 @@
 # gcov generated files
 *.gcno
 *.gcda
+python/lib/aubio/_aubio.*.so
+.coverage
 
 # ignore compiled examples
 RE:examples/[a-z]*

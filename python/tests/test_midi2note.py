@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from aubio import midi2note
-from nose2.tools import params
-import unittest
+from _tools import parametrize, assert_raises
 
 list_of_known_midis = (
         ( 0, 'C-1' ),
@@ -15,31 +14,31 @@ list_of_known_midis = (
         ( 127, 'G9' ),
         )
 
-class midi2note_good_values(unittest.TestCase):
+class Test_midi2note_good_values(object):
 
-    @params(*list_of_known_midis)
+    @parametrize('midi, note', list_of_known_midis)
     def test_midi2note_known_values(self, midi, note):
         " known values are correctly converted "
-        self.assertEqual ( midi2note(midi), note )
+        assert midi2note(midi) == (note)
 
-class midi2note_wrong_values(unittest.TestCase):
+class Test_midi2note_wrong_values(object):
 
     def test_midi2note_negative_value(self):
         " fails when passed a negative value "
-        self.assertRaises(ValueError, midi2note, -2)
+        assert_raises(ValueError, midi2note, -2)
 
     def test_midi2note_large(self):
         " fails when passed a value greater than 127 "
-        self.assertRaises(ValueError, midi2note, 128)
+        assert_raises(ValueError, midi2note, 128)
 
     def test_midi2note_floating_value(self):
         " fails when passed a floating point "
-        self.assertRaises(TypeError, midi2note, 69.2)
+        assert_raises(TypeError, midi2note, 69.2)
 
     def test_midi2note_character_value(self):
         " fails when passed a value that can not be transformed to integer "
-        self.assertRaises(TypeError, midi2note, "a")
+        assert_raises(TypeError, midi2note, "a")
 
 if __name__ == '__main__':
-    import nose2
-    nose2.main()
+    from _tools import run_module_suite
+    run_module_suite()

@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 
-from unittest import main
 from numpy.testing import TestCase, assert_equal, assert_almost_equal
 from numpy import random, arange, log, zeros
 from aubio import specdesc, cvec, float_type
@@ -229,4 +228,5 @@ class aubio_specdesc_wrong(TestCase):
             specdesc("unknown", 512)
 
 if __name__ == '__main__':
+    from unittest import main
     main()

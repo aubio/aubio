@@ -4,8 +4,8 @@
 from __future__ import unicode_literals
 
 from aubio import note2midi, freq2note, note2freq, float_type
-from nose2.tools import params
-import unittest
+from numpy.testing import TestCase
+from _tools import parametrize, assert_raises, skipTest
 
 list_of_known_notes = (
         ( 'C-1', 0 ),
@@ -44,29 +44,32 @@ list_of_unknown_notes = (
         ( '2' ),
         )
 
-class note2midi_good_values(unittest.TestCase):
+class Test_note2midi_good_values(object):
 
-    @params(*list_of_known_notes)
+    @parametrize('note, midi', list_of_known_notes)
     def test_note2midi_known_values(self, note, midi):
         " known values are correctly converted "
-        self.assertEqual ( note2midi(note), midi )
+        assert note2midi(note) == midi
 
-    @params(*list_of_known_notes_with_unicode_issues)
+    @parametrize('note, midi', list_of_known_notes_with_unicode_issues)
     def test_note2midi_known_values_with_unicode_issues(self, note, midi):
-        " known values are correctly converted, unless decoding is expected to fail"
+        " difficult values are correctly converted unless expected failure "
         try:
-            self.assertEqual ( note2midi(note), midi )
+            assert note2midi(note) == midi
         except UnicodeEncodeError as e:
+            # platforms with decoding failures include:
+            # - osx: python <= 2.7.10
+            # - win: python <= 2.7.12
             import sys
-            strfmt = "len(u'\\U0001D12A') != 1, excpected decoding failure | {:s} | {:s} {:s}"
-            strres = strfmt.format(e, sys.platform, sys.version)
-            # happens with: darwin 2.7.10, windows 2.7.12
+            strmsg = "len(u'\\U0001D12A') != 1, expected decoding failure"
+            strmsg += " | upgrade to Python 3 to fix"
+            strmsg += " | {:s} | {:s} {:s}"
             if len('\U0001D12A') != 1 and sys.version[0] == '2':
-                self.skipTest(strres + " | upgrade to Python 3 to fix")
+                skipTest(strmsg.format(repr(e), sys.platform, sys.version))
             else:
                 raise
 
-class note2midi_wrong_values(unittest.TestCase):
+class note2midi_wrong_values(TestCase):
 
     def test_note2midi_missing_octave(self):
         " fails when passed only one character"
@@ -104,12 +107,14 @@ class note2midi_wrong_values(unittest.TestCase):
         " fails when passed a note with a note name longer than expected"
         self.assertRaises(ValueError, note2midi, 'CB+-3')
 
-    @params(*list_of_unknown_notes)
+class Test_note2midi_unknown_values(object):
+
+    @parametrize('note', list_of_unknown_notes)
     def test_note2midi_unknown_values(self, note):
         " unknown values throw out an error "
-        self.assertRaises(ValueError, note2midi, note)
+        assert_raises(ValueError, note2midi, note)
 
-class freq2note_simple_test(unittest.TestCase):
+class freq2note_simple_test(TestCase):
 
     def test_freq2note_above(self):
         " make sure freq2note(441) == A4 "
@@ -119,7 +124,7 @@ class freq2note_simple_test(unittest.TestCase):
         " make sure freq2note(439) == A4 "
         self.assertEqual("A4", freq2note(439))
 
-class note2freq_simple_test(unittest.TestCase):
+class note2freq_simple_test(TestCase):
 
     def test_note2freq(self):
         " make sure note2freq('A3') == 220"
@@ -133,5 +138,5 @@ class note2freq_simple_test(unittest.TestCase):
             self.assertLess(abs(note2freq("A4")-440), 1.e-12)
 
 if __name__ == '__main__':
-    import nose2
-    nose2.main()
+    from _tools import run_module_suite
+    run_module_suite()

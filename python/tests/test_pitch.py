@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 
-from unittest import TestCase, main
-from numpy.testing import assert_equal
+from numpy.testing import TestCase, assert_equal
 from numpy import sin, arange, mean, median, isnan, pi
 from aubio import fvec, pitch, freqtomidi, float_type
 
@@ -116,10 +115,11 @@ def create_test (algo, mode):
 
 for algo in pitch_algorithms:
     for mode in signal_modes:
-        test_method = create_test (algo, mode)
-        test_method.__name__ = 'test_pitch_%s_%d_%d_%dHz_sin_%.0f' % ( algo,
+        _test_method = create_test (algo, mode)
+        _test_method.__name__ = 'test_pitch_%s_%d_%d_%dHz_sin_%.0f' % ( algo,
                 mode[0], mode[1], mode[2], mode[3] )
-        setattr (aubio_pitch_Sinusoid, test_method.__name__, test_method)
+        setattr (aubio_pitch_Sinusoid, _test_method.__name__, _test_method)
 
 if __name__ == '__main__':
+    from unittest import main
     main()

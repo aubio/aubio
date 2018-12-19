@@ -81,35 +81,28 @@ int test_wrong_params(void)
   uint_t i;
 
   // test wrong method fails
-  if (new_aubio_tempo("unexisting_method", win_size, hop_size, samplerate))
-    return 1;
+  if (new_aubio_tempo("undefined", win_size, hop_size, samplerate)) return 1;
 
   // test hop > win fails
-  if (new_aubio_tempo("default", hop_size, win_size, samplerate))
-    return 1;
+  if (new_aubio_tempo("default", hop_size, win_size, samplerate)) return 1;
 
   // test null hop_size fails
-  if (new_aubio_tempo("default", win_size, 0, samplerate))
-    return 1;
+  if (new_aubio_tempo("default", win_size, 0, samplerate)) return 1;
 
   // test 1 buf_size fails
-  if (new_aubio_tempo("default", 1, 1, samplerate))
-    return 1;
+  if (new_aubio_tempo("default", 1, 1, samplerate)) return 1;
 
   // test null samplerate fails
-  if (new_aubio_tempo("default", win_size, hop_size, 0))
-    return 1;
+  if (new_aubio_tempo("default", win_size, hop_size, 0)) return 1;
 
   // test short sizes workaround
   t = new_aubio_tempo("default", 2048, 2048, 500);
-  if (!t)
-    return 1;
+  if (!t) return 1;
 
   del_aubio_tempo(t);
 
   t = new_aubio_tempo("default", win_size, hop_size, samplerate);
-  if (!t)
-    return 1;
+  if (!t) return 1;
 
   in = new_fvec(hop_size);
   out = new_fvec(1);

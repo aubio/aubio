@@ -136,7 +136,7 @@ Py_cvec_repr (Py_cvec * self, PyObject * unused)
     goto fail;
   }
 
-  args = Py_BuildValue ("I", self->length);
+  args = PyLong_FromLong(self->length);
   if (args == NULL) {
     goto fail;
   }
