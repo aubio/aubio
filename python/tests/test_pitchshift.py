@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 from numpy.testing import TestCase
-from nose2.tools import params
+from _tools import parametrize
 import numpy as np
 import aubio
 
@@ -66,15 +66,18 @@ class aubio_pitchshift_wrong_params(TestCase):
         with self.assertRaises(RuntimeError):
             aubio.pitchshift("default", -123)
 
-class aubio_pitchshift_testruns(TestCase):
+class Test_aubio_pitchshift_testruns(object):
 
-    @params(
+    run_args = ['mode', 'pitchscale', 'hop_size', 'samplerate']
+    run_values = [
             ("default",     1.2,  128,  44100),
             ("crispness:0", 0.43,  64,   8000),
             ("crispness:3", 0.53, 256,   8000),
             ("crispness:3", 1.53, 512,   8000),
             ("crispness:6", 2.3, 4096, 192000),
-            )
+            ]
+
+    @parametrize(run_args, run_values)
     def test_run_with_params(self, mode, pitchscale, hop_size, samplerate):
         try:
             self.o = aubio.pitchshift(mode, pitchscale, hop_size, samplerate)
@@ -97,5 +100,5 @@ class aubio_pitchshift_testruns(TestCase):
             read += len(vec)
 
 if __name__ == '__main__':
-    from nose2 import main
-    main()
+    from _tools import run_module_suite
+    run_module_suite()
