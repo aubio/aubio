@@ -63,7 +63,7 @@ struct _aubio_sink_flac_t {
   FILE *fid;            // file id
   FLAC__StreamEncoder* encoder;
   FLAC__int32 *buffer;
-  FLAC__StreamMetadata *metadata[2];
+  FLAC__StreamMetadata **metadata;
 };
 
 typedef struct _aubio_sink_flac_t aubio_sink_flac_t;
@@ -164,6 +164,12 @@ uint_t aubio_sink_flac_open(aubio_sink_flac_t *s)
 
   if (!ok) {
     AUBIO_ERR("sink_flac: failed setting metadata for %s\n", s->path);
+    goto failure;
+  }
+
+  s->metadata = AUBIO_ARRAY(FLAC__StreamMetadata*, 2);
+  if (!s->metadata) {
+    AUBIO_ERR("sink_flac: failed allocating memory for %s\n", s->path);
     goto failure;
   }
 
@@ -323,8 +329,11 @@ uint_t aubio_sink_flac_close (aubio_sink_flac_t *s)
 
   if (s->metadata) {
     // clean up metadata after stream finished
-    FLAC__metadata_object_delete(s->metadata[0]);
-    FLAC__metadata_object_delete(s->metadata[1]);
+    if (s->metadata[0])
+      FLAC__metadata_object_delete(s->metadata[0]);
+    if (s->metadata[1])
+      FLAC__metadata_object_delete(s->metadata[1]);
+    AUBIO_FREE(s->metadata);
   }
 
   if (s->fid && fclose(s->fid)) {
