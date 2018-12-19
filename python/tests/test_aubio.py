@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 
-from unittest import main
 from numpy.testing import TestCase
 
 class aubiomodule_test_case(TestCase):
@@ -15,5 +14,5 @@ class aubiomodule_test_case(TestCase):
         self.assertEqual('0', aubio.version[0])
 
 if __name__ == '__main__':
+    from unittest import main
     main()
-

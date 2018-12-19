@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 
 import aubio.cut
-from nose2 import main
 from numpy.testing import TestCase
 
 class aubio_cut(TestCase):
@@ -13,4 +12,5 @@ class aubio_cut(TestCase):
         assert self.a_parser.parse_args(['-v']).verbose
 
 if __name__ == '__main__':
+    from unittest import main
     main()
