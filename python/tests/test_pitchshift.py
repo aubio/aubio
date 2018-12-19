@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 from numpy.testing import TestCase
-from _tools import parametrize
+from _tools import parametrize, skipTest
 import numpy as np
 import aubio
 
@@ -82,7 +82,7 @@ class Test_aubio_pitchshift_testruns(object):
         try:
             self.o = aubio.pitchshift(mode, pitchscale, hop_size, samplerate)
         except RuntimeError as e:
-            self.skipTest("failed creating pitchshift ({})".format(e))
+            skipTest("failed creating pitchshift ({})".format(e))
         test_length = self.o.hop_size * 50
         read = 0
         # test on random
