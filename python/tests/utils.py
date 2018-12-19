@@ -8,11 +8,8 @@ from tempfile import mkstemp
 DEFAULT_SOUND = '22050Hz_5s_brownnoise.wav'
 
 def array_from_text_file(filename, dtype = 'float'):
-    filename = os.path.join(os.path.dirname(__file__), filename)
-    with open(filename) as f:
-        lines = f.readlines()
-    return np.array([line.split() for line in lines],
-            dtype = dtype)
+    realpathname = os.path.join(os.path.dirname(__file__), filename)
+    return np.loadtxt(realpathname, dtype = dtype)
 
 def list_all_sounds(rel_dir):
     datadir = os.path.join(os.path.dirname(__file__), rel_dir)
@@ -38,13 +35,10 @@ def del_tmp_sink_path(path):
     try:
         os.unlink(path)
     except WindowsError as e:
-        print("deleting {:s} failed ({:s}), reopening".format(path, repr(e)))
-        with open(path, 'wb') as f:
-            f.close()
-        try:
-            os.unlink(path)
-        except WindowsError as f:
-            print("deleting {:s} failed ({:s}), aborting".format(path, repr(e)))
+        # removing the temporary directory sometimes fails on windows
+        import warnings
+        errmsg = "failed deleting temporary file {:s} ({:s})"
+        warnings.warn(UserWarning(errmsg.format(path, repr(e))))
 
 def array_from_yaml_file(filename):
     import yaml

@@ -30,6 +30,6 @@ class aubio_shift_test_case(TestCase):
     def test_can_shift_fvec_odd(self):
         self.run_shift_ishift(7)
 
-from unittest import main
 if __name__ == '__main__':
+    from unittest import main
     main()

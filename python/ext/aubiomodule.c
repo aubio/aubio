@@ -223,7 +223,7 @@ Py_alpha_norm (PyObject * self, PyObject * args)
   }
 
   // compute the function
-  result = Py_BuildValue (AUBIO_NPY_SMPL_CHR, fvec_alpha_norm (&vec, alpha));
+  result = PyFloat_FromDouble(fvec_alpha_norm (&vec, alpha));
   if (result == NULL) {
     return NULL;
   }
@@ -319,7 +319,7 @@ Py_zero_crossing_rate (PyObject * self, PyObject * args)
   }
 
   // compute the function
-  result = Py_BuildValue (AUBIO_NPY_SMPL_CHR, aubio_zero_crossing_rate (&vec));
+  result = PyFloat_FromDouble(aubio_zero_crossing_rate (&vec));
   if (result == NULL) {
     return NULL;
   }
