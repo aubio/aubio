@@ -194,9 +194,9 @@ Py_aubio_hztomel(PyObject *self, PyObject *args, PyObject *kwds)
     return NULL;
   }
   if (htk != NULL && PyObject_IsTrue(htk) == 1)
-    return Py_BuildValue(AUBIO_NPY_SMPL_CHR, aubio_hztomel_htk(v));
+    return PyFloat_FromDouble(aubio_hztomel_htk(v));
   else
-    return Py_BuildValue(AUBIO_NPY_SMPL_CHR, aubio_hztomel(v));
+    return PyFloat_FromDouble(aubio_hztomel(v));
 }
 
 PyObject*
@@ -211,9 +211,9 @@ Py_aubio_meltohz(PyObject *self, PyObject *args, PyObject *kwds)
     return NULL;
   }
   if (htk != NULL && PyObject_IsTrue(htk) == 1)
-    return Py_BuildValue(AUBIO_NPY_SMPL_CHR, aubio_meltohz_htk(v));
+    return PyFloat_FromDouble(aubio_meltohz_htk(v));
   else
-    return Py_BuildValue(AUBIO_NPY_SMPL_CHR, aubio_meltohz(v));
+    return PyFloat_FromDouble(aubio_meltohz(v));
 }
 
 PyObject*
@@ -223,7 +223,7 @@ Py_aubio_hztomel_htk(PyObject *self, PyObject *args)
   if (!PyArg_ParseTuple(args, AUBIO_NPY_SMPL_CHR, &v)) {
     return NULL;
   }
-  return Py_BuildValue(AUBIO_NPY_SMPL_CHR, aubio_hztomel_htk(v));
+  return PyFloat_FromDouble(aubio_hztomel_htk(v));
 }
 
 PyObject*
@@ -233,5 +233,5 @@ Py_aubio_meltohz_htk(PyObject *self, PyObject *args)
   if (!PyArg_ParseTuple(args, AUBIO_NPY_SMPL_CHR, &v)) {
     return NULL;
   }
-  return Py_BuildValue(AUBIO_NPY_SMPL_CHR, aubio_meltohz_htk(v));
+  return PyFloat_FromDouble(aubio_meltohz_htk(v));
 }
