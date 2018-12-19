@@ -35,8 +35,8 @@ INCLUDEDIR?=$(PREFIX)/include
 DATAROOTDIR?=$(PREFIX)/share
 MANDIR?=$(DATAROOTDIR)/man
 
-# default nose2 command
-NOSE2?=nose2 -N 4 --verbose
+# default python test command
+PYTEST?=pytest --verbose
 
 SOX=sox
 
@@ -140,9 +140,7 @@ test_python: export LD_LIBRARY_PATH=$(DESTDIR)/$(LIBDIR)
 test_python: export PYTHONPATH=$(PYDESTDIR)/$(LIBDIR)
 test_python: local_dylib
 	# run test with installed package
-	# ./python/tests/run_all_tests --verbose
-	# run with nose2, multiple processes
-	$(NOSE2)
+	$(PYTEST)
 
 clean_python:
 	./setup.py clean
@@ -253,7 +251,7 @@ coverage: force_uninstall_python deps_python \
 	# build and test python
 	pip install -v -e .
 	# run tests, with python coverage
-	coverage run `which nose2`
+	coverage run `which pytest`
 	# capture coverage again
 	lcov $(LCOVOPTS) --capture --no-external --directory . \
 		--output-file build/coverage_python.info

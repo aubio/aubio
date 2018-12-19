@@ -1,13 +1,9 @@
 #! /usr/bin/env python
 
-from nose2 import main
-from nose2.tools import params
 from numpy.testing import TestCase
 from aubio import fvec, source, sink
-from .utils import list_all_sounds, get_tmp_sink_path, del_tmp_sink_path
-
-import warnings
-warnings.filterwarnings('ignore', category=UserWarning, append=True)
+from utils import list_all_sounds, get_tmp_sink_path, del_tmp_sink_path
+from _tools import parametrize, skipTest, assert_raises
 
 list_of_sounds = list_all_sounds('sounds')
 samplerates = [0, 44100, 8000, 32000]
@@ -23,30 +19,26 @@ for soundfile in list_of_sounds:
         for samplerate in samplerates:
             all_params.append((hop_size, samplerate, soundfile))
 
-class aubio_sink_test_case(TestCase):
-
-    def setUp(self):
-        if not len(list_of_sounds):
-            self.skipTest('add some sound files in \'python/tests/sounds\'')
+class Test_aubio_sink(object):
 
     def test_wrong_filename(self):
-        with self.assertRaises(RuntimeError):
+        with assert_raises(RuntimeError):
             sink('')
 
     def test_wrong_samplerate(self):
-        with self.assertRaises(RuntimeError):
+        with assert_raises(RuntimeError):
             sink(get_tmp_sink_path(), -1)
 
     def test_wrong_samplerate_too_large(self):
-        with self.assertRaises(RuntimeError):
+        with assert_raises(RuntimeError):
             sink(get_tmp_sink_path(), 1536001, 2)
 
     def test_wrong_channels(self):
-        with self.assertRaises(RuntimeError):
+        with assert_raises(RuntimeError):
             sink(get_tmp_sink_path(), 44100, -1)
 
     def test_wrong_channels_too_large(self):
-        with self.assertRaises(RuntimeError):
+        with assert_raises(RuntimeError):
             sink(get_tmp_sink_path(), 44100, 202020)
 
     def test_many_sinks(self):
@@ -66,13 +58,13 @@ class aubio_sink_test_case(TestCase):
             g.close()
         shutil.rmtree(tmpdir)
 
-    @params(*all_params)
+    @parametrize('hop_size, samplerate, path', all_params)
     def test_read_and_write(self, hop_size, samplerate, path):
-
         try:
             f = source(path, samplerate, hop_size)
         except RuntimeError as e:
-            self.skipTest('failed opening with hop_s = {:d}, samplerate = {:d} ({:s})'.format(hop_size, samplerate, str(e)))
+            err_msg = '{:s} (hop_s = {:d}, samplerate = {:d})'
+            skipTest(err_msg.format(str(e), hop_size, samplerate))
         if samplerate == 0: samplerate = f.samplerate
         sink_path = get_tmp_sink_path()
         g = sink(sink_path, samplerate)
@@ -84,12 +76,13 @@ class aubio_sink_test_case(TestCase):
             if read < f.hop_size: break
         del_tmp_sink_path(sink_path)
 
-    @params(*all_params)
+    @parametrize('hop_size, samplerate, path', all_params)
     def test_read_and_write_multi(self, hop_size, samplerate, path):
         try:
             f = source(path, samplerate, hop_size)
         except RuntimeError as e:
-            self.skipTest('failed opening with hop_s = {:d}, samplerate = {:d} ({:s})'.format(hop_size, samplerate, str(e)))
+            err_msg = '{:s} (hop_s = {:d}, samplerate = {:d})'
+            skipTest(err_msg.format(str(e), hop_size, samplerate))
         if samplerate == 0: samplerate = f.samplerate
         sink_path = get_tmp_sink_path()
         g = sink(sink_path, samplerate, channels = f.channels)
@@ -125,4 +118,5 @@ class aubio_sink_test_case(TestCase):
                 g(vec, 128)
 
 if __name__ == '__main__':
-    main()
+    from _tools import run_module_suite
+    run_module_suite()

@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 
-from nose2 import main
-from nose2.tools import params
+from _tools import parametrize, assert_raises
 from numpy import random, count_nonzero
 from numpy.testing import TestCase
 from aubio import mfcc, cvec, float_type
@@ -15,28 +14,21 @@ samplerate = 44100
 new_params = ['buf_size', 'n_filters', 'n_coeffs', 'samplerate']
 new_deflts = [1024, 40, 13, 44100]
 
-class aubio_mfcc(TestCase):
+class Test_aubio_mfcc(object):
 
-    def setUp(self):
-        self.o = mfcc()
+    members_args = 'name'
 
-    def test_default_creation(self):
-        pass
-
-    def test_delete(self):
-        del self.o
-
-    @params(*new_params)
+    @parametrize(members_args, new_params)
     def test_read_only_member(self, name):
-        o = self.o
-        with self.assertRaises((TypeError, AttributeError)):
+        o = mfcc()
+        with assert_raises((TypeError, AttributeError)):
             setattr(o, name, 0)
 
-    @params(*zip(new_params, new_deflts))
+    @parametrize('name, expected', zip(new_params, new_deflts))
     def test_default_param(self, name, expected):
         """ test mfcc.{:s} = {:d} """.format(name, expected)
-        o = self.o
-        self.assertEqual( getattr(o, name), expected)
+        o = mfcc()
+        assert getattr(o, name) == expected
 
 class aubio_mfcc_wrong_params(TestCase):
 
@@ -82,9 +74,9 @@ class aubio_mfcc_compute(TestCase):
         #print coeffs
 
 
-class aubio_mfcc_all_parameters(TestCase):
+class Test_aubio_mfcc_all_parameters(object):
 
-    @params(
+    run_values = [
             (2048, 40, 13, 44100),
             (1024, 40, 13, 44100),
             (512, 40, 13, 44100),
@@ -100,7 +92,10 @@ class aubio_mfcc_all_parameters(TestCase):
             #(1024, 30, 20, 44100),
             (1024, 40, 40, 44100),
             (1024, 40, 3, 44100),
-            )
+            ]
+    run_args = ['buf_size', 'n_filters', 'n_coeffs', 'samplerate']
+
+    @parametrize(run_args, run_values)
     def test_run_with_params(self, buf_size, n_filters, n_coeffs, samplerate):
         " check mfcc can run with reasonable parameters "
         o = mfcc(buf_size, n_filters, n_coeffs, samplerate)
@@ -148,4 +143,5 @@ class aubio_mfcc_fb_params(TestCase):
         assert m.get_scale() == 1
 
 if __name__ == '__main__':
-    main()
+    from _tools import run_module_suite
+    run_module_suite()
