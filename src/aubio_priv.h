@@ -367,4 +367,11 @@ uint_t aubio_log(sint_t level, const char_t *fmt, ...);
 #endif
 #endif /* __STRICT_ANSI__ */
 
+#if defined(DEBUG)
+#include <assert.h>
+#define AUBIO_ASSERT(x) assert(x)
+#else
+#define AUBIO_ASSERT(x)
+#endif /* DEBUG */
+
 #endif /* AUBIO_PRIV_H */

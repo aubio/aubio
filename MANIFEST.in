@@ -10,7 +10,7 @@ include requirements.txt
 include src/*.c src/*.h
 include src/*/*.c src/*/*.h
 include examples/*.c examples/*.h
-include tests/*.h tests/*/*.c tests/*/*/*.c
+recursive-include tests *.h *.c *.py
 include python/ext/*.h
 recursive-include python *.py
 include python/README.md

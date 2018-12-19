@@ -39,7 +39,7 @@ Py_aubio_level_lin(PyObject *self, PyObject *args)
     return NULL;
   }
 
-  level_lin = Py_BuildValue(AUBIO_NPY_SMPL_CHR, aubio_level_lin(&vec));
+  level_lin = PyFloat_FromDouble(aubio_level_lin(&vec));
   if (level_lin == NULL) {
     PyErr_SetString (PyExc_ValueError, "failed computing level_lin");
     return NULL;
@@ -67,7 +67,7 @@ Py_aubio_db_spl(PyObject *self, PyObject *args)
     return NULL;
   }
 
-  db_spl = Py_BuildValue(AUBIO_NPY_SMPL_CHR, aubio_db_spl(&vec));
+  db_spl = PyFloat_FromDouble(aubio_db_spl(&vec));
   if (db_spl == NULL) {
     PyErr_SetString (PyExc_ValueError, "failed computing db_spl");
     return NULL;
@@ -96,7 +96,7 @@ Py_aubio_silence_detection(PyObject *self, PyObject *args)
     return NULL;
   }
 
-  silence_detection = Py_BuildValue("I", aubio_silence_detection(&vec, threshold));
+  silence_detection = PyLong_FromLong(aubio_silence_detection(&vec, threshold));
   if (silence_detection == NULL) {
     PyErr_SetString (PyExc_ValueError, "failed computing silence_detection");
     return NULL;
@@ -125,7 +125,7 @@ Py_aubio_level_detection(PyObject *self, PyObject *args)
     return NULL;
   }
 
-  level_detection = Py_BuildValue(AUBIO_NPY_SMPL_CHR, aubio_level_detection(&vec, threshold));
+  level_detection = PyFloat_FromDouble(aubio_level_detection(&vec, threshold));
   if (level_detection == NULL) {
     PyErr_SetString (PyExc_ValueError, "failed computing level_detection");
     return NULL;
@@ -194,9 +194,9 @@ Py_aubio_hztomel(PyObject *self, PyObject *args, PyObject *kwds)
     return NULL;
   }
   if (htk != NULL && PyObject_IsTrue(htk) == 1)
-    return Py_BuildValue(AUBIO_NPY_SMPL_CHR, aubio_hztomel_htk(v));
+    return PyFloat_FromDouble(aubio_hztomel_htk(v));
   else
-    return Py_BuildValue(AUBIO_NPY_SMPL_CHR, aubio_hztomel(v));
+    return PyFloat_FromDouble(aubio_hztomel(v));
 }
 
 PyObject*
@@ -211,9 +211,9 @@ Py_aubio_meltohz(PyObject *self, PyObject *args, PyObject *kwds)
     return NULL;
   }
   if (htk != NULL && PyObject_IsTrue(htk) == 1)
-    return Py_BuildValue(AUBIO_NPY_SMPL_CHR, aubio_meltohz_htk(v));
+    return PyFloat_FromDouble(aubio_meltohz_htk(v));
   else
-    return Py_BuildValue(AUBIO_NPY_SMPL_CHR, aubio_meltohz(v));
+    return PyFloat_FromDouble(aubio_meltohz(v));
 }
 
 PyObject*
@@ -223,7 +223,7 @@ Py_aubio_hztomel_htk(PyObject *self, PyObject *args)
   if (!PyArg_ParseTuple(args, AUBIO_NPY_SMPL_CHR, &v)) {
     return NULL;
   }
-  return Py_BuildValue(AUBIO_NPY_SMPL_CHR, aubio_hztomel_htk(v));
+  return PyFloat_FromDouble(aubio_hztomel_htk(v));
 }
 
 PyObject*
@@ -233,5 +233,5 @@ Py_aubio_meltohz_htk(PyObject *self, PyObject *args)
   if (!PyArg_ParseTuple(args, AUBIO_NPY_SMPL_CHR, &v)) {
     return NULL;
   }
-  return Py_BuildValue(AUBIO_NPY_SMPL_CHR, aubio_meltohz_htk(v));
+  return PyFloat_FromDouble(aubio_meltohz_htk(v));
 }
