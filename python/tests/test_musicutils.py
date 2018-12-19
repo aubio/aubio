@@ -1,9 +1,8 @@
 #! /usr/bin/env python
 
-from unittest import main
 import numpy as np
 from numpy.testing import TestCase
-from numpy.testing.utils import assert_equal, assert_almost_equal
+from numpy.testing import assert_equal, assert_almost_equal
 from aubio import window, level_lin, db_spl, silence_detection, level_detection
 from aubio import fvec, float_type
 
@@ -85,4 +84,5 @@ class aubio_level_detection(TestCase):
         assert level_detection(ones(1024, dtype = float_type), -70) == 0
 
 if __name__ == '__main__':
+    from unittest import main
     main()

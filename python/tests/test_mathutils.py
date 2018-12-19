@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 
-from unittest import main
 from numpy.testing import TestCase, assert_equal
 from numpy import array, arange, isnan, isinf
 from aubio import bintomidi, miditobin, freqtobin, bintofreq, freqtomidi, miditofreq
@@ -101,4 +100,5 @@ class aubio_mathutils(TestCase):
         assert_equal ( array(b) < 0, False )
 
 if __name__ == '__main__':
+    from unittest import main
     main()

@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 
-from unittest import main
 import numpy as np
 from numpy.testing import TestCase, assert_equal, assert_almost_equal
 from aubio import fvec, zero_crossing_rate, alpha_norm, min_removal
@@ -148,4 +147,5 @@ class aubio_fvec_test_memory(TestCase):
         del c
 
 if __name__ == '__main__':
+    from unittest import main
     main()

@@ -55,21 +55,20 @@
 #define RAND_MAX 32767
 #endif
 
-// are we on windows ? or are we using -std=c99 ?
-#if defined(HAVE_WIN_HACKS) || defined(__STRICT_ANSI__)
-// http://en.wikipedia.org/wiki/Linear_congruential_generator
-// no srandom/random on win32
+#if defined(HAVE_WIN_HACKS)
 
-uint_t srandom_seed = 1029;
+// use srand/rand on windows
+#define srandom srand
+#define random rand
 
-void srandom(uint_t new_seed) {
-    srandom_seed = new_seed;
-}
+#elif defined(__STRICT_ANSI__)
 
-uint_t random(void) {
-    srandom_seed = 1664525 * srandom_seed + 1013904223;
-    return srandom_seed;
-}
+// workaround to build with -std=c99 (for instance with older cygwin),
+// assuming libbc is recent enough to supports these functions.
+extern void srandom(unsigned);
+extern int random(void);
+extern char mkstemp(const char *pat);
+
 #endif
 
 void utils_init_random (void);

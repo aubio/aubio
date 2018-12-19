@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 
-from unittest import main
 import numpy as np
 from numpy.testing import TestCase, assert_equal
 from aubio import cvec, fvec, float_type
@@ -141,4 +140,5 @@ class aubio_cvec_wrong_norm_input(TestCase):
             a.norm = np.zeros((512//2+1, 2), dtype = float_type)
 
 if __name__ == '__main__':
+    from unittest import main
     main()

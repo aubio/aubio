@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
     }
   }
 
-  examples_common_process((aubio_process_func_t)process_block, process_print);
+  examples_common_process(process_block, process_print);
 
   // send a last note off if required
   if (lastmidi) {

@@ -31,9 +31,7 @@
 // ExtAudioFileRef, AudioStreamBasicDescription, AudioBufferList, ...
 #include <AudioToolbox/AudioToolbox.h>
 
-#define FLOAT_TO_SHORT(x) (short)(x * 32768)
-
-extern int createAubioBufferList(AudioBufferList *bufferList, int channels, int segmentSize);
+extern int createAudioBufferList(AudioBufferList *bufferList, int channels, int segmentSize);
 extern void freeAudioBufferList(AudioBufferList *bufferList);
 extern CFURLRef createURLFromPath(const char * path);
 char_t *getPrintableOSStatusError(char_t *str, OSStatus error);
@@ -61,11 +59,11 @@ aubio_sink_apple_audio_t * new_aubio_sink_apple_audio(const char_t * uri, uint_t
   s->max_frames = MAX_SIZE;
   s->async = false;
 
-  if ( (uri == NULL) || (strlen(uri) < 1) ) {
+  if ( (uri == NULL) || (strnlen(uri, PATH_MAX) < 1) ) {
     AUBIO_ERROR("sink_apple_audio: Aborted opening null path\n");
     goto beach;
   }
-  if (s->path != NULL) AUBIO_FREE(s->path);
+
   s->path = AUBIO_ARRAY(char_t, strnlen(uri, PATH_MAX) + 1);
   strncpy(s->path, uri, strnlen(uri, PATH_MAX) + 1);
 
@@ -76,6 +74,7 @@ aubio_sink_apple_audio_t * new_aubio_sink_apple_audio(const char_t * uri, uint_t
   if ((sint_t)samplerate == 0) {
     return s;
   }
+
   // invalid samplerate given, abort
   if (aubio_io_validate_samplerate("sink_apple_audio", s->path, samplerate)) {
     goto beach;
@@ -91,7 +90,7 @@ aubio_sink_apple_audio_t * new_aubio_sink_apple_audio(const char_t * uri, uint_t
 
   return s;
 beach:
-  AUBIO_FREE(s);
+  del_aubio_sink_apple_audio(s);
   return NULL;
 }
 
@@ -102,7 +101,7 @@ uint_t aubio_sink_apple_audio_preset_samplerate(aubio_sink_apple_audio_t *s, uin
   }
   s->samplerate = samplerate;
   // automatically open when both samplerate and channels have been set
-  if (s->samplerate != 0 && s->channels != 0) {
+  if (/* s->samplerate != 0 && */ s->channels != 0) {
     return aubio_sink_apple_audio_open(s);
   }
   return AUBIO_OK;
@@ -115,7 +114,7 @@ uint_t aubio_sink_apple_audio_preset_channels(aubio_sink_apple_audio_t *s, uint_
   }
   s->channels = channels;
   // automatically open when both samplerate and channels have been set
-  if (s->samplerate != 0 && s->channels != 0) {
+  if (s->samplerate != 0 /* && s->channels != 0 */) {
     return aubio_sink_apple_audio_open(s);
   }
   return AUBIO_OK;
@@ -150,6 +149,18 @@ uint_t aubio_sink_apple_audio_open(aubio_sink_apple_audio_t *s) {
   AudioFileTypeID fileType = kAudioFileWAVEType;
   CFURLRef fileURL = createURLFromPath(s->path);
   bool overwrite = true;
+
+  // set the in-memory format
+  AudioStreamBasicDescription inputFormat;
+  memset(&inputFormat, 0, sizeof(AudioStreamBasicDescription));
+  inputFormat.mFormatID         = kAudioFormatLinearPCM;
+  inputFormat.mSampleRate       = (Float64)(s->samplerate);
+  inputFormat.mFormatFlags      = kAudioFormatFlagIsFloat | kAudioFormatFlagIsPacked;
+  inputFormat.mChannelsPerFrame = s->channels;
+  inputFormat.mBitsPerChannel   = sizeof(smpl_t) * 8;
+  inputFormat.mFramesPerPacket  = 1;
+  inputFormat.mBytesPerFrame    = inputFormat.mBitsPerChannel * inputFormat.mChannelsPerFrame / 8;
+  inputFormat.mBytesPerPacket   = inputFormat.mFramesPerPacket * inputFormat.mBytesPerFrame;
   OSStatus err = noErr;
   err = ExtAudioFileCreateWithURL(fileURL, fileType, &clientFormat, NULL,
      overwrite ? kAudioFileFlags_EraseFile : 0, &s->audioFile);
@@ -161,7 +172,18 @@ uint_t aubio_sink_apple_audio_open(aubio_sink_apple_audio_t *s) {
         getPrintableOSStatusError(errorstr, err));
     goto beach;
   }
-  if (createAubioBufferList(&s->bufferList, s->channels, s->max_frames * s->channels)) {
+
+  err = ExtAudioFileSetProperty(s->audioFile,
+      kExtAudioFileProperty_ClientDataFormat,
+      sizeof(AudioStreamBasicDescription), &inputFormat);
+  if (err) {
+    char_t errorstr[20];
+    AUBIO_ERR("sink_apple_audio: error when trying to set output format on %s "
+        "(%s)\n", s->path, getPrintableOSStatusError(errorstr, err));
+    goto beach;
+  }
+
+  if (createAudioBufferList(&s->bufferList, s->channels, s->max_frames * s->channels)) {
     AUBIO_ERR("sink_apple_audio: error when creating buffer list for %s, "
         "out of memory? \n", s->path);
     goto beach;
@@ -174,46 +196,42 @@ beach:
 
 void aubio_sink_apple_audio_do(aubio_sink_apple_audio_t * s, fvec_t * write_data, uint_t write) {
   UInt32 c, v;
-  short *data = (short*)s->bufferList.mBuffers[0].mData;
-  if (write > s->max_frames) {
-    AUBIO_WRN("sink_apple_audio: trying to write %d frames, max %d\n", write, s->max_frames);
-    write = s->max_frames;
-  }
-  smpl_t *buf = write_data->data;
+  smpl_t *data = (smpl_t*)s->bufferList.mBuffers[0].mData;
+  uint_t length = aubio_sink_validate_input_length("sink_apple_audio", s->path,
+      s->max_frames, write_data->length, write);
 
-  if (buf) {
-      for (c = 0; c < s->channels; c++) {
-          for (v = 0; v < write; v++) {
-              data[v * s->channels + c] =
-                  FLOAT_TO_SHORT(buf[ v * s->channels + c]);
-          }
-      }
+  for (c = 0; c < s->channels; c++) {
+    for (v = 0; v < length; v++) {
+      data[v * s->channels + c] = write_data->data[v];
+    }
   }
-  aubio_sink_apple_audio_write(s, write);
+
+  aubio_sink_apple_audio_write(s, length);
 }
 
 void aubio_sink_apple_audio_do_multi(aubio_sink_apple_audio_t * s, fmat_t * write_data, uint_t write) {
   UInt32 c, v;
-  short *data = (short*)s->bufferList.mBuffers[0].mData;
-  if (write > s->max_frames) {
-    AUBIO_WRN("sink_apple_audio: trying to write %d frames, max %d\n", write, s->max_frames);
-    write = s->max_frames;
-  }
-  smpl_t **buf = write_data->data;
+  smpl_t *data = (smpl_t*)s->bufferList.mBuffers[0].mData;
+  uint_t channels = aubio_sink_validate_input_channels("sink_apple_audio",
+      s->path, s->channels, write_data->height);
+  uint_t length = aubio_sink_validate_input_length("sink_apple_audio", s->path,
+      s->max_frames, write_data->length, write);
 
-  if (buf) {
-      for (c = 0; c < s->channels; c++) {
-          for (v = 0; v < write; v++) {
-              data[v * s->channels + c] =
-                  FLOAT_TO_SHORT(buf[c][v]);
-          }
-      }
+  for (c = 0; c < channels; c++) {
+    for (v = 0; v < length; v++) {
+      data[v * s->channels + c] = write_data->data[c][v];
+    }
   }
-  aubio_sink_apple_audio_write(s, write);
+
+  aubio_sink_apple_audio_write(s, length);
 }
 
 void aubio_sink_apple_audio_write(aubio_sink_apple_audio_t *s, uint_t write) {
   OSStatus err = noErr;
+  // set mDataByteSize to match the number of frames to be written
+  // see https://www.mail-archive.com/coreaudio-api@lists.apple.com/msg01109.html
+  s->bufferList.mBuffers[0].mDataByteSize = write * s->channels
+    * sizeof(smpl_t);
   if (s->async) {
     err = ExtAudioFileWriteAsync(s->audioFile, write, &s->bufferList);
     if (err) {
@@ -257,11 +275,13 @@ uint_t aubio_sink_apple_audio_close(aubio_sink_apple_audio_t * s) {
 }
 
 void del_aubio_sink_apple_audio(aubio_sink_apple_audio_t * s) {
-  if (s->audioFile) aubio_sink_apple_audio_close (s);
-  if (s->path) AUBIO_FREE(s->path);
+  AUBIO_ASSERT(s);
+  if (s->audioFile)
+    aubio_sink_apple_audio_close (s);
+  if (s->path)
+    AUBIO_FREE(s->path);
   freeAudioBufferList(&s->bufferList);
   AUBIO_FREE(s);
-  return;
 }
 
 #endif /* HAVE_SINK_APPLE_AUDIO */

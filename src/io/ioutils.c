@@ -51,3 +51,39 @@ aubio_io_validate_channels(const char_t *kind, const char_t *path, uint_t channe
   }
   return AUBIO_OK;
 }
+
+uint_t
+aubio_sink_validate_input_length(const char_t *kind, const char_t *path,
+    uint_t max_size, uint_t write_data_length, uint_t write)
+{
+  uint_t can_write = write;
+
+  if (write > max_size) {
+    AUBIO_WRN("%s: partial write to %s, trying to write %d frames,"
+        " at most %d can be written at once\n", kind, path, write, max_size);
+    can_write = max_size;
+  }
+
+  if (can_write > write_data_length) {
+    AUBIO_WRN("%s: partial write to %s, trying to write %d frames,"
+        " but found input of length %d\n", kind, path, write,
+        write_data_length);
+    can_write = write_data_length;
+  }
+
+  return can_write;
+}
+
+uint_t
+aubio_sink_validate_input_channels(const char_t *kind, const char_t *path,
+    uint_t sink_channels, uint_t write_data_height)
+{
+  uint_t channels = sink_channels;
+  if (write_data_height < sink_channels) {
+    AUBIO_WRN("%s: partial write to %s, trying to write %d channels,"
+        " but found input of height %d\n", kind, path, sink_channels,
+        write_data_height);
+    channels = write_data_height;
+  }
+  return channels;
+}

@@ -555,32 +555,45 @@ def doxygen(bld):
     # build documentation from source files using doxygen
     if bld.env['DOXYGEN']:
         bld.env.VERSION = VERSION
-        rule = '( cat ${SRC} && echo PROJECT_NUMBER=${VERSION}; )'
+        rule = '( cat ${SRC[0]} && echo PROJECT_NUMBER=${VERSION}'
+        rule += ' && echo OUTPUT_DIRECTORY=%s && echo HTML_OUTPUT=%s )'
         rule += ' | doxygen - > /dev/null'
+        rule %= (os.path.abspath(out), 'api')
         bld( name = 'doxygen', rule = rule,
-                source = 'doc/web.cfg',
-                target = '../doc/web/html/index.html',
-                cwd = 'doc')
-        bld.install_files( '${DATAROOTDIR}' + '/doc/libaubio-doc',
-                bld.path.ant_glob('doc/web/html/**'),
-                cwd = bld.path.find_dir ('doc/web'),
-                relative_trick = True)
+                source = ['doc/web.cfg']
+                    + bld.path.find_dir('src').ant_glob('**/*.h'),
+                target = bld.path.find_or_declare('api/index.html'),
+                cwd = bld.path.find_dir('doc'))
+        # evaluate nodes lazily to prevent build directory traversal warnings
+        bld.install_files('${DATAROOTDIR}/doc/libaubio-doc/api',
+                bld.path.find_or_declare('api').ant_glob('**/*',
+                    generator=True), cwd=bld.path.find_or_declare('api'),
+                relative_trick=True)
 
 def sphinx(bld):
-    # build documentation from source files using sphinx-build note: build in
-    # ../doc/_build/html, otherwise waf wont install unsigned files
-    if bld.env['SPHINX']:
+    # build documentation from source files using sphinx-build
+    try:
+        import aubio
+        has_aubio = True
+    except ImportError:
+        from waflib import Logs
+        Logs.pprint('YELLOW', "Sphinx manual: install aubio first")
+        has_aubio = False
+    if bld.env['SPHINX'] and has_aubio:
         bld.env.VERSION = VERSION
-        bld( name = 'sphinx',
-                rule = '${SPHINX} -b html -D release=${VERSION}' \
-                        ' -D version=${VERSION} -a -q' \
-                        ' `dirname ${SRC}` `dirname ${TGT}`',
-                source = 'doc/conf.py',
-                target = '../doc/_build/html/index.html')
-        bld.install_files( '${DATAROOTDIR}' + '/doc/libaubio-doc/sphinx',
-                bld.path.ant_glob('doc/_build/html/**'),
-                cwd = bld.path.find_dir('doc/_build/html'),
-                relative_trick = True)
+        rule = '${SPHINX} -b html -D release=${VERSION}' \
+                ' -D version=${VERSION} -W -a -q' \
+                ' -d %s ' % os.path.join(os.path.abspath(out), 'doctrees')
+        rule += ' . %s' % os.path.join(os.path.abspath(out), 'manual')
+        bld( name = 'sphinx', rule = rule,
+                cwd = bld.path.find_dir('doc'),
+                source = bld.path.find_dir('doc').ant_glob('*.rst'),
+                target = bld.path.find_or_declare('manual/index.html'))
+        # evaluate nodes lazily to prevent build directory traversal warnings
+        bld.install_files('${DATAROOTDIR}/doc/libaubio-doc/manual',
+                bld.path.find_or_declare('manual').ant_glob('**/*',
+                    generator=True), cwd=bld.path.find_or_declare('manual'),
+                relative_trick=True)
 
 # register the previous rules as build rules
 from waflib.Build import BuildContext

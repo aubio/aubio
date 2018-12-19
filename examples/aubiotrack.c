@@ -87,7 +87,7 @@ int main(int argc, char **argv) {
   aubio_wavetable_set_freq ( wavetable, 2450.);
   //aubio_sampler_load (sampler, "/archives/sounds/woodblock.aiff");
 
-  examples_common_process((aubio_process_func_t)process_block,process_print);
+  examples_common_process(process_block, process_print);
 
   // send a last note off
   if (usejack) {

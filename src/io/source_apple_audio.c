@@ -34,8 +34,6 @@
 #define RT_BYTE3( a )      ( ((a) >> 16) & 0xff )
 #define RT_BYTE4( a )      ( ((a) >> 24) & 0xff )
 
-#define SHORT_TO_FLOAT(x) (smpl_t)(x * 3.0517578125e-05)
-
 struct _aubio_source_apple_audio_t {
   uint_t channels;
   uint_t samplerate;          //< requested samplerate
@@ -48,7 +46,7 @@ struct _aubio_source_apple_audio_t {
   AudioBufferList bufferList;
 };
 
-extern int createAubioBufferList(AudioBufferList *bufferList, int channels, int max_source_samples);
+extern int createAudioBufferList(AudioBufferList *bufferList, int channels, int max_source_samples);
 extern void freeAudioBufferList(AudioBufferList *bufferList);
 extern CFURLRef createURLFromPath(const char * path);
 char_t *getPrintableOSStatusError(char_t *str, OSStatus error);
@@ -59,7 +57,7 @@ aubio_source_apple_audio_t * new_aubio_source_apple_audio(const char_t * path, u
 {
   aubio_source_apple_audio_t * s = AUBIO_NEW(aubio_source_apple_audio_t);
 
-  if (path == NULL) {
+  if (path == NULL || strnlen(path, PATH_MAX) < 1) {
     AUBIO_ERROR("source_apple_audio: Aborted opening null path\n");
     goto beach;
   }
@@ -85,7 +83,7 @@ aubio_source_apple_audio_t * new_aubio_source_apple_audio(const char_t * path, u
   return s;
 
 beach:
-  AUBIO_FREE(s);
+  del_aubio_source_apple_audio(s);
   return NULL;
 }
 
@@ -94,7 +92,6 @@ uint_t aubio_source_apple_audio_open (aubio_source_apple_audio_t *s, const char_
   OSStatus err = noErr;
   UInt32 propSize;
 
-  if (s->path) AUBIO_FREE(s->path);
   s->path = AUBIO_ARRAY(char_t, strnlen(path, PATH_MAX) + 1);
   strncpy(s->path, path, strnlen(path, PATH_MAX) + 1);
 
@@ -139,17 +136,16 @@ uint_t aubio_source_apple_audio_open (aubio_source_apple_audio_t *s, const char_
   s->channels = fileFormat.mChannelsPerFrame;
 
   AudioStreamBasicDescription clientFormat;
-  propSize = sizeof(clientFormat);
+  propSize = sizeof(AudioStreamBasicDescription);
   memset(&clientFormat, 0, sizeof(AudioStreamBasicDescription));
   clientFormat.mFormatID         = kAudioFormatLinearPCM;
   clientFormat.mSampleRate       = (Float64)(s->samplerate);
-  clientFormat.mFormatFlags      = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
+  clientFormat.mFormatFlags      = kAudioFormatFlagIsFloat;
   clientFormat.mChannelsPerFrame = s->channels;
-  clientFormat.mBitsPerChannel   = sizeof(short) * 8;
+  clientFormat.mBitsPerChannel   = sizeof(smpl_t) * 8;
   clientFormat.mFramesPerPacket  = 1;
   clientFormat.mBytesPerFrame    = clientFormat.mBitsPerChannel * clientFormat.mChannelsPerFrame / 8;
   clientFormat.mBytesPerPacket   = clientFormat.mFramesPerPacket * clientFormat.mBytesPerFrame;
-  clientFormat.mReserved         = 0;
 
   // set the client format description
   err = ExtAudioFileSetProperty(s->audioFile, kExtAudioFileProperty_ClientDataFormat,
@@ -187,7 +183,7 @@ uint_t aubio_source_apple_audio_open (aubio_source_apple_audio_t *s, const char_
 
   // allocate the AudioBufferList
   freeAudioBufferList(&s->bufferList);
-  if (createAubioBufferList(&s->bufferList, s->channels, s->block_size * s->channels)) {
+  if (createAudioBufferList(&s->bufferList, s->channels, s->block_size * s->channels)) {
     AUBIO_ERR("source_apple_audio: failed creating bufferList\n");
     goto beach;
   }
@@ -196,60 +192,51 @@ beach:
   return err;
 }
 
-void aubio_source_apple_audio_do(aubio_source_apple_audio_t *s, fvec_t * read_to, uint_t * read) {
-  UInt32 c, v, loadedPackets = s->block_size;
+static UInt32 aubio_source_apple_audio_read_frame(aubio_source_apple_audio_t *s)
+{
+  UInt32 loadedPackets = s->block_size;
   OSStatus err = ExtAudioFileRead(s->audioFile, &loadedPackets, &s->bufferList);
   if (err) {
     char_t errorstr[20];
     AUBIO_ERROR("source_apple_audio: error while reading %s "
         "with ExtAudioFileRead (%s)\n", s->path,
         getPrintableOSStatusError(errorstr, err));
-    goto beach;
   }
+  return loadedPackets;
+}
 
-  short *data = (short*)s->bufferList.mBuffers[0].mData;
-
-  smpl_t *buf = read_to->data;
+void aubio_source_apple_audio_do(aubio_source_apple_audio_t *s, fvec_t * read_to,
+    uint_t * read) {
+  uint_t c, v;
+  UInt32 loadedPackets = aubio_source_apple_audio_read_frame(s);
+  smpl_t *data = (smpl_t*)s->bufferList.mBuffers[0].mData;
 
   for (v = 0; v < loadedPackets; v++) {
-    buf[v] = 0.;
+    read_to->data[v] = 0.;
     for (c = 0; c < s->channels; c++) {
-      buf[v] += SHORT_TO_FLOAT(data[ v * s->channels + c]);
+      read_to->data[v] += data[ v * s->channels + c];
     }
-    buf[v] /= (smpl_t)s->channels;
+    read_to->data[v] /= (smpl_t)s->channels;
   }
   // short read, fill with zeros
   if (loadedPackets < s->block_size) {
     for (v = loadedPackets; v < s->block_size; v++) {
-      buf[v] = 0.;
+      read_to->data[v] = 0.;
     }
   }
 
   *read = (uint_t)loadedPackets;
   return;
-beach:
-  *read = 0;
-  return;
 }
 
 void aubio_source_apple_audio_do_multi(aubio_source_apple_audio_t *s, fmat_t * read_to, uint_t * read) {
-  UInt32 c, v, loadedPackets = s->block_size;
-  OSStatus err = ExtAudioFileRead(s->audioFile, &loadedPackets, &s->bufferList);
-  if (err) {
-    char_t errorstr[20];
-    AUBIO_ERROR("source_apple_audio: error while reading %s "
-        "with ExtAudioFileRead (%s)\n", s->path,
-        getPrintableOSStatusError(errorstr, err));
-    goto beach;
-  }
-
-  short *data = (short*)s->bufferList.mBuffers[0].mData;
-
-  smpl_t **buf = read_to->data;
+  uint_t c, v;
+  UInt32 loadedPackets = aubio_source_apple_audio_read_frame(s);
+  smpl_t *data = (smpl_t*)s->bufferList.mBuffers[0].mData;
 
   for (v = 0; v < loadedPackets; v++) {
     for (c = 0; c < read_to->height; c++) {
-      buf[c][v] = SHORT_TO_FLOAT(data[ v * s->channels + c]);
+      read_to->data[c][v] = data[ v * s->channels + c];
     }
   }
   // if read_data has more channels than the file
@@ -257,7 +244,7 @@ void aubio_source_apple_audio_do_multi(aubio_source_apple_audio_t *s, fmat_t * r
     // copy last channel to all additional channels
     for (v = 0; v < loadedPackets; v++) {
       for (c = s->channels; c < read_to->height; c++) {
-        buf[c][v] = SHORT_TO_FLOAT(data[ v * s->channels + (s->channels - 1)]);
+        read_to->data[c][v] = data[ v * s->channels + (s->channels - 1)];
       }
     }
   }
@@ -265,14 +252,12 @@ void aubio_source_apple_audio_do_multi(aubio_source_apple_audio_t *s, fmat_t * r
   if (loadedPackets < s->block_size) {
     for (v = loadedPackets; v < s->block_size; v++) {
       for (c = 0; c < read_to->height; c++) {
-        buf[c][v] = 0.;
+        read_to->data[c][v] = 0.;
       }
     }
   }
+
   *read = (uint_t)loadedPackets;
-  return;
-beach:
-  *read = 0;
   return;
 }
 
@@ -293,11 +278,11 @@ uint_t aubio_source_apple_audio_close (aubio_source_apple_audio_t *s)
 }
 
 void del_aubio_source_apple_audio(aubio_source_apple_audio_t * s){
+  AUBIO_ASSERT(s);
   aubio_source_apple_audio_close (s);
   if (s->path) AUBIO_FREE(s->path);
   freeAudioBufferList(&s->bufferList);
   AUBIO_FREE(s);
-  return;
 }
 
 uint_t aubio_source_apple_audio_seek (aubio_source_apple_audio_t * s, uint_t pos) {
@@ -323,7 +308,7 @@ uint_t aubio_source_apple_audio_seek (aubio_source_apple_audio_t * s, uint_t pos
   }
   // after a short read, the bufferList size needs to resetted to prepare for a full read
   AudioBufferList *bufferList = &s->bufferList;
-  bufferList->mBuffers[0].mDataByteSize = s->block_size * s->channels * sizeof (short);
+  bufferList->mBuffers[0].mDataByteSize = s->block_size * s->channels * sizeof (smpl_t);
   // do the actual seek
   err = ExtAudioFileSeek(s->audioFile, resampled_pos);
   if (err) {

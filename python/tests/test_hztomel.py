@@ -3,6 +3,7 @@
 from unittest import main
 from numpy.testing import TestCase
 from numpy.testing import assert_equal, assert_almost_equal
+from _tools import assert_warns
 import numpy as np
 import aubio
 
@@ -37,12 +38,12 @@ class aubio_hztomel_test_case(TestCase):
             assert_almost_equal(meltohz(hztomel(f)) - f, 0, decimal=1)
 
     def test_meltohz_negative(self):
-        # TODO add assert_warns
-        assert_equal(meltohz(-1), 0)
+        with assert_warns(UserWarning):
+            assert_equal(meltohz(-1), 0)
 
     def test_hztomel_negative(self):
-        # TODO add assert_warns
-        assert_equal(hztomel(-1), 0)
+        with assert_warns(UserWarning):
+            assert_equal(hztomel(-1), 0)
 
 
 class aubio_hztomel_htk_test_case(TestCase):
@@ -57,14 +58,16 @@ class aubio_hztomel_htk_test_case(TestCase):
         assert_almost_equal(hztomel(6300, htk=True), 2595., decimal=1)
 
     def test_meltohz_negative(self):
-        # TODO add assert_warns
-        assert_equal(meltohz(-1, htk=True), 0)
+        with assert_warns(UserWarning):
+            assert_equal(meltohz(-1, htk=True), 0)
         assert_almost_equal(meltohz(2000, htk=True), 3428.7, decimal=1)
         assert_almost_equal(meltohz(1000, htk=True), 1000., decimal=1)
 
     def test_hztomel_negative(self):
-        # TODO add assert_warns
-        assert_equal(hztomel(-1, htk=True), 0)
+        with assert_warns(UserWarning):
+            assert_equal(meltohz(-1, htk=True), 0)
+        with assert_warns(UserWarning):
+            assert_equal(hztomel(-1, htk=True), 0)
         assert_almost_equal(hztomel(1000, htk=True), 1000., decimal=1)
 
     def test_hztomel_htk(self):
