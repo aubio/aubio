@@ -238,6 +238,20 @@ uint_t aubio_sink_apple_audio_open(aubio_sink_apple_audio_t *s) {
     goto beach;
   }
 
+#if defined(kAppleSoftwareAudioCodecManufacturer)
+  // on iOS, set software based encoding before setting clientDataFormat
+  UInt32 codecManf = kAppleSoftwareAudioCodecManufacturer;
+  err = ExtAudioFileSetProperty(s->audioFile,
+      kExtAudioFileProperty_CodecManufacturer,
+      sizeof(UInt32), &codecManf);
+  if (err) {
+    char_t errorstr[20];
+    AUBIO_ERR("sink_apple_audio: error when trying to set sofware codec on %s "
+        "(%s)\n", s->path, getPrintableOSStatusError(errorstr, err));
+    goto beach;
+  }
+#endif
+
   err = ExtAudioFileSetProperty(s->audioFile,
       kExtAudioFileProperty_ClientDataFormat,
       sizeof(AudioStreamBasicDescription), &inputFormat);
