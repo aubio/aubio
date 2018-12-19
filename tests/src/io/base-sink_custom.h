@@ -25,17 +25,21 @@ int base_main(int argc, char **argv)
   char_t *source_path = argv[1];
   char_t *sink_path = argv[2];
 
+  aubio_source_t *i = NULL;
+  aubio_sink_custom_t *o = NULL;
+
   if ( argc >= 4 ) samplerate = atoi(argv[3]);
   if ( argc >= 5 ) hop_size = atoi(argv[4]);
 
   fvec_t *vec = new_fvec(hop_size);
+  if (!vec) { err = 1; goto failure; }
 
-  aubio_source_t *i = new_aubio_source(source_path, samplerate, hop_size);
+  i = new_aubio_source(source_path, samplerate, hop_size);
+  if (!i) { err = 1; goto failure; }
   if (samplerate == 0 ) samplerate = aubio_source_get_samplerate(i);
 
-  aubio_sink_custom_t *o = new_aubio_sink_custom(sink_path, samplerate);
-
-  if (!vec || !i || !o) { err = 1; goto failure; }
+  o = new_aubio_sink_custom(sink_path, samplerate);
+  if (!o) { err = 1; goto failure; }
 
   do {
     aubio_source_do(i, vec, &read);
