@@ -38,6 +38,10 @@ char_t *getPrintableOSStatusError(char_t *str, OSStatus error);
 
 uint_t aubio_sink_apple_audio_open(aubio_sink_apple_audio_t *s);
 
+uint_t aubio_str_extension_matches(const char_t *ext,
+    const char_t *pattern);
+const char_t *aubio_str_get_extension(const char_t *filename);
+
 #define MAX_SIZE 4096 // the maximum number of frames that can be written at a time
 
 void aubio_sink_apple_audio_write(aubio_sink_apple_audio_t *s, uint_t write);
@@ -52,6 +56,7 @@ struct _aubio_sink_apple_audio_t {
   AudioBufferList bufferList;
   ExtAudioFileRef audioFile;
   bool async;
+  AudioFileTypeID fileType;
 };
 
 aubio_sink_apple_audio_t * new_aubio_sink_apple_audio(const char_t * uri, uint_t samplerate) {
@@ -69,6 +74,8 @@ aubio_sink_apple_audio_t * new_aubio_sink_apple_audio(const char_t * uri, uint_t
 
   s->samplerate = 0;
   s->channels = 0;
+
+  aubio_sink_apple_audio_preset_format(s, aubio_str_get_extension(uri));
 
   // zero samplerate given. do not open yet
   if ((sint_t)samplerate == 0) {
@@ -120,6 +127,72 @@ uint_t aubio_sink_apple_audio_preset_channels(aubio_sink_apple_audio_t *s, uint_
   return AUBIO_OK;
 }
 
+uint_t aubio_sink_apple_audio_preset_format(aubio_sink_apple_audio_t *s,
+    const char_t *fmt)
+{
+  if (aubio_str_extension_matches(fmt, "wav")) {
+    s->fileType = kAudioFileWAVEType;
+  } else if (aubio_str_extension_matches(fmt, "m4a")
+      || aubio_str_extension_matches(fmt, "mp4") ) {
+    // use alac for "mp4" and "m4a"
+    s->fileType = kAudioFileM4AType;
+  } else if (aubio_str_extension_matches(fmt, "aac") ) {
+    // only use lossy codec for "aac"
+    s->fileType = kAudioFileMPEG4Type;
+  } else if (aubio_str_extension_matches(fmt, "aiff") ) {
+    // only use lossy codec for "aac"
+    s->fileType = kAudioFileAIFFType;
+  } else {
+    AUBIO_WRN("sink_apple_audio: could not guess format for %s,"
+       " using default (wav)\n", s->path);
+    s->fileType = kAudioFileWAVEType;
+    return AUBIO_FAIL;
+  }
+  return AUBIO_OK;
+}
+
+static void aubio_sink_apple_audio_set_client_format(aubio_sink_apple_audio_t* s,
+    AudioStreamBasicDescription *clientFormat)
+{
+  memset(clientFormat, 0, sizeof(AudioStreamBasicDescription));
+  // always set samplerate and channels first
+  clientFormat->mSampleRate       = (Float64)(s->samplerate);
+  clientFormat->mChannelsPerFrame = s->channels;
+
+  switch (s->fileType) {
+    case kAudioFileM4AType:
+      clientFormat->mFormatID         = kAudioFormatAppleLossless;
+      break;
+    case kAudioFileMPEG4Type:
+      clientFormat->mFormatID         = kAudioFormatMPEG4AAC;
+      clientFormat->mFormatFlags      = kMPEG4Object_AAC_Main;
+      clientFormat->mFormatFlags     |= kAppleLosslessFormatFlag_16BitSourceData;
+      clientFormat->mFramesPerPacket  = 1024;
+      break;
+    case kAudioFileWAVEType:
+      clientFormat->mFormatID         = kAudioFormatLinearPCM;
+      clientFormat->mFormatFlags      = kAudioFormatFlagIsSignedInteger;
+      clientFormat->mFormatFlags     |= kAudioFormatFlagIsPacked;
+      clientFormat->mBitsPerChannel   = sizeof(short) * 8;
+      clientFormat->mFramesPerPacket  = 1;
+      clientFormat->mBytesPerFrame    = clientFormat->mBitsPerChannel * clientFormat->mChannelsPerFrame / 8;
+      clientFormat->mBytesPerPacket   = clientFormat->mFramesPerPacket * clientFormat->mBytesPerFrame;
+      break;
+    case kAudioFileAIFFType:
+      clientFormat->mFormatID         = kAudioFormatLinearPCM;
+      clientFormat->mFormatFlags      = kAudioFormatFlagIsSignedInteger;
+      clientFormat->mFormatFlags     |= kAudioFormatFlagIsPacked;
+      clientFormat->mFormatFlags     |= kAudioFormatFlagIsBigEndian;
+      clientFormat->mBitsPerChannel   = sizeof(short) * 8;
+      clientFormat->mFramesPerPacket  = 1;
+      clientFormat->mBytesPerFrame    = clientFormat->mBitsPerChannel * clientFormat->mChannelsPerFrame / 8;
+      clientFormat->mBytesPerPacket   = clientFormat->mFramesPerPacket * clientFormat->mBytesPerFrame;
+      break;
+    default:
+      break;
+  }
+}
+
 uint_t aubio_sink_apple_audio_get_samplerate(const aubio_sink_apple_audio_t *s)
 {
   return s->samplerate;
@@ -134,19 +207,6 @@ uint_t aubio_sink_apple_audio_open(aubio_sink_apple_audio_t *s) {
 
   if (s->samplerate == 0 || s->channels == 0) return AUBIO_FAIL;
 
-  AudioStreamBasicDescription clientFormat;
-  memset(&clientFormat, 0, sizeof(AudioStreamBasicDescription));
-  clientFormat.mFormatID         = kAudioFormatLinearPCM;
-  clientFormat.mSampleRate       = (Float64)(s->samplerate);
-  clientFormat.mFormatFlags      = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
-  clientFormat.mChannelsPerFrame = s->channels;
-  clientFormat.mBitsPerChannel   = sizeof(short) * 8;
-  clientFormat.mFramesPerPacket  = 1;
-  clientFormat.mBytesPerFrame    = clientFormat.mBitsPerChannel * clientFormat.mChannelsPerFrame / 8;
-  clientFormat.mBytesPerPacket   = clientFormat.mFramesPerPacket * clientFormat.mBytesPerFrame;
-  clientFormat.mReserved         = 0;
-
-  AudioFileTypeID fileType = kAudioFileWAVEType;
   CFURLRef fileURL = createURLFromPath(s->path);
   bool overwrite = true;
 
@@ -161,8 +221,13 @@ uint_t aubio_sink_apple_audio_open(aubio_sink_apple_audio_t *s) {
   inputFormat.mFramesPerPacket  = 1;
   inputFormat.mBytesPerFrame    = inputFormat.mBitsPerChannel * inputFormat.mChannelsPerFrame / 8;
   inputFormat.mBytesPerPacket   = inputFormat.mFramesPerPacket * inputFormat.mBytesPerFrame;
+
+  // get the in-file format
+  AudioStreamBasicDescription clientFormat;
+  aubio_sink_apple_audio_set_client_format(s, &clientFormat);
+
   OSStatus err = noErr;
-  err = ExtAudioFileCreateWithURL(fileURL, fileType, &clientFormat, NULL,
+  err = ExtAudioFileCreateWithURL(fileURL, s->fileType, &clientFormat, NULL,
      overwrite ? kAudioFileFlags_EraseFile : 0, &s->audioFile);
   CFRelease(fileURL);
   if (err) {

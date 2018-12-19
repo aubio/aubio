@@ -96,6 +96,29 @@ uint_t aubio_sink_apple_audio_preset_channels(aubio_sink_apple_audio_t *s, uint_
 
 /**
 
+  preset sink format
+
+  \param s sink, created with ::new_aubio_sink_apple_audio
+  \param fmt format of the file to create
+
+  \return 0 on success, 1 on error
+
+  Preset the format of the sink. Supported format strings:
+   - "wav": WAVE, 16 bit (default)
+   - "aiff": AIFF, 16 bit
+   - "m4a" or "mp4": Apple Audio Lossless Codec (ALAC)
+   - "aac": Audio Advanced Codec, lossy
+
+  Full list of supported encoding format is available in Table 1-2 of
+  `Multimedia Programming Guide
+  <https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/MultimediaPG/UsingAudio/UsingAudio.html>`_.
+
+ */
+uint_t aubio_sink_apple_audio_preset_format(aubio_sink_apple_audio_t *s,
+    const char_t *fmt);
+
+/**
+
   get samplerate of sink object
 
   \param s sink object, created with ::new_aubio_sink_apple_audio
