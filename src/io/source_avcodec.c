@@ -514,11 +514,9 @@ void aubio_source_avcodec_do(aubio_source_avcodec_t * s, fvec_t * read_data,
       s->read_index += end;
     }
   }
-  if (total_wrote < length) {
-    for (i = total_wrote; i < length; i++) {
-      read_data->data[i] = 0.;
-    }
-  }
+
+  aubio_source_pad_output(read_data, total_wrote);
+
   *read = total_wrote;
 }
 
@@ -552,13 +550,9 @@ void aubio_source_avcodec_do_multi(aubio_source_avcodec_t * s,
       s->read_index += end;
     }
   }
-  if (total_wrote < length) {
-    for (j = 0; j < channels; j++) {
-      for (i = total_wrote; i < length; i++) {
-        read_data->data[j][i] = 0.;
-      }
-    }
-  }
+
+  aubio_source_pad_multi_output(read_data, s->input_channels, total_wrote);
+
   *read = total_wrote;
 }
 
