@@ -19,6 +19,7 @@
 */
 
 #include "aubio_priv.h"
+#include "fmat.h"
 
 uint_t
 aubio_io_validate_samplerate(const char_t *kind, const char_t *path, uint_t samplerate)
@@ -89,6 +90,30 @@ aubio_source_validate_input_channels(const char_t *kind, const char_t *path,
     channels = source_channels;
   }
   return channels;
+}
+
+void
+aubio_source_pad_output (fvec_t *read_data, uint_t source_read)
+{
+  uint_t i = 0;
+  if (source_read < read_data->length) {
+    for (i = source_read; i < read_data->length; i++) {
+      read_data->data[i] = 0.;
+    }
+  }
+}
+
+void
+aubio_source_pad_multi_output (fmat_t *read_data,
+    uint_t source_channels, uint_t source_read) {
+  uint_t i, j;
+  if (source_read < read_data->length) {
+    for (i = 0; i < read_data->height; i++) {
+      for (j = source_read; j < read_data->length; j++) {
+        read_data->data[i][j] = 0.;
+      }
+    }
+  }
 }
 
 uint_t

@@ -79,6 +79,26 @@ uint_t
 aubio_source_validate_input_channels(const char_t *kind, const char_t *path,
     uint_t source_channels, uint_t read_data_height);
 
+/** pad end of source output vector with zeroes
+
+  \param read_data   output vector to pad
+  \param source_read number of frames read
+
+*/
+void
+aubio_source_pad_output (fvec_t *read_data, uint_t source_read);
+
+/** pad end of source output matrix with zeroes
+
+  \param read_data   output matrix to pad
+  \param source_channels number of channels in the source
+  \param source_read number of frames read
+
+*/
+void
+aubio_source_pad_multi_output (fmat_t *read_data, uint_t source_channels,
+        uint_t source_read);
+
 /** validate length of sink input
 
   \param kind       the object kind to report on
