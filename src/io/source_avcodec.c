@@ -60,6 +60,7 @@
 #include "aubio_priv.h"
 #include "fvec.h"
 #include "fmat.h"
+#include "ioutils.h"
 #include "source_avcodec.h"
 
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(56, 56, 0)
@@ -488,8 +489,10 @@ void aubio_source_avcodec_do(aubio_source_avcodec_t * s, fvec_t * read_data,
   uint_t i, j;
   uint_t end = 0;
   uint_t total_wrote = 0;
-  while (total_wrote < s->hop_size) {
-    end = MIN(s->read_samples - s->read_index, s->hop_size - total_wrote);
+  uint_t length = aubio_source_validate_input_length("source_avcodec", s->path,
+      s->hop_size, read_data->length);
+  while (total_wrote < length) {
+    end = MIN(s->read_samples - s->read_index, length - total_wrote);
     for (i = 0; i < end; i++) {
       read_data->data[i + total_wrote] = 0.;
       for (j = 0; j < s->input_channels; j++) {
@@ -499,7 +502,7 @@ void aubio_source_avcodec_do(aubio_source_avcodec_t * s, fvec_t * read_data,
       read_data->data[i + total_wrote] *= 1./s->input_channels;
     }
     total_wrote += end;
-    if (total_wrote < s->hop_size) {
+    if (total_wrote < length) {
       uint_t avcodec_read = 0;
       aubio_source_avcodec_readframe(s, &avcodec_read);
       s->read_samples = avcodec_read;
@@ -511,11 +514,9 @@ void aubio_source_avcodec_do(aubio_source_avcodec_t * s, fvec_t * read_data,
       s->read_index += end;
     }
   }
-  if (total_wrote < s->hop_size) {
-    for (i = total_wrote; i < s->hop_size; i++) {
-      read_data->data[i] = 0.;
-    }
-  }
+
+  aubio_source_pad_output(read_data, total_wrote);
+
   *read = total_wrote;
 }
 
@@ -524,16 +525,20 @@ void aubio_source_avcodec_do_multi(aubio_source_avcodec_t * s,
   uint_t i,j;
   uint_t end = 0;
   uint_t total_wrote = 0;
-  while (total_wrote < s->hop_size) {
-    end = MIN(s->read_samples - s->read_index, s->hop_size - total_wrote);
-    for (j = 0; j < read_data->height; j++) {
+  uint_t length = aubio_source_validate_input_length("source_wavread", s->path,
+      s->hop_size, read_data->length);
+  uint_t channels = aubio_source_validate_input_channels("source_wavread",
+      s->path, s->input_channels, read_data->height);
+  while (total_wrote < length) {
+    end = MIN(s->read_samples - s->read_index, length - total_wrote);
+    for (j = 0; j < channels; j++) {
       for (i = 0; i < end; i++) {
         read_data->data[j][i + total_wrote] =
           s->output[(i + s->read_index) * s->input_channels + j];
       }
     }
     total_wrote += end;
-    if (total_wrote < s->hop_size) {
+    if (total_wrote < length) {
       uint_t avcodec_read = 0;
       aubio_source_avcodec_readframe(s, &avcodec_read);
       s->read_samples = avcodec_read;
@@ -545,13 +550,9 @@ void aubio_source_avcodec_do_multi(aubio_source_avcodec_t * s,
       s->read_index += end;
     }
   }
-  if (total_wrote < s->hop_size) {
-    for (j = 0; j < read_data->height; j++) {
-      for (i = total_wrote; i < s->hop_size; i++) {
-        read_data->data[j][i] = 0.;
-      }
-    }
-  }
+
+  aubio_source_pad_multi_output(read_data, s->input_channels, total_wrote);
+
   *read = total_wrote;
 }
 

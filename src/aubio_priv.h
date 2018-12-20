@@ -324,6 +324,12 @@ uint_t aubio_log(sint_t level, const char_t *fmt, ...);
 #define isnan _isnan
 #endif
 
+#if !defined(_MSC_VER)
+#define AUBIO_STRERROR(errno,buf,len) strerror_r(errno, buf, len)
+#else
+#define AUBIO_STRERROR(errno,buf,len) strerror_s(buf, len, errno)
+#endif
+
 /* handy shortcuts */
 #define DB2LIN(g) (POW(10.0,(g)*0.05f))
 #define LIN2DB(v) (20.0*LOG10(v))

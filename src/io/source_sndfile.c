@@ -26,6 +26,7 @@
 
 #include "fvec.h"
 #include "fmat.h"
+#include "ioutils.h"
 #include "source_sndfile.h"
 
 #include "temporal/resampler.h"
@@ -169,7 +170,12 @@ beach:
 void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_data, uint_t * read){
   uint_t i,j, input_channels = s->input_channels;
   /* read from file into scratch_data */
-  sf_count_t read_samples = aubio_sf_read_smpl (s->handle, s->scratch_data, s->scratch_size);
+  uint_t length = aubio_source_validate_input_length("source_sndfile", s->path,
+      s->hop_size, read_data->length);
+  sf_count_t read_samples = aubio_sf_read_smpl (s->handle, s->scratch_data,
+      s->input_channels * length);
+
+  length = MIN(read_samples / s->input_channels, length);
 
   /* where to store de-interleaved data */
   smpl_t *ptr_data;
@@ -183,7 +189,7 @@ void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_data, uin
   }
 
   /* de-interleaving and down-mixing data  */
-  for (j = 0; j < read_samples / input_channels; j++) {
+  for (j = 0; j < length; j++) {
     ptr_data[j] = 0;
     for (i = 0; i < input_channels; i++) {
       ptr_data[j] += s->scratch_data[input_channels*j+i];
@@ -197,20 +203,23 @@ void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_data, uin
   }
 #endif /* HAVE_SAMPLERATE */
 
-  *read = (int)FLOOR(s->ratio * read_samples / input_channels + .5);
+  *read = (int)FLOOR(s->ratio * length + .5);
 
-  if (*read < s->hop_size) {
-    for (j = *read; j < s->hop_size; j++) {
-      read_data->data[j] = 0;
-    }
-  }
+  aubio_source_pad_output (read_data, *read);
 
 }
 
 void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_data, uint_t * read){
   uint_t i,j, input_channels = s->input_channels;
   /* do actual reading */
-  sf_count_t read_samples = aubio_sf_read_smpl (s->handle, s->scratch_data, s->scratch_size);
+  uint_t length = aubio_source_validate_input_length("source_sndfile", s->path,
+      s->hop_size, read_data->length);
+  uint_t channels = aubio_source_validate_input_channels("source_sndfile",
+      s->path, s->input_channels, read_data->height);
+  sf_count_t read_samples = aubio_sf_read_smpl (s->handle, s->scratch_data,
+      length * s->input_channels);
+
+  length = MIN(read_samples / s->input_channels, length);
 
   /* where to store de-interleaved data */
   smpl_t **ptr_data;
@@ -223,31 +232,9 @@ void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_dat
     ptr_data = read_data->data;
   }
 
-  if (read_data->height < input_channels) {
-    // destination matrix has less channels than the file; copy only first
-    // channels of the file, de-interleaving data
-    for (j = 0; j < read_samples / input_channels; j++) {
-      for (i = 0; i < read_data->height; i++) {
-        ptr_data[i][j] = s->scratch_data[j * input_channels + i];
-      }
-    }
-  } else {
-    // destination matrix has as many or more channels than the file; copy each
-    // channel from the file to the destination matrix, de-interleaving data
-    for (j = 0; j < read_samples / input_channels; j++) {
-      for (i = 0; i < input_channels; i++) {
-        ptr_data[i][j] = s->scratch_data[j * input_channels + i];
-      }
-    }
-  }
-
-  if (read_data->height > input_channels) {
-    // destination matrix has more channels than the file; copy last channel
-    // of the file to each additional channels, de-interleaving data
-    for (j = 0; j < read_samples / input_channels; j++) {
-      for (i = input_channels; i < read_data->height; i++) {
-        ptr_data[i][j] = s->scratch_data[j * input_channels + (input_channels - 1)];
-      }
+  for (j = 0; j < length; j++) {
+    for (i = 0; i < channels; i++) {
+      ptr_data[i][j] = s->scratch_data[j * input_channels + i];
     }
   }
 
@@ -264,16 +251,9 @@ void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_dat
   }
 #endif /* HAVE_SAMPLERATE */
 
-  *read = (int)FLOOR(s->ratio * read_samples / input_channels + .5);
+  *read = (int)FLOOR(s->ratio * length + .5);
 
-  if (*read < s->hop_size) {
-    for (i = 0; i < read_data->height; i++) {
-      for (j = *read; j < s->hop_size; j++) {
-        read_data->data[i][j] = 0.;
-      }
-    }
-  }
-
+  aubio_source_pad_multi_output(read_data, input_channels, *read);
 }
 
 uint_t aubio_source_sndfile_get_samplerate(aubio_source_sndfile_t * s) {
