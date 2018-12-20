@@ -28,15 +28,15 @@
 
 #ifdef HAVE_VORBISENC
 
-#include "io/ioutils.h"
 #include "fmat.h"
+#include "io/ioutils.h"
 
 #include <vorbis/vorbisenc.h>
 #include <string.h> // strerror
 #include <errno.h> // errno
 #include <time.h> // time
 
-#define MAX_SIZE 2048
+#define MAX_SIZE 4096
 
 struct _aubio_sink_vorbis_t {
   FILE *fid;            // file id
@@ -62,6 +62,8 @@ uint_t aubio_sink_vorbis_preset_samplerate(aubio_sink_vorbis_t *s,
 uint_t aubio_sink_vorbis_open(aubio_sink_vorbis_t *s);
 uint_t aubio_sink_vorbis_close (aubio_sink_vorbis_t *s);
 void del_aubio_sink_vorbis (aubio_sink_vorbis_t *s);
+
+static uint_t aubio_sink_vorbis_write_page(aubio_sink_vorbis_t *s);
 
 aubio_sink_vorbis_t * new_aubio_sink_vorbis (const char_t *uri,
     uint_t samplerate)
@@ -117,8 +119,10 @@ uint_t aubio_sink_vorbis_open(aubio_sink_vorbis_t *s)
 
   s->fid = fopen((const char *)s->path, "wb");
   if (!s->fid) {
-    AUBIO_ERR("sink_vorbis: Error opening file %s (%s)\n",
-        s->path, strerror(errno));
+    char errorstr[256];
+    AUBIO_STRERROR(errno, errorstr, sizeof(errorstr));
+    AUBIO_ERR("sink_vorbis: Error opening file \'%s\' (%s)\n",
+        s->path, errorstr);
     return AUBIO_FAIL;
   }
 
@@ -143,8 +147,6 @@ uint_t aubio_sink_vorbis_open(aubio_sink_vorbis_t *s)
 
   // write header
   {
-    int ret = 0;
-    size_t wrote;
     ogg_packet header;
     ogg_packet header_comm;
     ogg_packet header_code;
@@ -159,17 +161,8 @@ uint_t aubio_sink_vorbis_open(aubio_sink_vorbis_t *s)
     // make sure audio data will start on a new page
     while (1)
     {
-      ret = ogg_stream_flush(&s->os, &s->og);
-      if (ret==0) break;
-      wrote = fwrite(s->og.header, 1, s->og.header_len, s->fid);
-      ret = (wrote == (unsigned)s->og.header_len);
-      wrote = fwrite(s->og.body,   1, s->og.body_len,   s->fid);
-      ret &= (wrote == (unsigned)s->og.body_len);
-      if (ret == 0) {
-        AUBIO_ERR("sink_vorbis: failed writing \'%s\' to disk (%s)\n",
-            s->path, strerror(errno));
-        return AUBIO_FAIL;
-      }
+      if (!ogg_stream_flush(&s->os, &s->og)) break;
+      if (aubio_sink_vorbis_write_page(s)) return AUBIO_FAIL;
     }
   }
 
@@ -211,10 +204,27 @@ uint_t aubio_sink_vorbis_get_channels(const aubio_sink_vorbis_t *s)
   return s->channels;
 }
 
-void aubio_sink_vorbis_write(aubio_sink_vorbis_t *s)
-{
+static
+uint_t aubio_sink_vorbis_write_page(aubio_sink_vorbis_t *s) {
   int result;
   size_t wrote;
+  wrote = fwrite(s->og.header, 1, s->og.header_len, s->fid);
+  result = (wrote == (unsigned)s->og.header_len);
+  wrote = fwrite(s->og.body, 1, s->og.body_len,     s->fid);
+  result &= (wrote == (unsigned)s->og.body_len);
+  if (result == 0) {
+    char errorstr[256];
+    AUBIO_STRERROR(errno, errorstr, sizeof(errorstr));
+    AUBIO_ERR("sink_vorbis: failed writing \'%s\' to disk (%s)\n",
+        s->path, errorstr);
+    return AUBIO_FAIL;
+  }
+  return AUBIO_OK;
+}
+
+static
+void aubio_sink_vorbis_write(aubio_sink_vorbis_t *s)
+{
   // pre-analysis
   while (vorbis_analysis_blockout(&s->vd, &s->vb) == 1) {
 
@@ -226,16 +236,8 @@ void aubio_sink_vorbis_write(aubio_sink_vorbis_t *s)
       ogg_stream_packetin(&s->os, &s->op);
 
       while (1) {
-        result = ogg_stream_pageout (&s->os, &s->og);
-        if (result == 0) break;
-        wrote = fwrite(s->og.header, 1, s->og.header_len, s->fid);
-        result = (wrote == (unsigned)s->og.header_len);
-        wrote = fwrite(s->og.body, 1, s->og.body_len,     s->fid);
-        result &= (wrote == (unsigned)s->og.body_len);
-        if (result == 0) {
-          AUBIO_WRN("sink_vorbis: failed writing \'%s\' to disk (%s)\n",
-              s->path, strerror(errno));
-        }
+        if (!ogg_stream_pageout (&s->os, &s->og)) break;
+        aubio_sink_vorbis_write_page(s);
         if (ogg_page_eos(&s->og)) break;
       }
     }
@@ -290,7 +292,7 @@ void aubio_sink_vorbis_do_multi(aubio_sink_vorbis_t *s, fmat_t *write_data,
       }
     }
     // tell vorbis how many frames were written
-    vorbis_analysis_wrote(&s->vd, (long)write);
+    vorbis_analysis_wrote(&s->vd, (long)length);
   }
 
   aubio_sink_vorbis_write(s);
@@ -305,8 +307,10 @@ uint_t aubio_sink_vorbis_close (aubio_sink_vorbis_t *s)
   aubio_sink_vorbis_write(s);
 
   if (s->fid && fclose(s->fid)) {
-    AUBIO_ERR("sink_vorbis: Error closing file %s (%s)\n",
-        s->path, strerror(errno));
+    char errorstr[256];
+    AUBIO_STRERROR(errno, errorstr, sizeof(errorstr));
+    AUBIO_ERR("sink_vorbis: Error closing file \'%s\' (%s)\n",
+        s->path, errorstr);
     return AUBIO_FAIL;
   }
   s->fid = NULL;
