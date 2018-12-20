@@ -162,54 +162,66 @@ uint_t aubio_sink_wavwrite_get_channels(const aubio_sink_wavwrite_t *s)
 uint_t aubio_sink_wavwrite_open(aubio_sink_wavwrite_t *s) {
   unsigned char buf[5];
   uint_t byterate, blockalign;
+  size_t written = 0;
 
   /* open output file */
   s->fid = fopen((const char *)s->path, "wb");
   if (!s->fid) {
-    AUBIO_ERR("sink_wavwrite: could not open %s (%s)\n", s->path, strerror(errno));
+    char errorstr[256];
+    AUBIO_STRERROR(errno, errorstr, sizeof(errorstr));
+    AUBIO_ERR("sink_wavwrite: could not open %s (%s)\n", s->path, errorstr);
     goto beach;
   }
 
   // ChunkID
-  fwrite("RIFF", 4, 1, s->fid);
+  written += fwrite("RIFF", 4, 1, s->fid);
 
   // ChunkSize (0 for now, actual size will be written in _close)
-  fwrite(write_little_endian(0, buf, 4), 4, 1, s->fid);
+  written += fwrite(write_little_endian(0, buf, 4), 4, 1, s->fid);
 
   // Format
-  fwrite("WAVE", 4, 1, s->fid);
+  written += fwrite("WAVE", 4, 1, s->fid);
 
   // Subchunk1ID
-  fwrite("fmt ", 4, 1, s->fid);
+  written += fwrite("fmt ", 4, 1, s->fid);
 
   // Subchunk1Size
-  fwrite(write_little_endian(16, buf, 4), 4, 1, s->fid);
+  written += fwrite(write_little_endian(16, buf, 4), 4, 1, s->fid);
 
   // AudioFormat
-  fwrite(write_little_endian(1, buf, 2), 2, 1, s->fid);
+  written += fwrite(write_little_endian(1, buf, 2), 2, 1, s->fid);
 
   // NumChannels
-  fwrite(write_little_endian(s->channels, buf, 2), 2, 1, s->fid);
+  written += fwrite(write_little_endian(s->channels, buf, 2), 2, 1, s->fid);
 
   // SampleRate
-  fwrite(write_little_endian(s->samplerate, buf, 4), 4, 1, s->fid);
+  written += fwrite(write_little_endian(s->samplerate, buf, 4), 4, 1, s->fid);
 
   // ByteRate
   byterate = s->samplerate * s->channels * s->bitspersample / 8;
-  fwrite(write_little_endian(byterate, buf, 4), 4, 1, s->fid);
+  written += fwrite(write_little_endian(byterate, buf, 4), 4, 1, s->fid);
 
   // BlockAlign
   blockalign = s->channels * s->bitspersample / 8;
-  fwrite(write_little_endian(blockalign, buf, 2), 2, 1, s->fid);
+  written += fwrite(write_little_endian(blockalign, buf, 2), 2, 1, s->fid);
 
   // BitsPerSample
-  fwrite(write_little_endian(s->bitspersample, buf, 2), 2, 1, s->fid);
+  written += fwrite(write_little_endian(s->bitspersample, buf, 2), 2, 1, s->fid);
 
   // Subchunk2ID
-  fwrite("data", 4, 1, s->fid);
+  written += fwrite("data", 4, 1, s->fid);
 
   // Subchunk1Size (0 for now, actual size will be written in _close)
-  fwrite(write_little_endian(0, buf, 4), 4, 1, s->fid);
+  written += fwrite(write_little_endian(0, buf, 4), 4, 1, s->fid);
+
+  // fwrite(*, *, 1, s->fid) was called 13 times, check success
+  if (written != 13) {
+    char errorstr[256];
+    AUBIO_STRERROR(errno, errorstr, sizeof(errorstr));
+    AUBIO_WRN("sink_wavwrite: writing header to %s failed, expected %d"
+        " write but got only %d (%s)\n", s->path, 13, written, errorstr);
+    return AUBIO_FAIL;
+  }
 
   s->scratch_size = s->max_size * s->channels;
   /* allocate data for de/interleaving reallocated when needed. */
