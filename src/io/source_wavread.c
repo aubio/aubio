@@ -377,11 +377,9 @@ void aubio_source_wavread_do(aubio_source_wavread_t * s, fvec_t * read_data, uin
       s->read_index += end;
     }
   }
-  if (total_wrote < length) {
-    for (i = end; i < length; i++) {
-      read_data->data[i] = 0.;
-    }
-  }
+
+  aubio_source_pad_output (read_data, total_wrote);
+
   *read = total_wrote;
 }
 
@@ -418,13 +416,9 @@ void aubio_source_wavread_do_multi(aubio_source_wavread_t * s, fmat_t * read_dat
       s->read_index += end;
     }
   }
-  if (total_wrote < length) {
-    for (j = 0; j < read_data->height; j++) {
-      for (i = end; i < length; i++) {
-        read_data->data[j][i] = 0.;
-      }
-    }
-  }
+
+  aubio_source_pad_multi_output(read_data, s->input_channels, total_wrote);
+
   *read = total_wrote;
 }
 
