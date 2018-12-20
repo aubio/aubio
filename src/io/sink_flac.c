@@ -264,6 +264,18 @@ uint_t aubio_sink_flac_get_channels(const aubio_sink_flac_t *s)
   return s->channels;
 }
 
+static void aubio_sink_write_frames(aubio_sink_flac_t *s, uint_t length)
+{
+  // send to encoder
+  if (!FLAC__stream_encoder_process_interleaved(s->encoder,
+        (const FLAC__int32*)s->buffer, length)) {
+    FLAC__StreamEncoderState state =
+      FLAC__stream_encoder_get_state(s->encoder);
+    AUBIO_WRN("sink_flac: error writing to %s (%s)\n",
+        s->path, FLAC__StreamEncoderStateString[state]);
+  }
+}
+
 void aubio_sink_flac_do(aubio_sink_flac_t *s, fvec_t *write_data,
     uint_t write)
 {
@@ -281,8 +293,7 @@ void aubio_sink_flac_do(aubio_sink_flac_t *s, fvec_t *write_data,
     }
   }
   // send to encoder
-  FLAC__stream_encoder_process_interleaved(s->encoder,
-      (const FLAC__int32*)s->buffer, length);
+  aubio_sink_write_frames(s, length);
 }
 
 void aubio_sink_flac_do_multi(aubio_sink_flac_t *s, fmat_t *write_data,
@@ -302,10 +313,9 @@ void aubio_sink_flac_do_multi(aubio_sink_flac_t *s, fmat_t *write_data,
         s->buffer[v * s->channels + c] = FLOAT_TO_SHORT(write_data->data[c][v]);
       }
     }
-    // send to encoder
-    FLAC__stream_encoder_process_interleaved(s->encoder,
-        (const FLAC__int32*)s->buffer, length);
   }
+  // send to encoder
+  aubio_sink_write_frames(s, length);
 }
 
 uint_t aubio_sink_flac_close (aubio_sink_flac_t *s)

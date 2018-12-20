@@ -93,10 +93,46 @@ int test_wrong_params(void)
   aubio_source_custom_do(s, vec, &read);
   if (read != hop_size) return 1;
 
+  // read again in undersized vector
+  del_fvec(vec);
+  vec = new_fvec(hop_size - 1);
+  aubio_source_custom_do(s, vec, &read);
+  if (read != hop_size - 1) return 1;
+
+  // read again in oversized vector
+  del_fvec(vec);
+  vec = new_fvec(hop_size + 1);
+  aubio_source_custom_do(s, vec, &read);
+  if (read != hop_size) return 1;
+
   // seek to 0
   if(aubio_source_custom_seek(s, 0)) return 1;
 
   // read again as multiple channels
+  aubio_source_custom_do_multi(s, mat, &read);
+  if (read != hop_size) return 1;
+
+  // read again as multiple channels in an undersized matrix
+  del_fmat(mat);
+  mat = new_fmat(channels - 1, hop_size);
+  aubio_source_custom_do_multi(s, mat, &read);
+  if (read != hop_size) return 1;
+
+  // read again as multiple channels in an undersized matrix
+  del_fmat(mat);
+  mat = new_fmat(channels, hop_size - 1);
+  aubio_source_custom_do_multi(s, mat, &read);
+  if (read != hop_size - 1) return 1;
+
+  // read again as multiple channels in an oversized matrix
+  del_fmat(mat);
+  mat = new_fmat(channels + 1, hop_size);
+  aubio_source_custom_do_multi(s, mat, &read);
+  if (read != hop_size) return 1;
+
+  // read again as multiple channels in an oversized matrix
+  del_fmat(mat);
+  mat = new_fmat(channels, hop_size + 1);
   aubio_source_custom_do_multi(s, mat, &read);
   if (read != hop_size) return 1;
 
