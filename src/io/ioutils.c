@@ -96,8 +96,8 @@ void
 aubio_source_pad_output (fvec_t *read_data, uint_t source_read)
 {
   if (source_read < read_data->length) {
-    AUBIO_MEMSET(read_data->data + source_read, 0, read_data->length -
-        source_read);
+    AUBIO_MEMSET(read_data->data + source_read, 0,
+        (read_data->length - source_read) * sizeof(smpl_t));
   }
 }
 
@@ -108,7 +108,7 @@ aubio_source_pad_multi_output (fmat_t *read_data,
   if (source_read < read_data->length) {
     for (i = 0; i < read_data->height; i++) {
       AUBIO_MEMSET(read_data->data[i] + source_read, 0,
-          read_data->length - source_read);
+          (read_data->length - source_read) * sizeof(smpl_t));
     }
   }
 
