@@ -11,6 +11,10 @@ matrix:
     - python: 2.7
       os: linux
       compiler: gcc
+    - python: "pypy"
+      os: linux
+      compiler: gcc
+      env: CFLAGS="-Os" WAFOPTS="--disable-samplerate --disable-avcodec"
     - python: 3.5
       os: linux
       compiler: gcc
@@ -18,7 +22,7 @@ matrix:
     - python: 3.4
       os: linux
       compiler: gcc
-      env: HAVE_AUBIO_DOUBLE=1 CFLAGS="-O3" WAFOPTS="--enable-fftw3 --disable-avcodec"
+      env: HAVE_AUBIO_DOUBLE=1 CFLAGS="-O3" WAFOPTS="--enable-fftw3"
     - python: 2.7
       os: linux
       compiler: gcc
