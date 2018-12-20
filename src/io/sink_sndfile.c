@@ -136,10 +136,12 @@ uint_t aubio_sink_sndfile_preset_format(aubio_sink_sndfile_t *s,
   } else if (atoi(fmt) > 0x010000) {
     s->format = atoi(fmt);
   } else {
-    AUBIO_WRN("sink_sndfile: could not guess format for %s,"
-       " using default (wav)\n", s->path);
     s->format = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
-    return AUBIO_FAIL;
+    if (fmt && strnlen(fmt, PATH_MAX))  {
+      AUBIO_WRN("sink_sndfile: could not guess format %s for %s,"
+          " using default (wav)\n", fmt, s->path);
+      return AUBIO_FAIL;
+    }
   }
   return AUBIO_OK;
 }
