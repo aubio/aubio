@@ -18,7 +18,7 @@ matrix:
     - python: 3.4
       os: linux
       compiler: gcc
-      env: HAVE_AUBIO_DOUBLE=1 CFLAGS="-O3" WAFOPTS="--enable-fftw3"
+      env: HAVE_AUBIO_DOUBLE=1 CFLAGS="-O3" WAFOPTS="--enable-fftw3 --disable-avcodec"
     - python: 2.7
       os: linux
       compiler: gcc
