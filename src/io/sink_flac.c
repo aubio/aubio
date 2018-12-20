@@ -28,8 +28,8 @@
 
 #ifdef HAVE_FLAC
 
-#include "io/ioutils.h"
 #include "fmat.h"
+#include "io/ioutils.h"
 
 #include <FLAC/metadata.h>
 #include <FLAC/stream_encoder.h>
