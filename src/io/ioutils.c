@@ -111,6 +111,15 @@ aubio_source_pad_multi_output (fmat_t *read_data,
           read_data->length - source_read);
     }
   }
+
+  // destination matrix has more channels than the file
+  // copy channels from the source to extra output channels
+  if (read_data->height > source_channels) {
+    for (i = source_channels; i < read_data->height; i++) {
+      AUBIO_MEMCPY(read_data->data[i], read_data->data[i % source_channels],
+          sizeof(smpl_t) * read_data->length);
+    }
+  }
 }
 
 uint_t
