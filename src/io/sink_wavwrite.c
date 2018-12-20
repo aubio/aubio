@@ -238,9 +238,24 @@ beach:
   return AUBIO_FAIL;
 }
 
+static
+void aubio_sink_wavwrite_write_frames(aubio_sink_wavwrite_t *s, uint_t write)
+{
+  uint_t written_frames = 0;
+
+  written_frames = fwrite(s->scratch_data, 2 * s->channels, write, s->fid);
+
+  if (written_frames != write) {
+    char errorstr[256];
+    AUBIO_STRERROR(errno, errorstr, sizeof(errorstr));
+    AUBIO_WRN("sink_wavwrite: trying to write %d frames to %s, but only %d"
+        " could be written (%s)\n", write, s->path, written_frames, errorstr);
+  }
+  s->total_frames_written += written_frames;
+}
 
 void aubio_sink_wavwrite_do(aubio_sink_wavwrite_t *s, fvec_t * write_data, uint_t write){
-  uint_t c = 0, i = 0, written_frames = 0;
+  uint_t c = 0, i = 0;
   uint_t length = aubio_sink_validate_input_length("sink_wavwrite", s->path,
       s->max_size, write_data->length, write);
 
@@ -249,18 +264,12 @@ void aubio_sink_wavwrite_do(aubio_sink_wavwrite_t *s, fvec_t * write_data, uint_
       s->scratch_data[i * s->channels + c] = HTOLES(FLOAT_TO_SHORT(write_data->data[i]));
     }
   }
-  written_frames = fwrite(s->scratch_data, 2, length * s->channels, s->fid);
 
-  if (written_frames != write) {
-    AUBIO_WRN("sink_wavwrite: trying to write %d frames to %s, "
-        "but only %d could be written\n", write, s->path, written_frames);
-  }
-  s->total_frames_written += written_frames;
-  return;
+  aubio_sink_wavwrite_write_frames(s, length);
 }
 
 void aubio_sink_wavwrite_do_multi(aubio_sink_wavwrite_t *s, fmat_t * write_data, uint_t write){
-  uint_t c = 0, i = 0, written_frames = 0;
+  uint_t c = 0, i = 0;
 
   uint_t channels = aubio_sink_validate_input_channels("sink_wavwrite", s->path,
       s->channels, write_data->height);
@@ -272,14 +281,8 @@ void aubio_sink_wavwrite_do_multi(aubio_sink_wavwrite_t *s, fmat_t * write_data,
       s->scratch_data[i * s->channels + c] = HTOLES(FLOAT_TO_SHORT(write_data->data[c][i]));
     }
   }
-  written_frames = fwrite(s->scratch_data, 2, length * s->channels, s->fid);
 
-  if (written_frames != write * s->channels) {
-    AUBIO_WRN("sink_wavwrite: trying to write %d frames to %s, "
-        "but only %d could be written\n", write, s->path, written_frames / s->channels);
-  }
-  s->total_frames_written += written_frames;
-  return;
+  aubio_sink_wavwrite_write_frames(s, length);
 }
 
 uint_t aubio_sink_wavwrite_close(aubio_sink_wavwrite_t * s) {
