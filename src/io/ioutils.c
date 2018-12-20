@@ -95,23 +95,20 @@ aubio_source_validate_input_channels(const char_t *kind, const char_t *path,
 void
 aubio_source_pad_output (fvec_t *read_data, uint_t source_read)
 {
-  uint_t i = 0;
   if (source_read < read_data->length) {
-    for (i = source_read; i < read_data->length; i++) {
-      read_data->data[i] = 0.;
-    }
+    AUBIO_MEMSET(read_data->data + source_read, 0, read_data->length -
+        source_read);
   }
 }
 
 void
 aubio_source_pad_multi_output (fmat_t *read_data,
     uint_t source_channels, uint_t source_read) {
-  uint_t i, j;
+  uint_t i;
   if (source_read < read_data->length) {
     for (i = 0; i < read_data->height; i++) {
-      for (j = source_read; j < read_data->length; j++) {
-        read_data->data[i][j] = 0.;
-      }
+      AUBIO_MEMSET(read_data->data[i] + source_read, 0,
+          read_data->length - source_read);
     }
   }
 }
