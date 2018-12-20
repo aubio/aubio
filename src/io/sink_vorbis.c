@@ -28,8 +28,8 @@
 
 #ifdef HAVE_VORBISENC
 
-#include "io/ioutils.h"
 #include "fmat.h"
+#include "io/ioutils.h"
 
 #include <vorbis/vorbisenc.h>
 #include <string.h> // strerror
