@@ -525,9 +525,9 @@ void aubio_source_avcodec_do_multi(aubio_source_avcodec_t * s,
   uint_t i,j;
   uint_t end = 0;
   uint_t total_wrote = 0;
-  uint_t length = aubio_source_validate_input_length("source_wavread", s->path,
+  uint_t length = aubio_source_validate_input_length("source_avcodec", s->path,
       s->hop_size, read_data->length);
-  uint_t channels = aubio_source_validate_input_channels("source_wavread",
+  uint_t channels = aubio_source_validate_input_channels("source_avcodec",
       s->path, s->input_channels, read_data->height);
   while (total_wrote < length) {
     end = MIN(s->read_samples - s->read_index, length - total_wrote);
