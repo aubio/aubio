@@ -216,7 +216,7 @@ uint_t aubio_sink_close(aubio_sink_t *s) {
 
 void del_aubio_sink(aubio_sink_t * s) {
   AUBIO_ASSERT(s);
-  if (s->s_del && s->sink)
+  if (s && s->s_del && s->sink)
     s->s_del((void *)s->sink);
   AUBIO_FREE(s);
 }

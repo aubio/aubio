@@ -437,7 +437,7 @@ def configure(ctx):
 
     # check for vorbisenc
     if (ctx.options.enable_vorbis != False):
-        ctx.check_cfg(package = 'vorbisenc',
+        ctx.check_cfg(package = 'vorbisenc vorbis ogg',
                 args = '--cflags --libs',
                 uselib_store = 'VORBISENC',
                 mandatory = ctx.options.enable_vorbis)

@@ -344,7 +344,7 @@ uint_t aubio_source_apple_audio_get_duration(const aubio_source_apple_audio_t * 
     AUBIO_ERROR("source_apple_audio: Failed getting %s duration, "
         "error in ExtAudioFileGetProperty (%s)\n", s->path,
         getPrintableOSStatusError(errorstr, err));
-    return err;
+    return 0;
   }
   return (uint_t)fileLengthFrames;
 }
