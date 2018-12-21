@@ -491,6 +491,12 @@ void aubio_source_avcodec_do(aubio_source_avcodec_t * s, fvec_t * read_data,
   uint_t total_wrote = 0;
   uint_t length = aubio_source_validate_input_length("source_avcodec", s->path,
       s->hop_size, read_data->length);
+  if (!s->avr || !s->avFormatCtx || !s->avCodecCtx) {
+    AUBIO_ERR("source_avcodec: could not read from %s (file was closed)\n",
+        s->path);
+    *read= 0;
+    return;
+  }
   while (total_wrote < length) {
     end = MIN(s->read_samples - s->read_index, length - total_wrote);
     for (i = 0; i < end; i++) {
@@ -529,6 +535,12 @@ void aubio_source_avcodec_do_multi(aubio_source_avcodec_t * s,
       s->hop_size, read_data->length);
   uint_t channels = aubio_source_validate_input_channels("source_avcodec",
       s->path, s->input_channels, read_data->height);
+  if (!s->avr || !s->avFormatCtx || !s->avCodecCtx) {
+    AUBIO_ERR("source_avcodec: could not read from %s (file was closed)\n",
+        s->path);
+    *read= 0;
+    return;
+  }
   while (total_wrote < length) {
     end = MIN(s->read_samples - s->read_index, length - total_wrote);
     for (j = 0; j < channels; j++) {

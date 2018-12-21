@@ -23,22 +23,36 @@ no_sounds_msg = "no test sounds, add some in 'python/tests/sounds/'!"
 
 _debug = False
 
-class Test_aubio_source_test_case(object):
+class Test_aubio_source_test_case(TestCase):
 
-    @parametrize('filename', list_of_sounds)
-    def test_close_file(self, filename):
+    def setUp(self):
+        if not default_test_sound:
+            skipTest(no_sounds_msg)
+
+    def test_close_file(self):
         samplerate = 0 # use native samplerate
         hop_size = 256
-        f = source(filename, samplerate, hop_size)
+        f = source(default_test_sound, samplerate, hop_size)
         f.close()
 
-    @parametrize('filename', list_of_sounds)
-    def test_close_file_twice(self, filename):
+    def test_close_file_twice(self):
         samplerate = 0 # use native samplerate
         hop_size = 256
-        f = source(filename, samplerate, hop_size)
+        f = source(default_test_sound, samplerate, hop_size)
         f.close()
         f.close()
+
+    def test_read_after_close(self):
+        samplerate = 0 # use native samplerate
+        hop_size = 256
+        f = source(default_test_sound, samplerate, hop_size)
+        read, frames = f()
+        f.close()
+        with assert_raises(RuntimeError):
+            read, frames = f()
+        with assert_raises(RuntimeError):
+            read, frames = f.do_multi()
+
 
 class Test_aubio_source_read(object):
 
