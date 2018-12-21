@@ -109,7 +109,8 @@ static void
 Py_filter_del (Py_filter * self)
 {
   Py_XDECREF(self->out);
-  del_aubio_filter (self->o);
+  if (self->o)
+    del_aubio_filter (self->o);
   Py_TYPE(self)->tp_free ((PyObject *) self);
 }
 

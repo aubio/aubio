@@ -174,6 +174,12 @@ void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_data, uin
       s->hop_size, read_data->length);
   sf_count_t read_samples = aubio_sf_read_smpl (s->handle, s->scratch_data,
       s->scratch_size);
+  if (!s->handle) {
+    AUBIO_ERR("source_sndfile: could not read from %s (file was closed)\n",
+        s->path);
+    *read = 0;
+    return;
+  }
 
   uint_t read_length = read_samples / s->input_channels;
 
@@ -219,6 +225,12 @@ void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_dat
       s->path, s->input_channels, read_data->height);
   sf_count_t read_samples = aubio_sf_read_smpl (s->handle, s->scratch_data,
       s->scratch_size);
+  if (!s->handle) {
+    AUBIO_ERR("source_sndfile: could not read from %s (file was closed)\n",
+        s->path);
+    *read = 0;
+    return;
+  }
 
   uint_t read_length = read_samples / s->input_channels;
 

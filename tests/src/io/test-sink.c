@@ -147,5 +147,8 @@ int test_wrong_params(void)
   // delete temp file
   close_temp_sink(sink_path, fd);
 
+  // shouldn't crash on null
+  del_aubio_sink(NULL);
+
   return run_on_default_source_and_sink(main);
 }
