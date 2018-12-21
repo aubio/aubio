@@ -436,6 +436,10 @@ Py_source_do(Py_source * self, PyObject * args)
   /* compute _do function */
   aubio_source_do (self->o, &(self->c_read_to), &read);
 
+  if (PyErr_Occurred() != NULL) {
+    return NULL;
+  }
+
   outputs = PyTuple_New(2);
   PyTuple_SetItem( outputs, 0, self->read_to );
   PyTuple_SetItem( outputs, 1, (PyObject *)PyLong_FromLong(read));
@@ -456,6 +460,10 @@ Py_source_do_multi(Py_source * self, PyObject * args)
   }
   /* compute _do function */
   aubio_source_do_multi (self->o, &(self->c_mread_to), &read);
+
+  if (PyErr_Occurred() != NULL) {
+    return NULL;
+  }
 
   outputs = PyTuple_New(2);
   PyTuple_SetItem( outputs, 0, self->mread_to);
