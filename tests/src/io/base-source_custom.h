@@ -141,6 +141,14 @@ int test_wrong_params(void)
   // test closing the file a second time
   aubio_source_custom_close(s);
 
+  // reading after close fails
+  del_fvec(vec);
+  vec = new_fvec(hop_size);
+  aubio_source_custom_do(s, vec, &read);
+  del_fmat(mat);
+  mat = new_fmat(channels, hop_size);
+  aubio_source_custom_do_multi(s, mat, &read);
+
   del_aubio_source_custom(s);
   del_fmat(mat);
   del_fvec(vec);
