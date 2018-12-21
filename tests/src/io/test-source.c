@@ -141,5 +141,8 @@ int test_wrong_params(void)
   del_fmat(mat);
   del_fvec(vec);
 
+  // shouldn't crash on null
+  del_aubio_source(NULL);
+
   return run_on_default_source(main);
 }
