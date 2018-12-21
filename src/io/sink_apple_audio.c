@@ -143,10 +143,12 @@ uint_t aubio_sink_apple_audio_preset_format(aubio_sink_apple_audio_t *s,
     // only use lossy codec for "aac"
     s->fileType = kAudioFileAIFFType;
   } else {
-    AUBIO_WRN("sink_apple_audio: could not guess format for %s,"
-       " using default (wav)\n", s->path);
     s->fileType = kAudioFileWAVEType;
-    return AUBIO_FAIL;
+    if (fmt && strnlen(fmt, PATH_MAX)) {
+      AUBIO_WRN("sink_apple_audio: could not guess format for %s,"
+         " using default (wav)\n", s->path);
+      return AUBIO_FAIL;
+    }
   }
   return AUBIO_OK;
 }
