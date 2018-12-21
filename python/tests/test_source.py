@@ -40,6 +40,19 @@ class Test_aubio_source_test_case(object):
         f.close()
         f.close()
 
+    @parametrize('filename', [default_test_sound])
+    def test_read_after_close(self, filename):
+        samplerate = 0 # use native samplerate
+        hop_size = 256
+        f = source(filename, samplerate, hop_size)
+        read, frames = f()
+        f.close()
+        with assert_raises(RuntimeError):
+            read, frames = f()
+        with assert_raises(RuntimeError):
+            read, frames = f.do_multi()
+
+
 class Test_aubio_source_read(object):
 
     def read_from_source(self, f):
