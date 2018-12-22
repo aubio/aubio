@@ -62,6 +62,10 @@
 #include <string.h>
 #endif
 
+#ifdef HAVE_ERRNO_H
+#include <errno.h>
+#endif
+
 #ifdef HAVE_LIMITS_H
 #include <limits.h> // for CHAR_BIT, in C99 standard
 #endif
@@ -328,6 +332,18 @@ uint_t aubio_log(sint_t level, const char_t *fmt, ...);
 #define AUBIO_STRERROR(errno,buf,len) strerror_r(errno, buf, len)
 #else
 #define AUBIO_STRERROR(errno,buf,len) strerror_s(buf, len, errno)
+#endif
+
+#ifdef HAVE_C99_VARARGS_MACROS
+#define AUBIO_STRERR(...)            \
+    char errorstr[256]; \
+    AUBIO_STRERROR(errno, errorstr, sizeof(errorstr)); \
+    AUBIO_ERR(__VA_ARGS__)
+#else
+#define AUBIO_STRERR(format, args...)   \
+    char errorstr[256]; \
+    AUBIO_STRERROR(errno, errorstr, sizeof(errorstr)); \
+    AUBIO_ERR(format, ##args)
 #endif
 
 /* handy shortcuts */
