@@ -139,6 +139,7 @@ def configure(ctx):
     ctx.check(header_name='stdio.h')
     ctx.check(header_name='math.h')
     ctx.check(header_name='string.h')
+    ctx.check(header_name='errno.h')
     ctx.check(header_name='limits.h')
     ctx.check(header_name='stdarg.h')
     ctx.check(header_name='getopt.h', mandatory = False)
