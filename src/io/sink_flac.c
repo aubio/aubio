@@ -34,9 +34,6 @@
 #include <FLAC/metadata.h>
 #include <FLAC/stream_encoder.h>
 
-#include <string.h> // strerror
-#include <errno.h> // errno
-
 #define MAX_WRITE_SIZE 4096
 
 // swap host to little endian
@@ -145,7 +142,7 @@ uint_t aubio_sink_flac_open(aubio_sink_flac_t *s)
 
   s->fid = fopen((const char *)s->path, "wb");
   if (!s->fid) {
-    AUBIO_ERR("sink_flac: failed opening %s, %s\n", s->path, strerror(errno));
+    AUBIO_STRERR("sink_flac: Failed opening %s (%s)\n", s->path, errorstr);
     return AUBIO_FAIL;
   }
 
@@ -347,8 +344,7 @@ uint_t aubio_sink_flac_close (aubio_sink_flac_t *s)
   }
 
   if (s->fid && fclose(s->fid)) {
-    AUBIO_ERR("sink_flac: Error closing file %s (%s)\n",
-        s->path, strerror(errno));
+    AUBIO_STRERR("sink_flac: Error closing file %s (%s)\n", s->path, errorstr);
     ret &= AUBIO_FAIL;
   }
   s->fid = NULL;
