@@ -22,9 +22,10 @@
 
 const char_t *aubio_str_get_extension(const char_t *filename)
 {
-  if (!filename) return NULL;
   // find last occurence of dot character
-  const char_t *ext = strrchr(filename, '.');
+  const char_t *ext;
+  if (!filename) return NULL;
+  ext = strrchr(filename, '.');
   if (!ext || ext == filename) return "";
   else return ext + 1;
 }
