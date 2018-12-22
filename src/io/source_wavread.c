@@ -29,7 +29,7 @@
 
 #define AUBIO_WAVREAD_BUFSIZE 1024
 
-#define SHORT_TO_FLOAT(x) (smpl_t)(x * 3.0517578125e-05)
+//#define SHORT_TO_FLOAT(x) (smpl_t)(x * 3.0517578125e-05)
 
 struct _aubio_source_wavread_t {
   uint_t hop_size;
