@@ -119,9 +119,7 @@ uint_t aubio_sink_vorbis_open(aubio_sink_vorbis_t *s)
 
   s->fid = fopen((const char *)s->path, "wb");
   if (!s->fid) {
-    char errorstr[256];
-    AUBIO_STRERROR(errno, errorstr, sizeof(errorstr));
-    AUBIO_ERR("sink_vorbis: Error opening file \'%s\' (%s)\n",
+    AUBIO_STRERR("sink_vorbis: Error opening file \'%s\' (%s)\n",
         s->path, errorstr);
     return AUBIO_FAIL;
   }
@@ -213,9 +211,7 @@ uint_t aubio_sink_vorbis_write_page(aubio_sink_vorbis_t *s) {
   wrote = fwrite(s->og.body, 1, s->og.body_len,     s->fid);
   result &= (wrote == (unsigned)s->og.body_len);
   if (result == 0) {
-    char errorstr[256];
-    AUBIO_STRERROR(errno, errorstr, sizeof(errorstr));
-    AUBIO_ERR("sink_vorbis: failed writing \'%s\' to disk (%s)\n",
+    AUBIO_STRERR("sink_vorbis: failed writing \'%s\' to disk (%s)\n",
         s->path, errorstr);
     return AUBIO_FAIL;
   }
@@ -307,9 +303,7 @@ uint_t aubio_sink_vorbis_close (aubio_sink_vorbis_t *s)
   aubio_sink_vorbis_write(s);
 
   if (s->fid && fclose(s->fid)) {
-    char errorstr[256];
-    AUBIO_STRERROR(errno, errorstr, sizeof(errorstr));
-    AUBIO_ERR("sink_vorbis: Error closing file \'%s\' (%s)\n",
+    AUBIO_STRERR("sink_vorbis: Error closing file \'%s\' (%s)\n",
         s->path, errorstr);
     return AUBIO_FAIL;
   }
