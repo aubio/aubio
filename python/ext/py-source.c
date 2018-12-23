@@ -583,8 +583,8 @@ static PyObject* Pyaubio_source_iter_next(Py_source *self) {
       // short read, return a shorter array
       PyObject *vec = PyTuple_GetItem(done, 0);
       // take a copy to prevent resizing internal arrays
-      PyArrayObject *shortread = PyArray_FROM_OTF(vec, NPY_NOTYPE,
-          NPY_ARRAY_ENSURECOPY);
+      PyArrayObject *shortread = (PyArrayObject*)PyArray_FROM_OTF(vec,
+          NPY_NOTYPE, NPY_ARRAY_ENSURECOPY);
       PyArray_Dims newdims;
       PyObject *reshaped;
       newdims.len = PyArray_NDIM(shortread);
