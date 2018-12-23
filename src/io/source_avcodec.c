@@ -463,9 +463,9 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s,
       (uint8_t **)&output, max_out_samples,
       (const uint8_t **)avFrame->data, in_samples);
 #endif /* HAVE_AVRESAMPLE || HAVE_SWRESAMPLE */
-  if (out_samples <= 0) {
-    AUBIO_WRN("source_avcodec: no sample found while converting frame (%s)\n",
-        s->path);
+  if (out_samples < 0) {
+    AUBIO_WRN("source_avcodec: error while resampling %s (%d)\n",
+        s->path, out_samples);
     goto beach;
   }
 
