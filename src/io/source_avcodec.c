@@ -30,7 +30,6 @@
 #include <libavresample/avresample.h>
 #endif
 #include <libavutil/opt.h>
-#include <stdlib.h>
 
 // determine whether we use libavformat from ffmpeg or from libav
 #define FFMPEG_LIBAVFORMAT (LIBAVFORMAT_VERSION_MICRO > 99 )
@@ -120,9 +119,9 @@ uint_t aubio_source_avcodec_has_network_url(aubio_source_avcodec_t *s) {
 aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path,
     uint_t samplerate, uint_t hop_size) {
   aubio_source_avcodec_t * s = AUBIO_NEW(aubio_source_avcodec_t);
-  AVFormatContext *avFormatCtx = s->avFormatCtx;
-  AVCodecContext *avCodecCtx = s->avCodecCtx;
-  AVFrame *avFrame = s->avFrame;
+  AVFormatContext *avFormatCtx = NULL;
+  AVCodecContext *avCodecCtx = NULL;
+  AVFrame *avFrame = NULL;
   sint_t selected_stream = -1;
 #if FF_API_LAVF_AVCTX
   AVCodecParameters *codecpar;
@@ -473,14 +472,6 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s,
   *read_samples = out_samples;
 
 beach:
-  s->avFormatCtx = avFormatCtx;
-  s->avCodecCtx = avCodecCtx;
-  s->avFrame = avFrame;
-#if defined(HAVE_AVRESAMPLE) || defined(HAVE_SWRESAMPLE)
-  s->avr = avr;
-#endif /* HAVE_AVRESAMPLE || HAVE_SWRESAMPLE */
-  s->output = output;
-
   av_packet_unref(&avPacket);
 }
 
