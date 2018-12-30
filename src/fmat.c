@@ -23,7 +23,7 @@
 
 fmat_t * new_fmat (uint_t height, uint_t length) {
   fmat_t * s;
-  uint_t i,j;
+  uint_t i;
   if ((sint_t)length <= 0 || (sint_t)height <= 0 ) {
     return NULL;
   }
@@ -31,21 +31,19 @@ fmat_t * new_fmat (uint_t height, uint_t length) {
   s->height = height;
   s->length = length;
   s->data = AUBIO_ARRAY(smpl_t*,s->height);
-  for (i=0; i< s->height; i++) {
-    s->data[i] = AUBIO_ARRAY(smpl_t, s->length);
-    for (j=0; j< s->length; j++) {
-      s->data[i][j]=0.;
-    }
+  s->data[0] = AUBIO_ARRAY(smpl_t, s->length * s->height);
+  for (i=1; i< s->height; i++) {
+    s->data[i] = s->data[0] + i * s->length;
   }
   return s;
 }
 
 void del_fmat (fmat_t *s) {
-  uint_t i;
-  for (i=0; i<s->height; i++) {
-    AUBIO_FREE(s->data[i]);
-  }
-  AUBIO_FREE(s->data);
+  AUBIO_ASSERT(s);
+  if (s->data[0])
+    AUBIO_FREE(s->data[0]);
+  if (s->data)
+    AUBIO_FREE(s->data);
   AUBIO_FREE(s);
 }
 
