@@ -619,10 +619,11 @@ uint_t aubio_source_avcodec_close(aubio_source_avcodec_t * s) {
   if (s->avr != NULL) {
 #ifdef HAVE_AVRESAMPLE
     avresample_close( s->avr );
+    av_free ( s->avr );
 #elif defined(HAVE_SWRESAMPLE)
     swr_close ( s->avr );
+    swr_free ( &s->avr );
 #endif
-    av_free ( s->avr );
   }
   s->avr = NULL;
   if (s->avCodecCtx != NULL) {
