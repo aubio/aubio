@@ -409,4 +409,7 @@ uint_t aubio_log(sint_t level, const char_t *fmt, ...);
 #define AUBIO_ASSERT(x)
 #endif /* DEBUG */
 
+// goto to failure if condition x is not true
+#define AUBIO_GOTO_FAILURE(x) if (!(x)) goto failure
+
 #endif /* AUBIO_PRIV_H */
