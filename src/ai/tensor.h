@@ -26,11 +26,10 @@ extern "C" {
 #endif
 
 typedef struct {
-  uint_t ndim;
-  uint_t shape[8];
-  smpl_t **data;
-  uint_t n_items;
-  uint_t items_per_row;
+  uint_t ndim;            //< number of dimensions
+  uint_t shape[8];        //< dimensions array
+  smpl_t **data;          //< buffer of values
+  uint_t size;            //< total number of elements
 } aubio_tensor_t;
 
 aubio_tensor_t *new_aubio_tensor(uint_t ndim, uint_t *shape);

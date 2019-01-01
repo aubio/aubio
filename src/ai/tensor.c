@@ -13,18 +13,18 @@ aubio_tensor_t *new_aubio_tensor(uint_t ndim, uint_t *shape)
   }
 
   c->ndim = ndim;
-  c->items_per_row = 1;
+  uint_t items_per_row = 1;
   //c->shape = AUBIO_ARRAY(uint_t, ndim);
   c->shape[0] = shape[0];
   for (i = 1; i < ndim; i++) {
     c->shape[i] = shape[i];
-    c->items_per_row *= shape[i];
+    items_per_row *= shape[i];
   }
-  c->n_items = c->items_per_row * shape[0];
+  c->size = items_per_row * shape[0];
   c->data = AUBIO_ARRAY(smpl_t*, shape[0]);
-  c->data[0] = AUBIO_ARRAY(smpl_t, c->n_items);
+  c->data[0] = AUBIO_ARRAY(smpl_t, c->size);
   for (i = 1; i < c->shape[0]; i++) {
-    c->data[i] = c->data[0] + i * c->items_per_row;
+    c->data[i] = c->data[0] + i * items_per_row;
   }
 
   return c;
@@ -88,7 +88,7 @@ smpl_t aubio_tensor_max(aubio_tensor_t *t)
 {
   uint_t i;
   smpl_t max = -1000000;
-  for (i = 0; i < t->n_items; i++) {
+  for (i = 0; i < t->size; i++) {
     max = MAX(t->data[0][i], max);
   }
   return max;
