@@ -116,17 +116,17 @@ uint_t aubio_conv1d_get_output_shape(aubio_conv1d_t *c,
   switch (c->padding_mode) {
     case PAD_SAME:
       // compute output shape
-      output_shape[0] = (uint_t)CEIL(input_tensor->dims[0]
+      output_shape[0] = (uint_t)CEIL(input_tensor->shape[0]
           / (smpl_t)c->stride_shape);
 
       uint_t padding_shape;  // total amount of padding
       padding_shape = (output_shape[0] - 1) * c->stride_shape +
-        c->kernel_shape - input_tensor->dims[0];
+        c->kernel_shape - input_tensor->shape[0];
 
       padding_start = FLOOR(padding_shape / 2);
       break;
     case PAD_VALID:
-      output_shape[0] = (input_tensor->dims[0] - c->kernel_shape + 1)
+      output_shape[0] = (input_tensor->shape[0] - c->kernel_shape + 1)
         / c->stride_shape;
 
       padding_start = 0;
@@ -138,15 +138,15 @@ uint_t aubio_conv1d_get_output_shape(aubio_conv1d_t *c,
       return AUBIO_FAIL;
   }
 
-  uint_t kernel_dims[3];
-  kernel_dims[0] = c->kernel_shape; // filter length
-  kernel_dims[1] = input_tensor->dims[1]; // channels
-  kernel_dims[2] = c->n_filters; // outputs
+  uint_t kernel_shape[3];
+  kernel_shape[0] = c->kernel_shape; // filter length
+  kernel_shape[1] = input_tensor->shape[1]; // channels
+  kernel_shape[2] = c->n_filters; // outputs
 
   if (c->kernel) del_aubio_tensor(c->kernel);
   if (c->bias) del_fvec(c->bias);
 
-  c->kernel = new_aubio_tensor(3, kernel_dims);
+  c->kernel = new_aubio_tensor(3, kernel_shape);
   if (!c->kernel) return AUBIO_FAIL;
   c->bias = new_fvec(c->n_filters);
 
@@ -169,13 +169,13 @@ void aubio_conv1d_debug(aubio_conv1d_t *c, aubio_tensor_t *input_tensor)
 {
   // print some info
   AUBIO_ASSERT(c);
-  uint_t n_params = (c->kernel->dims[0] * c->kernel->dims[2] + 1)
-    * c->kernel->dims[1] * c->kernel->dims[3];
+  uint_t n_params = (c->kernel->shape[0] * c->kernel->shape[2] + 1)
+    * c->kernel->shape[1] * c->kernel->shape[3];
   AUBIO_DBG("conv1d: input (%d, %d) ¤ conv1d (%d, %d, %d)"
       " : (%d, %d)"
       " (%d params, stride (%d), pad_start [%d])\n",
-    input_tensor->dims[0], input_tensor->dims[1],
-    c->kernel->dims[0], c->kernel->dims[1], c->kernel->dims[2],
+    input_tensor->shape[0], input_tensor->shape[1],
+    c->kernel->shape[0], c->kernel->shape[1], c->kernel->shape[2],
     c->output_shape[0], c->output_shape[1],
     n_params,
     c->stride_shape,
@@ -195,13 +195,13 @@ uint_t aubio_conv1d_check_output_shape(aubio_conv1d_t *c,
   }
 
   // check we have as many filters as expected activation outputs
-  if (activations->dims[1] != c->n_filters) return AUBIO_FAIL;
-  if (activations->dims[1] != c->kernel->dims[2]) return AUBIO_FAIL;
-  if (input_tensor->dims[1] != c->kernel->dims[1]) return AUBIO_FAIL;
+  if (activations->shape[1] != c->n_filters) return AUBIO_FAIL;
+  if (activations->shape[1] != c->kernel->shape[2]) return AUBIO_FAIL;
+  if (input_tensor->shape[1] != c->kernel->shape[1]) return AUBIO_FAIL;
 
   // check tensor activations has the expected sizes
-  if (c->output_shape[0] != activations->dims[0]) return AUBIO_FAIL;
-  if (c->output_shape[1] != activations->dims[1]) return AUBIO_FAIL;
+  if (c->output_shape[0] != activations->shape[0]) return AUBIO_FAIL;
+  if (c->output_shape[1] != activations->shape[1]) return AUBIO_FAIL;
   return AUBIO_OK;
 }
 
@@ -222,27 +222,27 @@ void aubio_conv1d_do(aubio_conv1d_t *c, aubio_tensor_t *input_tensor,
   }
 
   // for each kernel filter k
-  for (i = 0; i < activations->dims[1]; i++) {
+  for (i = 0; i < activations->shape[1]; i++) {
     // get bias
     bias = c->bias->data[i];
     stride_a = 0; // k * c->stride_shape
     // for each output
-    for (j = 0; j < activations->dims[0]; j++) {
+    for (j = 0; j < activations->shape[0]; j++) {
       // reset output
       acc = 0;
       // compute convolution for one kernel
       for (a = 0; a < c->kernel_shape; a++) {
         x = stride_a + a - c->padding_start;
-        if ((x > -1) && (x < (sint_t)input_tensor->dims[0])) {
+        if ((x > -1) && (x < (sint_t)input_tensor->shape[0])) {
           kk = 0;
           // for each input channel
-          for (k = 0; k < input_tensor->dims[1]; k++) {
+          for (k = 0; k < input_tensor->shape[1]; k++) {
             // get kernel weight
             w = c->kernel->data[a][kk + i];
             // get input sample
             s = input_tensor->data[x][k];
             acc += w * s;
-            kk += c->kernel->dims[2];
+            kk += c->kernel->shape[2];
           }
         }
       }
