@@ -59,11 +59,11 @@ void aubio_maxpool1d_debug(aubio_maxpool1d_t *c, aubio_tensor_t *input_tensor)
 {
   AUBIO_DBG("maxpool1d: input (%d, %d) ¤ maxpool1d (pool_size = (%d)) ->"
       " (%d, %d) (no params)\n",
-      input_tensor->dims[0],
-      input_tensor->dims[1],
+      input_tensor->shape[0],
+      input_tensor->shape[1],
       c->pool_size,
-      input_tensor->dims[0] / c->pool_size,
-      input_tensor->dims[1]);
+      input_tensor->shape[0] / c->pool_size,
+      input_tensor->shape[1]);
 }
 
 uint_t aubio_maxpool1d_get_output_shape(aubio_maxpool1d_t *c,
@@ -72,8 +72,8 @@ uint_t aubio_maxpool1d_get_output_shape(aubio_maxpool1d_t *c,
   AUBIO_ASSERT(c);
   AUBIO_ASSERT(shape && sizeof(shape) == 2*sizeof(uint_t));
   AUBIO_ASSERT(input);
-  shape[0] = input->dims[0] / c->pool_size;
-  shape[1] = input->dims[1];
+  shape[0] = input->shape[0] / c->pool_size;
+  shape[1] = input->shape[1];
 
   aubio_maxpool1d_debug(c, input);
 
@@ -86,8 +86,10 @@ void aubio_maxpool1d_do(aubio_maxpool1d_t *c, aubio_tensor_t *input_tensor,
   uint_t i, j, a;
   AUBIO_ASSERT(c && input_tensor && output_tensor);
 
-  for (j = 0; j < output_tensor->dims[1]; j++) {
-    for (i = 0; i < output_tensor->dims[0]; i++) {
+  //aubio_maxpool1d_debug(c, input_tensor);
+
+  for (j = 0; j < output_tensor->shape[1]; j++) {
+    for (i = 0; i < output_tensor->shape[0]; i++) {
       smpl_t m = -FLT_MAX;
       for (a = 0; a < c->pool_size; a++) {
         m = MAX(m, input_tensor->data[i * c->pool_size + a][j]);
