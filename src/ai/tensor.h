@@ -26,14 +26,14 @@ extern "C" {
 #endif
 
 typedef struct {
-  uint_t n_dims;
-  uint_t dims[8];
+  uint_t ndim;
+  uint_t shape[8];
   smpl_t **data;
   uint_t n_items;
   uint_t items_per_row;
 } aubio_tensor_t;
 
-aubio_tensor_t *new_aubio_tensor(uint_t n_dims, uint_t *dims);
+aubio_tensor_t *new_aubio_tensor(uint_t ndim, uint_t *shape);
 
 void del_aubio_tensor(aubio_tensor_t *c);
 
@@ -47,10 +47,10 @@ smpl_t aubio_tensor_max(aubio_tensor_t *t);
 
 #define AUBIO_ASSERT_EQUAL_SHAPE(t1, t2) { \
     AUBIO_ASSERT(t1 && t2); \
-    AUBIO_ASSERT(t1->n_dims == t2->n_dims); \
+    AUBIO_ASSERT(t1->ndim == t2->ndim); \
     uint_t nn; \
-    for (nn = 0; nn < t1->n_dims; nn++) \
-      AUBIO_ASSERT(t1->dims[nn] == t2->dims[nn]); \
+    for (nn = 0; nn < t1->ndim; nn++) \
+      AUBIO_ASSERT(t1->shape[nn] == t2->shape[nn]); \
     }
 
 #ifdef __cplusplus

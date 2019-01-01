@@ -2,28 +2,28 @@
 #include "fmat.h"
 #include "tensor.h"
 
-aubio_tensor_t *new_aubio_tensor(uint_t n_dims, uint_t *dims)
+aubio_tensor_t *new_aubio_tensor(uint_t ndim, uint_t *shape)
 {
   aubio_tensor_t *c = AUBIO_NEW(aubio_tensor_t);
   uint_t i;
 
-  if ((sint_t)n_dims <= 0) goto failure;
-  for (i = 0; i < n_dims; i++) {
-    if ((sint_t)dims[i] <= 0) goto failure;
+  if ((sint_t)ndim <= 0) goto failure;
+  for (i = 0; i < ndim; i++) {
+    if ((sint_t)shape[i] <= 0) goto failure;
   }
 
-  c->n_dims = n_dims;
+  c->ndim = ndim;
   c->items_per_row = 1;
-  //c->dims = AUBIO_ARRAY(uint_t, n_dims);
-  c->dims[0] = dims[0];
-  for (i = 1; i < n_dims; i++) {
-    c->dims[i] = dims[i];
-    c->items_per_row *= dims[i];
+  //c->shape = AUBIO_ARRAY(uint_t, ndim);
+  c->shape[0] = shape[0];
+  for (i = 1; i < ndim; i++) {
+    c->shape[i] = shape[i];
+    c->items_per_row *= shape[i];
   }
-  c->n_items = c->items_per_row * dims[0];
-  c->data = AUBIO_ARRAY(smpl_t*, dims[0]);
+  c->n_items = c->items_per_row * shape[0];
+  c->data = AUBIO_ARRAY(smpl_t*, shape[0]);
   c->data[0] = AUBIO_ARRAY(smpl_t, c->n_items);
-  for (i = 1; i < c->dims[0]; i++) {
+  for (i = 1; i < c->shape[0]; i++) {
     c->data[i] = c->data[0] + i * c->items_per_row;
   }
 
@@ -43,33 +43,33 @@ void del_aubio_tensor(aubio_tensor_t *c)
     }
     AUBIO_FREE(c->data);
   }
-  //if (c->dims)
-  //  AUBIO_FREE(c->dims);
+  //if (c->shape)
+  //  AUBIO_FREE(c->shape);
   AUBIO_FREE(c);
 }
 
 uint_t aubio_tensor_as_fvec(aubio_tensor_t *c, fvec_t *o) {
-  if (c->n_dims  != 1) return AUBIO_FAIL;
-  if (c->dims[0] <= 0) return AUBIO_FAIL;
-  o->length = c->dims[0];
+  if (c->ndim  != 1) return AUBIO_FAIL;
+  if (c->shape[0] <= 0) return AUBIO_FAIL;
+  o->length = c->shape[0];
   o->data = c->data[0];
   return AUBIO_OK;
 }
 
 uint_t aubio_fvec_as_tensor(fvec_t *o, aubio_tensor_t *c) {
   if (o == NULL) return AUBIO_FAIL;
-  c->n_dims = 1;
-  c->dims[0] = o->length;
+  c->ndim = 1;
+  c->shape[0] = o->length;
   c->data = &o->data;
   return AUBIO_OK;
 }
 
 uint_t aubio_tensor_as_fmat(aubio_tensor_t *c, fmat_t *o) {
-  if (c->n_dims  != 2) return AUBIO_FAIL;
-  if (c->dims[0] <= 0) return AUBIO_FAIL;
-  if (c->dims[1] <= 0) return AUBIO_FAIL;
-  o->height = c->dims[0];
-  o->length = c->dims[1];
+  if (c->ndim  != 2) return AUBIO_FAIL;
+  if (c->shape[0] <= 0) return AUBIO_FAIL;
+  if (c->shape[1] <= 0) return AUBIO_FAIL;
+  o->height = c->shape[0];
+  o->length = c->shape[1];
   o->data = c->data;
   return AUBIO_OK;
 }
