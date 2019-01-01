@@ -77,9 +77,9 @@ uint_t aubio_tensor_as_fmat(aubio_tensor_t *c, fmat_t *o) {
 uint_t aubio_fmat_as_tensor(fmat_t *o, aubio_tensor_t *c) {
   if (o == NULL) return AUBIO_FAIL;
   if (c == NULL) return AUBIO_FAIL;
-  c->n_dims = 2;
-  c->dims[0] = o->height;
-  c->dims[1] = o->length;
+  c->ndim = 2;
+  c->shape[0] = o->height;
+  c->shape[1] = o->length;
   c->data = o->data;
   return AUBIO_OK;
 }
