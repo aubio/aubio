@@ -63,13 +63,11 @@ uint_t aubio_tensor_get_subtensor(aubio_tensor_t *t, uint_t i,
 
 smpl_t aubio_tensor_max(aubio_tensor_t *t);
 
-#define AUBIO_ASSERT_EQUAL_SHAPE(t1, t2) { \
-    AUBIO_ASSERT(t1 && t2); \
-    AUBIO_ASSERT(t1->ndim == t2->ndim); \
-    uint_t nn; \
-    for (nn = 0; nn < t1->ndim; nn++) \
-      AUBIO_ASSERT(t1->shape[nn] == t2->shape[nn]); \
-    }
+uint_t aubio_tensor_have_same_size(aubio_tensor_t *t, aubio_tensor_t *s);
+
+void aubio_tensor_print(aubio_tensor_t *t);
+
+const char_t *aubio_tensor_get_shape_string(aubio_tensor_t *t);
 
 #ifdef __cplusplus
 }
