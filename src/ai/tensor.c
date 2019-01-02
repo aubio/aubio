@@ -95,3 +95,18 @@ smpl_t aubio_tensor_max(aubio_tensor_t *t)
   }
   return max;
 }
+
+const char_t *aubio_tensor_get_shape_string(aubio_tensor_t *t) {
+  uint_t i;
+  if (!t) return NULL;
+  size_t offset = 2;
+  static char_t shape_str[STRN_LENGTH];
+  char_t shape_str_previous[STRN_LENGTH] = "(";
+  for (i = 0; i < t->ndim; i++) {
+    int len = snprintf(shape_str, STRN_LENGTH, "%s%d%s",
+        shape_str_previous, t->shape[i], (i == t->ndim - 1) ? "" : ", ");
+    strncpy(shape_str_previous, shape_str, len);
+  }
+  snprintf(shape_str, strnlen(shape_str, STRN_LENGTH - offset - 1) + offset,
+      "%s)", shape_str_previous);
+}
