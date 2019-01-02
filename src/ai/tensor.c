@@ -110,6 +110,21 @@ uint_t aubio_tensor_get_subtensor(aubio_tensor_t *t, uint_t i,
   return AUBIO_OK;
 }
 
+uint_t aubio_tensor_have_same_size(aubio_tensor_t *t, aubio_tensor_t *s)
+{
+  uint_t n;
+  if (!t || !s) return 0;
+  if (t->ndim != s->ndim) return 0;
+  if (t->size != s->size) return 0;
+  n = t->ndim;
+  while (n--) {
+    if (t->shape[n] != s->shape[n]) {
+      return 0;
+    }
+  }
+  return 1;
+}
+
 smpl_t aubio_tensor_max(aubio_tensor_t *t)
 {
   uint_t i;
