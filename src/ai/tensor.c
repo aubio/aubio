@@ -103,4 +103,5 @@ const char_t *aubio_tensor_get_shape_string(aubio_tensor_t *t) {
   }
   snprintf(shape_str, strnlen(shape_str, STRN_LENGTH - offset - 1) + offset,
       "%s)", shape_str_previous);
+  return shape_str;
 }
