@@ -61,6 +61,7 @@ uint_t aubio_fvec_as_tensor(fvec_t *o, aubio_tensor_t *c) {
   c->ndim = 1;
   c->shape[0] = o->length;
   c->data = &o->data;
+  c->size = o->length;
   return AUBIO_OK;
 }
 
@@ -80,6 +81,7 @@ uint_t aubio_fmat_as_tensor(fmat_t *o, aubio_tensor_t *c) {
   c->ndim = 2;
   c->shape[0] = o->height;
   c->shape[1] = o->length;
+  c->size = o->height * o->length;
   c->data = o->data;
   return AUBIO_OK;
 }
