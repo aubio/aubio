@@ -45,40 +45,38 @@ void del_aubio_tensor(aubio_tensor_t *c)
 }
 
 uint_t aubio_tensor_as_fvec(aubio_tensor_t *c, fvec_t *o) {
-  if (c->ndim  != 1) return AUBIO_FAIL;
-  if (c->shape[0] <= 0) return AUBIO_FAIL;
-  o->length = c->shape[0];
+  if (!c || !o) return AUBIO_FAIL;
+  o->length = c->size;
   o->data = c->data[0];
   return AUBIO_OK;
 }
 
 uint_t aubio_fvec_as_tensor(fvec_t *o, aubio_tensor_t *c) {
-  if (o == NULL) return AUBIO_FAIL;
+  if (!o || !c) return AUBIO_FAIL;
   c->ndim = 1;
   c->shape[0] = o->length;
   c->data = &o->data;
+  c->buffer = o->data;
   c->size = o->length;
   return AUBIO_OK;
 }
 
 uint_t aubio_tensor_as_fmat(aubio_tensor_t *c, fmat_t *o) {
-  if (c->ndim  != 2) return AUBIO_FAIL;
-  if (c->shape[0] <= 0) return AUBIO_FAIL;
-  if (c->shape[1] <= 0) return AUBIO_FAIL;
+  if (!c || !o) return AUBIO_FAIL;
   o->height = c->shape[0];
-  o->length = c->shape[1];
+  o->length = c->size / c->shape[0];
   o->data = c->data;
   return AUBIO_OK;
 }
 
 uint_t aubio_fmat_as_tensor(fmat_t *o, aubio_tensor_t *c) {
-  if (o == NULL) return AUBIO_FAIL;
-  if (c == NULL) return AUBIO_FAIL;
+  if (!o || !c) return AUBIO_FAIL;
   c->ndim = 2;
   c->shape[0] = o->height;
   c->shape[1] = o->length;
   c->size = o->height * o->length;
   c->data = o->data;
+  c->buffer = o->data[0];
   return AUBIO_OK;
 }
 
