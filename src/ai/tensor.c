@@ -80,6 +80,36 @@ uint_t aubio_fmat_as_tensor(fmat_t *o, aubio_tensor_t *c) {
   return AUBIO_OK;
 }
 
+uint_t aubio_tensor_get_subtensor(aubio_tensor_t *t, uint_t i,
+    aubio_tensor_t *st)
+{
+  uint_t j;
+  if (!t || !st) return AUBIO_FAIL;
+  if (i >= t->shape[0]) {
+    AUBIO_ERR("tensor: index %d out of range, only %d subtensors\n",
+        i, t->shape[0]);
+    return AUBIO_FAIL;
+  }
+  if(t->ndim > 1) {
+    st->ndim = t->ndim - 1;
+    for (j = 0; j < st->ndim; j++) {
+      st->shape[j] = t->shape[j + 1];
+    }
+    for (j = st->ndim; j < AUBIO_TENSOR_MAXDIM; j++) {
+      st->shape[j] = 0;
+    }
+    st->size = t->size / t->shape[0];
+  } else {
+    st->ndim = 1;
+    st->shape[0] = 1;
+    st->size = 1;
+  }
+  // st was allocated on the stack, row indices are lost
+  st->data = NULL;
+  st->buffer = &t->buffer[0] + st->size * i;
+  return AUBIO_OK;
+}
+
 smpl_t aubio_tensor_max(aubio_tensor_t *t)
 {
   uint_t i;

@@ -58,6 +58,9 @@ uint_t aubio_fvec_as_tensor(fvec_t *o, aubio_tensor_t *c);
 uint_t aubio_tensor_as_fmat(aubio_tensor_t *c, fmat_t *o);
 uint_t aubio_fmat_as_tensor(fmat_t *o, aubio_tensor_t *c);
 
+uint_t aubio_tensor_get_subtensor(aubio_tensor_t *t, uint_t i,
+        aubio_tensor_t *st);
+
 smpl_t aubio_tensor_max(aubio_tensor_t *t);
 
 #define AUBIO_ASSERT_EQUAL_SHAPE(t1, t2) { \
