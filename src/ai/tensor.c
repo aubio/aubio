@@ -83,9 +83,9 @@ uint_t aubio_fmat_as_tensor(fmat_t *o, aubio_tensor_t *c) {
 smpl_t aubio_tensor_max(aubio_tensor_t *t)
 {
   uint_t i;
-  smpl_t max = -1000000;
+  smpl_t max = t->buffer[0];
   for (i = 0; i < t->size; i++) {
-    max = MAX(t->data[0][i], max);
+    max = MAX(t->buffer[i], max);
   }
   return max;
 }
