@@ -2,6 +2,13 @@
 #include "fmat.h"
 #include "tensor.h"
 
+#define STRN_LENGTH 40
+#if !HAVE_AUBIO_DOUBLE
+#define AUBIO_SMPL_TFMT "% 9.4f"
+#else
+#define AUBIO_SMPL_TFMT "% 9.4lf"
+#endif /* HAVE_AUBIO_DOUBLE */
+
 aubio_tensor_t *new_aubio_tensor(uint_t ndim, uint_t *shape)
 {
   aubio_tensor_t *c = AUBIO_NEW(aubio_tensor_t);
@@ -149,4 +156,30 @@ const char_t *aubio_tensor_get_shape_string(aubio_tensor_t *t) {
   snprintf(shape_str, strnlen(shape_str, STRN_LENGTH - offset - 1) + offset,
       "%s)", shape_str_previous);
   return shape_str;
+}
+
+static void aubio_tensor_print_subtensor(aubio_tensor_t *t, uint_t depth)
+{
+  uint_t i;
+  AUBIO_MSG("[");
+  for (i = 0; i < t->shape[0]; i ++) {
+    AUBIO_MSG("%*s", i == 0 ? 0 : depth + 1, i == 0 ? "" : " ");
+    if (t->ndim == 1) {
+      AUBIO_MSG(AUBIO_SMPL_TFMT, t->buffer[i]);
+    } else {
+      aubio_tensor_t st;
+      aubio_tensor_get_subtensor(t, i, &st);
+      aubio_tensor_print_subtensor(&st, depth + 1); // recursive call
+    }
+    AUBIO_MSG("%s%s", (i < t->shape[0] - 1) ? "," : "",
+        t->ndim == 1 ? " " : ((i < t->shape[0] - 1) ? "\n" : ""));
+  }
+  AUBIO_MSG("]");
+}
+
+void aubio_tensor_print(aubio_tensor_t *t)
+{
+  AUBIO_MSG("tensor of shape %s\n", aubio_tensor_get_shape_string(t));
+  aubio_tensor_print_subtensor(t, 0);
+  AUBIO_MSG("\n");
 }
