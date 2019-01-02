@@ -25,11 +25,27 @@
 extern "C" {
 #endif
 
-typedef struct {
-  uint_t ndim;            //< number of dimensions
-  uint_t shape[8];        //< dimensions array
-  smpl_t **data;          //< buffer of values
-  uint_t size;            //< total number of elements
+/** \file
+
+  Tensor for real-valued data.
+
+*/
+
+#define AUBIO_TENSOR_MAXDIM 10
+
+/** Tensor for real-valued data
+
+  This object holds a tensor of real-valued data, ::smpl_t, with up to
+  AUBIO_TENSOR_MAXDIM dimentsions.
+
+*/
+typedef struct
+{
+  uint_t ndim;     /**< number of dimensions */
+  uint_t shape[AUBIO_TENSOR_MAXDIM]; /**< dimensions array */
+  uint_t size;     /**< total number of elements */
+  smpl_t *buffer;  /**< buffer of values */
+  smpl_t **data;   /**< pointer to rows, or NULL when subtensor */
 } aubio_tensor_t;
 
 aubio_tensor_t *new_aubio_tensor(uint_t ndim, uint_t *shape);
