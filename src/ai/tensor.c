@@ -5,6 +5,7 @@
 aubio_tensor_t *new_aubio_tensor(uint_t ndim, uint_t *shape)
 {
   aubio_tensor_t *c = AUBIO_NEW(aubio_tensor_t);
+  uint_t items_per_row = 1;
   uint_t i;
 
   if ((sint_t)ndim <= 0) goto failure;
@@ -13,18 +14,16 @@ aubio_tensor_t *new_aubio_tensor(uint_t ndim, uint_t *shape)
   }
 
   c->ndim = ndim;
-  uint_t items_per_row = 1;
-  //c->shape = AUBIO_ARRAY(uint_t, ndim);
   c->shape[0] = shape[0];
   for (i = 1; i < ndim; i++) {
     c->shape[i] = shape[i];
     items_per_row *= shape[i];
   }
   c->size = items_per_row * shape[0];
+  c->buffer = AUBIO_ARRAY(smpl_t, c->size);
   c->data = AUBIO_ARRAY(smpl_t*, shape[0]);
-  c->data[0] = AUBIO_ARRAY(smpl_t, c->size);
-  for (i = 1; i < c->shape[0]; i++) {
-    c->data[i] = c->data[0] + i * items_per_row;
+  for (i = 0; i < c->shape[0]; i++) {
+    c->data[i] = c->buffer + i * items_per_row;
   }
 
   return c;
@@ -36,15 +35,12 @@ failure:
 
 void del_aubio_tensor(aubio_tensor_t *c)
 {
-  AUBIO_ASSERT(c);
   if (c->data) {
     if (c->data[0]) {
       AUBIO_FREE(c->data[0]);
     }
     AUBIO_FREE(c->data);
   }
-  //if (c->shape)
-  //  AUBIO_FREE(c->shape);
   AUBIO_FREE(c);
 }
 
