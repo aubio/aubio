@@ -148,6 +148,9 @@ void aubio_tensor_print(aubio_tensor_t *t);
 */
 const char_t *aubio_tensor_get_shape_string(aubio_tensor_t *t);
 
+void aubio_tensor_matmul(aubio_tensor_t *a, aubio_tensor_t *b,
+    aubio_tensor_t *c);
+
 #ifdef __cplusplus
 }
 #endif
