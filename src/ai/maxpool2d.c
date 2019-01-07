@@ -101,11 +101,14 @@ void aubio_maxpool2d_do(aubio_maxpool2d_t *c, aubio_tensor_t *input_tensor,
     {
       for (k = 0; k < output_tensor->shape[2]; k++)
       {
-        smpl_t m = -10000.;
+        uint_t stride_i = i * c->pool_size[0];
+        uint_t stride_j = j * c->pool_size[1];
+        smpl_t m = input_tensor->data[stride_i][stride_j
+          * input_tensor->shape[2] + k];
         for (a = 0; a < c->pool_size[0]; a++) {
           for (b = 0; b < c->pool_size[1]; b++) {
-            uint_t idx = (j * c->pool_size[1] + b) * input_tensor->shape[2] + k;
-            m = MAX(m, input_tensor->data[i * c->pool_size[0] + a][idx]);
+            uint_t idx = (stride_j + b) * input_tensor->shape[2] + k;
+            m = MAX(m, input_tensor->data[stride_i + a][idx]);
           }
         }
         output_tensor->data[i][j * output_tensor->shape[2] + k] = m;
