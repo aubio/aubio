@@ -143,6 +143,16 @@ void fvec_ones(fvec_t *s);
 */
 void fvec_rev(fvec_t *s);
 
+/** add a vector b to vector a, modifying a
+
+  \param a  input vector to add b to
+  \param b  input vector of the values to be added to a
+
+  Upon return, he content of a[i] will be set to a[i] + b[i].
+
+*/
+void fvec_vecadd(fvec_t *a, const fvec_t *b);
+
 /** apply weight to vector
 
   If the weight vector is longer than s, only the first elements are used. If

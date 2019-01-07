@@ -98,6 +98,14 @@ void fvec_rev(fvec_t *s) {
   }
 }
 
+void fvec_vecadd(fvec_t *s, const fvec_t *bias) {
+  uint_t j;
+  uint_t length = MIN(s->length, bias->length);
+  for (j = 0; j < length; j++) {
+    s->data[j] += bias->data[j];
+  }
+}
+
 void fvec_weight(fvec_t *s, const fvec_t *weight) {
   uint_t length = MIN(s->length, weight->length);
 #if defined(HAVE_INTEL_IPP)
