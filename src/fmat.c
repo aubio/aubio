@@ -153,31 +153,39 @@ void fmat_copy(const fmat_t *s, fmat_t *t) {
 }
 
 void fmat_vecmul(const fmat_t *s, const fvec_t *scale, fvec_t *output) {
-  uint_t k;
-#if 0
-  assert(s->height == output->length);
-  assert(s->length == scale->length);
-#endif
 #if !defined(HAVE_ACCELERATE) && !defined(HAVE_BLAS)
-  uint_t j;
+  uint_t j, k;
+  AUBIO_ASSERT(s->height == output->length);
+  AUBIO_ASSERT(s->length == scale->length);
   fvec_zeros(output);
   for (j = 0; j < s->length; j++) {
     for (k = 0; k < s->height; k++) {
-      output->data[k] += scale->data[j]
-          * s->data[k][j];
+      output->data[k] += scale->data[j] * s->data[k][j];
     }
   }
 #elif defined(HAVE_BLAS)
+#if 0
   for (k = 0; k < s->height; k++) {
     output->data[k] = aubio_cblas_dot( s->length, scale->data, 1, s->data[k], 1);
   }
+#else
+  aubio_cblas__gemv(CblasColMajor, CblasTrans,
+      s->length, s->height, 1.,
+      s->data[0], s->length,
+      scale->data, 1, 0.,
+      output->data, 1);
+#endif
 #elif defined(HAVE_ACCELERATE)
 #if 0
   // seems slower and less precise (and dangerous?)
   vDSP_mmul (s->data[0], 1, scale->data, 1, output->data, 1, s->height, 1, s->length);
 #else
+  uint_t k;
   for (k = 0; k < s->height; k++) {
     aubio_vDSP_dotpr( scale->data, 1, s->data[k], 1, &(output->data[k]), s->length);
+  }
+#endif
+#endif
   }
 #endif
 #endif

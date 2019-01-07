@@ -133,6 +133,7 @@
 #define aubio_cblas_copy      cblas_scopy
 #define aubio_cblas_swap      cblas_sswap
 #define aubio_cblas_dot       cblas_sdot
+#define aubio_cblas__gemv     cblas_sgemv
 #else /* HAVE_AUBIO_DOUBLE */
 #ifdef HAVE_ATLAS
 #define aubio_catlas_set      catlas_dset
@@ -140,6 +141,7 @@
 #define aubio_cblas_copy      cblas_dcopy
 #define aubio_cblas_swap      cblas_dswap
 #define aubio_cblas_dot       cblas_ddot
+#define aubio_cblas__gemv     cblas_dgemv
 #endif /* HAVE_AUBIO_DOUBLE */
 #endif /* HAVE_BLAS */
 
