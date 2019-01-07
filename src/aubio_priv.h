@@ -412,4 +412,12 @@ uint_t aubio_log(sint_t level, const char_t *fmt, ...);
 // goto to failure if condition x is not true
 #define AUBIO_GOTO_FAILURE(x) if (!(x)) goto failure
 
+#define AUBIO_ASSERT_EQUAL_SHAPE(t1, t2) { \
+    AUBIO_ASSERT(t1 && t2); \
+    AUBIO_ASSERT(t1->ndim == t2->ndim); \
+    uint_t nn; \
+    for (nn = 0; nn < t1->ndim; nn++) \
+      AUBIO_ASSERT(t1->shape[nn] == t2->shape[nn]); \
+    }
+
 #endif /* AUBIO_PRIV_H */
