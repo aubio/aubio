@@ -74,7 +74,7 @@ void del_aubio_tensor(aubio_tensor_t *c)
 uint_t aubio_tensor_as_fvec(aubio_tensor_t *c, fvec_t *o) {
   if (!c || !o) return AUBIO_FAIL;
   o->length = c->size;
-  o->data = c->data[0];
+  o->data = c->buffer;
   return AUBIO_OK;
 }
 
