@@ -160,10 +160,20 @@ void fmat_copy(const fmat_t *s, fmat_t *t);
 
    \param s matrix to compute product with
    \param scale vector to compute product with
-   \param output vector to store restults in
+   \param output vector of results
+
 
 */
 void fmat_vecmul(const fmat_t *s, const fvec_t *scale, fvec_t *output);
+
+/** compute the product of a vector by a matrix
+
+   \param s matrix to compute product with
+   \param scale input to compute product with
+   \param output vector of results
+
+*/
+void fvec_matmul(const fvec_t *scale, const fmat_t *s, fvec_t *output);
 
 #ifdef __cplusplus
 }
