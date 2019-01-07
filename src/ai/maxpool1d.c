@@ -90,9 +90,10 @@ void aubio_maxpool1d_do(aubio_maxpool1d_t *c, aubio_tensor_t *input_tensor,
 
   for (j = 0; j < output_tensor->shape[1]; j++) {
     for (i = 0; i < output_tensor->shape[0]; i++) {
-      smpl_t m = -FLT_MAX;
+      uint_t stride_i = i * c->pool_size;
+      smpl_t m = input_tensor->data[stride_i][j];
       for (a = 0; a < c->pool_size; a++) {
-        m = MAX(m, input_tensor->data[i * c->pool_size + a][j]);
+        m = MAX(m, input_tensor->data[stride_i + a][j]);
       }
       output_tensor->data[i][j] = m;
     }
