@@ -48,6 +48,7 @@ typedef enum
   aubio_pitcht_yinfft,     /**< `yinfft`, Spectral YIN */
   aubio_pitcht_yinfast,    /**< `yinfast`, YIN fast */
   aubio_pitcht_specacf,    /**< `specacf`, Spectral autocorrelation */
+  aubio_pitcht_crepe,      /**< `crepe`, convolutional neural network */
   aubio_pitcht_default
     = aubio_pitcht_yinfft, /**< `default` */
 } aubio_pitch_type;
@@ -98,11 +99,21 @@ static void aubio_pitch_do_fcomb (aubio_pitch_t * p, const fvec_t * ibuf, fvec_t
 static void aubio_pitch_do_yinfft (aubio_pitch_t * p, const fvec_t * ibuf, fvec_t * obuf);
 static void aubio_pitch_do_yinfast (aubio_pitch_t * p, const fvec_t * ibuf, fvec_t * obuf);
 static void aubio_pitch_do_specacf (aubio_pitch_t * p, const fvec_t * ibuf, fvec_t * obuf);
+static void aubio_pitch_do_crepe (aubio_pitch_t * p, const fvec_t * ibuf, fvec_t * obuf);
 
 /* internal functions for frequency conversion */
 static smpl_t freqconvbin (smpl_t f, uint_t samplerate, uint_t bufsize);
 static smpl_t freqconvmidi (smpl_t f, uint_t samplerate, uint_t bufsize);
 static smpl_t freqconvpass (smpl_t f, uint_t samplerate, uint_t bufsize);
+
+typedef struct _aubio_pitch_crepe_t aubio_pitch_crepe_t;
+extern aubio_pitch_crepe_t *new_aubio_pitch_crepe(void);
+extern void aubio_pitch_crepe_do(aubio_pitch_crepe_t *t, fvec_t *input, fvec_t *out);
+extern void del_aubio_pitch_crepe(aubio_pitch_crepe_t *t);
+extern smpl_t aubio_pitch_crepe_get_confidence (aubio_pitch_crepe_t * o);
+uint_t aubio_pitch_crepe_set_tolerance(aubio_pitch_crepe_t * o, smpl_t
+    tolerance);
+smpl_t aubio_pitch_crepe_get_tolerance (aubio_pitch_crepe_t * o);
 
 /* adapter to stack ibuf new samples at the end of buf, and trim `buf` to `bufsize` */
 void aubio_pitch_slideblock (aubio_pitch_t * p, const fvec_t * ibuf);
@@ -132,6 +143,8 @@ new_aubio_pitch (const char_t * pitch_mode,
     pitch_type = aubio_pitcht_fcomb;
   else if (strcmp (pitch_mode, "specacf") == 0)
     pitch_type = aubio_pitcht_specacf;
+  else if (strcmp (pitch_mode, "crepe") == 0)
+    pitch_type = aubio_pitcht_crepe;
   else if (strcmp (pitch_mode, "default") == 0)
     pitch_type = aubio_pitcht_default;
   else {
@@ -213,6 +226,14 @@ new_aubio_pitch (const char_t * pitch_mode,
       p->conf_cb = (aubio_pitch_get_conf_t)aubio_pitchspecacf_get_tolerance;
       aubio_pitchspecacf_set_tolerance (p->p_object, 0.85);
       break;
+    case aubio_pitcht_crepe:
+      p->buf = new_fvec (bufsize);
+      p->p_object = new_aubio_pitch_crepe();
+      if (!p->p_object) goto beach;
+      p->detect_cb = aubio_pitch_do_crepe;
+      p->conf_cb = (aubio_pitch_get_conf_t)aubio_pitch_crepe_get_confidence;
+      //aubio_pitch_crepe_set_tolerance (p->p_object, 0.85);
+      break;
     default:
       break;
   }
@@ -259,6 +280,10 @@ del_aubio_pitch (aubio_pitch_t * p)
     case aubio_pitcht_specacf:
       del_fvec (p->buf);
       del_aubio_pitchspecacf (p->p_object);
+      break;
+    case aubio_pitcht_crepe:
+      del_fvec (p->buf);
+      del_aubio_pitch_crepe (p->p_object);
       break;
     default:
       break;
@@ -349,6 +374,9 @@ aubio_pitch_set_tolerance (aubio_pitch_t * p, smpl_t tol)
     case aubio_pitcht_yinfast:
       aubio_pitchyinfast_set_tolerance (p->p_object, tol);
       break;
+    case aubio_pitcht_crepe:
+      aubio_pitch_crepe_set_tolerance (p->p_object, tol);
+      break;
     default:
       break;
   }
@@ -368,6 +396,9 @@ aubio_pitch_get_tolerance (aubio_pitch_t * p)
       break;
     case aubio_pitcht_yinfast:
       tolerance = aubio_pitchyinfast_get_tolerance (p->p_object);
+      break;
+    case aubio_pitcht_crepe:
+      tolerance = aubio_pitch_crepe_get_tolerance (p->p_object);
       break;
     default:
       break;
@@ -475,6 +506,15 @@ aubio_pitch_do_specacf (aubio_pitch_t * p, const fvec_t * ibuf, fvec_t * out)
     pitch = 0.;
   }
   out->data[0] = pitch;
+}
+
+void
+aubio_pitch_do_crepe (aubio_pitch_t * p, const fvec_t * ibuf, fvec_t * out)
+{
+  //smpl_t pitch = 0., period;
+  aubio_pitch_slideblock (p, ibuf);
+  aubio_pitch_crepe_do(p->p_object, p->buf, out);
+  out->data[0] = aubio_miditofreq(out->data[0]);
 }
 
 void
