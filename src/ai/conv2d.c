@@ -65,7 +65,10 @@ aubio_conv2d_t *new_aubio_conv2d(uint_t n_filters, uint_t *kernel_shape)
   // default to padding_mode="valid"
   c->padding_mode = PAD_VALID;
   // set default stride_shape to {1, 1}
-  aubio_conv2d_set_stride(c, 1, 1);
+  {
+    uint_t default_stride[2] = {1, 1};
+    aubio_conv2d_set_stride(c, default_stride);
+  }
 
   return c;
 
@@ -88,12 +91,12 @@ void del_aubio_conv2d(aubio_conv2d_t *c)
 
 
 uint_t aubio_conv2d_set_stride(aubio_conv2d_t *c,
-    uint_t stride1, uint_t stride2)
+    uint_t stride[2])
 {
-  if ((sint_t)stride1 < 1) return AUBIO_FAIL;
-  if ((sint_t)stride2 < 1) return AUBIO_FAIL;
-  c->stride_shape[0] = stride1;
-  c->stride_shape[1] = stride2;
+  if ((sint_t)stride[0] < 1) return AUBIO_FAIL;
+  if ((sint_t)stride[1] < 1) return AUBIO_FAIL;
+  c->stride_shape[0] = stride[0];
+  c->stride_shape[1] = stride[1];
   return AUBIO_OK;
 }
 
@@ -190,7 +193,7 @@ void aubio_conv2d_debug(aubio_conv2d_t *c, aubio_tensor_t *input_tensor)
   uint_t n_params = (c->kernel->shape[0] * c->kernel->shape[2] + 1)
     * c->kernel->shape[1] * c->kernel->shape[3];
 
-  AUBIO_DBG("conv2d: input %s ¤ conv2d %s"
+  AUBIO_DBG("conv2d:    %15s ¤ conv2d %s"
       " : (%d, %d, %d)"
       " (%d params, stride (%d, %d), pad_start [%d, %d])\n",
     aubio_tensor_get_shape_string(input_tensor),

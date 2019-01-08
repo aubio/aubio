@@ -51,7 +51,7 @@ fvec_t *aubio_conv2d_get_bias(aubio_conv2d_t *t);
 
 /** set conv2d stride */
 uint_t aubio_conv2d_set_stride(aubio_conv2d_t *c,
-    uint_t stride1, uint_t stride2);
+    uint_t stride[2]);
 
 uint_t *aubio_conv2d_get_stride(aubio_conv2d_t* t);
 
