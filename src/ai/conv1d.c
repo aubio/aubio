@@ -184,14 +184,13 @@ void aubio_conv1d_debug(aubio_conv1d_t *c, aubio_tensor_t *input_tensor)
   // print some info
   AUBIO_ASSERT(c);
   uint_t n_params = (c->kernel->shape[0] * c->kernel->shape[2] + 1)
-    * c->kernel->shape[1] * c->kernel->shape[3];
-  AUBIO_DBG("conv1d: input (%d, %d) ¤ conv1d (%d, %d, %d)"
-      " : (%d, %d)"
-      " (%d params, stride (%d), pad_start [%d])\n",
-    input_tensor->shape[0], input_tensor->shape[1],
-    c->kernel->shape[0], c->kernel->shape[1], c->kernel->shape[2],
+    * c->kernel->shape[1];
+  AUBIO_DBG("conv1d:    %15s -> (%d, %d) (%d params)"
+      " (weigths=(%d, %d, %d), stride=(%d,), pad_start=(%d,))\n",
+    aubio_tensor_get_shape_string(input_tensor),
     c->output_shape[0], c->output_shape[1],
     n_params,
+    c->kernel->shape[0], c->kernel->shape[1], c->kernel->shape[2],
     c->stride_shape,
     -c->padding_start);
 }
