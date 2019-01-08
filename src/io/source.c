@@ -138,7 +138,7 @@ uint_t aubio_source_close(aubio_source_t * s) {
 }
 
 void del_aubio_source(aubio_source_t * s) {
-  AUBIO_ASSERT(s);
+  //AUBIO_ASSERT(s);
   if (s && s->s_del && s->source)
     s->s_del((void *)s->source);
   AUBIO_FREE(s);
