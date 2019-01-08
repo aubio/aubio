@@ -227,6 +227,17 @@ new_aubio_pitch (const char_t * pitch_mode,
       aubio_pitchspecacf_set_tolerance (p->p_object, 0.85);
       break;
     case aubio_pitcht_crepe:
+      // TODO add resampling and blocking
+      if (samplerate != 16000) {
+        AUBIO_ERROR("pitch: crepe samplerate must be 16000Hz, got %d\n",
+            samplerate);
+        goto beach;
+      }
+      if (bufsize != 1024) {
+        AUBIO_ERROR("pitch: crepe buffer size must be 1024, got %d\n",
+            bufsize);
+        goto beach;
+      }
       p->buf = new_fvec (bufsize);
       p->p_object = new_aubio_pitch_crepe();
       if (!p->p_object) goto beach;
