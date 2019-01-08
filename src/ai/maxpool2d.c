@@ -60,16 +60,14 @@ void del_aubio_maxpool2d(aubio_maxpool2d_t* c) {
 
 void aubio_maxpool2d_debug(aubio_maxpool2d_t *c, aubio_tensor_t *input_tensor)
 {
-  AUBIO_DBG("maxpool2d: input (%d, %d, %d) ¤ maxpool2d (pool_size = (%d, %d)) ->"
-      " (%d, %d, %d) (no params)\n",
-      input_tensor->shape[0],
-      input_tensor->shape[1],
-      input_tensor->shape[2],
-      c->pool_size[0],
-      c->pool_size[1],
+  AUBIO_DBG("maxpool2d: %15s -> (%d, %d, %d)"
+      " (pool_size=(%d, %d))\n",
+      aubio_tensor_get_shape_string(input_tensor),
       input_tensor->shape[0] / c->pool_size[0],
       input_tensor->shape[1] / c->pool_size[1],
-      input_tensor->shape[2]);
+      input_tensor->shape[2],
+      c->pool_size[0],
+      c->pool_size[1]);
 }
 
 uint_t aubio_maxpool2d_get_output_shape(aubio_maxpool2d_t *c,
