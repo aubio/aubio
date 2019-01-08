@@ -99,6 +99,12 @@ aubio_pitch_crepe_t *new_aubio_pitch_crepe(void)
   uint_t output_shape[2];
   uint_t i;
 
+#if defined(HAVE_BLAS) && defined(HAVE_OPENBLAS_CBLAS_H)
+  // workaround to prevent openblas from opening multiple threads, since
+  // the overhead appears to be higher than using a single thread.
+  openblas_set_num_threads(1);
+#endif
+
   AUBIO_ASSERT (capacity_mode < 5 && (sint_t)capacity_mode >= 0);
 
   o->n_layers = 6;
