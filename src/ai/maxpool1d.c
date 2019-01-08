@@ -57,13 +57,10 @@ void del_aubio_maxpool1d(aubio_maxpool1d_t* c) {
 
 void aubio_maxpool1d_debug(aubio_maxpool1d_t *c, aubio_tensor_t *input_tensor)
 {
-  AUBIO_DBG("maxpool1d: input (%d, %d) ¤ maxpool1d (pool_size = (%d)) ->"
-      " (%d, %d) (no params)\n",
-      input_tensor->shape[0],
-      input_tensor->shape[1],
-      c->pool_size,
+  AUBIO_DBG("maxpool1d: %15s -> (%d, %d) (no params)"
+      " (pool_size=(%d,), )\n", aubio_tensor_get_shape_string(input_tensor),
       input_tensor->shape[0] / c->pool_size,
-      input_tensor->shape[1]);
+      input_tensor->shape[1], c->pool_size);
 }
 
 uint_t aubio_maxpool1d_get_output_shape(aubio_maxpool1d_t *c,
