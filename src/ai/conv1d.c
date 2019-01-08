@@ -44,6 +44,10 @@ struct _aubio_conv1d_t {
   fvec_t *bias;
   uint_t output_shape[2];     // shape of output
   uint_t padding_start;    // {top, left} padding
+
+#if defined(HAVE_BLAS)
+  aubio_tensor_t *padded_input;
+#endif
 };
 
 static void aubio_conv1d_debug(aubio_conv1d_t *c, aubio_tensor_t *input_tensor);
@@ -82,6 +86,9 @@ void del_aubio_conv1d(aubio_conv1d_t *c)
   }
   if (c->bias)
     del_fvec(c->bias);
+#if defined(HAVE_BLAS)
+  if (c->padded_input) del_aubio_tensor(c->padded_input);
+#endif
   AUBIO_FREE(c);
 }
 
@@ -103,6 +110,7 @@ uint_t aubio_conv1d_get_output_shape(aubio_conv1d_t *c,
     uint_t *shape)
 {
   uint_t output_shape[2] = {0, c->n_filters};
+  uint_t padding_shape = 0;  // total amount of padding
   uint_t padding_start = 0;
 
   // check input parameters
@@ -119,7 +127,6 @@ uint_t aubio_conv1d_get_output_shape(aubio_conv1d_t *c,
       output_shape[0] = (uint_t)CEIL(input_tensor->shape[0]
           / (smpl_t)c->stride_shape);
 
-      uint_t padding_shape;  // total amount of padding
       padding_shape = (output_shape[0] - 1) * c->stride_shape +
         c->kernel_shape - input_tensor->shape[0];
 
@@ -153,6 +160,13 @@ uint_t aubio_conv1d_get_output_shape(aubio_conv1d_t *c,
   // set internals upon success
   c->output_shape[0] = output_shape[0];
   c->output_shape[1] = output_shape[1];
+
+#if defined(HAVE_BLAS)
+  if (c->padded_input) del_aubio_tensor(c->padded_input);
+  uint_t padded_shape[2] = {input_tensor->shape[0] + padding_shape,
+    input_tensor->shape[1]};
+  c->padded_input = new_aubio_tensor(2, padded_shape);
+#endif
 
   c->padding_start = padding_start;
 
@@ -205,6 +219,7 @@ uint_t aubio_conv1d_check_output_shape(aubio_conv1d_t *c,
   return AUBIO_OK;
 }
 
+#if !defined(HAVE_BLAS)
 void aubio_conv1d_do(aubio_conv1d_t *c, aubio_tensor_t *input_tensor,
     aubio_tensor_t *activations)
 {
@@ -254,6 +269,62 @@ void aubio_conv1d_do(aubio_conv1d_t *c, aubio_tensor_t *input_tensor,
     }
   }
 }
+
+#else /* HAVE_BLAS */
+
+// blas implementation
+//
+//  uses _sdot on the padded input to compute each output elements at once
+//
+// TODO
+//  - switch to sgemv to factorise over activations->shape[j]
+//  - avoid copy when padding_start == 0
+//  - optimize copying using tensor helpers
+
+void aubio_conv1d_do(aubio_conv1d_t *c, aubio_tensor_t *input_tensor,
+    aubio_tensor_t *activations)
+{
+  uint_t i, j;
+  smpl_t bias, acc;
+
+  uint_t sdot_size = c->kernel->shape[0] * c->kernel->shape[1];
+  uint_t input_stride = c->stride_shape * c->kernel->shape[1];
+
+  AUBIO_ASSERT(c && input_tensor && activations);
+  if (aubio_conv1d_check_output_shape(c, input_tensor, activations))
+  {
+    AUBIO_ERR("conv1d: check_output_shape failed\n");
+    return;
+  }
+
+  // copy input to padded version
+  for (j = 0; j < input_tensor->shape[0]; j++) {
+    for (i = 0; i < input_tensor->shape[1]; i++) {
+      c->padded_input->data[j + c->padding_start][i] =
+        input_tensor->data[j][i];
+    }
+  }
+
+  // for each output
+  for (j = 0; j < activations->shape[0]; j++) {
+    // for each kernel filter k
+    for (i = 0; i < activations->shape[1]; i++) {
+      // get bias
+      bias = c->bias->data[i];
+
+      // compute one activation output
+      acc = aubio_cblas_dot(sdot_size, c->kernel->buffer + i,
+          c->kernel->shape[2], c->padded_input->buffer + j * input_stride, 1);
+
+      // apply bias
+      acc += bias;
+
+      // compute RELU
+      activations->data[j][i] = MAX(acc, 0.);
+    }
+  }
+}
+#endif /* HAVE_BLAS */
 
 uint_t aubio_conv1d_set_padding_mode(aubio_conv1d_t *c,
     const char_t *padding_mode)
