@@ -112,6 +112,10 @@ def options(ctx):
             help_str = 'compile with source_wavwrite (default)',
             help_disable_str = 'do not compile source_wavwrite')
 
+    add_option_enable_disable(ctx, 'hdf5', default = None,
+            help_str = 'use libhdf5 (default)',
+            help_disable_str = 'do not use libhdf5')
+
     add_option_enable_disable(ctx, 'docs', default = None,
             help_str = 'build documentation (auto)',
             help_disable_str = 'do not build documentation')
@@ -518,6 +522,12 @@ def configure(ctx):
     # use memcpy hacks
     if (ctx.options.enable_memcpy == True):
         ctx.define('HAVE_MEMCPY_HACKS', 1)
+
+    if (ctx.options.enable_hdf5 != True):
+        ctx.check_cfg(package='hdf5', args='--cflags --libs',
+                uselib_store='HDF5', mandatory=ctx.options.enable_hdf5)
+        ctx.check(lib=['hdf5_hl'], use = ['HDF5'],
+                uselib_store='HDF5_HL', mandatory=ctx.options.enable_hdf5)
 
     # write configuration header
     ctx.write_config_header('src/config.h')
