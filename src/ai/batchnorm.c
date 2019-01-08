@@ -69,9 +69,10 @@ void del_aubio_batchnorm(aubio_batchnorm_t* c) {
 
 void aubio_batchnorm_debug(aubio_batchnorm_t *c, aubio_tensor_t *input_tensor)
 {
-  const char_t *shape_str = aubio_tensor_get_shape_string(input_tensor);
-  AUBIO_DBG("batchnorm: %15s ¤ (%d x4) -> %s (4 x %d params)\n",
-      shape_str, c->n_outputs, shape_str, c->n_outputs);
+  AUBIO_DBG("batchnorm: %15s -> %s (%d params) (4 * (%d,))\n",
+      aubio_tensor_get_shape_string(input_tensor),
+      aubio_tensor_get_shape_string(input_tensor), // same output shape
+      c->n_outputs, 4 * c->n_outputs);
 }
 
 uint_t aubio_batchnorm_get_output_shape(aubio_batchnorm_t *c,
