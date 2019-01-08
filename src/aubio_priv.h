@@ -74,12 +74,8 @@
 #include <stdarg.h>
 #endif
 
-#if defined(HAVE_ACCELERATE)
-#define HAVE_ATLAS 1
-#define HAVE_BLAS 1
-#include <Accelerate/Accelerate.h>
-#elif defined(HAVE_ATLAS_CBLAS_H)
-#elif defined(HAVE_BLAS)
+#if defined(HAVE_BLAS) // --enable-blas=true
+// check which cblas header we found
 #if defined(HAVE_ATLAS_CBLAS_H)
 #define HAVE_ATLAS 1
 #include <atlas/cblas.h>
@@ -87,11 +83,17 @@
 #include <openblas/cblas.h>
 #elif defined(HAVE_CBLAS_H)
 #include <cblas.h>
-#endif
+#elif !defined(HAVE_ACCELERATE)
+#error "HAVE_BLAS was defined, but no blas header was found"
+#endif /* end of cblas includes */
 #endif
 
-#ifdef HAVE_ACCELERATE
+#if defined(HAVE_ACCELERATE)
+// include accelerate framework after blas
+#define HAVE_ATLAS 1
+#define HAVE_BLAS 1
 #include <Accelerate/Accelerate.h>
+
 #ifndef HAVE_AUBIO_DOUBLE
 #define aubio_vDSP_mmov       vDSP_mmov
 #define aubio_vDSP_vmul       vDSP_vmul
