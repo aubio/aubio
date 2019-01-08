@@ -274,10 +274,9 @@ void aubio_conv1d_do(aubio_conv1d_t *c, aubio_tensor_t *input_tensor,
 
 // blas implementation
 //
-//  uses _sdot on the padded input to compute each output elements at once
+//  uses gemv on the padded input to compute each output elements at once
 //
 // TODO
-//  - switch to sgemv to factorise over activations->shape[j]
 //  - avoid copy when padding_start == 0
 //  - optimize copying using tensor helpers
 
@@ -285,10 +284,9 @@ void aubio_conv1d_do(aubio_conv1d_t *c, aubio_tensor_t *input_tensor,
     aubio_tensor_t *activations)
 {
   uint_t i, j;
-  smpl_t bias, acc;
 
   uint_t sdot_size = c->kernel->shape[0] * c->kernel->shape[1];
-  uint_t input_stride = c->stride_shape * c->padded_input->shape[1]
+  uint_t input_stride = c->stride_shape * c->padded_input->shape[1];
 
   AUBIO_ASSERT(c && input_tensor && activations);
   if (aubio_conv1d_check_output_shape(c, input_tensor, activations))
