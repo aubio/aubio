@@ -288,7 +288,7 @@ void aubio_conv1d_do(aubio_conv1d_t *c, aubio_tensor_t *input_tensor,
   smpl_t bias, acc;
 
   uint_t sdot_size = c->kernel->shape[0] * c->kernel->shape[1];
-  uint_t input_stride = c->stride_shape * c->kernel->shape[1];
+  uint_t input_stride = c->stride_shape * c->padded_input->shape[1]
 
   AUBIO_ASSERT(c && input_tensor && activations);
   if (aubio_conv1d_check_output_shape(c, input_tensor, activations))
@@ -307,20 +307,18 @@ void aubio_conv1d_do(aubio_conv1d_t *c, aubio_tensor_t *input_tensor,
 
   // for each output
   for (j = 0; j < activations->shape[0]; j++) {
+    // for each row of activation output
+    aubio_cblas__gemv(CblasRowMajor, CblasTrans,
+        sdot_size, c->kernel->shape[2], 1.,
+        c->kernel->buffer, c->kernel->shape[2],
+        c->padded_input->buffer + j  * input_stride, 1, 0.,
+        activations->buffer + j * activations->shape[1], 1);
+  }
+  for (j = 0; j < activations->shape[0]; j++) {
     // for each kernel filter k
     for (i = 0; i < activations->shape[1]; i++) {
-      // get bias
-      bias = c->bias->data[i];
-
-      // compute one activation output
-      acc = aubio_cblas_dot(sdot_size, c->kernel->buffer + i,
-          c->kernel->shape[2], c->padded_input->buffer + j * input_stride, 1);
-
-      // apply bias
-      acc += bias;
-
-      // compute RELU
-      activations->data[j][i] = MAX(acc, 0.);
+      activations->data[j][i] += c->bias->data[i];
+      activations->data[j][i] = MAX(activations->data[j][i], 0);
     }
   }
 }
