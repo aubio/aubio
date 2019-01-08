@@ -81,6 +81,7 @@ def add_external_deps(ext, usedouble = False):
                 'jack',
                 'sndfile',
                 'rubberband',
+                'hdf5',
                 #'fftw3f',
                ]
     # samplerate only works with float
@@ -107,6 +108,9 @@ def add_external_deps(ext, usedouble = False):
     if 'fftw3f' in ext.libraries:
         ext.define_macros += [('HAVE_FFTW3F', 1)]
         ext.define_macros += [('HAVE_FFTW3', 1)]
+    if 'hdf5' in ext.libraries:
+        ext.libraries += ['hdf5_hl']
+        ext.define_macros += [('HAVE_HDF5', 1)]
 
     # add accelerate on darwin
     if sys.platform.startswith('darwin'):
