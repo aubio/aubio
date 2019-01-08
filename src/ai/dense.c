@@ -54,14 +54,11 @@ void del_aubio_dense(aubio_dense_t *c) {
 
 void aubio_dense_debug(aubio_dense_t *c, aubio_tensor_t *input_tensor)
 {
-  char_t input_string[15];
-  snprintf(input_string, 15, "(%d)", input_tensor->shape[0]);
-  AUBIO_DBG("dense:     %15s ¤ (%d, %d) ->"
-      " (%d) (%d params)\n",
-      input_string,
-      c->n_units,
-      c->n_units,
-      input_tensor->shape[0] * c->n_units);
+  uint_t n_params = input_tensor->shape[0] * c->n_units + c->n_units;
+  AUBIO_DBG("dense:     %15s -> (%d,) (%d params)"
+      " (n_units=%d, weights=(%d, %d), bias=(%d,))\n",
+      aubio_tensor_get_shape_string(input_tensor), c->n_units, n_params,
+      c->n_units, c->weights->height, c->weights->length, c->bias->length);
 }
 
 uint_t aubio_dense_get_output_shape(aubio_dense_t *c,
