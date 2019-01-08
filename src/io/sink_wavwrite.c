@@ -211,9 +211,11 @@ uint_t aubio_sink_wavwrite_open(aubio_sink_wavwrite_t *s) {
   written += fwrite(write_little_endian(0, buf, 4), 4, 1, s->fid);
 
   // fwrite(*, *, 1, s->fid) was called 13 times, check success
-  if (written != 13) {
-    AUBIO_STRERR("sink_wavwrite: writing header to %s failed, expected %d"
-        " write but got only %d (%s)\n", s->path, 13, written, errorstr);
+  if (written != 13 || fflush(s->fid)) {
+    AUBIO_STRERR("sink_wavwrite: writing header to %s failed"
+        " (wrote %d/%d, %s)\n", s->path, written, 13, errorstr);
+    fclose(s->fid);
+    s->fid = NULL;
     return AUBIO_FAIL;
   }
 
