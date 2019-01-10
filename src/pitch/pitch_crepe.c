@@ -36,6 +36,7 @@
 
 #include "fmat.h"
 #include "ai/tensor.h"
+#include "ai/activation.h"
 #include "ai/conv1d.h"
 #include "ai/maxpool1d.h"
 #include "ai/batchnorm.h"
@@ -318,6 +319,8 @@ void aubio_pitch_crepe_do(aubio_pitch_crepe_t *o, fvec_t *input, fvec_t *out)
   for (i = 0; i < o->n_layers; i++) {
     aubio_conv1d_do(o->conv_layers[i], block_input,
         o->conv_output[i]);
+    // relu activation
+    aubio_activation_relu(o->conv_output[i]);
     aubio_batchnorm_do(o->batchnorm_layers[i], o->conv_output[i],
         o->batchnorm_output[i]);
     aubio_maxpool1d_do(o->maxpool_layers[i], o->batchnorm_output[i],
@@ -334,6 +337,9 @@ void aubio_pitch_crepe_do(aubio_pitch_crepe_t *o, fvec_t *input, fvec_t *out)
 
   // compute dense layer
   aubio_dense_do(o->dense_layer, o->flattened, o->dense_output);
+
+  // sigmoid activation
+  aubio_activation_sigmoid(o->dense_output);
 
 #if 0
   // print debug output
