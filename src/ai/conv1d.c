@@ -42,8 +42,8 @@ struct _aubio_conv1d_t {
   // these will be set after calling get_output_shape
   aubio_tensor_t *kernel;
   fvec_t *bias;
-  uint_t output_shape[2];     // shape of output
-  uint_t padding_start;    // {top, left} padding
+  uint_t output_shape[2];  // shape of output
+  uint_t padding_start;    // left padding
 
 #if defined(HAVE_BLAS)
   aubio_tensor_t *padded_input;
