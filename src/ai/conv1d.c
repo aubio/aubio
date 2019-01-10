@@ -263,8 +263,6 @@ void aubio_conv1d_do(aubio_conv1d_t *c, aubio_tensor_t *input_tensor,
       stride_a += c->stride_shape;
       // apply bias
       acc += bias;
-      // compute RELU
-      activations->data[j][i] = MAX(acc, 0);
     }
   }
 }
@@ -315,7 +313,6 @@ void aubio_conv1d_do(aubio_conv1d_t *c, aubio_tensor_t *input_tensor,
     // for each kernel filter k
     for (i = 0; i < activations->shape[1]; i++) {
       activations->data[j][i] += c->bias->data[i];
-      activations->data[j][i] = MAX(activations->data[j][i], 0);
     }
   }
 }
