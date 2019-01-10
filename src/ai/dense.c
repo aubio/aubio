@@ -106,10 +106,4 @@ void aubio_dense_do(aubio_dense_t *c, aubio_tensor_t *input_tensor,
   fvec_matmul(&input_vec, c->weights, &output_vec);
   // add bias
   fvec_vecadd(&output_vec, c->bias);
-
-  // compute sigmoid
-  uint_t i;
-  for (i = 0; i < output_vec.length; i++) {
-    output_vec.data[i] = 1. / (1. + EXP( - output_vec.data[i] ));
-  }
 }
