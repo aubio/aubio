@@ -199,8 +199,7 @@ void aubio_conv2d_debug(aubio_conv2d_t *c, aubio_tensor_t *input_tensor)
     c->output_shape[0], c->output_shape[1], c->output_shape[2]);
   tensor_str = aubio_tensor_get_shape_string(c->kernel);
   AUBIO_DBG(" (n_params=%d, kernel_shape=(%d, %d),"
-      " weigths=%s, stride (%d, %d), pad_start [%d, %d]"
-      " pad_end [%d, %d])\n",
+      " weigths=%s, stride (%d, %d), pad_start [%d, %d])\n",
     n_params, c->kernel_shape[0], c->kernel_shape[1],
     tensor_str,
     c->stride_shape[0], c->stride_shape[1],
