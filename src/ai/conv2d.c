@@ -292,8 +292,8 @@ void aubio_conv2d_do(aubio_conv2d_t *c, aubio_tensor_t *input_tensor,
         stride_a += c->stride_shape[0];
         // apply bias
         acc += bias;
-        // compute RELU
-        activations->data[k][jj + i] = MAX(acc, 0);
+        // set output activation
+        activations->data[k][jj + i] = acc;
       }
       stride_b += c->stride_shape[1];
       jj += activations->shape[2];
