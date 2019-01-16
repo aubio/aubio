@@ -33,8 +33,6 @@ void aubio_maxpool2d_do(aubio_maxpool2d_t *t,
         aubio_tensor_t *input_tensor,
         aubio_tensor_t *activations);
 
-void aubio_maxpool2d_train(aubio_maxpool2d_t *t, aubio_tensor_t *input);
-
 uint_t aubio_maxpool2d_set_weights(aubio_maxpool2d_t *t,
         aubio_tensor_t *kernels);
 

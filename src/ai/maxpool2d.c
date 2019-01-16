@@ -114,9 +114,3 @@ void aubio_maxpool2d_do(aubio_maxpool2d_t *c, aubio_tensor_t *input_tensor,
     }
   }
 }
-
-void aubio_maxpool2d_train(aubio_maxpool2d_t *c,
-    aubio_tensor_t *backprop)
-{
-  AUBIO_ASSERT(c && backprop);
-}
