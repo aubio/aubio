@@ -50,7 +50,8 @@ struct _aubio_conv1d_t {
 #endif
 };
 
-static void aubio_conv1d_debug(aubio_conv1d_t *c, aubio_tensor_t *input_tensor);
+static
+void aubio_conv1d_debug(aubio_conv1d_t *c, aubio_tensor_t *input_tensor);
 
 aubio_conv1d_t *new_aubio_conv1d(uint_t n_filters, uint_t kernel_shape[1])
 {
@@ -239,7 +240,7 @@ void aubio_conv1d_do(aubio_conv1d_t *c, aubio_tensor_t *input_tensor,
   for (i = 0; i < activations->shape[1]; i++) {
     // get bias
     bias = c->bias->data[i];
-    stride_a = 0; // k * c->stride_shape
+    stride_a = 0; // j * c->stride_shape
     // for each output
     for (j = 0; j < activations->shape[0]; j++) {
       // reset output
