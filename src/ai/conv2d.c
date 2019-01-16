@@ -44,6 +44,10 @@ struct _aubio_conv2d_t {
   fvec_t *bias;
   uint_t output_shape[3];     // shape of output
   uint_t padding_start[2];    // {top, left} padding
+
+#if defined(HAVE_BLAS)
+  aubio_tensor_t *padded_input;
+#endif
 };
 
 static void aubio_conv2d_debug(aubio_conv2d_t *c, aubio_tensor_t *input_tensor);
@@ -84,6 +88,10 @@ void del_aubio_conv2d(aubio_conv2d_t *c)
     del_aubio_tensor(c->kernel);
   if (c->bias)
     del_fvec(c->bias);
+#if defined(HAVE_BLAS)
+  if (c->padded_input)
+    del_aubio_tensor(c->padded_input);
+#endif
   AUBIO_FREE(c);
 }
 
@@ -109,6 +117,8 @@ uint_t aubio_conv2d_get_output_shape(aubio_conv2d_t *c,
 {
   uint_t output_shape[3] = {0, 0, c->n_filters};
   uint_t padding_start[2] = {0, 0};
+  // total amount of padding
+  uint_t padding_shape[2] = {0, 0};
 
   // check input parameters
   AUBIO_ASSERT(input_tensor);
@@ -127,7 +137,6 @@ uint_t aubio_conv2d_get_output_shape(aubio_conv2d_t *c,
       output_shape[1] = (uint_t)CEIL(input_tensor->shape[1]
           / (smpl_t)c->stride_shape[1]);
 
-      uint_t padding_shape[2];  // total amount of padding
       padding_shape[0] = (output_shape[0] - 1) * c->stride_shape[0]
         + c->kernel_shape[0] - input_tensor->shape[0];
       padding_shape[1] = (output_shape[1] - 1) * c->stride_shape[1]
@@ -180,6 +189,20 @@ uint_t aubio_conv2d_get_output_shape(aubio_conv2d_t *c,
   shape[1] = output_shape[1];
   shape[2] = output_shape[2];
 
+
+#if defined(HAVE_BLAS)
+  // im2col padding
+  padding_shape[0] = output_shape[0] * output_shape[1];
+  padding_shape[1] = c->kernel_shape[0] * c->kernel_shape[1]
+    * input_tensor->shape[2];
+  c->padded_input = new_aubio_tensor(2, padding_shape);
+  if (!c-> padded_input) {
+    AUBIO_MSG("conv2d: failed creating padded_input with shape (%d, %d, %d)\n",
+        padding_shape);
+    return AUBIO_FAIL;
+  }
+#endif
+
   aubio_conv2d_debug(c, input_tensor);
 
   return AUBIO_OK;
@@ -231,6 +254,7 @@ uint_t aubio_conv2d_check_output_shape(aubio_conv2d_t *c,
   return AUBIO_OK;
 }
 
+#if !defined(HAVE_BLAS)
 void aubio_conv2d_do(aubio_conv2d_t *c, aubio_tensor_t *input_tensor,
     aubio_tensor_t *activations)
 {
@@ -299,6 +323,117 @@ void aubio_conv2d_do(aubio_conv2d_t *c, aubio_tensor_t *input_tensor,
     }
   }
 }
+
+#else /* HAVE_BLAS */
+
+void aubio_conv2d_copy_to_padded(aubio_conv2d_t *o,
+    aubio_tensor_t *input_tensor, aubio_tensor_t *padded_input)
+{
+  // naive implementation of im2col
+  uint_t i, j, k, l, m;
+  uint_t stride_4 = o->kernel->shape[2];
+  uint_t stride_3 = o->kernel->shape[1] * stride_4;
+  uint_t stride_2 = o->kernel->shape[0] * stride_3;
+  uint_t stride_1 = o->output_shape[1] * stride_2;
+  uint_t stride_in_2 = input_tensor->shape[2];
+  uint_t stride_in_1 = input_tensor->shape[1] * stride_in_2;
+
+  AUBIO_ASSERT(padded_input->size ==
+      o->output_shape[0] * o->output_shape[1]
+      * o->kernel_shape[0] * o->kernel_shape[1]
+      * input_tensor->shape[2]);
+  AUBIO_ASSERT(input_tensor->shape[2] == o->kernel->shape[2]);
+
+  for (i = 0; i < o->output_shape[0]; i++)
+  {
+    for (j = 0; j <  o->output_shape[1]; j++)
+    {
+      for (k = 0; k < o->kernel->shape[0]; k++)
+      {
+        for (l = 0; l < o->kernel->shape[1]; l++)
+        {
+          for (m = 0; m < o->kernel->shape[2]; m++)
+          {
+            uint_t read_i = i * o->stride_shape[0] + k;
+            uint_t read_j = j * o->stride_shape[1] + l;
+            if (read_i < o->padding_start[0])
+              continue;
+            else if (read_i - o->padding_start[0] >= input_tensor->shape[0])
+              continue;
+            if (read_j < o->padding_start[1])
+              continue;
+            else if (read_j - o->padding_start[1] >= input_tensor->shape[1])
+              continue;
+
+            sint_t idx =
+              ((read_i - o->padding_start[0])) * stride_in_1
+              + ((read_j - o->padding_start[1])) * stride_in_2
+              + m;
+            padded_input->buffer[i * stride_1
+              + j * stride_2
+              + k * stride_3
+              + l * stride_4
+              + m]
+              = input_tensor->buffer[idx];
+          }
+        }
+      }
+    }
+  }
+}
+
+void aubio_conv2d_do(aubio_conv2d_t *o, aubio_tensor_t *input_tensor,
+    aubio_tensor_t *activations)
+{
+  uint_t i, j;
+  smpl_t bias;
+  aubio_tensor_t *padded_input = o->padded_input;
+  aubio_tensor_t *kernel = o->kernel;
+
+  AUBIO_ASSERT(o && input_tensor && activations);
+  // check we have the correct output activation sizes
+  if (aubio_conv2d_check_output_shape(o, input_tensor, activations))
+  {
+    AUBIO_ERR("conv2d: check_output_shape failed\n");
+    return;
+  }
+
+  uint_t M = padded_input->shape[0];
+  uint_t K = padded_input->size/padded_input->shape[0];
+  uint_t N = kernel->size / K;
+
+  // check sizes
+  AUBIO_ASSERT(M * K == padded_input->size);
+  AUBIO_ASSERT(N * K == kernel->size);
+  AUBIO_ASSERT(M * N == activations->size);
+
+  // copy input to im2col sliding window version
+  aubio_conv2d_copy_to_padded(o, input_tensor, padded_input);
+
+  aubio_cblas__gemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
+      M,                    // M
+      N,                    // N
+      K,                    // K
+      1.F,                  // alpha
+      padded_input->buffer, // M x K matrix
+      K,                    // K (2nd dim of A)
+      kernel->buffer,       // K x N matrix
+      N,                    // N
+      0.F,                  // beta
+      activations->buffer,  // M x N matrix
+      N);                   // N (2nd dim of C)
+
+
+  // apply bias
+  for (i = 0; i < activations->shape[2]; i++) {
+    bias = o->bias->data[i];
+    for (j = 0; j < activations->shape[0] * activations->shape[1]; j++)
+    {
+      activations->buffer[j * activations->shape[2] + i] += bias;
+    }
+  }
+}
+#endif
 
 void aubio_conv2d_do_backwards(aubio_conv2d_t *c,
     /*aubio_tensor_t *old_gradients,*/
