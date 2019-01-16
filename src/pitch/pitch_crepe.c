@@ -65,14 +65,14 @@ struct _aubio_pitch_crepe_t
   uint_t n_layers;
   // layers
   aubio_conv1d_t **conv_layers;
-  aubio_maxpool1d_t **maxpool_layers;
   aubio_batchnorm_t **batchnorm_layers;
+  aubio_maxpool1d_t **maxpool_layers;
   aubio_dense_t *dense_layer;
   // input/output tensors
   aubio_tensor_t *input_tensor;
-  aubio_tensor_t **maxpool_output;
-  aubio_tensor_t **batchnorm_output;
   aubio_tensor_t **conv_output;
+  aubio_tensor_t **batchnorm_output;
+  aubio_tensor_t **maxpool_output;
   aubio_tensor_t *flattened;
   aubio_tensor_t *dense_output;
 
@@ -493,6 +493,7 @@ uint_t aubio_pitch_crepe_load_params(aubio_pitch_crepe_t *o)
       return AUBIO_FAIL;
   }
 
+  // dense layer
   {
     char_t *key = "/classifier/classifier_3/kernel:0";
     fmat_t *d = aubio_dense_get_weights(o->dense_layer);
