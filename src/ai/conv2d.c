@@ -26,10 +26,9 @@
 
 typedef enum
 {
-  PAD_SAME = 0, // TODO
-  PAD_VALID = 1,
-  //PAD_CAUSAL = 2, // TODO (1d only, for dilated convolution)
-} aubio_conv2d_padding_type;
+  PAD_SAME = 0,   // same, aka half mode
+  PAD_VALID = 1   // valid, aka no padding
+} aubio_conv2d_padding_t;
 
 struct _aubio_conv2d_t {
   // define internals here
@@ -37,7 +36,7 @@ struct _aubio_conv2d_t {
   uint_t kernel_shape[2];     // kernel sizes
   uint_t stride_shape[2];     // stride sizes
 
-  aubio_conv2d_padding_type padding_mode;
+  aubio_conv2d_padding_t padding_mode;
 
   // these will be set after calling get_output_shape
   aubio_tensor_t *kernel;
