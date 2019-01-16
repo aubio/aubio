@@ -80,10 +80,8 @@ failure:
 void del_aubio_conv2d(aubio_conv2d_t *c)
 {
   AUBIO_ASSERT(c);
-  // destroy internals here
-  if (c->kernel) {
+  if (c->kernel)
     del_aubio_tensor(c->kernel);
-  }
   if (c->bias)
     del_fvec(c->bias);
   AUBIO_FREE(c);
@@ -147,6 +145,7 @@ uint_t aubio_conv2d_get_output_shape(aubio_conv2d_t *c,
 
       padding_start[0] = 0;
       padding_start[1] = 0;
+
       break;
     //case PAD_CAUSAL:
     //  // TODO
@@ -193,13 +192,17 @@ void aubio_conv2d_debug(aubio_conv2d_t *c, aubio_tensor_t *input_tensor)
   uint_t n_params = (c->kernel->shape[0] * c->kernel->shape[2] + 1)
     * c->kernel->shape[1] * c->kernel->shape[3];
 
-  AUBIO_DBG("conv2d:    %15s ¤ conv2d %s"
-      " : (%d, %d, %d)"
-      " (%d params, stride (%d, %d), pad_start [%d, %d])\n",
-    aubio_tensor_get_shape_string(input_tensor),
-    aubio_tensor_get_shape_string(c->kernel),
-    c->output_shape[0], c->output_shape[1], c->output_shape[2],
-    n_params,
+  const char_t *tensor_str = aubio_tensor_get_shape_string(input_tensor);
+  //AUBIO_DBG("conv2d: kernel_shape_str %s\n", kernel_shape_str);
+  AUBIO_DBG("conv2d:    %15s -> (%d, %d, %d)",
+    tensor_str,
+    c->output_shape[0], c->output_shape[1], c->output_shape[2]);
+  tensor_str = aubio_tensor_get_shape_string(c->kernel);
+  AUBIO_DBG(" (n_params=%d, kernel_shape=(%d, %d),"
+      " weigths=%s, stride (%d, %d), pad_start [%d, %d]"
+      " pad_end [%d, %d])\n",
+    n_params, c->kernel_shape[0], c->kernel_shape[1],
+    tensor_str,
     c->stride_shape[0], c->stride_shape[1],
     -c->padding_start[0], -c->padding_start[1]);
 }
