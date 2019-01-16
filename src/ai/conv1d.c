@@ -263,7 +263,7 @@ void aubio_conv1d_do(aubio_conv1d_t *c, aubio_tensor_t *input_tensor,
       }
       stride_a += c->stride_shape;
       // apply bias
-      acc += bias;
+      activations->data[j][i] = acc + bias;
     }
   }
 }
