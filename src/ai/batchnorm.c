@@ -130,27 +130,31 @@ uint_t aubio_batchnorm_set_gamma(aubio_batchnorm_t *t, fvec_t *gamma)
 
 uint_t aubio_batchnorm_set_beta(aubio_batchnorm_t *t, fvec_t *beta)
 {
-  AUBIO_ASSERT(t && t->beta);
-  AUBIO_ASSERT(beta);
-  if (t->beta->length != beta->length) return AUBIO_FAIL;
+  AUBIO_ASSERT(t && t->beta && beta);
+  if (t->beta->length != beta->length)
+    return AUBIO_FAIL;
   fvec_copy(beta, t->beta);
   return AUBIO_OK;
 }
 
-uint_t aubio_batchnorm_set_moving_mean(aubio_batchnorm_t *t, fvec_t *moving_mean)
+uint_t aubio_batchnorm_set_moving_mean(aubio_batchnorm_t *t,
+    fvec_t *moving_mean)
 {
   AUBIO_ASSERT(t && t->moving_mean);
   AUBIO_ASSERT(moving_mean);
-  if (t->moving_mean->length != moving_mean->length) return AUBIO_FAIL;
+  if (t->moving_mean->length != moving_mean->length)
+    return AUBIO_FAIL;
   fvec_copy(moving_mean, t->moving_mean);
   return AUBIO_OK;
 }
 
-uint_t aubio_batchnorm_set_moving_variance(aubio_batchnorm_t *t, fvec_t *moving_variance)
+uint_t aubio_batchnorm_set_moving_variance(aubio_batchnorm_t *t,
+    fvec_t *moving_variance)
 {
   AUBIO_ASSERT(t && t->moving_variance);
   AUBIO_ASSERT(moving_variance);
-  if (t->moving_variance->length != moving_variance->length) return AUBIO_FAIL;
+  if (t->moving_variance->length != moving_variance->length)
+    return AUBIO_FAIL;
   fvec_copy(moving_variance, t->moving_variance);
   return AUBIO_OK;
 }
