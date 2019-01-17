@@ -523,7 +523,7 @@ def configure(ctx):
     if (ctx.options.enable_memcpy == True):
         ctx.define('HAVE_MEMCPY_HACKS', 1)
 
-    if (ctx.options.enable_hdf5 != True):
+    if (ctx.options.enable_hdf5 != False):
         ctx.check_cfg(package='hdf5', args='--cflags --libs',
                 uselib_store='HDF5', mandatory=ctx.options.enable_hdf5)
         ctx.check(lib=['hdf5_hl'], use = ['HDF5'],
