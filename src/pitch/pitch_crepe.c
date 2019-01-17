@@ -413,6 +413,7 @@ smpl_t aubio_pitch_crepe_get_tolerance (aubio_pitch_crepe_t * o)
 
 uint_t aubio_pitch_crepe_load_params(aubio_pitch_crepe_t *o)
 {
+#ifdef HAVE_HDF5
   uint_t i;
   aubio_tensor_t *k = NULL;
   fvec_t *vec = NULL;
@@ -511,4 +512,10 @@ uint_t aubio_pitch_crepe_load_params(aubio_pitch_crepe_t *o)
   }
 
   return AUBIO_OK;
+#else
+  AUBIO_ASSERT(o);
+  AUBIO_ERR("pitch_crepe: hdf5 support was not built in, failed loading"
+      " crepe model\n");
+  return AUBIO_FAIL;
+#endif
 }
