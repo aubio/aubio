@@ -46,8 +46,6 @@ void aubio_batchnorm_do(aubio_batchnorm_t *t,
         aubio_tensor_t *input_tensor,
         aubio_tensor_t *activations);
 
-void aubio_batchnorm_train(aubio_batchnorm_t *t, aubio_tensor_t *input);
-
 uint_t aubio_batchnorm_set_gamma(aubio_batchnorm_t *t, fvec_t *gamma);
 uint_t aubio_batchnorm_set_beta(aubio_batchnorm_t *t, fvec_t *beta);
 uint_t aubio_batchnorm_set_moving_mean(aubio_batchnorm_t *t, fvec_t *moving_mean);
