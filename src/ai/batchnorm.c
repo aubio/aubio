@@ -78,11 +78,14 @@ void aubio_batchnorm_debug(aubio_batchnorm_t *c, aubio_tensor_t *input_tensor)
 uint_t aubio_batchnorm_get_output_shape(aubio_batchnorm_t *c,
     aubio_tensor_t *input, uint_t *shape)
 {
-  AUBIO_ASSERT(c && input && shape);
+  uint_t i;
 
-  shape[0] = input->shape[0];
-  shape[1] = input->shape[1];
-  shape[2] = input->shape[2];
+  AUBIO_ASSERT(c && input && shape);
+  AUBIO_ASSERT(c->n_outputs == input->shape[input->ndim - 1]);
+
+  for (i = 0; i < input->ndim; i++) {
+    shape[i] = input->shape[i];
+  }
 
   aubio_batchnorm_debug(c, input);
 
@@ -92,37 +95,27 @@ uint_t aubio_batchnorm_get_output_shape(aubio_batchnorm_t *c,
 void aubio_batchnorm_do(aubio_batchnorm_t *c, aubio_tensor_t *input_tensor,
     aubio_tensor_t *activations)
 {
-  uint_t i, j, k;
-  uint_t jj;
   smpl_t s;
+  uint_t i, j;
+  uint_t ii = 0;
+  uint_t length = activations->shape[activations->ndim - 1];
+  uint_t height = activations->size / length;
+
   AUBIO_ASSERT(c);
   AUBIO_ASSERT_EQUAL_SHAPE(input_tensor, activations);
-  if (input_tensor->ndim == 3) {
-    for (i = 0; i < activations->shape[0]; i++) {
-      jj = 0;
-      for (j = 0; j < activations->shape[1]; j++) {
-        for (k = 0; k < activations->shape[2]; k++) {
-          s = input_tensor->data[i][jj + k];
-          s -= c->moving_mean->data[k];
-          s *= c->gamma->data[k];
-          s /= SQRT(c->moving_variance->data[k] + 1.e-4);
-          s += c->beta->data[k];
-          activations->data[i][jj + k] = s;
-        }
-        jj += activations->shape[2];
-      }
+  AUBIO_ASSERT(length == c->n_outputs);
+  AUBIO_ASSERT(height * length == activations->size);
+
+  for (i = 0; i < height; i++) {
+    for (j = 0; j < length; j++) {
+      s = input_tensor->buffer[ii + j];
+      s -= c->moving_mean->data[j];
+      s *= c->gamma->data[j];
+      s /= SQRT(c->moving_variance->data[j] + 1.e-4);
+      s += c->beta->data[j];
+      activations->buffer[ii + j] = s;
     }
-  } else if (input_tensor->ndim == 2) {
-    for (i = 0; i < activations->shape[0]; i++) {
-      for (j = 0; j < activations->shape[1]; j++) {
-        s = input_tensor->data[i][j];
-        s -= c->moving_mean->data[j];
-        s *= c->gamma->data[j];
-        s /= SQRT(c->moving_variance->data[j] + 1.e-4);
-        s += c->beta->data[j];
-        activations->data[i][j] = s;
-      }
-    }
+    ii += length;
   }
 }
 
