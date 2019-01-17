@@ -99,10 +99,10 @@ def options(ctx):
     add_option_enable_disable(ctx, 'apple-audio', default = None,
             help_str = 'use CoreFoundation (darwin only) (auto)',
             help_disable_str = 'do not use CoreFoundation framework')
-    add_option_enable_disable(ctx, 'blas', default = False,
+    add_option_enable_disable(ctx, 'blas', default = None,
             help_str = 'use BLAS acceleration library (no)',
             help_disable_str = 'do not use BLAS library')
-    add_option_enable_disable(ctx, 'atlas', default = False,
+    add_option_enable_disable(ctx, 'atlas', default = None,
             help_str = 'use ATLAS acceleration library (no)',
             help_disable_str = 'do not use ATLAS library')
     add_option_enable_disable(ctx, 'wavread', default = True,
