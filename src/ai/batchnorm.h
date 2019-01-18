@@ -40,7 +40,7 @@ extern "C" {
 
 typedef struct _aubio_batchnorm_t aubio_batchnorm_t;
 
-aubio_batchnorm_t *new_aubio_batchnorm(uint_t n_outputs);
+aubio_batchnorm_t *new_aubio_batchnorm(void);
 
 void aubio_batchnorm_do(aubio_batchnorm_t *t,
         aubio_tensor_t *input_tensor,
