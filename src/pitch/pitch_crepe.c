@@ -139,7 +139,7 @@ aubio_pitch_crepe_t *new_aubio_pitch_crepe(void)
     }
 
     // create batchnorm layers
-    o->batchnorm_layers[i] = new_aubio_batchnorm(n_filters[i] * capacity);
+    o->batchnorm_layers[i] = new_aubio_batchnorm();
     if (!o->batchnorm_layers[i]) goto failure;
 
     // create maxpool layers
