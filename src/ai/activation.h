@@ -22,11 +22,34 @@
 #ifndef AUBIO_ACTIVATION_H
 #define AUBIO_ACTIVATION_H
 
+/** \file
+
+  Activation functions.
+
+*/
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/** Rectifier linear unit (ReLU)
+
+  \param t input tensor on which to compute the activation function (in-place)
+
+  Upon return, each value \f$x\f$ of the tensor \f$t\f$ will be set to
+  \f$max(0, x)\f$.
+
+*/
 void aubio_activation_relu(aubio_tensor_t *t);
+
+/** compute sigmoid activation
+
+  \param t input tensor on which to compute the activation function (in-place)
+
+  Upon return, each value \f$x\f$ of the tensor \f$t\f$ will be set to
+  \f$\frac{1}{1 + e^{-x}}\f$.
+
+*/
 void aubio_activation_sigmoid(aubio_tensor_t *t);
 
 #endif
