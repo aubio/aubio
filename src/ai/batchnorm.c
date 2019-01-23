@@ -37,12 +37,8 @@ static void aubio_batchnorm_debug(aubio_batchnorm_t *c,
 aubio_batchnorm_t *new_aubio_batchnorm(void)
 {
   aubio_batchnorm_t *c = AUBIO_NEW(aubio_batchnorm_t);
+  // note; no input parameter, so no other possible failure
   return c;
-#if 0 // no argument so no other possible failure
-failure:
-  del_aubio_batchnorm(c);
-  return NULL;
-#endif
 }
 
 static void aubio_batchnorm_reset(aubio_batchnorm_t *c) {
