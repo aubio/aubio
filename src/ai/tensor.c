@@ -228,8 +228,9 @@ void aubio_tensor_matmul(aubio_tensor_t *a, aubio_tensor_t *b,
     }
   }
 #else
-  cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, a->shape[0],
-      b->shape[1], b->shape[0], 1.F, a->buffer, a->shape[1], b->buffer,
-      b->shape[1], 0.F, c->buffer, b->shape[1]);
+  aubio_cblas__gemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, a->shape[0],
+      b->size/b->shape[0], b->shape[0], 1.F, a->buffer, a->size/a->shape[0],
+      b->buffer,
+      b->size/b->shape[0], 0.F, c->buffer, b->size/b->shape[0]);
 #endif
 }
