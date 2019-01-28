@@ -123,28 +123,28 @@ int test_sizes(void)
   aubio_tensor_t *a = new_aubio_tensor(4, dims);
   aubio_tensor_t *b = new_aubio_tensor(3, dims);
 
-  assert (!aubio_tensor_have_same_size(a, b));
+  assert (!aubio_tensor_have_same_shape(a, b));
 
   del_aubio_tensor(b);
   dims[2] += 1;
   b = new_aubio_tensor(4, dims);
-  assert (!aubio_tensor_have_same_size(a, b));
+  assert (!aubio_tensor_have_same_shape(a, b));
   del_aubio_tensor(b);
   dims[2] -= 1;
 
   dims[0] -= 1;
   dims[1] += 1;
   b = new_aubio_tensor(4, dims);
-  assert (!aubio_tensor_have_same_size(a, b));
+  assert (!aubio_tensor_have_same_shape(a, b));
   del_aubio_tensor(b);
 
   dims[0] += 1;
   dims[1] -= 1;
   b = new_aubio_tensor(4, dims);
-  assert (aubio_tensor_have_same_size(a, b));
+  assert (aubio_tensor_have_same_shape(a, b));
 
-  assert (!aubio_tensor_have_same_size(NULL, b));
-  assert (!aubio_tensor_have_same_size(a, NULL));
+  assert (!aubio_tensor_have_same_shape(NULL, b));
+  assert (!aubio_tensor_have_same_shape(a, NULL));
 
   del_aubio_tensor(a);
   del_aubio_tensor(b);
@@ -320,7 +320,7 @@ int main(void) {
   assert (test_3d() == 0);
   PRINT_MSG("testing 4d tensors\n");
   assert (test_4d() == 0);
-  PRINT_MSG("testing aubio_tensor_have_same_size\n");
+  PRINT_MSG("testing aubio_tensor_have_same_shape\n");
   assert (test_sizes() == 0);
   PRINT_MSG("testing new_aubio_tensor with wrong arguments\n");
   assert (test_wrong_args() == 0);

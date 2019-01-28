@@ -137,15 +137,15 @@ uint_t aubio_tensor_get_subtensor(aubio_tensor_t *t, uint_t i,
   return AUBIO_OK;
 }
 
-uint_t aubio_tensor_have_same_size(aubio_tensor_t *t, aubio_tensor_t *s)
+uint_t aubio_tensor_have_same_shape(aubio_tensor_t *a, aubio_tensor_t *b)
 {
   uint_t n;
-  if (!t || !s) return 0;
-  if (t->ndim != s->ndim) return 0;
-  if (t->size != s->size) return 0;
-  n = t->ndim;
-  while (n--) {
-    if (t->shape[n] != s->shape[n]) {
+  AUBIO_ASSERT(a && b);
+  if (a->ndim != b->ndim) {
+    return 0;
+  }
+  for (n = 0; n < a->ndim; n++) {
+    if (a->shape[n] != b->shape[n]) {
       return 0;
     }
   }
