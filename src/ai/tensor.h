@@ -21,22 +21,33 @@
 #ifndef AUBIO_TENSOR_H
 #define AUBIO_TENSOR_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /** \file
 
   Tensor for real-valued data.
 
 */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/** Maximum number of dimensions
+
+  This is defined as a constant so that ::aubio_tensor_t allocated
+  on the stack can be manipulated.
+
+ */
 #define AUBIO_TENSOR_MAXDIM 10
 
 /** Tensor for real-valued data
 
   This object holds a tensor of real-valued data, ::smpl_t, with up to
   AUBIO_TENSOR_MAXDIM dimentsions.
+
+  Todo:
+  - add array of strides
+  - add accessors macros
+  - consider removing data
 
 */
 typedef struct
