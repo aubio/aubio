@@ -169,8 +169,13 @@ const char_t *aubio_tensor_get_shape_string(aubio_tensor_t *t) {
   static char_t shape_str[STRN_LENGTH];
   char_t shape_str_previous[STRN_LENGTH] = "(";
   for (i = 0; i < t->ndim; i++) {
-    int len = snprintf(shape_str, STRN_LENGTH, "%s%d%s",
-        shape_str_previous, t->shape[i], (i == t->ndim - 1) ? "" : ", ");
+    // and space last if not the last one
+    int add_space = (i < t->ndim - 1);
+    // add coma first if this not last, or always if 1d
+    int add_coma = add_space || (t->ndim == 1);
+    int len = snprintf(shape_str, STRN_LENGTH, "%s%d%s%s",
+        shape_str_previous, t->shape[i],
+        add_coma ? "," : "", add_space ? " " : "");
     strncpy(shape_str_previous, shape_str, len);
   }
   snprintf(shape_str, strnlen(shape_str, STRN_LENGTH - offset - 1) + offset,
