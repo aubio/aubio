@@ -142,7 +142,7 @@ smpl_t aubio_tensor_max(aubio_tensor_t *t);
 
   \return 1 if tensors have the same size, 0 otherwise
 */
-uint_t aubio_tensor_have_same_size(aubio_tensor_t *t, aubio_tensor_t *s);
+uint_t aubio_tensor_have_same_shape(aubio_tensor_t *t, aubio_tensor_t *s);
 
 /** print the content of a tensor
 
