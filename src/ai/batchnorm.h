@@ -56,6 +56,8 @@ aubio_batchnorm_t *new_aubio_batchnorm(void);
   \param input  input tensor
   \param shape  output shape
 
+  \return 0 on success, non-zero otherwise
+
   This function determines the number of output channels required and allocate
   the vectors of weights. The ouptut shape of this layer is identical to the
   input shape.
@@ -158,8 +160,6 @@ uint_t aubio_batchnorm_set_moving_variance(aubio_batchnorm_t *t,
   \param t             ::aubio_batchnorm_t layer
   \param input_tensor  input tensor
   \param activations   output tensor
-
-  \return   0 on success, non-zero otherwise.
 
 */
 void aubio_batchnorm_do(aubio_batchnorm_t *t, aubio_tensor_t *input_tensor,
