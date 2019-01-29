@@ -339,6 +339,26 @@ aubio_tensor_t *aubio_conv1d_get_kernel(aubio_conv1d_t* c)
   return c->kernel;
 }
 
+uint_t aubio_conv1d_set_kernel(aubio_conv1d_t *c, aubio_tensor_t *kernel)
+{
+  AUBIO_ASSERT(c && kernel);
+  if (aubio_tensor_have_same_shape(c->kernel, kernel)) {
+    aubio_tensor_copy(kernel, c->kernel);
+    return AUBIO_OK;
+  }
+  return AUBIO_FAIL;
+}
+
+uint_t aubio_conv1d_set_bias(aubio_conv1d_t *c, fvec_t *bias)
+{
+  AUBIO_ASSERT(c && bias);
+  if (bias->length == c->bias->length) {
+    fvec_copy(bias, c->bias);
+    return AUBIO_OK;
+  }
+  return AUBIO_FAIL;
+}
+
 fvec_t *aubio_conv1d_get_bias(aubio_conv1d_t* c)
 {
   AUBIO_ASSERT(c && c->bias);
