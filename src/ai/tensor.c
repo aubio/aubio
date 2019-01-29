@@ -93,6 +93,8 @@ uint_t aubio_tensor_as_fmat(aubio_tensor_t *c, fmat_t *o) {
   o->height = c->shape[0];
   o->length = c->size / c->shape[0];
   o->data = c->data;
+  // o was allocated on the stack, data[1] may be NULL
+  AUBIO_WRN("aubio_tensor_as_fmat will not create a usable table of rows\n");
   return AUBIO_OK;
 }
 
