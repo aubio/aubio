@@ -226,3 +226,27 @@ void fvec_matmul(const fvec_t *scale, const fmat_t *s, fvec_t *output) {
 #endif
 #endif
 }
+
+void fmat_matmul(const fmat_t *a, const fmat_t *b, fmat_t *c)
+{
+  AUBIO_ASSERT (a->height == c->height);
+  AUBIO_ASSERT (a->length == b->height);
+  AUBIO_ASSERT (b->length == c->length);
+#if !defined(HAVE_BLAS)
+  uint_t i, j, k;
+  for (i = 0; i < c->height; i++) {
+    for (j = 0; j < c->length; j++) {
+      smpl_t sum = 0.;
+      for (k = 0; k < a->length; k++) {
+          sum += a->data[0][i * a->length + k]
+            * b->data[0][k * b->length + j];
+      }
+      c->data[0][i * c->length + j] = sum;
+    }
+  }
+#else
+  aubio_cblas__gemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, a->height,
+      b->length, b->height, 1.F, a->data[0], a->length, b->data[0],
+      b->length, 0.F, c->data[0], b->length);
+#endif
+}
