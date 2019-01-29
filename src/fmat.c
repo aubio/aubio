@@ -24,14 +24,16 @@
 fmat_t * new_fmat (uint_t height, uint_t length) {
   fmat_t * s;
   uint_t i;
-  if ((sint_t)length <= 0 || (sint_t)height <= 0 ) {
+  if ((sint_t)height <= 0 || (sint_t)length <= 0 ) {
     return NULL;
   }
   s = AUBIO_NEW(fmat_t);
   s->height = height;
   s->length = length;
+  // array of row pointers
   s->data = AUBIO_ARRAY(smpl_t*,s->height);
-  s->data[0] = AUBIO_ARRAY(smpl_t, s->length * s->height);
+  // first row store the full height * length buffer
+  s->data[0] = AUBIO_ARRAY(smpl_t, s->height * s->length);
   for (i=1; i< s->height; i++) {
     s->data[i] = s->data[0] + i * s->length;
   }
