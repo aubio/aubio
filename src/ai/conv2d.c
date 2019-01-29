@@ -51,7 +51,7 @@ struct _aubio_conv2d_t {
 
 static void aubio_conv2d_debug(aubio_conv2d_t *c, aubio_tensor_t *input_tensor);
 
-aubio_conv2d_t *new_aubio_conv2d(uint_t n_filters, uint_t *kernel_shape)
+aubio_conv2d_t *new_aubio_conv2d(uint_t n_filters, uint_t kernel_shape[2])
 {
   aubio_conv2d_t *c = AUBIO_NEW(aubio_conv2d_t);
 
