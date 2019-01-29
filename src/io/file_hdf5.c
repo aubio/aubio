@@ -35,6 +35,8 @@
 #define aubio_H5LTread_dataset_smpl H5LTread_dataset_double
 #endif
 
+#define MAX_DEPTH 100
+
 struct _aubio_file_hdf5_t {
   const char_t *path;
   hid_t fid;
@@ -48,7 +50,12 @@ aubio_file_hdf5_t *new_aubio_file_hdf5(const char_t *path)
   f->fid = H5Fopen(path, H5F_ACC_RDONLY, H5P_DEFAULT);
   if (f->fid <= 0) goto failure;
 
+  // TODO keep a copy
   f->path = path;
+
+  //AUBIO_DBG("file_hdf5: opened %s\n", f->path);
+  //aubio_file_hdf5_list(f);
+
   return f;
 
 failure:
@@ -118,6 +125,48 @@ uint_t aubio_file_hdf5_load_dataset_into_vector(aubio_file_hdf5_t *f,
   aubio_tensor_t t;
   if (aubio_fvec_as_tensor (vec, &t)) return AUBIO_FAIL;
   return aubio_file_hdf5_load_dataset_into_tensor(f, key, &t);
+}
+
+static herr_t aubio_file_hdf5_iterate(hid_t loc_id, const char *name,
+    const H5L_info_t *info UNUSED, void *opdata)
+{
+  H5O_info_t infobuf;
+  const char_t *type_name;
+  uint_t *depth = (uint_t *)opdata;
+  herr_t err = H5Oget_info_by_name(loc_id, name, &infobuf, H5P_DEFAULT);
+  if (err < 0) goto failure;
+  if (*depth > MAX_DEPTH) goto failure;
+  switch (infobuf.type) {
+    case H5O_TYPE_GROUP:
+      type_name = "group";
+      break;
+    case H5O_TYPE_DATASET:
+      type_name = "dataset";
+      break;
+    case H5O_TYPE_NAMED_DATATYPE:
+      type_name = "datatype";
+      break;
+    default:
+      type_name = "unknown";
+      break;
+  }
+  AUBIO_MSG("%*s %s (%s)\n", *depth, "-", name, type_name);
+  if (infobuf.type == H5O_TYPE_GROUP) {
+    uint_t d = *depth + 1;
+    err = H5Literate_by_name(loc_id, name, H5_INDEX_NAME, H5_ITER_NATIVE,
+        NULL, aubio_file_hdf5_iterate, &d, H5P_DEFAULT);
+  }
+failure:
+  return err;
+}
+
+void aubio_file_hdf5_list(aubio_file_hdf5_t *f)
+{
+  uint_t depth = 1;
+  herr_t err = H5Literate(f->fid, H5_INDEX_NAME, H5_ITER_NATIVE,
+      NULL, aubio_file_hdf5_iterate, &depth);
+  if (err < 0)
+    AUBIO_ERR("file_hdf5: failed iterating into %s\n", f->path);
 }
 
 void del_aubio_file_hdf5(aubio_file_hdf5_t *f)

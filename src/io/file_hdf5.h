@@ -27,6 +27,8 @@ aubio_file_hdf5_t *new_aubio_file_hdf5(const char_t *path);
 
 void del_aubio_file_hdf5(aubio_file_hdf5_t *f);
 
+void aubio_file_hdf5_list(aubio_file_hdf5_t *f);
+
 uint_t aubio_file_hdf5_load_dataset_into_tensor (aubio_file_hdf5_t *f,
     const char_t *key, aubio_tensor_t *tensor);
 
