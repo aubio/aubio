@@ -21,26 +21,56 @@
 #ifndef AUBIO_MAXPOOL2D_H
 #define AUBIO_MAXPOOL2D_H
 
+/** \file
+
+  Max pooling layer (2D)
+
+*/
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/** maxpool2d layer */
 typedef struct _aubio_maxpool2d_t aubio_maxpool2d_t;
 
+/** create a new maxpool2d layer
+
+  \param pool_size  size of the pooling windows
+
+  \return new ::aubio_maxpool2d_t layer
+
+*/
 aubio_maxpool2d_t *new_aubio_maxpool2d(uint_t pool_size[2]);
 
-void aubio_maxpool2d_do(aubio_maxpool2d_t *t,
-        aubio_tensor_t *input_tensor,
-        aubio_tensor_t *activations);
+/** get output shape
 
-uint_t aubio_maxpool2d_set_weights(aubio_maxpool2d_t *t,
-        aubio_tensor_t *kernels);
+  \param t      layer
+  \param input  input tensor
+  \param shape  output shape
 
-aubio_tensor_t *aubio_maxpool2d_get_weigths(aubio_maxpool2d_t *t);
+  \return 0 on success, non-zero otherwise
 
+*/
 uint_t aubio_maxpool2d_get_output_shape(aubio_maxpool2d_t *t,
         aubio_tensor_t *input, uint_t *shape);
 
+/** compute layer output
+
+  \param    t               layer
+  \param    input_tensor    input tensor
+  \param    output_tensor   output tensor
+
+*/
+void aubio_maxpool2d_do(aubio_maxpool2d_t *t,
+        aubio_tensor_t *input_tensor,
+        aubio_tensor_t *output_tensor);
+
+/** destroy layer
+
+  \param t      layer to destroy
+
+*/
 void del_aubio_maxpool2d(aubio_maxpool2d_t *t);
 
 #ifdef __cplusplus
