@@ -29,6 +29,12 @@
 #include <hdf5.h>
 #include <hdf5_hl.h>
 
+#if !HAVE_AUBIO_DOUBLE
+#define aubio_H5LTread_dataset_smpl H5LTread_dataset_float
+#else
+#define aubio_H5LTread_dataset_smpl H5LTread_dataset_double
+#endif
+
 struct _aubio_file_hdf5_t {
   const char_t *path;
   hid_t fid;
@@ -51,11 +57,12 @@ failure:
 }
 
 uint_t aubio_file_hdf5_load_dataset_into_tensor (aubio_file_hdf5_t *f,
-    const char_t *key, aubio_tensor_t *tensor) {
+    const char_t *key, aubio_tensor_t *tensor)
+{
   uint_t i;
   AUBIO_ASSERT(f && key && tensor);
-  // check file is open
-  if (!f->fid)
+  // check arguments
+  if (!f->fid || !key || !tensor)
     return AUBIO_FAIL;
   // find key in file
   hid_t data_id = H5Dopen(f->fid, key, H5P_DEFAULT);
@@ -75,8 +82,6 @@ uint_t aubio_file_hdf5_load_dataset_into_tensor (aubio_file_hdf5_t *f,
   // check output tensor dimension matches
   AUBIO_ASSERT(ndim == (sint_t)tensor->ndim);
   for (i = 0; i < (uint_t)ndim; i++) {
-    //AUBIO_DBG("file_hdf5: found dim %d : %d %d (%s in %s)\n", i, dims[i],
-    //    tensor->shape[i], key, f->path);
     AUBIO_ASSERT(shape[i] == tensor->shape[i]);
   }
 
@@ -87,11 +92,14 @@ uint_t aubio_file_hdf5_load_dataset_into_tensor (aubio_file_hdf5_t *f,
 
   // read data from hdf5 file into tensor buffer
   smpl_t *buffer = tensor->buffer;
-  herr_t err = H5LTread_dataset_float(f->fid, key, buffer);
+  herr_t err = aubio_H5LTread_dataset_smpl(f->fid, key, buffer);
 
   if (err < 0) {
     return AUBIO_FAIL;
   }
+
+  //AUBIO_DBG("file_hdf5: loaded : shape %s from key %s\n",
+  //    aubio_tensor_get_shape_string(tensor), key);
 
   H5Dclose(data_id);
   return AUBIO_OK;
