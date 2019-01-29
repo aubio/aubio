@@ -77,7 +77,7 @@ void fmat_print(const fmat_t *s) {
   uint_t i,j;
   for (i=0; i< s->height; i++) {
     for (j=0; j< s->length; j++) {
-      AUBIO_MSG(AUBIO_SMPL_FMT " ", s->data[i][j]);
+      AUBIO_MSG(AUBIO_SMPL_FMT " ", s->data[0][i * s->length + j]);
     }
     AUBIO_MSG("\n");
   }
