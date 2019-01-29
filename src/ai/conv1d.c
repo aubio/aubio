@@ -323,9 +323,9 @@ uint_t aubio_conv1d_set_padding_mode(aubio_conv1d_t *c,
     const char_t *padding_mode)
 {
   AUBIO_ASSERT(c && padding_mode);
-  if (strncmp(padding_mode, "same", PATH_MAX) == 0) {
+  if (strncasecmp(padding_mode, "same", PATH_MAX) == 0) {
     c->padding_mode = PAD_SAME;
-  } else if (strncmp(padding_mode, "valid", PATH_MAX) == 0) {
+  } else if (strncasecmp(padding_mode, "valid", PATH_MAX) == 0) {
     c->padding_mode = PAD_VALID;
   } else {
     return AUBIO_FAIL;
