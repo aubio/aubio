@@ -83,8 +83,6 @@ void aubio_maxpool1d_do(aubio_maxpool1d_t *c, aubio_tensor_t *input_tensor,
   uint_t i, j, a;
   AUBIO_ASSERT(c && input_tensor && output_tensor);
 
-  //aubio_maxpool1d_debug(c, input_tensor);
-
   for (j = 0; j < output_tensor->shape[1]; j++) {
     for (i = 0; i < output_tensor->shape[0]; i++) {
       uint_t stride_i = i * c->pool_size;
