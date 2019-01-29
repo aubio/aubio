@@ -35,7 +35,7 @@ struct _aubio_conv1d_t {
   // define internals here
   uint_t n_filters;
   uint_t kernel_shape;     // kernel sizes
-  uint_t stride_shape;     // stride sizes
+  uint_t stride_shape[1];  // stride sizes
 
   aubio_conv1d_padding_type padding_mode;
 
@@ -97,11 +97,11 @@ void del_aubio_conv1d(aubio_conv1d_t *c)
 uint_t aubio_conv1d_set_stride(aubio_conv1d_t *c, uint_t stride[1])
 {
   if ((sint_t)stride[0] < 1) return AUBIO_FAIL;
-  c->stride_shape = stride[0];
+  c->stride_shape[0] = stride[0];
   return AUBIO_OK;
 }
 
-uint_t aubio_conv1d_get_stride(aubio_conv1d_t *c)
+uint_t *aubio_conv1d_get_stride(aubio_conv1d_t *c)
 {
   return c->stride_shape;
 }
@@ -126,16 +126,16 @@ uint_t aubio_conv1d_get_output_shape(aubio_conv1d_t *c,
     case PAD_SAME:
       // compute output shape
       output_shape[0] = (uint_t)CEIL(input_tensor->shape[0]
-          / (smpl_t)c->stride_shape);
+          / (smpl_t)c->stride_shape[0]);
 
-      padding_shape = (output_shape[0] - 1) * c->stride_shape +
+      padding_shape = (output_shape[0] - 1) * c->stride_shape[0] +
         c->kernel_shape - input_tensor->shape[0];
 
       padding_start = FLOOR(padding_shape / 2);
       break;
     case PAD_VALID:
       output_shape[0] = (input_tensor->shape[0] - c->kernel_shape + 1)
-        / c->stride_shape;
+        / c->stride_shape[0];
 
       padding_start = 0;
       break;
@@ -192,7 +192,7 @@ void aubio_conv1d_debug(aubio_conv1d_t *c, aubio_tensor_t *input_tensor)
     c->output_shape[0], c->output_shape[1],
     n_params,
     c->kernel->shape[0], c->kernel->shape[1], c->kernel->shape[2],
-    c->stride_shape,
+    c->stride_shape[0],
     -c->padding_start);
 }
 
@@ -261,7 +261,7 @@ void aubio_conv1d_do(aubio_conv1d_t *c, aubio_tensor_t *input_tensor,
           }
         }
       }
-      stride_a += c->stride_shape;
+      stride_a += c->stride_shape[0];
       // apply bias
       activations->data[j][i] = acc + bias;
     }
@@ -284,7 +284,7 @@ void aubio_conv1d_do(aubio_conv1d_t *c, aubio_tensor_t *input_tensor,
   uint_t i, j;
 
   uint_t sdot_size = c->kernel->shape[0] * c->kernel->shape[1];
-  uint_t input_stride = c->stride_shape * c->padded_input->shape[1];
+  uint_t input_stride = c->stride_shape[0] * c->padded_input->shape[1];
 
   AUBIO_ASSERT(c && input_tensor && activations);
   if (aubio_conv1d_check_output_shape(c, input_tensor, activations))
