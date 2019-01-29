@@ -159,8 +159,23 @@ void aubio_tensor_print(aubio_tensor_t *t);
 */
 const char_t *aubio_tensor_get_shape_string(aubio_tensor_t *t);
 
+/** compute matrix multiplication A x B = C
+
+  \param a  left tensor
+  \param b  right tensor
+  \param c  output tensor
+
+*/
 void aubio_tensor_matmul(aubio_tensor_t *a, aubio_tensor_t *b,
     aubio_tensor_t *c);
+
+/** copy tensor
+
+  \param s  source tensor
+  \param d  destination tensor
+
+*/
+void aubio_tensor_copy(aubio_tensor_t *s, aubio_tensor_t *d);
 
 #ifdef __cplusplus
 }

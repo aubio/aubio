@@ -234,3 +234,15 @@ void aubio_tensor_matmul(aubio_tensor_t *a, aubio_tensor_t *b,
       b->size/b->shape[0], 0.F, c->buffer, b->size/b->shape[0]);
 #endif
 }
+
+void aubio_tensor_copy(aubio_tensor_t *s, aubio_tensor_t *t)
+{
+  if (!aubio_tensor_have_same_shape(s, t)) {
+    AUBIO_ERR("tensor: not copying source tensor %s",
+        aubio_tensor_get_shape_string(s));
+    AUBIO_ERR(" to destination tensor %s",
+        aubio_tensor_get_shape_string(t));
+    return;
+  }
+  AUBIO_MEMCPY(t->buffer, s->buffer, s->size);
+}
