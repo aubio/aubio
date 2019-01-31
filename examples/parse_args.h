@@ -25,6 +25,7 @@
 #endif
 
 extern int verbose;
+extern int quiet;
 // input / output
 extern int usejack;
 extern char_t *source_uri;
@@ -127,6 +128,7 @@ void usage (FILE * stream, int exit_code)
       "       -V      --miditap-velo     MIDI velocity; default=65.\n"
 #endif /* defined(PROG_HAS_ONSET) && !defined(PROG_HAS_PITCH) */
 #endif /* defined(PROG_HAS_JACK) && defined(HAVE_JACK) */
+      "       -q      --quiet            be quiet\n"
       "       -v      --verbose          be verbose\n"
       "       -h      --help             display this message\n"
       );
@@ -141,7 +143,7 @@ int
 parse_args (int argc, char **argv)
 {
 #ifdef HAVE_GETOPT_H
-  const char *options = "hv"
+  const char *options = "hvq"
     "i:r:B:H:"
 #ifdef PROG_HAS_JACK
     "j"
@@ -173,6 +175,7 @@ parse_args (int argc, char **argv)
   struct option long_options[] = {
     {"help",                  0, NULL, 'h'},
     {"verbose",               0, NULL, 'v'},
+    {"quiet",                 0, NULL, 'q'},
     {"input",                 1, NULL, 'i'},
     {"samplerate",            1, NULL, 'r'},
     {"bufsize",               1, NULL, 'B'},
@@ -225,6 +228,9 @@ parse_args (int argc, char **argv)
         return -1;
       case 'v':                /* verbose */
         verbose = 1;
+        break;
+      case 'q':                /* quiet */
+        quiet = 1;
         break;
       case 'j':
         usejack = 1;
