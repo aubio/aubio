@@ -642,7 +642,6 @@ def dist(ctx):
     ctx.excl += ' **/dist*'
     ctx.excl += ' **/.DS_Store'
     ctx.excl += ' **/.travis.yml'
-    ctx.excl += ' **/.landscape.yml'
     ctx.excl += ' **/.appveyor.yml'
     ctx.excl += ' **/.circleci/*'
     ctx.excl += ' **/azure-pipelines.yml'
