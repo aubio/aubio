@@ -159,6 +159,11 @@ Py_filter_set_c_weighting (Py_filter * self, PyObject *args)
     if (PyErr_Occurred() == NULL) {
       PyErr_SetString (PyExc_ValueError,
           "error when setting filter to C-weighting");
+    } else {
+      // change the RuntimeError into ValueError
+      PyObject *type, *value, *traceback;
+      PyErr_Fetch(&type, &value, &traceback);
+      PyErr_Restore(PyExc_ValueError, value, traceback);
     }
     return NULL;
   }
@@ -179,6 +184,11 @@ Py_filter_set_a_weighting (Py_filter * self, PyObject *args)
     if (PyErr_Occurred() == NULL) {
       PyErr_SetString (PyExc_ValueError,
           "error when setting filter to A-weighting");
+    } else {
+      // change the RuntimeError into ValueError
+      PyObject *type, *value, *traceback;
+      PyErr_Fetch(&type, &value, &traceback);
+      PyErr_Restore(PyExc_ValueError, value, traceback);
     }
     return NULL;
   }
@@ -199,6 +209,11 @@ Py_filter_set_biquad(Py_filter * self, PyObject *args)
     if (PyErr_Occurred() == NULL) {
       PyErr_SetString (PyExc_ValueError,
           "error when setting filter with biquad coefficients");
+    } else {
+      // change the RuntimeError into ValueError
+      PyObject *type, *value, *traceback;
+      PyErr_Fetch(&type, &value, &traceback);
+      PyErr_Restore(PyExc_ValueError, value, traceback);
     }
     return NULL;
   }
