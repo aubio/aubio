@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import os
+import re
 import glob
 import numpy as np
 from tempfile import mkstemp
@@ -77,3 +78,16 @@ def count_files_in_directory(samples_dir):
                 if file_path:
                     total_files += 1
     return total_files
+
+def parse_file_samplerate(soundfile):
+    samplerate = None
+    # parse samplerate
+    re_sr = re.compile(r'/([0-9]{4,})Hz_.*')
+    match_samplerate = re_sr.findall(soundfile)
+    if match_samplerate:
+        samplerate = int(match_samplerate[0])
+    else:
+        import warnings
+        warnings.warn(UserWarning("could not parse samplerate for {:s}"
+            .format(soundfile)))
+    return samplerate

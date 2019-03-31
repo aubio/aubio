@@ -436,6 +436,10 @@ Py_source_do(Py_source * self, PyObject * args)
   /* compute _do function */
   aubio_source_do (self->o, &(self->c_read_to), &read);
 
+  if (PyErr_Occurred() != NULL) {
+    return NULL;
+  }
+
   outputs = PyTuple_New(2);
   PyTuple_SetItem( outputs, 0, self->read_to );
   PyTuple_SetItem( outputs, 1, (PyObject *)PyLong_FromLong(read));
@@ -456,6 +460,10 @@ Py_source_do_multi(Py_source * self, PyObject * args)
   }
   /* compute _do function */
   aubio_source_do_multi (self->o, &(self->c_mread_to), &read);
+
+  if (PyErr_Occurred() != NULL) {
+    return NULL;
+  }
 
   outputs = PyTuple_New(2);
   PyTuple_SetItem( outputs, 0, self->mread_to);
@@ -573,7 +581,10 @@ static PyObject* Pyaubio_source_iter_next(Py_source *self) {
       return vec;
     } else if (PyLong_AsLong(size) > 0) {
       // short read, return a shorter array
-      PyArrayObject *shortread = (PyArrayObject*)PyTuple_GetItem(done, 0);
+      PyObject *vec = PyTuple_GetItem(done, 0);
+      // take a copy to prevent resizing internal arrays
+      PyArrayObject *shortread = (PyArrayObject*)PyArray_FROM_OTF(vec,
+          NPY_NOTYPE, NPY_ARRAY_ENSURECOPY);
       PyArray_Dims newdims;
       PyObject *reshaped;
       newdims.len = PyArray_NDIM(shortread);
@@ -586,6 +597,7 @@ static PyObject* Pyaubio_source_iter_next(Py_source *self) {
       }
       reshaped = PyArray_Newshape(shortread, &newdims, NPY_CORDER);
       Py_DECREF(shortread);
+      Py_DECREF(vec);
       return reshaped;
     } else {
       PyErr_SetNone(PyExc_StopIteration);

@@ -33,9 +33,9 @@ int main (int argc, char** argv)
   aubio_pvoc_t *pv = 0;
   aubio_mfcc_t *mfcc = 0;
 
-  fvec_t *in = new_fvec (win_s); // input buffer
-  cvec_t *fftgrain = new_cvec (win_s); // input buffer
-  fvec_t *out = new_fvec (n_coeffs); // output coefficients
+  fvec_t *in = new_fvec (hop_s);       // phase vocoder input
+  cvec_t *fftgrain = new_cvec (win_s); // pvoc output / mfcc input
+  fvec_t *out = new_fvec (n_coeffs);   // mfcc output
 
   if (!in || !fftgrain || !out) { err = 1; goto failure; }
 

@@ -28,8 +28,6 @@
 #include "io/sink_wavwrite.h"
 #include "io/ioutils.h"
 
-#include <errno.h>
-
 #define MAX_SIZE 4096
 
 #define FLOAT_TO_SHORT(x) (short)(x * 32768)
@@ -162,54 +160,64 @@ uint_t aubio_sink_wavwrite_get_channels(const aubio_sink_wavwrite_t *s)
 uint_t aubio_sink_wavwrite_open(aubio_sink_wavwrite_t *s) {
   unsigned char buf[5];
   uint_t byterate, blockalign;
+  size_t written = 0;
 
   /* open output file */
   s->fid = fopen((const char *)s->path, "wb");
   if (!s->fid) {
-    AUBIO_ERR("sink_wavwrite: could not open %s (%s)\n", s->path, strerror(errno));
+    AUBIO_STRERR("sink_wavwrite: could not open %s (%s)\n", s->path, errorstr);
     goto beach;
   }
 
   // ChunkID
-  fwrite("RIFF", 4, 1, s->fid);
+  written += fwrite("RIFF", 4, 1, s->fid);
 
   // ChunkSize (0 for now, actual size will be written in _close)
-  fwrite(write_little_endian(0, buf, 4), 4, 1, s->fid);
+  written += fwrite(write_little_endian(0, buf, 4), 4, 1, s->fid);
 
   // Format
-  fwrite("WAVE", 4, 1, s->fid);
+  written += fwrite("WAVE", 4, 1, s->fid);
 
   // Subchunk1ID
-  fwrite("fmt ", 4, 1, s->fid);
+  written += fwrite("fmt ", 4, 1, s->fid);
 
   // Subchunk1Size
-  fwrite(write_little_endian(16, buf, 4), 4, 1, s->fid);
+  written += fwrite(write_little_endian(16, buf, 4), 4, 1, s->fid);
 
   // AudioFormat
-  fwrite(write_little_endian(1, buf, 2), 2, 1, s->fid);
+  written += fwrite(write_little_endian(1, buf, 2), 2, 1, s->fid);
 
   // NumChannels
-  fwrite(write_little_endian(s->channels, buf, 2), 2, 1, s->fid);
+  written += fwrite(write_little_endian(s->channels, buf, 2), 2, 1, s->fid);
 
   // SampleRate
-  fwrite(write_little_endian(s->samplerate, buf, 4), 4, 1, s->fid);
+  written += fwrite(write_little_endian(s->samplerate, buf, 4), 4, 1, s->fid);
 
   // ByteRate
   byterate = s->samplerate * s->channels * s->bitspersample / 8;
-  fwrite(write_little_endian(byterate, buf, 4), 4, 1, s->fid);
+  written += fwrite(write_little_endian(byterate, buf, 4), 4, 1, s->fid);
 
   // BlockAlign
   blockalign = s->channels * s->bitspersample / 8;
-  fwrite(write_little_endian(blockalign, buf, 2), 2, 1, s->fid);
+  written += fwrite(write_little_endian(blockalign, buf, 2), 2, 1, s->fid);
 
   // BitsPerSample
-  fwrite(write_little_endian(s->bitspersample, buf, 2), 2, 1, s->fid);
+  written += fwrite(write_little_endian(s->bitspersample, buf, 2), 2, 1, s->fid);
 
   // Subchunk2ID
-  fwrite("data", 4, 1, s->fid);
+  written += fwrite("data", 4, 1, s->fid);
 
   // Subchunk1Size (0 for now, actual size will be written in _close)
-  fwrite(write_little_endian(0, buf, 4), 4, 1, s->fid);
+  written += fwrite(write_little_endian(0, buf, 4), 4, 1, s->fid);
+
+  // fwrite(*, *, 1, s->fid) was called 13 times, check success
+  if (written != 13 || fflush(s->fid)) {
+    AUBIO_STRERR("sink_wavwrite: writing header to %s failed"
+        " (wrote %d/%d, %s)\n", s->path, written, 13, errorstr);
+    fclose(s->fid);
+    s->fid = NULL;
+    return AUBIO_FAIL;
+  }
 
   s->scratch_size = s->max_size * s->channels;
   /* allocate data for de/interleaving reallocated when needed. */
@@ -226,9 +234,22 @@ beach:
   return AUBIO_FAIL;
 }
 
+static
+void aubio_sink_wavwrite_write_frames(aubio_sink_wavwrite_t *s, uint_t write)
+{
+  uint_t written_frames = 0;
+
+  written_frames = fwrite(s->scratch_data, 2 * s->channels, write, s->fid);
+
+  if (written_frames != write) {
+    AUBIO_STRERR("sink_wavwrite: trying to write %d frames to %s, but only %d"
+        " could be written (%s)\n", write, s->path, written_frames, errorstr);
+  }
+  s->total_frames_written += written_frames;
+}
 
 void aubio_sink_wavwrite_do(aubio_sink_wavwrite_t *s, fvec_t * write_data, uint_t write){
-  uint_t c = 0, i = 0, written_frames = 0;
+  uint_t c = 0, i = 0;
   uint_t length = aubio_sink_validate_input_length("sink_wavwrite", s->path,
       s->max_size, write_data->length, write);
 
@@ -237,18 +258,12 @@ void aubio_sink_wavwrite_do(aubio_sink_wavwrite_t *s, fvec_t * write_data, uint_
       s->scratch_data[i * s->channels + c] = HTOLES(FLOAT_TO_SHORT(write_data->data[i]));
     }
   }
-  written_frames = fwrite(s->scratch_data, 2, length * s->channels, s->fid);
 
-  if (written_frames != write) {
-    AUBIO_WRN("sink_wavwrite: trying to write %d frames to %s, "
-        "but only %d could be written\n", write, s->path, written_frames);
-  }
-  s->total_frames_written += written_frames;
-  return;
+  aubio_sink_wavwrite_write_frames(s, length);
 }
 
 void aubio_sink_wavwrite_do_multi(aubio_sink_wavwrite_t *s, fmat_t * write_data, uint_t write){
-  uint_t c = 0, i = 0, written_frames = 0;
+  uint_t c = 0, i = 0;
 
   uint_t channels = aubio_sink_validate_input_channels("sink_wavwrite", s->path,
       s->channels, write_data->height);
@@ -260,29 +275,28 @@ void aubio_sink_wavwrite_do_multi(aubio_sink_wavwrite_t *s, fmat_t * write_data,
       s->scratch_data[i * s->channels + c] = HTOLES(FLOAT_TO_SHORT(write_data->data[c][i]));
     }
   }
-  written_frames = fwrite(s->scratch_data, 2, length * s->channels, s->fid);
 
-  if (written_frames != write * s->channels) {
-    AUBIO_WRN("sink_wavwrite: trying to write %d frames to %s, "
-        "but only %d could be written\n", write, s->path, written_frames / s->channels);
-  }
-  s->total_frames_written += written_frames;
-  return;
+  aubio_sink_wavwrite_write_frames(s, length);
 }
 
 uint_t aubio_sink_wavwrite_close(aubio_sink_wavwrite_t * s) {
   uint_t data_size = s->total_frames_written * s->bitspersample * s->channels / 8;
   unsigned char buf[5];
+  size_t written = 0, err = 0;
   if (!s->fid) return AUBIO_FAIL;
   // ChunkSize
-  fseek(s->fid, 4, SEEK_SET);
-  fwrite(write_little_endian(data_size + 36, buf, 4), 4, 1, s->fid);
+  err += fseek(s->fid, 4, SEEK_SET);
+  written += fwrite(write_little_endian(data_size + 36, buf, 4), 4, 1, s->fid);
   // Subchunk2Size
-  fseek(s->fid, 40, SEEK_SET);
-  fwrite(write_little_endian(data_size, buf, 4), 4, 1, s->fid);
+  err += fseek(s->fid, 40, SEEK_SET);
+  written += fwrite(write_little_endian(data_size, buf, 4), 4, 1, s->fid);
+  if (written != 2 || err != 0) {
+    AUBIO_STRERR("sink_wavwrite: updating header of %s failed, expected %d"
+        " write but got only %d (%s)\n", s->path, 2, written, errorstr);
+  }
   // close file
   if (fclose(s->fid)) {
-    AUBIO_ERR("sink_wavwrite: Error closing file %s (%s)\n", s->path, strerror(errno));
+    AUBIO_STRERR("sink_wavwrite: Error closing file %s (%s)\n", s->path, errorstr);
   }
   s->fid = NULL;
   return AUBIO_OK;
