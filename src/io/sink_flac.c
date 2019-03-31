@@ -34,9 +34,6 @@
 #include <FLAC/metadata.h>
 #include <FLAC/stream_encoder.h>
 
-#include <string.h> // strerror
-#include <errno.h> // errno
-
 #define MAX_WRITE_SIZE 4096
 
 // swap host to little endian
@@ -132,6 +129,7 @@ uint_t aubio_sink_flac_open(aubio_sink_flac_t *s)
   uint_t ret = AUBIO_FAIL;
   FLAC__bool ok = true;
   FLAC__StreamEncoderInitStatus init_status;
+  FLAC__StreamMetadata_VorbisComment_Entry entry;
   const unsigned comp_level = 5;
   const unsigned bps = 16;
 
@@ -145,7 +143,7 @@ uint_t aubio_sink_flac_open(aubio_sink_flac_t *s)
 
   s->fid = fopen((const char *)s->path, "wb");
   if (!s->fid) {
-    AUBIO_ERR("sink_flac: failed opening %s, %s\n", s->path, strerror(errno));
+    AUBIO_STRERR("sink_flac: Failed opening %s (%s)\n", s->path, errorstr);
     return AUBIO_FAIL;
   }
 
@@ -185,7 +183,6 @@ uint_t aubio_sink_flac_open(aubio_sink_flac_t *s)
     goto failure;
   }
 
-  FLAC__StreamMetadata_VorbisComment_Entry entry;
   ok = FLAC__metadata_object_vorbiscomment_entry_from_name_value_pair(&entry,
       "encoder", "aubio");
   ok &= FLAC__metadata_object_vorbiscomment_append_comment(s->metadata[0],
@@ -347,8 +344,7 @@ uint_t aubio_sink_flac_close (aubio_sink_flac_t *s)
   }
 
   if (s->fid && fclose(s->fid)) {
-    AUBIO_ERR("sink_flac: Error closing file %s (%s)\n",
-        s->path, strerror(errno));
+    AUBIO_STRERR("sink_flac: Error closing file %s (%s)\n", s->path, errorstr);
     ret &= AUBIO_FAIL;
   }
   s->fid = NULL;
