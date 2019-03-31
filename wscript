@@ -145,6 +145,7 @@ def configure(ctx):
     ctx.check(header_name='stdio.h')
     ctx.check(header_name='math.h')
     ctx.check(header_name='string.h')
+    ctx.check(header_name='errno.h')
     ctx.check(header_name='limits.h')
     ctx.check(header_name='stdarg.h')
     ctx.check(header_name='getopt.h', mandatory = False)
@@ -649,7 +650,7 @@ def dist(ctx):
     ctx.excl += ' **/.pytest_cache'
     ctx.excl += ' **/.cache'
     ctx.excl += ' **/**.zip **/**.tar.bz2'
-    ctx.excl += ' **.tar.bz2'
+    ctx.excl += ' **.tar.bz2**'
     ctx.excl += ' **/doc/full/* **/doc/web/*'
     ctx.excl += ' **/doc/full.cfg'
     ctx.excl += ' **/python/*.db'
@@ -661,7 +662,6 @@ def dist(ctx):
     ctx.excl += ' **/dist*'
     ctx.excl += ' **/.DS_Store'
     ctx.excl += ' **/.travis.yml'
-    ctx.excl += ' **/.landscape.yml'
     ctx.excl += ' **/.appveyor.yml'
     ctx.excl += ' **/.circleci/*'
     ctx.excl += ' **/azure-pipelines.yml'

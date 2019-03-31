@@ -8,6 +8,7 @@ matrix:
     - python: 3.5
       os: linux
       compiler: gcc
+      env: WAFOPTS="--build-type=debug"
     - python: 2.7
       os: linux
       compiler: gcc

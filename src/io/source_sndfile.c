@@ -174,6 +174,11 @@ void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_data, uin
       s->hop_size, read_data->length);
   sf_count_t read_samples = aubio_sf_read_smpl (s->handle, s->scratch_data,
       s->scratch_size);
+  uint_t read_length = read_samples / s->input_channels;
+
+  /* where to store de-interleaved data */
+  smpl_t *ptr_data;
+
   if (!s->handle) {
     AUBIO_ERR("source_sndfile: could not read from %s (file was closed)\n",
         s->path);
@@ -181,10 +186,6 @@ void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_data, uin
     return;
   }
 
-  uint_t read_length = read_samples / s->input_channels;
-
-  /* where to store de-interleaved data */
-  smpl_t *ptr_data;
 #ifdef HAVE_SAMPLERATE
   if (s->ratio != 1) {
     ptr_data = s->input_data->data;
@@ -225,6 +226,11 @@ void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_dat
       s->path, s->input_channels, read_data->height);
   sf_count_t read_samples = aubio_sf_read_smpl (s->handle, s->scratch_data,
       s->scratch_size);
+  uint_t read_length = read_samples / s->input_channels;
+
+  /* where to store de-interleaved data */
+  smpl_t **ptr_data;
+
   if (!s->handle) {
     AUBIO_ERR("source_sndfile: could not read from %s (file was closed)\n",
         s->path);
@@ -232,10 +238,6 @@ void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_dat
     return;
   }
 
-  uint_t read_length = read_samples / s->input_channels;
-
-  /* where to store de-interleaved data */
-  smpl_t **ptr_data;
 #ifdef HAVE_SAMPLERATE
   if (s->ratio != 1) {
     ptr_data = s->input_mat->data;

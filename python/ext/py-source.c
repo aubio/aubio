@@ -581,7 +581,10 @@ static PyObject* Pyaubio_source_iter_next(Py_source *self) {
       return vec;
     } else if (PyLong_AsLong(size) > 0) {
       // short read, return a shorter array
-      PyArrayObject *shortread = (PyArrayObject*)PyTuple_GetItem(done, 0);
+      PyObject *vec = PyTuple_GetItem(done, 0);
+      // take a copy to prevent resizing internal arrays
+      PyArrayObject *shortread = (PyArrayObject*)PyArray_FROM_OTF(vec,
+          NPY_NOTYPE, NPY_ARRAY_ENSURECOPY);
       PyArray_Dims newdims;
       PyObject *reshaped;
       newdims.len = PyArray_NDIM(shortread);
@@ -594,6 +597,7 @@ static PyObject* Pyaubio_source_iter_next(Py_source *self) {
       }
       reshaped = PyArray_Newshape(shortread, &newdims, NPY_CORDER);
       Py_DECREF(shortread);
+      Py_DECREF(vec);
       return reshaped;
     } else {
       PyErr_SetNone(PyExc_StopIteration);

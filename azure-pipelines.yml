@@ -3,7 +3,7 @@ jobs:
 
 - job: linux
   pool:
-    vmImage: 'Ubuntu 16.04'
+    vmImage: 'ubuntu-16.04'
   steps:
   - script: |
       make
@@ -13,7 +13,7 @@ jobs:
 
 - job: windows
   pool:
-    vmIMage: 'VS2017-Win2016'
+    vmImage: 'vs2017-win2016'
   steps:
   - script: |
       make
@@ -24,7 +24,7 @@ jobs:
 
 - job: macos
   pool:
-    vmIMage: macOS-10.13
+    vmImage: 'macos-10.13'
   steps:
   - script: |
       brew update

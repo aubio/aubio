@@ -30,7 +30,6 @@
 #include <libavresample/avresample.h>
 #endif
 #include <libavutil/opt.h>
-#include <stdlib.h>
 
 // determine whether we use libavformat from ffmpeg or from libav
 #define FFMPEG_LIBAVFORMAT (LIBAVFORMAT_VERSION_MICRO > 99 )
@@ -120,9 +119,9 @@ uint_t aubio_source_avcodec_has_network_url(aubio_source_avcodec_t *s) {
 aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path,
     uint_t samplerate, uint_t hop_size) {
   aubio_source_avcodec_t * s = AUBIO_NEW(aubio_source_avcodec_t);
-  AVFormatContext *avFormatCtx = s->avFormatCtx;
-  AVCodecContext *avCodecCtx = s->avCodecCtx;
-  AVFrame *avFrame = s->avFrame;
+  AVFormatContext *avFormatCtx = NULL;
+  AVCodecContext *avCodecCtx = NULL;
+  AVFrame *avFrame = NULL;
   sint_t selected_stream = -1;
 #if FF_API_LAVF_AVCTX
   AVCodecParameters *codecpar;
@@ -464,23 +463,15 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s,
       (uint8_t **)&output, max_out_samples,
       (const uint8_t **)avFrame->data, in_samples);
 #endif /* HAVE_AVRESAMPLE || HAVE_SWRESAMPLE */
-  if (out_samples <= 0) {
-    AUBIO_WRN("source_avcodec: no sample found while converting frame (%s)\n",
-        s->path);
+  if (out_samples < 0) {
+    AUBIO_WRN("source_avcodec: error while resampling %s (%d)\n",
+        s->path, out_samples);
     goto beach;
   }
 
   *read_samples = out_samples;
 
 beach:
-  s->avFormatCtx = avFormatCtx;
-  s->avCodecCtx = avCodecCtx;
-  s->avFrame = avFrame;
-#if defined(HAVE_AVRESAMPLE) || defined(HAVE_SWRESAMPLE)
-  s->avr = avr;
-#endif /* HAVE_AVRESAMPLE || HAVE_SWRESAMPLE */
-  s->output = output;
-
   av_packet_unref(&avPacket);
 }
 
@@ -628,10 +619,11 @@ uint_t aubio_source_avcodec_close(aubio_source_avcodec_t * s) {
   if (s->avr != NULL) {
 #ifdef HAVE_AVRESAMPLE
     avresample_close( s->avr );
+    av_free ( s->avr );
 #elif defined(HAVE_SWRESAMPLE)
     swr_close ( s->avr );
+    swr_free ( &s->avr );
 #endif
-    av_free ( s->avr );
   }
   s->avr = NULL;
   if (s->avCodecCtx != NULL) {

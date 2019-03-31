@@ -3,9 +3,10 @@
 
 from numpy.testing import TestCase, assert_equal
 from aubio import source
-from utils import list_all_sounds
+from utils import list_all_sounds, parse_file_samplerate
 import unittest
-from _tools import parametrize, assert_raises, assert_equal, skipTest
+from _tools import assert_raises, assert_equal, assert_warns
+from _tools import parametrize, skipTest
 
 list_of_sounds = list_all_sounds('sounds')
 samplerates = [0, 44100, 8000, 32000]
@@ -22,6 +23,7 @@ for soundfile in list_of_sounds:
 no_sounds_msg = "no test sounds, add some in 'python/tests/sounds/'!"
 
 _debug = False
+
 
 class Test_aubio_source_test_case(TestCase):
 
@@ -74,8 +76,14 @@ class Test_aubio_source_read(object):
 
     @parametrize('hop_size, samplerate, soundfile', all_params)
     def test_samplerate_hopsize(self, hop_size, samplerate, soundfile):
+        orig_samplerate = parse_file_samplerate(soundfile)
         try:
-            f = source(soundfile, samplerate, hop_size)
+            if orig_samplerate is not None and orig_samplerate < samplerate:
+                # upsampling should emit a warning
+                with assert_warns(UserWarning):
+                    f = source(soundfile, samplerate, hop_size)
+            else:
+                f = source(soundfile, samplerate, hop_size)
         except RuntimeError as e:
             err_msg = 'failed opening with hop_s={:d}, samplerate={:d} ({:s})'
             skipTest(err_msg.format(hop_size, samplerate, str(e)))
