@@ -3,7 +3,8 @@
 from numpy.testing import TestCase
 from aubio import fvec, source, sink
 from utils import list_all_sounds, get_tmp_sink_path, del_tmp_sink_path
-from _tools import parametrize, skipTest, assert_raises
+from utils import parse_file_samplerate
+from _tools import parametrize, skipTest, assert_raises, assert_warns
 
 list_of_sounds = list_all_sounds('sounds')
 samplerates = [0, 44100, 8000, 32000]
@@ -60,8 +61,14 @@ class Test_aubio_sink(object):
 
     @parametrize('hop_size, samplerate, path', all_params)
     def test_read_and_write(self, hop_size, samplerate, path):
+        orig_samplerate = parse_file_samplerate(soundfile)
         try:
-            f = source(path, samplerate, hop_size)
+            if orig_samplerate is not None and orig_samplerate < samplerate:
+                # upsampling should emit a warning
+                with assert_warns(UserWarning):
+                    f = source(soundfile, samplerate, hop_size)
+            else:
+                f = source(soundfile, samplerate, hop_size)
         except RuntimeError as e:
             err_msg = '{:s} (hop_s = {:d}, samplerate = {:d})'
             skipTest(err_msg.format(str(e), hop_size, samplerate))
@@ -78,8 +85,14 @@ class Test_aubio_sink(object):
 
     @parametrize('hop_size, samplerate, path', all_params)
     def test_read_and_write_multi(self, hop_size, samplerate, path):
+        orig_samplerate = parse_file_samplerate(soundfile)
         try:
-            f = source(path, samplerate, hop_size)
+            if orig_samplerate is not None and orig_samplerate < samplerate:
+                # upsampling should emit a warning
+                with assert_warns(UserWarning):
+                    f = source(soundfile, samplerate, hop_size)
+            else:
+                f = source(soundfile, samplerate, hop_size)
         except RuntimeError as e:
             err_msg = '{:s} (hop_s = {:d}, samplerate = {:d})'
             skipTest(err_msg.format(str(e), hop_size, samplerate))

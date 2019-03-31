@@ -30,7 +30,6 @@
 #include <libavresample/avresample.h>
 #endif
 #include <libavutil/opt.h>
-#include <stdlib.h>
 
 // determine whether we use libavformat from ffmpeg or from libav
 #define FFMPEG_LIBAVFORMAT (LIBAVFORMAT_VERSION_MICRO > 99 )
@@ -60,6 +59,7 @@
 #include "aubio_priv.h"
 #include "fvec.h"
 #include "fmat.h"
+#include "ioutils.h"
 #include "source_avcodec.h"
 
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(56, 56, 0)
@@ -119,9 +119,9 @@ uint_t aubio_source_avcodec_has_network_url(aubio_source_avcodec_t *s) {
 aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path,
     uint_t samplerate, uint_t hop_size) {
   aubio_source_avcodec_t * s = AUBIO_NEW(aubio_source_avcodec_t);
-  AVFormatContext *avFormatCtx = s->avFormatCtx;
-  AVCodecContext *avCodecCtx = s->avCodecCtx;
-  AVFrame *avFrame = s->avFrame;
+  AVFormatContext *avFormatCtx = NULL;
+  AVCodecContext *avCodecCtx = NULL;
+  AVFrame *avFrame = NULL;
   sint_t selected_stream = -1;
 #if FF_API_LAVF_AVCTX
   AVCodecParameters *codecpar;
@@ -463,23 +463,15 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s,
       (uint8_t **)&output, max_out_samples,
       (const uint8_t **)avFrame->data, in_samples);
 #endif /* HAVE_AVRESAMPLE || HAVE_SWRESAMPLE */
-  if (out_samples <= 0) {
-    AUBIO_WRN("source_avcodec: no sample found while converting frame (%s)\n",
-        s->path);
+  if (out_samples < 0) {
+    AUBIO_WRN("source_avcodec: error while resampling %s (%d)\n",
+        s->path, out_samples);
     goto beach;
   }
 
   *read_samples = out_samples;
 
 beach:
-  s->avFormatCtx = avFormatCtx;
-  s->avCodecCtx = avCodecCtx;
-  s->avFrame = avFrame;
-#if defined(HAVE_AVRESAMPLE) || defined(HAVE_SWRESAMPLE)
-  s->avr = avr;
-#endif /* HAVE_AVRESAMPLE || HAVE_SWRESAMPLE */
-  s->output = output;
-
   av_packet_unref(&avPacket);
 }
 
@@ -488,8 +480,16 @@ void aubio_source_avcodec_do(aubio_source_avcodec_t * s, fvec_t * read_data,
   uint_t i, j;
   uint_t end = 0;
   uint_t total_wrote = 0;
-  while (total_wrote < s->hop_size) {
-    end = MIN(s->read_samples - s->read_index, s->hop_size - total_wrote);
+  uint_t length = aubio_source_validate_input_length("source_avcodec", s->path,
+      s->hop_size, read_data->length);
+  if (!s->avr || !s->avFormatCtx || !s->avCodecCtx) {
+    AUBIO_ERR("source_avcodec: could not read from %s (file was closed)\n",
+        s->path);
+    *read= 0;
+    return;
+  }
+  while (total_wrote < length) {
+    end = MIN(s->read_samples - s->read_index, length - total_wrote);
     for (i = 0; i < end; i++) {
       read_data->data[i + total_wrote] = 0.;
       for (j = 0; j < s->input_channels; j++) {
@@ -499,7 +499,7 @@ void aubio_source_avcodec_do(aubio_source_avcodec_t * s, fvec_t * read_data,
       read_data->data[i + total_wrote] *= 1./s->input_channels;
     }
     total_wrote += end;
-    if (total_wrote < s->hop_size) {
+    if (total_wrote < length) {
       uint_t avcodec_read = 0;
       aubio_source_avcodec_readframe(s, &avcodec_read);
       s->read_samples = avcodec_read;
@@ -511,11 +511,9 @@ void aubio_source_avcodec_do(aubio_source_avcodec_t * s, fvec_t * read_data,
       s->read_index += end;
     }
   }
-  if (total_wrote < s->hop_size) {
-    for (i = total_wrote; i < s->hop_size; i++) {
-      read_data->data[i] = 0.;
-    }
-  }
+
+  aubio_source_pad_output(read_data, total_wrote);
+
   *read = total_wrote;
 }
 
@@ -524,16 +522,26 @@ void aubio_source_avcodec_do_multi(aubio_source_avcodec_t * s,
   uint_t i,j;
   uint_t end = 0;
   uint_t total_wrote = 0;
-  while (total_wrote < s->hop_size) {
-    end = MIN(s->read_samples - s->read_index, s->hop_size - total_wrote);
-    for (j = 0; j < read_data->height; j++) {
+  uint_t length = aubio_source_validate_input_length("source_avcodec", s->path,
+      s->hop_size, read_data->length);
+  uint_t channels = aubio_source_validate_input_channels("source_avcodec",
+      s->path, s->input_channels, read_data->height);
+  if (!s->avr || !s->avFormatCtx || !s->avCodecCtx) {
+    AUBIO_ERR("source_avcodec: could not read from %s (file was closed)\n",
+        s->path);
+    *read= 0;
+    return;
+  }
+  while (total_wrote < length) {
+    end = MIN(s->read_samples - s->read_index, length - total_wrote);
+    for (j = 0; j < channels; j++) {
       for (i = 0; i < end; i++) {
         read_data->data[j][i + total_wrote] =
           s->output[(i + s->read_index) * s->input_channels + j];
       }
     }
     total_wrote += end;
-    if (total_wrote < s->hop_size) {
+    if (total_wrote < length) {
       uint_t avcodec_read = 0;
       aubio_source_avcodec_readframe(s, &avcodec_read);
       s->read_samples = avcodec_read;
@@ -545,13 +553,9 @@ void aubio_source_avcodec_do_multi(aubio_source_avcodec_t * s,
       s->read_index += end;
     }
   }
-  if (total_wrote < s->hop_size) {
-    for (j = 0; j < read_data->height; j++) {
-      for (i = total_wrote; i < s->hop_size; i++) {
-        read_data->data[j][i] = 0.;
-      }
-    }
-  }
+
+  aubio_source_pad_multi_output(read_data, s->input_channels, total_wrote);
+
   *read = total_wrote;
 }
 
@@ -615,10 +619,11 @@ uint_t aubio_source_avcodec_close(aubio_source_avcodec_t * s) {
   if (s->avr != NULL) {
 #ifdef HAVE_AVRESAMPLE
     avresample_close( s->avr );
+    av_free ( s->avr );
 #elif defined(HAVE_SWRESAMPLE)
     swr_close ( s->avr );
+    swr_free ( &s->avr );
 #endif
-    av_free ( s->avr );
   }
   s->avr = NULL;
   if (s->avCodecCtx != NULL) {

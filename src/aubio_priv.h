@@ -62,6 +62,10 @@
 #include <string.h>
 #endif
 
+#ifdef HAVE_ERRNO_H
+#include <errno.h>
+#endif
+
 #ifdef HAVE_LIMITS_H
 #include <limits.h> // for CHAR_BIT, in C99 standard
 #endif
@@ -70,12 +74,8 @@
 #include <stdarg.h>
 #endif
 
-#if defined(HAVE_ACCELERATE)
-#define HAVE_ATLAS 1
-#define HAVE_BLAS 1
-#include <Accelerate/Accelerate.h>
-#elif defined(HAVE_ATLAS_CBLAS_H)
-#elif defined(HAVE_BLAS)
+#if defined(HAVE_BLAS) // --enable-blas=true
+// check which cblas header we found
 #if defined(HAVE_ATLAS_CBLAS_H)
 #define HAVE_ATLAS 1
 #include <atlas/cblas.h>
@@ -83,11 +83,17 @@
 #include <openblas/cblas.h>
 #elif defined(HAVE_CBLAS_H)
 #include <cblas.h>
-#endif
+#elif !defined(HAVE_ACCELERATE)
+#error "HAVE_BLAS was defined, but no blas header was found"
+#endif /* end of cblas includes */
 #endif
 
-#ifdef HAVE_ACCELERATE
+#if defined(HAVE_ACCELERATE)
+// include accelerate framework after blas
+#define HAVE_ATLAS 1
+#define HAVE_BLAS 1
 #include <Accelerate/Accelerate.h>
+
 #ifndef HAVE_AUBIO_DOUBLE
 #define aubio_vDSP_mmov       vDSP_mmov
 #define aubio_vDSP_vmul       vDSP_vmul
@@ -322,6 +328,24 @@ uint_t aubio_log(sint_t level, const char_t *fmt, ...);
 /* avoid unresolved symbol with msvc 9 */
 #if defined(_MSC_VER) && (_MSC_VER < 1900)
 #define isnan _isnan
+#endif
+
+#if !defined(_MSC_VER)
+#define AUBIO_STRERROR(errno,buf,len) strerror_r(errno, buf, len)
+#else
+#define AUBIO_STRERROR(errno,buf,len) strerror_s(buf, len, errno)
+#endif
+
+#ifdef HAVE_C99_VARARGS_MACROS
+#define AUBIO_STRERR(...)            \
+    char errorstr[256]; \
+    AUBIO_STRERROR(errno, errorstr, sizeof(errorstr)); \
+    AUBIO_ERR(__VA_ARGS__)
+#else
+#define AUBIO_STRERR(format, args...)   \
+    char errorstr[256]; \
+    AUBIO_STRERROR(errno, errorstr, sizeof(errorstr)); \
+    AUBIO_ERR(format, ##args)
 #endif
 
 /* handy shortcuts */

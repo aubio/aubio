@@ -1,3 +1,83 @@
+2018-12-19 Paul Brossier <piem@aubio.org>
+
+	[ Overview ]
+
+	* VERSION: bump to 0.4.9
+	* library: improve stability, fixing potential crashes and memory leaks on
+	invalid arguments; improve library messages and reporting of system errors
+	* tests/: major clean-up, check return codes, increase code coverage
+	* python/tests/: switch to pytest (closes gh-163), check emitted warnings
+	* python/: add pages to manual with brief descriptions of classes
+
+	[ Fixes ]
+
+	* security: improve arguments validation in new_aubio_filterbank (prevent
+	possible null-pointer dereference on invalid n_filters, CVE-2018-19801),
+	new_aubio-tempo (prevent possible buffer overflow, CVE-2018-19800), and
+	new_aubio_onset (prevent null-pointer dereference, CVE-2018-19802). Thanks
+	to Guoxiang Niu (@niugx), from the EaglEye Team for reporting these issues.
+	* tempo: fix delay_ms methods
+	* filterbank: fix aubio_filterbank_get_power (thanks to @romanbsd who
+	also noticed this issue)
+	* dct: creation fail on negative sizes or invalid accelerate radix,
+	fix typo in error and warning messages, prevent possible memory leak
+	* pitch: prevent null pointer dereference in yinfast, comment out unused
+	functions in mcomb and yin, prevent possible leak in specacf
+	* mfcc: always use dct module, strengthen input validation, change
+	get_{scale,power} to return smpl_t
+	* specdesc: improve error message
+	* notes: prevent null pointer dereference
+	* hist: add validation for size argument, prevent possible leak
+	* awhitening: use shortest length available (closes gh-216)
+	* io: add macros to display system errors, add helpers to validate input
+	arguments of source and sink methods, always clean-up after failure
+	* source: validate input sizes to prevent invalid reads
+	* apple_audio: use native format conversions in source and sink, prevent
+	possible apple_audio crash on empty string, get_duration returns 0 on failure
+	* ffmpeg/avcodec: prevent deprecation warnings, read after close, and skipped
+	samples warnings, improve warning messages, only show a warning when
+	swr_convert failed, prevent possible memory leak when closing swr context
+	* wavwrite: copy to all channels if needed, check fseek and fwrite return
+	values, call fflush in open to return failure on full disk-system
+	* source_sndfile: fix reading sizes when resampling, set error message when
+	reading after close
+	* aubio_priv.h: include blas first (see gh-225), add STRERROR macros
+
+	[ Python ]
+
+	* documentation: add pages to manual, add minimal docstrings for fft,
+	digital_filter, and generated objects, improve specdesc documentation
+	* filterbank: add get_norm/power documentation
+	* source: take a copy of the last frame before resizing it, raise an
+	exception when read failed, fix compilation warning
+	* fixes: remove unneeded check convert with PyFloat_FromDouble or
+	PyFloat_FromDouble, check if sink, digital_filter, were created before
+	deleting
+
+	[ Tests ]
+
+	* python/tests/: switch to pytest (slightly slower than nose2 but better at
+	capturing warnings and parametrization), improve coding style and coverage.
+	Tests should now be run with `pytest`.
+	* tests/: Each test program in C must now return 0, otherwise the test will
+	fail. Examples have been modified to run themselves on a test audio file,
+	but can still be run with arguments. Tests for `source` and `sink` have been
+	factorised, and some code cleaning. A python script is used to create a
+	test sound file. Tested on linux, macos, and windows, improvements to
+	test-mfcc (closes gh-219).
+
+	[ Build system ]
+
+	* waf: upgrade to 2.0.14, check the return code of each test program,
+	update rules to build manual and api documentation into build/, check
+	for errno.h
+	* osx: use -Os in scripts/build_apple_frameworks
+	* Makefile: improve coverage reports
+	* appveyor, travis, circleci: switch to pytest, set one travis config to use
+	sndfile only
+	* travis: add py3.6, drop py3.4, use py3.5 to test debug mode
+	* azure: add basic configuration
+
 2018-11-21 Paul Brossier <piem@aubio.org>
 
 	[ Overview ]

@@ -2,20 +2,25 @@ language: python
 
 matrix:
   include:
+    - python: 3.6
+      os: linux
+      compiler: gcc
     - python: 3.5
       os: linux
       compiler: gcc
-    - python: 3.4
-      os: linux
-      compiler: gcc
+      env: WAFOPTS="--build-type=debug"
     - python: 2.7
       os: linux
       compiler: gcc
-    - python: 3.5
+    - python: "pypy3.5"
       os: linux
       compiler: gcc
-      env: CFLAGS="-Os" WAFOPTS="--disable-samplerate --disable-sndfile"
-    - python: 3.4
+      env: CFLAGS="-Os" WAFOPTS="--disable-avcodec"
+    - python: 3.6
+      os: linux
+      compiler: gcc
+      env: CFLAGS="-Os" WAFOPTS="--disable-samplerate"
+    - python: 3.5
       os: linux
       compiler: gcc
       env: HAVE_AUBIO_DOUBLE=1 CFLAGS="-O3" WAFOPTS="--enable-fftw3"

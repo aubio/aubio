@@ -89,10 +89,46 @@ int test_wrong_params(void)
   aubio_source_do(s, vec, &read);
   if (read != hop_size) return 1;
 
+  // read again in undersized vector
+  del_fvec(vec);
+  vec = new_fvec(hop_size - 1);
+  aubio_source_do(s, vec, &read);
+  if (read != hop_size - 1) return 1;
+
+  // read again in oversized vector
+  del_fvec(vec);
+  vec = new_fvec(hop_size + 1);
+  aubio_source_do(s, vec, &read);
+  if (read != hop_size) return 1;
+
   // seek to 0
   if(aubio_source_seek(s, 0)) return 1;
 
   // read again as multiple channels
+  aubio_source_do_multi(s, mat, &read);
+  if (read != hop_size) return 1;
+
+  // read again as multiple channels in an undersized matrix
+  del_fmat(mat);
+  mat = new_fmat(channels - 1, hop_size);
+  aubio_source_do_multi(s, mat, &read);
+  if (read != hop_size) return 1;
+
+  // read again as multiple channels in an undersized matrix
+  del_fmat(mat);
+  mat = new_fmat(channels, hop_size - 1);
+  aubio_source_do_multi(s, mat, &read);
+  if (read != hop_size - 1) return 1;
+
+  // read again as multiple channels in an oversized matrix
+  del_fmat(mat);
+  mat = new_fmat(channels + 1, hop_size);
+  aubio_source_do_multi(s, mat, &read);
+  if (read != hop_size) return 1;
+
+  // read again as multiple channels in an oversized matrix
+  del_fmat(mat);
+  mat = new_fmat(channels, hop_size + 1);
   aubio_source_do_multi(s, mat, &read);
   if (read != hop_size) return 1;
 
@@ -101,9 +137,20 @@ int test_wrong_params(void)
   // test closing the file a second time
   aubio_source_close(s);
 
+  // reading after close fails
+  del_fvec(vec);
+  vec = new_fvec(hop_size);
+  aubio_source_do(s, vec, &read);
+  del_fmat(mat);
+  mat = new_fmat(channels, hop_size);
+  aubio_source_do_multi(s, mat, &read);
+
   del_aubio_source(s);
   del_fmat(mat);
   del_fvec(vec);
+
+  // shouldn't crash on null
+  del_aubio_source(NULL);
 
   return run_on_default_source(main);
 }

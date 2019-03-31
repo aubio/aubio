@@ -24,6 +24,7 @@
 
 #include "fvec.h"
 #include "fmat.h"
+#include "ioutils.h"
 #include "io/source_apple_audio.h"
 
 // ExtAudioFileRef, AudioStreamBasicDescription, AudioBufferList, ...
@@ -209,9 +210,13 @@ void aubio_source_apple_audio_do(aubio_source_apple_audio_t *s, fvec_t * read_to
     uint_t * read) {
   uint_t c, v;
   UInt32 loadedPackets = aubio_source_apple_audio_read_frame(s);
+  uint_t length = aubio_source_validate_input_length("source_apple_audio",
+      s->path, s->block_size, read_to->length);
   smpl_t *data = (smpl_t*)s->bufferList.mBuffers[0].mData;
 
-  for (v = 0; v < loadedPackets; v++) {
+  length = MIN(loadedPackets, length);
+
+  for (v = 0; v < length; v++) {
     read_to->data[v] = 0.;
     for (c = 0; c < s->channels; c++) {
       read_to->data[v] += data[ v * s->channels + c];
@@ -219,46 +224,31 @@ void aubio_source_apple_audio_do(aubio_source_apple_audio_t *s, fvec_t * read_to
     read_to->data[v] /= (smpl_t)s->channels;
   }
   // short read, fill with zeros
-  if (loadedPackets < s->block_size) {
-    for (v = loadedPackets; v < s->block_size; v++) {
-      read_to->data[v] = 0.;
-    }
-  }
+  aubio_source_pad_output(read_to, length);
 
-  *read = (uint_t)loadedPackets;
-  return;
+  *read = (uint_t)length;
 }
 
 void aubio_source_apple_audio_do_multi(aubio_source_apple_audio_t *s, fmat_t * read_to, uint_t * read) {
   uint_t c, v;
+  uint_t length = aubio_source_validate_input_length("source_apple_audio",
+      s->path, s->block_size, read_to->length);
+  uint_t channels = aubio_source_validate_input_channels("source_apple_audio",
+      s->path, s->channels, read_to->height);
   UInt32 loadedPackets = aubio_source_apple_audio_read_frame(s);
   smpl_t *data = (smpl_t*)s->bufferList.mBuffers[0].mData;
 
-  for (v = 0; v < loadedPackets; v++) {
-    for (c = 0; c < read_to->height; c++) {
+  length = MIN(loadedPackets, length);
+
+  for (v = 0; v < length; v++) {
+    for (c = 0; c < channels; c++) {
       read_to->data[c][v] = data[ v * s->channels + c];
     }
   }
-  // if read_data has more channels than the file
-  if (read_to->height > s->channels) {
-    // copy last channel to all additional channels
-    for (v = 0; v < loadedPackets; v++) {
-      for (c = s->channels; c < read_to->height; c++) {
-        read_to->data[c][v] = data[ v * s->channels + (s->channels - 1)];
-      }
-    }
-  }
-  // short read, fill with zeros
-  if (loadedPackets < s->block_size) {
-    for (v = loadedPackets; v < s->block_size; v++) {
-      for (c = 0; c < read_to->height; c++) {
-        read_to->data[c][v] = 0.;
-      }
-    }
-  }
 
-  *read = (uint_t)loadedPackets;
-  return;
+  aubio_source_pad_multi_output(read_to, s->channels, (uint_t)length);
+
+  *read = (uint_t)length;
 }
 
 uint_t aubio_source_apple_audio_close (aubio_source_apple_audio_t *s)
@@ -354,7 +344,7 @@ uint_t aubio_source_apple_audio_get_duration(const aubio_source_apple_audio_t * 
     AUBIO_ERROR("source_apple_audio: Failed getting %s duration, "
         "error in ExtAudioFileGetProperty (%s)\n", s->path,
         getPrintableOSStatusError(errorstr, err));
-    return err;
+    return 0;
   }
   return (uint_t)fileLengthFrames;
 }

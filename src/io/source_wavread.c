@@ -24,13 +24,12 @@
 
 #include "fvec.h"
 #include "fmat.h"
+#include "ioutils.h"
 #include "source_wavread.h"
-
-#include <errno.h>
 
 #define AUBIO_WAVREAD_BUFSIZE 1024
 
-#define SHORT_TO_FLOAT(x) (smpl_t)(x * 3.0517578125e-05)
+//#define SHORT_TO_FLOAT(x) (smpl_t)(x * 3.0517578125e-05)
 
 struct _aubio_source_wavread_t {
   uint_t hop_size;
@@ -99,7 +98,7 @@ aubio_source_wavread_t * new_aubio_source_wavread(const char_t * path, uint_t sa
 
   s->fid = fopen((const char *)path, "rb");
   if (!s->fid) {
-    AUBIO_ERR("source_wavread: Failed opening %s (System error: %s)\n", s->path, strerror(errno));
+    AUBIO_STRERR("source_wavread: Failed opening %s (%s)\n", s->path, errorstr);
     goto beach;
   }
 
@@ -132,8 +131,8 @@ aubio_source_wavread_t * new_aubio_source_wavread(const char_t * path, uint_t sa
     buf[4] = '\0';
     bytes_junk += read_little_endian(buf, 4);
     if (fseek(s->fid, bytes_read + bytes_junk, SEEK_SET) != 0) {
-      AUBIO_ERR("source_wavread: Failed opening %s (could not seek past JUNK Chunk: %s)\n",
-          s->path, strerror(errno));
+      AUBIO_STRERR("source_wavread: Failed opening %s (could not seek past JUNK Chunk: %s)\n",
+          s->path, errorstr);
       goto beach;
     }
     bytes_read += bytes_junk;
@@ -260,8 +259,8 @@ aubio_source_wavread_t * new_aubio_source_wavread(const char_t * path, uint_t sa
     buf[4] = '\0';
     bytes_junk += read_little_endian(buf, 4);
     if (fseek(s->fid, bytes_read + bytes_junk, SEEK_SET) != 0) {
-      AUBIO_ERR("source_wavread: could not seek past unknown chunk in %s (%s)\n",
-          s->path, strerror(errno));
+      AUBIO_STRERR("source_wavread: could not seek past unknown chunk in %s (%s)\n",
+          s->path, errorstr);
       goto beach;
     }
     bytes_read += bytes_junk;
@@ -347,13 +346,15 @@ void aubio_source_wavread_do(aubio_source_wavread_t * s, fvec_t * read_data, uin
   uint_t i, j;
   uint_t end = 0;
   uint_t total_wrote = 0;
+  uint_t length = aubio_source_validate_input_length("source_wavread", s->path,
+      s->hop_size, read_data->length);
   if (s->fid == NULL) {
     AUBIO_ERR("source_wavread: could not read from %s (file not opened)\n",
         s->path);
     return;
   }
-  while (total_wrote < s->hop_size) {
-    end = MIN(s->read_samples - s->read_index, s->hop_size - total_wrote);
+  while (total_wrote < length) {
+    end = MIN(s->read_samples - s->read_index, length - total_wrote);
     for (i = 0; i < end; i++) {
       read_data->data[i + total_wrote] = 0;
       for (j = 0; j < s->input_channels; j++ ) {
@@ -362,7 +363,7 @@ void aubio_source_wavread_do(aubio_source_wavread_t * s, fvec_t * read_data, uin
       read_data->data[i + total_wrote] /= (smpl_t)(s->input_channels);
     }
     total_wrote += end;
-    if (total_wrote < s->hop_size) {
+    if (total_wrote < length) {
       uint_t wavread_read = 0;
       aubio_source_wavread_readframe(s, &wavread_read);
       s->read_samples = wavread_read;
@@ -374,11 +375,9 @@ void aubio_source_wavread_do(aubio_source_wavread_t * s, fvec_t * read_data, uin
       s->read_index += end;
     }
   }
-  if (total_wrote < s->hop_size) {
-    for (i = end; i < s->hop_size; i++) {
-      read_data->data[i] = 0.;
-    }
-  }
+
+  aubio_source_pad_output (read_data, total_wrote);
+
   *read = total_wrote;
 }
 
@@ -386,20 +385,24 @@ void aubio_source_wavread_do_multi(aubio_source_wavread_t * s, fmat_t * read_dat
   uint_t i,j;
   uint_t end = 0;
   uint_t total_wrote = 0;
+  uint_t length = aubio_source_validate_input_length("source_wavread", s->path,
+      s->hop_size, read_data->length);
+  uint_t channels = aubio_source_validate_input_channels("source_wavread",
+      s->path, s->input_channels, read_data->height);
   if (s->fid == NULL) {
     AUBIO_ERR("source_wavread: could not read from %s (file not opened)\n",
         s->path);
     return;
   }
-  while (total_wrote < s->hop_size) {
-    end = MIN(s->read_samples - s->read_index, s->hop_size - total_wrote);
-    for (j = 0; j < read_data->height; j++) {
+  while (total_wrote < length) {
+    end = MIN(s->read_samples - s->read_index, length - total_wrote);
+    for (j = 0; j < channels; j++) {
       for (i = 0; i < end; i++) {
         read_data->data[j][i + total_wrote] = s->output->data[j][i];
       }
     }
     total_wrote += end;
-    if (total_wrote < s->hop_size) {
+    if (total_wrote < length) {
       uint_t wavread_read = 0;
       aubio_source_wavread_readframe(s, &wavread_read);
       s->read_samples = wavread_read;
@@ -411,13 +414,9 @@ void aubio_source_wavread_do_multi(aubio_source_wavread_t * s, fmat_t * read_dat
       s->read_index += end;
     }
   }
-  if (total_wrote < s->hop_size) {
-    for (j = 0; j < read_data->height; j++) {
-      for (i = end; i < s->hop_size; i++) {
-        read_data->data[j][i] = 0.;
-      }
-    }
-  }
+
+  aubio_source_pad_multi_output(read_data, s->input_channels, total_wrote);
+
   *read = total_wrote;
 }
 
@@ -441,7 +440,7 @@ uint_t aubio_source_wavread_seek (aubio_source_wavread_t * s, uint_t pos) {
   }
   ret = fseek(s->fid, s->seek_start + pos * s->blockalign, SEEK_SET);
   if (ret != 0) {
-    AUBIO_ERR("source_wavread: could not seek %s at %d (%s)\n", s->path, pos, strerror(errno));
+    AUBIO_STRERR("source_wavread: could not seek %s at %d (%s)\n", s->path, pos, errorstr);
     return AUBIO_FAIL;
   }
   // reset some values
@@ -462,7 +461,7 @@ uint_t aubio_source_wavread_close (aubio_source_wavread_t * s) {
     return AUBIO_OK;
   }
   if (fclose(s->fid)) {
-    AUBIO_ERR("source_wavread: could not close %s (%s)\n", s->path, strerror(errno));
+    AUBIO_STRERR("source_wavread: could not close %s (%s)\n", s->path, errorstr);
     return AUBIO_FAIL;
   }
   s->fid = NULL;

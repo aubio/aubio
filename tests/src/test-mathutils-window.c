@@ -7,8 +7,8 @@ int main (void)
   uint_t n_length = 4, n_types = 10, i, t;
   uint_t lengths[4] = { 8, 10, 15, 16 };
   char *method = "default";
-  char *window_types[10] = { "default",
-    "rectangle", "hamming", "hanning", "hanningz",
+  char *window_types[11] = { "default",
+    "ones", "rectangle", "hamming", "hanning", "hanningz",
     "blackman", "blackman_harris", "gaussian", "welch", "parzen"};
 
   for ( t = 0; t < n_types; t ++ ) {
@@ -26,6 +26,10 @@ int main (void)
       del_fvec(window);
     }
   }
+
+  assert (new_aubio_window("parzen", -1) == NULL);
+  assert (new_aubio_window(NULL, length) == NULL);
+  assert (new_aubio_window("\0", length) == NULL);
   return 0;
 }
 

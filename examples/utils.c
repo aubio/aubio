@@ -184,7 +184,8 @@ void examples_common_process (aubio_process_func_t process_func,
         total_read, blocks, hop_size, source_uri, samplerate);
 
     del_aubio_source (this_source);
-    del_aubio_sink   (this_sink);
+    if (this_sink)
+      del_aubio_sink   (this_sink);
 
   }
 }

@@ -3,9 +3,10 @@
 
 from numpy.testing import TestCase, assert_equal
 from aubio import source
-from utils import list_all_sounds
+from utils import list_all_sounds, parse_file_samplerate
 import unittest
-from _tools import parametrize, assert_raises, assert_equal, skipTest
+from _tools import assert_raises, assert_equal, assert_warns
+from _tools import parametrize, skipTest
 
 list_of_sounds = list_all_sounds('sounds')
 samplerates = [0, 44100, 8000, 32000]
@@ -23,22 +24,37 @@ no_sounds_msg = "no test sounds, add some in 'python/tests/sounds/'!"
 
 _debug = False
 
-class Test_aubio_source_test_case(object):
 
-    @parametrize('filename', list_of_sounds)
-    def test_close_file(self, filename):
+class Test_aubio_source_test_case(TestCase):
+
+    def setUp(self):
+        if not default_test_sound:
+            skipTest(no_sounds_msg)
+
+    def test_close_file(self):
         samplerate = 0 # use native samplerate
         hop_size = 256
-        f = source(filename, samplerate, hop_size)
+        f = source(default_test_sound, samplerate, hop_size)
         f.close()
 
-    @parametrize('filename', list_of_sounds)
-    def test_close_file_twice(self, filename):
+    def test_close_file_twice(self):
         samplerate = 0 # use native samplerate
         hop_size = 256
-        f = source(filename, samplerate, hop_size)
+        f = source(default_test_sound, samplerate, hop_size)
         f.close()
         f.close()
+
+    def test_read_after_close(self):
+        samplerate = 0 # use native samplerate
+        hop_size = 256
+        f = source(default_test_sound, samplerate, hop_size)
+        read, frames = f()
+        f.close()
+        with assert_raises(RuntimeError):
+            read, frames = f()
+        with assert_raises(RuntimeError):
+            read, frames = f.do_multi()
+
 
 class Test_aubio_source_read(object):
 
@@ -60,8 +76,14 @@ class Test_aubio_source_read(object):
 
     @parametrize('hop_size, samplerate, soundfile', all_params)
     def test_samplerate_hopsize(self, hop_size, samplerate, soundfile):
+        orig_samplerate = parse_file_samplerate(soundfile)
         try:
-            f = source(soundfile, samplerate, hop_size)
+            if orig_samplerate is not None and orig_samplerate < samplerate:
+                # upsampling should emit a warning
+                with assert_warns(UserWarning):
+                    f = source(soundfile, samplerate, hop_size)
+            else:
+                f = source(soundfile, samplerate, hop_size)
         except RuntimeError as e:
             err_msg = 'failed opening with hop_s={:d}, samplerate={:d} ({:s})'
             skipTest(err_msg.format(hop_size, samplerate, str(e)))
