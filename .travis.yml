@@ -63,7 +63,7 @@ addons:
     - libsndfile1-dev
     - libsamplerate-dev
     - libvorbis-dev
-    - libflac-dec
+    - libflac-dev
     - libjack-dev
     - libasound2-dev
     - libfftw3-dev
