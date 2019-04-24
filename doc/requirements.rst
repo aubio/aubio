@@ -245,6 +245,8 @@ for ``x86`` using ``msvc 12.0``, use:
 The following `External libraries`_ will be used if found: `libav`_,
 `libsamplerate`_, `libsndfile`_, `libfftw3`_.
 
+Additionally, aubio can be acquired through `vcpkg <https://vcpkg.readthedocs.io/en/latest/examples/installing-and-using-packages/>`_, Microsoft's own package manager for the Windows platform.
+
 iOS
 ...
 
