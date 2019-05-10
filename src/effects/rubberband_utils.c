@@ -17,7 +17,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
 char_t** aubio_split_str(const char_t* str, const char_t sep) {
   char_t** result = 0;
@@ -44,17 +43,18 @@ char_t** aubio_split_str(const char_t* str, const char_t sep) {
 
   result = AUBIO_ARRAY(char_t*, count);
   if (result) {
-    uint_t idx  = 0;
+    uint_t idx = 0;
     char_t* params = strtok(input, delim);
     while (params) {
       // make sure we don't got in the wild
-      assert(idx < count);
+      if (idx >= count)
+        break;
       *(result + idx++) = strdup(params);
       params = strtok(0, delim);
     }
-    assert(idx == count - 1);
-    // add null string at the end
-    *(result + idx) = 0;
+    // add null string at the end if needed
+    if (idx < count - 1)
+      *(result + idx) = 0;
   }
   return result;
 }
