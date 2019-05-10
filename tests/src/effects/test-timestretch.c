@@ -1,5 +1,6 @@
 #define AUBIO_UNSTABLE 1
 #include <aubio.h>
+#include "aubio_priv.h"
 #include "utils_tests.h"
 
 int test_wrong_params(void);
@@ -127,20 +128,20 @@ int test_wrong_params(void)
 
   if (aubio_timestretch_get_transpose(p) != 0) return 1;
   if (aubio_timestretch_set_transpose(p, 2.)) return 1;
-  if (fabsf(aubio_timestretch_get_transpose(p) - 2.) >= 1e-6) return 1;
+  if (ABS(aubio_timestretch_get_transpose(p) - 2.) > 1.e-6) return 1;
   if (!aubio_timestretch_set_transpose(p, 200.)) return 1;
   if (!aubio_timestretch_set_transpose(p, -200.)) return 1;
   if (aubio_timestretch_set_transpose(p, 0.)) return 1;
 
   if (aubio_timestretch_get_pitchscale(p) != 1) return 1;
   if (aubio_timestretch_set_pitchscale(p, 2.)) return 1;
-  if (fabsf(aubio_timestretch_get_pitchscale(p) - 2.) >= 1e-6) return 1;
+  if (ABS(aubio_timestretch_get_pitchscale(p) - 2.) > 1.e-6) return 1;
   if (!aubio_timestretch_set_pitchscale(p, 0.)) return 1;
   if (!aubio_timestretch_set_pitchscale(p, 6.)) return 1;
 
   if (aubio_timestretch_get_stretch(p) != stretch) return 1;
   if (aubio_timestretch_set_stretch(p, 2.)) return 1;
-  if (fabsf(aubio_timestretch_get_stretch(p) - 2.) >= 1e-6) return 1;
+  if (ABS(aubio_timestretch_get_stretch(p) - 2.) > 1.e-6) return 1;
   if (!aubio_timestretch_set_stretch(p, 0.)) return 1;
   if (!aubio_timestretch_set_stretch(p, 41.)) return 1;
 
