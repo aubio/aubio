@@ -19,8 +19,8 @@ class aubio_hztomel_test_case(TestCase):
         assert_almost_equal(hztomel(1000. / 3), 5.)
         assert_equal(hztomel(200.), 3.)
         assert_almost_equal(hztomel(1000.), 15)
-        assert_almost_equal(hztomel(6400), 42)
-        assert_almost_equal(hztomel(40960), 69)
+        assert_almost_equal(hztomel(6400), 42, decimal=5)
+        assert_almost_equal(hztomel(40960), 69, decimal=5)
 
         for m in np.linspace(0, 1000, 100):
             assert_almost_equal(hztomel(meltohz(m)) - m, 0, decimal=3)
