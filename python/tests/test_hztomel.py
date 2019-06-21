@@ -4,12 +4,12 @@ from unittest import main
 from numpy.testing import TestCase
 from numpy.testing import assert_equal, assert_almost_equal
 from _tools import assert_warns
+from utils import is32bit
 import numpy as np
 import aubio
 
 from aubio import hztomel, meltohz
 from aubio import hztomel_htk, meltohz_htk
-
 
 class aubio_hztomel_test_case(TestCase):
 
@@ -17,7 +17,12 @@ class aubio_hztomel_test_case(TestCase):
         assert_equal(hztomel(0.), 0.)
         assert_almost_equal(hztomel(400. / 3.), 2., decimal=5)
         assert_almost_equal(hztomel(1000. / 3), 5.)
-        assert_equal(hztomel(200.), 3.)
+        # on 32bit, some of these tests fails unless compiling with -ffloat-store
+        try:
+            assert_equal(hztomel(200.), 3.)
+        except AssertionError:
+            if not is32bit(): raise
+            assert_almost_equal(hztomel(200.), 3., decimal=5)
         assert_almost_equal(hztomel(1000.), 15)
         assert_almost_equal(hztomel(6400), 42, decimal=5)
         assert_almost_equal(hztomel(40960), 69, decimal=5)
@@ -28,7 +33,11 @@ class aubio_hztomel_test_case(TestCase):
     def test_meltohz(self):
         assert_equal(meltohz(0.), 0.)
         assert_almost_equal(meltohz(2), 400. / 3., decimal=4)
-        assert_equal(meltohz(3.), 200.)
+        try:
+            assert_equal(meltohz(3.), 200.)
+        except AssertionError:
+            if not is32bit(): raise
+            assert_almost_equal(meltohz(3.), 200., decimal=5)
         assert_almost_equal(meltohz(5), 1000. / 3., decimal=4)
         assert_almost_equal(meltohz(15), 1000., decimal=4)
         assert_almost_equal(meltohz(42), 6400., decimal=2)
