@@ -81,7 +81,7 @@ static char Py_sink_close_doc[] = ""
 "Close this sink now.\n"
 "\n"
 "By default, the sink will be closed before being deleted.\n"
-"Explicitely closing a sink can be useful to control the number\n"
+"Explicitly closing a sink can be useful to control the number\n"
 "of files simultaneously opened.\n"
 "";
 
