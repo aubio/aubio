@@ -76,7 +76,7 @@ addons:
     - libsamplerate
     - rubberband
     - lcov
-    #update: true
+    update: true
 
 before_install:
    - |

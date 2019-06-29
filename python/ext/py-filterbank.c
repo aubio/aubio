@@ -326,7 +326,10 @@ Py_filterbank_set_triangle_bands (Py_filterbank * self, PyObject *args)
       // change the RuntimeError into ValueError
       PyObject *type, *value, *traceback;
       PyErr_Fetch(&type, &value, &traceback);
-      PyErr_Restore(PyExc_ValueError, value, traceback);
+      Py_XDECREF(type);
+      type = PyExc_ValueError;
+      Py_XINCREF(type);
+      PyErr_Restore(type, value, traceback);
     }
     return NULL;
   }
@@ -351,7 +354,10 @@ Py_filterbank_set_mel_coeffs_slaney (Py_filterbank * self, PyObject *args)
       // change the RuntimeError into ValueError
       PyObject *type, *value, *traceback;
       PyErr_Fetch(&type, &value, &traceback);
-      PyErr_Restore(PyExc_ValueError, value, traceback);
+      Py_XDECREF(type);
+      type = PyExc_ValueError;
+      Py_XINCREF(type);
+      PyErr_Restore(type, value, traceback);
     }
     return NULL;
   }
@@ -380,7 +386,10 @@ Py_filterbank_set_mel_coeffs (Py_filterbank * self, PyObject *args)
       // change the RuntimeError into ValueError
       PyObject *type, *value, *traceback;
       PyErr_Fetch(&type, &value, &traceback);
-      PyErr_Restore(PyExc_ValueError, value, traceback);
+      Py_XDECREF(type);
+      type = PyExc_ValueError;
+      Py_XINCREF(type);
+      PyErr_Restore(type, value, traceback);
     }
     return NULL;
   }
@@ -409,7 +418,10 @@ Py_filterbank_set_mel_coeffs_htk (Py_filterbank * self, PyObject *args)
       // change the RuntimeError into ValueError
       PyObject *type, *value, *traceback;
       PyErr_Fetch(&type, &value, &traceback);
-      PyErr_Restore(PyExc_ValueError, value, traceback);
+      Py_XDECREF(type);
+      type = PyExc_ValueError;
+      Py_XINCREF(type);
+      PyErr_Restore(type, value, traceback);
     }
     return NULL;
   }
@@ -463,7 +475,10 @@ Py_filterbank_set_power(Py_filterbank *self, PyObject *args)
       // change the RuntimeError into ValueError
       PyObject *type, *value, *traceback;
       PyErr_Fetch(&type, &value, &traceback);
-      PyErr_Restore(PyExc_ValueError, value, traceback);
+      Py_XDECREF(type);
+      type = PyExc_ValueError;
+      Py_XINCREF(type);
+      PyErr_Restore(type, value, traceback);
     }
     return NULL;
   }
@@ -493,7 +508,10 @@ Py_filterbank_set_norm(Py_filterbank *self, PyObject *args)
       // change the RuntimeError into ValueError
       PyObject *type, *value, *traceback;
       PyErr_Fetch(&type, &value, &traceback);
-      PyErr_Restore(PyExc_ValueError, value, traceback);
+      Py_XDECREF(type);
+      type = PyExc_ValueError;
+      Py_XINCREF(type);
+      PyErr_Restore(type, value, traceback);
     }
     return NULL;
   }
