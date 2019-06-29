@@ -45,6 +45,9 @@ def options(ctx):
             help = 'whether to compile with (--build-type=release)' \
                     ' or without (--build-type=debug)' \
                     ' compiler opimizations [default: release]')
+    ctx.add_option('--debug', action = 'store_const',
+            dest = 'build_type', const = 'debug',
+            help = 'build in debug mode (see --build-type)')
     add_option_enable_disable(ctx, 'fftw3f', default = False,
             help_str = 'compile with fftw3f instead of ooura (recommended)',
             help_disable_str = 'do not compile with fftw3f')
