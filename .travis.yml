@@ -38,15 +38,15 @@ matrix:
     - language: C
       os: osx
       compiler: clang
-      env: WAFOPTS="--enable-fat --disable-avcodec --disable-sndfile --disable-vorbis --disable-flac"
+      env: WAFOPTS="--enable-fat --disable-avcodec --disable-sndfile --disable-samplerate --disable-vorbis --disable-flac"
     - language: C
       os: osx
       compiler: clang
-      env: WAFOPTS="--with-target-platform=ios --disable-avcodec --disable-sndfile --disable-vorbis --disable-flac" AUBIO_NOTESTS=1
+      env: WAFOPTS="--with-target-platform=ios --disable-avcodec --disable-sndfile --disable-samplerate --disable-vorbis --disable-flac" AUBIO_NOTESTS=1
     - language: C
       os: osx
       compiler: clang
-      env: WAFOPTS="--with-target-platform=iosimulator --disable-avcodec --disable-sndfile --disable-vorbis --disable-flac" AUBIO_NOTESTS=1
+      env: WAFOPTS="--with-target-platform=iosimulator --disable-avcodec --disable-sndfile --disable-samplerate --disable-vorbis --disable-flac" AUBIO_NOTESTS=1
 
 # use trusty
 dist: trusty
@@ -77,7 +77,7 @@ addons:
     - libvorbis
     - flac
     - lcov
-    #update: true
+    update: true
 
 before_install:
    - |

@@ -3,7 +3,7 @@
 static char Py_fft_doc[] = ""
 "fft(size=1024)\n"
 "\n"
-"Compute Fast Fourier Transorms.\n"
+"Compute Fast Fourier Transforms.\n"
 "\n"
 "Parameters\n"
 "----------\n"

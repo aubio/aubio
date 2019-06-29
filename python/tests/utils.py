@@ -3,10 +3,14 @@
 import os
 import re
 import glob
+import struct
 import numpy as np
 from tempfile import mkstemp
 
 DEFAULT_SOUND = '22050Hz_5s_brownnoise.wav'
+
+def is32bit():
+    return struct.calcsize("P") * 8 == 32
 
 def array_from_text_file(filename, dtype = 'float'):
     realpathname = os.path.join(os.path.dirname(__file__), filename)
