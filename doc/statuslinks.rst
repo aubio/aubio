@@ -9,10 +9,6 @@ Current status
    :target: https://ci.appveyor.com/project/piem/aubio/
    :alt: Appveyor build status
 
-.. image:: https://landscape.io/github/aubio/aubio/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/aubio/aubio/master
-   :alt: Landscape code health
-
 .. image:: https://readthedocs.org/projects/aubio/badge/?version=latest
    :target: https://aubio.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation status

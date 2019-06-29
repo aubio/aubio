@@ -1,7 +1,7 @@
 #define PYAUBIO_dct_doc \
     "dct(size=1024)\n"\
     "\n"\
-    "Compute Discrete Fourier Transorms of Type-II.\n"\
+    "Compute Discrete Fourier Transforms of Type-II.\n"\
     "\n"\
     "Parameters\n"\
     "----------\n"\
