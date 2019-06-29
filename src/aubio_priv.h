@@ -250,7 +250,11 @@ uint_t aubio_log(sint_t level, const char_t *fmt, ...);
 #define AUBIO_DBG _AUBIO_DBG
 #else
 // disable debug output
+#ifdef HAVE_C99_VARARGS_MACROS
+#define AUBIO_DBG(...)               {}
+#else
 #define AUBIO_DBG(format, args...)   {}
+#endif
 #endif
 
 #define AUBIO_ERROR   AUBIO_ERR
