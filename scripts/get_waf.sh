@@ -48,7 +48,7 @@ fetchwaf
 buildwaf
 popd
 
-cp -prv $WAFBUILDDIR/waf-$WAFVERSION/waf $PWD
+cp -prv $WAFBUILDDIR/waf-$WAFVERSION/waf "$PWD"
 chmod +x waf
 
 cleanup
