@@ -265,6 +265,7 @@ def configure(ctx):
             ctx.env.LINKFLAGS += ['-s','ASSERTIONS=0']
             ctx.env.LINKFLAGS += ['-s','STRICT=1']
             ctx.env.LINKFLAGS += ['-s','MODULARIZE=1']
+            ctx.env.LINKFLAGS += ['-s','EXPORT_NAME=aubio']
             ctx.env.LINKFLAGS += ['-s','FILESYSTEM=0']
             ctx.env.LINKFLAGS += ['-s','MALLOC=emmalloc']
             ctx.env.cshlib_PATTERN = '%s.min.js'
