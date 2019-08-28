@@ -262,6 +262,11 @@ def configure(ctx):
             ctx.env.LINKFLAGS += ['-O0']
         else:
             ctx.env.LINKFLAGS += ['-Oz']
+            ctx.env.LINKFLAGS += ['-s','ASSERTIONS=0']
+            ctx.env.LINKFLAGS += ['-s','STRICT=1']
+            ctx.env.LINKFLAGS += ['-s','MODULARIZE=1']
+            ctx.env.LINKFLAGS += ['-s','FILESYSTEM=0']
+            ctx.env.LINKFLAGS += ['-s','MALLOC=emmalloc']
             ctx.env.cshlib_PATTERN = '%s.min.js'
 
         # doesnt ship file system support in lib
@@ -286,6 +291,7 @@ def configure(ctx):
         c_mangled_names = [('_' + s).encode('utf8') for s in exported_funcnames]
         ctx.env.LINKFLAGS_cshlib += ['-s',
                 'EXPORTED_FUNCTIONS=%s' % c_mangled_names]
+        ctx.env.LINKFLAGS_cshlib += ['-s', 'EXTRA_EXPORTED_RUNTIME_METHODS=["ccall", "cwrap"]']
 
     # check support for C99 __VA_ARGS__ macros
     check_c99_varargs = '''
