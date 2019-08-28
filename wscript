@@ -283,7 +283,7 @@ def configure(ctx):
         objects += ['fvec_t', 'cvec_t', 'fmat_t']
         lib = generate_lib_from_c_declarations(objects, c_decls)
         exported_funcnames = get_all_func_names_from_lib(lib)
-        c_mangled_names = ['_' + s for s in exported_funcnames]
+        c_mangled_names = [('_' + s).encode('utf8') for s in exported_funcnames]
         ctx.env.LINKFLAGS_cshlib += ['-s',
                 'EXPORTED_FUNCTIONS=%s' % c_mangled_names]
 
