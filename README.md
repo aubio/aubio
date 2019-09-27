@@ -81,6 +81,16 @@ To compile the python module:
 
     ./setup.py build
 
+You can also download and install aubio using the [vcpkg](https://github.com/Microsoft/vcpkg/) dependency manager:
+
+    git clone https://github.com/Microsoft/vcpkg.git
+    cd vcpkg
+    ./bootstrap-vcpkg.sh
+    ./vcpkg integrate install
+    vcpkg install aubio
+
+The aubio port in vcpkg is kept up to date by Microsoft team members and community contributors. If the version is out of date, please [create an issue or pull request](https://github.com/Microsoft/vcpkg) on the vcpkg repository.
+
 See the [manual](https://aubio.org/manual/latest/) for more information about
 [installing aubio](https://aubio.org/manual/latest/installing.html).
 
