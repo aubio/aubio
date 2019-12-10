@@ -20,7 +20,7 @@ PyAubio_CFvecToArray (fvec_t * self)
 }
 
 int
-PyAubio_IsValidVector (PyObject * input) {
+PyAubio_IsValidVectorOfType (PyObject *input, int type, char *typestr) {
   npy_intp length;
   if (input == NULL) {
     PyErr_SetString (PyExc_ValueError, "input array is not a python object");
@@ -42,8 +42,8 @@ PyAubio_IsValidVector (PyObject * input) {
     if (!PyArray_ISFLOAT ((PyArrayObject *)input)) {
       PyErr_SetString (PyExc_ValueError, "input array should be float");
       return 0;
-    } else if (PyArray_TYPE ((PyArrayObject *)input) != AUBIO_NPY_SMPL) {
-      PyErr_SetString (PyExc_ValueError, "input array should be " AUBIO_NPY_SMPL_STR);
+    } else if (PyArray_TYPE ((PyArrayObject *)input) != type) {
+      PyErr_Format (PyExc_ValueError, "input array should be %s", typestr);
       return 0;
     }
 
@@ -64,6 +64,12 @@ PyAubio_IsValidVector (PyObject * input) {
 }
 
 int
+PyAubio_IsValidVector (PyObject * input) {
+  return PyAubio_IsValidVectorOfType (input,
+      AUBIO_NPY_SMPL, AUBIO_NPY_SMPL_STR);
+}
+
+int
 PyAubio_ArrayToCFvec (PyObject *input, fvec_t *out) {
 
   if (!PyAubio_IsValidVector(input)){
@@ -72,6 +78,18 @@ PyAubio_ArrayToCFvec (PyObject *input, fvec_t *out) {
 
   out->length = (uint_t) PyArray_SIZE ((PyArrayObject *)input);
   out->data = (smpl_t *) PyArray_GETPTR1 ((PyArrayObject *)input, 0);
+  return 1;
+}
+
+int
+PyAubio_ArrayToCLvec (PyObject *input, lvec_t *out) {
+
+  if (!PyAubio_IsValidVectorOfType(input, AUBIO_NPY_LSMP, AUBIO_NPY_LSMP_STR)){
+    return 0;
+  }
+
+  out->length = (uint_t) PyArray_SIZE ((PyArrayObject *)input);
+  out->data = (lsmp_t *) PyArray_GETPTR1 ((PyArrayObject *)input, 0);
   return 1;
 }
 
