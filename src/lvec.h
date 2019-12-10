@@ -111,6 +111,14 @@ void lvec_zeros(lvec_t *s);
 */
 void lvec_ones(lvec_t *s);
 
+/** make a copy of a vector
+
+  \param s source vector
+  \param t vector to copy to
+
+*/
+void lvec_copy(const lvec_t *s, lvec_t *t);
+
 #ifdef __cplusplus
 }
 #endif

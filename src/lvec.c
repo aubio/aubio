@@ -78,3 +78,19 @@ void lvec_ones(lvec_t *s) {
   lvec_set_all (s, 1.);
 }
 
+void lvec_copy(const lvec_t *s, lvec_t *t) {
+  if (s->length != t->length) {
+    AUBIO_ERR("trying to copy %d elements to %d elements \n",
+        s->length, t->length);
+    return;
+  }
+  // TODO: add ipp, cblas and vdsp versions
+#if defined(HAVE_MEMCPY_HACKS)
+  memcpy(t->data, s->data, t->length * sizeof(lsmp_t));
+#else
+  uint_t j;
+  for (j = 0; j < t->length; j++) {
+    t->data[j] = s->data[j];
+  }
+#endif
+}
