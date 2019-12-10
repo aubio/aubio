@@ -63,6 +63,19 @@ static char Py_filter_set_biquad_doc[] = ""
 "    Feedback filter coefficient.\n"
 "";
 
+static char Py_filter_set_coeffs_doc[] = ""
+"set_coeffs(b, a)\n"
+"\n"
+"Set coefficients. `b` and `a` should have the same length as `order`.\n"
+"\n"
+"Parameters\n"
+"----------\n"
+"b : list or numpy.ndarray of type float64\n"
+"    Forward filter coefficient.\n"
+"a : list or numpy.ndarray of type float64\n"
+"    Forward filter coefficient.\n"
+"";
+
 static PyObject *
 Py_filter_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
 {
@@ -229,6 +242,38 @@ Py_filter_set_biquad(Py_filter * self, PyObject *args)
   Py_RETURN_NONE;
 }
 
+static PyObject *
+Py_filter_set_coeffs(Py_filter * self, PyObject *args)
+{
+  PyObject *i_a, *i_b;
+  lvec_t b, a;
+  lvec_t *feedback, *feedforward;
+
+  if (!PyArg_ParseTuple (args, "OO", &i_b, &i_a)) {
+    return NULL;
+  }
+
+  if (i_b == NULL || i_a == NULL) {
+    return NULL;
+  }
+
+  if (!PyAubio_ArrayToCLvec(i_b, &b) || !PyAubio_ArrayToCLvec(i_a, &a)) {
+    return NULL;
+  }
+
+  // TODO check length match
+
+  // get a pointer to current filter coefficients
+  feedforward = aubio_filter_get_feedforward (self->o);
+  feedback = aubio_filter_get_feedback (self->o);
+
+  // copy input parameters to coefficient vectors
+  lvec_copy(&b, feedforward);
+  lvec_copy(&a, feedback);
+
+  Py_RETURN_NONE;
+}
+
 static PyMemberDef Py_filter_members[] = {
   // TODO remove READONLY flag and define getter/setter
   {"order", T_INT, offsetof (Py_filter, order), READONLY,
@@ -243,6 +288,8 @@ static PyMethodDef Py_filter_methods[] = {
       Py_filter_set_a_weighting_doc},
   {"set_biquad", (PyCFunction) Py_filter_set_biquad, METH_VARARGS,
       Py_filter_set_biquad_doc},
+  {"set_coeffs", (PyCFunction) Py_filter_set_coeffs, METH_VARARGS,
+      Py_filter_set_coeffs_doc},
   {NULL}
 };
 
