@@ -40,11 +40,17 @@
 #define AUBIO_NPY_SMPL NPY_DOUBLE
 #define AUBIO_NPY_SMPL_STR "float64"
 #define AUBIO_NPY_SMPL_CHR "d"
+#define AUBIO_NPY_LSMP NPY_DOUBLE
+#define AUBIO_NPY_LSMP_STR "float64"
+#define AUBIO_NPY_LSMP_CHR "d"
 #else
 // default is 32 bit precision
 #define AUBIO_NPY_SMPL NPY_FLOAT
 #define AUBIO_NPY_SMPL_STR "float32"
 #define AUBIO_NPY_SMPL_CHR "f"
+#define AUBIO_NPY_LSMP NPY_DOUBLE
+#define AUBIO_NPY_LSMP_STR "float64"
+#define AUBIO_NPY_LSMP_CHR "d"
 #endif
 
 #ifndef PATH_MAX
