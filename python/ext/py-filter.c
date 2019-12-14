@@ -271,6 +271,17 @@ Py_filter_set_coeffs(Py_filter * self, PyObject *args)
   lvec_copy(&b, feedforward);
   lvec_copy(&a, feedback);
 
+  if (PyErr_Occurred() != NULL) {
+    // change the RuntimeError into ValueError
+    PyObject *type, *value, *traceback;
+    PyErr_Fetch(&type, &value, &traceback);
+    Py_XDECREF(type);
+    type = PyExc_ValueError;
+    Py_XINCREF(type);
+    PyErr_Restore(type, value, traceback);
+    return NULL;
+  }
+
   Py_RETURN_NONE;
 }
 
