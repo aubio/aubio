@@ -78,7 +78,7 @@ addons:
     update: true
 
 install:
-  - travis_retry make getwaf expandwaf deps_python
+  - make getwaf deps_python
   - which pip
   - pip --version
   - pip install coverage
