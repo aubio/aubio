@@ -62,7 +62,7 @@ matrix:
       language: shell
       os: windows
       before_install:
-        - choco install python --version 2.7.11
+        - choco install vcpython27
         - choco install make
         - python -m pip install --upgrade pip
       env: PATH=/c/Python27:/c/Python27/Scripts:$PATH
