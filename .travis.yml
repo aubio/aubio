@@ -12,7 +12,7 @@ matrix:
     - python: 2.7
       os: linux
       compiler: gcc
-    - python: "pypy3.5"
+    - python: "pypy3"
       os: linux
       compiler: gcc
       env: CFLAGS="-Os" WAFOPTS="--disable-avcodec"
