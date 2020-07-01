@@ -192,7 +192,6 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path,
     }
   }
 
-  avFormatCtx = NULL;
   if ( (err = avformat_open_input(&avFormatCtx, s->path, NULL, &streamopts) ) < 0 ) {
     char errorstr[256];
     av_strerror (err, errorstr, sizeof(errorstr));
