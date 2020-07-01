@@ -2,51 +2,51 @@ language: python
 
 matrix:
   include:
-    - python: 3.6
+    - name: "Linux Python 3.8"
+      python: 3.8
       os: linux
-      compiler: gcc
-    - python: 3.5
+    - name: "Linux Python 3.6"
+      python: 3.6
       os: linux
-      compiler: gcc
       env: WAFOPTS="--build-type=debug"
-    - python: 2.7
+    - name: "Linux Python 2.7"
+      python: 2.7
       os: linux
-      compiler: gcc
-    - python: "pypy3"
+    - name: "Linux Python pypy3"
+      python: "pypy3"
       os: linux
-      compiler: gcc
-      env: CFLAGS="-Os" WAFOPTS="--disable-avcodec"
-    - python: 3.6
+    - name: "Linux (fftw3, no other deps)"
+      python: 3.8
       os: linux
-      compiler: gcc
-      env: CFLAGS="-Os" WAFOPTS="--disable-samplerate"
-    - python: 3.5
+      env: HAVE_AUBIO_DOUBLE=1 CFLAGS="-O3" WAFOPTS="--enable-fftw3 --disable-avcodec --disable-samplerate"
+    - python: "Linux (default debflags)"
       os: linux
-      compiler: gcc
-      env: HAVE_AUBIO_DOUBLE=1 CFLAGS="-O3" WAFOPTS="--enable-fftw3"
-    - python: 2.7
-      os: linux
-      compiler: gcc
       env: CFLAGS="`dpkg-buildflags --get CFLAGS`" LDFLAGS="`dpkg-buildflags --get LDFLAGS`"
-    - language: C
+
+    - name: "macOS (xcode11)"
+      language: shell
       os: osx
-      compiler: clang
-    - language: C
+      osx_image: xcode11
+    - name: "macOS (xcode12)"
+      language: shell
       os: osx
-      compiler: clang
-      env: CFLAGS="-Os" HAVE_AUBIO_DOUBLE=1 WAFOPTS="--disable-accelerate"
-    - language: C
+      osx_image: xcode11
+    - name: "macOS (xcode10, noopt, nodeps)"
+      env: CFLAGS="-Os" HAVE_AUBIO_DOUBLE=1 WAFOPTS="--disable-accelerate --disable-avcodec --disable-sndfile --disable-samplerate"
       os: osx
-      compiler: clang
-      env: WAFOPTS="--enable-fat --disable-avcodec --disable-sndfile --disable-samplerate"
-    - language: C
+      osx_image: xcode11
+    - name: "iOS"
+      language: shell
       os: osx
-      compiler: clang
       env: WAFOPTS="--with-target-platform=ios --disable-avcodec --disable-sndfile --disable-samplerate" AUBIO_NOTESTS=1
-    - language: C
+    - name: "iOSSimulator"
+      language: shell
       os: osx
-      compiler: clang
       env: WAFOPTS="--with-target-platform=iosimulator --disable-avcodec --disable-sndfile --disable-samplerate" AUBIO_NOTESTS=1
+
+    - name: "Python 3.8.0 on windows"
+      language: shell
+      os: windows
 
 # use trusty
 dist: trusty
@@ -76,7 +76,7 @@ addons:
     update: true
 
 install:
-  - travis_retry pip install --upgrade pip
+  - python -m pip install --upgrade pip
   - travis_retry make getwaf expandwaf deps_python
   - which pip
   - pip --version
