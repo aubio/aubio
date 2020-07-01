@@ -30,11 +30,12 @@ matrix:
     - name: "macOS (xcode12)"
       language: shell
       os: osx
-      osx_image: xcode11
+      osx_image: xcode12
     - name: "macOS (xcode10, noopt, nodeps)"
-      env: CFLAGS="-Os" HAVE_AUBIO_DOUBLE=1 WAFOPTS="--disable-accelerate --disable-avcodec --disable-sndfile --disable-samplerate"
+      language: shell
       os: osx
-      osx_image: xcode11
+      osx_image: xcode10
+      env: CFLAGS="-Os" HAVE_AUBIO_DOUBLE=1 WAFOPTS="--disable-accelerate --disable-avcodec --disable-sndfile --disable-samplerate"
     - name: "iOS"
       language: shell
       os: osx
