@@ -48,7 +48,7 @@ matrix:
       os: osx
       env: WAFOPTS="--with-target-platform=iosimulator --disable-avcodec --disable-sndfile --disable-samplerate" AUBIO_NOTESTS=1
 
-    - name: "Windows (Python 3.8.0)"
+    - name: "Windows (Python 3.8.0, lib only)"
       language: shell
       os: windows
       before_install:
@@ -58,6 +58,15 @@ matrix:
       env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
       script:
         - make test_lib_only_clean
+    - name: "Windows (Python 2.7.11)"
+      language: shell
+      os: windows
+      before_install:
+        - choco install python --version 2.7.11
+        - choco install make
+        - python -m pip install --upgrade pip
+      env: PATH=/c/Python27:/c/Python27/Scripts:$PATH
+      script:
         - make test_python_only_clean
 
 addons:
