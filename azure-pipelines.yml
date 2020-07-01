@@ -24,7 +24,7 @@ jobs:
 
 - job: macos
   pool:
-    vmImage: 'macos-10.13'
+    vmImage: 'macos-latest'
   steps:
   - script: |
       brew update
