@@ -28,10 +28,12 @@ matrix:
       language: shell
       os: osx
       osx_image: xcode11
-    - name: "macOS (xcode12)"
+    - name: "macOS (xcode12, lib only)"
       language: shell
       os: osx
       osx_image: xcode12
+      script:
+        -make test_lib_only_clean
     - name: "macOS (xcode10, noopt, nodeps)"
       language: shell
       os: osx
