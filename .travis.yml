@@ -47,6 +47,9 @@ matrix:
     - name: "Python 3.8.0 on windows"
       language: shell
       os: windows
+      before_install:
+        - choco install python --version 3.8.0
+        - python -m pip install --upgrade pip
 
 # use trusty
 dist: trusty
@@ -76,7 +79,6 @@ addons:
     update: true
 
 install:
-  - python -m pip install --upgrade pip
   - travis_retry make getwaf expandwaf deps_python
   - which pip
   - pip --version
