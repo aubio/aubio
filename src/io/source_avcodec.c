@@ -351,7 +351,7 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path,
 beach_streamopts:
   av_dict_free(&streamopts);
 beach:
-  if (streamopts != 0) av_dict_free(&streamopts);
+  if (s->has_network_url) av_dict_free(&streamopts);
   //AUBIO_ERR("can not read %s at samplerate %dHz with a hop_size of %d\n",
   //    s->path, s->samplerate, s->hop_size);
 #ifdef HAVE_AUBIO_AVCODEC_MUTEX
