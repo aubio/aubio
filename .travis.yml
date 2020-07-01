@@ -2,17 +2,17 @@ language: python
 
 matrix:
   include:
-    - name: "Linux Python 3.8"
+    - name: "Linux (Python 3.8)"
       python: 3.8
       os: linux
-    - name: "Linux Python 3.6"
+    - name: "Linux (Python 3.6)"
       python: 3.6
       os: linux
       env: WAFOPTS="--build-type=debug"
-    - name: "Linux Python 2.7"
+    - name: "Linux (Python 2.7)"
       python: 2.7
       os: linux
-    - name: "Linux Python pypy3.5"
+    - name: "Linux (Python pypy3.5)"
       language: python
       python: "pypy3.5"
       os: linux
@@ -48,7 +48,7 @@ matrix:
       os: osx
       env: WAFOPTS="--with-target-platform=iosimulator --disable-avcodec --disable-sndfile --disable-samplerate" AUBIO_NOTESTS=1
 
-    - name: "Python 3.8.0 on windows"
+    - name: "Windows (Python 3.8.0)"
       language: shell
       os: windows
       before_install:
