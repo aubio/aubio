@@ -14,7 +14,7 @@ matrix:
       os: linux
     - name: "Linux Python pypy3.5"
       language: python
-      python: "pypy3"
+      python: "pypy3.5"
       os: linux
     - name: "Linux (fftw3, no other deps)"
       python: 3.8
