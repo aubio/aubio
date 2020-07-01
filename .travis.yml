@@ -19,7 +19,7 @@ matrix:
       python: 3.8
       os: linux
       env: HAVE_AUBIO_DOUBLE=1 CFLAGS="-O3" WAFOPTS="--enable-fftw3 --disable-avcodec --disable-samplerate"
-    - python: "Linux (default debflags)"
+    - name: "Linux (default, dpkg-buildflags)"
       os: linux
       env: CFLAGS="`dpkg-buildflags --get CFLAGS`" LDFLAGS="`dpkg-buildflags --get LDFLAGS`"
 
