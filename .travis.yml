@@ -12,7 +12,7 @@ matrix:
     - name: "Linux Python 2.7"
       python: 2.7
       os: linux
-    - name: "Linux Python pypy3"
+    - name: "Linux Python pypy3.5"
       language: python
       python: "pypy3"
       os: linux
