@@ -92,7 +92,7 @@ First, define a few variables and allocate some memory.
 
 .. literalinclude:: ../tests/src/io/test-source.c
    :language: C
-   :lines: 22-24, 30-32, 34
+   :lines: 24-26, 30, 32-34
 
 .. note::
    With ``samplerate = 0``, ``aubio_source`` will be created with the file's
@@ -102,13 +102,13 @@ Now for the processing loop:
 
 .. literalinclude:: ../tests/src/io/test-source.c
    :language: C
-   :lines: 40-44
+   :lines: 41-45
 
 At the end of the processing loop, memory is deallocated:
 
 .. literalinclude:: ../tests/src/io/test-source.c
    :language: C
-   :lines: 55-56
+   :lines: 55-58
 
 See the complete example: :download:`test-source.c
 <../tests/src/io/test-source.c>`.
@@ -126,13 +126,13 @@ The processing loop could now look like:
 
 .. literalinclude:: ../tests/src/spectral/test-phasevoc.c
    :language: C
-   :lines: 20-37
+   :lines: 27-44
 
 Time to clean up the previously allocated memory:
 
 .. literalinclude:: ../tests/src/spectral/test-phasevoc.c
    :language: C
-   :lines: 39-44
+   :lines: 47-50
 
 See the complete example: :download:`test-phasevoc.c
 <../tests/src/spectral/test-phasevoc.c>`.
