@@ -5,6 +5,7 @@ matrix:
     - name: "Linux (Python 3.8)"
       python: 3.8
       os: linux
+      distro: bionic
     - name: "Linux (Python 3.6)"
       python: 3.6
       os: linux
@@ -12,6 +13,7 @@ matrix:
     - name: "Linux (Python 2.7)"
       python: 2.7
       os: linux
+      distro: trusty
     - name: "Linux (Python pypy3.5)"
       language: python
       python: "pypy3.5"
