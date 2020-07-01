@@ -33,7 +33,7 @@ matrix:
       os: osx
       osx_image: xcode12
       script:
-        -make test_lib_only_clean
+        - make test_lib_only_clean
     - name: "macOS (xcode10, noopt, nodeps)"
       language: shell
       os: osx
