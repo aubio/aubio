@@ -104,6 +104,9 @@ after_success:
       # upload to codecov
       bash <(curl -s https://codecov.io/bash)
     fi
+    if [ "$TRAVIS_OS_NAME" = "windows" ]; then
+      taskkill //F //PID $(ps -Wla | tr -s ' ' | grep gpg | cut -f2 -d' ')
+    fi
 
 notifications:
     irc:
