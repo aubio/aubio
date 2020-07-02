@@ -137,6 +137,7 @@ def configure(ctx):
                 'sndfile',
                 'samplerate',
                 'jack',
+                'rubberband',
                 'avcodec',
                 'blas',
                 'fftw3',
