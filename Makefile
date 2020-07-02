@@ -183,7 +183,7 @@ create_test_sounds:
 	-$(SOX) -r 22050 -b 16 -n "$(TESTSOUNDS)/22050Hz_5s_brownnoise.wav"   synth 5    brownnoise      vol 0.9
 	-$(SOX) -r 32000 -b 16 -n "$(TESTSOUNDS)/32000Hz_127f_sine440.wav"    synth 127s sine 440        vol 0.9
 	-$(SOX) -r  8000 -b 16 -n "$(TESTSOUNDS)/8000Hz_30s_silence.wav"      trim 0 30
-	-$(SOX) -r 48000 -b 32 -n "$(TESTSOUNDS)/48000Hz_60s_sweep.wav"       synth 60   sine 100-20000  vol 0.9
+	-$(SOX) -r 48000 -b 16 -n "$(TESTSOUNDS)/48000Hz_60s_sweep.wav"       synth 60   sine 100-20000  vol 0.9
 	-$(SOX) -r 44100 -b 16 -n "$(TESTSOUNDS)/44100Hz_44100f_sine441.wav"  synth 44100s   sine 441 	vol 0.9
 	-$(SOX) -r 44100 -b 16 -n "$(TESTSOUNDS)/44100Hz_100f_sine441.wav"    synth 100s sine 441 	vol 0.9
 

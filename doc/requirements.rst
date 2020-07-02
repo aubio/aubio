@@ -31,6 +31,8 @@ unusual location.
     If ``pkg-config`` is not found in ``PATH``, the configure step will
     succeed, but none of the external libraries will be used.
 
+To build aubio with no external libraries, use the ``--nodeps`` build option.
+
 Media libraries
 ---------------
 

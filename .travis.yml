@@ -10,18 +10,19 @@ matrix:
       python: 3.6
       os: linux
       env: WAFOPTS="--build-type=debug"
-    - name: "Linux (Python 2.7)"
+    - name: "Linux (Python 2.7, nodeps)"
       python: 2.7
       os: linux
       distro: trusty
+      env: WAFOPTS="--nodeps"
     - name: "Linux (Python pypy3.5)"
       language: python
       python: "pypy3.5"
       os: linux
-    - name: "Linux (fftw3, no other deps)"
+    - name: "Linux (double, fftw3)"
       python: 3.8
       os: linux
-      env: HAVE_AUBIO_DOUBLE=1 CFLAGS="-O3" WAFOPTS="--enable-fftw3 --disable-avcodec --disable-sndfile --disable-samplerate --disable-rubberband"
+      env: HAVE_AUBIO_DOUBLE=1 CFLAGS="-O3" WAFOPTS="--enable-fftw3"
     - name: "Linux (default, dpkg-buildflags)"
       os: linux
       env: CFLAGS="`dpkg-buildflags --get CFLAGS`" LDFLAGS="`dpkg-buildflags --get LDFLAGS`"
@@ -40,15 +41,15 @@ matrix:
       language: shell
       os: osx
       osx_image: xcode10
-      env: CFLAGS="-Os" HAVE_AUBIO_DOUBLE=1 WAFOPTS="--disable-accelerate --disable-avcodec --disable-sndfile --disable-samplerate --disable-rubberband"
+      env: CFLAGS="-Os" HAVE_AUBIO_DOUBLE=1 WAFOPTS="--disable-accelerate --nodeps"
     - name: "iOS"
       language: shell
       os: osx
-      env: WAFOPTS="--with-target-platform=ios --disable-avcodec --disable-sndfile --disable-samplerate --disable-rubberband" AUBIO_NOTESTS=1
+      env: WAFOPTS="--with-target-platform=ios --nodeps" AUBIO_NOTESTS=1
     - name: "iOSSimulator"
       language: shell
       os: osx
-      env: WAFOPTS="--with-target-platform=iosimulator --disable-avcodec --disable-sndfile --disable-samplerate --disable-rubberband" AUBIO_NOTESTS=1
+      env: WAFOPTS="--with-target-platform=iosimulator --nodeps" AUBIO_NOTESTS=1
 
 #    - name: "Windows (Python 3.8.0, lib only)"
 #      language: shell

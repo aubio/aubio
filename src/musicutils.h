@@ -240,7 +240,7 @@ smpl_t aubio_db_spl (const fvec_t * v);
   \param v vector to get level from
   \param threshold threshold in dB SPL
 
-  \return 0 if level is under the given threshold, 1 otherwise
+  \return 1 if level is under the given threshold, 0 otherwise
 
 */
 uint_t aubio_silence_detection (const fvec_t * v, smpl_t threshold);
