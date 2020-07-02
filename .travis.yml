@@ -21,7 +21,7 @@ matrix:
     - name: "Linux (fftw3, no other deps)"
       python: 3.8
       os: linux
-      env: HAVE_AUBIO_DOUBLE=1 CFLAGS="-O3" WAFOPTS="--enable-fftw3 --disable-avcodec --disable-samplerate"
+      env: HAVE_AUBIO_DOUBLE=1 CFLAGS="-O3" WAFOPTS="--enable-fftw3 --disable-avcodec --disable-sndfile --disable-samplerate --disable-rubberband"
     - name: "Linux (default, dpkg-buildflags)"
       os: linux
       env: CFLAGS="`dpkg-buildflags --get CFLAGS`" LDFLAGS="`dpkg-buildflags --get LDFLAGS`"
