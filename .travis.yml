@@ -50,14 +50,14 @@ matrix:
       os: osx
       env: WAFOPTS="--with-target-platform=iosimulator --disable-avcodec --disable-sndfile --disable-samplerate" AUBIO_NOTESTS=1
 
-    - name: "Windows (Python 3.8.0, lib only)"
-      language: shell
-      os: windows
-      before_install:
-        - choco install python --version 3.8.0
-        - choco install make
-        - python -m pip install --upgrade pip
-      env: PATH=/c/Python38:/c/Python38/Scripts:$PATH AUBIO_NOTESTS=1
+#    - name: "Windows (Python 3.8.0, lib only)"
+#      language: shell
+#      os: windows
+#      before_install:
+#        - choco install python --version 3.8.0
+#        - choco install make
+#        - python -m pip install --upgrade pip
+#      env: PATH=/c/Python38:/c/Python38/Scripts:$PATH AUBIO_NOTESTS=1
 
 addons:
   apt:
@@ -103,9 +103,6 @@ after_success:
     if [[ -z "$AUBIO_NOTESTS" ]]; then
       # upload to codecov
       bash <(curl -s https://codecov.io/bash)
-    fi
-    if [ "$TRAVIS_OS_NAME" = "windows" ]; then
-      taskkill //F //PID $(ps -Wla | tr -s ' ' | grep gpg | cut -f2 -d' ')
     fi
 
 notifications:
