@@ -66,9 +66,9 @@ jobs:
       - store_artifacts:
           path: dist/
 
-  build-37:
+  build-latest:
     docker:
-      - image: circleci/python:3.7
+      - image: circleci/python:latest
     steps:
       - checkout
       - run: *apt-install
@@ -80,9 +80,9 @@ jobs:
       - store_artifacts:
           path: dist/
 
-  build-37-nodeps:
+  build-latest-nodeps:
     docker:
-      - image: circleci/python:3.7
+      - image: circleci/python:latest
     steps:
       - checkout
       - run: *pip-install
@@ -100,5 +100,5 @@ workflows:
     jobs:
       - build-27
       - build-36
-      - build-37
-      - build-37-nodeps
+      - build-latest
+      - build-latest-nodeps

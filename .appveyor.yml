@@ -15,14 +15,6 @@ environment:
       PYTHON_VERSION: 2.7.x
       PYTHON_ARCH: 64
 
-    - PYTHONDIR: C:\Python35
-      PYTHON_VERSION: 3.5.x
-      PYTHON_ARCH: 32
-
-    - PYTHONDIR: C:\Python35-x64
-      PYTHON_VERSION: 3.5.x
-      PYTHON_ARCH: 64
-
     - PYTHONDIR: C:\Python36
       PYTHON_VERSION: 3.6.x
       PYTHON_ARCH: 32
@@ -37,6 +29,14 @@ environment:
 
     - PYTHONDIR: C:\Python37-x64
       PYTHON_VERSION: 3.7.x
+      PYTHON_ARCH: 64
+
+    - PYTHONDIR: C:\Python38
+      PYTHON_VERSION: 3.8.x
+      PYTHON_ARCH: 32
+
+    - PYTHONDIR: C:\Python38-x64
+      PYTHON_VERSION: 3.8.x
       PYTHON_ARCH: 64
 
 install:
