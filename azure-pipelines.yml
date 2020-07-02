@@ -3,7 +3,20 @@ jobs:
 
 - job: linux
   pool:
-    vmImage: 'ubuntu-16.04'
+    vmImage: 'ubuntu-latest'
+  steps:
+  - script: |
+      sudo apt install libavformat-dev
+    displayName: 'deps'
+  - script: |
+      make
+    displayName: 'make'
+    env:
+      CFLAGS: -Werror
+
+- job: linux_nodeps
+  pool:
+    vmImage: 'ubuntu-latest'
   steps:
   - script: |
       make
@@ -24,7 +37,7 @@ jobs:
 
 - job: macos
   pool:
-    vmImage: 'macos-10.13'
+    vmImage: 'macos-latest'
   steps:
   - script: |
       brew update

@@ -45,6 +45,12 @@ def options(ctx):
             help = 'whether to compile with (--build-type=release)' \
                     ' or without (--build-type=debug)' \
                     ' compiler opimizations [default: release]')
+    ctx.add_option('--debug', action = 'store_const',
+            dest = 'build_type', const = 'debug',
+            help = 'build in debug mode (see --build-type)')
+    ctx.add_option('--nodeps', action = 'store_const',
+            dest = 'nodeps', const = 'debug',
+            help = 'build with no external dependencies')
     add_option_enable_disable(ctx, 'fftw3f', default = False,
             help_str = 'compile with fftw3f instead of ooura (recommended)',
             help_disable_str = 'do not compile with fftw3f')
@@ -128,6 +134,27 @@ def configure(ctx):
     target_platform = sys.platform
     if ctx.options.target_platform:
         target_platform = ctx.options.target_platform
+
+    if ctx.options.nodeps:
+        external_deps = [
+                'sndfile',
+                'samplerate',
+                'jack',
+                'avcodec',
+                'blas',
+                'fftw3',
+                'fftw3f',
+        ]
+        for d in external_deps:
+            if not hasattr(ctx.options, 'enable_' + d):
+                raise ctx.errors.ConfigurationError ('--enable-%s missing from options' % d)
+            if getattr(ctx.options, 'enable_' + d) == True:
+                msg = 'Option --nodeps can not be used along with --enable-%s' % d
+                raise ctx.errors.ConfigurationError (msg)
+            elif getattr(ctx.options, 'enable_' + d) is None:
+                msg = 'Option --nodeps used but automatic detection with --enable-%s' % d
+                ctx.msg('Warning', msg)
+            setattr(ctx.options, 'enable_' + d, False)
 
     from waflib import Options
 

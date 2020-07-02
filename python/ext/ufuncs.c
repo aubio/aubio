@@ -3,8 +3,8 @@
 
 typedef smpl_t (*aubio_unary_func_t)(smpl_t input);
 
-static void aubio_PyUFunc_d_d(char **args, npy_intp *dimensions,
-                            npy_intp* steps, void* data)
+static void aubio_PyUFunc_d_d(char **args, const npy_intp *dimensions,
+                            const npy_intp* steps, void* data)
 {
     npy_intp i;
     npy_intp n = dimensions[0];
@@ -22,8 +22,8 @@ static void aubio_PyUFunc_d_d(char **args, npy_intp *dimensions,
     }
 }
 
-static void aubio_PyUFunc_f_f_As_d_d(char **args, npy_intp *dimensions,
-                            npy_intp* steps, void* data)
+static void aubio_PyUFunc_f_f_As_d_d(char **args, const npy_intp *dimensions,
+                            const npy_intp* steps, void* data)
 {
     npy_intp i;
     npy_intp n = dimensions[0];

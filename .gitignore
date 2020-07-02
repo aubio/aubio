@@ -12,8 +12,8 @@ python/lib/aubio/_aubio.*.so
 RE:examples/[a-z]*
 
 # ignore compiled test programs
-RE:tests/src/test-[a-z-_]*$
-RE:tests/cpp/test-[a-z-_]*$
+RE:tests/src/test-[a-z_-]*$
+RE:tests/cpp/test-[a-z_-]*$
 
 # only sgml manpages count
 doc/*.1
