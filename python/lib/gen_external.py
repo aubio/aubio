@@ -46,6 +46,7 @@ default_skip_objects = [
     #'sampler',
     'audio_unit',
     'spectral_whitening',
+    'timestretch', # TODO fix parsing of uint_t *read in _do
 ]
 
 

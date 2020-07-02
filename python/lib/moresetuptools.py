@@ -78,7 +78,9 @@ def add_external_deps(ext, usedouble = False):
     print("Info: looking for *optional* additional packages")
     packages = ['libavcodec', 'libavformat', 'libavutil',
                 'libswresample', 'libavresample',
+                'jack',
                 'sndfile',
+                'rubberband',
                 #'fftw3f',
                ]
     # samplerate only works with float
@@ -100,6 +102,8 @@ def add_external_deps(ext, usedouble = False):
         ext.define_macros += [('HAVE_SNDFILE', 1)]
     if 'samplerate' in ext.libraries:
         ext.define_macros += [('HAVE_SAMPLERATE', 1)]
+    if 'rubberband' in ext.libraries:
+        ext.define_macros += [('HAVE_RUBBERBAND', 1)]
     if 'fftw3f' in ext.libraries:
         ext.define_macros += [('HAVE_FFTW3F', 1)]
         ext.define_macros += [('HAVE_FFTW3', 1)]

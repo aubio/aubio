@@ -75,6 +75,7 @@ addons:
     - libjack-dev
     - libasound2-dev
     - libfftw3-dev
+    - librubberband-dev
     - sox
     - lcov
   homebrew:
@@ -84,6 +85,8 @@ addons:
     - libsndfile
     - libvorbis
     - flac
+    - libsamplerate
+    - rubberband
     - lcov
     update: true
 

@@ -220,6 +220,8 @@ extern "C"
 #include "pitch/pitchfcomb.h"
 #include "pitch/pitchspecacf.h"
 #include "tempo/beattracking.h"
+#include "effects/pitchshift.h"
+#include "effects/timestretch.h"
 #include "utils/scale.h"
 #include "utils/hist.h"
 #endif
