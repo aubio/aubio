@@ -2,7 +2,7 @@ apt-run: &apt-install
   name: Install apt packages
   command: |
     sudo apt-get update
-    sudo apt-get -y install make sox pkg-config libavcodec-dev libavformat-dev libavresample-dev libavutil-dev libsndfile1-dev libsamplerate-dev
+    sudo apt-get -y install make sox pkg-config libavcodec-dev libavformat-dev libavresample-dev libavutil-dev libsndfile1-dev libsamplerate-dev librubberband-dev
 
 pip-install: &pip-install
   name: Install pip dependencies
