@@ -57,19 +57,7 @@ matrix:
         - choco install python --version 3.8.0
         - choco install make
         - python -m pip install --upgrade pip
-      env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
-      script:
-        - make test_lib_only_clean
-    - name: "Windows (Python 2.7.11)"
-      language: shell
-      os: windows
-      before_install:
-        - choco install vcpython27
-        - choco install make
-        - python -m pip install --upgrade pip
-      env: PATH=/c/Python27:/c/Python27/Scripts:$PATH
-      script:
-        - make test_python_only_clean
+      env: PATH=/c/Python38:/c/Python38/Scripts:$PATH AUBIO_NOTESTS=1
 
 addons:
   apt:
