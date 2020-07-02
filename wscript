@@ -144,6 +144,8 @@ def configure(ctx):
                 'blas',
                 'fftw3',
                 'fftw3f',
+                'flac',
+                'vorbis',
         ]
         for d in external_deps:
             if not hasattr(ctx.options, 'enable_' + d):
