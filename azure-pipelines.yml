@@ -14,7 +14,7 @@ jobs:
     env:
       CFLAGS: -Werror
 
-- job: linux-nodeps
+- job: linux_nodeps
   pool:
     vmImage: 'ubuntu-latest'
   steps:
