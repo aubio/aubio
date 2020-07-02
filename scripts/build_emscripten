@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 function checkprog() {
   type $1 >/dev/null 2>&1 || { echo >&2 "$1 required but not found, aborting."; exit 1; }
