@@ -195,9 +195,10 @@ aubio_specdesc_rolloff (aubio_specdesc_t *o UNUSED, const cvec_t * spec,
   } else {
     cumsum *= 0.95;
     j = 0;
+    rollsum += SQR (spec->norm[j]);
     while (rollsum < cumsum) { 
-      rollsum += SQR (spec->norm[j]);
       j++;
+      rollsum += SQR (spec->norm[j]);
     }
     desc->data[0] = j;
   }
