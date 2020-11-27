@@ -157,7 +157,7 @@ aubio_pitch_t *new_aubio_pitch (const char_t * method,
 
   mode can be one of "Hz", "midi", "cent", or "bin". Defaults to "Hz".
 
-  \return 0 if successfull, non-zero otherwise
+  \return 0 if successful, non-zero otherwise
 
 */
 uint_t aubio_pitch_set_unit (aubio_pitch_t * o, const char_t * mode);
@@ -167,7 +167,7 @@ uint_t aubio_pitch_set_unit (aubio_pitch_t * o, const char_t * mode);
   \param o pitch detection object as returned by new_aubio_pitch()
   \param silence level threshold under which pitch should be ignored, in dB
 
-  \return 0 if successfull, non-zero otherwise
+  \return 0 if successful, non-zero otherwise
 
 */
 uint_t aubio_pitch_set_silence (aubio_pitch_t * o, smpl_t silence);

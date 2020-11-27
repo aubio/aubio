@@ -123,7 +123,7 @@ uint_t aubio_timestretch_get_samplerate (aubio_timestretch_t * o);
   \param stretch new time stretching ratio of the time stretching object
   (should be in the range [0.025; 10.])
 
-  \return 0 if successfull, non-zero otherwise
+  \return 0 if successful, non-zero otherwise
 
 */
 uint_t aubio_timestretch_set_stretch (aubio_timestretch_t * o, smpl_t stretch);
@@ -145,7 +145,7 @@ smpl_t aubio_timestretch_get_stretch (aubio_timestretch_t * o);
 
   pitchscale is a frequency ratio. It should be in the range [0.25, 4].
 
-  \return 0 if successfull, non-zero otherwise
+  \return 0 if successful, non-zero otherwise
 
 */
 uint_t aubio_timestretch_set_pitchscale (aubio_timestretch_t * o,
@@ -167,7 +167,7 @@ smpl_t aubio_timestretch_get_pitchscale (aubio_timestretch_t * o);
   \param transpose new pitch transposition of the time stretching object,
   expressed in semitones (should be in the range [-24;+24])
 
-  \return 0 if successfull, non-zero otherwise
+  \return 0 if successful, non-zero otherwise
 
 */
 uint_t aubio_timestretch_set_transpose (aubio_timestretch_t * o,
