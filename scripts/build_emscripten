@@ -15,4 +15,4 @@ checkprog emmake
 emconfigure ./waf configure --with-target-platform emscripten $*
 
 # build
-emmake ./waf build
+emmake ./waf build --disable-tests --disable-examples --disable-docs
