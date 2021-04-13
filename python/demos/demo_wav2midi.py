@@ -57,7 +57,7 @@ total_frames = 0
 while True:
     samples, read = s()
     new_note = notes_o(samples)
-    if (new_note[0] != 0):
+    if (sum(new_note)>0) and (new_note[0] >= 0):
         note_str = ' '.join(["%.2f" % i for i in new_note])
         print("%.6f" % (total_frames/float(samplerate)), new_note)
         delta = frames2tick(total_frames) - last_time
