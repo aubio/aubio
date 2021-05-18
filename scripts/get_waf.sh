@@ -33,7 +33,7 @@ function checkwaf () {
 
 function fetchwaf () {
   download $WAFTARBALL $WAFURL
-  checkwaf
+  #checkwaf
 }
 
 function buildwaf () {
