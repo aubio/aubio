@@ -341,7 +341,7 @@ uint_t aubio_log(sint_t level, const char_t *fmt, ...);
 #define isnan _isnan
 #endif
 
-#if !defined(_MSC_VER)
+#if !defined(_WIN32)
 #define AUBIO_STRERROR(errno,buf,len) strerror_r(errno, buf, len)
 #else
 #define AUBIO_STRERROR(errno,buf,len) strerror_s(buf, len, errno)
