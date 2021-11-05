@@ -3,6 +3,7 @@
 import sys
 import os.path
 import glob
+import numpy
 from setuptools import setup, Extension
 
 # add ./python/lib to current path
@@ -21,11 +22,7 @@ define_macros = [('AUBIO_VERSION', '%s' % __aubio_version__)]
 extra_link_args = []
 
 include_dirs += ['python/ext']
-try:
-    import numpy
-    include_dirs += [numpy.get_include()]
-except ImportError:
-    pass
+include_dirs += [ numpy.get_include() ]
 
 if sys.platform.startswith('darwin'):
     extra_link_args += ['-framework', 'CoreFoundation',
