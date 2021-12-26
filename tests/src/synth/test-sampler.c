@@ -40,7 +40,7 @@ int main (int argc, char **argv)
   }
   sample_path[PATH_MAX - 1] = '\0';
   if ( argc >= 5 ) samplerate = atoi(argv[4]);
-  if ( argc >= 6 ) samplerate = atoi(argv[5]);
+  if ( argc >= 6 ) hop_size = atoi(argv[5]);
 
   fvec_t *vec = new_fvec(hop_size);
 
