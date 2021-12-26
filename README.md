@@ -6,10 +6,10 @@ aubio
 [![Appveyor build status](https://img.shields.io/appveyor/ci/piem/aubio/master.svg)](https://ci.appveyor.com/project/piem/aubio "Appveyor build status")
 [![Pypi Downloads](https://img.shields.io/pypi/dm/aubio.svg?label=Pypi%20downloads)](https://pypi.org/project/aubio/)
 [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/aubio.svg?label=Conda%20downloads)](https://anaconda.org/conda-forge/aubio)
-[![Commits since last release](https://img.shields.io/github/commits-since/aubio/aubio/latest.svg)](https://github.com/aubio/aubio "Commits since last release")
 
 [![Documentation](https://readthedocs.org/projects/aubio/badge/?version=latest)](http://aubio.readthedocs.io/en/latest/?badge=latest "Latest documentation")
 [![DOI](https://zenodo.org/badge/396389.svg)](https://zenodo.org/badge/latestdoi/396389)
+[![Commits since last release](https://img.shields.io/github/commits-since/aubio/aubio/latest.svg)](https://github.com/aubio/aubio "Commits since last release")
 
 aubio is a library to label music and sounds. It listens to audio signals and
 attempts to detect events. For instance, when a drum is hit, at which frequency
