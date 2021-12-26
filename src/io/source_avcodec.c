@@ -82,7 +82,11 @@ struct _aubio_source_avcodec_t {
   AVFormatContext *avFormatCtx;
   AVCodecContext *avCodecCtx;
   AVFrame *avFrame;
+#if FF_API_INIT_PACKET
+  AVPacket *avPacket;
+#else
   AVPacket avPacket;
+#endif
 #ifdef HAVE_AVRESAMPLE
   AVAudioResampleContext *avr;
 #elif defined(HAVE_SWRESAMPLE)
@@ -122,10 +126,14 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path,
   AVFormatContext *avFormatCtx = NULL;
   AVCodecContext *avCodecCtx = NULL;
   AVFrame *avFrame = NULL;
+#if FF_API_INIT_PACKET
+  AVPacket *avPacket = NULL;
+#endif
   sint_t selected_stream = -1;
 #if FF_API_LAVF_AVCTX
   AVCodecParameters *codecpar;
 #endif
+
   AVCodec *codec;
   uint_t i;
   int err;
@@ -277,7 +285,16 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path,
   avFrame = av_frame_alloc();
   if (!avFrame) {
     AUBIO_ERR("source_avcodec: Could not allocate frame for (%s)\n", s->path);
+    goto beach;
   }
+
+#if FF_API_INIT_PACKET
+  avPacket = av_packet_alloc();
+  if (!avPacket) {
+    AUBIO_ERR("source_avcodec: Could not allocate packet for (%s)\n", s->path);
+    goto beach;
+  }
+#endif
 
   /* allocate output for avr */
   s->output = (smpl_t *)av_malloc(AUBIO_AVCODEC_MAX_BUFFER_SIZE
@@ -289,6 +306,9 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path,
   s->avFormatCtx = avFormatCtx;
   s->avCodecCtx = avCodecCtx;
   s->avFrame = avFrame;
+#if FF_API_INIT_PACKET
+  s->avPacket = avPacket;
+#endif
 
   aubio_source_avcodec_reset_resampler(s);
 
@@ -354,7 +374,11 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s,
   AVFormatContext *avFormatCtx = s->avFormatCtx;
   AVCodecContext *avCodecCtx = s->avCodecCtx;
   AVFrame *avFrame = s->avFrame;
-  AVPacket avPacket = s->avPacket;
+#if FF_API_INIT_PACKET
+  AVPacket *avPacket = s->avPacket;
+#else
+  AVPacket *avPacket = &s->avPacket;
+#endif
 #ifdef HAVE_AVRESAMPLE
   AVAudioResampleContext *avr = s->avr;
 #elif defined(HAVE_SWRESAMPLE)
@@ -378,12 +402,14 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s,
 #else
   int ret = 0;
 #endif
-  av_init_packet (&avPacket);
+#ifndef FF_API_INIT_PACKET
+  av_init_packet (avPacket);
+#endif
   *read_samples = 0;
 
   do
   {
-    int err = av_read_frame (avFormatCtx, &avPacket);
+    int err = av_read_frame (avFormatCtx, avPacket);
     if (err == AVERROR_EOF) {
       s->eof = 1;
       goto beach;
@@ -396,10 +422,10 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s,
       s->eof = 1;
       goto beach;
     }
-  } while (avPacket.stream_index != s->selected_stream);
+  } while (avPacket->stream_index != s->selected_stream);
 
 #if FF_API_LAVF_AVCTX
-  ret = avcodec_send_packet(avCodecCtx, &avPacket);
+  ret = avcodec_send_packet(avCodecCtx, avPacket);
   if (ret < 0 && ret != AVERROR_EOF) {
     AUBIO_ERR("source_avcodec: error when sending packet for %s\n", s->path);
     goto beach;
@@ -422,7 +448,7 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s,
     }
   }
 #else
-  len = avcodec_decode_audio4(avCodecCtx, avFrame, &got_frame, &avPacket);
+  len = avcodec_decode_audio4(avCodecCtx, avFrame, &got_frame, avPacket);
 
   if (len < 0) {
     AUBIO_ERR("source_avcodec: error while decoding %s\n", s->path);
@@ -472,7 +498,7 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s,
   *read_samples = out_samples;
 
 beach:
-  av_packet_unref(&avPacket);
+  av_packet_unref(avPacket);
 }
 
 void aubio_source_avcodec_do(aubio_source_avcodec_t * s, fvec_t * read_data,
@@ -638,7 +664,13 @@ uint_t aubio_source_avcodec_close(aubio_source_avcodec_t * s) {
     avformat_close_input(&s->avFormatCtx);
     s->avFormatCtx = NULL;
   }
+#if FF_API_INIT_PACKET
+  if (s->avPacket) {
+    av_packet_unref(s->avPacket);
+  }
+#else
   av_packet_unref(&s->avPacket);
+#endif
   return AUBIO_OK;
 }
 
@@ -653,6 +685,12 @@ void del_aubio_source_avcodec(aubio_source_avcodec_t * s){
     av_frame_free( &(s->avFrame) );
   }
   s->avFrame = NULL;
+#if FF_API_INIT_PACKET
+  if (s->avPacket != NULL) {
+    av_packet_free( &(s->avPacket) );
+  }
+  s->avPacket = NULL;
+#endif
   if (s->path) {
     AUBIO_FREE(s->path);
   }
