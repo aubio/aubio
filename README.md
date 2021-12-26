@@ -2,6 +2,7 @@ aubio
 =====
 
 [![CircleCI build status](https://circleci.com/gh/aubio/aubio.svg?style=shield)](https://circleci.com/gh/aubio/aubio "CircleCI build status")
+[![Azure Pipelines](https://dev.azure.com/aubio/aubio/_apis/build/status/aubio.aubio)](https://dev.azure.com/aubio/aubio "Azure build status")
 [![Appveyor build status](https://img.shields.io/appveyor/ci/piem/aubio/master.svg)](https://ci.appveyor.com/project/piem/aubio "Appveyor build status")
 [![Commits since last release](https://img.shields.io/github/commits-since/aubio/aubio/latest.svg)](https://github.com/aubio/aubio "Commits since last release")
 
