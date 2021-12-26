@@ -133,7 +133,8 @@ static herr_t aubio_file_hdf5_iterate(hid_t loc_id, const char *name,
   H5O_info_t infobuf;
   const char_t *type_name;
   uint_t *depth = (uint_t *)opdata;
-  herr_t err = H5Oget_info_by_name(loc_id, name, &infobuf, H5P_DEFAULT);
+  herr_t err = H5Oget_info_by_name(loc_id, name, &infobuf, H5O_INFO_BASIC,
+      H5P_DEFAULT);
   if (err < 0) goto failure;
   if (*depth > MAX_DEPTH) goto failure;
   switch (infobuf.type) {
