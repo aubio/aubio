@@ -66,9 +66,9 @@ jobs:
       - store_artifacts:
           path: dist/
 
-  build-latest:
+  build-310:
     docker:
-      - image: cimg/python:latest
+      - image: cimg/python:3.10
     steps:
       - checkout
       - run: *apt-install
@@ -80,9 +80,9 @@ jobs:
       - store_artifacts:
           path: dist/
 
-  build-latest-nodeps:
+  build-310-nodeps:
     docker:
-      - image: cimg/python:latest
+      - image: cimg/python:3.10
     steps:
       - checkout
       - run: *pip-install
@@ -100,5 +100,5 @@ workflows:
     jobs:
       - build-27
       - build-36
-      - build-latest
-      - build-latest-nodeps
+      - build-310
+      - build-310-nodeps
