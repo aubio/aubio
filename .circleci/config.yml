@@ -40,7 +40,7 @@ version: 2
 jobs:
   build-27:
     docker:
-      - image: circleci/python:2.7
+      - image: cimg/python:2.7
     steps:
       - checkout
       - run: *apt-install
@@ -54,7 +54,7 @@ jobs:
 
   build-36:
     docker:
-      - image: circleci/python:3.6
+      - image: cimg/python:3.6
     steps:
       - checkout
       - run: *apt-install
@@ -68,7 +68,7 @@ jobs:
 
   build-latest:
     docker:
-      - image: circleci/python:latest
+      - image: cimg/python:latest
     steps:
       - checkout
       - run: *apt-install
@@ -82,7 +82,7 @@ jobs:
 
   build-latest-nodeps:
     docker:
-      - image: circleci/python:latest
+      - image: cimg/python:latest
     steps:
       - checkout
       - run: *pip-install
