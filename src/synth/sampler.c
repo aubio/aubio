@@ -135,7 +135,9 @@ aubio_sampler_t *new_aubio_sampler(uint_t blocksize, uint_t samplerate)
   s->playing = 0;
   s->looping = 0;
   s->uri = AUBIO_ARRAY(char_t, PATH_MAX);
+#if HAVE_THREADS
   s->next_uri = AUBIO_ARRAY(char_t, PATH_MAX);
+#endif
   s->finished = 1;
   s->eof = 0;
   s->opened = 0;
