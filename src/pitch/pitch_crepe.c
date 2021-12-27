@@ -186,6 +186,7 @@ aubio_pitch_crepe_t *new_aubio_pitch_crepe(void)
   o->flattened = new_aubio_tensor(1, dense_input);
   if (!o->flattened) goto failure;
 
+#if defined(DEBUG)
   // permute and flatten
   aubio_tensor_t *permute_input = o->maxpool_output[5];
   AUBIO_DBG("permute:           (%d, %d) ->"
@@ -195,6 +196,7 @@ aubio_pitch_crepe_t *new_aubio_pitch_crepe(void)
   AUBIO_DBG("flatten:           (%d, %d) -> (%d)\n",
       permute_input->shape[1], permute_input->shape[0],
       o->flattened->shape[0]);
+#endif
 
   if (aubio_dense_get_output_shape(o->dense_layer, o->flattened, output_shape))
     goto failure;
@@ -514,6 +516,7 @@ uint_t aubio_pitch_crepe_load_params(aubio_pitch_crepe_t *o)
   return AUBIO_OK;
 #else
   AUBIO_ASSERT(o);
+  AUBIO_UNUSED(o);
   AUBIO_ERR("pitch_crepe: hdf5 support was not built in, failed loading"
       " crepe model\n");
   return AUBIO_FAIL;
