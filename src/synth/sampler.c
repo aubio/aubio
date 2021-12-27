@@ -1048,8 +1048,10 @@ void del_aubio_sampler( aubio_sampler_t * o )
   if (o->uri) {
     AUBIO_FREE(o->uri);
   }
+#ifdef HAVE_THREADS
   if (o->next_uri) {
     AUBIO_FREE(o->next_uri);
   }
+#endif
   AUBIO_FREE(o);
 }
