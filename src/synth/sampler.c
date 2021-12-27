@@ -656,8 +656,8 @@ aubio_sampler_read_from_table(aubio_sampler_t *s, fvec_t *output,
       //AUBIO_WRN("sampler: _pull_from_table: table length %d,"
       //    " index: %d, read %d\n",
       //    s->table->length, s->table_index, *read);
-      tmp.length = available;
       fvec_t tmpout; tmpout.data = output->data; tmpout.length = available;
+      tmp.length = available;
       fvec_copy(&tmp, &tmpout);
       if (s->looping && s->perfectloop) {
         uint_t remaining = s->blocksize - available;
