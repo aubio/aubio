@@ -52,6 +52,7 @@ void del_aubio_dense(aubio_dense_t *c) {
   AUBIO_FREE(c);
 }
 
+#if defined(DEBUG)
 void aubio_dense_debug(aubio_dense_t *c, aubio_tensor_t *input_tensor)
 {
   uint_t n_params = input_tensor->shape[0] * c->n_units + c->n_units;
@@ -60,6 +61,7 @@ void aubio_dense_debug(aubio_dense_t *c, aubio_tensor_t *input_tensor)
       aubio_tensor_get_shape_string(input_tensor), c->n_units, n_params,
       c->n_units, c->weights->height, c->weights->length, c->bias->length);
 }
+#endif
 
 uint_t aubio_dense_get_output_shape(aubio_dense_t *c,
     aubio_tensor_t *input, uint_t *shape)
@@ -76,7 +78,9 @@ uint_t aubio_dense_get_output_shape(aubio_dense_t *c,
   c->bias = new_fvec(c->n_units);
   if (!c->bias) return AUBIO_FAIL;
 
+#if defined(DEBUG)
   aubio_dense_debug(c, input);
+#endif
 
   return AUBIO_OK;
 }

@@ -30,8 +30,10 @@ struct _aubio_maxpool2d_t {
   uint_t stride[2];
 };
 
+#if defined(DEBUG)
 static void aubio_maxpool2d_debug(aubio_maxpool2d_t *c,
     aubio_tensor_t *input_tensor);
+#endif
 
 aubio_maxpool2d_t *new_aubio_maxpool2d(uint_t pool_size[2])
 {
@@ -58,6 +60,7 @@ void del_aubio_maxpool2d(aubio_maxpool2d_t* c) {
   AUBIO_FREE(c);
 }
 
+#if defined(DEBUG)
 void aubio_maxpool2d_debug(aubio_maxpool2d_t *c, aubio_tensor_t *input_tensor)
 {
   AUBIO_DBG("maxpool2d: %15s -> (%d, %d, %d)"
@@ -69,6 +72,7 @@ void aubio_maxpool2d_debug(aubio_maxpool2d_t *c, aubio_tensor_t *input_tensor)
       c->pool_size[0],
       c->pool_size[1]);
 }
+#endif
 
 uint_t aubio_maxpool2d_get_output_shape(aubio_maxpool2d_t *c,
     aubio_tensor_t *input, uint_t *shape)
@@ -80,7 +84,9 @@ uint_t aubio_maxpool2d_get_output_shape(aubio_maxpool2d_t *c,
   shape[1] = input->shape[1] / c->pool_size[1];
   shape[2] = input->shape[2];
 
+#if defined(DEBUG)
   aubio_maxpool2d_debug(c, input);
+#endif
 
   return AUBIO_OK;
 }

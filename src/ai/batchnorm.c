@@ -31,8 +31,10 @@ struct _aubio_batchnorm_t {
   fvec_t *moving_variance;
 };
 
+#if defined(DEBUG)
 static void aubio_batchnorm_debug(aubio_batchnorm_t *c,
     aubio_tensor_t *input_tensor);
+#endif
 
 aubio_batchnorm_t *new_aubio_batchnorm(void)
 {
@@ -58,6 +60,7 @@ void del_aubio_batchnorm(aubio_batchnorm_t* c) {
   AUBIO_FREE(c);
 }
 
+#if defined(DEBUG)
 void aubio_batchnorm_debug(aubio_batchnorm_t *c, aubio_tensor_t *input_tensor)
 {
   AUBIO_DBG("batchnorm: %15s -> %s (%d params) (4 * (%d,))\n",
@@ -65,6 +68,7 @@ void aubio_batchnorm_debug(aubio_batchnorm_t *c, aubio_tensor_t *input_tensor)
       aubio_tensor_get_shape_string(input_tensor), // same output shape
       c->n_outputs, 4 * c->n_outputs);
 }
+#endif
 
 uint_t aubio_batchnorm_get_output_shape(aubio_batchnorm_t *c,
     aubio_tensor_t *input, uint_t *shape)
@@ -92,7 +96,9 @@ uint_t aubio_batchnorm_get_output_shape(aubio_batchnorm_t *c,
     return AUBIO_FAIL;
   }
 
+#if defined(DEBUG)
   aubio_batchnorm_debug(c, input);
+#endif
 
   return AUBIO_OK;
 }

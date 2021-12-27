@@ -49,7 +49,9 @@ struct _aubio_conv2d_t {
 #endif
 };
 
+#if defined(DEBUG)
 static void aubio_conv2d_debug(aubio_conv2d_t *c, aubio_tensor_t *input_tensor);
+#endif
 
 aubio_conv2d_t *new_aubio_conv2d(uint_t n_filters, uint_t kernel_shape[2])
 {
@@ -202,11 +204,14 @@ uint_t aubio_conv2d_get_output_shape(aubio_conv2d_t *c,
   }
 #endif
 
+#if defined(DEBUG)
   aubio_conv2d_debug(c, input_tensor);
+#endif
 
   return AUBIO_OK;
 }
 
+#if defined(DEBUG)
 void aubio_conv2d_debug(aubio_conv2d_t *c, aubio_tensor_t *input_tensor)
 {
   // print some info
@@ -227,6 +232,7 @@ void aubio_conv2d_debug(aubio_conv2d_t *c, aubio_tensor_t *input_tensor)
     c->stride_shape[0], c->stride_shape[1],
     -c->padding_start[0], -c->padding_start[1]);
 }
+#endif
 
 uint_t aubio_conv2d_check_output_shape(aubio_conv2d_t *c,
     aubio_tensor_t *input_tensor,
