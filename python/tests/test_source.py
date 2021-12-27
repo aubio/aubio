@@ -1,7 +1,8 @@
 #! /usr/bin/env python
 
 
-from numpy.testing import TestCase, assert_equal
+import numpy as np
+from numpy.testing import TestCase
 from aubio import source
 from utils import list_all_sounds, parse_file_samplerate
 import unittest
@@ -66,7 +67,7 @@ class Test_aubio_source_read(object):
             if read < f.hop_size:
                 assert_equal(samples[read:], 0)
                 if 'brownnoise' in f.uri:
-                    self.assertEquals(np.count_nonzero(samples[:read]), read)
+                    assert_equal(np.count_nonzero(samples[:read]), read)
                 break
         if _debug:
             result_str = "read {:.2f}s ({:d} frames"
@@ -186,7 +187,7 @@ class Test_aubio_source_readmulti(Test_aubio_source_read):
             if read < f.hop_size:
                 assert_equal(samples[:,read:], 0)
                 if 'brownnoise' in f.uri:
-                    self.assertEquals(np.count_nonzero(samples[:,:read]), read)
+                    assert_equal(np.count_nonzero(samples[:,:read]), read)
                 break
         if _debug:
             result_str = "read {:.2f}s ({:d} frames in {:d} channels"
