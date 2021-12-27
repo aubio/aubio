@@ -524,10 +524,16 @@ def configure(ctx):
         ctx.define('HAVE_MEMCPY_HACKS', 1)
 
     if (ctx.options.enable_hdf5 != False):
+        # try with pkg-config
         ctx.check_cfg(package='hdf5', args='--cflags --libs',
+                uselib_store='HDF5', mandatory=False)
+        # also try directly
+        ctx.check(lib=['hdf5'], use = ['HDF5'],
                 uselib_store='HDF5', mandatory=ctx.options.enable_hdf5)
         ctx.check(lib=['hdf5_hl'], use = ['HDF5'],
                 uselib_store='HDF5_HL', mandatory=ctx.options.enable_hdf5)
+        if 'LIB_HDF5_HL' in ctx.env and 'LIB_HDF5' in ctx.env:
+            ctx.define('HAVE_HDF5', 1)
 
     # write configuration header
     ctx.write_config_header('src/config.h')
