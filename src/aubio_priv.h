@@ -266,6 +266,10 @@ uint_t aubio_log(sint_t level, const char_t *fmt, ...);
 #define AUBIO_QUIT(_s)               exit(_s)
 #define AUBIO_SPRINTF                sprintf
 
+#ifdef HAVE_WIN_HACKS
+#define strncasecmp _strnicmp
+#endif
+
 #define AUBIO_MAX_SAMPLERATE (192000*8)
 #define AUBIO_MAX_CHANNELS 1024
 

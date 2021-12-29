@@ -20,10 +20,6 @@
 
 #include "aubio_priv.h"
 
-#ifdef HAVE_WIN_HACKS
-#define strncasecmp _strnicmp
-#endif
-
 const char_t *aubio_str_get_extension(const char_t *filename)
 {
   // find last occurence of dot character
