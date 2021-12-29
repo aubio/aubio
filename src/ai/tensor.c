@@ -181,8 +181,10 @@ const char_t *aubio_tensor_get_shape_string(aubio_tensor_t *t) {
         add_coma ? "," : "", add_space ? " " : "");
     strncpy(shape_str_previous, shape_str, len);
   }
-  snprintf(shape_str, strnlen(shape_str, STRN_LENGTH - offset - 1) + offset,
-      "%s)", shape_str_previous);
+  if (snprintf(shape_str,
+      strnlen(shape_str, STRN_LENGTH - offset - 1) + offset,
+      "%s)", shape_str_previous) < 0)
+    AUBIO_WRN("aubio_tensor_get_shape_string snprintf failed");
   return shape_str;
 }
 
