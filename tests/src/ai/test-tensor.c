@@ -180,7 +180,7 @@ int test_subtensor(void) {
 
   PRINT_MSG(" getting subtensor 1\n");
   assert (aubio_tensor_get_subtensor(t, 1, &st) == 0);
-  assert (st.ndim = ndim - 1);
+  assert (st.ndim == ndim - 1);
   assert (st.shape[0] == d2);
   assert (st.shape[1] == d3);
   assert (st.shape[2] == 0);
@@ -197,7 +197,7 @@ int test_subtensor(void) {
 
   PRINT_MSG(" check subtensor 1 of subtensor 3\n");
   assert (aubio_tensor_get_subtensor(&st, 1, &sst) == 0);
-  assert (sst.ndim = ndim - 2);
+  assert (sst.ndim == ndim - 2);
   assert (sst.shape[0] == d3);
   assert (sst.shape[1] == 0);
   assert (sst.buffer[0] == 14);
