@@ -68,6 +68,10 @@
 #define AUBIO_AVCODEC_MAX_BUFFER_SIZE AV_INPUT_BUFFER_MIN_SIZE
 #endif
 
+#if LIBAVCODEC_VERSION_MAJOR >= 59
+#define FF_API_LAVF_AVCTX 1
+#endif
+
 struct _aubio_source_avcodec_t {
   uint_t hop_size;
   uint_t samplerate;
