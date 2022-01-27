@@ -3,7 +3,7 @@
 # Simple demo to extract notes from a sound file, and store them in a midi file
 # using mido.
 #
-# Install mido: `pip instal mido`
+# Install mido: `pip install mido`
 #
 # Documentation: https://mido.readthedocs.io/
 
