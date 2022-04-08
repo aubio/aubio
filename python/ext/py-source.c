@@ -420,7 +420,6 @@ Py_source_del (Py_source *self, PyObject *unused)
   Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
-
 /* function Py_source_do */
 static PyObject *
 Py_source_do(Py_source * self, PyObject * args)
@@ -429,7 +428,6 @@ Py_source_do(Py_source * self, PyObject * args)
   uint_t read;
   read = 0;
 
-  Py_INCREF(self->read_to);
   if (!PyAubio_ArrayToCFvec(self->read_to, &(self->c_read_to))) {
     return NULL;
   }
@@ -441,7 +439,8 @@ Py_source_do(Py_source * self, PyObject * args)
   }
 
   outputs = PyTuple_New(2);
-  PyTuple_SetItem( outputs, 0, self->read_to );
+  PyTuple_SetItem( outputs, 0, PyArray_FROM_OTF(self->read_to,
+        AUBIO_NPY_SMPL, NPY_ARRAY_OUT_ARRAY | NPY_ARRAY_ENSURECOPY));
   PyTuple_SetItem( outputs, 1, (PyObject *)PyLong_FromLong(read));
   return outputs;
 }
@@ -454,7 +453,6 @@ Py_source_do_multi(Py_source * self, PyObject * args)
   uint_t read;
   read = 0;
 
-  Py_INCREF(self->mread_to);
   if (!PyAubio_ArrayToCFmat(self->mread_to,  &(self->c_mread_to))) {
     return NULL;
   }
@@ -466,7 +464,8 @@ Py_source_do_multi(Py_source * self, PyObject * args)
   }
 
   outputs = PyTuple_New(2);
-  PyTuple_SetItem( outputs, 0, self->mread_to);
+  PyTuple_SetItem( outputs, 0, PyArray_FROM_OTF(self->mread_to,
+        AUBIO_NPY_SMPL, NPY_ARRAY_OUT_ARRAY | NPY_ARRAY_ENSURECOPY));
   PyTuple_SetItem( outputs, 1, (PyObject *)PyLong_FromLong(read));
   return outputs;
 }
