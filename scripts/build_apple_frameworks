@@ -14,7 +14,7 @@ mkdir -p "$OUTPUTDIR"
 #VERSION+=+$(git log --pretty=format:"%h" -1)
 
 CFLAGS="-Werror -Os"
-WAFCONF="--disable-sndfile --disable-avcodec --disable-samplerate --enable-fat" # --disable-memcpy --disable-accelerate"
+WAFCONF="--nodeps --enable-fat" # --disable-memcpy --disable-accelerate"
 
 export VERSION
 
