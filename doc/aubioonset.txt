@@ -148,6 +148,7 @@ ONSET METHODS
 SEE ALSO
 
   aubiopitch(1),
+  aubiolevel(1),
   aubiotrack(1),
   aubionotes(1),
   aubioquiet(1),

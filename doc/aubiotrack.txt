@@ -83,6 +83,7 @@ SEE ALSO
 
   aubioonset(1),
   aubiopitch(1),
+  aubiolevel(1),
   aubionotes(1),
   aubioquiet(1),
   aubiomfcc(1),
