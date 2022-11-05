@@ -3,7 +3,7 @@
 set -e
 #set -x
 
-WAFVERSION=2.0.23
+WAFVERSION=2.0.24
 WAFTARBALL=waf-$WAFVERSION.tar.bz2
 WAFURL=https://waf.io/$WAFTARBALL
 WAFUPSTREAMKEY=https://gitlab.com/ita1024/waf/-/raw/waf-$WAFVERSION/utils/pubkey.asc
