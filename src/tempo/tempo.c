@@ -185,7 +185,7 @@ aubio_tempo_t * new_aubio_tempo (const char_t * tempo_mode,
     AUBIO_ERR("tempo: samplerate (%d) can not be < 1\n", samplerate);
     goto beach;
   } else if (target_bpm < 15.) {
-    AUBIO_ERR("tempo: target_bpm (%d) can not be < 15\n", target_bpm);
+    AUBIO_ERR("tempo: target_bpm (%f) can not be < 15\n", target_bpm);
     goto beach;
   }
 
