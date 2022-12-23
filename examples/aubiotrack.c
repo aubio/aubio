@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
   verbmsg ("threshold: %f\n", onset_threshold);
 
   tempo_out = new_fvec(2);
-  tempo = new_aubio_tempo(tempo_method, buffer_size, hop_size, samplerate);
+  tempo = new_aubio_tempo(tempo_method, buffer_size, hop_size, samplerate, 120.);
   if (tempo == NULL) { ret = 1; goto beach; }
   // set silence threshold very low to output beats even during silence
   // aubio_tempo_set_silence(tempo, -1000.);

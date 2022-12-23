@@ -46,12 +46,13 @@ typedef struct _aubio_tempo_t aubio_tempo_t;
   \param buf_size length of FFT
   \param hop_size number of frames between two consecutive runs
   \param samplerate sampling rate of the signal to analyze
+  \param target_bpm target bpm
 
   \return newly created ::aubio_tempo_t if successful, `NULL` otherwise
 
 */
 aubio_tempo_t * new_aubio_tempo (const char_t * method,
-    uint_t buf_size, uint_t hop_size, uint_t samplerate);
+    uint_t buf_size, uint_t hop_size, uint_t samplerate, smpl_t target_bpm);
 
 /** execute tempo detection
 

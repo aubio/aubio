@@ -45,6 +45,7 @@ struct _aubio_tempo_t {
   uint_t winlen;                 /** dfframe bufsize */
   uint_t step;                   /** dfframe hopsize */
   uint_t samplerate;             /** sampling rate of the signal */
+  smpl_t target_bpm;             /** target bpm */
   uint_t hop_size;               /** get hop_size */
   uint_t total_frames;           /** total frames since beginning */
   uint_t last_beat;              /** time of latest detected beat, in samples */
@@ -164,11 +165,12 @@ smpl_t aubio_tempo_get_threshold(aubio_tempo_t * o) {
 
 /* Allocate memory for an tempo detection */
 aubio_tempo_t * new_aubio_tempo (const char_t * tempo_mode,
-    uint_t buf_size, uint_t hop_size, uint_t samplerate)
+    uint_t buf_size, uint_t hop_size, uint_t samplerate, smpl_t target_bpm)
 {
   aubio_tempo_t * o = AUBIO_NEW(aubio_tempo_t);
   char_t specdesc_func[PATH_MAX];
   o->samplerate = samplerate;
+  o->target_bpm = target_bpm;
   // check parameters are valid
   if ((sint_t)hop_size < 1) {
     AUBIO_ERR("tempo: got hop size %d, but can not be < 1\n", hop_size);
@@ -181,6 +183,9 @@ aubio_tempo_t * new_aubio_tempo (const char_t * tempo_mode,
     goto beach;
   } else if ((sint_t)samplerate < 1) {
     AUBIO_ERR("tempo: samplerate (%d) can not be < 1\n", samplerate);
+    goto beach;
+  } else if (target_bpm < 15.) {
+    AUBIO_ERR("tempo: target_bpm (%d) can not be < 15\n", target_bpm);
     goto beach;
   }
 
@@ -209,7 +214,7 @@ aubio_tempo_t * new_aubio_tempo (const char_t * tempo_mode,
   }
   o->od       = new_aubio_specdesc(specdesc_func,buf_size);
   o->of       = new_fvec(1);
-  o->bt       = new_aubio_beattracking(o->winlen, o->hop_size, o->samplerate, 120.);
+  o->bt       = new_aubio_beattracking(o->winlen, o->hop_size, o->samplerate, o->target_bpm);
   o->onset    = new_fvec(1);
   /*if (usedoubled)    {
     o2 = new_aubio_specdesc(type_onset2,buffer_size);
