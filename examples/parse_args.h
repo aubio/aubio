@@ -46,6 +46,7 @@ extern smpl_t pitch_tolerance;
 extern uint_t time_format;
 // tempo stuff
 extern char_t * tempo_method;
+extern smpl_t target_bpm;
 // more general stuff
 extern smpl_t silence_threshold;
 extern smpl_t release_drop;
@@ -97,6 +98,10 @@ void usage (FILE * stream, int exit_code)
       "       -M      --minioi           set minimum inter-onset interval\n"
       "                 a value in second; default=0.012\n"
 #endif /* PROG_HAS_ONSET */
+#ifdef PROG_HAS_TEMPO
+      "       -b      --bpm              set target bpm\n"
+      "                 a value of 15.0 or higher; default=120.0\n"
+#endif
 #ifdef PROG_HAS_PITCH
       "       -p      --pitch            select pitch detection algorithm\n"
       "                 <default|yinfft|yinfast|yin|mcomb|fcomb|schmitt>; default=yinfft\n"
@@ -157,6 +162,9 @@ parse_args (int argc, char **argv)
 #ifdef PROG_HAS_ONSET
     "O:t:M:"
 #endif /* PROG_HAS_ONSET */
+#ifdef PROG_HAS_TEMPO
+    "b:"
+#endif
 #ifdef PROG_HAS_PITCH
     "p:u:l:"
 #endif /* PROG_HAS_PITCH */
@@ -195,6 +203,9 @@ parse_args (int argc, char **argv)
     {"onset-threshold",       1, NULL, 't'},
     {"onset-minioi",          1, NULL, 'M'},
 #endif /* PROG_HAS_ONSET */
+#ifdef PROG_HAS_TEMPO
+    {"bpm",                   1, NULL, 'b'},
+#endif
 #ifdef PROG_HAS_PITCH
     {"pitch",                 1, NULL, 'p'},
     {"pitch-unit",            1, NULL, 'u'},
@@ -267,6 +278,9 @@ parse_args (int argc, char **argv)
         break;
       case 'M':                /* minimum inter-onset-interval */
         onset_minioi = (smpl_t) atof (optarg);
+        break;
+      case 'b':                /* target bpm */
+        target_bpm = (smpl_t) atof (optarg);
         break;
       case 'p':
         pitch_method = optarg;
