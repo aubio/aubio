@@ -209,7 +209,7 @@ aubio_tempo_t * new_aubio_tempo (const char_t * tempo_mode,
   }
   o->od       = new_aubio_specdesc(specdesc_func,buf_size);
   o->of       = new_fvec(1);
-  o->bt       = new_aubio_beattracking(o->winlen, o->hop_size, o->samplerate);
+  o->bt       = new_aubio_beattracking(o->winlen, o->hop_size, o->samplerate, 120.);
   o->onset    = new_fvec(1);
   /*if (usedoubled)    {
     o2 = new_aubio_specdesc(type_onset2,buffer_size);
