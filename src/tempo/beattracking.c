@@ -386,8 +386,8 @@ aubio_beattracking_checkstate (aubio_beattracking_t * bt)
   /* do some further checks on the final bp value */
 
   // TODO: this might need to depend on the target_bpm instead: bp < 60 / (2*target_bpm)
-  /* if tempo is > 206 bpm, half it */
-  while (0 < bp && bp < 25) {
+  /* if tempo is > ~300 (?) bpm, half it */
+  while (0 < bp && bp < 15) {
 #if AUBIO_BEAT_WARNINGS
     AUBIO_WRN ("doubling from %f (%f bpm) to %f (%f bpm)\n",
         bp, 60.*44100./512./bp, bp/2., 60.*44100./512./bp/2. );
