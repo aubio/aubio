@@ -191,6 +191,8 @@ aubio_tempo_t * new_aubio_tempo (const char_t * tempo_mode,
 
   /* length of observations, worth about 6 seconds */
   o->winlen = aubio_next_power_of_two(5.8 * samplerate / hop_size);
+  /* for low bpms, double the window size */
+  if (o->target_bpm < 90.) o->winlen = 2 * o->winlen;
   if (o->winlen < 4) o->winlen = 4;
   o->step = o->winlen/4;
   o->blockpos = 0;
