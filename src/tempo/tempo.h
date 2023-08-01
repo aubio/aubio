@@ -241,6 +241,23 @@ uint_t aubio_tempo_set_delay_s(aubio_tempo_t * o, smpl_t delay);
  */
 uint_t aubio_tempo_set_delay_ms(aubio_tempo_t * o, smpl_t delay);
 
+/** set target / default bpm value
+
+  \param bt beat tracking object
+  \param target
+
+*/
+uint_t aubio_tempo_set_target (aubio_tempo_t * o, smpl_t target);
+
+/** get current target / default bpm value
+
+  \param bt beat tracking object
+
+  Returns the current target bpm value. Defaults to 120.
+
+*/
+smpl_t aubio_tempo_get_target (const aubio_tempo_t * o);
+
 /** delete tempo detection object
 
   \param o beat tracking object
