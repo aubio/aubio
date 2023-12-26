@@ -52,7 +52,7 @@ char_t *getPrintableOSStatusError(char_t *str, OSStatus error)
         str[6] = '\0';
     } else
         // no, format it as an integer
-        sprintf(str, "%d", (int)error);
+        snprintf(str, 10, "%d", (int)error);
     return str;
 }
 
