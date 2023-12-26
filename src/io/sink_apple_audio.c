@@ -318,9 +318,9 @@ void aubio_sink_apple_audio_write(aubio_sink_apple_audio_t *s, uint_t write) {
     if (err) {
       char_t errorstr[20];
       if (err == kExtAudioFileError_AsyncWriteBufferOverflow) {
-        sprintf(errorstr,"buffer overflow");
+        snprintf(errorstr, sizeof (errorstr), "buffer overflow");
       } else if (err == kExtAudioFileError_AsyncWriteTooLarge) {
-        sprintf(errorstr,"write too large");
+        snprintf(errorstr, sizeof (errorstr), "write too large");
       } else {
         // unknown error
         getPrintableOSStatusError(errorstr, err);
