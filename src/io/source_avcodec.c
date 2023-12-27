@@ -52,6 +52,12 @@
 #define av_packet_unref av_free_packet
 #endif
 
+#if LIBAVUTIL_VERSION_INT < AV_VERSION_INT(57,28,100)
+#warning "libavutil < 57.28.100 is deprecated"
+#else
+#define LIBAVUTIL_HAS_CH_LAYOUT
+#endif
+
 #include "aubio_priv.h"
 #include "fvec.h"
 #include "fmat.h"
@@ -263,7 +269,7 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path,
 
   /* get input specs */
   s->input_samplerate = avCodecCtx->sample_rate;
-#ifdef AVUTIL_CHANNEL_LAYOUT_H
+#ifdef LIBAVUTIL_HAS_CH_LAYOUT
   s->input_channels   = avCodecCtx->ch_layout.nb_channels;
 #else
   s->input_channels   = avCodecCtx->channels;
@@ -333,7 +339,7 @@ void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s)
   if ( s->avr == NULL ) {
     int err;
     SwrContext *avr = swr_alloc();
-#ifdef AVUTIL_CHANNEL_LAYOUT_H
+#ifdef LIBAVUTIL_HAS_CH_LAYOUT
     AVChannelLayout input_layout;
     AVChannelLayout output_layout;
     av_channel_layout_default(&input_layout, s->input_channels);
@@ -384,7 +390,7 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s,
   SwrContext *avr = s->avr;
   int got_frame = 0;
   int in_samples = avFrame->nb_samples;
-#ifdef AVUTIL_CHANNEL_LAYOUT_H
+#ifdef LIBAVUTIL_HAS_CH_LAYOUT
   int max_out_samples = AUBIO_AVCODEC_MAX_BUFFER_SIZE / avCodecCtx->ch_layout.nb_channels;
 #else
   int max_out_samples = AUBIO_AVCODEC_MAX_BUFFER_SIZE / avCodecCtx->channels;
@@ -456,7 +462,7 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s,
   }
 
 #if LIBAVUTIL_VERSION_MAJOR > 52
-#ifdef AVUTIL_CHANNEL_LAYOUT_H
+#ifdef LIBAVUTIL_HAS_CH_LAYOUT
   int frame_channels = avFrame->ch_layout.nb_channels;
 #else
   int frame_channels = avFrame->channels;
