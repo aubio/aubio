@@ -53,7 +53,7 @@
 #endif
 
 #if LIBAVUTIL_VERSION_INT < AV_VERSION_INT(57,28,100)
-#warning "libavutil < 57.28.100 is deprecated"
+//#warning "libavutil < 57.28.100 is deprecated"
 #else
 #define LIBAVUTIL_HAS_CH_LAYOUT
 #endif
