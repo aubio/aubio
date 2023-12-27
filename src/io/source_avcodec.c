@@ -130,7 +130,7 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path,
   AVCodecParameters *codecpar;
 #endif
 
-  AVCodec *codec;
+  const AVCodec *codec;
   uint_t i;
   int err;
   if (path == NULL) {
