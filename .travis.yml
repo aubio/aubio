@@ -66,7 +66,7 @@ addons:
     - bzip2
     - libavcodec-dev
     - libavformat-dev
-    - libavresample-dev
+    - libswresample-dev
     - libavutil-dev
     - libsndfile1-dev
     - libsamplerate-dev
