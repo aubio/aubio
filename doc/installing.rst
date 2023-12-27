@@ -67,8 +67,7 @@ Cheat sheet
 - :ref:`check the list of optional dependencies <requirements>`::
 
     # debian / ubuntu
-    dpkg -l libavcodec-dev libavutil-dev libavformat-dev \
-            libswresample-dev libavresample-dev \
+    dpkg -l libavcodec-dev libavutil-dev libavformat-dev libswresample-dev \
             libsamplerate-dev libsndfile-dev \
             txt2man doxygen
 
