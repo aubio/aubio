@@ -263,7 +263,11 @@ aubio_source_avcodec_t * new_aubio_source_avcodec(const char_t * path,
 
   /* get input specs */
   s->input_samplerate = avCodecCtx->sample_rate;
+#ifdef AVUTIL_CHANNEL_LAYOUT_H
+  s->input_channels   = avCodecCtx->ch_layout.nb_channels;
+#else
   s->input_channels   = avCodecCtx->channels;
+#endif
   //AUBIO_DBG("input_samplerate: %d\n", s->input_samplerate);
   //AUBIO_DBG("input_channels: %d\n", s->input_channels);
 
@@ -329,11 +333,21 @@ void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s)
   if ( s->avr == NULL ) {
     int err;
     SwrContext *avr = swr_alloc();
+#ifdef AVUTIL_CHANNEL_LAYOUT_H
+    AVChannelLayout input_layout;
+    AVChannelLayout output_layout;
+    av_channel_layout_default(&input_layout, s->input_channels);
+    av_channel_layout_default(&output_layout, s->input_channels);
+
+    av_opt_set_chlayout(avr, "in_channel_layout",  &input_layout,        0);
+    av_opt_set_chlayout(avr, "out_channel_layout", &output_layout,       0);
+#else
     int64_t input_layout = av_get_default_channel_layout(s->input_channels);
     int64_t output_layout = av_get_default_channel_layout(s->input_channels);
 
     av_opt_set_int(avr, "in_channel_layout",  input_layout,              0);
     av_opt_set_int(avr, "out_channel_layout", output_layout,             0);
+#endif
     av_opt_set_int(avr, "in_sample_rate",     s->input_samplerate,       0);
     av_opt_set_int(avr, "out_sample_rate",    s->samplerate,             0);
     av_opt_set_int(avr, "in_sample_fmt",      s->avCodecCtx->sample_fmt, 0);
@@ -370,7 +384,11 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s,
   SwrContext *avr = s->avr;
   int got_frame = 0;
   int in_samples = avFrame->nb_samples;
+#ifdef AVUTIL_CHANNEL_LAYOUT_H
+  int max_out_samples = AUBIO_AVCODEC_MAX_BUFFER_SIZE / avCodecCtx->ch_layout.nb_channels;
+#else
   int max_out_samples = AUBIO_AVCODEC_MAX_BUFFER_SIZE / avCodecCtx->channels;
+#endif
   int out_samples = 0;
   smpl_t *output = s->output;
 #ifndef FF_API_LAVF_AVCTX
@@ -438,10 +456,15 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s,
   }
 
 #if LIBAVUTIL_VERSION_MAJOR > 52
-  if (avFrame->channels != (sint_t)s->input_channels) {
+#ifdef AVUTIL_CHANNEL_LAYOUT_H
+  int frame_channels = avFrame->ch_layout.nb_channels;
+#else
+  int frame_channels = avFrame->channels;
+#endif
+  if (frame_channels != (sint_t)s->input_channels) {
     AUBIO_WRN ("source_avcodec: trying to read from %d channel(s),"
         "but configured for %d; is '%s' corrupt?\n",
-        avFrame->channels, s->input_channels, s->path);
+        frame_channels, s->input_channels, s->path);
     goto beach;
   }
 #else
@@ -449,7 +472,8 @@ void aubio_source_avcodec_readframe(aubio_source_avcodec_t *s,
 #endif
 
   in_samples = avFrame->nb_samples;
-  max_out_samples = AUBIO_AVCODEC_MAX_BUFFER_SIZE / avCodecCtx->channels;
+  max_out_samples = AUBIO_AVCODEC_MAX_BUFFER_SIZE;
+  if (frame_channels > 0) max_out_samples /= frame_channels;
   out_samples = swr_convert( avr,
       (uint8_t **)&output, max_out_samples,
       (const uint8_t **)avFrame->data, in_samples);
