@@ -76,8 +76,7 @@ def add_local_macros(ext, usedouble = False):
 def add_external_deps(ext, usedouble = False):
     # loof for additional packages
     print("Info: looking for *optional* additional packages")
-    packages = ['libavcodec', 'libavformat', 'libavutil',
-                'libswresample', 'libavresample',
+    packages = ['libavcodec', 'libavformat', 'libavutil', 'libswresample',
                 'jack',
                 'sndfile',
                 'rubberband',
@@ -91,13 +90,9 @@ def add_external_deps(ext, usedouble = False):
     add_packages(packages, ext=ext)
     if 'avcodec' in ext.libraries \
             and 'avformat' in ext.libraries \
-            and 'avutil' in ext.libraries:
-        if 'swresample' in ext.libraries:
-            ext.define_macros += [('HAVE_SWRESAMPLE', 1)]
-        elif 'avresample' in ext.libraries:
-            ext.define_macros += [('HAVE_AVRESAMPLE', 1)]
-        if 'swresample' in ext.libraries or 'avresample' in ext.libraries:
-            ext.define_macros += [('HAVE_LIBAV', 1)]
+            and 'avutil' in ext.libraries \
+            and 'swresample' in ext.libraries:
+        ext.define_macros += [('HAVE_LIBAV', 1)]
     if 'sndfile' in ext.libraries:
         ext.define_macros += [('HAVE_SNDFILE', 1)]
     if 'samplerate' in ext.libraries:
