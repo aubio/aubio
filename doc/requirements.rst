@@ -50,7 +50,7 @@ from all formats supported by `libav
 * libavcodec
 * libavformat
 * libavutil
-* libavresample
+* libswresample
 
 To enable this option, configure with ``--enable-avcodec``. The build will then
 failed if the required libraries are not found. To disable this option,
