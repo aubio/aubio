@@ -448,11 +448,6 @@ def configure(ctx):
                 args = '--cflags --libs libswresample >= 1.2.0',
                 uselib_store = 'SWRESAMPLE',
                 mandatory = False)
-        if 'HAVE_SWRESAMPLE' not in ctx.env:
-            ctx.check_cfg(package = 'libavresample',
-                    args = '--cflags --libs libavresample >= 1.0.1',
-                    uselib_store = 'AVRESAMPLE',
-                    mandatory = False)
 
         msg_check = 'Checking for all libav libraries'
         if 'HAVE_AVCODEC' not in ctx.env:
@@ -461,16 +456,11 @@ def configure(ctx):
             ctx.msg(msg_check, 'not found (missing avformat)', color = 'YELLOW')
         elif 'HAVE_AVUTIL' not in ctx.env:
             ctx.msg(msg_check, 'not found (missing avutil)', color = 'YELLOW')
-        elif 'HAVE_SWRESAMPLE' not in ctx.env \
-                and 'HAVE_AVRESAMPLE' not in ctx.env:
-            resample_missing = 'not found (avresample or swresample required)'
+        elif 'HAVE_SWRESAMPLE' not in ctx.env :
+            resample_missing = 'not found (missing swresample)'
             ctx.msg(msg_check, resample_missing, color = 'YELLOW')
         else:
             ctx.msg(msg_check, 'yes')
-            if 'HAVE_SWRESAMPLE' in ctx.env:
-                ctx.define('HAVE_SWRESAMPLE', 1)
-            elif 'HAVE_AVRESAMPLE' in ctx.env:
-                ctx.define('HAVE_AVRESAMPLE', 1)
             ctx.define('HAVE_LIBAV', 1)
 
     # check for vorbisenc
