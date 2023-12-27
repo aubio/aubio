@@ -123,10 +123,10 @@ new_aubio_jack (uint_t hop_size, uint_t ichan, uint_t ochan,
   for (i = 0; i < ochan + omidichan; i++) {
     if (i < ochan) {
       jack_port_type = JACK_DEFAULT_AUDIO_TYPE;
-      AUBIO_SPRINTF (name, "out_%d", i + 1);
+      AUBIO_SNPRINTF (name, sizeof (name), "out_%d", i + 1);
     } else {
       jack_port_type = JACK_DEFAULT_MIDI_TYPE;
-      AUBIO_SPRINTF (name, "midi_out_%d", i - ochan + 1);
+      AUBIO_SNPRINTF (name, sizeof (name), "midi_out_%d", i - ochan + 1);
     }
     if ((jack_setup->oports[i] =
             jack_port_register (jack_setup->client, name,
@@ -140,10 +140,10 @@ new_aubio_jack (uint_t hop_size, uint_t ichan, uint_t ochan,
   for (i = 0; i < ichan + imidichan; i++) {
     if (i < ichan) {
       jack_port_type = JACK_DEFAULT_AUDIO_TYPE;
-      AUBIO_SPRINTF (name, "in_%d", i + 1);
+      AUBIO_SNPRINTF (name, sizeof (name), "in_%d", i + 1);
     } else {
       jack_port_type = JACK_DEFAULT_MIDI_TYPE;
-      AUBIO_SPRINTF (name, "midi_in_%d", i - ichan + 1);
+      AUBIO_SNPRINTF (name, sizeof (name), "midi_in_%d", i - ichan + 1);
     }
     if ((jack_setup->iports[i] =
             jack_port_register (jack_setup->client, name,
