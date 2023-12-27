@@ -6,6 +6,7 @@ jobs:
     vmImage: 'ubuntu-latest'
   steps:
   - script: |
+      sudo apt update
       sudo apt install libavformat-dev librubberband-dev
     displayName: 'deps'
   - script: |
