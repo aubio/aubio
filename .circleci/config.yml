@@ -1,3 +1,7 @@
+# python circleci 2.1 configuration
+# see https://circleci.com/docs/2.1/language-python/
+version: 2.1
+
 apt-run: &apt-install
   name: Install apt packages
   command: |
@@ -36,7 +40,6 @@ uninstall-wheel: &uninstall-wheel
     pip show -f aubio
     pip uninstall --verbose --yes aubio
 
-version: 2
 jobs:
   build-27:
     docker:
