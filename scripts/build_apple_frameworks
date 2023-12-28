@@ -45,19 +45,6 @@ function create_framework() {
   popd
 }
 
-function create_framework_fat() {
-  rm -rf $AUBIO_TMPDIR/framework-$3
-  mkdir -p $AUBIO_TMPDIR/framework-$3/$1-$2.$3_framework/$1.framework
-  cp -pr COPYING README.md $AUBIO_TMPDIR/framework-$3/$1-$2.$3_framework
-  pushd $AUBIO_TMPDIR/framework-$3
-  cp -pr $AUBIO_TMPDIR/framework-ios/$1-$2.ios_framework/$1.framework/Headers $1-$2.$3_framework/$1.framework
-  cp -pr $AUBIO_TMPDIR/framework-ios/$1-$2.ios_framework/$1.framework/Modules $1-$2.$3_framework/$1.framework
-  lipo $AUBIO_TMPDIR/framework-ios/$1-$2.ios_framework/$1.framework/$1 \
-       $AUBIO_TMPDIR/framework-iosimulator/$1-$2.iosimulator_framework/$1.framework/$1 \
-       -output $1-$2.$3_framework/$1.framework/$1 -create
-  popd
-}
-
 function create_framework_zip() {
   # create zip
   pushd $AUBIO_TMPDIR/framework-$3
@@ -84,18 +71,17 @@ do
   create_framework $PACKAGE $VERSION $PLATFORM
   if [ $PLATFORM == 'darwin' ]
   then
-    # on darwin, build a .tar.bz2 of /usr and a .zip of aubio.framework
+    # on darwin, build a .tar.bz2 of /usr
     create_tarballs $PACKAGE $VERSION $PLATFORM
-    create_framework_zip $PACKAGE $VERSION $PLATFORM
   fi
+
+  # build a .zip of aubio.framework
+  create_framework_zip $PACKAGE $VERSION $PLATFORM
+
+  # clean up
   ./waf uninstall $WAF_OPTIONS
 
 done
-
-# after both ios and iosimulator have been built
-PLATFORM=iosuniversal
-create_framework_fat $PACKAGE $VERSION $PLATFORM
-create_framework_zip $PACKAGE $VERSION $PLATFORM
 
 ./waf clean
 ./waf distclean
