@@ -287,7 +287,9 @@ def configure(ctx):
             ctx.env.LINKFLAGS += [ '-miphoneos-version-min=' + MINSDKVER ]
         else:
             ctx.env.CFLAGS += [ '-arch', 'x86_64' ]
+            ctx.env.CFLAGS += [ '-arch', 'arm64' ]
             ctx.env.LINKFLAGS += ['-arch', 'x86_64']
+            ctx.env.LINKFLAGS += ['-arch', 'arm64']
             ctx.env.CFLAGS += [ '-mios-simulator-version-min=' + MINSDKVER ]
             ctx.env.LINKFLAGS += [ '-mios-simulator-version-min=' + MINSDKVER ]
         ctx.env.CFLAGS += [ '-isysroot' , SDKROOT]
