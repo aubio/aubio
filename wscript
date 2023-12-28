@@ -241,7 +241,7 @@ def configure(ctx):
         ctx.env.CFLAGS += [ '-mmacosx-version-min=' + MINSDKVER ]
         ctx.env.LINKFLAGS += [ '-mmacosx-version-min=' + MINSDKVER ]
 
-    if target_platform in [ 'darwin', 'ios', 'iosimulator']:
+    if target_platform in [ 'darwin', 'ios', 'iosimulator' ]:
         if (ctx.options.enable_apple_audio != False):
             ctx.env.FRAMEWORK += ['CoreFoundation', 'AudioToolbox']
             ctx.define('HAVE_SOURCE_APPLE_AUDIO', 1)
@@ -258,7 +258,7 @@ def configure(ctx):
             ctx.msg('Checking for Accelerate framework', 'no (disabled)',
                     color = 'YELLOW')
 
-    if target_platform in [ 'ios', 'iosimulator' ]:
+    if target_platform in [ 'ios', 'iosimulator', 'watchos', 'watchsimulator' ]:
         MINSDKVER="6.1"
         xcodeslct_output = subprocess.check_output (['xcode-select', '--print-path'])
         XCODEPATH = xcodeslct_output.decode(sys.stdout.encoding).strip()
@@ -266,13 +266,17 @@ def configure(ctx):
             SDKNAME = "iPhoneOS"
         elif target_platform == 'iosimulator':
             SDKNAME = "iPhoneSimulator"
+        elif target_platform == 'watchos':
+            SDKNAME = "WatchOS"
+        elif target_platform == 'watchsimulator':
+            SDKNAME = "WatchSimulator"
         else:
             raise ctx.errors.ConfigurationError ("Error: unknown target platform '"
                 + target_platform + "'")
         DEVROOT = "%(XCODEPATH)s/Platforms/%(SDKNAME)s.platform/Developer" % locals()
         SDKROOT = "%(DEVROOT)s/SDKs/%(SDKNAME)s.sdk" % locals()
         ctx.env.CFLAGS += ['-std=c99']
-        if (ctx.options.enable_apple_audio != False):
+        if ctx.options.enable_apple_audio != False and target_platform.startswith ('ios'):
             ctx.define('HAVE_AUDIO_UNIT', 1)
             #ctx.env.FRAMEWORK += ['CoreFoundation', 'AudioToolbox']
         if target_platform == 'ios':
@@ -292,6 +296,20 @@ def configure(ctx):
             ctx.env.LINKFLAGS += ['-arch', 'arm64']
             ctx.env.CFLAGS += [ '-mios-simulator-version-min=' + MINSDKVER ]
             ctx.env.LINKFLAGS += [ '-mios-simulator-version-min=' + MINSDKVER ]
+        elif target_platform == 'watchos':
+            ctx.env.CFLAGS += [ '-arch', 'armv7' ]
+            ctx.env.CFLAGS += [ '-arch', 'armv7s' ]
+            ctx.env.LINKFLAGS += ['-arch', 'armv7']
+            ctx.env.LINKFLAGS += ['-arch', 'armv7s']
+            ctx.env.CFLAGS += [ '-mwatchos-version-min=' + MINSDKVER ]
+            ctx.env.LINKFLAGS += [ '-mwatchos-version-min=' + MINSDKVER ]
+        elif target_platform == 'watchsimulator':
+            ctx.env.CFLAGS += [ '-arch', 'x86_64' ]
+            ctx.env.CFLAGS += [ '-arch', 'arm64' ]
+            ctx.env.LINKFLAGS += ['-arch', 'x86_64']
+            ctx.env.LINKFLAGS += ['-arch', 'arm64']
+            ctx.env.CFLAGS += [ '-mwatchsimulator-version-min=' + MINSDKVER ]
+            ctx.env.LINKFLAGS += [ '-mwatchsimulator-version-min=' + MINSDKVER ]
         ctx.env.CFLAGS += [ '-isysroot' , SDKROOT]
         ctx.env.LINKFLAGS += [ '-isysroot' , SDKROOT]
 
@@ -557,7 +575,7 @@ def build(bld):
     bld.recurse('src')
 
     # add sub directories
-    if bld.env['DEST_OS'] not in ['ios', 'iosimulator', 'android']:
+    if bld.env['DEST_OS'] not in ['ios', 'iosimulator', 'watchos', 'watchsimulator', 'android']:
         if bld.env['DEST_OS']=='emscripten' and not bld.options.testcmd:
             bld.options.testcmd = 'node %s'
         if bld.options.enable_examples:
