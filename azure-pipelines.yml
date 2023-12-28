@@ -24,7 +24,7 @@ jobs:
       sudo apt install libfftw3-dev libsndfile-dev libavformat-dev librubberband-dev libvorbis-dev libflac-dev
     displayName: 'deps'
   - script: |
-      HAVE_AUBIO_DOUBLE=1 make
+      HAVE_AUBIO_DOUBLE=1 WAFOPTS="--enable-fftw3" make
     displayName: 'make'
     env:
       CFLAGS: -Werror
