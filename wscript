@@ -285,7 +285,7 @@ def configure(ctx):
             ctx.env.LINKFLAGS += ['-arch', 'armv7s']
             ctx.env.CFLAGS += [ '-miphoneos-version-min=' + MINSDKVER ]
             ctx.env.LINKFLAGS += [ '-miphoneos-version-min=' + MINSDKVER ]
-        else:
+        elif target_platform == 'iosimulator':
             ctx.env.CFLAGS += [ '-arch', 'x86_64' ]
             ctx.env.CFLAGS += [ '-arch', 'arm64' ]
             ctx.env.LINKFLAGS += ['-arch', 'x86_64']
