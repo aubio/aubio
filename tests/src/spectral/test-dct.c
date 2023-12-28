@@ -1,5 +1,6 @@
 #include <math.h>
 #include "aubio.h"
+#include "aubio_priv.h"
 #include "utils_tests.h"
 
 int main (void)
@@ -32,7 +33,7 @@ int main (void)
     aubio_dct_do (dct, in, dctout);
     aubio_dct_rdo (dct, dctout, out);
     for (j = 0; j < in->length; j++) {
-      return_code += (fabsf(in->data[j] - out->data[j]) > 10.e-4);
+      return_code += (ABS(in->data[j] - out->data[j]) > 10.e-4);
     }
   }
 
