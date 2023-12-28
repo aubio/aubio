@@ -11,6 +11,7 @@
 # For more info about waf, see http://code.google.com/p/waf/ .
 
 import sys
+import subprocess
 
 APPNAME = 'aubio'
 
@@ -259,14 +260,22 @@ def configure(ctx):
 
     if target_platform in [ 'ios', 'iosimulator' ]:
         MINSDKVER="6.1"
+        xcodeslct_output = subprocess.check_output (['xcode-select', '--print-path'])
+        XCODEPATH = xcodeslct_output.decode(sys.stdout.encoding).strip()
+        if target_platform == 'ios':
+            SDKNAME = "iPhoneOS"
+        elif target_platform == 'iosimulator':
+            SDKNAME = "iPhoneSimulator"
+        else:
+            raise ctx.errors.ConfigurationError ("Error: unknown target platform '"
+                + target_platform + "'")
+        DEVROOT = "%(XCODEPATH)s/Platforms/%(SDKNAME)s.platform/Developer" % locals()
+        SDKROOT = "%(DEVROOT)s/SDKs/%(SDKNAME)s.sdk" % locals()
         ctx.env.CFLAGS += ['-std=c99']
         if (ctx.options.enable_apple_audio != False):
             ctx.define('HAVE_AUDIO_UNIT', 1)
             #ctx.env.FRAMEWORK += ['CoreFoundation', 'AudioToolbox']
         if target_platform == 'ios':
-            DEVROOT = "/Applications/Xcode.app/Contents"
-            DEVROOT += "/Developer/Platforms/iPhoneOS.platform/Developer"
-            SDKROOT = "%(DEVROOT)s/SDKs/iPhoneOS.sdk" % locals()
             ctx.env.CFLAGS += [ '-fembed-bitcode' ]
             ctx.env.CFLAGS += [ '-arch', 'arm64' ]
             ctx.env.CFLAGS += [ '-arch', 'armv7' ]
@@ -277,9 +286,6 @@ def configure(ctx):
             ctx.env.CFLAGS += [ '-miphoneos-version-min=' + MINSDKVER ]
             ctx.env.LINKFLAGS += [ '-miphoneos-version-min=' + MINSDKVER ]
         else:
-            DEVROOT = "/Applications/Xcode.app/Contents"
-            DEVROOT += "/Developer/Platforms/iPhoneSimulator.platform/Developer"
-            SDKROOT = "%(DEVROOT)s/SDKs/iPhoneSimulator.sdk" % locals()
             ctx.env.CFLAGS += [ '-arch', 'x86_64' ]
             ctx.env.LINKFLAGS += ['-arch', 'x86_64']
             ctx.env.CFLAGS += [ '-mios-simulator-version-min=' + MINSDKVER ]
