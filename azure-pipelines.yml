@@ -7,7 +7,7 @@ jobs:
   steps:
   - script: |
       sudo apt update
-      sudo apt install libavformat-dev librubberband-dev libvorbis-dev libflac-dev
+      sudo apt install libsndfile-dev libavformat-dev librubberband-dev libvorbis-dev libflac-dev
     displayName: 'deps'
   - script: |
       make
