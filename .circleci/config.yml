@@ -82,6 +82,33 @@ jobs:
       - store_artifacts:
           path: dist/
 
+  build-312:
+    docker:
+      - image: cimg/python:3.12
+    steps:
+      - checkout
+      - run: *apt-install
+      - run: *pip-install
+      - run: *build-wheel
+      - run: *install-wheel
+      - run: *test-pytest
+      - run: *uninstall-wheel
+      - store_artifacts:
+          path: dist/
+
+  build-312-nodeps:
+    docker:
+      - image: cimg/python:3.12
+    steps:
+      - checkout
+      - run: *pip-install
+      - run: *build-wheel
+      - run: *install-wheel
+      - run: *test-pytest-nosounds
+      - run: *uninstall-wheel
+      - store_artifacts:
+          path: dist/
+
 workflows:
   version: 2
 
@@ -90,3 +117,5 @@ workflows:
       - build-36
       - build-310
       - build-310-nodeps
+      - build-312
+      - build-312-nodeps
