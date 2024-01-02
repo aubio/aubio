@@ -6,5 +6,11 @@ build:
   tools:
     python: "3.12"
 
+python:
+  install:
+    - requirements: requirements.txt
+    - method: pip
+      path: .
+
 sphinx:
   configuration: doc/conf.py
