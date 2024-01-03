@@ -71,7 +71,7 @@
   // pitch detection
   aubio_pitch_t *pitch = new_aubio_pitch (method, winsize, stepsize, samplerate);
   // beat tracking
-  aubio_tempo_t *tempo = new_aubio_tempo (method, winsize, stepsize, samplerate);
+  aubio_tempo_t *tempo = new_aubio_tempo (method, winsize, stepsize, samplerate, target_bpm);
 
   \endcode
 
