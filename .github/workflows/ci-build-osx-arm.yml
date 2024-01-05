@@ -1,0 +1,38 @@
+name: Build aubio wheels for OS X (Apple Silicon)
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: flyci-macos-large-latest-m1
+    strategy:
+      matrix:
+        python: [3.10.x,3.11.x,3.12.x]
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python }}
+
+    - name: Install dependencies
+      run: |
+        brew install pkg-config gnupg
+        brew install sox ffmpeg libsndfile libvorbis flac lcov
+        pip install cibuildwheel
+    - name: Make aubio
+      run: |
+        make
+
+    - name: Build wheels for ${{ matrix.python }}
+      run: |
+        cibuildwheel --output-dir wheelhouse --platform macos --arch arm64
+
+    - name: Upload wheels
+      uses: actions/upload-artifact@v2
+      with:
+        name: wheels
+        path: ./wheelhouse/*.whl
