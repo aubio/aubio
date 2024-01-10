@@ -322,6 +322,12 @@ def configure(ctx):
             ctx.env.LINKFLAGS += ['-O0']
         else:
             ctx.env.LINKFLAGS += ['-Oz']
+            ctx.env.LINKFLAGS += ['-s','ASSERTIONS=0']
+            ctx.env.LINKFLAGS += ['-s','STRICT=1']
+            ctx.env.LINKFLAGS += ['-s','MODULARIZE=1']
+            ctx.env.LINKFLAGS += ['-s','EXPORT_NAME=aubio']
+            ctx.env.LINKFLAGS += ['-s','FILESYSTEM=0']
+            ctx.env.LINKFLAGS += ['-s','MALLOC=emmalloc']
             ctx.env.cshlib_PATTERN = '%s.min.js'
 
         # doesnt ship file system support in lib
@@ -343,9 +349,10 @@ def configure(ctx):
         objects += ['fvec_t', 'cvec_t', 'fmat_t']
         lib = generate_lib_from_c_declarations(objects, c_decls)
         exported_funcnames = get_all_func_names_from_lib(lib)
-        c_mangled_names = ['_' + s for s in exported_funcnames]
+        c_mangled_names = [('_' + s).encode('utf8') for s in exported_funcnames]
         ctx.env.LINKFLAGS_cshlib += ['-s',
                 'EXPORTED_FUNCTIONS=%s' % c_mangled_names]
+        ctx.env.LINKFLAGS_cshlib += ['-s', 'EXTRA_EXPORTED_RUNTIME_METHODS=["ccall", "cwrap"]']
 
     # check support for C99 __VA_ARGS__ macros
     check_c99_varargs = '''
