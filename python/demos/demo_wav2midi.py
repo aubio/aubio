@@ -57,17 +57,17 @@ total_frames = 0
 while True:
     samples, read = s()
     new_note = notes_o(samples)
-    if (new_note[0] != 0):
+    if ((sum(new_note)>0) and (new_note[0] >= 0) and (new_note[0]<=127)):
         note_str = ' '.join(["%.2f" % i for i in new_note])
         print("%.6f" % (total_frames/float(samplerate)), new_note)
         delta = frames2tick(total_frames) - last_time
-        if new_note[2] > 0:
+        if ((new_note[2] > 0) and (new_note[2]<=127)):
             track.append(Message('note_off', note=int(new_note[2]),
                 velocity=127, time=delta)
                 )
         track.append(Message('note_on',
             note=int(new_note[0]),
-            velocity=int(new_note[1]),
+            velocity=int(min(new_note[1],127)),
             time=delta)
             )
         last_time = frames2tick(total_frames)
