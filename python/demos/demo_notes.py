@@ -32,6 +32,6 @@ while True:
     new_note = notes_o(samples)
     if (new_note[0] != 0):
         note_str = ' '.join(["%.2f" % i for i in new_note])
-        print("%.6f" % (total_frames/float(samplerate)), new_note)
+        print("%.6f %s" % ((total_frames/float(samplerate)), note_str))
     total_frames += read
     if read < hop_s: break
