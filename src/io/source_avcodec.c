@@ -345,8 +345,8 @@ void aubio_source_avcodec_reset_resampler(aubio_source_avcodec_t * s)
     av_channel_layout_default(&input_layout, s->input_channels);
     av_channel_layout_default(&output_layout, s->input_channels);
 
-    av_opt_set_chlayout(avr, "in_channel_layout",  &input_layout,        0);
-    av_opt_set_chlayout(avr, "out_channel_layout", &output_layout,       0);
+    av_opt_set_chlayout(avr, "in_chlayout",  &input_layout,        0);
+    av_opt_set_chlayout(avr, "out_chlayout", &output_layout,       0);
 #else
     int64_t input_layout = av_get_default_channel_layout(s->input_channels);
     int64_t output_layout = av_get_default_channel_layout(s->input_channels);
