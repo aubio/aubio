@@ -6,9 +6,9 @@
 
 #include <rubberband/rubberband-c.h>
 
-// check rubberband is 1.8.1, warn if 1.3
-#if !((RUBBERBAND_API_MAJOR_VERSION >= 2) && \
-    (RUBBERBAND_API_MINOR_VERSION >= 5))
+// check rubberband is greater than 1.8.1, warn if 1.3
+#if !((RUBBERBAND_API_MAJOR_VERSION > 2) || \
+    ((RUBBERBAND_API_MAJOR_VERSION == 2) && (RUBBERBAND_API_MINOR_VERSION >= 5)))
 #warning RubberBandOptionDetectorSoft not available, \
  please upgrade rubberband to version 1.8.1 or higher
 #define RubberBandOptionDetectorSoft 0x00000000
