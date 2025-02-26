@@ -63,4 +63,4 @@ jobs:
       make
     displayName: 'make'
     env:
-      CFLAGS: -Werror
+      CFLAGS: -Werror -DACCELERATE_NEW_LAPACK -DACCELERATE_LAPACK_ILP64
