@@ -199,7 +199,13 @@ aubio_beattracking_do (aubio_beattracking_t * bt, const fvec_t * dfframe,
   fvec_zeros (bt->phout);
   for (i = 0; i < bp; i++) {
     for (k = 0; k < kmax; k++) {
-      bt->phout->data[i] += bt->dfrev->data[i + (uint_t) ROUND (bp * k)];
+      uint_t idx = i + (uint_t) ROUND (bp * k);
+      if (idx < bt->dfrev->length)
+        bt->phout->data[i] += bt->dfrev->data[idx];
+#if AUBIO_BEAT_WARNINGS
+      else
+        AUBIO_WRN ("[tempo] out of bounds index %d", idx);
+#endif
     }
   }
   fvec_weight (bt->phout, bt->phwv);
