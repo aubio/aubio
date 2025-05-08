@@ -92,6 +92,8 @@
 // include accelerate framework after blas
 #define HAVE_ATLAS 1
 #define HAVE_BLAS 1
+#define ACCELERATE_NEW_LAPACK 1
+#define ACCELERATE_LAPACK_ILP6 1
 #include <Accelerate/Accelerate.h>
 
 #ifndef HAVE_AUBIO_DOUBLE
