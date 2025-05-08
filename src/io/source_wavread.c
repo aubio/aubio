@@ -207,13 +207,12 @@ aubio_source_wavread_t * new_aubio_source_wavread(const char_t * path, uint_t sa
     AUBIO_ERR("source_wavread: Failed opening %s (bitspersample can not be 0)\n", s->path);
     goto beach;
   }
-#if 0
-  if ( bitspersample != 16 ) {
-    AUBIO_ERR("source_wavread: can not process %dbit file %s\n",
+
+  if ( bitspersample != 8 && bitspersample != 16 ) {
+    AUBIO_ERR("source_wavread: can not process %d-bit file %s\n",
         bitspersample, s->path);
     goto beach;
   }
-#endif
 
   if ( byterate * 8 != sr * channels * bitspersample ) {
     AUBIO_ERR("source_wavread: Failed opening %s (wrong byterate)\n", s->path);
