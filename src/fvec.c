@@ -62,10 +62,10 @@ void fvec_print(const fvec_t *s) {
 void fvec_set_all (fvec_t *s, smpl_t val) {
 #if defined(HAVE_INTEL_IPP)
   aubio_ippsSet(val, s->data, (int)s->length);
-#elif defined(HAVE_ATLAS)
-  aubio_catlas_set(s->length, val, s->data, 1);
 #elif defined(HAVE_ACCELERATE)
   aubio_vDSP_vfill(&val, s->data, 1, s->length);
+#elif defined(HAVE_ATLAS)
+  aubio_catlas_set(s->length, val, s->data, 1);
 #else
   uint_t j;
   for ( j = 0; j< s->length; j++ )
@@ -134,10 +134,10 @@ void fvec_copy(const fvec_t *s, fvec_t *t) {
   }
 #if defined(HAVE_INTEL_IPP)
   aubio_ippsCopy(s->data, t->data, (int)s->length);
-#elif defined(HAVE_BLAS)
-  aubio_cblas_copy(s->length, s->data, 1, t->data, 1);
 #elif defined(HAVE_ACCELERATE)
   aubio_vDSP_mmov(s->data, t->data, 1, s->length, 1, 1);
+#elif defined(HAVE_BLAS)
+  aubio_cblas_copy(s->length, s->data, 1, t->data, 1);
 #elif defined(HAVE_MEMCPY_HACKS)
   memcpy(t->data, s->data, t->length * sizeof(smpl_t));
 #else
