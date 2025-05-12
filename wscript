@@ -277,8 +277,9 @@ def configure(ctx):
         SDKROOT = "%(DEVROOT)s/SDKs/%(SDKNAME)s.sdk" % locals()
         ctx.env.CFLAGS += ['-std=c99']
         if ctx.options.enable_apple_audio != False and target_platform.startswith ('ios'):
-            ctx.define('HAVE_AUDIO_UNIT', 1)
+            #ctx.define('HAVE_AUDIO_UNIT', 1)
             #ctx.env.FRAMEWORK += ['CoreFoundation', 'AudioToolbox']
+            pass
         if target_platform == 'ios':
             ctx.env.CFLAGS += [ '-fembed-bitcode' ]
             ctx.env.CFLAGS += [ '-arch', 'arm64' ]
