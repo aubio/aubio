@@ -282,11 +282,11 @@ def configure(ctx):
         if target_platform == 'ios':
             ctx.env.CFLAGS += [ '-fembed-bitcode' ]
             ctx.env.CFLAGS += [ '-arch', 'arm64' ]
-            ctx.env.CFLAGS += [ '-arch', 'armv7' ]
-            ctx.env.CFLAGS += [ '-arch', 'armv7s' ]
+            #ctx.env.CFLAGS += [ '-arch', 'armv7' ]
+            #ctx.env.CFLAGS += [ '-arch', 'armv7s' ]
             ctx.env.LINKFLAGS += [ '-arch', 'arm64' ]
-            ctx.env.LINKFLAGS += ['-arch', 'armv7']
-            ctx.env.LINKFLAGS += ['-arch', 'armv7s']
+            #ctx.env.LINKFLAGS += ['-arch', 'armv7']
+            #ctx.env.LINKFLAGS += ['-arch', 'armv7s']
             ctx.env.CFLAGS += [ '-miphoneos-version-min=' + MINSDKVER ]
             ctx.env.LINKFLAGS += [ '-miphoneos-version-min=' + MINSDKVER ]
         elif target_platform == 'iosimulator':
