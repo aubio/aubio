@@ -109,7 +109,7 @@ def get_name(proto):
 
 def get_return_type(proto):
     import re
-    paramregex = re.compile('(\w+ ?\*?).*')
+    paramregex = re.compile(r'(\w+ ?\*?).*')
     outputs = paramregex.findall(proto)
     assert len(outputs) == 1
     return outputs[0].replace(' ', '')
@@ -140,7 +140,7 @@ def get_params(proto):
     returns: ['int argc', 'char ** argv']
     """
     import re
-    paramregex = re.compile('.*\((.*)\);')
+    paramregex = re.compile(r'.*\((.*)\);')
     a = paramregex.findall(proto)[0].split(', ')
     #a = [i.replace('const ', '') for i in a]
     return a
