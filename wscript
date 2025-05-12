@@ -237,7 +237,7 @@ def configure(ctx):
     if target_platform == 'darwin' and ctx.options.enable_fat:
         ctx.env.CFLAGS += ['-arch', 'arm64', '-arch', 'x86_64']
         ctx.env.LINKFLAGS += ['-arch', 'arm64', '-arch', 'x86_64']
-        MINSDKVER="10.4"
+        MINSDKVER="13.3"
         ctx.env.CFLAGS += [ '-mmacosx-version-min=' + MINSDKVER ]
         ctx.env.LINKFLAGS += [ '-mmacosx-version-min=' + MINSDKVER ]
 
