@@ -259,7 +259,7 @@ def configure(ctx):
                     color = 'YELLOW')
 
     if target_platform in [ 'ios', 'iosimulator', 'watchos', 'watchsimulator' ]:
-        MINSDKVER="6.1"
+        MINSDKVER="16.4"
         xcodeslct_output = subprocess.check_output (['xcode-select', '--print-path'])
         XCODEPATH = xcodeslct_output.decode(sys.stdout.encoding).strip()
         if target_platform == 'ios':
