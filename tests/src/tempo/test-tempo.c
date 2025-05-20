@@ -34,7 +34,7 @@ int main (int argc, char **argv)
 
   // create tempo object
   aubio_tempo_t * o = new_aubio_tempo("default", win_size, hop_size,
-      samplerate);
+      samplerate, 120.);
 
   if (!o) { err = 1; goto beach_tempo; }
 
@@ -76,32 +76,36 @@ int test_wrong_params(void)
   uint_t win_size = 1024;
   uint_t hop_size = 256;
   uint_t samplerate = 44100;
+  smpl_t bpm = 120.;
   aubio_tempo_t *t;
   fvec_t* in, *out;
   uint_t i;
 
   // test wrong method fails
-  if (new_aubio_tempo("undefined", win_size, hop_size, samplerate)) return 1;
+  if (new_aubio_tempo("undefined", win_size, hop_size, samplerate, bpm)) return 1;
 
   // test hop > win fails
-  if (new_aubio_tempo("default", hop_size, win_size, samplerate)) return 1;
+  if (new_aubio_tempo("default", hop_size, win_size, samplerate, bpm)) return 1;
 
   // test null hop_size fails
-  if (new_aubio_tempo("default", win_size, 0, samplerate)) return 1;
+  if (new_aubio_tempo("default", win_size, 0, samplerate, bpm)) return 1;
 
   // test 1 buf_size fails
-  if (new_aubio_tempo("default", 1, 1, samplerate)) return 1;
+  if (new_aubio_tempo("default", 1, 1, samplerate, bpm)) return 1;
 
   // test null samplerate fails
-  if (new_aubio_tempo("default", win_size, hop_size, 0)) return 1;
+  if (new_aubio_tempo("default", win_size, hop_size, 0, bpm)) return 1;
+
+  // test bpm < 15 fails
+  if (new_aubio_tempo("default", win_size, hop_size, samplerate, 14.9)) return 1;
 
   // test short sizes workaround
-  t = new_aubio_tempo("default", 2048, 2048, 500);
+  t = new_aubio_tempo("default", 2048, 2048, 500, bpm);
   if (!t) return 1;
 
   del_aubio_tempo(t);
 
-  t = new_aubio_tempo("default", win_size, hop_size, samplerate);
+  t = new_aubio_tempo("default", win_size, hop_size, samplerate, bpm);
   if (!t) return 1;
 
   in = new_fvec(hop_size);

@@ -31,6 +31,7 @@ void aubio_beattracking_checkstate (aubio_beattracking_t * bt);
 
 struct _aubio_beattracking_t
 {
+  smpl_t target_bpm;     /** the bpm to target */
   uint_t hop_size;       /** length of one tempo detection function sample, in audio samples */
   uint_t samplerate;     /** samplerate of the original signal */
   fvec_t *rwv;           /** rayleigh weighting for beat period in general model */
@@ -56,13 +57,13 @@ struct _aubio_beattracking_t
 };
 
 aubio_beattracking_t *
-new_aubio_beattracking (uint_t winlen, uint_t hop_size, uint_t samplerate)
+new_aubio_beattracking (uint_t winlen, uint_t hop_size, uint_t samplerate, smpl_t target_bpm)
 {
 
   aubio_beattracking_t *p = AUBIO_NEW (aubio_beattracking_t);
   uint_t i = 0;
-  /* default value for rayleigh weighting - sets preferred tempo to 120bpm */
-  smpl_t rayparam = 60. * samplerate / 120. / hop_size;
+  /* default value for rayleigh weighting - sets preferred tempo to the target_bpm */
+  smpl_t rayparam = 60. * samplerate / target_bpm / hop_size;
   smpl_t dfwvnorm = EXP ((LOG (2.0) / rayparam) * (winlen + 2));
   /* length over which beat period is found [128] */
   uint_t laglen = winlen / 4;
@@ -70,6 +71,7 @@ new_aubio_beattracking (uint_t winlen, uint_t hop_size, uint_t samplerate)
    * 1 onset frame [128] */
   uint_t step = winlen / 4;     /* 1.5 seconds */
 
+  p->target_bpm = target_bpm;
   p->hop_size = hop_size;
   p->samplerate = samplerate;
   p->lastbeat = 0;
@@ -389,8 +391,9 @@ aubio_beattracking_checkstate (aubio_beattracking_t * bt)
 
   /* do some further checks on the final bp value */
 
-  /* if tempo is > 206 bpm, half it */
-  while (0 < bp && bp < 25) {
+  // TODO: this might need to depend on the target_bpm instead: bp < 60 / (2*target_bpm)
+  /* if tempo is > ~300 (?) bpm, half it */
+  while (0 < bp && bp < 15) {
 #if AUBIO_BEAT_WARNINGS
     AUBIO_WRN ("doubling from %f (%f bpm) to %f (%f bpm)\n",
         bp, 60.*44100./512./bp, bp/2., 60.*44100./512./bp/2. );
