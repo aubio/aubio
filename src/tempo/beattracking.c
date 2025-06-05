@@ -42,6 +42,7 @@ struct _aubio_beattracking_t
   fvec_t *acfout;        /** store result of passing acf through s.i.c.f.b. */
   fvec_t *phout;
   uint_t timesig;        /** time signature of input, set to zero until context dependent model activated */
+  smpl_t target;         /** target / default bpm value that detection tends towards */
   uint_t step;
   uint_t rayparam;       /** Rayleigh parameter */
   smpl_t lastbeat;
@@ -60,10 +61,6 @@ new_aubio_beattracking (uint_t winlen, uint_t hop_size, uint_t samplerate)
 {
 
   aubio_beattracking_t *p = AUBIO_NEW (aubio_beattracking_t);
-  uint_t i = 0;
-  /* default value for rayleigh weighting - sets preferred tempo to 120bpm */
-  smpl_t rayparam = 60. * samplerate / 120. / hop_size;
-  smpl_t dfwvnorm = EXP ((LOG (2.0) / rayparam) * (winlen + 2));
   /* length over which beat period is found [128] */
   uint_t laglen = winlen / 4;
   /* step increment - both in detection function samples -i.e. 11.6ms or
@@ -79,7 +76,6 @@ new_aubio_beattracking (uint_t winlen, uint_t hop_size, uint_t samplerate)
   p->rp = 1;
   p->gp = 0;
 
-  p->rayparam = rayparam;
   p->step = step;
   p->rwv = new_fvec (laglen);
   p->gwv = new_fvec (laglen);
@@ -92,16 +88,8 @@ new_aubio_beattracking (uint_t winlen, uint_t hop_size, uint_t samplerate)
 
   p->timesig = 0;
 
-  /* exponential weighting, dfwv = 0.5 when i =  43 */
-  for (i = 0; i < winlen; i++) {
-    p->dfwv->data[i] = (EXP ((LOG (2.0) / rayparam) * (i + 1)))
-        / dfwvnorm;
-  }
-
-  for (i = 0; i < (laglen); i++) {
-    p->rwv->data[i] = ((smpl_t) (i + 1.) / SQR ((smpl_t) rayparam)) *
-        EXP ((-SQR ((smpl_t) (i + 1.)) / (2. * SQR ((smpl_t) rayparam))));
-  }
+  /* default value for rayleigh weighting - sets preferred tempo to 120bpm */
+  aubio_beattracking_set_target(p, 120);
 
   return p;
 
@@ -446,4 +434,38 @@ aubio_beattracking_get_confidence (const aubio_beattracking_t * bt)
     }
   }
   return 0.;
+}
+
+uint_t
+aubio_beattracking_set_target (aubio_beattracking_t * bt, smpl_t target)
+{
+  bt->target = target;
+
+  uint_t laglen = bt->rwv->length;
+  uint_t winlen = bt->dfwv->length;
+  uint_t i = 0;
+
+  /* default value for rayleigh weighting - sets preferred tempo to <x>bpm */
+  smpl_t rayparam = 60. * bt->samplerate / target / bt->hop_size;
+  smpl_t dfwvnorm = EXP ((LOG (2.0) / rayparam) * (winlen + 2));
+  bt->rayparam = rayparam;
+
+  /* exponential weighting, dfwv = 0.5 when i =  43 */
+  for (i = 0; i < winlen; i++) {
+    bt->dfwv->data[i] = (EXP ((LOG (2.0) / rayparam) * (i + 1)))
+        / dfwvnorm;
+  }
+
+  for (i = 0; i < (laglen); i++) {
+    bt->rwv->data[i] = ((smpl_t) (i + 1.) / SQR ((smpl_t) rayparam)) *
+        EXP ((-SQR ((smpl_t) (i + 1.)) / (2. * SQR ((smpl_t) rayparam))));
+  }
+
+  return AUBIO_OK;
+}
+
+smpl_t
+aubio_beattracking_get_target (const aubio_beattracking_t * bt)
+{
+  return bt->target;
 }
