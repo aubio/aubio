@@ -56,8 +56,8 @@ expandwaf: getwaf
 	[ -d wafilb ] || rm -fr waflib
 	$(WAFCMD) --help > /dev/null
 	mv .waf*/waflib . && rm -fr .waf*
-	sed '/^#==>$$/,$$d' waf > waf2 && mv waf2 waf
-	chmod +x waf && chmod -R go-w waflib
+	sed '/^#==>$$/,$$d' -i waf
+	chmod -R go-w waflib
 
 cleanwaf:
 	rm -rf waf waflib .waf*
