@@ -45,8 +45,8 @@ static int Py_aubio_unary_n_types = 2;
 static int Py_aubio_unary_n_inputs = 1;
 static int Py_aubio_unary_n_outputs = 1;
 PyUFuncGenericFunction Py_aubio_unary_functions[] = {
-  &aubio_PyUFunc_f_f_As_d_d,
-  &aubio_PyUFunc_d_d,
+  (PyUFuncGenericFunction) aubio_PyUFunc_f_f_As_d_d,
+  (PyUFuncGenericFunction) aubio_PyUFunc_d_d,
   //PyUFunc_f_f_As_d_d, PyUFunc_d_d,
   //PyUFunc_g_g, PyUFunc_OO_O_method,
 };
