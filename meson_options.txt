@@ -1,0 +1,133 @@
+# Build options
+
+option('double',
+  type: 'boolean',
+  value: false,
+  description: 'Compile in double precision mode'
+)
+
+option('complex',
+  type: 'boolean',
+  value: false,
+  description: 'Compile with C99 complex support'
+)
+
+option('fftw3',
+  type: 'feature',
+  value: 'auto',
+  description: 'Use fftw3 instead of ooura'
+)
+
+option('fftw3f',
+  type: 'feature',
+  value: 'auto',
+  description: 'Use fftw3f instead of ooura (recommended)'
+)
+
+option('intelipp',
+  type: 'feature',
+  value: 'auto',
+  description: 'Use Intel IPP libraries'
+)
+
+option('accelerate',
+  type: 'feature',
+  value: 'auto',
+  description: 'Use Accelerate framework (macOS only)'
+)
+
+option('apple-audio',
+  type: 'feature',
+  value: 'auto',
+  description: 'Use CoreFoundation and AudioToolbox (macOS only)'
+)
+
+option('jack',
+  type: 'feature',
+  value: 'auto',
+  description: 'Enable JACK support'
+)
+
+option('sndfile',
+  type: 'feature',
+  value: 'auto',
+  description: 'Enable libsndfile support'
+)
+
+option('avcodec',
+  type: 'feature',
+  value: 'auto',
+  description: 'Enable libavcodec support'
+)
+
+option('vorbis',
+  type: 'feature',
+  value: 'auto',
+  description: 'Enable libvorbis support'
+)
+
+option('flac',
+  type: 'feature',
+  value: 'auto',
+  description: 'Enable FLAC support'
+)
+
+option('samplerate',
+  type: 'feature',
+  value: 'auto',
+  description: 'Enable libsamplerate support'
+)
+
+option('rubberband',
+  type: 'feature',
+  value: 'auto',
+  description: 'Enable rubberband support'
+)
+
+option('blas',
+  type: 'feature',
+  value: 'disabled',
+  description: 'Use BLAS acceleration library'
+)
+
+option('memcpy',
+  type: 'boolean',
+  value: true,
+  description: 'Use memcpy hacks'
+)
+
+option('wavread',
+  type: 'boolean',
+  value: true,
+  description: 'Compile with source_wavread'
+)
+
+option('wavwrite',
+  type: 'boolean',
+  value: true,
+  description: 'Compile with sink_wavwrite'
+)
+
+option('examples',
+  type: 'boolean',
+  value: false,
+  description: 'Build examples'
+)
+
+option('tests',
+  type: 'boolean',
+  value: false,
+  description: 'Build and run tests'
+)
+
+option('python',
+  type: 'boolean',
+  value: true,
+  description: 'Build Python bindings'
+)
+
+option('security_hardening',
+  type: 'boolean',
+  value: true,
+  description: 'Enable security hardening compiler flags (-fstack-protector-strong, -D_FORTIFY_SOURCE=2, etc.)'
+)

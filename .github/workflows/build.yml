@@ -1,0 +1,227 @@
+# Build and publish aubio-ledfx wheels using cibuildwheel for portable, optimized builds
+
+name: Build and publish aubio-ledfx
+
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: write  # Required for vcpkg binary caching via GitHub Actions cache
+
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build-sdist:
+    name: Build source distribution 📦
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code from GitHub
+        uses: actions/checkout@v5
+        with:
+          submodules: 'recursive'
+    
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true      
+    
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Create virtual environment and install Meson
+        run: |
+          uv venv
+          uv pip install "meson>=1.9.0" meson-python ninja "numpy>=1.26.4"
+
+      - name: Build source tarball
+        run: uv build --sdist
+    
+      - name: Store source distribution
+        uses: actions/upload-artifact@v4
+        with:
+            name: cibw-sdist
+            path: dist/*.tar.gz
+
+  build-wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux x86_64
+          - os: ubuntu-latest
+            arch: x86_64
+            cibw_archs: "x86_64"
+          # Linux ARM64 (native, no QEMU)
+          - os: ubuntu-24.04-arm
+            arch: aarch64
+            cibw_archs: "aarch64"
+          # Windows AMD64
+          - os: windows-latest
+            arch: AMD64
+            cibw_archs: "AMD64"
+          # macOS x86_64 (Intel)
+          - os: macos-15-intel
+            arch: x86_64
+            cibw_archs: "x86_64"
+          # macOS ARM64 (Apple Silicon)
+          - os: macos-latest
+            arch: arm64
+            cibw_archs: "arm64"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          submodules: 'recursive'
+
+      # Cache vcpkg_installed directory for macOS to avoid rebuilding dependencies
+      # This caches the installed packages directory which is reused across builds
+      - name: Cache vcpkg installed packages (macOS x86_64)
+        if: runner.os == 'macOS' && matrix.arch == 'x86_64'
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/vcpkg_installed
+          key: vcpkg-installed-macos-x64-${{ hashFiles('vcpkg.json', 'vcpkg-triplets/*.cmake') }}
+          restore-keys: |
+            vcpkg-installed-macos-x64-
+
+      - name: Cache vcpkg installed packages (macOS ARM64)
+        if: runner.os == 'macOS' && matrix.arch == 'arm64'
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/vcpkg_installed
+          key: vcpkg-installed-macos-arm64-${{ hashFiles('vcpkg.json', 'vcpkg-triplets/*.cmake') }}
+          restore-keys: |
+            vcpkg-installed-macos-arm64-
+
+      # Cache vcpkg_installed directory for Windows
+      - name: Cache vcpkg installed packages (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/vcpkg_installed
+          key: vcpkg-installed-windows-${{ matrix.arch }}-${{ hashFiles('vcpkg.json', 'vcpkg-triplets/*.cmake') }}
+          restore-keys: |
+            vcpkg-installed-windows-${{ matrix.arch }}-
+
+      # macOS: Install build tools needed by vcpkg
+      - name: Install build tools (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          # Install nasm (required by vcpkg for ffmpeg assembly optimizations)
+          brew install nasm
+
+      # macOS vcpkg setup - build dependencies from source with correct deployment target
+      - name: Install vcpkg dependencies (macOS x86_64)
+        if: runner.os == 'macOS' && matrix.arch == 'x86_64'
+        env:
+          MACOSX_DEPLOYMENT_TARGET: "10.15"
+          VCPKG_BUILD_TYPE: "release"
+        run: |
+          echo "Building vcpkg dependencies for macOS x86_64 with deployment target ${{ env.MACOSX_DEPLOYMENT_TARGET }}"
+          $VCPKG_INSTALLATION_ROOT/vcpkg install --triplet=x64-osx
+          echo "MACOSX_DEPLOYMENT_TARGET=10.15" >> $GITHUB_ENV
+          echo "CMAKE_PREFIX_PATH=${{ github.workspace }}/vcpkg_installed/x64-osx" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=${{ github.workspace }}/vcpkg_installed/x64-osx/lib/pkgconfig:${{ github.workspace }}/vcpkg_installed/x64-osx/share/pkgconfig" >> $GITHUB_ENV
+      - name: Install vcpkg dependencies (macOS ARM64)
+        if: runner.os == 'macOS' && matrix.arch == 'arm64'
+        env:
+          MACOSX_DEPLOYMENT_TARGET: "11.0"
+          VCPKG_BUILD_TYPE: "release"
+        run: |
+          echo "Building vcpkg dependencies for macOS ARM64 with deployment target ${{ env.MACOSX_DEPLOYMENT_TARGET }}"
+          $VCPKG_INSTALLATION_ROOT/vcpkg install --triplet=arm64-osx
+          echo "MACOSX_DEPLOYMENT_TARGET=11.0" >> $GITHUB_ENV
+          echo "CMAKE_PREFIX_PATH=${{ github.workspace }}/vcpkg_installed/arm64-osx" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=${{ github.workspace }}/vcpkg_installed/arm64-osx/lib/pkgconfig:${{ github.workspace }}/vcpkg_installed/arm64-osx/share/pkgconfig" >> $GITHUB_ENV
+
+        
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@9c00cb4f6b517705a3794b22395aedc36257242c # 3.2.1
+        env:
+          # Build only for the native architecture (no cross-compilation)
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+          
+          # All other configuration is in pyproject.toml
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          # Each platform uploads its wheels with a descriptive name
+          # This makes it easy to identify and download wheels for specific platforms
+          name: wheels-${{ matrix.os }}-${{ matrix.arch }}
+          path: ./wheelhouse/*.whl
+          # Don't compress wheels (they're already compressed)
+          compression-level: 0
+
+  publish-to-pypi:
+    name: Publish Python 🐍 distribution 📦 to PyPI
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [build-wheels, build-sdist]
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/aubio-ledfx/
+
+    permissions:
+      id-token: write  # IMPORTANT: mandatory for trusted publishing
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v5
+      with:
+        pattern: wheels-*
+        path: dist/
+        merge-multiple: true
+    - name: Download sdist
+      uses: actions/download-artifact@v5
+      with:
+        name: cibw-sdist
+        path: dist/
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7 # Action to set up uv
+      with:
+        enable-cache: true      
+    - name: Publish distribution 📦 to PyPI using uv
+      run: uv publish --trusted-publishing always
+
+  publish-to-test-pypi:
+    name: Publish Python 🐍 distribution 📦 to Test PyPI
+    if: github.event_name == 'workflow_dispatch' # only publish to test pypi on manual dispatch
+    needs: [build-wheels, build-sdist]
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/aubio-ledfx/
+
+    permissions:
+      id-token: write  # IMPORTANT: mandatory for trusted publishing
+
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v5
+      with:
+        pattern: wheels-*
+        path: dist/
+        merge-multiple: true
+    - name: Download sdist
+      uses: actions/download-artifact@v5
+      with:
+        name: cibw-sdist
+        path: dist/
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7 # Action to set up uv
+      with:
+        enable-cache: true      
+    - name: Publish distribution 📦 to Test PyPI using uv
+      run: uv publish --publish-url https://test.pypi.org/legacy/ --trusted-publishing always

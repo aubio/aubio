@@ -47,8 +47,15 @@ aubio-*.zip
 dist/*.tar.gz
 dist/*.whl
 
-# test sounds
-python/tests/sounds
+
 aubio.egg-info
 .eggs
 .cache
+
+# Meson build artifacts
+builddir/
+builddir_*/
+vcpkg_installed/
+_codeql_detected_source_root
+.vscode/settings.json
+tmp_aubio_*

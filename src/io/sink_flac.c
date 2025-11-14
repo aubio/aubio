@@ -36,6 +36,9 @@
 
 #define MAX_WRITE_SIZE 4096
 
+// swap endian of a short
+#define SWAPS(x) ((x & 0xff) << 8) | ((x & 0xff00) >> 8)
+
 // swap host to little endian
 #if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
 #define HTOLES(x) SWAPS(x)

@@ -1,9 +1,7 @@
-import distutils.ccompiler
 import sys
 import os
 import subprocess
 import glob
-from distutils.sysconfig import customize_compiler
 from gen_code import MappedObject
 
 header = os.path.join('src', 'aubio.h')
@@ -51,48 +49,43 @@ default_skip_objects = [
 
 
 def get_preprocessor():
-    # findout which compiler to use
-    compiler_name = distutils.ccompiler.get_default_compiler()
-    compiler = distutils.ccompiler.new_compiler(compiler=compiler_name)
-    try:
-        customize_compiler(compiler)
-    except AttributeError as e:
-        print("Warning: failed customizing compiler ({:s})".format(repr(e)))
-
-    if hasattr(compiler, 'initialize'):
-        try:
-            compiler.initialize()
-        except ValueError as e:
-            print("Warning: failed initializing compiler ({:s})".format(repr(e)))
-
-    cpp_cmd = None
-    if hasattr(compiler, 'preprocessor'):  # for unixccompiler
-        cpp_cmd = compiler.preprocessor
-    elif hasattr(compiler, 'compiler'):  # for ccompiler
-        cpp_cmd = compiler.compiler.split()
-        cpp_cmd += ['-E']
-    elif hasattr(compiler, 'cc'):  # for msvccompiler
-        cpp_cmd = compiler.cc.split()
-        cpp_cmd += ['-E']
-
-    # On win-amd64 (py3.x), the default compiler is cross-compiling, from x86
-    # to amd64 with %WIN_SDK_ROOT%\x86_amd64\cl.exe, but using this binary as a
-    # pre-processor generates no output, so we use %WIN_SDK_ROOT%\cl.exe
-    # instead.
-    if len(cpp_cmd) > 1 and 'cl.exe' in cpp_cmd[-2]:
-        plat = os.path.basename(os.path.dirname(cpp_cmd[-2]))
-        if plat == 'x86_amd64':
-            print('workaround on win64 to avoid empty pre-processor output')
-            cpp_cmd[-2] = cpp_cmd[-2].replace('x86_amd64', '')
-        elif True in ['amd64' in f for f in cpp_cmd]:
-            print('warning: not using workaround for', cpp_cmd[0], plat)
-
-    if not cpp_cmd:
-        print("Warning: could not guess preprocessor, using env's CC")
-        cpp_cmd = os.environ.get('CC', 'cc').split()
-        cpp_cmd += ['-E']
-    if 'emcc' in cpp_cmd:
-        cpp_cmd += ['-x', 'c'] # emcc defaults to c++, force C language
+    """Get the C preprocessor command without using distutils."""
+    # Try to use the CC environment variable, otherwise fall back to common compilers
+    cc = os.environ.get('CC', None)
+    
+    if cc:
+        # CC is set, use it
+        cpp_cmd = cc.split()
+    else:
+        # Try to find an available C compiler
+        # On all platforms, try gcc/clang/cc first, then cl.exe as last resort
+        compilers_to_try = ['gcc', 'clang', 'cc']
+        if os.name == 'nt':
+            # On Windows, also try cl.exe as last resort
+            compilers_to_try.append('cl.exe')
+        
+        cpp_cmd = None
+        for compiler in compilers_to_try:
+            try:
+                subprocess.run([compiler, '--version' if compiler != 'cl.exe' else '/?'], 
+                             stdout=subprocess.PIPE, 
+                             stderr=subprocess.PIPE, 
+                             check=True,
+                             timeout=5)
+                cpp_cmd = [compiler]
+                break
+            except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
+                continue
+        
+        if cpp_cmd is None:
+            raise RuntimeError("No C compiler found. Please install gcc, clang, or MSVC and ensure it's in PATH.")
+    
+    # Add preprocessor flag
+    if 'cl.exe' in cpp_cmd[0] or 'cl' == cpp_cmd[0]:
+        cpp_cmd += ['/E']  # MSVC preprocessor flag
+    else:
+        cpp_cmd += ['-E']  # GCC/Clang preprocessor flag
+    
     return cpp_cmd
 
 
@@ -115,7 +108,18 @@ def get_cpp_output(header=header, usedouble=False):
         raise Exception("could not find include file " + header)
 
     includes = [os.path.dirname(header)]
-    cpp_cmd += distutils.ccompiler.gen_preprocess_options(macros, includes)
+    
+    # Add macro definitions
+    for macro_name, macro_value in macros:
+        if macro_value is None:
+            cpp_cmd += ['-D' + macro_name]
+        else:
+            cpp_cmd += ['-D{}={}'.format(macro_name, macro_value)]
+    
+    # Add include paths
+    for include_dir in includes:
+        cpp_cmd += ['-I' + include_dir]
+    
     cpp_cmd += [header]
 
     print("Running command: {:s}".format(" ".join(cpp_cmd)))

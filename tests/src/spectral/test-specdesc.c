@@ -1,4 +1,5 @@
 #include <aubio.h>
+#include <stdio.h>
 
 int main (void)
 {
@@ -34,6 +35,18 @@ int main (void)
 
   o = new_aubio_specdesc ("mkl", win_s);
   aubio_specdesc_do (o, in, out);
+  del_aubio_specdesc (o);
+
+  // Test rolloff with edge case (all energy in last bin)
+  o = new_aubio_specdesc ("rolloff", win_s);
+  cvec_zeros(in);
+  in->norm[in->length - 1] = 1.0; // Put all energy in last bin
+  aubio_specdesc_do (o, in, out);
+  // Result should be the last bin index (length-1), not length
+  if (out->data[0] >= in->length) {
+    fprintf(stderr, "rolloff out of bounds: %f >= %d\n", out->data[0], in->length);
+    return 1;
+  }
   del_aubio_specdesc (o);
 
   del_cvec (in);

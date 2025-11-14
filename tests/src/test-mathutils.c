@@ -6,6 +6,7 @@ int test_next_power_of_two (void);
 int test_miditofreq (void);
 int test_freqtomidi (void);
 int test_aubio_window (void);
+int test_quadratic_peak_mag_boundary (void);
 
 int test_next_power_of_two (void)
 {
@@ -112,11 +113,72 @@ int test_aubio_window (void)
   return 0;
 }
 
+int test_quadratic_peak_mag_boundary (void)
+{
+  // Test that fvec_quadratic_peak_mag handles boundary conditions safely
+  fvec_t *x = new_fvec(10);
+  smpl_t mag;
+  uint_t i;
+  
+  // Fill with test data - simple linear ramp
+  for (i = 0; i < x->length; i++) {
+    x->data[i] = (smpl_t)i + 1.0;  // Values 1.0 to 10.0
+  }
+  
+  // Test at first position (boundary)
+  // When pos=0, index=(uint_t)(0-0.5)+1 = 0+1 = 1
+  // This should access x[0], x[1], x[2] which is safe
+  mag = fvec_quadratic_peak_mag(x, 0.0);
+  fprintf(stdout, "quadratic_peak_mag at pos 0.0 = %f (expected ~1.0)\n", mag);
+  // The result will be interpolated, not necessarily x->data[0]
+  
+  // Test at position 1
+  mag = fvec_quadratic_peak_mag(x, 1.0);
+  fprintf(stdout, "quadratic_peak_mag at pos 1.0 = %f (expected ~2.0)\n", mag);
+  
+  // Test at last position (boundary)
+  // When pos=9, index=(uint_t)(9-0.5)+1 = 8+1 = 9
+  // This would try to access x[8], x[9], x[10] - x[10] is OOB!
+  mag = fvec_quadratic_peak_mag(x, x->length - 1);
+  fprintf(stdout, "quadratic_peak_mag at pos %d = %f (should not crash)\n", x->length - 1, mag);
+  // Should return x->data[9] safely without accessing x[10]
+  assert(mag == x->data[x->length - 1]);
+  
+  // Test near last position (fractional, should trigger bounds check)
+  mag = fvec_quadratic_peak_mag(x, x->length - 1.5);
+  fprintf(stdout, "quadratic_peak_mag at pos %f = %f (should not crash)\n", x->length - 1.5, mag);
+  // Should return safely without crash
+  
+  // Test at valid middle position
+  mag = fvec_quadratic_peak_mag(x, 5.0);
+  fprintf(stdout, "quadratic_peak_mag at pos 5.0 = %f (expected ~6.0)\n", mag);
+  
+  // Test with fractional position in middle
+  mag = fvec_quadratic_peak_mag(x, 5.5);
+  fprintf(stdout, "quadratic_peak_mag at pos 5.5 = %f (should interpolate)\n", mag);
+  // Should interpolate and not crash
+  
+  // Test out of bounds (negative)
+  mag = fvec_quadratic_peak_mag(x, -1.0);
+  fprintf(stdout, "quadratic_peak_mag at pos -1.0 = %f (expected 0.0)\n", mag);
+  assert(mag == 0.0);
+  
+  // Test out of bounds (beyond length)
+  mag = fvec_quadratic_peak_mag(x, x->length + 1.0);
+  fprintf(stdout, "quadratic_peak_mag at pos %d = %f (expected 0.0)\n", x->length + 1, mag);
+  assert(mag == 0.0);
+  
+  del_fvec(x);
+  fprintf(stdout, "test_quadratic_peak_mag_boundary passed\n");
+  return 0;
+}
+
 int main (void)
 {
   test_next_power_of_two();
   test_miditofreq();
   test_freqtomidi();
   test_aubio_window();
+  test_quadratic_peak_mag_boundary();
   return 0;
 }

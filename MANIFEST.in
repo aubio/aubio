@@ -1,22 +1,44 @@
+# Project metadata
 include AUTHORS COPYING README.md VERSION ChangeLog
+include pyproject.toml
 include python/README.md
-include this_version.py
-include waf_gensyms.py
-include waf
-recursive-include waflib *.py
-include Makefile wscript */wscript_build
+
+# vcpkg manifest for dependency management
+include vcpkg.json
+include meson-vcpkg.txt
+
+# Meson build files (required for meson-python)
+include meson.build meson_options.txt
+include src/meson.build
+include examples/meson.build
+include tests/meson.build
+include python/meson.build
 include aubio.pc.in
-include requirements.txt
+
+# Source files
 include src/*.c src/*.h
 include src/*/*.c src/*/*.h
 include examples/*.c examples/*.h
 recursive-include tests *.h *.c *.py
-include python/ext/*.h
-recursive-include python *.py
+
+# Python extension files
+include python/ext/*.h python/ext/*.c
+
+# Python package and demos
+recursive-include python/lib *.py
+recursive-include python/demos *.py
+
+# Python tests
 include python/README.md
 include python/tests/eval_pitch
 include python/tests/*.expected
+recursive-include python/tests/sounds *.wav
+include python/tests/*.py
+
+# Documentation
 include doc/*.txt doc/*.rst doc/*.cfg doc/Makefile doc/make.bat doc/conf.py
 exclude doc/full.cfg
+
+# Scripts
 include scripts/* scripts/apple/Info.plist scripts/apple/Modules/module.modulemap
-exclude python/gen/*
+

@@ -502,6 +502,8 @@ smpl_t fvec_quadratic_peak_mag (fvec_t *x, smpl_t pos) {
   uint_t index = (uint_t)(pos - .5) + 1;
   if (pos >= x->length || pos < 0.) return 0.;
   if ((smpl_t)index == pos) return x->data[index];
+  // Ensure we can safely access index + 1
+  if (index + 1 >= x->length) return x->data[index];
   x0 = x->data[index - 1];
   x1 = x->data[index];
   x2 = x->data[index + 1];

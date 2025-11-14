@@ -18,7 +18,9 @@
 
 */
 
+#define _GNU_SOURCE
 #include "aubio_priv.h"
+#include <strings.h>
 
 #ifdef HAVE_WIN_HACKS
 #define strncasecmp _strnicmp

@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 import numpy as np
-from numpy.testing import TestCase, assert_equal
+from numpy.testing import TestCase, assert_equal, assert_allclose
 from aubio import cvec, fvec, float_type
 
 wrong_type = 'float32' if float_type == 'float64' else 'float64'
@@ -42,9 +42,9 @@ class aubio_cvec_test_case(TestCase):
     def test_assign_cvec_phas_slice(self):
         spec = cvec(1024)
         spec.phas[39:-1] = -np.pi
-        assert_equal(spec.phas[0:39], 0)
-        assert_equal(spec.phas[39:-1], -np.pi)
-        assert_equal(spec.norm, 0)
+        assert_equal(spec.phas[0:39], 0)  # exact comparison ok for zero
+        assert_allclose(spec.phas[39:-1], -np.pi)  # use allclose for floating point - numpy 2 is stricter
+        assert_equal(spec.norm, 0)  # exact comparison ok for zero
 
     def test_assign_cvec_with_other_cvec(self):
         """ check dest cvec is still reachable after source was deleted """

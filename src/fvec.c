@@ -38,14 +38,19 @@ void del_fvec(fvec_t *s) {
 }
 
 void fvec_set_sample(fvec_t *s, smpl_t data, uint_t position) {
+  AUBIO_ASSERT_NOT_NULL(s);
+  AUBIO_ASSERT_BOUNDS(position, s->length);
   s->data[position] = data;
 }
 
 smpl_t fvec_get_sample(const fvec_t *s, uint_t position) {
+  AUBIO_ASSERT_NOT_NULL(s);
+  AUBIO_ASSERT_BOUNDS(position, s->length);
   return s->data[position];
 }
 
 smpl_t * fvec_get_data(const fvec_t *s) {
+  AUBIO_ASSERT_NOT_NULL(s);
   return s->data;
 }
 
@@ -53,6 +58,7 @@ smpl_t * fvec_get_data(const fvec_t *s) {
 
 void fvec_print(const fvec_t *s) {
   uint_t j;
+  AUBIO_ASSERT_NOT_NULL(s);
   for (j=0; j< s->length; j++) {
     AUBIO_MSG(AUBIO_SMPL_FMT " ", s->data[j]);
   }
@@ -60,6 +66,7 @@ void fvec_print(const fvec_t *s) {
 }
 
 void fvec_set_all (fvec_t *s, smpl_t val) {
+  AUBIO_ASSERT_NOT_NULL(s);
 #if defined(HAVE_INTEL_IPP)
   aubio_ippsSet(val, s->data, (int)s->length);
 #elif defined(HAVE_ATLAS)
@@ -76,6 +83,7 @@ void fvec_set_all (fvec_t *s, smpl_t val) {
 }
 
 void fvec_zeros(fvec_t *s) {
+  AUBIO_ASSERT_NOT_NULL(s);
 #if defined(HAVE_INTEL_IPP)
   aubio_ippsZero(s->data, (int)s->length);
 #elif defined(HAVE_ACCELERATE)
@@ -93,13 +101,17 @@ void fvec_ones(fvec_t *s) {
 
 void fvec_rev(fvec_t *s) {
   uint_t j;
+  AUBIO_ASSERT_NOT_NULL(s);
   for (j=0; j< FLOOR((smpl_t)s->length/2); j++) {
     ELEM_SWAP(s->data[j], s->data[s->length-1-j]);
   }
 }
 
 void fvec_weight(fvec_t *s, const fvec_t *weight) {
-  uint_t length = MIN(s->length, weight->length);
+  uint_t length;
+  AUBIO_ASSERT_NOT_NULL(s);
+  AUBIO_ASSERT_NOT_NULL(weight);
+  length = MIN(s->length, weight->length);
 #if defined(HAVE_INTEL_IPP)
   aubio_ippsMul(s->data, weight->data, s->data, (int)length);
 #elif defined(HAVE_ACCELERATE)
@@ -113,7 +125,11 @@ void fvec_weight(fvec_t *s, const fvec_t *weight) {
 }
 
 void fvec_weighted_copy(const fvec_t *in, const fvec_t *weight, fvec_t *out) {
-  uint_t length = MIN(in->length, MIN(out->length, weight->length));
+  uint_t length;
+  AUBIO_ASSERT_NOT_NULL(in);
+  AUBIO_ASSERT_NOT_NULL(weight);
+  AUBIO_ASSERT_NOT_NULL(out);
+  length = MIN(in->length, MIN(out->length, weight->length));
 #if defined(HAVE_INTEL_IPP)
   aubio_ippsMul(in->data, weight->data, out->data, (int)length);
 #elif defined(HAVE_ACCELERATE)
@@ -127,6 +143,8 @@ void fvec_weighted_copy(const fvec_t *in, const fvec_t *weight, fvec_t *out) {
 }
 
 void fvec_copy(const fvec_t *s, fvec_t *t) {
+  AUBIO_ASSERT_NOT_NULL(s);
+  AUBIO_ASSERT_NOT_NULL(t);
   if (s->length != t->length) {
     AUBIO_ERR("trying to copy %d elements to %d elements \n",
         s->length, t->length);

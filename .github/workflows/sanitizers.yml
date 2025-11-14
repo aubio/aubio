@@ -1,0 +1,218 @@
+name: Security - Sanitizer Tests
+
+on:
+  push:
+    branches: [ main, develop, 'copilot/**' ]
+    paths:
+      - 'src/**/*.c'
+      - 'src/**/*.h'
+      - 'python/ext/**/*.c'
+      - 'python/ext/**/*.h'
+      - 'examples/**/*.c'
+      - 'examples/**/*.h'
+      - 'tests/**/*.c'
+      - 'tests/**/*.h'
+      - 'meson.build'
+      - 'src/meson.build'
+      - 'python/meson.build'
+      - 'meson_options.txt'
+      - '.github/workflows/sanitizers.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/**/*.c'
+      - 'src/**/*.h'
+      - 'python/ext/**/*.c'
+      - 'python/ext/**/*.h'
+      - 'examples/**/*.c'
+      - 'examples/**/*.h'
+      - 'tests/**/*.c'
+      - 'tests/**/*.h'
+      - 'meson.build'
+      - 'src/meson.build'
+      - 'python/meson.build'
+      - 'meson_options.txt'
+      - '.github/workflows/sanitizers.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  asan-ubsan:
+    name: AddressSanitizer + UndefinedBehaviorSanitizer
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install meson ninja numpy
+      
+      - name: Setup build with sanitizers
+        run: |
+          meson setup builddir \
+            -Db_sanitize=address,undefined \
+            -Dbuildtype=debugoptimized \
+            -Dtests=true \
+            -Dsecurity_hardening=true
+      
+      - name: Build
+        run: meson compile -C builddir
+      
+      - name: Run tests with sanitizers
+        run: meson test -C builddir --print-errorlogs
+        env:
+          ASAN_OPTIONS: detect_leaks=1:symbolize=1:abort_on_error=1:detect_stack_use_after_return=1
+          UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
+      
+      - name: Upload test logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: asan-ubsan-test-logs
+          path: builddir/meson-logs/
+      
+      - name: Generate test summary
+        if: always()
+        run: |
+          echo "## Sanitizer Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f builddir/meson-logs/testlog.txt ]; then
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            tail -20 builddir/meson-logs/testlog.txt >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  ubsan-only:
+    name: UndefinedBehaviorSanitizer (standalone)
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install meson ninja numpy
+      
+      - name: Setup build with UBSAN
+        run: |
+          meson setup builddir \
+            -Db_sanitize=undefined \
+            -Dbuildtype=release \
+            -Dtests=true \
+            -Dsecurity_hardening=true
+      
+      - name: Build
+        run: meson compile -C builddir
+      
+      - name: Run tests
+        run: meson test -C builddir --print-errorlogs
+        env:
+          UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1:report_error_type=1
+      
+      - name: Upload test logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ubsan-test-logs
+          path: builddir/meson-logs/
+
+  valgrind:
+    name: Valgrind Memory Check
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y valgrind
+          pip install meson ninja numpy
+      
+      - name: Setup build
+        run: |
+          meson setup builddir \
+            -Dbuildtype=debugoptimized \
+            -Dtests=true \
+            -Dsecurity_hardening=true
+      
+      - name: Build
+        run: meson compile -C builddir
+      
+      - name: Run tests with Valgrind
+        run: |
+          # Run full test suite with Valgrind
+          # Checks for memory errors but allows small leaks in test infrastructure
+          meson test -C builddir --wrap='valgrind --error-exitcode=1 --track-origins=yes' --print-errorlogs
+          
+          # Also run with leak checking to report leaks (but don't fail on them)
+          echo "Running leak check (informational only)..."
+          meson test -C builddir --wrap='valgrind --leak-check=full --show-leak-kinds=definite,possible' --print-errorlogs || true
+      
+      - name: Upload Valgrind logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: valgrind-logs
+          path: |
+            builddir/meson-logs/
+            valgrind-*.log
+
+  security-summary:
+    name: Security Test Summary
+    runs-on: ubuntu-latest
+    needs: [asan-ubsan, ubsan-only, valgrind]
+    if: always()
+    
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Generate summary
+        run: |
+          echo "# Security Testing Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Test Suite | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| ASAN + UBSAN | ${{ needs.asan-ubsan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| UBSAN (Release) | ${{ needs.ubsan-only.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Valgrind | ${{ needs.valgrind.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.asan-ubsan.result }}" = "success" ] && \
+             [ "${{ needs.ubsan-only.result }}" = "success" ] && \
+             [ "${{ needs.valgrind.result }}" = "success" ]; then
+            echo "✅ All security tests passed!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Some security tests failed. Please review the logs." >> $GITHUB_STEP_SUMMARY
+          fi

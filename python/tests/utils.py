@@ -85,13 +85,12 @@ def count_files_in_directory(samples_dir):
 
 def parse_file_samplerate(soundfile):
     samplerate = None
-    # parse samplerate
-    re_sr = re.compile(r'/([0-9]{4,})Hz_.*')
+    # parse samplerate - match numbers followed by Hz in filename, with optional path separator
+    re_sr = re.compile(r'[/\\]?([0-9]{4,})Hz[^0-9]')
     match_samplerate = re_sr.findall(soundfile)
     if match_samplerate:
         samplerate = int(match_samplerate[0])
     else:
         import warnings
-        warnings.warn(UserWarning("could not parse samplerate for {:s}"
-            .format(soundfile)))
+        warnings.warn(UserWarning(f"could not parse samplerate for {soundfile}"))
     return samplerate

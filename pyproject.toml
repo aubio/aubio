@@ -1,0 +1,153 @@
+[build-system]
+requires = ["meson-python", "numpy"]
+build-backend = "mesonpy"
+
+[project]
+name = "aubio-ledfx"
+version = "0.4.11"
+description = "A collection of tools for music analysis"
+readme = "python/README.md"
+license = {text = "GNU/GPL version 3"}
+authors = [
+    {name = "Paul Brossier", email = "piem@aubio.org"},
+]
+maintainers = [
+    {name = "LedFx Team", email = "hello@ledfx.app"},
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Science/Research",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Multimedia :: Sound/Audio :: Analysis",
+    "Topic :: Multimedia :: Sound/Audio :: Sound Synthesis",
+    "Operating System :: POSIX",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: C",
+    "Programming Language :: Python",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "numpy>=1.26.4; platform_system != 'Darwin' and platform_machine != 'aarch64'",
+    "numpy>=2.0.0; platform_system == 'Darwin' and platform_machine == 'aarch64'",
+]
+
+[project.urls]
+Homepage = "https://aubio.org/"
+Repository = "https://github.com/aubio/aubio"
+Documentation = "https://aubio.org/manual/latest/"
+
+[project.scripts]
+aubio = "aubio.cmd:main"
+aubiocut = "aubio.cut:main"
+
+[tool.cibuildwheel]
+# Build for Python 3.10-3.13
+build = ["cp310-*", "cp311-*", "cp312-*", "cp313-*","cp314-*"]
+before-build = "pip install \"meson>=1.9.0\" meson-python ninja \"numpy>=1.26.4\""
+# Skip 32-bit builds and musllinux wheels
+skip = ["*-win32", "*-manylinux_i686", "*-musllinux*"]
+
+# Test the wheels - ensure they're portable by verifying imports work
+test-requires = ["pytest", "numpy>=1.26.4"]
+# First test: Verify aubio can be imported (ensures DLLs are bundled on Windows)
+# Second test: Run pytest suite
+test-command = "python -c \"import aubio; print('aubio version:', aubio.version); print('Portable wheel test: PASS')\" && pytest {project}/python/tests || true"
+
+# Disable build isolation so environment variables (like PKG_CONFIG_PATH) are passed through
+build-frontend = { name = "pip", args = ["--no-build-isolation"] }
+
+[tool.cibuildwheel.linux]
+# Linux: vcpkg dependencies are installed inside the manylinux Docker container via before-all
+# Use static libraries for true portability (no external .so dependencies)
+# Architecture-specific triplet is selected based on AUDITWHEEL_ARCH
+#
+# OPTIMIZATION NOTES:
+# - before-all runs once per job (not per Python version), so dependencies are built once
+# - Checking if /tmp/vcpkg exists prevents redundant clones if script runs multiple times
+# - vcpkg binary caching via GitHub Actions cache doesn't work inside Docker containers
+# - Dependencies must rebuild on each CI run (Docker container starts fresh each time)
+# - Main optimization: before-all runs once, builds 5 wheels reusing same dependencies
+#
+# PLATFORM-SPECIFIC DEPENDENCIES (via vcpkg.json platform expressions):
+# - Linux: Excludes rubberband and ffmpeg (PIC issues with static linking)
+# - Linux: Explicitly includes MP3/Opus codec libraries (mpg123, mp3lame, opus, libogg, libvorbis, libFLAC)
+#          These are transitive dependencies of libsndfile[external-libs] that must be installed
+#          to avoid undefined symbol errors during static linking
+before-all = """
+    yum install -y git zip unzip tar curl make nasm && \
+    if [ ! -d /tmp/vcpkg ]; then
+        git clone https://github.com/microsoft/vcpkg.git /tmp/vcpkg && \
+        cd /tmp/vcpkg && ./bootstrap-vcpkg.sh -disableMetrics
+    fi && \
+    if [ "$AUDITWHEEL_ARCH" = "x86_64" ]; then
+        VCPKG_TRIPLET=x64-linux-pic
+    elif [ "$AUDITWHEEL_ARCH" = "aarch64" ]; then
+        VCPKG_TRIPLET=arm64-linux-pic
+    else
+        echo "ERROR: Unknown architecture: $AUDITWHEEL_ARCH"
+        exit 1
+    fi && \
+    echo "=== Installing vcpkg dependencies for $AUDITWHEEL_ARCH (triplet: $VCPKG_TRIPLET) ===" && \
+    cd {project} && \
+    CC=/opt/rh/gcc-toolset-14/root/usr/bin/gcc \
+    CXX=/opt/rh/gcc-toolset-14/root/usr/bin/g++ \
+    VCPKG_BUILD_TYPE=release \
+    /tmp/vcpkg/vcpkg install --triplet=$VCPKG_TRIPLET --overlay-triplets=./vcpkg-triplets --allow-unsupported && \
+    echo "=== Vcpkg installation complete ===" && \
+    echo "Installed packages in vcpkg_installed/$VCPKG_TRIPLET/:" && \
+    ls -la {project}/vcpkg_installed/$VCPKG_TRIPLET/lib/pkgconfig/ 2>/dev/null || echo "No pkgconfig directory found" && \
+    echo "Static libraries:" && \
+    ls -la {project}/vcpkg_installed/$VCPKG_TRIPLET/lib/*.a 2>/dev/null | head -20 || echo "No static libraries found"
+"""
+
+[tool.cibuildwheel.linux.environment]
+# Set paths for both architectures - Meson will detect and use the correct one based on host_machine.cpu_family()
+# This works because only one triplet directory will exist (installed in before-all based on AUDITWHEEL_ARCH)
+CMAKE_PREFIX_PATH = "{project}/vcpkg_installed/x64-linux-pic:{project}/vcpkg_installed/arm64-linux-pic"
+PKG_CONFIG_PATH = "{project}/vcpkg_installed/x64-linux-pic/lib/pkgconfig:{project}/vcpkg_installed/x64-linux-pic/share/pkgconfig:{project}/vcpkg_installed/arm64-linux-pic/lib/pkgconfig:{project}/vcpkg_installed/arm64-linux-pic/share/pkgconfig"
+# Use gcc-toolset-14 for C++17 support (required by rubberband)
+CC = "/opt/rh/gcc-toolset-14/root/usr/bin/gcc"
+CXX = "/opt/rh/gcc-toolset-14/root/usr/bin/g++"
+
+
+[tool.cibuildwheel.windows]
+# Windows: Use vcpkg to install dependencies before building
+# GitHub Actions runners have vcpkg pre-installed at VCPKG_INSTALLATION_ROOT
+# Install to project directory (omit --vcpkg-root) so packages go to vcpkg_installed
+# Use built-in triplet x64-windows-release for release-only builds with dynamic libs
+# (rubberband requires dynamic linking on Windows)
+before-all = [
+    "cd {project} && if not exist vcpkg_installed %VCPKG_INSTALLATION_ROOT%\\vcpkg.exe install --triplet=x64-windows-release",
+    "dir {project}\\vcpkg_installed\\x64-windows-release\\lib\\pkgconfig",
+]
+
+# Install delvewheel for bundling DLLs into wheels
+before-build = "pip install \"meson>=1.9.0\" meson-python ninja \"numpy>=1.26.4\" delvewheel"
+
+# Wheel portability: Use delvewheel to bundle all vcpkg DLLs into the wheel
+# This makes the wheel fully portable - no external DLL dependencies required
+# delvewheel will:
+#   1. Scan _aubio.pyd for DLL dependencies
+#   2. Find DLLs in vcpkg_installed/x64-windows-release/bin
+#   3. Bundle them into the wheel's .libs directory
+#   4. Patch imports to use bundled DLLs
+# Result: Wheel works on any Windows system without vcpkg or dependencies installed
+# Note: Use absolute path with %CD% (current directory) since {project} isn't expanded in repair-wheel-command
+repair-wheel-command = "delvewheel repair --add-path %CD%\\vcpkg_installed\\x64-windows-release\\bin -w {dest_dir} {wheel}"
+
+[tool.cibuildwheel.windows.environment]
+# Set paths so Meson can find vcpkg packages via CMake and pkg-config
+CMAKE_PREFIX_PATH = "{project}\\vcpkg_installed\\x64-windows-release"
+PKG_CONFIG_PATH = "{project}\\vcpkg_installed\\x64-windows-release\\lib\\pkgconfig;{project}\\vcpkg_installed\\x64-windows-release\\share\\pkgconfig"
+
+
+
+
+
+[tool.meson-python]
+# Allow bundling shared libraries on Windows
+# Required since we use dynamic linking (x64-windows-release) due to rubberband not supporting static
+allow-windows-internal-shared-libs = true

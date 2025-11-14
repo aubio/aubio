@@ -411,4 +411,52 @@ uint_t aubio_log(sint_t level, const char_t *fmt, ...);
 #define AUBIO_ASSERT(x)
 #endif /* DEBUG */
 
+/* Security-focused assertion macros for bounds checking */
+#if defined(DEBUG) || defined(AUBIO_SECURITY_CHECKS)
+  /* Bounds check for array access - validates index is within valid range */
+  #define AUBIO_ASSERT_BOUNDS(idx, len) \
+    do { \
+      if ((idx) >= (len)) { \
+        AUBIO_ERR("bounds check failed: index %u >= length %u at %s:%d\n", \
+                  (uint_t)(idx), (uint_t)(len), __FILE__, __LINE__); \
+        abort(); \
+      } \
+    } while(0)
+  
+  /* Null pointer check */
+  #define AUBIO_ASSERT_NOT_NULL(ptr) \
+    do { \
+      if ((ptr) == NULL) { \
+        AUBIO_ERR("null pointer check failed at %s:%d\n", __FILE__, __LINE__); \
+        abort(); \
+      } \
+    } while(0)
+  
+  /* Range check - validates value is within [min, max] */
+  #define AUBIO_ASSERT_RANGE(val, min, max) \
+    do { \
+      if ((val) < (min) || (val) > (max)) { \
+        AUBIO_ERR("range check failed: value %f not in [%f, %f] at %s:%d\n", \
+                  (smpl_t)(val), (smpl_t)(min), (smpl_t)(max), __FILE__, __LINE__); \
+        abort(); \
+      } \
+    } while(0)
+  
+  /* Validate buffer has expected length */
+  #define AUBIO_ASSERT_LENGTH(buf, expected) \
+    do { \
+      if ((buf)->length != (expected)) { \
+        AUBIO_ERR("length check failed: got %u, expected %u at %s:%d\n", \
+                  (buf)->length, (uint_t)(expected), __FILE__, __LINE__); \
+        abort(); \
+      } \
+    } while(0)
+#else
+  /* In release builds, these checks are no-ops for performance */
+  #define AUBIO_ASSERT_BOUNDS(idx, len) ((void)0)
+  #define AUBIO_ASSERT_NOT_NULL(ptr) ((void)0)
+  #define AUBIO_ASSERT_RANGE(val, min, max) ((void)0)
+  #define AUBIO_ASSERT_LENGTH(buf, expected) ((void)0)
+#endif /* DEBUG || AUBIO_SECURITY_CHECKS */
+
 #endif /* AUBIO_PRIV_H */

@@ -1,6 +1,8 @@
 
 
+#define _GNU_SOURCE
 #include "aubio_priv.h"
+#include <string.h>
 
 #ifdef HAVE_RUBBERBAND
 
