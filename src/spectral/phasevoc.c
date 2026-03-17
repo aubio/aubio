@@ -60,6 +60,13 @@ void aubio_pvoc_do(aubio_pvoc_t *pv, const fvec_t * datanew, cvec_t *fftgrain) {
   aubio_fft_do (pv->fft,pv->data,fftgrain);
 }
 
+void aubio_pvoc_do_norm(aubio_pvoc_t *pv, const fvec_t * datanew, cvec_t *fftgrain) {
+  aubio_pvoc_swapbuffers(pv, datanew);
+  fvec_weight(pv->data, pv->w);
+  fvec_shift(pv->data);
+  aubio_fft_do_norm_only(pv->fft, pv->data, fftgrain);
+}
+
 void aubio_pvoc_rdo(aubio_pvoc_t *pv,cvec_t * fftgrain, fvec_t * synthnew) {
   /* calculate rfft */
   aubio_fft_rdo(pv->fft,fftgrain,pv->synth);

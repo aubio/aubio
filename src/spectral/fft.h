@@ -66,6 +66,14 @@ void del_aubio_fft(aubio_fft_t * s);
 
 */
 void aubio_fft_do (aubio_fft_t *s, const fvec_t * input, cvec_t * spectrum);
+/** compute forward FFT, filling only the norm (magnitude) component
+
+  \param s fft object as returned by new_aubio_fft
+  \param input input signal
+  \param spectrum output spectrum (phas is left uninitialised)
+
+*/
+void aubio_fft_do_norm_only (aubio_fft_t *s, const fvec_t * input, cvec_t * spectrum);
 /** compute backward (inverse) FFT
 
   \param s fft object as returned by new_aubio_fft

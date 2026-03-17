@@ -336,6 +336,11 @@ void aubio_fft_do(aubio_fft_t * s, const fvec_t * input, cvec_t * spectrum) {
   aubio_fft_get_spectrum(s->compspec, spectrum);
 }
 
+void aubio_fft_do_norm_only(aubio_fft_t * s, const fvec_t * input, cvec_t * spectrum) {
+  aubio_fft_do_complex(s, input, s->compspec);
+  aubio_fft_get_norm(s->compspec, spectrum);
+}
+
 void aubio_fft_rdo(aubio_fft_t * s, const cvec_t * spectrum, fvec_t * output) {
   aubio_fft_get_realimag(spectrum, s->compspec);
   aubio_fft_rdo_complex(s, s->compspec, output);

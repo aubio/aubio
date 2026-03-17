@@ -50,13 +50,17 @@ struct _aubio_onset_t {
   smpl_t lambda_compression;
   uint_t apply_awhitening;      /**< apply adaptive spectral whitening */
   aubio_spectral_whitening_t *spectral_whitening;
+  uint_t skip_phas;             /**< skip phase computation for norm-only ODFs */
 };
 
 /* execute onset detection function on iput buffer */
 void aubio_onset_do (aubio_onset_t *o, const fvec_t * input, fvec_t * onset)
 {
   smpl_t isonset = 0;
-  aubio_pvoc_do (o->pv,input, o->fftgrain);
+  if (o->skip_phas)
+    aubio_pvoc_do_norm(o->pv, input, o->fftgrain);
+  else
+    aubio_pvoc_do(o->pv, input, o->fftgrain);
   /*
   if (apply_filtering) {
   }
@@ -295,9 +299,11 @@ uint_t aubio_onset_set_default_parameters (aubio_onset_t * o, const char_t * ons
 
   /* method specific optimisations */
   if (strcmp (onset_mode, "energy") == 0) {
+    o->skip_phas = 1;
   } else if (strcmp (onset_mode, "hfc") == 0 || strcmp (onset_mode, "default") == 0) {
     aubio_onset_set_threshold (o, 0.058);
     aubio_onset_set_compression (o, 1.);
+    o->skip_phas = 1;
   } else if (strcmp (onset_mode, "complexdomain") == 0
              || strcmp (onset_mode, "complex") == 0) {
     aubio_onset_set_delay (o, 4.6 * o->hop_size);
@@ -313,17 +319,21 @@ uint_t aubio_onset_set_default_parameters (aubio_onset_t * o, const char_t * ons
     aubio_onset_set_threshold (o, 0.05);
     aubio_onset_set_awhitening(o, 1);
     aubio_onset_set_compression (o, 0.02);
+    o->skip_phas = 1;
   } else if (strcmp (onset_mode, "kl") == 0) {
     aubio_onset_set_threshold (o, 0.35);
     aubio_onset_set_awhitening(o, 1);
     aubio_onset_set_compression (o, 0.02);
+    o->skip_phas = 1;
   } else if (strcmp (onset_mode, "specflux") == 0) {
     aubio_onset_set_threshold (o, 0.18);
     aubio_onset_set_awhitening(o, 1);
     aubio_spectral_whitening_set_relax_time(o->spectral_whitening, 100);
     aubio_spectral_whitening_set_floor(o->spectral_whitening, 1.);
     aubio_onset_set_compression (o, 10.);
+    o->skip_phas = 1;
   } else if (strcmp (onset_mode, "specdiff") == 0) {
+    o->skip_phas = 1;
   } else if (strcmp (onset_mode, "old_default") == 0) {
     // used to reproduce results obtained with the previous version
     aubio_onset_set_threshold (o, 0.3);

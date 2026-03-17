@@ -68,6 +68,17 @@ void del_aubio_pvoc(aubio_pvoc_t *pv);
 
 */
 void aubio_pvoc_do(aubio_pvoc_t *pv, const fvec_t *in, cvec_t * fftgrain);
+/** compute spectral frame, filling only the norm (magnitude) component
+
+  Like aubio_pvoc_do() but skips phase computation (atan2), saving work for
+  onset detection functions that never read the phase array.
+
+  \param pv phase vocoder object as returned by new_aubio_pvoc
+  \param in new input signal (hop_s long)
+  \param fftgrain output spectral frame (phas is left uninitialised)
+
+*/
+void aubio_pvoc_do_norm(aubio_pvoc_t *pv, const fvec_t *in, cvec_t * fftgrain);
 /** compute signal from spectral frame
 
   This function takes an input spectral frame fftgrain of size
