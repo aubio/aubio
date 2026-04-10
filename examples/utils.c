@@ -53,6 +53,7 @@ smpl_t pitch_tolerance = 0.0; // will be set if != 0.
 uint_t time_format = 0; // for "seconds", 1 for "ms", 2 for "samples"
 // tempo stuff
 char_t * tempo_method = "default";
+smpl_t target_bpm = 120.0;
 // more general stuff
 smpl_t silence_threshold = -90.;
 smpl_t release_drop = 10.;
