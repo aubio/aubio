@@ -107,6 +107,25 @@ smpl_t aubio_beattracking_get_bpm(const aubio_beattracking_t * bt);
 */
 smpl_t aubio_beattracking_get_confidence(const aubio_beattracking_t * bt);
 
+/** set target / default bpm value
+
+  \param bt beat tracking object
+  \param target
+
+  \return `0` if successful, non-zero otherwise
+
+*/
+uint_t aubio_beattracking_set_target (aubio_beattracking_t * bt, smpl_t target);
+
+/** get current target / default bpm value
+
+  \param bt beat tracking object
+
+  Returns the current target bpm value. Defaults to 120.
+
+*/
+smpl_t aubio_beattracking_get_target (const aubio_beattracking_t * bt);
+
 /** delete beat tracking object
 
   \param p beat tracking object

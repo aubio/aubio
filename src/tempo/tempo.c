@@ -280,6 +280,14 @@ uint_t aubio_tempo_set_tatum_signature (aubio_tempo_t *o, uint_t signature) {
   }
 }
 
+uint_t aubio_tempo_set_target (aubio_tempo_t * o, smpl_t target) {
+  return aubio_beattracking_set_target(o->bt, target);
+}
+
+smpl_t aubio_tempo_get_target (const aubio_tempo_t * o) {
+  return aubio_beattracking_get_target(o->bt);
+}
+
 void del_aubio_tempo (aubio_tempo_t *o)
 {
   if (o->od)
