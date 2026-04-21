@@ -1,24 +1,24 @@
 NAME
-  aubiomfcc - a command line tool to compute Mel-Frequency Cepstrum Coefficients
+  aubiolevel - a command line tool to extract audio sound pressure level
 
 SYNOPSIS
 
-  aubiomfcc source
-  aubiomfcc [[-i] source]
-            [-r rate] [-B win] [-H hop]
-            [-T time-format]
-            [-v] [-h]
+  aubiolevel source
+  aubiolevel [[-i] source]
+             [-r rate] [-B win] [-H hop]
+             [-T time-format]
+             [-v] [-h]
 
 DESCRIPTION
 
-  aubiomfcc compute the Mel-Frequency Cepstrum Coefficients (MFCC).
+  aubiolevel outputs audio sound pressure level information.
 
-  MFCCs are coefficients that make up for the mel-frequency spectrum, a
-  representation of the short-term power spectrum of a sound. By default, 13
-  coefficients are computed using 40 filters.
+  The sound pressure level is printed on the console, prefixed by a timestamp
+  in seconds. The level is in dB SPL, which is ten times the log10 of the
+  average of the square amplitudes.
 
-  When started with an input source (-i/--input), the coefficients are given on
-  the console, prefixed by their timestamps in seconds.
+  The sound pressure level is either a negative number, or negative infinity
+  (printed as -inf) when there is no sound.
 
 OPTIONS
 
@@ -33,7 +33,7 @@ OPTIONS
   the sampling rate of the original source will be used. Defaults to 0.
 
   -B, --bufsize win  The size of the buffer to analyze, that is the length
-  of the window used for spectral and temporal computations. Defaults to 512.
+  of the window used for spectral and temporal computations. Defaults to 2048.
 
   -H, --hopsize hop  The number of samples between two consecutive analysis.
   Defaults to 256.
@@ -45,22 +45,14 @@ OPTIONS
 
   -v, --verbose  Be verbose.
 
-REFERENCES
-
-  Using the default parameters, the filter coefficients will be computed
-  according to Malcolm Slaney's Auditory Toolbox, available at the following
-  url:
-
-  https://engineering.purdue.edu/~malcolm/interval/1998-010/ (see file mfcc.m)
-
 SEE ALSO
 
-  aubioonset(1),
   aubiopitch(1),
-  aubiolevel(1),
+  aubioonset(1),
   aubiotrack(1),
   aubionotes(1),
   aubioquiet(1),
+  aubiomfcc(1),
   and
   aubiocut(1).
 

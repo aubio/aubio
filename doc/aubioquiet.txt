@@ -57,6 +57,7 @@ SEE ALSO
 
   aubioonset(1),
   aubiopitch(1),
+  aubiolevel(1),
   aubiotrack(1),
   aubionotes(1),
   aubiomfcc(1),

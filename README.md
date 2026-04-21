@@ -56,6 +56,8 @@ Additional command line tools are included along with the library:
  - `aubioonset` outputs the time stamp of detected note onsets
  - `aubiopitch` attempts to identify a fundamental frequency, or pitch, for
    each frame of the input sound
+ - `aubiolevel` outputs audio sound pressure level (volume) information, for
+   each frame of the input sound
  - `aubiomfcc` computes Mel-frequency Cepstrum Coefficients
  - `aubiotrack` outputs the time stamp of detected beats
  - `aubionotes` emits midi-like notes, with an onset, a pitch, and a duration
