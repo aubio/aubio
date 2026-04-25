@@ -35,7 +35,7 @@ extern "C" {
   \param size length of the window to create (see fvec_set_window())
 
 */
-fvec_t *new_aubio_window (char_t * window_type, uint_t size);
+fvec_t *new_aubio_window (const char_t * window_type, uint_t size);
 
 /** set elements of a vector to window coefficients
 
@@ -60,7 +60,7 @@ Uni- versity of Verona, Italy, 2000.
   pdf</a>)
 
  */
-uint_t fvec_set_window (fvec_t * window, char_t * window_type);
+uint_t fvec_set_window (fvec_t * window, const char_t * window_type);
 
 /** compute the principal argument
 

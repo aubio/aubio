@@ -42,7 +42,7 @@ typedef enum
 } aubio_window_type;
 
 fvec_t *
-new_aubio_window (char_t * window_type, uint_t length)
+new_aubio_window (const char_t * window_type, uint_t length)
 {
   fvec_t * win = new_fvec (length);
   uint_t err;
@@ -57,7 +57,7 @@ new_aubio_window (char_t * window_type, uint_t length)
   return win;
 }
 
-uint_t fvec_set_window (fvec_t *win, char_t *window_type) {
+uint_t fvec_set_window (fvec_t *win, const char_t *window_type) {
   smpl_t * w = win->data;
   uint_t i, size = win->length;
   aubio_window_type wintype;
