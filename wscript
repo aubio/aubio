@@ -163,7 +163,7 @@ def configure(ctx):
                 ctx.msg('Warning', msg)
             setattr(ctx.options, 'enable_' + d, False)
 
-    from waflib import Options
+    from waflib import Context
 
     if target_platform=='emscripten':
         ctx.load('c_emscripten')
@@ -559,20 +559,102 @@ def configure(ctx):
 
     # use BLAS/ATLAS
     if (ctx.options.enable_blas != False):
-        ctx.check_cfg(package = 'blas',
-                args = '--cflags --libs',
-                uselib_store='BLAS', mandatory = ctx.options.enable_blas)
-        if 'LIB_BLAS' in ctx.env:
-            blas_header = None
-            if ctx.env['LIBPATH_BLAS']:
-                if 'atlas' in ctx.env['LIBPATH_BLAS'][0]:
-                    blas_header = 'atlas/cblas.h'
-                elif 'openblas' in ctx.env['LIBPATH_BLAS'][0]:
-                    blas_header = 'openblas/cblas.h'
-            else:
-                blas_header = 'cblas.h'
-            ctx.check(header_name = blas_header, mandatory =
-                    ctx.options.enable_atlas)
+        blas_packages = (
+            'cblas',
+            'openblas',
+            'flexiblas',
+            'blas',
+        )
+
+        blas_package = None
+        ctx.start_msg('Checking for usable BLAS library')
+
+        for candidate in blas_packages:
+            try:
+                ctx.cmd_and_log(
+                    ['pkg-config', '--exists', candidate],
+                    quiet=Context.BOTH,
+                )
+            except ctx.errors.WafError:
+                continue
+
+            ctx.env.stash()
+
+            try:
+                ctx.check_cfg(
+                    package=candidate,
+                    args='--cflags --libs',
+                    uselib_store='BLAS',
+                    mandatory=True,
+                    msg=None,
+                )
+
+                if 'LIB_BLAS' in ctx.env:
+                    blas_header = 'cblas.h'
+
+                    if ctx.env['LIBPATH_BLAS']:
+                        blas_libpaths = ' '.join(
+                            ctx.env['LIBPATH_BLAS']
+                        ).lower()
+
+                        if 'atlas' in blas_libpaths:
+                            blas_header = 'atlas/cblas.h'
+                        elif 'openblas' in blas_libpaths:
+                            blas_header = 'openblas/cblas.h'
+
+                    # Detect the header and define HAVE_CBLAS_H or
+                    # HAVE_ATLAS_CBLAS_H for aubio_priv.h.
+                    ctx.check(
+                        header_name=blas_header,
+                        use='BLAS',
+                        mandatory=True,
+                        msg=None,
+                    )
+
+                    # Verify that the selected library also exports the
+                    # CBLAS functions aubio actually uses.
+                    ctx.check_cc(
+                        fragment='''
+                            #include <%s>
+
+                            int main(void)
+                            {
+                                float x[2] = { 1.0f, 2.0f };
+                                float y[2] = { 3.0f, 4.0f };
+
+                                cblas_scopy(2, x, 1, y, 1);
+                                cblas_sswap(2, x, 1, y, 1);
+
+                                return cblas_sdot(
+                                    2, x, 1, y, 1
+                                ) == 0.0f;
+                            }
+                        ''' % blas_header,
+                        use='BLAS',
+                        execute=False,
+                        mandatory=True,
+                        msg=None,
+                    )
+
+                    ctx.env.commit()
+                    blas_package = candidate
+                    break
+                ctx.env.revert()
+
+            except ctx.errors.ConfigurationError:
+                ctx.env.revert()
+
+        if blas_package is not None:
+            ctx.end_msg(blas_package)
+        else:
+            ctx.end_msg('not found', color='YELLOW')
+
+            if ctx.options.enable_blas:
+                ctx.fatal(
+                    'BLAS was requested, but none of %s provides '
+                    'a usable CBLAS API'
+                    % ', '.join(blas_packages)
+                )
 
     # use memcpy hacks
     if (ctx.options.enable_memcpy == True):
