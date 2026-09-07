@@ -95,6 +95,7 @@ RubberBandOptions aubio_get_rubberband_opts(const char_t *mode)
       // memory failure occurred or empty string was passed
       AUBIO_ERR("rubberband_utils: failed parsing options\n");
       rboptions = -1;
+      return rboptions;
     }
     while (*(params + i) != NULL) {
       if ( strcmp(params[i], "ProcessOffline" ) == 0 )        {
