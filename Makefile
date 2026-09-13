@@ -137,10 +137,10 @@ local_dylib:
 	# create links from ~/lib/lib* to build/src/lib*
 	[ -f $(PWD)/build/src/libaubio.[0-9].dylib ] && ( mkdir -p ~/lib && cp -prv build/src/libaubio.[0-9].dylib ~/lib ) || true
 
-test_python: export LD_LIBRARY_PATH=$(DESTDIR)/$(LIBDIR)
-test_python: export PYTHONPATH=$(PYDESTDIR)/$(LIBDIR)
-test_python: local_dylib
-	# run test with installed package
+test_python: export LD_LIBRARY_PATH=$(PWD)/build/src
+test_python: export PYTHONPATH=$(wildcard $(PWD)/build/lib.*)
+test_python: build_python local_dylib
+	# run test with built package (non-invasive)
 	$(PYTEST)
 
 clean_python:
