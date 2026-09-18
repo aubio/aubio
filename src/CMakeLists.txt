@@ -32,6 +32,7 @@ function (add_optional_dependency depname depver)
     target_compile_definitions (aubio PUBLIC HAVE_${depname})
     target_compile_options (aubio PRIVATE ${${depname}_CFLAGS})
     target_link_options (aubio PRIVATE ${${depname}_LDFLAGS})
+    target_link_libraries (aubio PRIVATE ${${depname}_LINK_LIBRARIES})
   endif()
 
 endfunction()
