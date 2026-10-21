@@ -61,6 +61,7 @@ jobs:
     outputs:
       version: ${{ steps.plan.outputs.version }}
       release: ${{ steps.plan.outputs.release }}
+      version_only: ${{ steps.version_scope.outputs.version-only == 'true' && steps.abi_scope.outputs.abi-changed == 'false' }}
       matrix: ${{ steps.wheels.outputs.matrix }}
       wheel-plan: ${{ steps.wheels.outputs.wheel-plan }}
       c-tests: ${{ steps.plan.outputs.c-tests }}
@@ -69,6 +70,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
+          # version-scope diffs PRs against origin/main: merge refs carry no
+          # parents without full history.
+          fetch-depth: 0
           sparse-checkout: |
             pyproject.toml
             uv.lock
@@ -81,6 +85,42 @@ jobs:
           enable-cache: false
       - id: wheels
         uses: LedFx/release-ci/actions/plan@442e00705d4e5edd589021851e756761363f9d84 # v0.3.1
+      # A release-please PR bumps the version in five files plus the changelog
+      # and manifest; no compiled artifact can differ. Renovate dependency or
+      # lock changes leave other lines behind and still build everything.
+      - id: version_scope
+        uses: LedFx/release-ci/actions/version-scope@12ea4ced7288cb6b0f3a8aafbac3e825969c17ca # v0.4.2
+        with:
+          package-name: aubio-ledfx
+          versioned-manifests: |
+            pyproject.toml
+            uv.lock
+            meson.build
+            vcpkg.json
+          simple-version-files: |
+            VERSION
+      # VERSION also holds the libtool ABI numbers meson.build builds with; a
+      # change to those is a build change, never release metadata. Compare
+      # commits, not the sparse working tree, and build when unsure.
+      - id: abi_scope
+        if: steps.version_scope.outputs.version-only == 'true'
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          case "$EVENT" in
+            pull_request) range=(origin/main...HEAD) ;;
+            *) range=("$BEFORE" HEAD) ;;
+          esac
+          changed=true
+          if [[ "$EVENT" == pull_request || ( -n "$BEFORE" && ! "$BEFORE" =~ ^0+$ ) ]] &&
+             diff="$(git diff "${range[@]}" -- VERSION)"; then
+            if ! grep -qE '^[-+]LIBAUBIO_LT_' <<<"$diff"; then
+              changed=false
+            fi
+          fi
+          echo "abi-changed=$changed" >> "$GITHUB_OUTPUT"
+
       - id: plan
         env:
           GH_TOKEN: ${{ github.token }}
@@ -230,7 +270,7 @@ jobs:
   c-tests:
     name: C tests (${{ matrix.name }})
     needs: [plan, lint]
-    if: needs.plan.outputs.c-tests == 'true'
+    if: needs.plan.outputs.c-tests == 'true' && needs.plan.outputs.version_only != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
@@ -272,7 +312,7 @@ jobs:
   build-sdist:
     name: Build source distribution
     needs: [plan, lint]
-    if: needs.plan.outputs.wheels != '[]'
+    if: needs.plan.outputs.wheels != '[]' && needs.plan.outputs.version_only != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -291,7 +331,7 @@ jobs:
   build-wheels:
     name: Wheels (${{ matrix.runner }} ${{ matrix.arch }})
     needs: [plan, lint]
-    if: needs.plan.outputs.wheels != '[]'
+    if: needs.plan.outputs.wheels != '[]' && needs.plan.outputs.version_only != 'true'
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 120
     strategy:
@@ -408,11 +448,25 @@ jobs:
     timeout-minutes: 5
     steps:
       # A job the plan skipped is "skipped", which passes; anything that ran
-      # must have succeeded.
+      # must have succeeded. Outside a version-only release bump, a job the
+      # plan selected must actually have run.
       - env:
           RESULTS: ${{ join(needs.*.result, ' ') }}
+          VERSION_ONLY: ${{ needs.plan.outputs.version_only }}
+          C_TESTS: ${{ needs.plan.outputs.c-tests }}
+          WHEELS: ${{ needs.plan.outputs.wheels }}
+          C_RESULT: ${{ needs.c-tests.result }}
+          SDIST_RESULT: ${{ needs.build-sdist.result }}
+          WHEELS_RESULT: ${{ needs.build-wheels.result }}
         run: |
           echo "Results: $RESULTS"
+          if [[ "$VERSION_ONLY" != "true" ]]; then
+            if [[ "$C_TESTS" == true && "$C_RESULT" == skipped ]] ||
+               [[ "$WHEELS" != '[]' && ( "$SDIST_RESULT" == skipped || "$WHEELS_RESULT" == skipped ) ]]; then
+              echo "::error::a planned build job was skipped outside a version-only change"
+              exit 1
+            fi
+          fi
           for r in $RESULTS; do
             if [[ "$r" != success && "$r" != skipped ]]; then
               exit 1
