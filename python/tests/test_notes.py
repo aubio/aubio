@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 from numpy.testing import TestCase, assert_equal, assert_almost_equal
-from aubio import notes, source
+from aubio import notes, source, float_type
 import numpy as np
 from utils import list_all_sounds
 
@@ -18,6 +18,39 @@ class aubio_notes_default(TestCase):
         assert_equal ([o.buf_size, o.hop_size, o.method, o.samplerate],
             [1024,512,'default',44100])
 
+
+class aubio_notes_midi_range(TestCase):
+    """ note-on events stay valid MIDI (aubio#357) """
+
+    def note_ons(self, freq, amp, silence):
+        samplerate, hop_size = 44100, 256
+        o = notes("default", 512, hop_size, samplerate)
+        o.set_silence(silence)
+        t = np.arange(2 * samplerate) / samplerate
+        signal = np.zeros_like(t)
+        for start in (0.2, 0.9, 1.5):  # three bursts, three onsets
+            burst = (t >= start) & (t < start + 0.4)
+            signal[burst] = amp * np.sin(2 * np.pi * freq * t[burst])
+        signal = signal.astype(float_type)
+        found = []
+        for i in range(0, len(signal) - hop_size, hop_size):
+            out = o(signal[i:i + hop_size])
+            if out[0] != 0:
+                found.append((out[0], out[1]))
+        return found
+
+    def assert_valid(self, found):
+        assert len(found) > 0
+        for pitch, velocity in found:
+            assert 0 <= pitch <= 127
+            assert 1 <= velocity <= 127
+
+    def test_quiet_notes_below_silence_floor(self):
+        # 127 + level was negative: -16 here
+        self.assert_valid(self.note_ons(440., 1e-7, -200.))
+
+    def test_high_notes(self):
+        self.assert_valid(self.note_ons(13000., .5, -70.))
 
 class aubio_notes_params(TestCase):
 

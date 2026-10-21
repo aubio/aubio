@@ -42,6 +42,10 @@ aubio_resampler_t *
 new_aubio_resampler (smpl_t ratio, uint_t type)
 {
   aubio_resampler_t *s = AUBIO_NEW (aubio_resampler_t);
+
+  if (!s) {
+    return NULL;
+  }
   int error = 0;
   s->stat = src_new (type, 1, &error);  /* only one channel */
   if (error) {

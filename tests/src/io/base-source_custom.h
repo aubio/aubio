@@ -11,7 +11,7 @@ int base_main(int argc, char **argv)
 {
   uint_t err = 0;
   if (argc < 2) {
-    PRINT_ERR("not enough arguments, running tests\n");
+    PRINT_MSG("no arguments given, running the built-in tests\n");
     err = test_wrong_params();
     PRINT_MSG("read a wave file as a mono vector\n");
     PRINT_MSG("usage: %s <source_path> [samplerate] [hop_size]\n", argv[0]);
@@ -73,10 +73,10 @@ int test_wrong_params(void)
   fmat_t *mat;
   aubio_source_custom_t *s;
 
-  if (new_aubio_source_custom(0,    samplerate, hop_size)) return 1;
-  if (new_aubio_source_custom("\0", samplerate, hop_size)) return 1;
-  if (new_aubio_source_custom(uri,          -1, hop_size)) return 1;
-  if (new_aubio_source_custom(uri,           0,        0)) return 1;
+  EXPECT_LOGGED(if (new_aubio_source_custom(0,    samplerate, hop_size)) return 1);
+  EXPECT_LOGGED(if (new_aubio_source_custom("\0", samplerate, hop_size)) return 1);
+  EXPECT_LOGGED(if (new_aubio_source_custom(uri,          -1, hop_size)) return 1);
+  EXPECT_LOGGED(if (new_aubio_source_custom(uri,           0,        0)) return 1);
 
   s = new_aubio_source_custom(uri, samplerate, hop_size);
   if (!s) return 1;
@@ -96,13 +96,13 @@ int test_wrong_params(void)
   // read again in undersized vector
   del_fvec(vec);
   vec = new_fvec(hop_size - 1);
-  aubio_source_custom_do(s, vec, &read);
+  EXPECT_LOGGED(aubio_source_custom_do(s, vec, &read));
   if (read != hop_size - 1) return 1;
 
   // read again in oversized vector
   del_fvec(vec);
   vec = new_fvec(hop_size + 1);
-  aubio_source_custom_do(s, vec, &read);
+  EXPECT_LOGGED(aubio_source_custom_do(s, vec, &read));
   if (read != hop_size) return 1;
 
   // seek to 0
@@ -115,13 +115,13 @@ int test_wrong_params(void)
   // read again as multiple channels in an undersized matrix
   del_fmat(mat);
   mat = new_fmat(channels - 1, hop_size);
-  aubio_source_custom_do_multi(s, mat, &read);
+  EXPECT_LOGGED(aubio_source_custom_do_multi(s, mat, &read));
   if (read != hop_size) return 1;
 
   // read again as multiple channels in an undersized matrix
   del_fmat(mat);
   mat = new_fmat(channels, hop_size - 1);
-  aubio_source_custom_do_multi(s, mat, &read);
+  EXPECT_LOGGED(aubio_source_custom_do_multi(s, mat, &read));
   if (read != hop_size - 1) return 1;
 
   // read again as multiple channels in an oversized matrix
@@ -133,7 +133,7 @@ int test_wrong_params(void)
   // read again as multiple channels in an oversized matrix
   del_fmat(mat);
   mat = new_fmat(channels, hop_size + 1);
-  aubio_source_custom_do_multi(s, mat, &read);
+  EXPECT_LOGGED(aubio_source_custom_do_multi(s, mat, &read));
   if (read != hop_size) return 1;
 
   // close the file (optional)
@@ -144,10 +144,10 @@ int test_wrong_params(void)
   // reading after close fails
   del_fvec(vec);
   vec = new_fvec(hop_size);
-  aubio_source_custom_do(s, vec, &read);
+  EXPECT_LOGGED(aubio_source_custom_do(s, vec, &read));
   del_fmat(mat);
   mat = new_fmat(channels, hop_size);
-  aubio_source_custom_do_multi(s, mat, &read);
+  EXPECT_LOGGED(aubio_source_custom_do_multi(s, mat, &read));
 
   del_aubio_source_custom(s);
   del_fmat(mat);

@@ -110,7 +110,7 @@ Py_pvoc_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
 }
 
 static int
-Py_pvoc_init (Py_pvoc * self, PyObject * args, PyObject * kwds)
+Py_pvoc_init (Py_pvoc * self, PyObject * Py_UNUSED(args), PyObject * Py_UNUSED(kwds))
 {
   self->o = new_aubio_pvoc ( self->win_s, self->hop_s);
   if (self->o == NULL) {
@@ -127,7 +127,7 @@ Py_pvoc_init (Py_pvoc * self, PyObject * args, PyObject * kwds)
 
 
 static void
-Py_pvoc_del (Py_pvoc *self, PyObject *unused)
+Py_pvoc_del (Py_pvoc *self)
 {
   Py_XDECREF(self->output);
   Py_XDECREF(self->routput);
@@ -139,15 +139,15 @@ Py_pvoc_del (Py_pvoc *self, PyObject *unused)
 
 
 static PyObject *
-Py_pvoc_do(Py_pvoc * self, PyObject * args)
+Py_pvoc_do(Py_pvoc * self, PyObject * args, PyObject * Py_UNUSED(kwds))
 {
-  PyObject *input;
+  PyObject *input, *owner;
 
   if (!PyArg_ParseTuple (args, "O", &input)) {
     return NULL;
   }
 
-  if (!PyAubio_ArrayToCFvec (input, &(self->vecin) )) {
+  if (!PyAubio_ArrayToCFvecIn (input, &(self->vecin), &owner)) {
     return NULL;
   }
 
@@ -155,15 +155,18 @@ Py_pvoc_do(Py_pvoc * self, PyObject * args)
     PyErr_Format(PyExc_ValueError,
                  "input fvec has length %d, but pvoc expects length %d",
                  self->vecin.length, self->hop_s);
+    Py_DECREF(owner);
     return NULL;
   }
 
-  Py_INCREF(self->output);
   if (!PyAubio_PyCvecToCCvec (self->output, &(self->c_output))) {
+    Py_DECREF(owner);
     return NULL;
   }
   // compute the function
   aubio_pvoc_do (self->o, &(self->vecin), &(self->c_output));
+  Py_DECREF(owner);
+  Py_INCREF(self->output);
   return self->output;
 }
 
@@ -174,7 +177,7 @@ static PyMemberDef Py_pvoc_members[] = {
   {"hop_s", T_INT, offsetof (Py_pvoc, hop_s), READONLY,
     "int: Interval between two analysis, in samples.\n"
     ""},
-  { NULL } // sentinel
+  {0} // sentinel
 };
 
 static PyObject *
@@ -266,55 +269,19 @@ static PyMethodDef Py_pvoc_methods[] = {
     "--------\n"
     "window : create a window.\n"
     ""},
-  {NULL}
+  {0}
 };
 
 PyTypeObject Py_pvocType = {
   PyVarObject_HEAD_INIT (NULL, 0)
-  "aubio.pvoc",
-  sizeof (Py_pvoc),
-  0,
-  (destructor) Py_pvoc_del,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  (ternaryfunc)Py_pvoc_do,
-  0,
-  0,
-  0,
-  0,
-  Py_TPFLAGS_DEFAULT,
-  Py_pvoc_doc,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  Py_pvoc_methods,
-  Py_pvoc_members,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  (initproc) Py_pvoc_init,
-  0,
-  Py_pvoc_new,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
+  .tp_name = "aubio.pvoc",
+  .tp_basicsize = sizeof (Py_pvoc),
+  .tp_dealloc = (destructor) Py_pvoc_del,
+  .tp_call = (ternaryfunc)Py_pvoc_do,
+  .tp_flags = Py_TPFLAGS_DEFAULT,
+  .tp_doc = Py_pvoc_doc,
+  .tp_methods = Py_pvoc_methods,
+  .tp_members = Py_pvoc_members,
+  .tp_init = (initproc) Py_pvoc_init,
+  .tp_new = Py_pvoc_new,
 };

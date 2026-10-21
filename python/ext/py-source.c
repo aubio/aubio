@@ -350,8 +350,14 @@ Py_source_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
 
   self->uri = NULL;
   if (uri != NULL) {
-    self->uri = (char_t *)malloc(sizeof(char_t) * (strnlen(uri, PATH_MAX) + 1));
-    strncpy(self->uri, uri, strnlen(uri, PATH_MAX) + 1);
+    // the whole path: the C library rejects one it can't open
+    size_t len = strlen(uri);
+    self->uri = (char_t *)malloc(sizeof(char_t) * (len + 1));
+    if (self->uri == NULL) {
+      Py_TYPE(self)->tp_free((PyObject *) self);
+      return PyErr_NoMemory();
+    }
+    memcpy(self->uri, uri, len + 1);
   }
 
   self->samplerate = 0;
@@ -385,7 +391,7 @@ Py_source_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
 }
 
 static int
-Py_source_init (Py_source * self, PyObject * args, PyObject * kwds)
+Py_source_init (Py_source * self, PyObject * Py_UNUSED(args), PyObject * Py_UNUSED(kwds))
 {
   self->o = new_aubio_source ( self->uri, self->samplerate, self->hop_size );
   if (self->o == NULL) {
@@ -406,7 +412,7 @@ Py_source_init (Py_source * self, PyObject * args, PyObject * kwds)
 }
 
 static void
-Py_source_del (Py_source *self, PyObject *unused)
+Py_source_del (Py_source *self)
 {
   if (self->o) {
     del_aubio_source(self->o);
@@ -423,7 +429,7 @@ Py_source_del (Py_source *self, PyObject *unused)
 
 /* function Py_source_do */
 static PyObject *
-Py_source_do(Py_source * self, PyObject * args)
+Py_source_do(Py_source * self, PyObject * Py_UNUSED(args))
 {
   PyObject *outputs;
   uint_t read;
@@ -448,7 +454,7 @@ Py_source_do(Py_source * self, PyObject * args)
 
 /* function Py_source_do_multi */
 static PyObject *
-Py_source_do_multi(Py_source * self, PyObject * args)
+Py_source_do_multi(Py_source * self, PyObject * Py_UNUSED(args))
 {
   PyObject *outputs;
   uint_t read;
@@ -496,25 +502,25 @@ static PyMemberDef Py_source_members[] = {
     ">>> n, src.duration\n"
     "(9638784, 9616561)\n"
     ""},
-  { NULL } // sentinel
+  {0} // sentinel
 };
 
 static PyObject *
-Pyaubio_source_get_samplerate (Py_source *self, PyObject *unused)
+Pyaubio_source_get_samplerate (Py_source *self, PyObject *Py_UNUSED(unused))
 {
   uint_t tmp = aubio_source_get_samplerate (self->o);
   return (PyObject *)PyLong_FromLong (tmp);
 }
 
 static PyObject *
-Pyaubio_source_get_channels (Py_source *self, PyObject *unused)
+Pyaubio_source_get_channels (Py_source *self, PyObject *Py_UNUSED(unused))
 {
   uint_t tmp = aubio_source_get_channels (self->o);
   return (PyObject *)PyLong_FromLong (tmp);
 }
 
 static PyObject *
-Pyaubio_source_close (Py_source *self, PyObject *unused)
+Pyaubio_source_close (Py_source *self, PyObject *Py_UNUSED(unused))
 {
   if (aubio_source_close(self->o) != 0) return NULL;
   Py_RETURN_NONE;
@@ -547,7 +553,7 @@ Pyaubio_source_seek (Py_source *self, PyObject *args)
 }
 
 static char Pyaubio_source_enter_doc[] = "";
-static PyObject* Pyaubio_source_enter(Py_source *self, PyObject *unused) {
+static PyObject* Pyaubio_source_enter(Py_source *self, PyObject *Py_UNUSED(unused)) {
   Py_INCREF(self);
   return (PyObject*)self;
 }
@@ -626,55 +632,29 @@ static PyMethodDef Py_source_methods[] = {
     Pyaubio_source_enter_doc},
   {"__exit__",  (PyCFunction)Pyaubio_source_exit, METH_VARARGS,
     Pyaubio_source_exit_doc},
-  {NULL} /* sentinel */
+  {0} /* sentinel */
 };
+
+
+// tp_call: the do method, with the slot's parameter list
+static PyObject *
+Py_source_call (Py_source * self, PyObject * args, PyObject * Py_UNUSED(kwds))
+{
+  return Py_source_do(self, args);
+}
 
 PyTypeObject Py_sourceType = {
   PyVarObject_HEAD_INIT (NULL, 0)
-  "aubio.source",
-  sizeof (Py_source),
-  0,
-  (destructor) Py_source_del,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  (ternaryfunc)Py_source_do,
-  0,
-  0,
-  0,
-  0,
-  Py_TPFLAGS_DEFAULT,
-  Py_source_doc,
-  0,
-  0,
-  0,
-  0,
-  Pyaubio_source_iter,
-  (unaryfunc)Pyaubio_source_iter_next,
-  Py_source_methods,
-  Py_source_members,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  (initproc) Py_source_init,
-  0,
-  Py_source_new,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
+  .tp_name = "aubio.source",
+  .tp_basicsize = sizeof (Py_source),
+  .tp_dealloc = (destructor) Py_source_del,
+  .tp_call = (ternaryfunc)Py_source_call,
+  .tp_flags = Py_TPFLAGS_DEFAULT,
+  .tp_doc = Py_source_doc,
+  .tp_iter = Pyaubio_source_iter,
+  .tp_iternext = (unaryfunc)Pyaubio_source_iter_next,
+  .tp_methods = Py_source_methods,
+  .tp_members = Py_source_members,
+  .tp_init = (initproc) Py_source_init,
+  .tp_new = Py_source_new,
 };

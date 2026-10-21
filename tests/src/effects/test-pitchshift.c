@@ -9,7 +9,7 @@ int main (int argc, char **argv)
   sint_t err = 0;
 
   if (argc < 3) {
-    PRINT_ERR("not enough arguments, running tests\n");
+    PRINT_MSG("no arguments given, running the built-in tests\n");
     err = test_wrong_params();
     PRINT_MSG("usage: %s <input_path> <output_path> [transpose] ", argv[0]);
     PRINT_MSG("[mode] [hop_size] [samplerate]\n");
@@ -31,7 +31,7 @@ int main (int argc, char **argv)
 
   transpose = 0.;
 
-  if ( argc >= 4 ) transpose = atof(argv[3]);
+  if ( argc >= 4 ) transpose = (smpl_t)atof(argv[3]);
   if ( argc >= 5 ) mode = argv[4];
   if ( argc >= 6 ) hop_size = atoi(argv[5]);
   if ( argc >= 7 ) samplerate = atoi(argv[6]);
@@ -90,17 +90,17 @@ int test_wrong_params(void)
   uint_t hop_size = 256;
   uint_t samplerate = 44100;
 
-  if (new_aubio_pitchshift("??", transpose, hop_size, samplerate)) return 1;
-  if (new_aubio_pitchshift(mode,       28., hop_size, samplerate)) return 1;
-  if (new_aubio_pitchshift(mode, transpose,        0, samplerate)) return 1;
-  if (new_aubio_pitchshift(mode, transpose, hop_size,          0)) return 1;
+  EXPECT_LOGGED(if (new_aubio_pitchshift("??", transpose, hop_size, samplerate)) return 1);
+  EXPECT_LOGGED(if (new_aubio_pitchshift(mode,       28., hop_size, samplerate)) return 1);
+  EXPECT_LOGGED(if (new_aubio_pitchshift(mode, transpose,        0, samplerate)) return 1);
+  EXPECT_LOGGED(if (new_aubio_pitchshift(mode, transpose, hop_size,          0)) return 1);
 
   aubio_pitchshift_t *p = new_aubio_pitchshift(mode, transpose,
       hop_size, samplerate);
 #ifdef HAVE_RUBBERBAND
   if (!p) return 1;
-  if (!aubio_pitchshift_set_pitchscale(p, 0.1)) return 1;
-  if (!aubio_pitchshift_set_transpose(p, -30)) return 1;
+  EXPECT_LOGGED(if (!aubio_pitchshift_set_pitchscale(p, (smpl_t)0.1)) return 1);
+  EXPECT_LOGGED(if (!aubio_pitchshift_set_transpose(p, -30)) return 1);
   del_aubio_pitchshift(p);
 #else
   if (p) return 1;

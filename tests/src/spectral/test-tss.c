@@ -14,7 +14,7 @@ int main (void)
   fvec_t * stead    = new_fvec (hop_s); // output buffer
   fvec_t * trans    = new_fvec (hop_s); // output buffer
 
-  // create phase vocoder for analysis of input signal 
+  // create phase vocoder for analysis of input signal
   aubio_pvoc_t * pv = new_aubio_pvoc (win_s,hop_s);
   // create transient/steady-state separation object
   aubio_tss_t *  tss = new_aubio_tss(win_s,hop_s);

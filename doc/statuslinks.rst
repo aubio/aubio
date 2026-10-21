@@ -16,5 +16,3 @@ Current status
 .. image:: https://img.shields.io/github/commits-since/aubio/aubio/latest.svg
    :target: https://github.com/aubio/aubio
    :alt: Commits since last release
-
-

@@ -45,6 +45,11 @@
 #include <stdio.h>
 #endif
 
+#include <stdint.h>
+#if !defined(_WIN32)
+#include <sys/types.h> // off_t, for fseeko
+#endif
+
 /* must be included before fftw3.h */
 #ifdef HAVE_COMPLEX_H
 #include <complex.h>
@@ -92,8 +97,15 @@
 // include accelerate framework after blas
 #define HAVE_ATLAS 1
 #define HAVE_BLAS 1
+// Accelerate's new BLAS interface exports its functions under new names
+// (_cblas_sdot$NEWLAPACK, ...) that exist from macOS 13.3 and iOS 16.4: use
+// it only when building for those, or the library won't load on older ones.
+#if (defined(__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__) \
+      && __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ >= 130300) \
+  || (defined(__ENVIRONMENT_IPHONE_OS_VERSION_MIN_REQUIRED__) \
+      && __ENVIRONMENT_IPHONE_OS_VERSION_MIN_REQUIRED__ >= 160400)
 #define ACCELERATE_NEW_LAPACK 1
-#define ACCELERATE_LAPACK_ILP6 1
+#endif
 #include <Accelerate/Accelerate.h>
 
 #ifndef HAVE_AUBIO_DOUBLE
@@ -195,18 +207,37 @@
 /* Memory management */
 #define AUBIO_MALLOC(_n)             malloc(_n)
 #define AUBIO_REALLOC(_p,_n)         realloc(_p,_n)
-#define AUBIO_NEW(_t)                (_t*)calloc(sizeof(_t), 1)
-#define AUBIO_ARRAY(_t,_n)           (_t*)calloc((_n)*sizeof(_t), 1)
+#define AUBIO_NEW(_t)                (_t*)calloc(1, sizeof(_t))
+#define AUBIO_ARRAY(_t,_n)           (_t*)calloc((_n), sizeof(_t))
 #define AUBIO_MEMCPY(_dst,_src,_n)   memcpy(_dst,_src,_n)
 #define AUBIO_MEMSET(_dst,_src,_t)   memset(_dst,_src,_t)
 #define AUBIO_FREE(_p)               free(_p)
+
+/* a new NUL-terminated copy of path, or NULL if it is PATH_MAX characters or
+   longer or the allocation fails (strutils.c) */
+char_t *aubio_str_copy_path(const char_t *path);
+
+/* highest degree aubio_filter_set_analog accepts */
+#define AUBIO_FILTER_MAX_ANALOG_DEGREE 15
+
+/* set an order degree + 1 filter, at its samplerate, from the analog transfer
+   function num(s) / den(s), whose degree + 1 coefficients are given by
+   ascending power of s, with the bilinear transform (temporal/filter.c) */
+struct _aubio_filter_t;
+uint_t aubio_filter_set_analog (struct _aubio_filter_t * f, const lsmp_t * num,
+    const lsmp_t * den, uint_t degree);
 
 
 /* file interface */
 #define AUBIO_FOPEN(_f,_m)           fopen(_f,_m)
 #define AUBIO_FCLOSE(_f)             fclose(_f)
 #define AUBIO_FREAD(_p,_s,_n,_f)     fread(_p,_s,_n,_f)
-#define AUBIO_FSEEK(_f,_n,_set)      fseek(_f,_n,_set)
+/* a 64-bit offset: fseek takes a long, which is 32 bits on Windows */
+#if defined(_WIN32)
+#define AUBIO_FSEEK(_f,_n,_set)      _fseeki64(_f,(__int64)(_n),_set)
+#else
+#define AUBIO_FSEEK(_f,_n,_set)      fseeko(_f,(off_t)(_n),_set)
+#endif
 
 /* strings */
 #define AUBIO_STRLEN(_s)             strlen(_s)
@@ -274,6 +305,9 @@ uint_t aubio_log(sint_t level, const char_t *fmt, ...);
 #define PI         (M_PI)
 #endif
 #define TWO_PI     (PI*2.)
+/* the same, as smpl_t: for per-sample math, which stays in smpl_t */
+#define SMPL_PI     ((smpl_t)PI)
+#define SMPL_TWO_PI ((smpl_t)TWO_PI)
 
 #ifndef PATH_MAX
 #define PATH_MAX 1024
@@ -307,7 +341,7 @@ uint_t aubio_log(sint_t level, const char_t *fmt, ...);
 #define ATAN       atan
 #define ATAN2      atan2
 #endif
-#define ROUND(x)   FLOOR(x+.5)
+#define ROUND(x)   FLOOR((x)+(smpl_t)0.5)
 
 /* aliases to complex.h functions */
 #if HAVE_AUBIO_DOUBLE || !defined(HAVE_COMPLEX_H) || defined(WIN32)
@@ -362,8 +396,8 @@ uint_t aubio_log(sint_t level, const char_t *fmt, ...);
 #endif
 
 /* handy shortcuts */
-#define DB2LIN(g) (POW(10.0,(g)*0.05f))
-#define LIN2DB(v) (20.0*LOG10(v))
+#define DB2LIN(g) (POW((smpl_t)10,(g)*(smpl_t)0.05))
+#define LIN2DB(v) ((smpl_t)20*LOG10(v))
 #define SQR(_a)   ((_a)*(_a))
 
 #ifndef MAX
@@ -381,10 +415,10 @@ uint_t aubio_log(sint_t level, const char_t *fmt, ...);
 #define IS_DENORMAL(f) ABS(f) < VERY_SMALL_NUMBER
 
 /** if ABS(f) < VERY_SMALL_NUMBER, returns 0., else f */
-#define KILL_DENORMAL(f)  IS_DENORMAL(f) ? 0. : f
+#define KILL_DENORMAL(f)  IS_DENORMAL(f) ? 0 : f
 
 /** if f > VERY_SMALL_NUMBER, returns f, else returns VERY_SMALL_NUMBER */
-#define CEIL_DENORMAL(f)  f < VERY_SMALL_NUMBER ? VERY_SMALL_NUMBER : f
+#define CEIL_DENORMAL(f)  f < VERY_SMALL_NUMBER ? (smpl_t)VERY_SMALL_NUMBER : f
 
 #define SAFE_LOG10(f) LOG10(CEIL_DENORMAL(f))
 #define SAFE_LOG(f)   LOG(CEIL_DENORMAL(f))
@@ -396,19 +430,59 @@ uint_t aubio_log(sint_t level, const char_t *fmt, ...);
 #define UNUSED
 #endif
 
-/* are we using gcc -std=c99 ? */
-#if defined(__STRICT_ANSI__)
-#define strnlen(a,b) MIN(strlen(a),b)
-#if !HAVE_AUBIO_DOUBLE
-#define floorf floor
-#endif
-#endif /* __STRICT_ANSI__ */
-
 #if defined(DEBUG)
 #include <assert.h>
 #define AUBIO_ASSERT(x) assert(x)
 #else
 #define AUBIO_ASSERT(x)
 #endif /* DEBUG */
+
+/* Security-focused assertion macros for bounds checking */
+#if defined(DEBUG) || defined(AUBIO_SECURITY_CHECKS)
+  /* Bounds check for array access - validates index is within valid range */
+  #define AUBIO_ASSERT_BOUNDS(idx, len) \
+    do { \
+      if ((idx) >= (len)) { \
+        AUBIO_ERR("bounds check failed: index %u >= length %u at %s:%d\n", \
+                  (uint_t)(idx), (uint_t)(len), __FILE__, __LINE__); \
+        abort(); \
+      } \
+    } while(0)
+
+  /* Null pointer check */
+  #define AUBIO_ASSERT_NOT_NULL(ptr) \
+    do { \
+      if ((ptr) == NULL) { \
+        AUBIO_ERR("null pointer check failed at %s:%d\n", __FILE__, __LINE__); \
+        abort(); \
+      } \
+    } while(0)
+
+  /* Range check - validates value is within [min, max] */
+  #define AUBIO_ASSERT_RANGE(val, min, max) \
+    do { \
+      if ((val) < (min) || (val) > (max)) { \
+        AUBIO_ERR("range check failed: value %f not in [%f, %f] at %s:%d\n", \
+                  (smpl_t)(val), (smpl_t)(min), (smpl_t)(max), __FILE__, __LINE__); \
+        abort(); \
+      } \
+    } while(0)
+
+  /* Validate buffer has expected length */
+  #define AUBIO_ASSERT_LENGTH(buf, expected) \
+    do { \
+      if ((buf)->length != (expected)) { \
+        AUBIO_ERR("length check failed: got %u, expected %u at %s:%d\n", \
+                  (buf)->length, (uint_t)(expected), __FILE__, __LINE__); \
+        abort(); \
+      } \
+    } while(0)
+#else
+  /* In release builds, these checks are no-ops for performance */
+  #define AUBIO_ASSERT_BOUNDS(idx, len) ((void)0)
+  #define AUBIO_ASSERT_NOT_NULL(ptr) ((void)0)
+  #define AUBIO_ASSERT_RANGE(val, min, max) ((void)0)
+  #define AUBIO_ASSERT_LENGTH(buf, expected) ((void)0)
+#endif /* DEBUG || AUBIO_SECURITY_CHECKS */
 
 #endif /* AUBIO_PRIV_H */

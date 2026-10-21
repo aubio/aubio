@@ -62,7 +62,7 @@ int main (void)
   // copy to a different size fails
   del_cvec(other_cvector);
   other_cvector = new_cvec(window_size + 2);
-  cvec_copy(complex_vector, other_cvector);
+  EXPECT_LOGGED(cvec_copy(complex_vector, other_cvector));
 
   if (complex_vector)
     del_cvec(complex_vector);

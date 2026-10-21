@@ -1,0 +1,43 @@
+# Run with prek: `uvx prek run --all-files`, or `uvx prek install` for a git
+# hook. `repo: builtin` hooks are prek-only (plain pre-commit can't run them).
+# The same hook set runs in CI (build.yml, "Lint (prek)") and in autofix.ci
+# (autofix.yml), which commits whatever the fixers change on a pull request.
+# Renovate bumps every rev below (the shared LedFx config enables pre-commit).
+# Test sounds and vcpkg overlay files are data, not text to tidy.
+exclude: ^(python/tests/sounds/|tests/sounds/|vcpkg-ports/)
+repos:
+  - repo: builtin
+    hooks:
+      - id: check-yaml
+      - id: check-toml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+  # Python: the pyflakes error classes only (config in pyproject.toml), so the
+  # inherited upstream code is held to "no real bugs" without a mass rewrite.
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.10
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+  # GitHub Actions security audit. Config in .github/zizmor.yml; the gate is
+  # --min-severity high (lower findings stay advisory).
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    rev: v1.30.1
+    hooks:
+      - id: zizmor
+        args:
+          - --no-progress
+          - --config
+          - .github/zizmor.yml
+          - --min-severity
+          - high
+          - .github/workflows/
+  # Workflow syntax, expressions, job graph and inline shell (bundles
+  # shellcheck via the wheel's own dependency).
+  - repo: https://github.com/Mateusz-Grzelinski/actionlint-py
+    rev: v1.7.12.25
+    hooks:
+      - id: actionlint
+        additional_dependencies: [shellcheck-py]

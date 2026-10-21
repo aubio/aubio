@@ -1,0 +1,27 @@
+# zizmor configuration for aubio-ledfx workflows.
+#
+# The lint gate runs zizmor with --min-severity high: findings below `high`
+# are advisory, not gate failures.
+#
+# - dangerous-triggers/lint-notify.yml: the reviewed, safe shape of
+#   workflow_run: the default-branch version always executes, it never checks
+#   out or executes PR code, and PR-controlled values only reach `gh` as API
+#   arguments.
+# - dangerous-triggers/pr-title.yml: pull_request_target in the same safe
+#   shape, so the bot can comment on fork PRs: the default-branch workflow and
+#   script run, PR code is never checked out, and the title reaches the script
+#   only as an environment variable.
+# - secrets-outside-env: AUTOMATION_APP_* is the org's ledfx-automation app.
+#   lint-notify.yml and pr-title.yml mint a comment-only token; release-please
+#   mints a contents/PR/issues token for the release PR, tag and draft release.
+#   Publishing stays behind the pypi environment in build.yml.
+rules:
+  dangerous-triggers:
+    ignore:
+      - lint-notify.yml
+      - pr-title.yml
+  secrets-outside-env:
+    ignore:
+      - lint-notify.yml
+      - pr-title.yml
+      - release-please.yml

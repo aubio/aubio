@@ -58,6 +58,10 @@ aubio_source_apple_audio_t * new_aubio_source_apple_audio(const char_t * path, u
 {
   aubio_source_apple_audio_t * s = AUBIO_NEW(aubio_source_apple_audio_t);
 
+  if (!s) {
+    return NULL;
+  }
+
   if (path == NULL || strnlen(path, PATH_MAX) < 1) {
     AUBIO_ERROR("source_apple_audio: Aborted opening null path\n");
     goto beach;
@@ -93,8 +97,12 @@ uint_t aubio_source_apple_audio_open (aubio_source_apple_audio_t *s, const char_
   OSStatus err = noErr;
   UInt32 propSize;
 
-  s->path = AUBIO_ARRAY(char_t, strnlen(path, PATH_MAX) + 1);
-  strncpy(s->path, path, strnlen(path, PATH_MAX) + 1);
+  s->path = aubio_str_copy_path(path);
+  if (!s->path) {
+    // error logged by aubio_str_copy_path
+    err = -1;
+    goto beach;
+  }
 
   // open the resource url
   CFURLRef fileURL = createURLFromPath(s->path);
@@ -176,7 +184,7 @@ uint_t aubio_source_apple_audio_open (aubio_source_apple_audio_t *s, const char_
       goto beach;
   }
 
-  smpl_t ratio = s->source_samplerate * 1. / s->samplerate;
+  double ratio = (double)s->source_samplerate / s->samplerate;
   if (ratio < 1.) {
     AUBIO_WRN("source_apple_audio: up-sampling %s from %0dHz to %0dHz\n",
         s->path, s->source_samplerate, s->samplerate);
@@ -186,6 +194,7 @@ uint_t aubio_source_apple_audio_open (aubio_source_apple_audio_t *s, const char_
   freeAudioBufferList(&s->bufferList);
   if (createAudioBufferList(&s->bufferList, s->channels, s->block_size * s->channels)) {
     AUBIO_ERR("source_apple_audio: failed creating bufferList\n");
+    err = -1;
     goto beach;
   }
 
@@ -287,8 +296,8 @@ uint_t aubio_source_apple_audio_seek (aubio_source_apple_audio_t * s, uint_t pos
   // check if we are not seeking out of the file
   uint_t fileLengthFrames = aubio_source_apple_audio_get_duration(s);
   // compute position in the source file, before resampling
-  smpl_t ratio = s->source_samplerate * 1. / s->samplerate;
-  SInt64 resampled_pos = (SInt64)ROUND( pos * ratio );
+  double ratio = (double)s->source_samplerate / s->samplerate;
+  SInt64 resampled_pos = (SInt64)floor( pos * ratio + .5 );
   if (resampled_pos > fileLengthFrames) {
     AUBIO_ERR("source_apple_audio: trying to seek in %s at pos %d, "
         "but file has only %d frames\n",

@@ -38,6 +38,10 @@ struct _aubio_sampler_t {
 aubio_sampler_t *new_aubio_sampler(uint_t samplerate, uint_t blocksize)
 {
   aubio_sampler_t *s = AUBIO_NEW(aubio_sampler_t);
+
+  if (!s) {
+    return NULL;
+  }
   if ((sint_t)blocksize < 1) {
     AUBIO_ERR("sampler: got blocksize %d, but can not be < 1\n", blocksize);
     goto beach;
@@ -57,10 +61,11 @@ beach:
 uint_t aubio_sampler_load( aubio_sampler_t * o, const char_t * uri )
 {
   if (o->source) del_aubio_source(o->source);
+  o->source = NULL;
 
   if (o->uri) AUBIO_FREE(o->uri);
-  o->uri = AUBIO_ARRAY(char_t, strnlen(uri, PATH_MAX) + 1);
-  strncpy(o->uri, uri, strnlen(uri, PATH_MAX) + 1);
+  o->uri = aubio_str_copy_path(uri);
+  if (!o->uri) return 1;
 
   o->source = new_aubio_source(uri, o->samplerate, o->blocksize);
   if (o->source) return 0;

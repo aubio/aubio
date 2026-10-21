@@ -858,7 +858,7 @@
 	* waf: removed, now automatically downloaded with make, updated to 1.8.12
 	* Makefile: add target to fetch waf and basic instructions
 	* .travis.yml: added template for travis continuous integration
-	* {examples,src,tests}/wscript_build: add external libs and uselib to targets 
+	* {examples,src,tests}/wscript_build: add external libs and uselib to targets
 	* src/wscript_build: do not hardocode install path
 	* wscript, src/io/*.c: use custom defines instead of __APPLE__
 	* wscript: make fat build optional, remove iOS sdk versioning
@@ -999,7 +999,7 @@
 	* plugins/puredata/Makefile.am: move pd help to pattern-help.pd
 		- thanks goes to Frank Barknecht
 	* ext/sndfileio.c src/aubio_priv.h: fixes memset in aubio_priv.h, remove
-		useless sfinfo.format=0 - thanks karsten wiese 
+		useless sfinfo.format=0 - thanks karsten wiese
 	* ext/midi/midi_alsa_seq.c: do not call pthread_ in aubio_midi_direct_output
 		- thanks karsten wiese
 	* python/aubio/task/beat.py: task beat() output seconds
@@ -1025,7 +1025,7 @@
 	* python/aubiopitch: new python program to extract pitch tracks
 	* python/: plotting features for aubiocut and aubiopitch
 	* python/: interface refactored
-	* doc/: updated documentation 
+	* doc/: updated documentation
 	* VERSION: 0.3.0
 
 2006-18-05  Paul Brossier <piem@altern.org>
@@ -1036,7 +1036,7 @@
 2005-29-03  Paul Brossier <piem@altern.org>
 	* python/aubio/gnuplot.py: clean up and add plotsound
 	* python/aubiocompare-onset: updated
-	* examples/aubioonset.c: fix text output when nframes<4 
+	* examples/aubioonset.c: fix text output when nframes<4
 	* ext/midi/midi_file.c: by default, int is unsigned on powerpc
 	* python/aubiocut, python/aubio/aubioclass.py: updated
 	* ext/midi/midi_alsa_seq.c: activated threading
@@ -1048,7 +1048,7 @@
 	* examples/aubioonset.c: added frames>=4 check (thanks Hamish Allan)
 
 2004-12-11  Paul Brossier <piem@altern,org>
-	* swig/Makefile.am: instructions moved to python/aubio and cleaned 
+	* swig/Makefile.am: instructions moved to python/aubio and cleaned
 	* python/aubiocut: corrected slicing on multichannel files
 	* VERSION: bumped to 0.1.8
 
@@ -1066,7 +1066,7 @@
 	                   added zero crossing search
 	* src/pitchyinc.c: adds draft for all-in-one faster function
 	* examples/*.c: added ladcca client (needs work)
-	* examples/aubioonset.c: cleaned up verbose stdout 
+	* examples/aubioonset.c: cleaned up verbose stdout
 	* doc/aubio.css: updated
 
 2004-10-28  Paul Brossier <piem@altern.org>
@@ -1075,7 +1075,7 @@
 
 2004-10-26  Paul Brossier <piem@altern.org>:
 	* src/pitchdetection.*: moved to src/pitchmcomb.*, now includes a
-	draft driver for transparent use of mcomb or yin 
+	draft driver for transparent use of mcomb or yin
 	* src/pitchmcomb.*: added from old src/pitchdetection.*
 	* VERSION: 0.1.7
 
@@ -1088,7 +1088,7 @@
 	* src/{fft,cvec,pvoc}.c: fixed fft size (N/2+1)
 	* src/{onsetdetection,tss}.c: fixed sizes as well
 	* src/pvoc.c: fixed resynthesis scaling factor (still missing
-	windowing), windowing added in pvoc_rdo 
+	windowing), windowing added in pvoc_rdo
 	* src/fft.h: removed FFTW typedef
 	* configure.ac: removed AC_ISC_POSIX to compile on mingw32
 	* src/fft.c: removed useless fftw3.h include
@@ -1110,19 +1110,19 @@
 	defined MAX_SIZE instead.
 	* src/onsetdetection.c: rewritten free_function.
 	* src/phasevoc.c: in aubio_pvoc_rdo, one way writing only
-	* swig/, python/aubio: added swig wrapper, played a bit with 
+	* swig/, python/aubio: added swig wrapper, played a bit with
 	python interface.
 	* src/aubio.h: now includes midi_driver.h
 
 2004-06-25  Paul Brossier <piem@altern.org>
-	* src/peakpick.h: 
-	   renamed pickparams_t to aubio_pickpeak_t 
+	* src/peakpick.h:
+	   renamed pickparams_t to aubio_pickpeak_t
 	   disabled samer_pp (broken)
 	   added del_aubio_peakpick
-	   added aubio_peakpick_pimrt_wt (thanks mramirez) 
-	* python/aubio/onsetcompare.py: now works on huge list 
+	   added aubio_peakpick_pimrt_wt (thanks mramirez)
+	* python/aubio/onsetcompare.py: now works on huge list
 	   thanks goes to Nicolas Wack
-	* examples/aubionotes.c: now outputs NOTEONs 
+	* examples/aubionotes.c: now outputs NOTEONs
 	* configure.ac: quick hack to disable jack and alsa
 	* examples/*usingjack*: more hacking to disable jack
 	* README: some updates
@@ -1130,13 +1130,13 @@
 2004-06-23  Paul Brossier <piem@altern.org>
 	* src/*.h: added C++ ifdefs in header files
 	* src/fft.h: removed complex.h include in header
-	* src/hist.c: fixed out of array indexes 
+	* src/hist.c: fixed out of array indexes
 		thanks Miguel Ramirez!
 	* src/Makefile.am: added install headers
 	* doc/Makefile.am: removed dist-hook to update-docs
 	* sounds/Makefile.am: added install hooks
 	* aubio.pc.in: added aubio.pc generation for pkg-config
-	* python: added some evaluation functions 
+	* python: added some evaluation functions
 	* src/aubio_priv.h: moved AUBIO_DBG to stderr
 	* examples/utils.h: now outputs on stdout
 	* examples/midi*.c: fixed compilation with gcc-2.95
@@ -1144,7 +1144,7 @@
 
 2004-04-27  Paul Brossier <piem@altern.org>
 	* pitchdetection.c: fixed, still not great
-	* Makefile.am: fixed missing headers (thank you Charbel) 
+	* Makefile.am: fixed missing headers (thank you Charbel)
 	* aubioonset,aubionotes: renamed for install (were *demo files)
 	* First working release: 0.1.3
 
@@ -1185,7 +1185,7 @@
 	* aubio.h: Grouping all headers
 	* makefile.am: Running first make dist
 	* VERSION: 0.0.2alpha
- 
+
 2003-10-18  Paul Brossier <piem@altern.org>
 	* aubioenc.c: Working phase vocoder
 	* VERSION: 0.0.1alpha

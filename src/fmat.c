@@ -28,11 +28,28 @@ fmat_t * new_fmat (uint_t height, uint_t length) {
     return NULL;
   }
   s = AUBIO_NEW(fmat_t);
+  if (!s) {
+    return NULL;
+  }
   s->height = height;
   s->length = length;
   s->data = AUBIO_ARRAY(smpl_t*,s->height);
+  if (!s->data) {
+    AUBIO_FREE(s);
+    return NULL;
+  }
   for (i=0; i< s->height; i++) {
     s->data[i] = AUBIO_ARRAY(smpl_t, s->length);
+    if (!s->data[i]) {
+      /* cleanup previously allocated rows */
+      while (i > 0) {
+        i--;
+        AUBIO_FREE(s->data[i]);
+      }
+      AUBIO_FREE(s->data);
+      AUBIO_FREE(s);
+      return NULL;
+    }
     for (j=0; j< s->length; j++) {
       s->data[i][j]=0.;
     }
@@ -110,7 +127,7 @@ void fmat_ones(fmat_t *s) {
 void fmat_rev(fmat_t *s) {
   uint_t i,j;
   for (i=0; i< s->height; i++) {
-    for (j=0; j< FLOOR((smpl_t)s->length/2); j++) {
+    for (j=0; j< s->length/2; j++) {
       ELEM_SWAP(s->data[i][j], s->data[i][s->length-1-j]);
     }
   }

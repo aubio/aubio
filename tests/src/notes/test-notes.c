@@ -1,4 +1,5 @@
 #include <aubio.h>
+#include "utils_tests.h"
 
 int main (void)
 {
@@ -16,9 +17,9 @@ int main (void)
   if (aubio_notes_set_release_drop(o, release_drop)) return 1;
   del_aubio_notes(o);
   // test wrong arguments
-  if (new_aubio_notes("unknown", buf_size, hop_size, samplerate)) return 1;
-  if (new_aubio_notes("default",        0, hop_size, samplerate)) return 1;
-  if (new_aubio_notes("default", buf_size,        0, samplerate)) return 1;
-  if (new_aubio_notes("default", buf_size, hop_size,          0)) return 1;
+  EXPECT_LOGGED(if (new_aubio_notes("unknown", buf_size, hop_size, samplerate)) return 1);
+  EXPECT_LOGGED(if (new_aubio_notes("default",        0, hop_size, samplerate)) return 1);
+  EXPECT_LOGGED(if (new_aubio_notes("default", buf_size,        0, samplerate)) return 1);
+  EXPECT_LOGGED(if (new_aubio_notes("default", buf_size, hop_size,          0)) return 1);
   return 0;
 }

@@ -51,10 +51,10 @@ struct _aubio_source_sndfile_t {
   int input_samplerate;
   int input_channels;
   int input_format;
-  int duration;
+  sf_count_t duration;
 
   // resampling stuff
-  smpl_t ratio;
+  double ratio;
   uint_t input_hop_size;
 #ifdef HAVE_SAMPLERATE
   aubio_resampler_t **resamplers;
@@ -69,6 +69,10 @@ struct _aubio_source_sndfile_t {
 
 aubio_source_sndfile_t * new_aubio_source_sndfile(const char_t * path, uint_t samplerate, uint_t hop_size) {
   aubio_source_sndfile_t * s = AUBIO_NEW(aubio_source_sndfile_t);
+
+  if (!s) {
+    return NULL;
+  }
   SF_INFO sfinfo;
 
   if (path == NULL) {
@@ -87,8 +91,8 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(const char_t * path, uint_t sa
   s->hop_size = hop_size;
   s->channels = 1;
 
-  s->path = AUBIO_ARRAY(char_t, strnlen(path, PATH_MAX) + 1);
-  strncpy(s->path, path, strnlen(path, PATH_MAX) + 1);
+  s->path = aubio_str_copy_path(path);
+  if (!s->path) goto beach;
 
   // try opening the file, getting the info in sfinfo
   AUBIO_MEMSET(&sfinfo, 0, sizeof (sfinfo));
@@ -114,8 +118,8 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(const char_t * path, uint_t sa
     s->samplerate = samplerate;
   }
   /* compute input block size required before resampling */
-  s->ratio = s->samplerate/(smpl_t)s->input_samplerate;
-  s->input_hop_size = (uint_t)FLOOR(s->hop_size / s->ratio + .5);
+  s->ratio = s->samplerate/(double)s->input_samplerate;
+  s->input_hop_size = (uint_t)floor(s->hop_size / s->ratio + .5);
 
   if (s->input_hop_size * s->input_channels > MAX_SAMPLES) {
     AUBIO_ERR("source_sndfile: Not able to process more than %d frames of %d channels\n",
@@ -133,11 +137,11 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(const char_t * path, uint_t sa
     s->input_data = new_fvec(s->input_hop_size);
     s->input_mat = new_fmat(s->input_channels, s->input_hop_size);
     for (i = 0; i < (uint_t)s->input_channels; i++) {
-      s->resamplers[i] = new_aubio_resampler(s->ratio, 4);
+      s->resamplers[i] = new_aubio_resampler((smpl_t)s->ratio, 4);
     }
     if (s->ratio > 1) {
       // we would need to add a ring buffer for these
-      if ( (uint_t)FLOOR(s->input_hop_size * s->ratio + .5)  != s->hop_size ) {
+      if ( (uint_t)floor(s->input_hop_size * s->ratio + .5)  != s->hop_size ) {
         AUBIO_ERR("source_sndfile: can not upsample %s from %d to %d\n", s->path,
             s->input_samplerate, s->samplerate);
         goto beach;
@@ -145,7 +149,7 @@ aubio_source_sndfile_t * new_aubio_source_sndfile(const char_t * path, uint_t sa
       AUBIO_WRN("source_sndfile: upsampling %s from %d to %d\n", s->path,
           s->input_samplerate, s->samplerate);
     }
-    s->duration = (uint_t)FLOOR(s->duration * s->ratio);
+    s->duration = (sf_count_t)floor((double)s->duration * s->ratio);
   }
 #else
   if (s->ratio != 1) {
@@ -174,7 +178,7 @@ void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_data, uin
       s->hop_size, read_data->length);
   sf_count_t read_samples = aubio_sf_read_smpl (s->handle, s->scratch_data,
       s->scratch_size);
-  uint_t read_length = read_samples / s->input_channels;
+  uint_t read_length = (uint_t)(read_samples / s->input_channels);
 
   /* where to store de-interleaved data */
   smpl_t *ptr_data;
@@ -211,7 +215,7 @@ void aubio_source_sndfile_do(aubio_source_sndfile_t * s, fvec_t * read_data, uin
   }
 #endif /* HAVE_SAMPLERATE */
 
-  *read = MIN(length, (uint_t)FLOOR(s->ratio * read_length + .5));
+  *read = MIN(length, (uint_t)floor(s->ratio * read_length + .5));
 
   aubio_source_pad_output (read_data, *read);
 
@@ -226,7 +230,7 @@ void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_dat
       s->path, s->input_channels, read_data->height);
   sf_count_t read_samples = aubio_sf_read_smpl (s->handle, s->scratch_data,
       s->scratch_size);
-  uint_t read_length = read_samples / s->input_channels;
+  uint_t read_length = (uint_t)(read_samples / s->input_channels);
 
   /* where to store de-interleaved data */
   smpl_t **ptr_data;
@@ -267,7 +271,7 @@ void aubio_source_sndfile_do_multi(aubio_source_sndfile_t * s, fmat_t * read_dat
   }
 #endif /* HAVE_SAMPLERATE */
 
-  *read = MIN(length, (uint_t)FLOOR(s->ratio * read_length + .5));
+  *read = MIN(length, (uint_t)floor(s->ratio * read_length + .5));
 
   aubio_source_pad_multi_output(read_data, input_channels, *read);
 }
@@ -281,14 +285,15 @@ uint_t aubio_source_sndfile_get_channels(aubio_source_sndfile_t * s) {
 }
 
 uint_t aubio_source_sndfile_get_duration (const aubio_source_sndfile_t * s) {
-  if (s && s->duration) {
-    return s->duration;
+  if (s && s->duration > 0) {
+    // the API counts frames in a uint_t
+    return s->duration > (sf_count_t)UINT_MAX ? UINT_MAX : (uint_t)s->duration;
   }
   return 0;
 }
 
 uint_t aubio_source_sndfile_seek (aubio_source_sndfile_t * s, uint_t pos) {
-  uint_t resampled_pos = (uint_t)ROUND(pos / s->ratio);
+  uint_t resampled_pos = (uint_t)floor(pos / s->ratio + .5);
   sf_count_t sf_ret;
   if (s->handle == NULL) {
     AUBIO_ERR("source_sndfile: failed seeking in %s (file not opened?)\n",

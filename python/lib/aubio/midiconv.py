@@ -1,18 +1,12 @@
 # -*- coding: utf-8 -*-
 """ utilities to convert midi note number to and from note names """
 
-import sys
 from ._aubio import freqtomidi, miditofreq
 
 __all__ = ['note2midi', 'midi2note', 'freq2note', 'note2freq']
 
-py3 = sys.version_info[0] == 3
-if py3:
-    str_instances = str
-    int_instances = int
-else:
-    str_instances = (str, unicode)
-    int_instances = (int, long)
+str_instances = str
+int_instances = int
 
 
 def note2midi(note):

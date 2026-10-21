@@ -9,7 +9,7 @@ int main (int argc, char** argv)
 
   if (argc < 2) {
     err = 2;
-    PRINT_WRN("no arguments, running tests\n");
+    PRINT_MSG("no arguments given, running the built-in tests\n");
     err = test_wrong_params();
     PRINT_MSG("usage: %s <input_path> [samplerate] [hop_size]\n", argv[0]);
     return err;
@@ -83,12 +83,12 @@ int test_wrong_params()
   uint_t win_s = 512; // fft size
   uint_t n_filters = 40; // number of filters
   uint_t n_coeffs = 13; // number of coefficients
-  smpl_t samplerate = 16000.; // samplerate
+  uint_t samplerate = 16000; // samplerate
 
-  if (new_aubio_mfcc(    0, n_filters, n_coeffs, samplerate)) return 1;
-  if (new_aubio_mfcc(win_s,         0, n_coeffs, samplerate)) return 1;
-  if (new_aubio_mfcc(win_s, n_filters,        0, samplerate)) return 1;
-  if (new_aubio_mfcc(win_s, n_filters, n_coeffs,          0)) return 1;
+  EXPECT_LOGGED(if (new_aubio_mfcc(    0, n_filters, n_coeffs, samplerate)) return 1);
+  EXPECT_LOGGED(if (new_aubio_mfcc(win_s,         0, n_coeffs, samplerate)) return 1);
+  EXPECT_LOGGED(if (new_aubio_mfcc(win_s, n_filters,        0, samplerate)) return 1);
+  EXPECT_LOGGED(if (new_aubio_mfcc(win_s, n_filters, n_coeffs,          0)) return 1);
 
   return run_on_default_source(main);
 }

@@ -1,6 +1,7 @@
 #define AUBIO_UNSTABLE 1
 
 #include <aubio.h>
+#include "utils_tests.h"
 
 int main (void)
 {
@@ -28,4 +29,3 @@ int main (void)
   if (new_aubio_hist(0, 1, 0)) return 1;
   return 0;
 }
-

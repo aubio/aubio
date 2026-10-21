@@ -70,14 +70,17 @@ aubio_sink_vorbis_t * new_aubio_sink_vorbis (const char_t *uri,
 {
   aubio_sink_vorbis_t * s = AUBIO_NEW(aubio_sink_vorbis_t);
 
+  if (!s) {
+    return NULL;
+  }
+
   if (!uri) {
     AUBIO_ERROR("sink_vorbis: Aborted opening null path\n");
     goto failure;
   }
 
-  s->path = AUBIO_ARRAY(char_t, strnlen(uri, PATH_MAX) + 1);
-  strncpy(s->path, uri, strnlen(uri, PATH_MAX) + 1);
-  s->path[strnlen(uri, PATH_MAX)] = '\0';
+  s->path = aubio_str_copy_path(uri);
+  if (!s->path) goto failure;
 
   s->channels = 0;
 
@@ -113,7 +116,7 @@ void del_aubio_sink_vorbis (aubio_sink_vorbis_t *s)
 
 uint_t aubio_sink_vorbis_open(aubio_sink_vorbis_t *s)
 {
-  float quality_mode = .9;
+  float quality_mode = .9f;
 
   if (s->samplerate == 0 || s->channels == 0) return AUBIO_FAIL;
 
@@ -140,7 +143,7 @@ uint_t aubio_sink_vorbis_open(aubio_sink_vorbis_t *s)
   vorbis_block_init(&s->vd, &s->vb);
 
   // pick randome serial number
-  srand(time(NULL));
+  srand((unsigned int)time(NULL));
   ogg_stream_init(&s->os, rand());
 
   // write header
@@ -246,7 +249,7 @@ void aubio_sink_vorbis_do(aubio_sink_vorbis_t *s, fvec_t *write_data,
   uint_t c, v;
   uint_t length = aubio_sink_validate_input_length("sink_vorbis", s->path,
       MAX_SIZE, write_data->length, write);
-  float **buffer = vorbis_analysis_buffer(&s->vd, (long)length);
+  float **buffer = vorbis_analysis_buffer(&s->vd, (int)length);
   // fill buffer
   if (!write) {
     return;
@@ -256,11 +259,11 @@ void aubio_sink_vorbis_do(aubio_sink_vorbis_t *s, fvec_t *write_data,
   } else {
     for (c = 0; c < s->channels; c++) {
       for (v = 0; v < length; v++) {
-        buffer[c][v] = write_data->data[v];
+        buffer[c][v] = (float)write_data->data[v];
       }
     }
     // tell vorbis how many frames were written
-    vorbis_analysis_wrote(&s->vd, (long)length);
+    vorbis_analysis_wrote(&s->vd, (int)length);
   }
   // write to file
   aubio_sink_vorbis_write(s);
@@ -274,7 +277,7 @@ void aubio_sink_vorbis_do_multi(aubio_sink_vorbis_t *s, fmat_t *write_data,
       s->channels, write_data->height);
   uint_t length = aubio_sink_validate_input_length("sink_vorbis", s->path,
       MAX_SIZE, write_data->length, write);
-  float **buffer = vorbis_analysis_buffer(&s->vd, (long)length);
+  float **buffer = vorbis_analysis_buffer(&s->vd, (int)length);
   // fill buffer
   if (!write) {
     return;
@@ -284,11 +287,11 @@ void aubio_sink_vorbis_do_multi(aubio_sink_vorbis_t *s, fmat_t *write_data,
   } else {
     for (c = 0; c < channels; c++) {
       for (v = 0; v < length; v++) {
-        buffer[c][v] = write_data->data[c][v];
+        buffer[c][v] = (float)write_data->data[c][v];
       }
     }
     // tell vorbis how many frames were written
-    vorbis_analysis_wrote(&s->vd, (long)length);
+    vorbis_analysis_wrote(&s->vd, (int)length);
   }
 
   aubio_sink_vorbis_write(s);

@@ -14,13 +14,13 @@ class aubio_peakpicker(TestCase):
 
     def test_peakpick_set_threshold(self):
         o = peakpicker()
-        new_threshold = threshold 
+        new_threshold = threshold
         o.set_threshold(new_threshold)
         assert_almost_equal(new_threshold, o.get_threshold())
 
     def test_peakpicker_get_threshold(self):
         o = peakpicker()
-        new_threshold = o.get_threshold() 
+        new_threshold = o.get_threshold()
         o.set_threshold(new_threshold)
         assert_equal(new_threshold, o.get_threshold())
 

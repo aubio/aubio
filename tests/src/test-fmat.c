@@ -34,7 +34,7 @@ int main (void)
       // all elements are already initialized to 0.
       assert(mat->data[i][j] == 0);
       // setting element of row i, column j
-      mat->data[i][j] = i * 10. + j;
+      mat->data[i][j] = (smpl_t)(i * 10 + j);
     }
   }
 
@@ -73,12 +73,12 @@ int main (void)
 
   // copy to undersized
   other_mat = new_fmat(height - 1, length);
-  fmat_copy(mat, other_mat);
+  EXPECT_LOGGED(fmat_copy(mat, other_mat));
   del_fmat(other_mat);
 
   // copy from undersized
   other_mat = new_fmat(height, length + 1);
-  fmat_copy(mat, other_mat);
+  EXPECT_LOGGED(fmat_copy(mat, other_mat));
 
   // wrong parameters
   assert(new_fmat(-1, length) == NULL);

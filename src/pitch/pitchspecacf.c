@@ -42,6 +42,10 @@ aubio_pitchspecacf_t *
 new_aubio_pitchspecacf (uint_t bufsize)
 {
   aubio_pitchspecacf_t *p = AUBIO_NEW (aubio_pitchspecacf_t);
+
+  if (!p) {
+    return NULL;
+  }
   p->fft = new_aubio_fft (bufsize);
   if (!p->fft) goto beach;
   p->win = new_aubio_window ("hanningz", bufsize);
@@ -81,7 +85,7 @@ aubio_pitchspecacf_do (aubio_pitchspecacf_t * p, const fvec_t * input, fvec_t * 
   // get the minimum
   tau = fvec_min_elem (p->acf);
   // get the interpolated minimum
-  output->data[0] = fvec_quadratic_peak_pos (p->acf, tau) * 2.;
+  output->data[0] = fvec_quadratic_peak_pos (p->acf, tau) * 2;
 }
 
 void

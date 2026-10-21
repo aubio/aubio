@@ -203,10 +203,11 @@ extern void add_ufuncs ( PyObject *m );
 extern int generated_types_ready(void);
 
 static PyObject *
-Py_alpha_norm (PyObject * self, PyObject * args)
+Py_alpha_norm (PyObject * Py_UNUSED(self), PyObject * args)
 {
   PyObject *input;
   fvec_t vec;
+  PyObject *owner;
   smpl_t alpha;
   PyObject *result;
 
@@ -218,12 +219,13 @@ Py_alpha_norm (PyObject * self, PyObject * args)
     return NULL;
   }
 
-  if (!PyAubio_ArrayToCFvec(input, &vec)) {
+  if (!PyAubio_ArrayToCFvecIn(input, &vec, &owner)) {
     return NULL;
   }
 
   // compute the function
   result = PyFloat_FromDouble(fvec_alpha_norm (&vec, alpha));
+  Py_DECREF(owner);
   if (result == NULL) {
     return NULL;
   }
@@ -232,7 +234,7 @@ Py_alpha_norm (PyObject * self, PyObject * args)
 }
 
 static PyObject *
-Py_bintomidi (PyObject * self, PyObject * args)
+Py_bintomidi (PyObject * Py_UNUSED(self), PyObject * args)
 {
   smpl_t input, samplerate, fftsize;
   smpl_t output;
@@ -249,7 +251,7 @@ Py_bintomidi (PyObject * self, PyObject * args)
 }
 
 static PyObject *
-Py_miditobin (PyObject * self, PyObject * args)
+Py_miditobin (PyObject * Py_UNUSED(self), PyObject * args)
 {
   smpl_t input, samplerate, fftsize;
   smpl_t output;
@@ -266,7 +268,7 @@ Py_miditobin (PyObject * self, PyObject * args)
 }
 
 static PyObject *
-Py_bintofreq (PyObject * self, PyObject * args)
+Py_bintofreq (PyObject * Py_UNUSED(self), PyObject * args)
 {
   smpl_t input, samplerate, fftsize;
   smpl_t output;
@@ -283,7 +285,7 @@ Py_bintofreq (PyObject * self, PyObject * args)
 }
 
 static PyObject *
-Py_freqtobin (PyObject * self, PyObject * args)
+Py_freqtobin (PyObject * Py_UNUSED(self), PyObject * args)
 {
   smpl_t input, samplerate, fftsize;
   smpl_t output;
@@ -300,10 +302,11 @@ Py_freqtobin (PyObject * self, PyObject * args)
 }
 
 static PyObject *
-Py_zero_crossing_rate (PyObject * self, PyObject * args)
+Py_zero_crossing_rate (PyObject * Py_UNUSED(self), PyObject * args)
 {
   PyObject *input;
   fvec_t vec;
+  PyObject *owner;
   PyObject *result;
 
   if (!PyArg_ParseTuple (args, "O:zero_crossing_rate", &input)) {
@@ -314,12 +317,13 @@ Py_zero_crossing_rate (PyObject * self, PyObject * args)
     return NULL;
   }
 
-  if (!PyAubio_ArrayToCFvec(input, &vec)) {
+  if (!PyAubio_ArrayToCFvecIn(input, &vec, &owner)) {
     return NULL;
   }
 
   // compute the function
   result = PyFloat_FromDouble(aubio_zero_crossing_rate (&vec));
+  Py_DECREF(owner);
   if (result == NULL) {
     return NULL;
   }
@@ -328,7 +332,7 @@ Py_zero_crossing_rate (PyObject * self, PyObject * args)
 }
 
 static PyObject *
-Py_min_removal(PyObject * self, PyObject * args)
+Py_min_removal(PyObject * Py_UNUSED(self), PyObject * args)
 {
   PyObject *input;
   fvec_t vec;
@@ -395,7 +399,7 @@ static struct PyModuleDef moduledef = {
 #endif
 
 void
-aubio_log_function(int level, const char *message, void *data)
+aubio_log_function(int level, const char *message, void *Py_UNUSED(data))
 {
   // remove trailing \n
   char *pos;

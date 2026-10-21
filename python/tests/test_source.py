@@ -3,7 +3,7 @@
 
 from numpy.testing import TestCase, assert_equal
 from aubio import source
-from utils import list_all_sounds, parse_file_samplerate
+from utils import list_all_sounds, open_source
 import unittest
 from _tools import assert_raises, assert_equal, assert_warns
 from _tools import parametrize, skipTest
@@ -76,17 +76,7 @@ class Test_aubio_source_read(object):
 
     @parametrize('hop_size, samplerate, soundfile', all_params)
     def test_samplerate_hopsize(self, hop_size, samplerate, soundfile):
-        orig_samplerate = parse_file_samplerate(soundfile)
-        try:
-            if orig_samplerate is not None and orig_samplerate < samplerate:
-                # upsampling should emit a warning
-                with assert_warns(UserWarning):
-                    f = source(soundfile, samplerate, hop_size)
-            else:
-                f = source(soundfile, samplerate, hop_size)
-        except RuntimeError as e:
-            err_msg = 'failed opening with hop_s={:d}, samplerate={:d} ({:s})'
-            skipTest(err_msg.format(hop_size, samplerate, str(e)))
+        f = open_source(soundfile, samplerate, hop_size)
         assert f.samplerate != 0
         read_frames = self.read_from_source(f)
         if 'f_' in soundfile and samplerate == 0:
@@ -140,11 +130,36 @@ class Test_aubio_source_read(object):
         assert_equal (duration, total_frames)
 
 
+class Test_aubio_source_duration(object):
+    """ duration is exact for PCM files (aubio#322: avcodec truncated a
+    float and lost one sample about half the time) """
+
+    @parametrize('samplerate', [8000, 22050, 44100, 48000])
+    def test_duration_in_samples(self, samplerate, tmp_path):
+        from aubio import sink, float_type
+        import numpy as np
+        hop_size = 512
+        for n_frames in range(4092, 4100):
+            path = str(tmp_path / '{:d}.wav'.format(n_frames))
+            g = sink(path, samplerate)
+            written = 0
+            while written < n_frames:
+                count = min(hop_size, n_frames - written)
+                g(np.zeros(hop_size, dtype=float_type), count)
+                written += count
+            g.close()
+            assert_equal(source(path).duration, n_frames)
+
 class Test_aubio_source_wrong_params(object):
 
     def test_wrong_file(self):
         with assert_raises(RuntimeError):
             source('path_to/unexisting file.mp3')
+
+    def test_path_too_long(self):
+        # rejected, rather than copied without its terminating NUL
+        with assert_raises(RuntimeError):
+            source('a' * 70000 + '.wav')
 
 @unittest.skipIf(default_test_sound is None, no_sounds_msg)
 class Test_aubio_source_wrong_params_with_file(TestCase):

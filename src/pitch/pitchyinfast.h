@@ -99,4 +99,3 @@ smpl_t aubio_pitchyinfast_get_confidence (aubio_pitchyinfast_t * o);
 #endif
 
 #endif /* AUBIO_PITCHYINFAST_H */
-

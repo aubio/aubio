@@ -38,6 +38,10 @@ struct _aubio_dct_ooura_t {
 
 aubio_dct_ooura_t * new_aubio_dct_ooura (uint_t size) {
   aubio_dct_ooura_t * s = AUBIO_NEW(aubio_dct_ooura_t);
+
+  if (!s) {
+    return NULL;
+  }
   if (aubio_is_power_of_two(size) != 1 || (sint_t)size <= 0) {
     AUBIO_ERR("dct_ooura: can only create with sizes power of two, requested %d\n",
         size);
@@ -46,13 +50,14 @@ aubio_dct_ooura_t * new_aubio_dct_ooura (uint_t size) {
   s->size = size;
   s->input = new_fvec(s->size);
   s->w = AUBIO_ARRAY(smpl_t, s->size * 5 / 4);
-  s->ip = AUBIO_ARRAY(int, 3 + (1 << (int)FLOOR(LOG(s->size/2) / LOG(2))) / 2);
+  // size is a power of two: 2 + sqrt(size/2) entries are enough
+  s->ip = AUBIO_ARRAY(int, 3 + s->size / 4);
   s->ip[0] = 0;
-  s->scalers[0] = 2. * SQRT(1./(4.*s->size));
-  s->scalers[1] = 2. * SQRT(1./(2.*s->size));
-  s->scalers[2] = 1. / s->scalers[0];
-  s->scalers[3] = 1. / s->scalers[1];
-  s->scalers[4] = 2. / s->size;
+  s->scalers[0] = (smpl_t)(2. * sqrt(1./(4.*s->size)));
+  s->scalers[1] = (smpl_t)(2. * sqrt(1./(2.*s->size)));
+  s->scalers[2] = (smpl_t)(1. / (2. * sqrt(1./(4.*s->size))));
+  s->scalers[3] = (smpl_t)(1. / (2. * sqrt(1./(2.*s->size))));
+  s->scalers[4] = (smpl_t)(2. / s->size);
   return s;
 beach:
   AUBIO_FREE(s);
@@ -85,7 +90,7 @@ void aubio_dct_ooura_rdo(aubio_dct_ooura_t *s, const fvec_t *input, fvec_t *outp
   for (i = 1; i < s->input->length; i++) {
     s->input->data[i] *= s->scalers[3];
   }
-  s->input->data[0] *= .5;
+  s->input->data[0] /= 2;
   aubio_ooura_ddct(s->size, 1, s->input->data, s->ip, s->w);
   for (i = 0; i < s->input->length; i++) {
     s->input->data[i] *= s->scalers[4];

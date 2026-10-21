@@ -107,8 +107,14 @@ Py_sink_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
 
   self->uri = NULL;
   if (uri != NULL) {
-    self->uri = (char_t *)malloc(sizeof(char_t) * (strnlen(uri, PATH_MAX) + 1));
-    strncpy(self->uri, uri, strnlen(uri, PATH_MAX) + 1);
+    // the whole path: the C library rejects one it can't open
+    size_t len = strlen(uri);
+    self->uri = (char_t *)malloc(sizeof(char_t) * (len + 1));
+    if (self->uri == NULL) {
+      Py_TYPE(self)->tp_free((PyObject *) self);
+      return PyErr_NoMemory();
+    }
+    memcpy(self->uri, uri, len + 1);
   }
 
   self->samplerate = Py_aubio_default_samplerate;
@@ -125,7 +131,7 @@ Py_sink_new (PyTypeObject * pytype, PyObject * args, PyObject * kwds)
 }
 
 static int
-Py_sink_init (Py_sink * self, PyObject * args, PyObject * kwds)
+Py_sink_init (Py_sink * self, PyObject * Py_UNUSED(args), PyObject * Py_UNUSED(kwds))
 {
   self->o = new_aubio_sink ( self->uri, 0 );
   if (self->o == NULL) {
@@ -148,7 +154,7 @@ Py_sink_init (Py_sink * self, PyObject * args, PyObject * kwds)
 }
 
 static void
-Py_sink_del (Py_sink *self, PyObject *unused)
+Py_sink_del (Py_sink *self)
 {
   if (self->o) {
     del_aubio_sink(self->o);
@@ -165,7 +171,7 @@ static PyObject *
 Py_sink_do(Py_sink * self, PyObject * args)
 {
   /* input vectors python prototypes */
-  PyObject * write_data_obj;
+  PyObject * write_data_obj, * owner;
 
   /* input vectors prototypes */
   uint_t write;
@@ -176,13 +182,14 @@ Py_sink_do(Py_sink * self, PyObject * args)
   }
 
   /* input vectors parsing */
-  if (!PyAubio_ArrayToCFvec(write_data_obj, &(self->write_data))) {
+  if (!PyAubio_ArrayToCFvecIn(write_data_obj, &(self->write_data), &owner)) {
     return NULL;
   }
 
 
   /* compute _do function */
   aubio_sink_do (self->o, &(self->write_data), write);
+  Py_DECREF(owner);
 
   Py_RETURN_NONE;
 }
@@ -192,7 +199,7 @@ static PyObject *
 Py_sink_do_multi(Py_sink * self, PyObject * args)
 {
   /* input vectors python prototypes */
-  PyObject * write_data_obj;
+  PyObject * write_data_obj, * owner;
 
   /* input vectors prototypes */
   uint_t write;
@@ -204,12 +211,13 @@ Py_sink_do_multi(Py_sink * self, PyObject * args)
 
 
   /* input vectors parsing */
-  if (!PyAubio_ArrayToCFmat(write_data_obj, &(self->mwrite_data))) {
+  if (!PyAubio_ArrayToCFmatIn(write_data_obj, &(self->mwrite_data), &owner)) {
     return NULL;
   }
 
   /* compute _do function */
   aubio_sink_do_multi (self->o, &(self->mwrite_data), write);
+  Py_DECREF(owner);
   Py_RETURN_NONE;
 }
 
@@ -220,18 +228,18 @@ static PyMemberDef Py_sink_members[] = {
     "int (read-only): Samplerate at which the sink was created."},
   {"channels", T_INT, offsetof (Py_sink, channels), READONLY,
     "int (read-only): Number of channels with which the sink was created."},
-  { NULL } // sentinel
+  {0} // sentinel
 };
 
 static PyObject *
-Pyaubio_sink_close (Py_sink *self, PyObject *unused)
+Pyaubio_sink_close (Py_sink *self, PyObject *Py_UNUSED(unused))
 {
   aubio_sink_close (self->o);
   Py_RETURN_NONE;
 }
 
 static char Pyaubio_sink_enter_doc[] = "";
-static PyObject* Pyaubio_sink_enter(Py_sink *self, PyObject *unused) {
+static PyObject* Pyaubio_sink_enter(Py_sink *self, PyObject *Py_UNUSED(unused)) {
   Py_INCREF(self);
   return (PyObject*)self;
 }
@@ -249,55 +257,27 @@ static PyMethodDef Py_sink_methods[] = {
     Pyaubio_sink_enter_doc},
   {"__exit__",  (PyCFunction)Pyaubio_sink_exit, METH_VARARGS,
     Pyaubio_sink_exit_doc},
-  {NULL} /* sentinel */
+  {0} /* sentinel */
 };
+
+
+// tp_call: the do method, with the slot's parameter list
+static PyObject *
+Py_sink_call (Py_sink * self, PyObject * args, PyObject * Py_UNUSED(kwds))
+{
+  return Py_sink_do(self, args);
+}
 
 PyTypeObject Py_sinkType = {
   PyVarObject_HEAD_INIT (NULL, 0)
-  "aubio.sink",
-  sizeof (Py_sink),
-  0,
-  (destructor) Py_sink_del,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  (ternaryfunc)Py_sink_do,
-  0,
-  0,
-  0,
-  0,
-  Py_TPFLAGS_DEFAULT,
-  Py_sink_doc,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  Py_sink_methods,
-  Py_sink_members,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  (initproc) Py_sink_init,
-  0,
-  Py_sink_new,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
+  .tp_name = "aubio.sink",
+  .tp_basicsize = sizeof (Py_sink),
+  .tp_dealloc = (destructor) Py_sink_del,
+  .tp_call = (ternaryfunc)Py_sink_call,
+  .tp_flags = Py_TPFLAGS_DEFAULT,
+  .tp_doc = Py_sink_doc,
+  .tp_methods = Py_sink_methods,
+  .tp_members = Py_sink_members,
+  .tp_init = (initproc) Py_sink_init,
+  .tp_new = Py_sink_new,
 };

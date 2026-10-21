@@ -65,7 +65,7 @@ if 1:
                 horizontalalignment='right', verticalalignment='bottom',
                 size = 'xx-small',
                 )
-    set_xlabels_sample2time( ax, all_desc_times[-1], samplerate) 
+    set_xlabels_sample2time( ax, all_desc_times[-1], samplerate)
     #plt.ylabel('spectral descriptor value')
     ax.xaxis.set_visible(True)
     plt.show()

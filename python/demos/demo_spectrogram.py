@@ -47,7 +47,7 @@ def get_spectrogram(filename, samplerate = 0):
         ticks_labels = [  "%.1f" % x for x in ticks_labels ]
         # return position, label tuple to use with x/yticks
         return ticks_positions, ticks_labels
-  
+
     # apply to the axis
     x_ticks, x_labels = get_rounded_ticks ( len(specgram), time_step, n_xticks )
     y_ticks, y_labels = get_rounded_ticks ( len(specgram[0]), (samplerate / 1000. / 2.) / len(specgram[0]), n_yticks )

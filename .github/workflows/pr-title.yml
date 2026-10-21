@@ -1,0 +1,79 @@
+# Checks that the PR title is a Conventional Commit. main squash-merges with
+# the PR title as the commit subject, and release-please (release-please.yml)
+# builds the version bump and changelog from those subjects, so a title it
+# cannot parse leaves the change out of the release notes.
+#
+# On failure, ledfx-automation[bot] posts one comment with a suggested title,
+# edits it on later failures, and deletes it once the title passes.
+#
+# pull_request_target, so the bot can comment on fork PRs. Safe shape (see
+# zizmor.yml): this file and pr_title.py always run from the default branch;
+# PR code is never checked out or run, and the title reaches the script only
+# through an environment variable.
+
+name: PR title
+
+on:
+  pull_request_target:
+    types: [opened, edited, reopened, synchronize]
+
+permissions: {}
+
+concurrency:
+  group: pr-title-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Conventional PR title
+    # No job-level condition: this is a required check, and a skipped run
+    # counts as passing, so a description edit after a failed title would
+    # otherwise turn it green. Re-checking an unchanged title is cheap.
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts/pr_title.py
+          sparse-checkout-cone-mode: false
+
+      - name: Check the title
+        id: check
+        continue-on-error: true
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: python3 .github/scripts/pr_title.py "$RUNNER_TEMP/comment.md"
+
+      - name: Mint the ledfx-automation token
+        id: bot-token
+        if: github.repository == 'LedFx/aubio-ledfx'
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ secrets.AUTOMATION_APP_CLIENT_ID }} # org secret; see zizmor.yml
+          private-key: ${{ secrets.AUTOMATION_APP_PRIVATE_KEY }}
+          permission-pull-requests: write # comments only
+
+      - name: Post, update or remove the suggestion comment
+        if: steps.bot-token.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ steps.bot-token.outputs.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          FAILED: ${{ steps.check.outcome == 'failure' }}
+        run: |
+          existing="$(gh api --paginate "repos/$REPO/issues/$PR/comments" \
+            --jq '.[] | select(.user.login == "ledfx-automation[bot]" and (.body | startswith("<!-- ledfx-pr-title -->"))) | .id' | head -1)"
+          if [ "$FAILED" = true ]; then
+            if [ -n "$existing" ]; then
+              gh api -X PATCH "repos/$REPO/issues/comments/$existing" -F "body=@$RUNNER_TEMP/comment.md" --silent
+            else
+              gh pr comment "$PR" --repo "$REPO" --body-file "$RUNNER_TEMP/comment.md"
+            fi
+          elif [ -n "$existing" ]; then
+            gh api -X DELETE "repos/$REPO/issues/comments/$existing" --silent
+          fi
+
+      - name: Fail when the title is not a Conventional Commit
+        if: steps.check.outcome == 'failure'
+        run: exit 1

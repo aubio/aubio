@@ -25,8 +25,8 @@
 #include "spectral/awhitening.h"
 
 #define aubio_spectral_whitening_default_relax_time   250   // in seconds, between 22 and 446
-#define aubio_spectral_whitening_default_decay        0.001 // -60dB attenuation
-#define aubio_spectral_whitening_default_floor        1.e-4 // from 1.e-6 to .2
+#define aubio_spectral_whitening_default_decay        ((smpl_t)0.001) // -60dB attenuation
+#define aubio_spectral_whitening_default_floor        ((smpl_t)1.e-4) // from 1.e-6 to .2
 
 /** structure to store object state */
 struct _aubio_spectral_whitening_t {
@@ -55,6 +55,10 @@ aubio_spectral_whitening_t *
 new_aubio_spectral_whitening (uint_t buf_size, uint_t hop_size, uint_t samplerate)
 {
   aubio_spectral_whitening_t *o = AUBIO_NEW (aubio_spectral_whitening_t);
+
+  if (!o) {
+    return NULL;
+  }
   if ((sint_t)buf_size < 1) {
     AUBIO_ERR("spectral_whitening: got buffer_size %d, but can not be < 1\n", buf_size);
     goto beach;
@@ -84,7 +88,7 @@ aubio_spectral_whitening_set_relax_time (aubio_spectral_whitening_t * o, smpl_t 
 {
   o->relax_time = relax_time;
   o->r_decay = POW (aubio_spectral_whitening_default_decay,
-      (o->hop_size / (float) o->samplerate) / o->relax_time);
+      ((smpl_t)o->hop_size / (smpl_t)o->samplerate) / o->relax_time);
   return AUBIO_OK;
 }
 

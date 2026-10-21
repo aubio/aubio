@@ -27,9 +27,21 @@ cvec_t * new_cvec(uint_t length) {
     return NULL;
   }
   s = AUBIO_NEW(cvec_t);
+  if (!s) {
+    return NULL;
+  }
   s->length = length/2 + 1;
   s->norm = AUBIO_ARRAY(smpl_t,s->length);
+  if (!s->norm) {
+    AUBIO_FREE(s);
+    return NULL;
+  }
   s->phas = AUBIO_ARRAY(smpl_t,s->length);
+  if (!s->phas) {
+    AUBIO_FREE(s->norm);
+    AUBIO_FREE(s);
+    return NULL;
+  }
   return s;
 }
 

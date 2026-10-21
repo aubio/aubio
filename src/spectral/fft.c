@@ -28,7 +28,17 @@
 /* note that <complex.h> is not included here but only in aubio_priv.h, so that
  * c++ projects can still use their own complex definition. */
 #include <fftw3.h>
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#else
 #include <pthread.h>
+#endif
 
 #ifdef HAVE_COMPLEX_H
 #ifdef HAVE_FFTW3F
@@ -74,8 +84,18 @@ typedef FFTW_TYPE fft_data_t;
 #define real_t double
 #endif /* HAVE_FFTW3F */
 
-// a global mutex for FFTW thread safety
-pthread_mutex_t aubio_fftw_mutex = PTHREAD_MUTEX_INITIALIZER;
+// FFTW's planner is not thread-safe: plans are created and destroyed under
+// one global lock, shared with dct_fftw.c. MSVC has no pthreads, so Windows
+// uses a slim reader/writer lock, which also needs no runtime initialisation.
+#ifdef _WIN32
+static SRWLOCK aubio_fftw_srwlock = SRWLOCK_INIT;
+void aubio_fftw_lock (void) { AcquireSRWLockExclusive (&aubio_fftw_srwlock); }
+void aubio_fftw_unlock (void) { ReleaseSRWLockExclusive (&aubio_fftw_srwlock); }
+#else
+static pthread_mutex_t aubio_fftw_mutex = PTHREAD_MUTEX_INITIALIZER;
+void aubio_fftw_lock (void) { pthread_mutex_lock (&aubio_fftw_mutex); }
+void aubio_fftw_unlock (void) { pthread_mutex_unlock (&aubio_fftw_mutex); }
+#endif
 
 #elif defined HAVE_ACCELERATE        // using ACCELERATE
 // https://developer.apple.com/library/mac/#documentation/Accelerate/Reference/vDSPRef/Reference/reference.html
@@ -177,6 +197,10 @@ struct _aubio_fft_t {
 
 aubio_fft_t * new_aubio_fft (uint_t winsize) {
   aubio_fft_t * s = AUBIO_NEW(aubio_fft_t);
+
+  if (!s) {
+    return NULL;
+  }
   if ((sint_t)winsize < 2) {
     AUBIO_ERR("fft: got winsize %d, but can not be < 2\n", winsize);
     goto beach;
@@ -190,7 +214,7 @@ aubio_fft_t * new_aubio_fft (uint_t winsize) {
   s->out      = AUBIO_ARRAY(real_t,winsize);
   s->compspec = new_fvec(winsize);
   /* create plans */
-  pthread_mutex_lock(&aubio_fftw_mutex);
+  aubio_fftw_lock();
 #ifdef HAVE_COMPLEX_H
   s->fft_size = winsize/2 + 1;
   s->specdata = (fft_data_t*)fftw_malloc(sizeof(fft_data_t)*s->fft_size);
@@ -202,7 +226,7 @@ aubio_fft_t * new_aubio_fft (uint_t winsize) {
   s->pfw = fftw_plan_r2r_1d(winsize, s->in,  s->specdata, FFTW_R2HC, FFTW_ESTIMATE);
   s->pbw = fftw_plan_r2r_1d(winsize, s->specdata, s->out, FFTW_HC2R, FFTW_ESTIMATE);
 #endif
-  pthread_mutex_unlock(&aubio_fftw_mutex);
+  aubio_fftw_unlock();
   for (i = 0; i < s->winsize; i++) {
     s->in[i] = 0.;
     s->out[i] = 0.;
@@ -302,11 +326,11 @@ beach:
 void del_aubio_fft(aubio_fft_t * s) {
   /* destroy data */
 #ifdef HAVE_FFTW3             // using FFTW3
-  pthread_mutex_lock(&aubio_fftw_mutex);
+  aubio_fftw_lock();
   fftw_destroy_plan(s->pfw);
   fftw_destroy_plan(s->pbw);
   fftw_free(s->specdata);
-  pthread_mutex_unlock(&aubio_fftw_mutex);
+  aubio_fftw_unlock();
 
 #elif defined HAVE_ACCELERATE // using ACCELERATE
   AUBIO_FREE(s->spec.realp);
@@ -409,7 +433,7 @@ void aubio_fft_do_complex(aubio_fft_t * s, const fvec_t * input, fvec_t * compsp
 void aubio_fft_rdo_complex(aubio_fft_t * s, const fvec_t * compspec, fvec_t * output) {
   uint_t i;
 #ifdef HAVE_FFTW3
-  const smpl_t renorm = 1./(smpl_t)s->winsize;
+  const smpl_t renorm = 1 / (smpl_t)s->winsize;
 #ifdef HAVE_COMPLEX_H
   s->specdata[0] = compspec->data[0];
   for (i=1; i < s->fft_size - 1; i++) {
@@ -444,7 +468,7 @@ void aubio_fft_rdo_complex(aubio_fft_t * s, const fvec_t * compspec, fvec_t * ou
   // convert result to real output
   aubio_vDSP_ztoc(&s->spec, 1, (aubio_DSPComplex*)output->data, 2, s->fft_size/2);
   // apply scaling
-  smpl_t scale = 1.0 / s->winsize;
+  smpl_t scale = 1 / (smpl_t)s->winsize;
   aubio_vDSP_vsmul(output->data, 1, &scale, output->data, 1, s->fft_size);
 
 #elif defined HAVE_INTEL_IPP  // using Intel IPP
@@ -461,10 +485,10 @@ void aubio_fft_rdo_complex(aubio_fft_t * s, const fvec_t * compspec, fvec_t * ou
   // apply fft
   aubio_ippsFFTInv_CCSToR((const aubio_IppFloat *)s->complexOut, output->data, s->fftSpec, s->memBuffer);
   // apply scaling
-  aubio_ippsMulC(output->data, 1.0 / s->winsize, output->data, s->fft_size);
+  aubio_ippsMulC(output->data, 1 / (smpl_t)s->winsize, output->data, s->fft_size);
 
 #else                         // using OOURA
-  smpl_t scale = 2.0 / s->winsize;
+  smpl_t scale = 2 / (smpl_t)s->winsize;
   s->out[0] = compspec->data[0];
   s->out[1] = compspec->data[s->winsize / 2];
   for (i = 1; i < s->fft_size - 1; i++) {
@@ -491,7 +515,7 @@ void aubio_fft_get_realimag(const cvec_t * spectrum, fvec_t * compspec) {
 void aubio_fft_get_phas(const fvec_t * compspec, cvec_t * spectrum) {
   uint_t i;
   if (compspec->data[0] < 0) {
-    spectrum->phas[0] = PI;
+    spectrum->phas[0] = SMPL_PI;
   } else {
     spectrum->phas[0] = 0.;
   }
@@ -520,7 +544,7 @@ void aubio_fft_get_phas(const fvec_t * compspec, cvec_t * spectrum) {
   if (2 * (compspec->length / 2) == compspec->length) {
 #endif
     if (compspec->data[compspec->length/2] < 0) {
-      spectrum->phas[spectrum->length - 1] = PI;
+      spectrum->phas[spectrum->length - 1] = SMPL_PI;
     } else {
       spectrum->phas[spectrum->length - 1] = 0.;
     }

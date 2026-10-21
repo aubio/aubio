@@ -144,8 +144,8 @@
 
   \b \p rolloff : Spectral roll-off
 
-  This function returns the bin number below which 95% of the spectrum energy
-  is found.
+  This function returns the index of the bin at which 95% of the spectrum
+  energy is reached, from 0 to the last bin.
 
   \example spectral/test-specdesc.c
 

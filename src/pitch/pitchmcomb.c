@@ -121,9 +121,9 @@ aubio_pitchmcomb_do (aubio_pitchmcomb_t * p, const cvec_t * fftgrain, fvec_t * o
   aubio_pitchmcomb_combdet (p, newmag);
   //aubio_pitchmcomb_sort_cand_freq(p->candidates,p->ncand);
   //return p->candidates[p->goodcandidate]->ebin;
-  j = (uint_t) FLOOR (p->candidates[p->goodcandidate]->ebin + .5);
+  j = (uint_t) ROUND (p->candidates[p->goodcandidate]->ebin);
   instfreq = aubio_unwrap2pi (fftgrain->phas[j]
-      - p->theta->data[j] - j * p->phasediff);
+      - p->theta->data[j] - (smpl_t)j * p->phasediff);
   instfreq *= p->phasefreq;
   /* store phase for next run */
   for (j = 0; j < p->theta->length; j++) {
@@ -131,7 +131,7 @@ aubio_pitchmcomb_do (aubio_pitchmcomb_t * p, const cvec_t * fftgrain, fvec_t * o
   }
   //return p->candidates[p->goodcandidate]->ebin;
   output->data[0] =
-      FLOOR (p->candidates[p->goodcandidate]->ebin + .5) + instfreq;
+      ROUND (p->candidates[p->goodcandidate]->ebin) + instfreq;
   /*} else {
      return -1.;
      } */
@@ -234,17 +234,17 @@ aubio_pitchmcomb_combdet (aubio_pitchmcomb_t * p, const fvec_t * newmag)
   //if (peaks[root_peak].ebin >= aubio_miditofreq(90.)/p->tau) N=1;
   /* now calculate the energy of each of the 5 combs */
   for (l = 0; l < M; l++) {
-    smpl_t scaler = (1. / (l + 1.));
+    smpl_t scaler = 1 / (smpl_t)(l + 1);
     candidate[l]->ene = 0.;     /* reset ene and len sums */
     candidate[l]->len = 0.;
     candidate[l]->ebin = scaler * peaks[root_peak].ebin;
     /* if less than N peaks available, curlen < N */
     if (candidate[l]->ebin != 0.)
-      curlen = (uint_t) FLOOR (length / (candidate[l]->ebin));
+      curlen = (uint_t) FLOOR ((smpl_t)length / candidate[l]->ebin);
     curlen = (N < curlen) ? N : curlen;
     /* fill candidate[l]->ecomb[k] with (k+1)*candidate[l]->ebin */
     for (k = 0; k < curlen; k++)
-      candidate[l]->ecomb[k] = (candidate[l]->ebin) * (k + 1.);
+      candidate[l]->ecomb[k] = candidate[l]->ebin * (smpl_t)(k + 1);
     for (k = curlen; k < length; k++)
       candidate[l]->ecomb[k] = 0.;
     /* for each in candidate[l]->ecomb[k] */
@@ -261,12 +261,12 @@ aubio_pitchmcomb_combdet (aubio_pitchmcomb_t * p, const fvec_t * newmag)
       }
       /* for a Q factor of 17, maintaining "constant Q filtering",
        * and sum energy and length over non null combs */
-      if (17. * xx < candidate[l]->ecomb[k]) {
+      if (17 * xx < candidate[l]->ecomb[k]) {
         candidate[l]->ecomb[k] = peaks[position].ebin;
         candidate[l]->ene +=    /* ecomb rounded to nearest int */
-            POW (newmag->data[(uint_t) FLOOR (candidate[l]->ecomb[k] + .5)],
-            0.25);
-        candidate[l]->len += 1. / curlen;
+            POW (newmag->data[(uint_t) ROUND (candidate[l]->ecomb[k])],
+            (smpl_t)0.25);
+        candidate[l]->len += 1 / (smpl_t)curlen;
       } else
         candidate[l]->ecomb[k] = 0.;
     }
@@ -368,6 +368,10 @@ aubio_pitchmcomb_t *
 new_aubio_pitchmcomb (uint_t bufsize, uint_t hopsize)
 {
   aubio_pitchmcomb_t *p = AUBIO_NEW (aubio_pitchmcomb_t);
+
+  if (!p) {
+    return NULL;
+  }
   /* bug: should check if size / 8 > post+pre+1 */
   uint_t i, j;
   uint_t spec_size;
@@ -375,14 +379,16 @@ new_aubio_pitchmcomb (uint_t bufsize, uint_t hopsize)
   p->ncand = 5;
   p->npartials = 5;
   p->cutoff = 1.;
-  p->threshold = 0.01;
+  p->threshold = (smpl_t)0.01;
   p->win_post = 8;
   p->win_pre = 7;
   // p->tau              = samplerate/bufsize;
   p->alpha = 9.;
   p->goodcandidate = 0;
-  p->phasefreq = bufsize / hopsize / TWO_PI;
-  p->phasediff = TWO_PI * hopsize / bufsize;
+  // phase advance -> bins: bufsize / hopsize / 2pi, not an integer when
+  // hopsize doesn't divide bufsize
+  p->phasefreq = (smpl_t)((double)bufsize / hopsize / TWO_PI);
+  p->phasediff = (smpl_t)(TWO_PI * hopsize / bufsize);
   spec_size = bufsize / p->spec_partition + 1;
   //p->pickerfn = quadpick;
   //p->biquad = new_biquad(0.1600,0.3200,0.1600, -0.5949, 0.2348);

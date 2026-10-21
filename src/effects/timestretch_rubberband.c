@@ -32,15 +32,6 @@
 #define MIN_STRETCH_RATIO 0.025
 #define MAX_STRETCH_RATIO 40.
 
-#define HAVE_THREADS 1
-#if 0
-#undef HAVE_THREADS
-#endif
-
-#ifdef HAVE_THREADS
-#include <pthread.h>
-#endif
-
 /** generic time stretching structure */
 struct _aubio_timestretch_t
 {
@@ -62,6 +53,10 @@ new_aubio_timestretch (const char_t * mode, smpl_t stretchratio, uint_t hopsize,
     uint_t samplerate)
 {
   aubio_timestretch_t *p = AUBIO_NEW (aubio_timestretch_t);
+
+  if (!p) {
+    return NULL;
+  }
   p->hopsize = hopsize;
   p->pitchscale = 1.;
 
@@ -193,7 +188,7 @@ uint_t
 aubio_timestretch_set_transpose(aubio_timestretch_t * p, smpl_t transpose)
 {
   if (transpose >= -24. && transpose <= 24.) {
-    smpl_t pitchscale = POW(2., transpose / 12.);
+    smpl_t pitchscale = (smpl_t)pow(2., transpose / 12.);
     return aubio_timestretch_set_pitchscale(p, pitchscale);
   } else {
     AUBIO_ERR("timestretch: could not set transpose to '%f',"
@@ -205,7 +200,7 @@ aubio_timestretch_set_transpose(aubio_timestretch_t * p, smpl_t transpose)
 smpl_t
 aubio_timestretch_get_transpose(aubio_timestretch_t * p)
 {
-  return 12. * LOG(p->pitchscale) / LOG(2.0);
+  return (smpl_t)(12. * log(p->pitchscale) / log(2.0));
 }
 
 sint_t

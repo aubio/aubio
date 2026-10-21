@@ -1,0 +1,196 @@
+[build-system]
+requires = ["meson-python", "numpy"]
+build-backend = "mesonpy"
+
+[project]
+name = "aubio-ledfx"
+version = "0.4.12"
+description = "A collection of tools for music analysis"
+readme = "python/README.md"
+license = {text = "GNU/GPL version 3"}
+authors = [
+    {name = "Paul Brossier", email = "piem@aubio.org"},
+]
+maintainers = [
+    {name = "LedFx Team", email = "hello@ledfx.app"},
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Science/Research",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Multimedia :: Sound/Audio :: Analysis",
+    "Topic :: Multimedia :: Sound/Audio :: Sound Synthesis",
+    "Operating System :: POSIX",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: C",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+]
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.26.4",
+]
+
+[project.urls]
+Homepage = "https://github.com/LedFx/aubio-ledfx"
+Repository = "https://github.com/LedFx/aubio-ledfx"
+Changelog = "https://github.com/LedFx/aubio-ledfx/blob/main/CHANGELOG.md"
+Documentation = "https://aubio.org/manual/latest/"
+Upstream = "https://github.com/aubio/aubio"
+
+[project.scripts]
+aubio = "aubio.cmd:main"
+aubiocut = "aubio.cut:main"
+
+[tool.cibuildwheel]
+# CPython 3.11-3.15 (3.15 from its release candidates: the ABI is final at
+# rc1, so these wheels work on 3.15.0). Free-threaded builds (cp3XXt) are
+# not selected by these patterns: the extension still needs the GIL.
+build = ["cp311-*", "cp312-*", "cp313-*", "cp314-*", "cp315-*"]
+before-build = "pip install \"meson>=1.9.0\" meson-python ninja \"numpy>=1.26.4\""
+# Skip 32-bit builds and musllinux wheels
+skip = ["*-win32", "*-manylinux_i686", "*-musllinux*"]
+
+# Test the wheels - ensure they're portable by verifying imports work
+test-requires = ["pytest", "numpy>=1.26.4"]
+# First test: Verify aubio can be imported (ensures DLLs are bundled on Windows)
+# Second test: Run pytest suite. A failure fails the build.
+test-command = "python -c \"import aubio; print('aubio version:', aubio.version); print('Portable wheel test: PASS')\" && pytest {project}/python/tests"
+
+# Disable build isolation so environment variables (like PKG_CONFIG_PATH) are passed through
+build-frontend = { name = "pip", args = ["--no-build-isolation"] }
+# Show meson's configure output, including its feature summary, in the CI
+# logs: pip hides the build backend's output by default.
+build-verbosity = 1
+
+[tool.cibuildwheel.linux]
+# Dependencies are built by vcpkg inside the manylinux container, once per job
+# (before-all), as static libraries with -fPIC (vcpkg-triplets/*-linux-pic)
+# linked into the extension, so auditwheel has nothing to graft.
+# - vcpkg is checked out at the builtin-baseline commit from vcpkg.json, like on
+#   Windows and macOS, so all platforms build the same port versions.
+# - vcpkg's binary cache lives on the host and reaches the container through
+#   cibuildwheel's /host mount (VCPKG_BINARY_SOURCES, set by the workflow and
+#   passed in with environment-pass); a warm run only unpacks archives.
+# - gcc-toolset-14: rubberband needs C++17.
+before-all = """
+    yum install -y git zip unzip tar curl make nasm && \
+    if [ ! -d /tmp/vcpkg ]; then
+        BASELINE=$(sed -n 's/.*"builtin-baseline": *"\\([0-9a-f]\\{40\\}\\)".*/\\1/p' {project}/vcpkg.json) && \
+        git clone --quiet --filter=tree:0 --no-checkout https://github.com/microsoft/vcpkg.git /tmp/vcpkg && \
+        git -C /tmp/vcpkg checkout --quiet "$BASELINE" && \
+        cd /tmp/vcpkg && ./bootstrap-vcpkg.sh -disableMetrics
+    fi && \
+    case "$AUDITWHEEL_ARCH" in
+        x86_64) VCPKG_TRIPLET=x64-linux-pic ;;
+        aarch64) VCPKG_TRIPLET=arm64-linux-pic ;;
+        *) echo "ERROR: Unknown architecture: $AUDITWHEEL_ARCH"; exit 1 ;;
+    esac && \
+    cd {project} && \
+    CC=/opt/rh/gcc-toolset-14/root/usr/bin/gcc \
+    CXX=/opt/rh/gcc-toolset-14/root/usr/bin/g++ \
+    /tmp/vcpkg/vcpkg install --triplet=$VCPKG_TRIPLET --overlay-triplets=./vcpkg-triplets || {
+        # vcpkg only names its logs, which die with the container: show them
+        find /tmp/vcpkg/buildtrees -maxdepth 2 -name '*.log' -mmin -5 \
+            -exec sh -c 'echo "=== $1"; tail -n 50 "$1"' _ {} \\; ; exit 1; }
+"""
+
+# The workflow points VCPKG_BINARY_SOURCES at its cache under /host.
+environment-pass = ["VCPKG_BINARY_SOURCES"]
+# vcpkg's static libraries carry debug information, which ELF linking copies
+# into the extension (an 88 MB wheel with FFmpeg); the wheels ship without it.
+config-settings = { "setup-args" = "-Dc_link_args=-Wl,--strip-debug" }
+
+[tool.cibuildwheel.linux.environment]
+# cibuildwheel copies the project to /project in the container ({project} is
+# not expanded here). Only the triplet for the container's architecture is
+# installed, so listing both is harmless. vcpkg's static .pc files carry
+# every transitive library, so pkg-config gives the full static link line.
+PKG_CONFIG_PATH = "/project/vcpkg_installed/x64-linux-pic/lib/pkgconfig:/project/vcpkg_installed/arm64-linux-pic/lib/pkgconfig"
+CMAKE_PREFIX_PATH = "/project/vcpkg_installed/x64-linux-pic:/project/vcpkg_installed/arm64-linux-pic"
+CC = "/opt/rh/gcc-toolset-14/root/usr/bin/gcc"
+CXX = "/opt/rh/gcc-toolset-14/root/usr/bin/g++"
+
+[tool.cibuildwheel.macos]
+# The workflow installs the vcpkg dependencies (static, release-only triplets
+# built for the wheel's deployment target) and sets PKG_CONFIG_PATH.
+# Like Linux, the wheels ship without the static libraries' debug information.
+config-settings = { "setup-args" = "-Dc_link_args=-Wl,-S" }
+
+[tool.cibuildwheel.windows]
+# vcpkg builds DLLs (x64-windows-release): rubberband doesn't support static
+# linking on Windows. The workflow checks vcpkg out and sets PKG_CONFIG
+# (vcpkg's own pkgconf) and PKG_CONFIG_PATH.
+before-all = [
+    # Always run: with the binary cache warm it only unpacks archives, and it
+    # picks up vcpkg.json changes (skipping it when vcpkg_installed existed
+    # could ship stale dependencies).
+    # The host triplet matches the target: rubberband's sleef dependency needs
+    # sleef's code generators for the host, and with vcpkg's default host
+    # triplet (x64-windows, debug + release) sleef was built a second time
+    # just for them (about 7 of a cold build's 29 minutes).
+    "cd {project} && %VCPKG_ROOT%\\vcpkg.exe install --triplet=x64-windows-release --host-triplet=x64-windows-release",
+]
+before-build = "pip install \"meson>=1.9.0\" meson-python ninja \"numpy>=1.26.4\" delvewheel"
+# Build with MSVC, like CPython and the vcpkg DLLs. Without --vsenv meson takes
+# the first C compiler on PATH, which on GitHub's Windows image is Strawberry
+# Perl's MinGW gcc.
+config-settings = { "setup-args" = "--vsenv" }
+# delvewheel copies the vcpkg DLLs into the wheel. It also bundles msvcp140.dll
+# from the Visual Studio that built them (MSVC_CRT_DIR, set by the workflow):
+# rubberband and sleef are C++ built with that toolset, and an older
+# msvcp140.dll on the user's machine can crash them.
+repair-wheel-command = "delvewheel repair --add-path \"%CD%\\vcpkg_installed\\x64-windows-release\\bin;%MSVC_CRT_DIR%\" --include msvcp140.dll -w {dest_dir} {wheel}"
+
+[tool.meson-python]
+# Allow bundling shared libraries on Windows
+# Required since we use dynamic linking (x64-windows-release) due to rubberband not supporting static
+allow-windows-internal-shared-libs = true
+
+[tool.ruff]
+# Inherited upstream code: hold it to pyflakes' real-error classes (syntax
+# errors, undefined names, bad comparisons) rather than restyling it.
+extend-exclude = ["python/tests/sounds"]
+
+[tool.ruff.lint]
+select = ["E9", "F63", "F7", "F82"]
+
+[dependency-groups]
+wheel-build = ["cibuildwheel==4.2.1"]
+
+[[tool.release-ci.targets]]
+platform = "linux"
+arch = "x86_64"
+runner = "ubuntu-latest"
+
+[[tool.release-ci.targets]]
+platform = "linux"
+arch = "aarch64"
+runner = "ubuntu-24.04-arm"
+
+[[tool.release-ci.targets]]
+platform = "windows"
+arch = "AMD64"
+runner = "windows-latest"
+
+[[tool.release-ci.targets]]
+platform = "macos"
+arch = "x86_64"
+runner = "macos-15-intel"
+triplet = "x64-osx-release"
+macosx_deployment_target = "10.15"
+
+[[tool.release-ci.targets]]
+platform = "macos"
+arch = "arm64"
+runner = "macos-latest"
+triplet = "arm64-osx-release"
+macosx_deployment_target = "11.0"

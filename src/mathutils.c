@@ -97,50 +97,51 @@ uint_t fvec_set_window (fvec_t *win, char_t *window_type) {
     case aubio_win_rectangle:
       fvec_set_all(win, .5);
       break;
+    // setup math: computed in double, narrowed once
     case aubio_win_hamming:
       for (i=0;i<size;i++)
-        w[i] = 0.54 - 0.46 * COS(TWO_PI * i / (size));
+        w[i] = (smpl_t)(0.54 - 0.46 * cos(TWO_PI * i / size));
       break;
     case aubio_win_hanning:
       for (i=0;i<size;i++)
-        w[i] = 0.5 - (0.5 * COS(TWO_PI * i / (size)));
+        w[i] = (smpl_t)(0.5 - (0.5 * cos(TWO_PI * i / size)));
       break;
     case aubio_win_hanningz:
       for (i=0;i<size;i++)
-        w[i] = 0.5 * (1.0 - COS(TWO_PI * i / (size)));
+        w[i] = (smpl_t)(0.5 * (1.0 - cos(TWO_PI * i / size)));
       break;
     case aubio_win_blackman:
       for (i=0;i<size;i++)
-        w[i] = 0.42
-          - 0.50 * COS(    TWO_PI*i/(size-1.0))
-          + 0.08 * COS(2.0*TWO_PI*i/(size-1.0));
+        w[i] = (smpl_t)(0.42
+          - 0.50 * cos(    TWO_PI*i/(size-1.0))
+          + 0.08 * cos(2.0*TWO_PI*i/(size-1.0)));
       break;
     case aubio_win_blackman_harris:
       for (i=0;i<size;i++)
-        w[i] = 0.35875
-          - 0.48829 * COS(    TWO_PI*i/(size-1.0))
-          + 0.14128 * COS(2.0*TWO_PI*i/(size-1.0))
-          - 0.01168 * COS(3.0*TWO_PI*i/(size-1.0));
+        w[i] = (smpl_t)(0.35875
+          - 0.48829 * cos(    TWO_PI*i/(size-1.0))
+          + 0.14128 * cos(2.0*TWO_PI*i/(size-1.0))
+          - 0.01168 * cos(3.0*TWO_PI*i/(size-1.0)));
       break;
     case aubio_win_gaussian:
       {
-        lsmp_t a, b, c = 0.5;
+        double a, b, c = 0.5;
         uint_t n;
         for (n = 0; n < size; n++)
         {
           a = (n-c*(size-1))/(SQR(c)*(size-1));
           b = -c*SQR(a);
-          w[n] = EXP(b);
+          w[n] = (smpl_t)exp(b);
         }
       }
       break;
     case aubio_win_welch:
       for (i=0;i<size;i++)
-        w[i] = 1.0 - SQR((2.*i-size)/(size+1.0));
+        w[i] = (smpl_t)(1.0 - SQR((2.*i-size)/(size+1.0)));
       break;
     case aubio_win_parzen:
       for (i=0;i<size;i++)
-        w[i] = 1.0 - ABS((2.f*i-size)/(size+1.0f));
+        w[i] = (smpl_t)(1.0 - fabs((2.*i-size)/(size+1.0)));
       break;
     default:
       break;
@@ -151,8 +152,13 @@ uint_t fvec_set_window (fvec_t *win, char_t *window_type) {
 smpl_t
 aubio_unwrap2pi (smpl_t phase)
 {
-  /* mod(phase+pi,-2pi)+pi */
-  return phase + TWO_PI * (1. + FLOOR (-(phase + PI) / TWO_PI));
+  /* mod(phase+pi,-2pi)+pi: phase + 2pi * n, in smpl_t. 2pi is split in a
+     head with few significant bits, so that n * head is exact, and the rest
+     (Cody-Waite reduction): the result keeps its precision as n grows. */
+  const smpl_t two_pi_head = (smpl_t)6.28125;
+  const smpl_t two_pi_tail = (smpl_t)(TWO_PI - 6.28125);
+  smpl_t n = 1 + FLOOR (-(phase + SMPL_PI) / SMPL_TWO_PI);
+  return (phase + n * two_pi_head) + n * two_pi_tail;
 }
 
 smpl_t
@@ -336,7 +342,7 @@ aubio_level_lin (const fvec_t * f)
 #else
   energy = aubio_cblas_dot(f->length, f->data, 1, f->data, 1);
 #endif
-  return energy / f->length;
+  return energy / (smpl_t)f->length;
 }
 
 smpl_t
@@ -345,7 +351,7 @@ fvec_local_hfc (fvec_t * v)
   smpl_t hfc = 0.;
   uint_t j;
   for (j = 0; j < v->length; j++) {
-    hfc += (j + 1) * v->data[j];
+    hfc += (smpl_t)(j + 1) * v->data[j];
   }
   return hfc;
 }
@@ -365,7 +371,7 @@ fvec_alpha_norm (fvec_t * o, smpl_t alpha)
   for (j = 0; j < o->length; j++) {
     tmp += POW (ABS (o->data[j]), alpha);
   }
-  return POW (tmp / o->length, 1. / alpha);
+  return POW (tmp / (smpl_t)o->length, 1 / alpha);
 }
 
 void
@@ -485,27 +491,28 @@ smpl_t fvec_median (fvec_t * input) {
 
 smpl_t fvec_quadratic_peak_pos (const fvec_t * x, uint_t pos) {
   smpl_t s0, s1, s2; uint_t x0, x2;
-  smpl_t half = .5, two = 2.;
-  if (pos == 0 || pos == x->length - 1) return pos;
+  if (pos == 0 || pos == x->length - 1) return (smpl_t)pos;
   x0 = (pos < 1) ? pos : pos - 1;
   x2 = (pos + 1 < x->length) ? pos + 1 : pos;
-  if (x0 == pos) return (x->data[pos] <= x->data[x2]) ? pos : x2;
-  if (x2 == pos) return (x->data[pos] <= x->data[x0]) ? pos : x0;
+  if (x0 == pos) return (smpl_t)((x->data[pos] <= x->data[x2]) ? pos : x2);
+  if (x2 == pos) return (smpl_t)((x->data[pos] <= x->data[x0]) ? pos : x0);
   s0 = x->data[x0];
   s1 = x->data[pos];
   s2 = x->data[x2];
-  return pos + half * (s0 - s2 ) / (s0 - two * s1 + s2);
+  return (smpl_t)pos + (s0 - s2) / (2 * (s0 - 2 * s1 + s2));
 }
 
 smpl_t fvec_quadratic_peak_mag (fvec_t *x, smpl_t pos) {
   smpl_t x0, x1, x2;
-  uint_t index = (uint_t)(pos - .5) + 1;
-  if (pos >= x->length || pos < 0.) return 0.;
+  uint_t index = (uint_t)(pos - (smpl_t)0.5) + 1;
+  if (pos >= (smpl_t)x->length || pos < 0) return 0;
   if ((smpl_t)index == pos) return x->data[index];
+  // Ensure we can safely access index + 1
+  if (index + 1 >= x->length) return x->data[index];
   x0 = x->data[index - 1];
   x1 = x->data[index];
   x2 = x->data[index + 1];
-  return x1 - .25 * (x0 - x2) * (pos - index);
+  return x1 - (x0 - x2) * (pos - (smpl_t)index) / 4;
 }
 
 uint_t fvec_peakpick(const fvec_t * onset, uint_t pos) {
@@ -520,7 +527,7 @@ smpl_t
 aubio_quadfrac (smpl_t s0, smpl_t s1, smpl_t s2, smpl_t pf)
 {
   smpl_t tmp =
-      s0 + (pf / 2.) * (pf * (s0 - 2. * s1 + s2) - 3. * s0 + 4. * s1 - s2);
+      s0 + (pf / 2) * (pf * (s0 - 2 * s1 + s2) - 3 * s0 + 4 * s1 - s2);
   return tmp;
 }
 
@@ -530,8 +537,8 @@ aubio_freqtomidi (smpl_t freq)
   smpl_t midi;
   if (freq < 2. || freq > 100000.) return 0.; // avoid nans and infs
   /* log(freq/A-2)/log(2) */
-  midi = freq / 6.875;
-  midi = LOG (midi) / 0.6931471805599453;
+  midi = freq / (smpl_t)6.875;
+  midi = LOG (midi) / (smpl_t)0.6931471805599453;
   midi *= 12;
   midi -= 3;
   return midi;
@@ -542,9 +549,9 @@ aubio_miditofreq (smpl_t midi)
 {
   smpl_t freq;
   if (midi > 140.) return 0.; // avoid infs
-  freq = (midi + 3.) / 12.;
-  freq = EXP (freq * 0.6931471805599453);
-  freq *= 6.875;
+  freq = (midi + 3) / 12;
+  freq = EXP (freq * (smpl_t)0.6931471805599453);
+  freq *= (smpl_t)6.875;
   return freq;
 }
 
@@ -608,7 +615,7 @@ aubio_power_of_two_order (uint_t a)
 smpl_t
 aubio_db_spl (const fvec_t * o)
 {
-  return 10. * LOG10 (aubio_level_lin (o));
+  return 10 * LOG10 (aubio_level_lin (o));
 }
 
 uint_t
@@ -648,7 +655,7 @@ aubio_zero_crossing_rate (fvec_t * input)
       }
     }
   }
-  return zcr / (smpl_t) input->length;
+  return (smpl_t)zcr / (smpl_t)input->length;
 }
 
 void

@@ -27,8 +27,15 @@ lvec_t * new_lvec(uint_t length) {
     return NULL;
   }
   s = AUBIO_NEW(lvec_t);
+  if (!s) {
+    return NULL;
+  }
   s->length = length;
   s->data = AUBIO_ARRAY(lsmp_t, s->length);
+  if (!s->data) {
+    AUBIO_FREE(s);
+    return NULL;
+  }
   return s;
 }
 
@@ -77,4 +84,3 @@ void lvec_zeros(lvec_t *s) {
 void lvec_ones(lvec_t *s) {
   lvec_set_all (s, 1.);
 }
-

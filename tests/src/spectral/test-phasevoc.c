@@ -1,4 +1,5 @@
 #include <aubio.h>
+#include "utils_tests.h"
 
 int main (void)
 {
@@ -13,7 +14,7 @@ int main (void)
   // allocate fft and other memory space
   aubio_pvoc_t * pv = new_aubio_pvoc(win_s,hop_s);
 
-  if (new_aubio_pvoc(win_s, 0)) return 1;
+  EXPECT_LOGGED(if (new_aubio_pvoc(win_s, 0)) return 1);
 
   if (aubio_pvoc_get_win(pv) != win_s) return 1;
   if (aubio_pvoc_get_hop(pv) != hop_s) return 1;

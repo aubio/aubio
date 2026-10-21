@@ -43,6 +43,10 @@ new_aubio_filterbank (uint_t n_filters, uint_t win_s)
   /* allocate space for filterbank object */
   aubio_filterbank_t *fb = AUBIO_NEW (aubio_filterbank_t);
 
+  if (!fb) {
+    goto fail;
+  }
+
   if ((sint_t)n_filters <= 0) {
     AUBIO_ERR("filterbank: n_filters should be > 0, got %d\n", n_filters);
     goto fail;

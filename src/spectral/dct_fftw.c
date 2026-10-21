@@ -25,7 +25,6 @@
 #ifdef HAVE_FFTW3
 
 #include <fftw3.h>
-#include <pthread.h>
 
 #ifdef HAVE_FFTW3F
 #if HAVE_AUBIO_DOUBLE
@@ -48,8 +47,9 @@
 #define fftw_destroy_plan      fftwf_destroy_plan
 #endif
 
-// defined in src/spectral/fft.c
-extern pthread_mutex_t aubio_fftw_mutex;
+// defined in src/spectral/fft.c: FFTW's planner is not thread-safe
+void aubio_fftw_lock (void);
+void aubio_fftw_unlock (void);
 
 typedef struct _aubio_dct_fftw_t aubio_dct_fftw_t;
 
@@ -63,6 +63,10 @@ struct _aubio_dct_fftw_t {
 
 aubio_dct_fftw_t * new_aubio_dct_fftw (uint_t size) {
   aubio_dct_fftw_t * s = AUBIO_NEW(aubio_dct_fftw_t);
+
+  if (!s) {
+    return NULL;
+  }
   if ((sint_t)size <= 0) {
     AUBIO_ERR("dct_fftw: can only create with size > 0, requested %d\n",
         size);
@@ -71,13 +75,13 @@ aubio_dct_fftw_t * new_aubio_dct_fftw (uint_t size) {
   s->size = size;
   s->in = new_fvec(size);
   s->out = new_fvec(size);
-  pthread_mutex_lock(&aubio_fftw_mutex);
+  aubio_fftw_lock();
   s->data = (smpl_t *)fftw_malloc(sizeof(smpl_t) * size);
   s->pfw = fftw_plan_r2r_1d(size, s->in->data,  s->data, FFTW_REDFT10,
       FFTW_ESTIMATE);
   s->pbw = fftw_plan_r2r_1d(size, s->data, s->out->data, FFTW_REDFT01,
       FFTW_ESTIMATE);
-  pthread_mutex_unlock(&aubio_fftw_mutex);
+  aubio_fftw_unlock();
   s->scalers[0] = SQRT(1./(4.*s->size));
   s->scalers[1] = SQRT(1./(2.*s->size));
   s->scalers[2] = 1. / s->scalers[0];
@@ -90,11 +94,11 @@ beach:
 }
 
 void del_aubio_dct_fftw(aubio_dct_fftw_t *s) {
-  pthread_mutex_lock(&aubio_fftw_mutex);
+  aubio_fftw_lock();
   fftw_destroy_plan(s->pfw);
   fftw_destroy_plan(s->pbw);
   fftw_free(s->data);
-  pthread_mutex_unlock(&aubio_fftw_mutex);
+  aubio_fftw_unlock();
   del_fvec(s->in);
   del_fvec(s->out);
   AUBIO_FREE(s);

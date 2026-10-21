@@ -58,7 +58,7 @@ int main (void)
 
   PRINT_MSG("steps: 30, max value: max * 2, min value: -max, current value: -max, target: max\n");
   aubio_parameter_set_min_value ( param, - max_value );
-  aubio_parameter_set_max_value ( param, 2. * max_value );
+  aubio_parameter_set_max_value ( param, 2 * max_value );
   aubio_parameter_set_current_value ( param, - max_value );
   aubio_parameter_set_target_value ( param, max_value );
   aubio_parameter_set_steps ( param, 10 );

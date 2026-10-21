@@ -13,7 +13,7 @@ int main (void)
   aubio_filterbank_t *o = new_aubio_filterbank (n_filters, win_s);
 
   // assign Mel-frequency coefficients
-  aubio_filterbank_set_mel_coeffs_slaney (o, samplerate);
+  aubio_filterbank_set_mel_coeffs_slaney (o, (smpl_t)samplerate);
 
   // apply filterbank ten times
   uint_t n = 10;

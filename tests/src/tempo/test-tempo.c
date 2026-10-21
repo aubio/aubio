@@ -7,7 +7,7 @@ int main (int argc, char **argv)
 {
   uint_t err = 0;
   if (argc < 2) {
-    PRINT_WRN("no arguments, running tests\n");
+    PRINT_MSG("no arguments given, running the built-in tests\n");
     err = test_wrong_params();
     PRINT_MSG("usage: %s <source_path> [samplerate] [win_size] [hop_size]\n",
         argv[0]);
@@ -81,19 +81,19 @@ int test_wrong_params(void)
   uint_t i;
 
   // test wrong method fails
-  if (new_aubio_tempo("undefined", win_size, hop_size, samplerate)) return 1;
+  EXPECT_LOGGED(if (new_aubio_tempo("undefined", win_size, hop_size, samplerate)) return 1);
 
   // test hop > win fails
-  if (new_aubio_tempo("default", hop_size, win_size, samplerate)) return 1;
+  EXPECT_LOGGED(if (new_aubio_tempo("default", hop_size, win_size, samplerate)) return 1);
 
   // test null hop_size fails
-  if (new_aubio_tempo("default", win_size, 0, samplerate)) return 1;
+  EXPECT_LOGGED(if (new_aubio_tempo("default", win_size, 0, samplerate)) return 1);
 
   // test 1 buf_size fails
-  if (new_aubio_tempo("default", 1, 1, samplerate)) return 1;
+  EXPECT_LOGGED(if (new_aubio_tempo("default", 1, 1, samplerate)) return 1);
 
   // test null samplerate fails
-  if (new_aubio_tempo("default", win_size, hop_size, 0)) return 1;
+  EXPECT_LOGGED(if (new_aubio_tempo("default", win_size, hop_size, 0)) return 1);
 
   // test short sizes workaround
   t = new_aubio_tempo("default", 2048, 2048, 500);

@@ -1,7 +1,16 @@
+# release-please (release-please-config.json) bumps the three numbers below;
+# meson.build checks they match its project version. The libtool numbers are
+# bumped by hand when the C ABI changes.
+# x-release-please-start-major
 AUBIO_MAJOR_VERSION=0
-AUBIO_MINOR_VERSION=5
-AUBIO_PATCH_VERSION=0
-AUBIO_VERSION_STATUS='-alpha'
+# x-release-please-end
+# x-release-please-start-minor
+AUBIO_MINOR_VERSION=4
+# x-release-please-end
+# x-release-please-start-patch
+AUBIO_PATCH_VERSION=12
+# x-release-please-end
+AUBIO_VERSION_STATUS=''
 LIBAUBIO_LT_CUR=5
 LIBAUBIO_LT_REV=4
 LIBAUBIO_LT_AGE=8

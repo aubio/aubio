@@ -59,6 +59,10 @@ const char_t *aubio_str_get_extension(const char_t *filename);
 
 aubio_sink_sndfile_t * new_aubio_sink_sndfile(const char_t * path, uint_t samplerate) {
   aubio_sink_sndfile_t * s = AUBIO_NEW(aubio_sink_sndfile_t);
+
+  if (!s) {
+    return NULL;
+  }
   s->max_size = MAX_SIZE;
 
   if (path == NULL) {
@@ -66,8 +70,8 @@ aubio_sink_sndfile_t * new_aubio_sink_sndfile(const char_t * path, uint_t sample
     goto beach;
   }
 
-  s->path = AUBIO_ARRAY(char_t, strnlen(path, PATH_MAX) + 1);
-  strncpy(s->path, path, strnlen(path, PATH_MAX) + 1);
+  s->path = aubio_str_copy_path(path);
+  if (!s->path) goto beach;
 
   s->samplerate = 0;
   s->channels = 0;

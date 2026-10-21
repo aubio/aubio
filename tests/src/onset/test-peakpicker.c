@@ -8,7 +8,7 @@ int main (void)
   fvec_t * in = new_fvec (win_s); // input buffer
   fvec_t * out = new_fvec (1); // input buffer
   aubio_peakpicker_t * o = new_aubio_peakpicker();
-  aubio_peakpicker_set_threshold (o, 0.3);
+  aubio_peakpicker_set_threshold (o, (smpl_t)0.3);
 
   aubio_peakpicker_do(o, in, out);
   aubio_peakpicker_do(o, in, out);
@@ -20,4 +20,3 @@ int main (void)
   del_fvec(in);
   return 0;
 }
-

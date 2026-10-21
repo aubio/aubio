@@ -59,4 +59,3 @@ int main(int argc, char **argv) {
   examples_common_del();
   return 0;
 }
-

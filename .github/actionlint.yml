@@ -1,0 +1,8 @@
+# GitHub supports queue: max, but actionlint 1.7.12 predates that key.
+# https://github.com/rhysd/actionlint/issues/687
+# Limit this compatibility exception to the publication workflow and exact key;
+# ci/test_shared_release.py verifies queue and cancellation settings.
+paths:
+  .github/workflows/build.yml:
+    ignore:
+      - '^unexpected key "queue" for "concurrency" section\. expected one of "cancel-in-progress", "group"$'

@@ -116,9 +116,10 @@ aubio_peakpicker_do (aubio_peakpicker_t * p, fvec_t * onset, fvec_t * out)
   thresholded->data[0] =
       onset_proc->data[p->win_post] - median - mean * p->threshold;
   onset_peek->data[2] = thresholded->data[0];
-  out->data[0] = (p->pickerfn) (onset_peek, 1);
-  if (out->data[0]) {
+  if ((p->pickerfn) (onset_peek, 1)) {
     out->data[0] = fvec_quadratic_peak_pos (onset_peek, 1);
+  } else {
+    out->data[0] = 0;
   }
 }
 
@@ -162,7 +163,12 @@ aubio_peakpicker_t *
 new_aubio_peakpicker (void)
 {
   aubio_peakpicker_t *t = AUBIO_NEW (aubio_peakpicker_t);
-  t->threshold = 0.1;           /* 0.0668; 0.33; 0.082; 0.033; */
+
+  if (!t) {
+    return NULL;
+  }
+
+  t->threshold = (smpl_t)0.1;         /* 0.0668; 0.33; 0.082; 0.033; */
   t->win_post = 5;
   t->win_pre = 1;
 

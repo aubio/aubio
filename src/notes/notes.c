@@ -28,7 +28,7 @@
 #define AUBIO_DEFAULT_NOTES_RELEASE_DROP 10.
 // increase to 10. for .1  cent precision
 //      or to 100. for .01 cent precision
-#define AUBIO_DEFAULT_CENT_PRECISION 1.
+#define AUBIO_DEFAULT_CENT_PRECISION ((smpl_t)1)
 #define AUBIO_DEFAULT_NOTES_MINIOI_MS 30.
 
 struct _aubio_notes_t {
@@ -65,6 +65,11 @@ struct _aubio_notes_t {
 aubio_notes_t * new_aubio_notes (const char_t * method,
     uint_t buf_size, uint_t hop_size, uint_t samplerate) {
   aubio_notes_t *o = AUBIO_NEW(aubio_notes_t);
+
+  if (!o) {
+    return NULL;
+  }
+
 
   const char_t * onset_method = "default";
   const char_t * pitch_method = "default";
@@ -190,6 +195,18 @@ aubio_notes_get_latest_note (aubio_notes_t *o)
 }
 
 
+/* MIDI note numbers and velocities are 0..127, but the detected pitch can
+ * pass 127 (above 12.5kHz) and 127 + level goes below 1 once the silence
+ * threshold is under -126dB (aubio#357). A note-on needs a velocity of at
+ * least 1: velocity 0 means note-off. */
+static void
+aubio_notes_set_note_on (fvec_t * notes, smpl_t pitch, smpl_t level)
+{
+  smpl_t velocity = (smpl_t)(127 + (int) FLOOR (level));
+  notes->data[0] = MAX (0, MIN (127, pitch));
+  notes->data[1] = MAX (1, MIN (127, velocity));
+}
+
 void aubio_notes_do (aubio_notes_t *o, const fvec_t * input, fvec_t * notes)
 {
   smpl_t new_pitch, curlevel;
@@ -224,8 +241,7 @@ void aubio_notes_do (aubio_notes_t *o, const fvec_t * input, fvec_t * notes)
         notes->data[2] = o->curnote;
         /* get and send new one */
         //send_noteon(new_pitch,127+(int)floor(curlevel), o->samplerate);
-        notes->data[0] = new_pitch;
-        notes->data[1] = 127 + (int)floor(curlevel);
+        aubio_notes_set_note_on (notes, new_pitch, curlevel);
         o->curnote = new_pitch;
       }
       o->last_onset_level = curlevel;
@@ -260,8 +276,7 @@ void aubio_notes_do (aubio_notes_t *o, const fvec_t * input, fvec_t * notes)
         /* get and send new one */
         if (o->curnote>45){
           //send_noteon(curnote,127+(int)floor(curlevel));
-          notes->data[0] = o->curnote;
-          notes->data[1] = 127 + (int) floor(curlevel);
+          aubio_notes_set_note_on (notes, o->curnote, curlevel);
         }
       }
     } // if median

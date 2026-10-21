@@ -71,23 +71,23 @@ function prototypes
                         n >= 1, n = power of 2
         a[0...2*n-1]   :input/output data (smpl_t *)
                         input data
-                            a[2*j] = Re(x[j]), 
+                            a[2*j] = Re(x[j]),
                             a[2*j+1] = Im(x[j]), 0<=j<n
                         output data
-                            a[2*k] = Re(X[k]), 
+                            a[2*k] = Re(X[k]),
                             a[2*k+1] = Im(X[k]), 0<=k<n
         ip[0...*]      :work area for bit reversal (int *)
                         length of ip >= 2+sqrt(n)
-                        strictly, 
-                        length of ip >= 
+                        strictly,
+                        length of ip >=
                             2+(1<<(int)(log(n+0.5)/log(2))/2).
                         ip[0],ip[1] are pointers of the cos/sin table.
         w[0...n/2-1]   :cos/sin table (smpl_t *)
                         w[],ip[] are initialized if ip[0] == 0.
     [remark]
-        Inverse of 
+        Inverse of
             cdft(2*n, -1, a, ip, w);
-        is 
+        is
             cdft(2*n, 1, a, ip, w);
             for (j = 0; j <= 2 * n - 1; j++) {
                 a[j] *= 1.0 / n;
@@ -101,8 +101,8 @@ function prototypes
             R[k] = sum_j=0^n-1 a[j]*cos(2*pi*j*k/n), 0<=k<=n/2
             I[k] = sum_j=0^n-1 a[j]*sin(2*pi*j*k/n), 0<k<n/2
         <case2> IRDFT (excluding scale)
-            a[k] = (R[0] + R[n/2]*cos(pi*k))/2 + 
-                   sum_j=1^n/2-1 R[j]*cos(2*pi*j*k/n) + 
+            a[k] = (R[0] + R[n/2]*cos(pi*k))/2 +
+                   sum_j=1^n/2-1 R[j]*cos(2*pi*j*k/n) +
                    sum_j=1^n/2-1 I[j]*sin(2*pi*j*k/n), 0<=k<n
     [usage]
         <case1>
@@ -127,16 +127,16 @@ function prototypes
                                 a[1] = R[n/2]
         ip[0...*]      :work area for bit reversal (int *)
                         length of ip >= 2+sqrt(n/2)
-                        strictly, 
-                        length of ip >= 
+                        strictly,
+                        length of ip >=
                             2+(1<<(int)(log(n/2+0.5)/log(2))/2).
                         ip[0],ip[1] are pointers of the cos/sin table.
         w[0...n/2-1]   :cos/sin table (smpl_t *)
                         w[],ip[] are initialized if ip[0] == 0.
     [remark]
-        Inverse of 
+        Inverse of
             rdft(n, 1, a, ip, w);
-        is 
+        is
             rdft(n, -1, a, ip, w);
             for (j = 0; j <= n - 1; j++) {
                 a[j] *= 2.0 / n;
@@ -165,16 +165,16 @@ function prototypes
                             a[k] = C[k], 0<=k<n
         ip[0...*]      :work area for bit reversal (int *)
                         length of ip >= 2+sqrt(n/2)
-                        strictly, 
-                        length of ip >= 
+                        strictly,
+                        length of ip >=
                             2+(1<<(int)(log(n/2+0.5)/log(2))/2).
                         ip[0],ip[1] are pointers of the cos/sin table.
         w[0...n*5/4-1] :cos/sin table (smpl_t *)
                         w[],ip[] are initialized if ip[0] == 0.
     [remark]
-        Inverse of 
+        Inverse of
             ddct(n, -1, a, ip, w);
-        is 
+        is
             a[0] *= 0.5;
             ddct(n, 1, a, ip, w);
             for (j = 0; j <= n - 1; j++) {
@@ -212,16 +212,16 @@ function prototypes
                                 a[0] = S[n]
         ip[0...*]      :work area for bit reversal (int *)
                         length of ip >= 2+sqrt(n/2)
-                        strictly, 
-                        length of ip >= 
+                        strictly,
+                        length of ip >=
                             2+(1<<(int)(log(n/2+0.5)/log(2))/2).
                         ip[0],ip[1] are pointers of the cos/sin table.
         w[0...n*5/4-1] :cos/sin table (smpl_t *)
                         w[],ip[] are initialized if ip[0] == 0.
     [remark]
-        Inverse of 
+        Inverse of
             ddst(n, -1, a, ip, w);
-        is 
+        is
             a[0] *= 0.5;
             ddst(n, 1, a, ip, w);
             for (j = 0; j <= n - 1; j++) {
@@ -245,18 +245,18 @@ function prototypes
         t[0...n/2]     :work area (smpl_t *)
         ip[0...*]      :work area for bit reversal (int *)
                         length of ip >= 2+sqrt(n/4)
-                        strictly, 
-                        length of ip >= 
+                        strictly,
+                        length of ip >=
                             2+(1<<(int)(log(n/4+0.5)/log(2))/2).
                         ip[0],ip[1] are pointers of the cos/sin table.
         w[0...n*5/8-1] :cos/sin table (smpl_t *)
                         w[],ip[] are initialized if ip[0] == 0.
     [remark]
-        Inverse of 
+        Inverse of
             a[0] *= 0.5;
             a[n] *= 0.5;
             dfct(n, a, t, ip, w);
-        is 
+        is
             a[0] *= 0.5;
             a[n] *= 0.5;
             dfct(n, a, t, ip, w);
@@ -282,16 +282,16 @@ function prototypes
         t[0...n/2-1]   :work area (smpl_t *)
         ip[0...*]      :work area for bit reversal (int *)
                         length of ip >= 2+sqrt(n/4)
-                        strictly, 
-                        length of ip >= 
+                        strictly,
+                        length of ip >=
                             2+(1<<(int)(log(n/4+0.5)/log(2))/2).
                         ip[0],ip[1] are pointers of the cos/sin table.
         w[0...n*5/8-1] :cos/sin table (smpl_t *)
                         w[],ip[] are initialized if ip[0] == 0.
     [remark]
-        Inverse of 
+        Inverse of
             dfst(n, a, t, ip, w);
-        is 
+        is
             dfst(n, a, t, ip, w);
             for (j = 1; j <= n - 1; j++) {
                 a[j] *= 2.0 / n;
@@ -312,7 +312,7 @@ void aubio_ooura_cdft(int n, int isgn, smpl_t *a, int *ip, smpl_t *w)
     void bitrv2conj(int n, int *ip, smpl_t *a);
     void cftfsub(int n, smpl_t *a, smpl_t *w);
     void cftbsub(int n, smpl_t *a, smpl_t *w);
-    
+
     if (n > (ip[0] << 2)) {
         makewt(n >> 2, ip, w);
     }
@@ -341,7 +341,7 @@ void aubio_ooura_rdft(int n, int isgn, smpl_t *a, int *ip, smpl_t *w)
     void rftbsub(int n, smpl_t *a, int nc, smpl_t *c);
     int nw, nc;
     smpl_t xi;
-    
+
     nw = ip[0];
     if (n > (nw << 2)) {
         nw = n >> 2;
@@ -389,7 +389,7 @@ void aubio_ooura_ddct(int n, int isgn, smpl_t *a, int *ip, smpl_t *w)
     void dctsub(int n, smpl_t *a, int nc, smpl_t *c);
     int j, nw, nc;
     smpl_t xr;
-    
+
     nw = ip[0];
     if (n > (nw << 2)) {
         nw = n >> 2;
@@ -448,7 +448,7 @@ void aubio_ooura_ddst(int n, int isgn, smpl_t *a, int *ip, smpl_t *w)
     void dstsub(int n, smpl_t *a, int nc, smpl_t *c);
     int j, nw, nc;
     smpl_t xr;
-    
+
     nw = ip[0];
     if (n > (nw << 2)) {
         nw = n >> 2;
@@ -505,7 +505,7 @@ void aubio_ooura_dfct(int n, smpl_t *a, smpl_t *t, int *ip, smpl_t *w)
     void dctsub(int n, smpl_t *a, int nc, smpl_t *c);
     int j, k, l, m, mh, nw, nc;
     smpl_t xr, xi, yr, yi;
-    
+
     nw = ip[0];
     if (n > (nw << 3)) {
         nw = n >> 3;
@@ -601,7 +601,7 @@ void aubio_ooura_dfst(int n, smpl_t *a, smpl_t *t, int *ip, smpl_t *w)
     void dstsub(int n, smpl_t *a, int nc, smpl_t *c);
     int j, k, l, m, mh, nw, nc;
     smpl_t xr, xi, yr, yi;
-    
+
     nw = ip[0];
     if (n > (nw << 3)) {
         nw = n >> 3;
@@ -687,21 +687,22 @@ void makewt(int nw, int *ip, smpl_t *w)
 {
     void bitrv2(int n, int *ip, smpl_t *a);
     int j, nwh;
-    smpl_t delta, x, y;
-    
+    double delta;
+    smpl_t x, y;
+
     ip[0] = nw;
     ip[1] = 1;
     if (nw > 2) {
         nwh = nw >> 1;
-        delta = ATAN(1.0) / nwh;
+        delta = atan(1.0) / nwh;
         w[0] = 1;
         w[1] = 0;
-        w[nwh] = COS(delta * nwh);
+        w[nwh] = (smpl_t)cos(delta * nwh);
         w[nwh + 1] = w[nwh];
         if (nwh > 2) {
             for (j = 2; j < nwh; j += 2) {
-                x = COS(delta * j);
-                y = SIN(delta * j);
+                x = (smpl_t)cos(delta * j);
+                y = (smpl_t)sin(delta * j);
                 w[j] = x;
                 w[j + 1] = y;
                 w[nw - j] = y;
@@ -722,17 +723,17 @@ void makewt(int nw, int *ip, smpl_t *w)
 void makect(int nc, int *ip, smpl_t *c)
 {
     int j, nch;
-    smpl_t delta;
-    
+    double delta;
+
     ip[1] = nc;
     if (nc > 1) {
         nch = nc >> 1;
-        delta = ATAN(1.0) / nch;
-        c[0] = COS(delta * nch);
+        delta = atan(1.0) / nch;
+        c[0] = (smpl_t)cos(delta * nch);
         c[nch] = (smpl_t)0.5 * c[0];
         for (j = 1; j < nch; j++) {
-            c[j] = (smpl_t)0.5 * COS(delta * j);
-            c[nc - j] = (smpl_t)0.5 * SIN(delta * j);
+            c[j] = (smpl_t)(0.5 * cos(delta * j));
+            c[nc - j] = (smpl_t)(0.5 * sin(delta * j));
         }
     }
 }
@@ -745,7 +746,7 @@ void bitrv2(int n, int *ip, smpl_t *a)
 {
     int j, j1, k, k1, l, m, m2;
     smpl_t xr, xi, yr, yi;
-    
+
     ip[0] = 0;
     l = n;
     m = 1;
@@ -845,7 +846,7 @@ void bitrv2conj(int n, int *ip, smpl_t *a)
 {
     int j, j1, k, k1, l, m, m2;
     smpl_t xr, xi, yr, yi;
-    
+
     ip[0] = 0;
     l = n;
     m = 1;
@@ -956,7 +957,7 @@ void cftfsub(int n, smpl_t *a, smpl_t *w)
     void cftmdl(int n, int l, smpl_t *a, smpl_t *w);
     int j, j1, j2, j3, l;
     smpl_t x0r, x0i, x1r, x1i, x2r, x2i, x3r, x3i;
-    
+
     l = 2;
     if (n >= 16) {
         cft1st(n, a, w);
@@ -1007,10 +1008,10 @@ void cftbsub(int n, smpl_t *a, smpl_t *w)
     void cft1st(int n, smpl_t *a, smpl_t *w);
     void cftmdl(int n, int l, smpl_t *a, smpl_t *w);
     int j, j1, j2, j3, j4, j5, j6, j7, l;
-    smpl_t wn4r, x0r, x0i, x1r, x1i, x2r, x2i, x3r, x3i, 
-        y0r, y0i, y1r, y1i, y2r, y2i, y3r, y3i, 
+    smpl_t wn4r, x0r, x0i, x1r, x1i, x2r, x2i, x3r, x3i,
+        y0r, y0i, y1r, y1i, y2r, y2i, y3r, y3i,
         y4r, y4i, y5r, y5i, y6r, y6i, y7r, y7i;
-    
+
     l = 2;
     if (n > 16) {
         cft1st(n, a, w);
@@ -1122,12 +1123,12 @@ void cftbsub(int n, smpl_t *a, smpl_t *w)
 void cft1st(int n, smpl_t *a, smpl_t *w)
 {
     int j, k1;
-    smpl_t wn4r, wtmp, wk1r, wk1i, wk2r, wk2i, wk3r, wk3i, 
+    smpl_t wn4r, wtmp, wk1r, wk1i, wk2r, wk2i, wk3r, wk3i,
         wk4r, wk4i, wk5r, wk5i, wk6r, wk6i, wk7r, wk7i;
-    smpl_t x0r, x0i, x1r, x1i, x2r, x2i, x3r, x3i, 
-        y0r, y0i, y1r, y1i, y2r, y2i, y3r, y3i, 
+    smpl_t x0r, x0i, x1r, x1i, x2r, x2i, x3r, x3i,
+        y0r, y0i, y1r, y1i, y2r, y2i, y3r, y3i,
         y4r, y4i, y5r, y5i, y6r, y6i, y7r, y7i;
-    
+
     wn4r = w[2];
     x0r = a[0] + a[2];
     x0i = a[1] + a[3];
@@ -1337,12 +1338,12 @@ void cft1st(int n, smpl_t *a, smpl_t *w)
 void cftmdl(int n, int l, smpl_t *a, smpl_t *w)
 {
     int j, j1, j2, j3, j4, j5, j6, j7, k, k1, m;
-    smpl_t wn4r, wtmp, wk1r, wk1i, wk2r, wk2i, wk3r, wk3i, 
+    smpl_t wn4r, wtmp, wk1r, wk1i, wk2r, wk2i, wk3r, wk3i,
         wk4r, wk4i, wk5r, wk5i, wk6r, wk6i, wk7r, wk7i;
-    smpl_t x0r, x0i, x1r, x1i, x2r, x2i, x3r, x3i, 
-        y0r, y0i, y1r, y1i, y2r, y2i, y3r, y3i, 
+    smpl_t x0r, x0i, x1r, x1i, x2r, x2i, x3r, x3i,
+        y0r, y0i, y1r, y1i, y2r, y2i, y3r, y3i,
         y4r, y4i, y5r, y5i, y6r, y6i, y7r, y7i;
-    
+
     m = l << 3;
     wn4r = w[2];
     for (j = 0; j < l; j += 2) {
@@ -1581,7 +1582,7 @@ void rftfsub(int n, smpl_t *a, int nc, smpl_t *c)
 {
     int j, k, kk, ks, m;
     smpl_t wkr, wki, xr, xi, yr, yi;
-    
+
     m = n >> 1;
     ks = 2 * nc / m;
     kk = 0;
@@ -1606,7 +1607,7 @@ void rftbsub(int n, smpl_t *a, int nc, smpl_t *c)
 {
     int j, k, kk, ks, m;
     smpl_t wkr, wki, xr, xi, yr, yi;
-    
+
     a[1] = -a[1];
     m = n >> 1;
     ks = 2 * nc / m;
@@ -1633,7 +1634,7 @@ void dctsub(int n, smpl_t *a, int nc, smpl_t *c)
 {
     int j, k, kk, ks, m;
     smpl_t wkr, wki, xr;
-    
+
     m = n >> 1;
     ks = nc / n;
     kk = 0;
@@ -1654,7 +1655,7 @@ void dstsub(int n, smpl_t *a, int nc, smpl_t *c)
 {
     int j, k, kk, ks, m;
     smpl_t wkr, wki, xr;
-    
+
     m = n >> 1;
     ks = nc / n;
     kk = 0;
@@ -1669,4 +1670,3 @@ void dstsub(int n, smpl_t *a, int nc, smpl_t *c)
     }
     a[m] *= c[0];
 }
-

@@ -12,7 +12,7 @@ int main (void)
   aubio_dct_t * dct = new_aubio_dct(win_s);
   aubio_dct_t * tmp;
 
-  if (new_aubio_dct(0)) return 1;
+  EXPECT_LOGGED(if (new_aubio_dct(0)) return 1);
 
   fvec_t * in = new_fvec (win_s); // input buffer
   fvec_t * dctout = new_fvec (win_s); // output buffer

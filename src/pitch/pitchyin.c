@@ -20,9 +20,9 @@
 
 /* This algorithm was developed by A. de Cheveigné and H. Kawahara and
  * published in:
- * 
+ *
  * de Cheveigné, A., Kawahara, H. (2002) "YIN, a fundamental frequency
- * estimator for speech and music", J. Acoust. Soc. Am. 111, 1917-1930.  
+ * estimator for speech and music", J. Acoust. Soc. Am. 111, 1917-1930.
  *
  * see http://recherche.ircam.fr/equipes/pcm/pub/people/cheveign.html
  */
@@ -67,8 +67,12 @@ aubio_pitchyin_t *
 new_aubio_pitchyin (uint_t bufsize)
 {
   aubio_pitchyin_t *o = AUBIO_NEW (aubio_pitchyin_t);
+
+  if (!o) {
+    return NULL;
+  }
   o->yin = new_fvec (bufsize / 2);
-  o->tol = 0.15;
+  o->tol = (smpl_t)0.15;
   o->peak_pos = 0;
   return o;
 }
@@ -154,7 +158,7 @@ aubio_pitchyin_do (aubio_pitchyin_t * o, const fvec_t * input, fvec_t * out)
     }
     tmp2 += yin_data[tau];
     if (tmp2 != 0) {
-      yin->data[tau] *= tau / tmp2;
+      yin->data[tau] *= (smpl_t)tau / tmp2;
     } else {
       yin->data[tau] = 1.;
     }
@@ -172,7 +176,7 @@ aubio_pitchyin_do (aubio_pitchyin_t * o, const fvec_t * input, fvec_t * out)
 
 smpl_t
 aubio_pitchyin_get_confidence (aubio_pitchyin_t * o) {
-  return 1. - o->yin->data[o->peak_pos];
+  return 1 - o->yin->data[o->peak_pos];
 }
 
 uint_t

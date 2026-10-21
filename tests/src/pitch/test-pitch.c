@@ -1,4 +1,5 @@
 #include <aubio.h>
+#include "utils_tests.h"
 
 int main (void)
 {
@@ -30,12 +31,12 @@ int main (void)
   del_fvec (input);
   aubio_cleanup ();
 
-  if (new_aubio_pitch(0, win_s, hop_s, samplerate)) return 1;
-  if (new_aubio_pitch("unknown", win_s, hop_s, samplerate)) return 1;
-  if (new_aubio_pitch("default", win_s,     0, samplerate)) return 1;
-  if (new_aubio_pitch("default",     0, hop_s, samplerate)) return 1;
-  if (new_aubio_pitch("default", hop_s, win_s, samplerate)) return 1;
-  if (new_aubio_pitch("default", win_s, hop_s,          0)) return 1;
+  EXPECT_LOGGED(if (new_aubio_pitch(0, win_s, hop_s, samplerate)) return 1);
+  EXPECT_LOGGED(if (new_aubio_pitch("unknown", win_s, hop_s, samplerate)) return 1);
+  EXPECT_LOGGED(if (new_aubio_pitch("default", win_s,     0, samplerate)) return 1);
+  EXPECT_LOGGED(if (new_aubio_pitch("default",     0, hop_s, samplerate)) return 1);
+  EXPECT_LOGGED(if (new_aubio_pitch("default", hop_s, win_s, samplerate)) return 1);
+  EXPECT_LOGGED(if (new_aubio_pitch("default", win_s, hop_s,          0)) return 1);
 
   o = new_aubio_pitch("default", win_s, hop_s, samplerate);
 
@@ -47,24 +48,24 @@ int main (void)
   if (aubio_pitch_set_unit(o, "midi")) return 1;
   if (aubio_pitch_set_unit(o, "cent")) return 1;
   if (aubio_pitch_set_unit(o, "bin")) return 1;
-  if (!aubio_pitch_set_unit(o, "unknown")) return 1;
+  EXPECT_LOGGED(if (!aubio_pitch_set_unit(o, "unknown")) return 1);
 
-  if (aubio_pitch_set_tolerance(o, 0.3)) return 1;
+  if (aubio_pitch_set_tolerance(o, (smpl_t)0.3)) return 1;
   if (aubio_pitch_set_silence(o, 0)) return 1;
   if (aubio_pitch_set_silence(o, -200)) return 1;
-  if (!aubio_pitch_set_silence(o, -300)) return 1;
+  EXPECT_LOGGED(if (!aubio_pitch_set_silence(o, -300)) return 1);
   del_aubio_pitch(o);
 
   // fft based might fail with non power of 2
-  o = new_aubio_pitch("yinfft", win_s + 1, hop_s, samplerate);
+  EXPECT_LOGGED_UNLESS(o = new_aubio_pitch("yinfft", win_s + 1, hop_s, samplerate), o);
   if (o) del_aubio_pitch(o);
-  o = new_aubio_pitch("yinfast", win_s + 1, hop_s, samplerate);
+  EXPECT_LOGGED_UNLESS(o = new_aubio_pitch("yinfast", win_s + 1, hop_s, samplerate), o);
   if (o) del_aubio_pitch(o);
-  o = new_aubio_pitch("fcomb", win_s + 1, hop_s, samplerate);
+  EXPECT_LOGGED_UNLESS(o = new_aubio_pitch("fcomb", win_s + 1, hop_s, samplerate), o);
   if (o) del_aubio_pitch(o);
-  o = new_aubio_pitch("mcomb", win_s + 1, hop_s, samplerate);
+  EXPECT_LOGGED_UNLESS(o = new_aubio_pitch("mcomb", win_s + 1, hop_s, samplerate), o);
   if (o) del_aubio_pitch(o);
-  o = new_aubio_pitch("specacf", win_s + 1, hop_s, samplerate);
+  EXPECT_LOGGED_UNLESS(o = new_aubio_pitch("specacf", win_s + 1, hop_s, samplerate), o);
   if (o) del_aubio_pitch(o);
 
   return 0;

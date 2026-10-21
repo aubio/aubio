@@ -14,7 +14,7 @@ static void aubio_PyUFunc_d_d(char **args, const npy_intp *dimensions,
 
     for (i = 0; i < n; i++) {
         /*BEGIN main ufunc computation*/
-        *((double *)out) = func(*(double *)in);
+        *((double *)out) = func((smpl_t)*(double *)in);
         /*END main ufunc computation*/
 
         in += in_step;
@@ -33,7 +33,7 @@ static void aubio_PyUFunc_f_f_As_d_d(char **args, const npy_intp *dimensions,
 
     for (i = 0; i < n; i++) {
         /*BEGIN main ufunc computation*/
-        *((float *)out) = func(*(float *)in);
+        *((float *)out) = (float)func(*(float *)in);
         /*END main ufunc computation*/
 
         in += in_step;

@@ -47,6 +47,43 @@
 #define PRINT_WRN(format, args...)   fprintf(stderr, "AUBIO-TESTS WARNING: " format, ##args)
 #endif
 
+// Tests that feed aubio bad input on purpose wrap each such call in
+// EXPECT_LOGGED: aubio's errors and warnings are counted instead of printed
+// while the statement runs, and the test fails if the statement logged
+// nothing. The rejection is checked, and the test log keeps only messages
+// that point at a real problem.
+static uint_t aubio_tests_logged = 0;
+
+static inline void
+aubio_tests_count_log (sint_t level, const char_t *message, void *data)
+{
+  (void)level; (void)message; (void)data;
+  aubio_tests_logged++;
+}
+
+static inline void
+aubio_tests_capture_log (void)
+{
+  aubio_log_set_level_function (AUBIO_LOG_ERR, aubio_tests_count_log, NULL);
+  aubio_log_set_level_function (AUBIO_LOG_WRN, aubio_tests_count_log, NULL);
+}
+
+// EXPECT_LOGGED_UNLESS(stmt, ok): for calls whose outcome depends on the
+// build (a non-power-of-two FFT fails with ooura, works with fftw): when ok
+// is false after stmt, it must have logged why.
+#define EXPECT_LOGGED_UNLESS(stmt, ok) do { \
+    uint_t logged_before_ = aubio_tests_logged; \
+    aubio_tests_capture_log (); \
+    stmt; \
+    aubio_log_reset (); \
+    if (!(ok) && aubio_tests_logged == logged_before_) { \
+      PRINT_ERR ("expected an error or warning from: %s\n", #stmt); \
+      return 1; \
+    } \
+  } while (0)
+
+#define EXPECT_LOGGED(stmt) EXPECT_LOGGED_UNLESS(stmt, 0)
+
 #ifndef M_PI
 #define M_PI         (3.14159265358979323846)
 #endif
@@ -67,7 +104,7 @@
 // assuming libbc is recent enough to supports these functions.
 extern void srandom(unsigned);
 extern int random(void);
-extern char mkstemp(const char *pat);
+// mkstemp (int mkstemp(char *)) is POSIX.1-2008, which meson.build selects
 
 #endif
 
@@ -77,9 +114,9 @@ void utils_init_random (void) {
   time_t now = time(0);
   struct tm *tm_struct = localtime(&now);
   size_t **tm_address = (void*)&tm_struct;
-  int seed = tm_struct->tm_sec + (size_t)tm_address;
+  unsigned int seed = (unsigned int)(tm_struct->tm_sec + (size_t)tm_address);
   //PRINT_WRN("current seed: %d\n", seed);
-  srandom ((unsigned int)seed);
+  srandom (seed);
 }
 
 // create_temp_sink / close_temp_sink

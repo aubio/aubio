@@ -88,14 +88,17 @@ aubio_sink_flac_t * new_aubio_sink_flac (const char_t *uri,
 {
   aubio_sink_flac_t * s = AUBIO_NEW(aubio_sink_flac_t);
 
+  if (!s) {
+    return NULL;
+  }
+
   if (!uri) {
     AUBIO_ERROR("sink_flac: Aborted opening null path\n");
     goto failure;
   }
 
-  s->path = AUBIO_ARRAY(char_t, strnlen(uri, PATH_MAX) + 1);
-  strncpy(s->path, uri, strnlen(uri, PATH_MAX) + 1);
-  s->path[strnlen(uri, PATH_MAX)] = '\0';
+  s->path = aubio_str_copy_path(uri);
+  if (!s->path) goto failure;
 
   s->channels = 0;
   s->samplerate = 0;

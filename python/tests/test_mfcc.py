@@ -24,7 +24,7 @@ class Test_aubio_mfcc(object):
         with assert_raises((TypeError, AttributeError)):
             setattr(o, name, 0)
 
-    @parametrize('name, expected', zip(new_params, new_deflts))
+    @parametrize('name, expected', list(zip(new_params, new_deflts)))
     def test_default_param(self, name, expected):
         """ test mfcc.{:s} = {:d} """.format(name, expected)
         o = mfcc()

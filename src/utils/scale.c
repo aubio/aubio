@@ -40,6 +40,10 @@ struct _aubio_scale_t {
 aubio_scale_t * new_aubio_scale (smpl_t ilow, smpl_t ihig,
     smpl_t olow, smpl_t ohig) {
   aubio_scale_t * s = AUBIO_NEW(aubio_scale_t);
+
+  if (!s) {
+    return NULL;
+  }
   aubio_scale_set_limits (s, ilow, ihig, olow, ohig);
   return s;
 }
@@ -67,7 +71,7 @@ uint_t aubio_scale_set_limits (aubio_scale_t *s, smpl_t ilow, smpl_t ihig,
   return AUBIO_OK;
 }
 
-void aubio_scale_do (aubio_scale_t *s, fvec_t *input) 
+void aubio_scale_do (aubio_scale_t *s, fvec_t *input)
 {
   uint_t j;
   for (j=0;  j < input->length; j++){
@@ -76,4 +80,3 @@ void aubio_scale_do (aubio_scale_t *s, fvec_t *input)
     input->data[j] += s->olow;
   }
 }
-

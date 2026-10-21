@@ -1,6 +1,8 @@
 
 
+#define _GNU_SOURCE
 #include "aubio_priv.h"
+#include <string.h>
 
 #ifdef HAVE_RUBBERBAND
 
@@ -94,7 +96,8 @@ RubberBandOptions aubio_get_rubberband_opts(const char_t *mode)
     if (!params || !params[0]) {
       // memory failure occurred or empty string was passed
       AUBIO_ERR("rubberband_utils: failed parsing options\n");
-      rboptions = -1;
+      if (params) AUBIO_FREE(params);
+      return -1;
     }
     while (*(params + i) != NULL) {
       if ( strcmp(params[i], "ProcessOffline" ) == 0 )        {

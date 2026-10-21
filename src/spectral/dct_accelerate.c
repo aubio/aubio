@@ -42,6 +42,10 @@ void del_aubio_dct_accelerate (aubio_dct_accelerate_t *s);
 aubio_dct_accelerate_t * new_aubio_dct_accelerate (uint_t size) {
   aubio_dct_accelerate_t * s = AUBIO_NEW(aubio_dct_accelerate_t);
 
+  if (!s) {
+    return NULL;
+  }
+
   if ((sint_t)size < 16 || !aubio_is_power_of_two(size)) {
     AUBIO_ERR("dct: can only create with sizes greater than 16 and"
         " that are powers of two, requested %d\n", size);

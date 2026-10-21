@@ -115,4 +115,3 @@ to write audio samples to disk.
 
     >>> with aubio.sink('foo.wav') as snk:
     ...     snk(aubio.fvec(1025), 1025)
-

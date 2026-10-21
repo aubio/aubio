@@ -70,12 +70,18 @@ PyObject * new_py_fmat(uint_t height, uint_t length);
 extern int PyAubio_IsValidVector (PyObject *input);
 
 extern PyObject *PyAubio_CFvecToArray (fvec_t * self);
+// arrays aubio writes into: used in place, must be writeable and contiguous
 extern int PyAubio_ArrayToCFvec (PyObject * self, fvec_t *out);
+// arrays aubio only reads: copied when strided; release *owner afterwards
+extern int PyAubio_ArrayToCFvecIn (PyObject * input, fvec_t *out,
+    PyObject **owner);
 
 extern int PyAubio_PyCvecToCCvec (PyObject *input, cvec_t *i);
 
 extern PyObject *PyAubio_CFmatToArray (fmat_t * self);
 extern int PyAubio_ArrayToCFmat (PyObject *input, fmat_t *out);
+extern int PyAubio_ArrayToCFmatIn (PyObject *input, fmat_t *out,
+    PyObject **owner);
 
 // hand written wrappers
 extern PyTypeObject Py_filterType;

@@ -43,6 +43,10 @@ aubio_wavetable_t *new_aubio_wavetable(uint_t samplerate, uint_t blocksize)
 {
   uint_t i = 0;
   aubio_wavetable_t *s = AUBIO_NEW(aubio_wavetable_t);
+
+  if (!s) {
+    return NULL;
+  }
   if ((sint_t)samplerate <= 0) {
     AUBIO_ERR("Can not create wavetable with samplerate %d\n", samplerate);
     goto beach;
@@ -52,14 +56,14 @@ aubio_wavetable_t *new_aubio_wavetable(uint_t samplerate, uint_t blocksize)
   s->wavetable_length = WAVETABLE_LEN;
   s->wavetable = new_fvec(s->wavetable_length + 3);
   for (i = 0; i < s->wavetable_length; i++) {
-    s->wavetable->data[i] = SIN(TWO_PI * i / (smpl_t) s->wavetable_length );
+    s->wavetable->data[i] = (smpl_t)sin(TWO_PI * i / s->wavetable_length);
   }
   s->wavetable->data[s->wavetable_length] = s->wavetable->data[0];
   s->wavetable->data[s->wavetable_length + 1] = s->wavetable->data[1];
   s->wavetable->data[s->wavetable_length + 2] = s->wavetable->data[2];
   s->playing = 0;
   s->last_pos = 0.;
-  s->freq = new_aubio_parameter( 0., s->samplerate / 2., 10 );
+  s->freq = new_aubio_parameter( 0, (smpl_t)s->samplerate / 2, 10 );
   s->amp = new_aubio_parameter( 0., 1., 100 );
   return s;
 beach:
@@ -84,8 +88,8 @@ void aubio_wavetable_do ( aubio_wavetable_t * s, const fvec_t * input, fvec_t * 
       smpl_t inc = aubio_parameter_get_next_value( s->freq );
       inc *= (smpl_t)(s->wavetable_length) / (smpl_t) (s->samplerate);
       pos += inc;
-      while (pos > s->wavetable_length) {
-        pos -= s->wavetable_length;
+      while (pos > (smpl_t)s->wavetable_length) {
+        pos -= (smpl_t)s->wavetable_length;
       }
       output->data[i] = aubio_parameter_get_next_value ( s->amp );
       output->data[i] *= interp_2(s->wavetable, pos);
@@ -117,8 +121,8 @@ void aubio_wavetable_do_multi ( aubio_wavetable_t * s, const fmat_t * input, fma
       smpl_t amp = aubio_parameter_get_next_value ( s->amp );
       inc *= (smpl_t)(s->wavetable_length) / (smpl_t) (s->samplerate);
       pos += inc;
-      while (pos > s->wavetable_length) {
-        pos -= s->wavetable_length;
+      while (pos > (smpl_t)s->wavetable_length) {
+        pos -= (smpl_t)s->wavetable_length;
       }
       for (i = 0; i < output->height; i++) {
         output->data[i][j] = amp * interp_2(s->wavetable, pos);
@@ -155,7 +159,7 @@ uint_t aubio_wavetable_set_playing ( aubio_wavetable_t * s, uint_t playing )
 
 uint_t aubio_wavetable_play ( aubio_wavetable_t * s )
 {
-  aubio_wavetable_set_amp (s, 0.7);
+  aubio_wavetable_set_amp (s, (smpl_t)0.7);
   return aubio_wavetable_set_playing (s, 1);
 }
 

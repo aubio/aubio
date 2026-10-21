@@ -108,7 +108,7 @@ Py_cvec_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
 }
 
 static int
-Py_cvec_init (Py_cvec * self, PyObject * args, PyObject * kwds)
+Py_cvec_init (Py_cvec * self, PyObject * Py_UNUSED(args), PyObject * Py_UNUSED(kwds))
 {
   npy_intp dims[] = { self->length, 1 };
   self->phas = PyArray_ZEROS(1, dims, AUBIO_NPY_SMPL, 0);
@@ -125,7 +125,7 @@ Py_cvec_del (Py_cvec * self)
 }
 
 static PyObject *
-Py_cvec_repr (Py_cvec * self, PyObject * unused)
+Py_cvec_repr (Py_cvec * self)
 {
   PyObject *format = NULL;
   PyObject *args = NULL;
@@ -152,7 +152,7 @@ fail:
 }
 
 PyObject *
-Py_cvec_get_norm (Py_cvec * self, void *closure)
+Py_cvec_get_norm (Py_cvec * self, void *Py_UNUSED(closure))
 {
   // we want self->norm to still exist after our caller return it
   Py_INCREF(self->norm);
@@ -160,7 +160,7 @@ Py_cvec_get_norm (Py_cvec * self, void *closure)
 }
 
 PyObject *
-Py_cvec_get_phas (Py_cvec * self, void *closure)
+Py_cvec_get_phas (Py_cvec * self, void *Py_UNUSED(closure))
 {
   // we want self->phas to still exist after our caller return it
   Py_INCREF(self->phas);
@@ -168,9 +168,10 @@ Py_cvec_get_phas (Py_cvec * self, void *closure)
 }
 
 static int
-Py_cvec_set_norm (Py_cvec * vec, PyObject *input, void * closure)
+Py_cvec_set_norm (Py_cvec * vec, PyObject *input, void * Py_UNUSED(closure))
 {
   npy_intp length;
+  PyObject *array;
   if (!PyAubio_IsValidVector(input)) {
     return -1;
   }
@@ -182,16 +183,23 @@ Py_cvec_set_norm (Py_cvec * vec, PyObject *input, void * closure)
     return -1;
   }
 
+  // aubio reads and writes this array for as long as the cvec holds it:
+  // keep it if it is C-contiguous and writeable, else hold a copy that is
+  array = PyArray_FromAny (input, PyArray_DescrFromType (AUBIO_NPY_SMPL), 1, 1,
+      NPY_ARRAY_CARRAY | NPY_ARRAY_NOTSWAPPED, NULL);
+  if (array == NULL) {
+    return -1;
+  }
   Py_XDECREF(vec->norm);
-  vec->norm = input;
-  Py_INCREF(vec->norm);
+  vec->norm = array;
   return 0;
 }
 
 static int
-Py_cvec_set_phas (Py_cvec * vec, PyObject *input, void * closure)
+Py_cvec_set_phas (Py_cvec * vec, PyObject *input, void * Py_UNUSED(closure))
 {
   npy_intp length;
+  PyObject *array;
   if (!PyAubio_IsValidVector(input)) {
     return -1;
   }
@@ -203,9 +211,15 @@ Py_cvec_set_phas (Py_cvec * vec, PyObject *input, void * closure)
     return -1;
   }
 
+  // aubio reads and writes this array for as long as the cvec holds it:
+  // keep it if it is C-contiguous and writeable, else hold a copy that is
+  array = PyArray_FromAny (input, PyArray_DescrFromType (AUBIO_NPY_SMPL), 1, 1,
+      NPY_ARRAY_CARRAY | NPY_ARRAY_NOTSWAPPED, NULL);
+  if (array == NULL) {
+    return -1;
+  }
   Py_XDECREF(vec->phas);
-  vec->phas = input;
-  Py_INCREF(vec->phas);
+  vec->phas = array;
   return 0;
 }
 
@@ -213,11 +227,11 @@ static PyMemberDef Py_cvec_members[] = {
   // TODO remove READONLY flag and define getter/setter
   {"length", T_INT, offsetof (Py_cvec, length), READONLY,
       "int: Length of `norm` and `phas` vectors."},
-  {NULL}                        /* Sentinel */
+  {0}                        /* Sentinel */
 };
 
 static PyMethodDef Py_cvec_methods[] = {
-  {NULL}
+  {0}
 };
 
 static PyGetSetDef Py_cvec_getseters[] = {
@@ -227,55 +241,20 @@ static PyGetSetDef Py_cvec_getseters[] = {
   {"phas", (getter)Py_cvec_get_phas, (setter)Py_cvec_set_phas,
       "numpy.ndarray: Vector of shape `(length,)` containing the phase.",
       NULL},
-  {NULL} /* sentinel */
+  {0} /* sentinel */
 };
 
 PyTypeObject Py_cvecType = {
-  PyVarObject_HEAD_INIT(NULL, 0)
-  "aubio.cvec",                 /* tp_name           */
-  sizeof (Py_cvec),             /* tp_basicsize      */
-  0,                            /* tp_itemsize       */
-  (destructor) Py_cvec_del,     /* tp_dealloc        */
-  0,                            /* tp_print          */
-  0,                            /* tp_getattr        */
-  0,                            /* tp_setattr        */
-  0,                            /* tp_compare        */
-  (reprfunc) Py_cvec_repr,      /* tp_repr           */
-  0,                            /* tp_as_number      */
-  0, //&Py_cvec_tp_as_sequence, /* tp_as_sequence    */
-  0,                            /* tp_as_mapping     */
-  0,                            /* tp_hash           */
-  0,                            /* tp_call           */
-  0,                            /* tp_str            */
-  0,                            /* tp_getattro       */
-  0,                            /* tp_setattro       */
-  0,                            /* tp_as_buffer      */
-  Py_TPFLAGS_DEFAULT,           /* tp_flags          */
-  Py_cvec_doc,                  /* tp_doc            */
-  0,                            /* tp_traverse       */
-  0,                            /* tp_clear          */
-  0,                            /* tp_richcompare    */
-  0,                            /* tp_weaklistoffset */
-  0,                            /* tp_iter           */
-  0,                            /* tp_iternext       */
-  Py_cvec_methods,              /* tp_methods        */
-  Py_cvec_members,              /* tp_members        */
-  Py_cvec_getseters,            /* tp_getset         */
-  0,                            /* tp_base           */
-  0,                            /* tp_dict           */
-  0,                            /* tp_descr_get      */
-  0,                            /* tp_descr_set      */
-  0,                            /* tp_dictoffset     */
-  (initproc) Py_cvec_init,      /* tp_init           */
-  0,                            /* tp_alloc          */
-  Py_cvec_new,                  /* tp_new            */
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
+  PyVarObject_HEAD_INIT (NULL, 0)
+  .tp_name = "aubio.cvec",
+  .tp_basicsize = sizeof (Py_cvec),
+  .tp_dealloc = (destructor) Py_cvec_del,
+  .tp_repr = (reprfunc) Py_cvec_repr,
+  .tp_flags = Py_TPFLAGS_DEFAULT,
+  .tp_doc = Py_cvec_doc,
+  .tp_methods = Py_cvec_methods,
+  .tp_members = Py_cvec_members,
+  .tp_getset = Py_cvec_getseters,
+  .tp_init = (initproc) Py_cvec_init,
+  .tp_new = Py_cvec_new,
 };

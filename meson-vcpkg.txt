@@ -1,0 +1,23 @@
+# Meson native file for vcpkg integration
+# This file enables automatic vcpkg dependency management for aubio
+#
+# Usage in CI/CD:
+#   meson setup builddir --native-file=meson-vcpkg.txt
+#
+# For local development, you can override vcpkg_root:
+#   meson setup builddir --native-file=meson-vcpkg.txt -Dvcpkg_root=/path/to/vcpkg
+
+[constants]
+# vcpkg_root will be set by environment variable VCPKG_ROOT or default to vcpkg_installed
+vcpkg_root_env = '${VCPKG_ROOT}'
+
+# Determine platform triplet
+host_system = host_machine.system()
+host_arch = host_machine.cpu_family()
+
+[built-in options]
+# These will be set by the meson.build based on detected vcpkg installation
+# pkg_config_path and cmake_prefix_path are configured in meson.build
+
+[properties]
+# vcpkg is used as a subproject, installed via manifest mode

@@ -81,6 +81,9 @@ for freq in freqs:
         ( 2048,  512, 44100, freq ),
         ( 2048, 1024, 44100, freq ),
         ( 2048, 1024, 32000, freq ),
+        # LedFx's settings: a hop that isn't a power of two, and a samplerate
+        # mcomb's C-weighting had no coefficients for (it crashed)
+        ( 4096,  500, 30000, freq ),
         ]
 
 freqs = [ ] #55., 110., 220., 440., 880., 1760., 3520. ]
@@ -119,6 +122,19 @@ for algo in pitch_algorithms:
         _test_method.__name__ = 'test_pitch_%s_%d_%d_%dHz_sin_%.0f' % ( algo,
                 mode[0], mode[1], mode[2], mode[3] )
         setattr (aubio_pitch_Sinusoid, _test_method.__name__, _test_method)
+
+class aubio_pitch_high_samplerate(TestCase):
+
+    def test_yinfft_96000(self):
+        """ yinfft above 50.2kHz, past its weighting table (aubio#435) """
+        samplerate, buf_size, hop_size = 96000, 4096, 512
+        p = pitch('yinfft', buf_size, hop_size, samplerate)
+        freq = 440.
+        t = arange(hop_size * 40, dtype=float_type) / samplerate
+        signal = (.5 * sin(2. * pi * freq * t)).astype(float_type)
+        found = [p(signal[i:i + hop_size])[0]
+                 for i in range(0, len(signal), hop_size)]
+        assert abs(median(found[10:]) - freq) < 5.
 
 if __name__ == '__main__':
     from unittest import main

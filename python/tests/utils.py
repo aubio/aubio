@@ -39,7 +39,7 @@ def get_tmp_sink_path():
 def del_tmp_sink_path(path):
     try:
         os.unlink(path)
-    except WindowsError as e:
+    except OSError as e:
         # removing the temporary directory sometimes fails on windows
         import warnings
         errmsg = "failed deleting temporary file {:s} ({:s})"
@@ -85,13 +85,36 @@ def count_files_in_directory(samples_dir):
 
 def parse_file_samplerate(soundfile):
     samplerate = None
-    # parse samplerate
-    re_sr = re.compile(r'/([0-9]{4,})Hz_.*')
+    # parse samplerate - match numbers followed by Hz in filename, with optional path separator
+    re_sr = re.compile(r'[/\\]?([0-9]{4,})Hz[^0-9]')
     match_samplerate = re_sr.findall(soundfile)
     if match_samplerate:
         samplerate = int(match_samplerate[0])
     else:
         import warnings
-        warnings.warn(UserWarning("could not parse samplerate for {:s}"
-            .format(soundfile)))
+        warnings.warn(UserWarning(f"could not parse samplerate for {soundfile}"))
     return samplerate
+
+def open_source(path, samplerate, hop_size):
+    """Open `path` with aubio.source, or skip the calling test.
+
+    Upsampling must emit a UserWarning. A backend that cannot open the file
+    at this samplerate and hop size raises RuntimeError, which skips the test.
+    The skip happens inside the warning check on purpose: pytest >= 8 fails a
+    `pytest.warns` block that exits with an ordinary exception, but lets
+    pytest.skip through.
+    """
+    import contextlib
+    from aubio import source
+    from _tools import assert_warns, skipTest
+    orig_samplerate = parse_file_samplerate(path)
+    if orig_samplerate is not None and orig_samplerate < samplerate:
+        expect = assert_warns(UserWarning)
+    else:
+        expect = contextlib.nullcontext()
+    with expect:
+        try:
+            return source(path, samplerate, hop_size)
+        except RuntimeError as e:
+            skipTest('failed opening with hop_s={:d}, samplerate={:d} ({:s})'
+                    .format(hop_size, samplerate, str(e)))

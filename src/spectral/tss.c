@@ -44,7 +44,6 @@ void aubio_tss_do(aubio_tss_t *o, const cvec_t * input,
     cvec_t * trans, cvec_t * stead)
 {
   uint_t j;
-  uint_t test;
   uint_t nbins     = input->length;
   smpl_t alpha     = o->alpha;
   smpl_t beta      = o->beta;
@@ -57,35 +56,37 @@ void aubio_tss_do(aubio_tss_t *o, const cvec_t * input,
   /* second phase derivative */
   for (j=0;j<nbins; j++){
     dev[j] = aubio_unwrap2pi(input->phas[j]
-        -2.0*theta1[j]+theta2[j]);
+        -2*theta1[j]+theta2[j]);
     theta2[j] = theta1[j];
     theta1[j] = input->phas[j];
 
     /* transient analysis */
-    test = (ABS(dev[j]) > parm*oft1[j]);
-    trans->norm[j] = input->norm[j] * test;
-    trans->phas[j] = input->phas[j] * test;
+    if (ABS(dev[j]) > parm*oft1[j]) {
+      trans->norm[j] = input->norm[j];
+      trans->phas[j] = input->phas[j];
+    } else {
+      trans->norm[j] = 0;
+      trans->phas[j] = 0;
+    }
 
     /* steady state analysis */
-    test = (ABS(dev[j]) < parm*oft2[j]);
-    stead->norm[j] = input->norm[j] * test;
-    stead->phas[j] = input->phas[j] * test;
+    if (ABS(dev[j]) < parm*oft2[j]) {
+      stead->norm[j] = input->norm[j];
+      stead->phas[j] = input->phas[j];
+    } else {
+      stead->norm[j] = 0;
+      stead->phas[j] = 0;
+    }
 
     /*increase probability for transient */
-    test = (trans->norm[j]==0.);
-    oft1[j]  = test;
-    test = (trans->norm[j]>0.);
-    oft1[j] += alpha*test;
-    test = (oft1[j]>1. && trans->norm[j]>0.);
-    oft1[j] += beta*test;
+    oft1[j] = (trans->norm[j] == 0) ? 1 : 0;
+    if (trans->norm[j] > 0) oft1[j] += alpha;
+    if (oft1[j] > 1 && trans->norm[j] > 0) oft1[j] += beta;
 
     /*increase probability for steady states */
-    test = (stead->norm[j]==0.);
-    oft2[j]  = test;
-    test = (stead->norm[j]>0.);
-    oft2[j] += alpha*test;
-    test = (oft2[j]>1. && stead->norm[j]>0.);
-    oft2[j] += beta*test;
+    oft2[j] = (stead->norm[j] == 0) ? 1 : 0;
+    if (stead->norm[j] > 0) oft2[j] += alpha;
+    if (oft2[j] > 1 && stead->norm[j] > 0) oft2[j] += beta;
   }
 }
 
@@ -98,9 +99,14 @@ uint_t aubio_tss_set_threshold(aubio_tss_t *o, smpl_t threshold){
 aubio_tss_t * new_aubio_tss(uint_t buf_size, uint_t hop_size)
 {
   aubio_tss_t * o = AUBIO_NEW(aubio_tss_t);
+
+  if (!o) {
+    return NULL;
+  }
+
   uint_t rsize = buf_size/2+1;
-  o->threshold = 0.25;
-  o->thrsfact = TWO_PI*hop_size/rsize;
+  o->threshold = (smpl_t)0.25;
+  o->thrsfact = (smpl_t)(TWO_PI*hop_size/rsize);
   o->alpha = 3.;
   o->beta = 4.;
   o->parm = o->threshold*o->thrsfact;
@@ -131,4 +137,3 @@ uint_t aubio_tss_set_beta(aubio_tss_t *o, smpl_t beta){
   o->beta = beta;
   return AUBIO_OK;
 }
-

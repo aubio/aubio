@@ -23,17 +23,20 @@ class aubio_pitchshift(TestCase):
         # test on zeros
         vec = aubio.fvec(self.o.hop_size)
         transpose_range = 24
-        while read < test_length:
-            # transpose the samples
-            out = self.o(vec)
-            self.assertTrue((out == 0).all())
-            # position in the file (between 0. and 1.)
-            percent_read = read / float(test_length)
-            # variable transpose rate (in semitones)
-            transpose = 2 * transpose_range * percent_read - transpose_range
-            # set transpose rate
-            self.o.set_transpose(transpose)
-            read += len(vec)
+        # at the low end of the sweep rubberband has less than a block ready,
+        # and aubio pads it with zeros, saying so
+        with self.assertWarnsRegex(UserWarning, "catching up with zeros"):
+            while read < test_length:
+                # transpose the samples
+                out = self.o(vec)
+                self.assertTrue((out == 0).all())
+                # position in the file (between 0. and 1.)
+                percent_read = read / float(test_length)
+                # variable transpose rate (in semitones)
+                transpose = 2 * transpose_range * percent_read - transpose_range
+                # set transpose rate
+                self.o.set_transpose(transpose)
+                read += len(vec)
 
     def test_on_ones(self):
         test_length = self.o.hop_size * 100

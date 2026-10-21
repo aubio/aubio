@@ -35,8 +35,12 @@ void del_aubio_dct_plain (aubio_dct_plain_t *s);
 
 aubio_dct_plain_t * new_aubio_dct_plain (uint_t size) {
   aubio_dct_plain_t * s = AUBIO_NEW(aubio_dct_plain_t);
+
+  if (!s) {
+    return NULL;
+  }
   uint_t i, j;
-  smpl_t scaling;
+  double scaling;
   if (aubio_is_power_of_two (size) == 1 && size > 16) {
     AUBIO_WRN("dct_plain: using plain dct but size %d is a power of two\n", size);
   }
@@ -54,25 +58,25 @@ aubio_dct_plain_t * new_aubio_dct_plain (uint_t size) {
   /* compute DCT type-II transformation matrix
      dct_coeffs[j][i] = cos ( j * (i+.5) * PI / n_filters )
   */
-  scaling = SQRT (2. / size);
+  scaling = sqrt (2. / size);
   for (i = 0; i < size; i++) {
     for (j = 1; j < size; j++) {
       s->dct_coeffs->data[j][i] =
-          scaling * COS (j * (i + 0.5) * PI / size );
+          (smpl_t)(scaling * cos (j * (i + 0.5) * PI / size));
     }
-    s->dct_coeffs->data[0][i] = 1. / SQRT (size);
+    s->dct_coeffs->data[0][i] = (smpl_t)(1. / sqrt (size));
   }
 
   /* compute DCT type-III transformation matrix
      idct_coeffs[j][i] = cos ( i * (j+.5) * PI / n_filters )
   */
-  scaling = SQRT (2. / size);
+  scaling = sqrt (2. / size);
   for (j = 0; j < size; j++) {
     for (i = 1; i < size; i++) {
       s->idct_coeffs->data[j][i] =
-          scaling * COS (i * (j + 0.5) * PI / size );
+          (smpl_t)(scaling * cos (i * (j + 0.5) * PI / size));
     }
-    s->idct_coeffs->data[j][0] = 1. / SQRT (size);
+    s->idct_coeffs->data[j][0] = (smpl_t)(1. / sqrt (size));
   }
   return s;
 failure:

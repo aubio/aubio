@@ -76,7 +76,7 @@ void aubio_onset_do (aubio_onset_t *o, const fvec_t * input, fvec_t * onset)
       isonset  = 0;
     } else {
       // we have an onset
-      uint_t new_onset = o->total_frames + (uint_t)ROUND(isonset * o->hop_size);
+      uint_t new_onset = o->total_frames + (uint_t)ROUND(isonset * (smpl_t)o->hop_size);
       // check if last onset time was more than minioi ago
       if (o->last_onset + o->minioi < new_onset) {
         // start of file: make sure (new_onset - delay) >= 0
@@ -98,7 +98,7 @@ void aubio_onset_do (aubio_onset_t *o, const fvec_t * input, fvec_t * onset)
       if (aubio_silence_detection(input, o->silence) == 0) {
         uint_t new_onset = o->total_frames;
         if (o->total_frames == 0 || o->last_onset + o->minioi < new_onset) {
-          isonset = o->delay / o->hop_size;
+          isonset = (smpl_t)o->delay / (smpl_t)o->hop_size;
           o->last_onset = o->total_frames + o->delay;
         }
       }
@@ -116,12 +116,12 @@ uint_t aubio_onset_get_last (const aubio_onset_t *o)
 
 smpl_t aubio_onset_get_last_s (const aubio_onset_t *o)
 {
-  return aubio_onset_get_last (o) / (smpl_t) (o->samplerate);
+  return (smpl_t)aubio_onset_get_last (o) / (smpl_t)o->samplerate;
 }
 
 smpl_t aubio_onset_get_last_ms (const aubio_onset_t *o)
 {
-  return aubio_onset_get_last_s (o) * 1000.;
+  return aubio_onset_get_last_s (o) * 1000;
 }
 
 uint_t aubio_onset_set_awhitening (aubio_onset_t *o, uint_t enable)
@@ -132,7 +132,7 @@ uint_t aubio_onset_set_awhitening (aubio_onset_t *o, uint_t enable)
 
 smpl_t aubio_onset_get_awhitening (aubio_onset_t *o)
 {
-  return o->apply_awhitening;
+  return (smpl_t)o->apply_awhitening;
 }
 
 uint_t aubio_onset_set_compression (aubio_onset_t *o, smpl_t lambda)
@@ -178,19 +178,19 @@ uint_t aubio_onset_get_minioi(const aubio_onset_t * o) {
 }
 
 uint_t aubio_onset_set_minioi_s(aubio_onset_t * o, smpl_t minioi) {
-  return aubio_onset_set_minioi (o, (uint_t)ROUND(minioi * o->samplerate));
+  return aubio_onset_set_minioi (o, (uint_t)ROUND(minioi * (smpl_t)o->samplerate));
 }
 
 smpl_t aubio_onset_get_minioi_s(const aubio_onset_t * o) {
-  return aubio_onset_get_minioi (o) / (smpl_t) o->samplerate;
+  return (smpl_t)aubio_onset_get_minioi (o) / (smpl_t)o->samplerate;
 }
 
 uint_t aubio_onset_set_minioi_ms(aubio_onset_t * o, smpl_t minioi) {
-  return aubio_onset_set_minioi_s (o, minioi / 1000.);
+  return aubio_onset_set_minioi_s (o, minioi / 1000);
 }
 
 smpl_t aubio_onset_get_minioi_ms(const aubio_onset_t * o) {
-  return aubio_onset_get_minioi_s (o) * 1000.;
+  return aubio_onset_get_minioi_s (o) * 1000;
 }
 
 uint_t aubio_onset_set_delay(aubio_onset_t * o, uint_t delay) {
@@ -203,19 +203,19 @@ uint_t aubio_onset_get_delay(const aubio_onset_t * o) {
 }
 
 uint_t aubio_onset_set_delay_s(aubio_onset_t * o, smpl_t delay) {
-  return aubio_onset_set_delay (o, delay * o->samplerate);
+  return aubio_onset_set_delay (o, (uint_t)ROUND(delay * (smpl_t)o->samplerate));
 }
 
 smpl_t aubio_onset_get_delay_s(const aubio_onset_t * o) {
-  return aubio_onset_get_delay (o) / (smpl_t) o->samplerate;
+  return (smpl_t)aubio_onset_get_delay (o) / (smpl_t)o->samplerate;
 }
 
 uint_t aubio_onset_set_delay_ms(aubio_onset_t * o, smpl_t delay) {
-  return aubio_onset_set_delay_s (o, delay / 1000.);
+  return aubio_onset_set_delay_s (o, delay / 1000);
 }
 
 smpl_t aubio_onset_get_delay_ms(const aubio_onset_t * o) {
-  return aubio_onset_get_delay_s (o) * 1000.;
+  return aubio_onset_get_delay_s (o) * 1000;
 }
 
 smpl_t aubio_onset_get_descriptor(const aubio_onset_t * o) {
@@ -232,6 +232,11 @@ aubio_onset_t * new_aubio_onset (const char_t * onset_mode,
     uint_t buf_size, uint_t hop_size, uint_t samplerate)
 {
   aubio_onset_t * o = AUBIO_NEW(aubio_onset_t);
+
+  if (!o) {
+    return NULL;
+  }
+
 
   /* check parameters are valid */
   if ((sint_t)hop_size < 1) {
@@ -284,8 +289,8 @@ uint_t aubio_onset_set_default_parameters (aubio_onset_t * o, const char_t * ons
 {
   uint_t ret = AUBIO_OK;
   /* set some default parameter */
-  aubio_onset_set_threshold (o, 0.3);
-  aubio_onset_set_delay (o, 4.3 * o->hop_size);
+  aubio_onset_set_threshold (o, (smpl_t)0.3);
+  aubio_onset_set_delay (o, (uint_t)(4.3 * o->hop_size));
   aubio_onset_set_minioi_ms (o, 50.);
   aubio_onset_set_silence (o, -70.);
   // disable spectral whitening
@@ -296,12 +301,12 @@ uint_t aubio_onset_set_default_parameters (aubio_onset_t * o, const char_t * ons
   /* method specific optimisations */
   if (strcmp (onset_mode, "energy") == 0) {
   } else if (strcmp (onset_mode, "hfc") == 0 || strcmp (onset_mode, "default") == 0) {
-    aubio_onset_set_threshold (o, 0.058);
+    aubio_onset_set_threshold (o, (smpl_t)0.058);
     aubio_onset_set_compression (o, 1.);
   } else if (strcmp (onset_mode, "complexdomain") == 0
              || strcmp (onset_mode, "complex") == 0) {
-    aubio_onset_set_delay (o, 4.6 * o->hop_size);
-    aubio_onset_set_threshold (o, 0.15);
+    aubio_onset_set_delay (o, (uint_t)(4.6 * o->hop_size));
+    aubio_onset_set_threshold (o, (smpl_t)0.15);
     aubio_onset_set_awhitening(o, 1);
     aubio_onset_set_compression (o, 1.);
   } else if (strcmp (onset_mode, "phase") == 0) {
@@ -310,15 +315,15 @@ uint_t aubio_onset_set_default_parameters (aubio_onset_t * o, const char_t * ons
   } else if (strcmp (onset_mode, "wphase") == 0) {
     // use defaults for now
   } else if (strcmp (onset_mode, "mkl") == 0) {
-    aubio_onset_set_threshold (o, 0.05);
+    aubio_onset_set_threshold (o, (smpl_t)0.05);
     aubio_onset_set_awhitening(o, 1);
-    aubio_onset_set_compression (o, 0.02);
+    aubio_onset_set_compression (o, (smpl_t)0.02);
   } else if (strcmp (onset_mode, "kl") == 0) {
-    aubio_onset_set_threshold (o, 0.35);
+    aubio_onset_set_threshold (o, (smpl_t)0.35);
     aubio_onset_set_awhitening(o, 1);
-    aubio_onset_set_compression (o, 0.02);
+    aubio_onset_set_compression (o, (smpl_t)0.02);
   } else if (strcmp (onset_mode, "specflux") == 0) {
-    aubio_onset_set_threshold (o, 0.18);
+    aubio_onset_set_threshold (o, (smpl_t)0.18);
     aubio_onset_set_awhitening(o, 1);
     aubio_spectral_whitening_set_relax_time(o->spectral_whitening, 100);
     aubio_spectral_whitening_set_floor(o->spectral_whitening, 1.);
@@ -326,7 +331,7 @@ uint_t aubio_onset_set_default_parameters (aubio_onset_t * o, const char_t * ons
   } else if (strcmp (onset_mode, "specdiff") == 0) {
   } else if (strcmp (onset_mode, "old_default") == 0) {
     // used to reproduce results obtained with the previous version
-    aubio_onset_set_threshold (o, 0.3);
+    aubio_onset_set_threshold (o, (smpl_t)0.3);
     aubio_onset_set_minioi_ms (o, 20.);
     aubio_onset_set_compression (o, 0.);
   } else {

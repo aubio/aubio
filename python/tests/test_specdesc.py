@@ -60,7 +60,7 @@ class aubio_specdesc(TestCase):
         # phase of random is not zero
         spec.norm[:] = 1
         assert (o(spec) != 0.)
-    
+
     def test_hfc(self):
         o = specdesc("hfc")
         c = cvec()
@@ -120,7 +120,7 @@ class aubio_specdesc(TestCase):
         centroid = sum(a*a) / sum(a)
         assert_almost_equal (centroid, o(c), decimal = 2)
 
-        c.norm = a * .5 
+        c.norm = a * .5
         assert_almost_equal (centroid, o(c), decimal = 2)
 
     def test_spread(self):
@@ -190,17 +190,17 @@ class aubio_specdesc(TestCase):
         a = arange(c.length * 2, 0, -2, dtype=float_type)
         k = arange(c.length, dtype=float_type)
         c.norm = a
-        decrease = sum((a[1:] - a [0]) / k[1:]) / sum(a[1:]) 
+        decrease = sum((a[1:] - a [0]) / k[1:]) / sum(a[1:])
         assert_almost_equal (decrease, o(c), decimal = 5)
 
         a = arange(0, c.length * 2, +2, dtype=float_type)
         c.norm = a
-        decrease = sum((a[1:] - a [0]) / k[1:]) / sum(a[1:]) 
+        decrease = sum((a[1:] - a [0]) / k[1:]) / sum(a[1:])
         assert_almost_equal (decrease, o(c), decimal = 5)
 
         a = arange(0, c.length * 2, +2, dtype=float_type)
         c.norm = a * 2
-        decrease = sum((a[1:] - a [0]) / k[1:]) / sum(a[1:]) 
+        decrease = sum((a[1:] - a [0]) / k[1:]) / sum(a[1:])
         assert_almost_equal (decrease, o(c), decimal = 5)
 
     def get_rolloff (self, a):

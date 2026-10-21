@@ -1,0 +1,231 @@
+name: Security - Sanitizer Tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**/*.c'
+      - 'src/**/*.h'
+      - 'python/ext/**/*.c'
+      - 'python/ext/**/*.h'
+      - 'examples/**/*.c'
+      - 'examples/**/*.h'
+      - 'tests/**/*.c'
+      - 'tests/**/*.h'
+      - 'meson.build'
+      - 'src/meson.build'
+      - 'python/meson.build'
+      - 'meson_options.txt'
+      - '.github/workflows/sanitizers.yml'
+  pull_request:
+    paths:
+      - 'src/**/*.c'
+      - 'src/**/*.h'
+      - 'python/ext/**/*.c'
+      - 'python/ext/**/*.h'
+      - 'examples/**/*.c'
+      - 'examples/**/*.h'
+      - 'tests/**/*.c'
+      - 'tests/**/*.h'
+      - 'meson.build'
+      - 'src/meson.build'
+      - 'python/meson.build'
+      - 'meson_options.txt'
+      - '.github/workflows/sanitizers.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  asan-ubsan:
+    name: AddressSanitizer + UndefinedBehaviorSanitizer
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends \
+            libsndfile1-dev libsamplerate0-dev libfftw3-dev \
+            libavcodec-dev libavformat-dev libswresample-dev libavutil-dev
+          pip install meson ninja numpy
+
+      - name: Setup build with sanitizers
+        run: |
+          meson setup builddir \
+            -Db_sanitize=address,undefined \
+            -Dbuildtype=debugoptimized \
+            -Dtests=true \
+            -Dsecurity_hardening=true
+
+      - name: Build
+        run: meson compile -C builddir
+
+      - name: Run tests with sanitizers
+        run: meson test -C builddir --print-errorlogs
+        env:
+          ASAN_OPTIONS: detect_leaks=1:symbolize=1:abort_on_error=1:detect_stack_use_after_return=1
+          UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
+
+      - name: Upload test logs on failure
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: asan-ubsan-test-logs
+          path: builddir/meson-logs/
+
+      - name: Generate test summary
+        if: always()
+        run: |
+          {
+            echo "## Sanitizer Test Results"
+            echo ""
+            if [ -f builddir/meson-logs/testlog.txt ]; then
+              echo '```'
+              tail -20 builddir/meson-logs/testlog.txt
+              echo '```'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  ubsan-only:
+    name: UndefinedBehaviorSanitizer (standalone)
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends \
+            libsndfile1-dev libsamplerate0-dev libfftw3-dev \
+            libavcodec-dev libavformat-dev libswresample-dev libavutil-dev
+          pip install meson ninja numpy
+
+      - name: Setup build with UBSAN
+        run: |
+          meson setup builddir \
+            -Db_sanitize=undefined \
+            -Dbuildtype=release \
+            -Dtests=true \
+            -Dsecurity_hardening=true
+
+      - name: Build
+        run: meson compile -C builddir
+
+      - name: Run tests
+        run: meson test -C builddir --print-errorlogs
+        env:
+          UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1:report_error_type=1
+
+      - name: Upload test logs on failure
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ubsan-test-logs
+          path: builddir/meson-logs/
+
+  valgrind:
+    name: Valgrind Memory Check
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y -q --no-install-recommends valgrind libsndfile1-dev libsamplerate0-dev libfftw3-dev \
+            libavcodec-dev libavformat-dev libswresample-dev libavutil-dev
+          pip install meson ninja numpy
+
+      - name: Setup build
+        run: |
+          meson setup builddir \
+            -Dbuildtype=debugoptimized \
+            -Dtests=true \
+            -Dsecurity_hardening=true
+
+      - name: Build
+        run: meson compile -C builddir
+
+      - name: Run tests with Valgrind
+        run: |
+          # Run full test suite with Valgrind
+          # Checks for memory errors but allows small leaks in test infrastructure
+          meson test -C builddir --wrap='valgrind --error-exitcode=1 --track-origins=yes' --print-errorlogs
+
+          # Also run with leak checking to report leaks (but don't fail on them)
+          echo "Running leak check (informational only)..."
+          meson test -C builddir --wrap='valgrind --leak-check=full --show-leak-kinds=definite,possible' --print-errorlogs || true
+
+      - name: Upload Valgrind logs on failure
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: valgrind-logs
+          path: |
+            builddir/meson-logs/
+            valgrind-*.log
+
+  security-summary:
+    name: Security Test Summary
+    runs-on: ubuntu-latest
+    needs: [asan-ubsan, ubsan-only, valgrind]
+    if: always()
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Generate summary
+        env:
+          ASAN: ${{ needs.asan-ubsan.result }}
+          UBSAN: ${{ needs.ubsan-only.result }}
+          VALGRIND: ${{ needs.valgrind.result }}
+        run: |
+          {
+            echo "# Security Testing Summary"
+            echo ""
+            echo "| Test Suite | Status |"
+            echo "|------------|--------|"
+            echo "| ASAN + UBSAN | $ASAN |"
+            echo "| UBSAN (Release) | $UBSAN |"
+            echo "| Valgrind | $VALGRIND |"
+            echo ""
+            if [ "$ASAN" = success ] && [ "$UBSAN" = success ] && [ "$VALGRIND" = success ]; then
+              echo "✅ All security tests passed!"
+            else
+              echo "❌ Some security tests failed. Please review the logs."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

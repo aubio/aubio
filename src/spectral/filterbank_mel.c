@@ -90,10 +90,10 @@ aubio_filterbank_set_triangle_bands (aubio_filterbank_t * fb,
   }
 
   /* compute triangle heights so that each triangle has unit area */
-  if (aubio_filterbank_get_norm(fb)) {
+  if (aubio_filterbank_get_norm(fb) != 0) {
     for (fn = 0; fn < n_filters; fn++) {
       triangle_heights->data[fn] =
-          2. / (upper_freqs->data[fn] - lower_freqs->data[fn]);
+          2 / (upper_freqs->data[fn] - lower_freqs->data[fn]);
     }
   } else {
     fvec_ones (triangle_heights);
@@ -102,7 +102,7 @@ aubio_filterbank_set_triangle_bands (aubio_filterbank_t * fb,
   /* fill fft_freqs lookup table, which assigns the frequency in hz to each bin */
   for (bin = 0; bin < win_s; bin++) {
     fft_freqs->data[bin] =
-        aubio_bintofreq (bin, samplerate, (win_s - 1) * 2);
+        aubio_bintofreq ((smpl_t)bin, samplerate, (smpl_t)((win_s - 1) * 2));
   }
 
   /* zeroing of all filters */
@@ -171,16 +171,16 @@ aubio_filterbank_set_mel_coeffs_slaney (aubio_filterbank_t * fb,
     smpl_t samplerate)
 {
   /* Malcolm Slaney parameters */
-  const smpl_t lowestFrequency = 133.3333;
-  const smpl_t linearSpacing = 66.66666666;
-  const smpl_t logSpacing = 1.0711703;
+  const double lowestFrequency = 133.3333;
+  const double linearSpacing = 66.66666666;
+  const double logSpacing = 1.0711703;
 
   const uint_t linearFilters = 13;
   const uint_t logFilters = 27;
   const uint_t n_filters = linearFilters + logFilters;
 
   uint_t fn, retval;
-  smpl_t lastlinearCF;
+  double lastlinearCF;
 
   /* buffers to compute filter frequencies */
   fvec_t *freqs;
@@ -194,14 +194,14 @@ aubio_filterbank_set_mel_coeffs_slaney (aubio_filterbank_t * fb,
 
   /* first step: fill all the linear filter frequencies */
   for (fn = 0; fn < linearFilters; fn++) {
-    freqs->data[fn] = lowestFrequency + fn * linearSpacing;
+    freqs->data[fn] = (smpl_t)(lowestFrequency + fn * linearSpacing);
   }
-  lastlinearCF = freqs->data[fn - 1];
+  lastlinearCF = lowestFrequency + (fn - 1) * linearSpacing;
 
   /* second step: fill all the log filter frequencies */
   for (fn = 0; fn < logFilters + 2; fn++) {
     freqs->data[fn + linearFilters] =
-        lastlinearCF * (POW (logSpacing, fn + 1));
+        (smpl_t)(lastlinearCF * pow (logSpacing, fn + 1));
   }
 
   /* now compute the actual coefficients */
@@ -224,7 +224,7 @@ static uint_t aubio_filterbank_check_freqs (aubio_filterbank_t *fb UNUSED,
     AUBIO_ERR("filterbank: set_mel_coeffs freq_max should be > 0\n");
     return AUBIO_FAIL;
   } else if (*freq_max == 0) {
-    *freq_max = samplerate / 2.;
+    *freq_max = samplerate / 2;
   }
   if (*freq_min < 0) {
     AUBIO_ERR("filterbank: set_mel_coeffs freq_min should be > 0\n");
@@ -251,11 +251,11 @@ aubio_filterbank_set_mel_coeffs (aubio_filterbank_t * fb, smpl_t samplerate,
   end = aubio_hztomel(end);
 
   freqs = new_fvec(n_bands + 2);
-  step = (end - start) / (n_bands + 1);
+  step = (end - start) / (smpl_t)(n_bands + 1);
 
   for (m = 0; m < n_bands + 2; m++)
   {
-    freqs->data[m] = MIN(aubio_meltohz(start + step * m), samplerate/2.);
+    freqs->data[m] = MIN(aubio_meltohz(start + step * (smpl_t)m), samplerate / 2);
   }
 
   retval = aubio_filterbank_set_triangle_bands (fb, freqs, samplerate);
@@ -283,11 +283,11 @@ aubio_filterbank_set_mel_coeffs_htk (aubio_filterbank_t * fb, smpl_t samplerate,
   end = aubio_hztomel_htk(end);
 
   freqs = new_fvec (n_bands + 2);
-  step = (end - start) / (n_bands + 1);
+  step = (end - start) / (smpl_t)(n_bands + 1);
 
   for (m = 0; m < n_bands + 2; m++)
   {
-    freqs->data[m] = MIN(aubio_meltohz_htk(start + step * m), samplerate/2.);
+    freqs->data[m] = MIN(aubio_meltohz_htk(start + step * (smpl_t)m), samplerate / 2);
   }
 
   retval = aubio_filterbank_set_triangle_bands (fb, freqs, samplerate);

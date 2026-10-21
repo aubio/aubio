@@ -1,0 +1,30 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "python",
+  "include-component-in-tag": false,
+  "bump-minor-pre-major": true,
+  "draft": true,
+  "force-tag-creation": true,
+  "bootstrap-sha": "c9b3bfeebc8acb87940d5e380a693c2f58f713fd",
+  "packages": {
+    ".": {
+      "package-name": "aubio-ledfx",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "meson.build"
+        },
+        {
+          "type": "generic",
+          "path": "VERSION"
+        },
+        {
+          "type": "json",
+          "path": "vcpkg.json",
+          "jsonpath": "$['version-string']"
+        }
+      ]
+    }
+  }
+}

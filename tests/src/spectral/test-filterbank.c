@@ -1,4 +1,5 @@
 #include <aubio.h>
+#include "utils_tests.h"
 
 int main (void)
 {
@@ -8,8 +9,8 @@ int main (void)
   cvec_t *in_spec = new_cvec (win_s); // input vector of samples
   fvec_t *out_filters = new_fvec (n_filters); // per-band outputs
 
-  if (new_aubio_filterbank(0, win_s)) return 1;
-  if (new_aubio_filterbank(n_filters, 0)) return 1;
+  EXPECT_LOGGED(if (new_aubio_filterbank(0, win_s)) return 1);
+  EXPECT_LOGGED(if (new_aubio_filterbank(n_filters, 0)) return 1);
 
   // create filterbank object
   aubio_filterbank_t *o = new_aubio_filterbank (n_filters, win_s);

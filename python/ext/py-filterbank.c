@@ -237,7 +237,7 @@ Py_filterbank_new (PyTypeObject * type, PyObject * args, PyObject * kwds)
 }
 
 static int
-Py_filterbank_init (Py_filterbank * self, PyObject * args, PyObject * kwds)
+Py_filterbank_init (Py_filterbank * self, PyObject * Py_UNUSED(args), PyObject * Py_UNUSED(kwds))
 {
   self->o = new_aubio_filterbank (self->n_filters, self->win_s);
   if (self->o == NULL) {
@@ -251,7 +251,7 @@ Py_filterbank_init (Py_filterbank * self, PyObject * args, PyObject * kwds)
 }
 
 static void
-Py_filterbank_del (Py_filterbank *self, PyObject *unused)
+Py_filterbank_del (Py_filterbank *self)
 {
   if (self->o) {
     free(self->coeffs.data);
@@ -262,7 +262,7 @@ Py_filterbank_del (Py_filterbank *self, PyObject *unused)
 }
 
 static PyObject *
-Py_filterbank_do(Py_filterbank * self, PyObject * args)
+Py_filterbank_do(Py_filterbank * self, PyObject * args, PyObject * Py_UNUSED(kwds))
 {
   PyObject *input;
 
@@ -295,7 +295,7 @@ static PyMemberDef Py_filterbank_members[] = {
     "size of the window"},
   {"n_filters", T_INT, offsetof (Py_filterbank, n_filters), READONLY,
     "number of filters"},
-  {NULL} /* sentinel */
+  {0} /* sentinel */
 };
 
 static PyObject *
@@ -303,7 +303,7 @@ Py_filterbank_set_triangle_bands (Py_filterbank * self, PyObject *args)
 {
   uint_t err = 0;
 
-  PyObject *input;
+  PyObject *input, *owner;
   smpl_t samplerate;
   if (!PyArg_ParseTuple (args, "O" AUBIO_NPY_SMPL_CHR, &input, &samplerate)) {
     return NULL;
@@ -313,12 +313,13 @@ Py_filterbank_set_triangle_bands (Py_filterbank * self, PyObject *args)
     return NULL;
   }
 
-  if (!PyAubio_ArrayToCFvec(input, &(self->freqs) )) {
+  if (!PyAubio_ArrayToCFvecIn(input, &(self->freqs), &owner)) {
     return NULL;
   }
 
   err = aubio_filterbank_set_triangle_bands (self->o,
       &(self->freqs), samplerate);
+  Py_DECREF(owner);
   if (err > 0) {
     if (PyErr_Occurred() == NULL) {
       PyErr_SetString (PyExc_ValueError, "error running set_triangle_bands");
@@ -433,16 +434,17 @@ Py_filterbank_set_coeffs (Py_filterbank * self, PyObject *args)
 {
   uint_t err = 0;
 
-  PyObject *input;
+  PyObject *input, *owner;
   if (!PyArg_ParseTuple (args, "O", &input)) {
     return NULL;
   }
 
-  if (!PyAubio_ArrayToCFmat(input, &(self->coeffs))) {
+  if (!PyAubio_ArrayToCFmatIn(input, &(self->coeffs), &owner)) {
     return NULL;
   }
 
   err = aubio_filterbank_set_coeffs (self->o, &(self->coeffs));
+  Py_DECREF(owner);
 
   if (err > 0) {
     PyErr_SetString (PyExc_ValueError,
@@ -453,7 +455,7 @@ Py_filterbank_set_coeffs (Py_filterbank * self, PyObject *args)
 }
 
 static PyObject *
-Py_filterbank_get_coeffs (Py_filterbank * self, PyObject *unused)
+Py_filterbank_get_coeffs (Py_filterbank * self, PyObject *Py_UNUSED(unused))
 {
   return (PyObject *)PyAubio_CFmatToArray(
       aubio_filterbank_get_coeffs (self->o) );
@@ -486,7 +488,7 @@ Py_filterbank_set_power(Py_filterbank *self, PyObject *args)
 }
 
 static PyObject *
-Py_filterbank_get_power (Py_filterbank * self, PyObject *unused)
+Py_filterbank_get_power (Py_filterbank * self, PyObject *Py_UNUSED(unused))
 {
   smpl_t power = aubio_filterbank_get_power(self->o);
   return (PyObject *)PyFloat_FromDouble (power);
@@ -519,7 +521,7 @@ Py_filterbank_set_norm(Py_filterbank *self, PyObject *args)
 }
 
 static PyObject *
-Py_filterbank_get_norm (Py_filterbank * self, PyObject *unused)
+Py_filterbank_get_norm (Py_filterbank * self, PyObject *Py_UNUSED(unused))
 {
   smpl_t norm = aubio_filterbank_get_norm(self->o);
   return (PyObject *)PyFloat_FromDouble (norm);
@@ -546,55 +548,19 @@ static PyMethodDef Py_filterbank_methods[] = {
     METH_VARARGS, Py_filterbank_set_norm_doc},
   {"get_norm", (PyCFunction) Py_filterbank_get_norm,
     METH_NOARGS, Py_filterbank_get_norm_doc},
-  {NULL}
+  {0}
 };
 
 PyTypeObject Py_filterbankType = {
   PyVarObject_HEAD_INIT (NULL, 0)
-  "aubio.filterbank",
-  sizeof (Py_filterbank),
-  0,
-  (destructor) Py_filterbank_del,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  (ternaryfunc)Py_filterbank_do,
-  0,
-  0,
-  0,
-  0,
-  Py_TPFLAGS_DEFAULT,
-  Py_filterbank_doc,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  Py_filterbank_methods,
-  Py_filterbank_members,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  (initproc) Py_filterbank_init,
-  0,
-  Py_filterbank_new,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
+  .tp_name = "aubio.filterbank",
+  .tp_basicsize = sizeof (Py_filterbank),
+  .tp_dealloc = (destructor) Py_filterbank_del,
+  .tp_call = (ternaryfunc)Py_filterbank_do,
+  .tp_flags = Py_TPFLAGS_DEFAULT,
+  .tp_doc = Py_filterbank_doc,
+  .tp_methods = Py_filterbank_methods,
+  .tp_members = Py_filterbank_members,
+  .tp_init = (initproc) Py_filterbank_init,
+  .tp_new = Py_filterbank_new,
 };

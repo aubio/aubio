@@ -9,7 +9,7 @@ int main (int argc, char **argv)
 
   if (argc < 3) {
     err = 2;
-    PRINT_WRN("no arguments, running tests\n");
+    PRINT_MSG("no arguments given, running the built-in tests\n");
     err = test_wrong_params();
     PRINT_MSG("usage: %s <input_path> <output_path> [samplerate] [hop_size]\n", argv[0]);
     return err;
@@ -96,9 +96,9 @@ int test_wrong_params(void)
   uint_t samplerate = 44100;
   aubio_spectral_whitening_t *o;
 
-  if (new_aubio_spectral_whitening(       0, hop_size, samplerate)) return 1;
-  if (new_aubio_spectral_whitening(buf_size,        0, samplerate)) return 1;
-  if (new_aubio_spectral_whitening(buf_size, hop_size,          0)) return 1;
+  EXPECT_LOGGED(if (new_aubio_spectral_whitening(       0, hop_size, samplerate)) return 1);
+  EXPECT_LOGGED(if (new_aubio_spectral_whitening(buf_size,        0, samplerate)) return 1);
+  EXPECT_LOGGED(if (new_aubio_spectral_whitening(buf_size, hop_size,          0)) return 1);
 
   o = new_aubio_spectral_whitening(buf_size, hop_size, samplerate);
 

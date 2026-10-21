@@ -39,6 +39,10 @@ aubio_parameter_t * new_aubio_parameter (smpl_t min_value, smpl_t max_value, uin
 {
   aubio_parameter_t * param = AUBIO_NEW(aubio_parameter_t);
 
+  if (!param) {
+    return NULL;
+  }
+
   param->min_value = min_value;
   param->max_value = max_value;
   param->steps = steps;
@@ -62,7 +66,7 @@ uint_t aubio_parameter_set_target_value ( aubio_parameter_t * param, smpl_t valu
   } else {
     param->target_value = value;
   }
-  param->increment = ( param->target_value - param->current_value ) / param->steps;
+  param->increment = ( param->target_value - param->current_value ) / (smpl_t)param->steps;
   return err;
 }
 
@@ -104,7 +108,7 @@ uint_t aubio_parameter_set_steps ( aubio_parameter_t * param, uint_t steps )
     return AUBIO_FAIL;
   }
   param->steps = steps;
-  param->increment = ( param->target_value - param->current_value ) / param->steps;
+  param->increment = ( param->target_value - param->current_value ) / (smpl_t)param->steps;
   return AUBIO_OK;
 }
 

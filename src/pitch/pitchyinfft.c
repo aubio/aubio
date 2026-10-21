@@ -40,14 +40,14 @@ struct _aubio_pitchyinfft_t
   uint_t short_period; /** shortest period under which to check for octave error */
 };
 
-static const smpl_t freqs[] = {
+static const double freqs[] = {
      0.,    20.,    25.,   31.5,    40.,    50.,    63.,    80.,   100.,   125.,
    160.,   200.,   250.,   315.,   400.,   500.,   630.,   800.,  1000.,  1250.,
   1600.,  2000.,  2500.,  3150.,  4000.,  5000.,  6300.,  8000.,  9000., 10000.,
  12500., 15000., 20000., 25100., -1.
 };
 
-static const smpl_t weight[] = {
+static const double weight[] = {
   -75.8,  -70.1,  -60.8,  -52.1,  -44.2,  -37.5,  -31.3,  -25.6,  -20.9,  -16.5,
   -12.6,  -9.60,  -7.00,  -4.70,  -3.00,  -1.80,  -0.80,  -0.20,  -0.00,   0.50,
    1.60,   3.20,   5.40,   7.80,   8.10,   5.30,  -2.40,  -11.1,  -12.8,  -12.2,
@@ -57,48 +57,53 @@ static const smpl_t weight[] = {
 aubio_pitchyinfft_t *
 new_aubio_pitchyinfft (uint_t samplerate, uint_t bufsize)
 {
+  // last entry of the weighting table (freqs has an extra -1 terminator)
+  const uint_t last = sizeof(weight) / sizeof(weight[0]) - 1;
   uint_t i = 0, j = 1;
-  smpl_t freq = 0, a0 = 0, a1 = 0, f0 = 0, f1 = 0;
+  double freq = 0, a0 = 0, a1 = 0, f0 = 0, f1 = 0, w;
   aubio_pitchyinfft_t *p = AUBIO_NEW (aubio_pitchyinfft_t);
+
+  if (!p) {
+    return NULL;
+  }
   p->winput = new_fvec (bufsize);
   p->fft = new_aubio_fft (bufsize);
   if (!p->fft) goto beach;
   p->fftout = new_fvec (bufsize);
   p->sqrmag = new_fvec (bufsize);
   p->yinfft = new_fvec (bufsize / 2 + 1);
-  p->tol = 0.85;
+  p->tol = (smpl_t)0.85;
   p->peak_pos = 0;
   p->win = new_aubio_window ("hanningz", bufsize);
   p->weight = new_fvec (bufsize / 2 + 1);
   for (i = 0; i < p->weight->length; i++) {
-    freq = (smpl_t) i / (smpl_t) bufsize *(smpl_t) samplerate;
-    while (freq > freqs[j] && freqs[j] > 0) {
-      //AUBIO_DBG("freq %3.5f > %3.5f \tsamplerate %d (Hz) \t"
-      //    "(weight length %d, bufsize %d) %d %d\n", freq, freqs[j],
-      //    samplerate, p->weight->length, bufsize, i, j);
+    freq = (double) i / bufsize * samplerate;
+    // find the table segment [j - 1, j] holding freq, staying in the table
+    while (j < last && freq > freqs[j]) {
       j += 1;
     }
-    a0 = weight[j - 1];
-    f0 = freqs[j - 1];
-    a1 = weight[j];
-    f1 = freqs[j];
-    if (f0 == f1) {           // just in case
-      p->weight->data[i] = a0;
-    } else if (f0 == 0) {     // y = ax+b
-      p->weight->data[i] = (a1 - a0) / f1 * freq + a0;
+    if (freq >= freqs[last]) {
+      // above the table (samplerate > 2 * 25.1kHz): hold its last weight
+      w = weight[last];
     } else {
-      p->weight->data[i] = (a1 - a0) / (f1 - f0) * freq +
-          (a0 - (a1 - a0) / (f1 / f0 - 1.));
+      a0 = weight[j - 1];
+      f0 = freqs[j - 1];
+      a1 = weight[j];
+      f1 = freqs[j];
+      if (f0 == f1) {           // just in case
+        w = a0;
+      } else if (f0 == 0) {     // y = ax+b
+        w = (a1 - a0) / f1 * freq + a0;
+      } else {
+        w = (a1 - a0) / (f1 - f0) * freq +
+            (a0 - (a1 - a0) / (f1 / f0 - 1.));
+      }
     }
-    while (freq > freqs[j]) {
-      j += 1;
-    }
-    //AUBIO_DBG("%f\n",p->weight->data[i]);
-    p->weight->data[i] = DB2LIN (p->weight->data[i]);
-    //p->weight->data[i] = SQRT(DB2LIN(p->weight->data[i]));
+    // from dB to linear
+    p->weight->data[i] = (smpl_t)pow(10., w * 0.05);
   }
   // check for octave errors above 1300 Hz
-  p->short_period = (uint_t)ROUND(samplerate / 1300.);
+  p->short_period = (uint_t)floor(samplerate / 1300. + .5);
   return p;
 
 beach:
@@ -134,7 +139,7 @@ aubio_pitchyinfft_do (aubio_pitchyinfft_t * p, const fvec_t * input, fvec_t * ou
   for (l = 0; l < length / 2 + 1; l++) {
     sum += p->sqrmag->data[l];
   }
-  sum *= 2.;
+  sum *= 2;
   // get the real / imag parts of the fft of the squared magnitude
   aubio_fft_do_complex (p->fft, p->sqrmag, fftout);
   yin->data[0] = 1.;
@@ -144,7 +149,7 @@ aubio_pitchyinfft_do (aubio_pitchyinfft_t * p, const fvec_t * input, fvec_t * ou
     // and the cumulative mean normalized difference function
     tmp += yin->data[tau];
     if (tmp != 0) {
-      yin->data[tau] *= tau / tmp;
+      yin->data[tau] *= (smpl_t)tau / tmp;
     } else {
       yin->data[tau] = 1.;
     }
@@ -163,7 +168,7 @@ aubio_pitchyinfft_do (aubio_pitchyinfft_t * p, const fvec_t * input, fvec_t * ou
       output->data[0] = fvec_quadratic_peak_pos (yin, tau);
     } else {
       /* should compare the minimum value of each interpolated peaks */
-      halfperiod = FLOOR (tau / 2 + .5);
+      halfperiod = tau / 2;
       if (yin->data[halfperiod] < p->tol)
         p->peak_pos = halfperiod;
       else
@@ -191,7 +196,7 @@ del_aubio_pitchyinfft (aubio_pitchyinfft_t * p)
 
 smpl_t
 aubio_pitchyinfft_get_confidence (aubio_pitchyinfft_t * o) {
-  return 1. - o->yinfft->data[o->peak_pos];
+  return 1 - o->yinfft->data[o->peak_pos];
 }
 
 uint_t

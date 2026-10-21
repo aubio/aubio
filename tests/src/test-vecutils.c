@@ -1,11 +1,11 @@
 #include "aubio.h"
 #include "utils_tests.h"
 
-void assert_fvec_all_almost_equal(fvec_t *vec, smpl_t scalar, smpl_t err)
+void assert_fvec_all_almost_equal(fvec_t *vec, smpl_t scalar, double err)
 {
   uint_t i;
   for (i = 0; i < vec->length; i++) {
-    assert( fabs(vec->data[i] - scalar) < (smpl_t)err );
+    assert( fabs(vec->data[i] - scalar) < err );
   }
 }
 
@@ -17,7 +17,7 @@ int main (void)
 
   fvec_set_all(vec, 2);
   fvec_exp(vec);
-  assert_fvec_all_almost_equal(vec, exp(2), 1e-10);
+  assert_fvec_all_almost_equal(vec, (smpl_t)exp(2), 1e-10);
 
   fvec_set_all(vec, 0);
   fvec_cos(vec);
@@ -43,15 +43,15 @@ int main (void)
   fvec_log(vec);
   assert_fvec_all_almost_equal(vec, 0., 1e-10);
 
-  fvec_set_all(vec, 1.6);
+  fvec_set_all(vec, (smpl_t)1.6);
   fvec_floor(vec);
   assert_fvec_all_almost_equal(vec, 1., 1e-10);
 
-  fvec_set_all(vec, 1.6);
+  fvec_set_all(vec, (smpl_t)1.6);
   fvec_ceil(vec);
   assert_fvec_all_almost_equal(vec, 2., 1e-10);
 
-  fvec_set_all(vec, 1.6);
+  fvec_set_all(vec, (smpl_t)1.6);
   fvec_round(vec);
   assert_fvec_all_almost_equal(vec, 2., 1e-10);
 

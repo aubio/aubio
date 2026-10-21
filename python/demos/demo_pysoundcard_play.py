@@ -5,7 +5,7 @@ def play_source(source_path):
 
     from aubio import source
     from pysoundcard import Stream
-    
+
     hop_size = 256
     f = source(source_path, hop_size = hop_size)
     samplerate = f.samplerate

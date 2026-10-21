@@ -7,7 +7,7 @@ int main(int argc, char **argv)
 {
   uint_t err = 0;
   if (argc < 3 || argc >= 6) {
-    PRINT_ERR("wrong number of arguments, running tests\n");
+    PRINT_MSG("no arguments given, running the built-in tests\n");
     err = test_wrong_params();
     PRINT_MSG("usage: %s <input_path> <output_path> [samplerate] [hop_size]\n",
         argv[0]);
@@ -78,16 +78,16 @@ int test_wrong_params(void)
 
   if (!fd) return 1;
 
-  if (new_aubio_sink(   0,   samplerate)) return 1;
-  if (new_aubio_sink("\0",   samplerate)) return 1;
-  if (new_aubio_sink(sink_path,      -1)) return 1;
+  EXPECT_LOGGED(if (new_aubio_sink(   0,   samplerate)) return 1);
+  EXPECT_LOGGED(if (new_aubio_sink("\0",   samplerate)) return 1);
+  EXPECT_LOGGED(if (new_aubio_sink(sink_path,      -1)) return 1);
 
   s = new_aubio_sink(sink_path, 0);
 
   // check setting wrong parameters fails
-  if (!aubio_sink_preset_samplerate(s, oversized_samplerate)) return 1;
-  if (!aubio_sink_preset_channels(s, oversized_channels)) return 1;
-  if (!aubio_sink_preset_channels(s, -1)) return 1;
+  EXPECT_LOGGED(if (!aubio_sink_preset_samplerate(s, oversized_samplerate)) return 1);
+  EXPECT_LOGGED(if (!aubio_sink_preset_channels(s, oversized_channels)) return 1);
+  EXPECT_LOGGED(if (!aubio_sink_preset_channels(s, -1)) return 1);
 
   // check setting valid parameters passes
   if (aubio_sink_preset_samplerate(s, samplerate)) return 1;
@@ -97,14 +97,14 @@ int test_wrong_params(void)
   vec = new_fvec(hop_size);
   aubio_sink_do(s, vec, hop_size);
   // check writing more than in the input
-  aubio_sink_do(s, vec, hop_size+1);
+  EXPECT_LOGGED(aubio_sink_do(s, vec, hop_size+1));
   // check write 0 frames
   aubio_sink_do(s, vec, 0);
   del_fvec(vec);
 
   // check writing an oversized vector
   vec = new_fvec(oversized_hop_size);
-  aubio_sink_do(s, vec, oversized_hop_size);
+  EXPECT_LOGGED(aubio_sink_do(s, vec, oversized_hop_size));
   del_fvec(vec);
 
   // test delete without closing
@@ -125,17 +125,17 @@ int test_wrong_params(void)
   // check writing 0 frames
   aubio_sink_do_multi(s, mat, 0);
   // check writing more than in the input
-  aubio_sink_do_multi(s, mat, hop_size+1);
+  EXPECT_LOGGED(aubio_sink_do_multi(s, mat, hop_size+1));
   del_fmat(mat);
 
   // check writing oversized input
   mat = new_fmat(channels, oversized_hop_size);
-  aubio_sink_do_multi(s, mat, oversized_hop_size);
+  EXPECT_LOGGED(aubio_sink_do_multi(s, mat, oversized_hop_size));
   del_fmat(mat);
 
   // check writing undersized input
   mat = new_fmat(channels - 1, hop_size);
-  aubio_sink_do_multi(s, mat, hop_size);
+  EXPECT_LOGGED(aubio_sink_do_multi(s, mat, hop_size));
   del_fmat(mat);
 
   aubio_sink_close(s);

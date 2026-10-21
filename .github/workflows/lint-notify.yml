@@ -1,0 +1,137 @@
+# Posts the "lint gate failed, autofix couldn't fix it" comment on pull requests.
+#
+# Runs in the trusted workflow_run context: GitHub executes *this file from
+# the default branch*, not from the PR, so pull-request code cannot touch it
+# and the ledfx-automation secrets are available here — they are never
+# available to build.yml, which runs pull-request code.
+#
+# Noise policy (deliberate): comment ONLY when the lint gate failed AND the
+# autofix workflow is not already pushing a fix. When autofix has started (or
+# already succeeded, pushing a fix commit that re-triggers CI), the comment
+# would be noise about a problem that is fixing itself.
+#
+# The triggering run's own conclusion is the signal (no success/fail payload
+# is passed between workflows): this workflow looks up the Lint (prek) job of
+# that run and the sibling autofix run for the same commit. Two tokens,
+# minimal surfaces:
+#   - GITHUB_TOKEN (actions: read) reads job conclusions.
+#   - ledfx-automation app token (pull-requests: write) posts the comment,
+#     so it authors as ledfx-automation[bot] and notifies subscribers.
+
+name: Lint failure notify
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+permissions:
+  actions: read  # inspects the triggering run's job conclusions
+
+concurrency:
+  group: lint-notify-${{ github.event.workflow_run.id }}
+  cancel-in-progress: false
+
+jobs:
+  notify:
+    name: Comment when lint fails unfixably
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'failure'
+    steps:
+      - name: Inspect the triggering run's lint and autofix jobs
+        id: lint
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          REPO: ${{ github.repository }}
+        run: |
+          lint="$(gh api "repos/$REPO/actions/runs/$RUN_ID/jobs" \
+            --jq '.jobs[] | select(.name == "Lint (prek)") | {id, conclusion} | tostring')"
+          echo "lint=$lint" >> "$GITHUB_OUTPUT"
+          echo "lint job: $lint"
+
+      - name: Gate on lint failure
+        if: fromJSON(steps.lint.outputs.lint).conclusion != 'failure'
+        env:
+          LINT: ${{ steps.lint.outputs.lint }}
+        run: |
+          echo "Lint (prek) did not fail (conclusion: $(echo "$LINT" | jq -r .conclusion)); nothing to report."
+
+      - name: Link the PR to this run
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          REPO: ${{ github.repository }}
+        run: |
+          run_meta="$(gh api "repos/$REPO/actions/runs/$RUN_ID" \
+            --jq '{prs: .pull_requests, head_sha: .head_sha, head_branch: .head_branch, owner: .head_repository.owner.login}')"
+          pr="$(echo "$run_meta" | jq -r '[.prs[]][0].number // empty')"
+
+          # workflow_run's pull_requests is empty for fork PRs; fall back to a
+          # head lookup using the run's ACTUAL head owner (the fork), then
+          # verify the match against the run's head SHA before using it.
+          if [ -z "$pr" ]; then
+            head_owner="$(echo "$run_meta" | jq -r .owner)"
+            head_branch="$(echo "$run_meta" | jq -r .head_branch)"
+            head_sha="$(echo "$run_meta" | jq -r .head_sha)"
+            pr="$(gh api "repos/$REPO/pulls?head=$head_owner:$head_branch&state=open" \
+              --jq ".[] | select(.head.sha == \"$head_sha\") | .number" | head -1)"
+          fi
+
+          if [ -z "$pr" ]; then
+            echo "No pull request matching this run; nothing to comment on."
+          fi
+          echo "number=$pr" >> "$GITHUB_OUTPUT"
+
+      - name: Detect an in-flight or successful autofix
+        id: autofix
+        if: steps.pr.outputs.number != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          REPO: ${{ github.repository }}
+        run: |
+          # The autofix workflow runs per commit; a run for the same head SHA
+          # that is queued/in_progress (fix being pushed) or succeeded (fix
+          # pushed) means the lint failure is already being resolved.
+          status="$(gh api "repos/$REPO/actions/workflows/autofix.yml/runs?head_sha=$HEAD_SHA&per_page=5" \
+            --jq '[.workflow_runs[] | select(.conclusion == "" or .conclusion == null or .conclusion == "success")] | length')"
+          echo "count=$status" >> "$GITHUB_OUTPUT"
+          echo "resolved-or-resolving autofix runs: $status"
+
+      - name: Comment only when autofix cannot help
+        id: gate
+        if: >-
+          fromJSON(steps.lint.outputs.lint).conclusion == 'failure' &&
+          steps.autofix.outputs.count == '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "Lint failed and autofix is not pushing a fix; posting."
+
+      - name: Mint the ledfx-automation token
+        if: steps.gate.conclusion == 'success'
+        id: bot-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ secrets.AUTOMATION_APP_CLIENT_ID }} # org secret; see docs.zizmor.sh/audits/#secrets-outside-env for why an environment is not used here
+          private-key: ${{ secrets.AUTOMATION_APP_PRIVATE_KEY }}
+          permission-pull-requests: write # comments only; do not inherit blanket installation permissions
+
+      - name: Comment
+        if: steps.gate.conclusion == 'success'
+        env:
+          GH_TOKEN: ${{ steps.bot-token.outputs.token }}
+          PR: ${{ steps.pr.outputs.number }}
+          REPO: ${{ github.repository }}
+          RUN: ${{ github.event.workflow_run.html_url }}
+        run: |
+          gh pr comment "$PR" --repo "$REPO" --body "🚫 **Build and test jobs were skipped: linting must pass first, and this finding has no autofix.**
+
+          The [Lint (prek)]($RUN) job failed. The [autofix workflow](https://github.com/$REPO/actions/workflows/autofix.yml) did not push a fix for this one, so it needs a human: open the run log for the exact rule and line, fix it, and push.
+
+          Local check: \`uv run prek run --all-files\`."

@@ -1,27 +1,59 @@
-deps = [
-    'utils.c',
-    'jackio.c',
+# Examples build file
+
+# Utility sources shared by all examples
+utils_sources = files(
+  'utils.c',
+  'jackio.c',
+)
+
+# jackio.c talks to JACK when the top-level build found it (HAVE_JACK);
+# libaubio itself does not link libjack.
+
+# Build utility objects library
+utils_inc = include_directories('.')
+src_inc = include_directories('../src')
+
+# On Windows, link against static library; on other platforms use aubio_dep
+if host_system == 'windows'
+  utilsio_link_with = [libaubio_static]
+  utilsio_deps = [jack_dep] + dependencies
+else
+  utilsio_link_with = []
+  utilsio_deps = [aubio_dep, jack_dep]
+endif
+
+utilsio = static_library('utilsio',
+  utils_sources,
+  include_directories: [utils_inc, src_inc, config_inc],
+  dependencies: utilsio_deps,
+  link_with: utilsio_link_with,
+  install: false,
+)
+
+# Example programs
+example_programs = [
+  'aubiomfcc',
+  'aubionotes',
+  'aubioonset',
+  'aubiopitch',
+  'aubioquiet',
+  'aubiotrack',
 ]
 
-progs = {
-    'aubiopitch': ['aubiopitch.c'] + deps,
-    'aubiomfcc':  ['aubiomfcc.c'] + deps,
-    'aubioquiet': ['aubioquiet.c'] + deps,
-    'aubiotrack': ['aubiotrack.c'] + deps,
-    'aubionotes': ['aubionotes.c'] + deps,
-    'aubioonset': ['aubioonset.c'] + deps,
-}
-
-if compiler.has_header('getopt.h')
-  c_args += ['-DHAVE_GETOPT_H']
-endif
-if compiler.has_header('unistd.h')
-  c_args += ['-DHAVE_UNISTD_H']
+# On Windows, need to include aubio_inc for headers
+if host_system == 'windows'
+  example_inc = [utils_inc, src_inc, config_inc, aubio_inc]
+else
+  example_inc = [utils_inc, src_inc, config_inc]
 endif
 
-foreach name, sources : progs
-    executable(name, sources,
-            c_args : c_args,
-            include_directories : '../src',
-            link_with : aubio)
+# Build each example program
+foreach prog : example_programs
+  executable(prog,
+    prog + '.c',
+    include_directories: example_inc,
+    link_with: [utilsio],
+    dependencies: [],
+    install: true,
+  )
 endforeach

@@ -28,8 +28,7 @@ int main (void)
   }
 
   assert (new_aubio_window("parzen", -1) == NULL);
-  assert (new_aubio_window(NULL, length) == NULL);
-  assert (new_aubio_window("\0", length) == NULL);
+  EXPECT_LOGGED(assert (new_aubio_window(NULL, length) == NULL));
+  EXPECT_LOGGED(assert (new_aubio_window("\0", length) == NULL));
   return 0;
 }
-

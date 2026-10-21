@@ -19,11 +19,9 @@ class aubio_filter_test_case(TestCase):
         f = digital_filter (8)
         self.assertRaises ( ValueError, f.set_c_weighting, 44100 )
         f = digital_filter (5)
-        self.assertRaises ( ValueError, f.set_c_weighting, 4000 )
-        f = digital_filter (5)
-        self.assertRaises ( ValueError, f.set_c_weighting, 193000 )
+        self.assertRaises ( ValueError, f.set_c_weighting, 0 )
         f = digital_filter (7)
-        self.assertRaises ( ValueError, f.set_a_weighting, 193000 )
+        self.assertRaises ( ValueError, f.set_a_weighting, 0 )
         f = digital_filter (5)
         self.assertRaises ( ValueError, f.set_a_weighting, 192000 )
 
@@ -76,14 +74,15 @@ class aubio_filter_test_case(TestCase):
         with self.assertRaises(ValueError):
             f.set_biquad(0., 0., 0, 0., 0.)
 
-    def test_all_available_presets(self):
+    def test_any_samplerate(self):
+        # the weightings are designed for the samplerate, not looked up
+        rates = [4000, 8000, 11025, 16000, 22050, 24000, 30000, 32000,
+                44100, 48000, 88200, 96000, 192000, 193000]
         f = digital_filter(7)
-        for sr in [8000, 11025, 16000, 22050, 24000, 32000,
-                44100, 48000, 88200, 96000, 192000]:
+        for sr in rates:
             f.set_a_weighting(sr)
         f = digital_filter(5)
-        for sr in [8000, 11025, 16000, 22050, 24000, 32000,
-                44100, 48000, 88200, 96000, 192000]:
+        for sr in rates:
             f.set_c_weighting(sr)
 
 class aubio_filter_wrong_params(TestCase):

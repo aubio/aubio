@@ -9,7 +9,7 @@ int main (int argc, char **argv)
   sint_t err = 0;
 
   if (argc < 3 || argc >= 9) {
-    PRINT_ERR("wrong number of arguments, running tests\n");
+    PRINT_MSG("no arguments given, running the built-in tests\n");
     err = test_wrong_params();
     PRINT_MSG("usage: %s <input_path> <output_path> <stretch> [transpose] [mode] [hop_size] [samplerate]\n", argv[0]);
     PRINT_MSG(" with <stretch> a time stretching ratio in the range [0.025, 10.]\n");
@@ -30,8 +30,8 @@ int main (int argc, char **argv)
   char_t *sink_path = argv[2];
   char_t *mode = "default";
 
-  if ( argc >= 4 ) stretch = atof(argv[3]);
-  if ( argc >= 5 ) transpose = atof(argv[4]);
+  if ( argc >= 4 ) stretch = (smpl_t)atof(argv[3]);
+  if ( argc >= 5 ) transpose = (smpl_t)atof(argv[4]);
   if ( argc >= 6 ) mode = argv[5];
   if ( argc >= 7 ) hop_size = atoi(argv[6]);
   if ( argc >= 8 ) samplerate = atoi(argv[7]);
@@ -108,11 +108,11 @@ int test_wrong_params(void)
   uint_t hop_size = 256;
   uint_t samplerate = 44100;
 
-  if (new_aubio_timestretch("ProcessOffline:?:", stretch, hop_size, samplerate)) return 1;
-  if (new_aubio_timestretch("", stretch, hop_size, samplerate)) return 1;
-  if (new_aubio_timestretch(mode,     41., hop_size, samplerate)) return 1;
-  if (new_aubio_timestretch(mode, stretch,        0, samplerate)) return 1;
-  if (new_aubio_timestretch(mode, stretch, hop_size,          0)) return 1;
+  EXPECT_LOGGED(if (new_aubio_timestretch("ProcessOffline:?:", stretch, hop_size, samplerate)) return 1);
+  EXPECT_LOGGED(if (new_aubio_timestretch("", stretch, hop_size, samplerate)) return 1);
+  EXPECT_LOGGED(if (new_aubio_timestretch(mode,     41., hop_size, samplerate)) return 1);
+  EXPECT_LOGGED(if (new_aubio_timestretch(mode, stretch,        0, samplerate)) return 1);
+  EXPECT_LOGGED(if (new_aubio_timestretch(mode, stretch, hop_size,          0)) return 1);
 
   aubio_timestretch_t *p = new_aubio_timestretch(mode, stretch, hop_size,
       samplerate);
@@ -128,21 +128,21 @@ int test_wrong_params(void)
   if (aubio_timestretch_get_transpose(p) != 0) return 1;
   if (aubio_timestretch_set_transpose(p, 2.)) return 1;
   if (fabs(aubio_timestretch_get_transpose(p) - 2.) >= 1e-6) return 1;
-  if (!aubio_timestretch_set_transpose(p, 200.)) return 1;
-  if (!aubio_timestretch_set_transpose(p, -200.)) return 1;
+  EXPECT_LOGGED(if (!aubio_timestretch_set_transpose(p, 200.)) return 1);
+  EXPECT_LOGGED(if (!aubio_timestretch_set_transpose(p, -200.)) return 1);
   if (aubio_timestretch_set_transpose(p, 0.)) return 1;
 
   if (aubio_timestretch_get_pitchscale(p) != 1) return 1;
   if (aubio_timestretch_set_pitchscale(p, 2.)) return 1;
   if (fabs(aubio_timestretch_get_pitchscale(p) - 2.) >= 1e-6) return 1;
-  if (!aubio_timestretch_set_pitchscale(p, 0.)) return 1;
-  if (!aubio_timestretch_set_pitchscale(p, 6.)) return 1;
+  EXPECT_LOGGED(if (!aubio_timestretch_set_pitchscale(p, 0.)) return 1);
+  EXPECT_LOGGED(if (!aubio_timestretch_set_pitchscale(p, 6.)) return 1);
 
   if (aubio_timestretch_get_stretch(p) != stretch) return 1;
   if (aubio_timestretch_set_stretch(p, 2.)) return 1;
   if (fabs(aubio_timestretch_get_stretch(p) - 2.) >= 1e-6) return 1;
-  if (!aubio_timestretch_set_stretch(p, 0.)) return 1;
-  if (!aubio_timestretch_set_stretch(p, 41.)) return 1;
+  EXPECT_LOGGED(if (!aubio_timestretch_set_stretch(p, 0.)) return 1);
+  EXPECT_LOGGED(if (!aubio_timestretch_set_stretch(p, 41.)) return 1);
 
   del_aubio_timestretch(p);
 #else

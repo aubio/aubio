@@ -1,0 +1,94 @@
+# GitHub Copilot Coding Agent Environment Setup
+# This file sets up a complete development environment for aubio-ledfx
+# Reference: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+
+name: Copilot Environment Setup
+
+# Automatically run the setup steps when they are changed to allow for easy validation, and
+# allow manual testing through the repository's "Actions" tab
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+
+jobs:
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Install system build tools and dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y \
+            build-essential \
+            gcc \
+            g++ \
+            pkg-config \
+            git \
+            ninja-build \
+            libfftw3-dev \
+            libsndfile1-dev \
+            libsamplerate0-dev \
+            libjack-dev \
+            libavcodec-dev \
+            libavformat-dev \
+            libswresample-dev \
+            librubberband-dev
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: '3.14'
+
+      - name: Install Python build tools
+        run: |
+          python3 -m pip install --upgrade pip setuptools wheel
+          pip install "meson>=1.9.0" meson-python ninja "numpy>=1.26.4"
+
+      - name: Install Python testing and development tools
+        run: |
+          pip install pytest pytest-cov build uv
+
+      - name: Install sanitizer tools for security testing
+        run: |
+          sudo apt-get install -y \
+            libasan6 \
+            libubsan1 \
+            valgrind
+
+      - name: Configure environment
+        run: |
+          echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig" >> "$GITHUB_ENV"
+
+      - name: Verify installation
+        run: |
+          echo "=== Installed Tools ==="
+          python3 --version
+          meson --version
+          ninja --version
+          pkg-config --version
+          gcc --version
+          pytest --version
+
+          echo ""
+          echo "=== System Libraries ==="
+          pkg-config --list-all | grep -E "fftw3|sndfile|samplerate|jack|libav|rubberband" || true
+
+          echo ""
+          echo "=== Python Packages ==="
+          pip list | grep -E "meson|numpy|pytest|uv"
+
+          echo ""
+          echo "=== Environment Setup Complete ==="
+          echo "You can now:"
+          echo "  - Build C library: meson setup builddir && meson compile -C builddir"
+          echo "  - Build with tests: meson setup builddir -Dtests=true && meson compile -C builddir"
+          echo "  - Build with sanitizers: meson setup builddir -Db_sanitize=address,undefined -Dtests=true"
+          echo "  - Build Python wheel: uv build --wheel (or pip wheel .)"
+          echo "  - Run tests: meson test -C builddir (C) or pytest python/tests/ (Python)"

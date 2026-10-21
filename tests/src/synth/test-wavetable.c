@@ -6,7 +6,7 @@ int main (int argc, char **argv)
   sint_t err = 0;
 
   if (argc < 2) {
-    PRINT_ERR("not enough arguments, running tests\n");
+    PRINT_MSG("no arguments given, running the built-in tests\n");
     err = run_on_default_sink(main);
     PRINT_MSG("usage: %s <output_path> [freq] [samplerate]\n", argv[0]);
     return err;
@@ -18,7 +18,7 @@ int main (int argc, char **argv)
 
   char_t *sink_path = argv[1];
   if ( argc >= 4 ) samplerate = atoi(argv[3]);
-  if ( argc >= 3 ) freq = atof(argv[2]);
+  if ( argc >= 3 ) freq = (smpl_t)atof(argv[2]);
 
   fvec_t *vec = new_fvec(hop_size);
   aubio_sink_t *sink = new_aubio_sink(sink_path, samplerate);
@@ -43,7 +43,7 @@ int main (int argc, char **argv)
     }
     if ( n_frames > 2 * duration / 3 && region < 2) {
       aubio_wavetable_play (wavetable);
-      aubio_wavetable_set_freq ( wavetable, freq  / 2.);
+      aubio_wavetable_set_freq ( wavetable, freq / 2);
       region++;
     }
     if (duration - n_frames < hop_size * 2 ) {

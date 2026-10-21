@@ -61,6 +61,10 @@ struct _aubio_sink_apple_audio_t {
 
 aubio_sink_apple_audio_t * new_aubio_sink_apple_audio(const char_t * uri, uint_t samplerate) {
   aubio_sink_apple_audio_t * s = AUBIO_NEW(aubio_sink_apple_audio_t);
+
+  if (!s) {
+    return NULL;
+  }
   s->max_frames = MAX_SIZE;
   s->async = false;
 
@@ -69,8 +73,8 @@ aubio_sink_apple_audio_t * new_aubio_sink_apple_audio(const char_t * uri, uint_t
     goto beach;
   }
 
-  s->path = AUBIO_ARRAY(char_t, strnlen(uri, PATH_MAX) + 1);
-  strncpy(s->path, uri, strnlen(uri, PATH_MAX) + 1);
+  s->path = aubio_str_copy_path(uri);
+  if (!s->path) goto beach;
 
   s->samplerate = 0;
   s->channels = 0;

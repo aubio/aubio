@@ -45,6 +45,10 @@ new_aubio_pitchshift (const char_t * mode,
     smpl_t transpose, uint_t hopsize, uint_t samplerate)
 {
   aubio_pitchshift_t *p = AUBIO_NEW (aubio_pitchshift_t);
+
+  if (!p) {
+    return NULL;
+  }
   p->samplerate = samplerate;
   p->hopsize = hopsize;
   p->pitchscale = 1.;
@@ -129,7 +133,7 @@ uint_t
 aubio_pitchshift_set_transpose(aubio_pitchshift_t * p, smpl_t transpose)
 {
   if (transpose >= -24. && transpose <= 24.) {
-    smpl_t pitchscale = POW(2., transpose / 12.);
+    smpl_t pitchscale = (smpl_t)pow(2., transpose / 12.);
     return aubio_pitchshift_set_pitchscale(p, pitchscale);
   } else {
     AUBIO_ERR("pitchshift: could not set transpose to '%f',"
@@ -141,7 +145,7 @@ aubio_pitchshift_set_transpose(aubio_pitchshift_t * p, smpl_t transpose)
 smpl_t
 aubio_pitchshift_get_transpose(aubio_pitchshift_t * p)
 {
-  return 12. * LOG(p->pitchscale) / LOG(2.0);
+  return (smpl_t)(12. * log(p->pitchscale) / log(2.0));
 }
 
 void

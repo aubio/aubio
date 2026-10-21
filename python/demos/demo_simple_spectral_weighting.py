@@ -15,7 +15,7 @@ if __name__ == '__main__':
     if len(sys.argv) < 2:
         print('usage: %s <inputfile> <outputfile>' % sys.argv[0])
         sys.exit(1)
-    samplerate = 0 
+    samplerate = 0
     if len(sys.argv) > 3: samplerate = int(sys.argv[3])
     f = source(sys.argv[1], samplerate, 256)
     samplerate = f.samplerate
@@ -35,7 +35,7 @@ if __name__ == '__main__':
 
     if 0:
         from pylab import plot, show
-        plot(spec_weight) 
+        plot(spec_weight)
         show()
 
     total_frames, read = 0, hop_s
