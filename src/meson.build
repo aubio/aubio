@@ -33,6 +33,11 @@ endif
 
 dependencies = []
 
+libm = compiler.find_library('m', required : false)
+if libm.found()
+  dependencies += [libm]
+endif
+
 #if compiler.has_header('complex.h')
 #  conf_data.set('HAVE_COMPLEX_H', true)
 #endif
@@ -77,19 +82,19 @@ conf_data.set ('HAVE_WAVREAD', 1)
 conf_data.set ('HAVE_WAVWRITE', 1)
 
 rubberband = dependency('rubberband', required : false)
-if flac.found()
+if rubberband.found()
   dependencies += [rubberband]
   conf_data.set ('HAVE_RUBBERBAND', 1)
 endif
 
-audiotoolbox = dependency('appleframeworks', modules : ['CoreFoundation', 'AudioToolbox'])
+audiotoolbox = dependency('appleframeworks', modules : ['CoreFoundation', 'AudioToolbox'], required : false)
 if audiotoolbox.found()
   dependencies += [audiotoolbox]
   conf_data.set ('HAVE_SOURCE_APPLE_AUDIO', 1)
   conf_data.set ('HAVE_SINK_APPLE_AUDIO', 1)
 endif
 
-accelerate = dependency('appleframeworks', modules : 'Accelerate')
+accelerate = dependency('appleframeworks', modules : 'Accelerate', required : false)
 if accelerate.found()
   dependencies += [accelerate]
   conf_data.set ('HAVE_ACCELERATE', 1)
